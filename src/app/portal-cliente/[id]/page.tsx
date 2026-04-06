@@ -331,6 +331,26 @@ export default function PortalClientePage() {
                 {config.notesAdicionales}
               </div>
             )}
+            {/* Canva catalog link for client */}
+            {(() => {
+              const tipo = (config.tipoCelebracion || config.nombreEvento || '').toLowerCase();
+              let canvaUrl = 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web';
+              let canvaLabel = '🎉 Ver nuestro catálogo completo';
+              if (tipo.includes('boda') || tipo.includes('casamiento')) {
+                canvaUrl = 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas';
+                canvaLabel = '💍 Ver catálogo de bodas';
+              } else if (tipo.includes('xv') || tipo.includes('quince')) {
+                canvaUrl = 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web';
+                canvaLabel = '👑 Ver catálogo XV Años';
+              }
+              return (
+                <div className="mt-4">
+                  <a href={canvaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-purple-600 hover:text-purple-700 underline underline-offset-2">
+                    {canvaLabel} ↗
+                  </a>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
 

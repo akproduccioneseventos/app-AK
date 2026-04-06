@@ -106,6 +106,9 @@ export default function ReporteMenusPage() {
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Menús</Button>
           </Link>
           <div className="flex gap-2">
+            <a href="https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm">🍽️ Ver Catálogo Catering</Button>
+            </a>
             <Button onClick={handlePrint} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1.5"/>Vista Previa</Button>
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>

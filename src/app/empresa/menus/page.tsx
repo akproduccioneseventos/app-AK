@@ -310,6 +310,9 @@ export default function GestionMenusPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
             <Link href="/empresa/menus/catalogo"><Button variant="secondary" className="rounded-xl font-bold">Catálogo de Platos</Button></Link>
+            <a href="https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" className="rounded-xl font-bold">🍽️ Ver Catálogo Canva</Button>
+            </a>
             <Link href="/empresa/menus/nuevo"><Button className="rounded-xl font-bold"><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú</Button></Link>
             <Link href="/empresa"><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>

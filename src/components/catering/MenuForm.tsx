@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, Info } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, Info, ImageIcon, Tag, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu, getMenus } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -19,6 +19,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
+
+const ALLERGEN_OPTIONS = [
+  { id: 'gluten', label: 'Gluten', emoji: '🌾' },
+  { id: 'lacteos', label: 'Lácteos', emoji: '🥛' },
+  { id: 'frutos_secos', label: 'Frutos Secos', emoji: '🥜' },
+  { id: 'huevo', label: 'Huevo', emoji: '🥚' },
+  { id: 'pescado', label: 'Pescado', emoji: '🐟' },
+  { id: 'mariscos', label: 'Mariscos', emoji: '🦐' },
+  { id: 'soja', label: 'Soja', emoji: '🫘' },
+];
+
+const DISH_TYPE_EMOJIS: Record<string, string> = {
+  'Entrada': '🥗',
+  'Plato Principal': '🍽️',
+  'Postre': '🍰',
+  'Bebida': '🥤',
+  'Menú Infantil': '🧒',
+  'Menú Infantil/Adolescente': '🧒',
+  '': '🍴',
+};
+
+const INGREDIENT_COLORS = [
+  '#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#14b8a6','#f97316','#84cc16',
+];
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -343,7 +367,54 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                             <div className="space-y-2"><Label>Nombre Plato</Label><Input value={item.name} onChange={(e) => handleItemChange(item.id, 'name', e.target.value)} /></div>
                             <div className="space-y-2"><Label>Tipo</Label><Select value={item.type || ''} onValueChange={(value) => handleItemChange(item.id, 'type', value)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Entrada">Entrada</SelectItem><SelectItem value="Plato Principal">Plato Principal</SelectItem><SelectItem value="Postre">Postre</SelectItem><SelectItem value="Menú Infantil/Adolescente">Menú Infantil/Adolescente</SelectItem></SelectContent></Select></div>
                         </div>
-                        <div className="flex gap-1"><Button type="button" variant="ghost" size="icon" onClick={() => duplicateItem(item.id)}><Copy className="w-4 h-4"/></Button><Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button></div>
+                        <div className="flex gap-1"><Button type="button" variant="ghost" size="icon" onClick={() => duplicateItem(item.id)} title="Duplicar plato"><Copy className="w-4 h-4"/></Button><Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button></div>
+                     </div>
+                     {/* Foto del plato */}
+                     <div className="mt-3 flex items-start gap-3">
+                       <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border bg-muted flex items-center justify-center text-2xl">
+                         {item.imageUrl ? (
+                           <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
+                         ) : (
+                           <span>{DISH_TYPE_EMOJIS[item.type || ''] || '🍴'}</span>
+                         )}
+                       </div>
+                       <div className="flex-1 space-y-1">
+                         <Label className="text-xs flex items-center gap-1"><ImageIcon className="w-3 h-3"/>URL de la foto del plato</Label>
+                         <Input
+                           value={item.imageUrl || ''}
+                           onChange={e => handleItemChange(item.id, 'imageUrl', e.target.value)}
+                           placeholder="https://... (URL de imagen de Canva u otro)"
+                           className="h-8 text-sm"
+                         />
+                       </div>
+                     </div>
+                     {/* Alérgenos */}
+                     <div className="mt-3 space-y-1">
+                       <Label className="text-xs flex items-center gap-1"><Tag className="w-3 h-3"/>Alérgenos</Label>
+                       <div className="flex flex-wrap gap-1.5">
+                         {ALLERGEN_OPTIONS.map(al => {
+                           const isActive = (item.allergenTags || []).includes(al.id);
+                           return (
+                             <button
+                               key={al.id}
+                               type="button"
+                               onClick={() => {
+                                 const current = item.allergenTags || [];
+                                 const updated = isActive ? current.filter(a => a !== al.id) : [...current, al.id];
+                                 handleItemChange(item.id, 'allergenTags', updated);
+                               }}
+                               className={cn(
+                                 'text-xs px-2 py-0.5 rounded-full border transition-colors',
+                                 isActive
+                                   ? 'bg-amber-100 border-amber-400 text-amber-800 dark:bg-amber-900/40 dark:border-amber-500 dark:text-amber-200'
+                                   : 'bg-muted border-border text-muted-foreground hover:border-amber-300'
+                               )}
+                             >
+                               {al.emoji} {al.label}
+                             </button>
+                           );
+                         })}
+                       </div>
                      </div>
                 </CardHeader>
                  <CardContent className="p-0">
@@ -352,17 +423,58 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         <AccordionTrigger className="text-sm font-medium hover:no-underline">Ingredientes ({item.ingredients?.length || 0})</AccordionTrigger>
                         <AccordionContent>
                            <div className="mt-2 space-y-3 p-3 bg-muted/30 rounded-lg">
-                              {item.ingredients?.map(ing => (
+                              {item.ingredients?.map(ing => {
+                                const otherProviders = ing.origenId
+                                  ? catalogoInsumos.filter(c => c.id !== ing.origenId && c.nombre.toLowerCase() === ing.name.toLowerCase())
+                                  : [];
+                                const cheaperProvider = otherProviders.find(p => (p.valorUnitarioEstimado || 0) < ing.costoUnitario);
+                                return (
                                 <div key={ing.id} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-2 items-end p-2 border-b last:border-b-0">
-                                    <div className="space-y-1 col-span-2 lg:col-span-3"><Label className="text-xs">Nombre</Label><Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
+                                    <div className="space-y-1 col-span-2 lg:col-span-3">
+                                      <Label className="text-xs">Nombre</Label>
+                                      <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/>
+                                      {cheaperProvider && (
+                                        <p className="text-[10px] text-green-600 flex items-center gap-1"><AlertCircle className="w-3 h-3"/>Opción más barata: {formatCurrency(cheaperProvider.valorUnitarioEstimado)}/{cheaperProvider.unidad}</p>
+                                      )}
+                                    </div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo Unit.</Label><Input type="text" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Costo p/p</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
                                     <div className="flex items-center justify-end col-span-2 lg:col-span-1"><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div>
                                 </div>
-                              ))}
+                                );
+                              })}
                               <div className="flex gap-2 mt-3"><Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Manual</Button><Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Catálogo</Button></div>
+                              {/* Gráfico de costos por ingrediente */}
+                              {item.ingredients && item.ingredients.length > 0 && (item.totalDishCost || 0) > 0 && (
+                                <div className="mt-4 pt-3 border-t space-y-2">
+                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Distribución de costos</p>
+                                  {[...item.ingredients]
+                                    .filter(ing => ing.costoTotalReceta > 0)
+                                    .sort((a, b) => b.costoTotalReceta - a.costoTotalReceta)
+                                    .map((ing, idx) => {
+                                      const pct = item.totalDishCost > 0 ? (ing.costoTotalReceta / item.totalDishCost) * 100 : 0;
+                                      const isMax = idx === 0;
+                                      const color = INGREDIENT_COLORS[idx % INGREDIENT_COLORS.length];
+                                      return (
+                                        <div key={ing.id} className="space-y-0.5">
+                                          <div className="flex justify-between text-xs">
+                                            <span className={cn('truncate max-w-[60%]', isMax && 'font-semibold')}>{ing.name || 'Sin nombre'}{isMax && ' 🔝'}</span>
+                                            <span className="text-muted-foreground">{pct.toFixed(1)}% · {formatCurrency(ing.costoTotalReceta)}</span>
+                                          </div>
+                                          <div className="w-full bg-muted rounded-full h-2">
+                                            <div
+                                              className="h-2 rounded-full transition-all"
+                                              style={{ width: `${pct}%`, backgroundColor: color }}
+                                            />
+                                          </div>
+                                        </div>
+                                      );
+                                    })
+                                  }
+                                </div>
+                              )}
                           </div>
                         </AccordionContent>
                       </AccordionItem>

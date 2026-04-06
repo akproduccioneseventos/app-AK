@@ -22,6 +22,8 @@ export interface MenuItem { // Representa un Plato
   // totalDishCost es el costo de este plato PARA UNA PERSONA, calculado de la suma de costoTotalReceta de sus ingredientes
   totalDishCost: number; 
   allergens?: string;
+  allergenTags?: string[]; // ['gluten', 'lacteos', 'frutos_secos', 'huevo', 'pescado', 'soja', 'mariscos']
+  imageUrl?: string; // URL de la foto del plato
   notes?: string;
   profitMargin?: number; // Porcentaje de ganancia (ej: 100 para 100%)
   suggestedSellingPrice?: number; // Precio de venta calculado

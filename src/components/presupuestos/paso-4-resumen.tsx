@@ -248,6 +248,32 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
               <p><span className="font-semibold">Fecha del evento:</span> {formatDate(presupuesto.eventoFecha)}</p>
               <p><span className="font-semibold">Lugar / Salón:</span> {presupuesto.salonFiestas}</p>
               <p><span className="font-semibold">Número de invitados:</span> {presupuesto.invitadosCantidad}</p>
+              {/* Canva catalog link based on event type */}
+              {(() => {
+                const tipo = (presupuesto.eventoTipo || '').toLowerCase();
+                let canvaUrl: string | null = null;
+                let canvaLabel = 'Ver Catálogo';
+                if (tipo.includes('boda') || tipo.includes('casamiento')) {
+                  canvaUrl = 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas';
+                  canvaLabel = '💍 Ver Catálogo de Bodas';
+                } else if (tipo.includes('xv') || tipo.includes('quince')) {
+                  canvaUrl = 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web';
+                  canvaLabel = '👑 Ver Catálogo XV Años';
+                } else if (tipo.includes('catering')) {
+                  canvaUrl = 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering';
+                  canvaLabel = '🍽️ Ver Catálogo Catering';
+                } else {
+                  canvaUrl = 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web';
+                  canvaLabel = '🎉 Ver Catálogo de Fiestas';
+                }
+                return (
+                  <div className="mt-2 print:hidden">
+                    <a href={canvaUrl} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" className="text-xs">{canvaLabel}</Button>
+                    </a>
+                  </div>
+                );
+              })()}
             </div>
           </section>
 

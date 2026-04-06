@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ChefHat, Loader2, Info, Edit, Percent, DollarSign, Copy, Trash2, MoreVertical } from 'lucide-react';
+import { ArrowLeft, ChefHat, Loader2, Info, Edit, Percent, DollarSign, Copy, Trash2, MoreVertical, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus, saveMenu, deleteMenu, duplicateMenu } from '@/app/actions/menus-catering';
@@ -36,6 +36,26 @@ interface PlatoConMenu extends MenuItem {
   menuId: string;
   menuName: string;
 }
+
+const ALLERGEN_MAP: Record<string, string> = {
+  gluten: '🌾',
+  lacteos: '🥛',
+  frutos_secos: '🥜',
+  huevo: '🥚',
+  pescado: '🐟',
+  mariscos: '🦐',
+  soja: '🫘',
+};
+
+const DISH_TYPE_EMOJIS: Record<string, string> = {
+  'Entrada': '🥗',
+  'Plato Principal': '🍽️',
+  'Postre': '🍰',
+  'Bebida': '🥤',
+  'Menú Infantil': '🧒',
+  'Menú Infantil/Adolescente': '🧒',
+  '': '🍴',
+};
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -222,6 +242,22 @@ export default function CatalogoPlatosPage() {
                     Costo p/persona: {formatCurrency(editingDish?.totalDishCost)}. Ajusta el margen o el precio de venta final.
                 </DialogDescription>
             </DialogHeader>
+            {/* Foto grande en modal */}
+            {editingDish?.imageUrl && (
+              <div className="rounded-lg overflow-hidden max-h-48 bg-muted">
+                <img src={editingDish.imageUrl} alt={editingDish.name} className="w-full h-48 object-cover" />
+              </div>
+            )}
+            {/* Alérgenos en modal */}
+            {editingDish?.allergenTags && editingDish.allergenTags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {editingDish.allergenTags.map(tag => (
+                  <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800">
+                    {ALLERGEN_MAP[tag] || ''} {tag}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="space-y-4 py-2">
                 <div className="space-y-1">
                     <Label htmlFor="edit-profitMargin" className="flex items-center gap-1"><Percent className="w-4 h-4"/>Margen de Ganancia (%)</Label>
@@ -267,12 +303,27 @@ export default function CatalogoPlatosPage() {
                             <AccordionContent className="p-2">
                                 <ul className="space-y-1">
                                 {platosAgrupados[categoria].map(plato => (
-                                    <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center">
-                                      <div>
-                                        <p className="font-medium">{plato.name}</p>
-                                        <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
+                                    <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center gap-2">
+                                      {/* Thumbnail */}
+                                      <div className="w-10 h-10 flex-shrink-0 rounded overflow-hidden border bg-muted flex items-center justify-center text-lg">
+                                        {plato.imageUrl ? (
+                                          <img src={plato.imageUrl} alt={plato.name} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
+                                        ) : (
+                                          <span>{DISH_TYPE_EMOJIS[plato.type || ''] || '🍴'}</span>
+                                        )}
                                       </div>
-                                      <div className="flex items-center gap-1">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-medium truncate">{plato.name}</p>
+                                        <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
+                                        {plato.allergenTags && plato.allergenTags.length > 0 && (
+                                          <div className="flex flex-wrap gap-1 mt-0.5">
+                                            {plato.allergenTags.map(tag => (
+                                              <span key={tag} className="text-[10px] px-1.5 py-0 rounded-full bg-amber-100 border border-amber-300 text-amber-800">{ALLERGEN_MAP[tag] || ''}</span>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="flex items-center gap-1 flex-shrink-0">
                                         <p className="font-semibold text-primary">{formatCurrency(plato.suggestedSellingPrice)}</p>
                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(plato)} title="Editar precio del plato">
                                             <Edit className="w-4 h-4" />

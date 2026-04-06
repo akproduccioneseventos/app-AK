@@ -20,6 +20,8 @@ import type {
     ListaDeCargaOperativa,
     CargaOperativaCategoria,
     CargaOperativaItem,
+    Tarea,
+    ProgramaEventoItem,
 } from '@/types/fiesta';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import {
@@ -354,6 +356,118 @@ async function syncCargaOperativaFromBudget(
 }
 
 /**
+ * Genera tareas automáticas basadas en los servicios contratados en el presupuesto.
+ */
+function syncTareasFromBudget(existingTareas: Tarea[], items: ItemPresupuestado[], eventoTipo?: string): Tarea[] {
+    const SYNC_PREFIX = 'sync_tarea_';
+    const manualTareas = existingTareas.filter(t => !t.id.startsWith(SYNC_PREFIX));
+
+    const hasItem = (term: string) => items.some(i => i.nombreServicio.toLowerCase().includes(term.toLowerCase()));
+    const hasCategory = (cat: string) => items.some(i => (i.categoriaServicio || '').toLowerCase().includes(cat.toLowerCase()));
+
+    const newTareas: Tarea[] = [];
+    let idx = 0;
+    const addTarea = (texto: string) => {
+        newTareas.push({ id: `${SYNC_PREFIX}${idx++}`, texto, completada: false, esPredeterminada: true });
+    };
+
+    // Tareas generales (siempre)
+    addTarea('Confirmar lugar y horario del evento');
+    addTarea('Enviar invitaciones a los invitados');
+    addTarea('Confirmar asistencias');
+    addTarea('Reunión final pre-evento con el cliente');
+    addTarea('Revisar itinerario completo del evento');
+
+    // Catering
+    if (hasCategory('catering') || hasItem('catering') || hasItem('menú') || hasItem('menu') || hasItem('entrada') || hasItem('plato')) {
+        addTarea('Confirmar menú final con el cliente');
+        addTarea('Calcular cantidades de insumos para el menú');
+        addTarea('Comprar insumos para el catering');
+        if (hasItem('dulce') || hasItem('candy') || hasItem('mesa dulce')) {
+            addTarea('Preparar mesa de dulces');
+        }
+    }
+
+    // DJ / Sonido / Discoteca
+    if (hasCategory('discoteca') || hasCategory('entretenimiento') || hasItem('dj') || hasItem('sonido') || hasItem('música') || hasItem('musica')) {
+        addTarea('Confirmar lista de canciones con el cliente');
+        addTarea('Probar equipo de sonido antes del evento');
+        addTarea('Coordinar horarios de música con el cliente');
+    }
+
+    // Decoración
+    if (hasCategory('decoración') || hasCategory('decoracion') || hasItem('decorac') || hasItem('ambientac')) {
+        addTarea('Definir paleta de colores y estilo de decoración');
+        addTarea('Comprar elementos decorativos');
+        addTarea('Montar decoración el día del evento');
+    }
+
+    // Fotografía
+    if (hasItem('foto') || hasCategory('fotografía') || hasCategory('fotografia')) {
+        addTarea('Definir momentos clave a fotografiar');
+        addTarea('Coordinar sesión pre-evento si aplica');
+        addTarea('Entregar galería de fotos editadas post-evento');
+    }
+
+    // Filmación / Video
+    if (hasItem('film') || hasItem('video') || hasCategory('filmación') || hasCategory('filmacion')) {
+        addTarea('Coordinar puntos de filmación con el camarógrafo');
+        addTarea('Entregar video editado post-evento');
+    }
+
+    // Barra de tragos
+    if (hasItem('barra') || hasItem('trago') || hasItem('bartender') || hasItem('barman')) {
+        addTarea('Confirmar carta de tragos con el cliente');
+        addTarea('Comprar insumos para la barra');
+    }
+
+    return [...manualTareas, ...newTareas];
+}
+
+/**
+ * Genera un programa/itinerario sugerido basado en el tipo de evento.
+ */
+function syncProgramaFromBudget(existingPrograma: ProgramaEventoItem[], eventoTipo?: string): ProgramaEventoItem[] {
+    const SYNC_PREFIX = 'sync_prog_';
+    const manualItems = existingPrograma.filter(p => !p.id.startsWith(SYNC_PREFIX));
+    // Don't overwrite if already has manual items
+    if (manualItems.length > 0) return existingPrograma;
+
+    const tipo = (eventoTipo || '').toLowerCase();
+    const newItems: ProgramaEventoItem[] = [];
+    let idx = 0;
+    const addItem = (hora: string, titulo: string, icono?: string) => {
+        newItems.push({ id: `${SYNC_PREFIX}${idx++}`, hora, titulo, icono: icono || 'Clock', completado: false });
+    };
+
+    if (tipo.includes('boda') || tipo.includes('casamiento')) {
+        addItem('19:00', 'Recepción de invitados', 'PartyPopper');
+        addItem('19:30', 'Ceremonia / Brindis de bienvenida', 'Diamond');
+        addItem('20:00', 'Cena', 'Utensils');
+        addItem('21:30', 'Vals / Primer baile', 'Music');
+        addItem('22:00', 'Fiesta libre', 'Music');
+        addItem('00:00', 'Corte de torta', 'CakeSlice');
+        addItem('01:00', 'Cierre del evento', 'Clock');
+    } else if (tipo.includes('xv') || tipo.includes('quince') || tipo.includes('quinceañera')) {
+        addItem('20:00', 'Recepción de invitados', 'PartyPopper');
+        addItem('20:30', 'Entrada de la quinceañera', 'Diamond');
+        addItem('21:00', 'Cena', 'Utensils');
+        addItem('22:00', 'Vals con el padre', 'Music');
+        addItem('22:30', 'Cambio de zapatillas', 'PartyPopper');
+        addItem('23:00', 'Fiesta libre', 'Music');
+        addItem('01:00', 'Cierre del evento', 'Clock');
+    } else {
+        // Fiesta general
+        addItem('20:00', 'Recepción de invitados', 'PartyPopper');
+        addItem('20:30', 'Cena / Buffet', 'Utensils');
+        addItem('22:00', 'Fiesta libre', 'Music');
+        addItem('00:00', 'Cierre del evento', 'Clock');
+    }
+
+    return newItems;
+}
+
+/**
  * MOTOR DE SINCRONIZACIÓN MAESTRA
  * Dispara la configuración operativa de la fiesta basándose en el presupuesto aceptado.
  */
@@ -489,6 +603,19 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         updatedFiesta.listaDeCargaOperativa || { categorias: [] },
         items,
         guests
+    );
+
+    // 12. SINCRONIZAR TAREAS — checklist automático por servicios contratados
+    updatedFiesta.tareas = syncTareasFromBudget(
+        updatedFiesta.tareas || [],
+        items,
+        presupuesto.eventoTipo
+    );
+
+    // 13. SINCRONIZAR PROGRAMA / ITINERARIO — plantilla base por tipo de evento
+    updatedFiesta.programa = syncProgramaFromBudget(
+        updatedFiesta.programa || [],
+        presupuesto.eventoTipo
     );
 
     return await saveFiesta(updatedFiesta);

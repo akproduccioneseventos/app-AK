@@ -149,6 +149,43 @@ function PlannerDashboardContent() {
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
 
+      {/* ── ALERTAS PRE-EVENTO ─────────────────────────────────────── */}
+      {(() => {
+        if (!fiesta.configuracion.fechaEvento) return null;
+        const eventDate = new Date(fiesta.configuracion.fechaEvento);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        eventDate.setHours(0, 0, 0, 0);
+        const daysLeft = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysLeft < 0 || daysLeft > 7) return null;
+        type AlertaDef = { days: number; urgency: 'alta' | 'media'; msg: string };
+        const alertas: AlertaDef[] = [
+          { days: 7, urgency: 'media', msg: 'Confirmar lista final de invitados' },
+          { days: 5, urgency: 'media', msg: 'Comprar insumos faltantes' },
+          { days: 3, urgency: 'alta',  msg: 'Confirmar personal asignado' },
+          { days: 2, urgency: 'media', msg: 'Preparar carga operativa' },
+          { days: 1, urgency: 'alta',  msg: 'Revisión final de todo' },
+        ];
+        const activeAlerts = alertas.filter(a => daysLeft <= a.days);
+        if (activeAlerts.length === 0) return null;
+        return (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-400">⚡ Alertas Pre-Evento ({daysLeft === 0 ? '¡HOY!' : `${daysLeft} día${daysLeft !== 1 ? 's' : ''}`})</p>
+            {activeAlerts.map((alerta, i) => (
+              <div key={i} className={cn(
+                'flex items-center gap-3 px-4 py-3 rounded-2xl border font-semibold text-sm',
+                alerta.urgency === 'alta'
+                  ? 'bg-red-50 border-red-200 text-red-700'
+                  : 'bg-amber-50 border-amber-200 text-amber-700'
+              )}>
+                <span className="text-lg">{alerta.urgency === 'alta' ? '🔴' : '🟡'}</span>
+                {alerta.msg}
+              </div>
+            ))}
+          </motion.div>
+        );
+      })()}
+
       {/* Generate Documents PDF – Quick Action Dropdown */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-white rounded-2xl premium-shadow border border-slate-100">
