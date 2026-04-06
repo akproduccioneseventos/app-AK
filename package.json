@@ -9,6 +9,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
     "firebase:emulators": "firebase emulators:start --project presupuestador-ak-producciones",
     "firebase:migrate": "npx tsx src/scripts/migrate-to-firebase.ts",
     "firebase:migrate:verify": "npx tsx src/scripts/migrate-to-firebase.ts --verify",
@@ -45,6 +48,8 @@
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-toast": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@react-three/drei": "^9.115.0",
+    "@react-three/fiber": "^8.17.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
@@ -73,8 +78,6 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.169.0",
-    "@react-three/fiber": "^8.17.10",
-    "@react-three/drei": "^9.115.0",
     "zod": "^3.25.0"
   },
   "overrides": {
@@ -84,6 +87,7 @@
     "@genkit-ai/google-cloud": "1.20.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@types/jest": "^29.5.12",

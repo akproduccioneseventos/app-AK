@@ -24,7 +24,7 @@ export function HeroSection({
   )}`;
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section data-testid="hero-section" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -94,6 +94,7 @@ export function HeroSection({
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
+            data-testid="hero-cta-button"
             className={cn(
               'flex items-center gap-3 px-8 py-4 rounded-2xl',
               'bg-[#25D366] hover:bg-[#1eb356]',

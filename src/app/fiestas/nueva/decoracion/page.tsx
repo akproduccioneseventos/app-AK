@@ -460,7 +460,7 @@ function DecoracionYDisenoEventoContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div data-testid="decoracion-page" className="space-y-6">
 
       {/* Deco Item Quick Add Modal */}
       <Dialog open={isDecoItemModalOpen} onOpenChange={setIsDecoItemModalOpen}>
@@ -557,11 +557,13 @@ function DecoracionYDisenoEventoContent() {
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div data-testid="decoracion-estilos" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {ESTILOS_DECORACION.map(estilo => (
                   <button
                     key={estilo.id}
                     type="button"
+                    data-testid={`estilo-card-${estilo.id}`}
+                    data-selected={decoracionData.estiloDecoracion === estilo.id ? 'true' : 'false'}
                     onClick={() => handleSelectEstilo(estilo.id)}
                     className={cn(
                       "relative p-4 rounded-2xl border-2 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",

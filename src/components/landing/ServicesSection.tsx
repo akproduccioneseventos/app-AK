@@ -170,7 +170,7 @@ interface ServicesSectionProps {
 
 export function ServicesSection({ services = DEFAULT_SERVICES, whatsappNumber }: ServicesSectionProps) {
   return (
-    <section id="servicios" className="py-24 bg-gradient-to-b from-white to-purple-50/50">
+    <section id="servicios" data-testid="services-section" className="py-24 bg-gradient-to-b from-white to-purple-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-20">
