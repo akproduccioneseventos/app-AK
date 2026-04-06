@@ -215,11 +215,26 @@ export interface DecoItem {
   nombre: string;
   categoria: string;
   cantidad: number;
+  /** @deprecated Use `costoUnitario` for internal cost tracking. Retained for backward compatibility with existing event data. */
   precioUnitario?: number;
+  /** Costo interno del elemento (no se suma al presupuesto del cliente) */
+  costoUnitario?: number;
   zona?: string;
   color?: string;
   notas?: string;
   estado?: 'pendiente' | 'comprado' | 'instalado';
+  imageUrl?: string;
+}
+
+/** Una zona de diseño con su propio lienzo visual */
+export interface ZonaDiseno {
+  id: string;
+  nombre: string;
+  vistaDecorativa: {
+    elementos: ElementoDecorativo[];
+    fondoColor?: string;
+    fondoImagenUrl?: string;
+  };
 }
 
 export interface DecoZona {
@@ -275,6 +290,8 @@ export interface DecoracionData {
   itemsDecoracion?: DecoItem[];
   moodboardImages?: string[];
   zonas?: DecoZona[];
+  /** Zonas de diseño con su propio lienzo visual */
+  zonasDiseno?: ZonaDiseno[];
   presupuestoDecoracion?: number;
   checklistDecoracion?: DecoChecklistItem[];
   documentacionImageUrl?: string;
