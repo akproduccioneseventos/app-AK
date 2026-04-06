@@ -134,7 +134,7 @@ export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
     : activeVideo?.embedUrl ?? '';
 
   return (
-    <section id="videos" className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">
+    <section id="videos" data-testid="video-section" className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-14">

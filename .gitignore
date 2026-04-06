@@ -62,3 +62,8 @@ src/data/last-auto-backup.txt
 /public/workbox-*.js
 /public/sw.js.map
 /public/workbox-*.js.map
+
+# Playwright E2E test artifacts
+/playwright-report/
+/test-results/
+/playwright/.auth/

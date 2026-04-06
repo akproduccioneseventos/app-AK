@@ -206,7 +206,7 @@ export default function GestorFiestasPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 print:space-y-4">
+    <div data-testid="eventos-page" className="max-w-5xl mx-auto space-y-8 print:space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-3">
           <CalendarClock className="w-8 h-8 text-primary" />

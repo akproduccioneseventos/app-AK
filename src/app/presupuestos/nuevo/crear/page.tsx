@@ -293,7 +293,7 @@ function CrearPresupuestoContent() {
     };
     
     return (
-        <div className="space-y-6">
+        <div data-testid="presupuesto-wizard" className="space-y-6">
              <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
                 <Link href="/presupuestos/nuevo"><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
@@ -317,11 +317,11 @@ function CrearPresupuestoContent() {
                         <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
                     </Button>
                     {paso < 3 ? (
-                         <Button onClick={handleNext} disabled={isSaving}>
+                         <Button data-testid="btn-siguiente-paso" onClick={handleNext} disabled={isSaving}>
                             Siguiente <ArrowRight className="w-4 h-4 mr-2" />
                         </Button>
                     ) : (
-                        <Button onClick={handleSave} disabled={isSaving}>
+                        <Button data-testid="btn-guardar-presupuesto" onClick={handleSave} disabled={isSaving}>
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                             {isSaving ? 'Guardando...' : 'Finalizar y Generar'}
                         </Button>
