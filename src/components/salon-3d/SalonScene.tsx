@@ -25,15 +25,17 @@ interface SalonSceneProps {
 // --- Camera capture helper ---
 function CaptureHelper({ onReady }: { onReady: (ref: SalonSceneRef) => void }) {
   const { gl, scene, camera } = useThree();
+  const onReadyRef = useRef<(ref: SalonSceneRef) => void>(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
-    onReady({
+    onReadyRef.current({
       captureScreenshot: () => {
         gl.render(scene, camera);
         return gl.domElement.toDataURL('image/png');
       }
     });
-  }, [gl, scene, camera, onReady]);
+  }, [gl, scene, camera]); // onReadyRef.current is stable so no dep needed
 
   return null;
 }

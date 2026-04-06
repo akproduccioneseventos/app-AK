@@ -278,6 +278,12 @@ export default function PortalClientePage() {
     .slice(0, 10);
 
   // ── Render ───────────────────────────────────────────────────
+  const hasDecorationPreview = !!(fiesta.decoracion && (
+    fiesta.decoracion.salonPreview3dUrl ||
+    fiesta.decoracion.paletaColores ||
+    (fiesta.decoracion.moodboardItems && fiesta.decoracion.moodboardItems.length > 0)
+  ));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       {/* Header */}
@@ -621,19 +627,19 @@ export default function PortalClientePage() {
         )}
 
         {/* ── Decoración Preview ───────────────────────────── */}
-        {fiesta.decoracion && (fiesta.decoracion.salonPreview3dUrl || fiesta.decoracion.paletaColores || (fiesta.decoracion.moodboardItems && fiesta.decoracion.moodboardItems.length > 0)) && (
+        {hasDecorationPreview && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-black">
                 <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
               </CardTitle>
-              {fiesta.decoracion.tema && (
+              {fiesta.decoracion?.tema && (
                 <CardDescription>Tema: <strong>{fiesta.decoracion.tema}</strong></CardDescription>
               )}
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Color palette */}
-              {fiesta.decoracion.paletaColores && (
+              {fiesta.decoracion?.paletaColores && (
                 <div className="space-y-2">
                   <p className="text-xs font-black uppercase tracking-wider text-slate-500">Paleta de Colores</p>
                   <div className="flex gap-3 items-center">
@@ -648,7 +654,7 @@ export default function PortalClientePage() {
               )}
 
               {/* 3D Preview */}
-              {fiesta.decoracion.salonPreview3dUrl && (
+              {fiesta.decoracion?.salonPreview3dUrl && (
                 <div className="space-y-2">
                   <p className="text-xs font-black uppercase tracking-wider text-slate-500">Vista del Salón</p>
                   <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-sm" style={{ aspectRatio: '16/9' }}>
@@ -663,7 +669,7 @@ export default function PortalClientePage() {
               )}
 
               {/* Moodboard */}
-              {fiesta.decoracion.moodboardItems && fiesta.decoracion.moodboardItems.length > 0 && (
+              {fiesta.decoracion?.moodboardItems && fiesta.decoracion.moodboardItems.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                     <Heart className="w-3.5 h-3.5 text-rose-500" /> Inspiración / Moodboard

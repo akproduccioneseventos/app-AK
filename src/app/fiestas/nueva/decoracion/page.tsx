@@ -314,12 +314,11 @@ function DecoracionYDisenoEventoContent() {
       }
   };
   
-  const handleSaveDecoracion = async (e: FormEvent) => {
-    e.preventDefault();
+  const saveDecoracion = async (data: DecoracionData) => {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateDecoracionFiestaActual(fiestaId, decoracionData);
+      const result = await updateDecoracionFiestaActual(fiestaId, data);
       if (result.success && result.updatedData) {
         toast({ title: "¡Decoración Guardada!", description: "Los detalles de decoración se han actualizado." });
         loadDecoracionData(false);
@@ -333,22 +332,13 @@ function DecoracionYDisenoEventoContent() {
     }
   };
 
+  const handleSaveDecoracion = async (e: FormEvent) => {
+    e.preventDefault();
+    await saveDecoracion(decoracionData);
+  };
+
   const handleSaveClick = async () => {
-    if (!fiestaId) return;
-    setIsSaving(true);
-    try {
-      const result = await updateDecoracionFiestaActual(fiestaId, decoracionData);
-      if (result.success && result.updatedData) {
-        toast({ title: "¡Decoración Guardada!", description: "Los detalles de decoración se han actualizado." });
-        loadDecoracionData(false);
-      } else {
-        throw new Error(result.error || "Error desconocido al guardar la decoración.");
-      }
-    } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
+    await saveDecoracion(decoracionData);
   };
 
   const handleSaveVistaDecorativa = useCallback(async (data: NonNullable<DecoracionData['vistaDecorativa']>) => {
@@ -753,7 +743,7 @@ function DecoracionYDisenoEventoContent() {
                               handleUpdateDecoItemEstado(item.id, next);
                             }}
                           >
-                            {item.estado === 'instalado' ? '✓ Instalado' : item.estado === 'comprado' ? '🛒 Comprado' : '⏳ Pendiente'}
+                            {({ instalado: '✓ Instalado', comprado: '🛒 Comprado', pendiente: '⏳ Pendiente' } as Record<string, string>)[item.estado || 'pendiente'] || '⏳ Pendiente'}
                           </Badge>
                         </div>
                         <div className="text-xs text-slate-500 mt-1">
