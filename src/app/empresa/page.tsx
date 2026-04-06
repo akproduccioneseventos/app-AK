@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, MapPin, MonitorPlay } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, MapPin, MonitorPlay, Camera } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -77,6 +77,13 @@ const empresaHubItems: HubItem[] = [
     href: '/presentacion-led',
     icon: MonitorPlay,
     actionLabel: 'Abrir Presentación',
+  },
+  {
+    title: 'Galería Pública',
+    description: 'Gestiona las fotos y videos que se muestran en tu página web pública. Subí fotos, agregá links de YouTube y filtrá por servicio.',
+    href: '/empresa/galeria',
+    icon: Camera,
+    actionLabel: 'Gestionar Galería',
   },
   {
     title: 'Página Pública & Landing Pages',

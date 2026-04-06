@@ -12,6 +12,7 @@ import { ProcessSection } from '@/components/landing/ProcessSection';
 import { PublicFooter } from '@/components/public-footer';
 import { getPromoActiva } from '@/app/actions/promos';
 import { PromoWidget } from '@/components/promo/PromoWidget';
+import { getGaleriaItems } from '@/app/actions/galeria';
 
 export const metadata: Metadata = {
   title: 'AK Producciones Eventos — Bodas, XV Años y más en Uruguay',
@@ -35,7 +36,10 @@ export const metadata: Metadata = {
 const WHATSAPP_NUMBER = '59899123456';
 
 export default async function LandingPage() {
-  const promo = await getPromoActiva();
+  const [promo, galeriaData] = await Promise.all([
+    getPromoActiva(),
+    getGaleriaItems(),
+  ]);
   return (
     <div className="min-h-screen bg-white">
       {promo && <PromoWidget promo={promo} />}
@@ -44,8 +48,8 @@ export default async function LandingPage() {
       <StatsSection />
       <ServicesSection whatsappNumber={WHATSAPP_NUMBER} />
       <ProcessSection />
-      <GallerySection />
-      <VideoSection />
+      <GallerySection galeriaFotos={galeriaData.fotos} />
+      <VideoSection galeriaVideos={galeriaData.videos} />
       <TestimonialsSection />
       <FAQSection />
       <CTASection whatsappNumber={WHATSAPP_NUMBER} />

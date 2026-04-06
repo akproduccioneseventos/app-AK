@@ -2,14 +2,34 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { X, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ZoomIn, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { GaleriaFoto } from '@/types/galeria';
+
+function isNextJsOptimizableUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return (
+      hostname === 'images.unsplash.com' ||
+      hostname === 'img.youtube.com' ||
+      hostname === 'placehold.co' ||
+      hostname === 'picsum.photos' ||
+      hostname === 'i.imgur.com'
+    );
+  } catch {
+    return false;
+  }
+}
 
 export interface GalleryImage {
+  id?: string;
   src: string;
   alt: string;
   hint: string;
   category?: string;
+  titulo?: string;
+  descripcion?: string;
+  destacada?: boolean;
 }
 
 const DEFAULT_GALLERY: GalleryImage[] = [
@@ -35,25 +55,26 @@ const DEFAULT_GALLERY: GalleryImage[] = [
     src: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80&auto=format&fit=crop',
     alt: 'Salón decorado con luces',
     hint: 'event hall lights decoration',
-    category: 'Eventos',
+    category: 'Decoración',
   },
   {
     src: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80&auto=format&fit=crop',
     alt: 'Torta de celebración',
     hint: 'celebration cake',
-    category: 'XV Años',
+    category: 'Candy Bar',
   },
   {
     src: 'https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=800&q=80&auto=format&fit=crop',
     alt: 'Fiesta colorida',
     hint: 'colorful party',
-    category: 'Eventos',
+    category: 'Eventos Corporativos',
   },
   {
     src: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80&auto=format&fit=crop',
     alt: 'Boda romántica',
     hint: 'romantic wedding ceremony',
     category: 'Bodas',
+    destacada: true,
   },
   {
     src: 'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=800&q=80&auto=format&fit=crop',
@@ -65,26 +86,60 @@ const DEFAULT_GALLERY: GalleryImage[] = [
     src: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80&auto=format&fit=crop',
     alt: 'Pista de baile con luces',
     hint: 'dance floor colorful lights',
-    category: 'Eventos',
+    category: 'Iluminación',
   },
 ];
 
-const ALL_CATEGORIES = ['Todos', 'Bodas', 'XV Años', 'Eventos'];
+function galeriaFotoToGalleryImage(foto: GaleriaFoto): GalleryImage & { id: string } {
+  return {
+    id: foto.id,
+    src: foto.url,
+    alt: foto.titulo ?? foto.categoria,
+    hint: foto.categoria,
+    category: foto.categoria,
+    titulo: foto.titulo,
+    descripcion: foto.descripcion,
+    destacada: foto.destacada,
+  };
+}
 
 interface GallerySectionProps {
   images?: GalleryImage[];
+  galeriaFotos?: GaleriaFoto[];
 }
 
-export function GallerySection({ images = DEFAULT_GALLERY }: GallerySectionProps) {
+export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
+  // Convert GaleriaFoto[] to GalleryImage[] and merge with provided images
+  const dynamicImages: GalleryImage[] = galeriaFotos?.map(galeriaFotoToGalleryImage) ?? [];
+  const allImages: GalleryImage[] = dynamicImages.length > 0 ? dynamicImages : images ?? DEFAULT_GALLERY;
+
+  // Sort: destacadas first
+  const sortedImages = [...allImages].sort((a, b) =>
+    (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0)
+  );
+
+  // Build dynamic categories from images
+  const uniqueCategories = Array.from(
+    new Set(sortedImages.map((img) => img.category).filter(Boolean))
+  ) as string[];
+  const categories = ['Todos', ...uniqueCategories];
+
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const filtered = activeCategory === 'Todos' ? images : images.filter((img) => img.category === activeCategory);
+  const filtered = activeCategory === 'Todos'
+    ? sortedImages
+    : sortedImages.filter((img) => img.category === activeCategory);
 
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
   const prevImage = () => setLightboxIndex((i) => (i === null ? null : (i - 1 + filtered.length) % filtered.length));
   const nextImage = () => setLightboxIndex((i) => (i === null ? null : (i + 1) % filtered.length));
+
+  const handleShareWhatsApp = (image: GalleryImage) => {
+    const text = encodeURIComponent(`¡Mirá esta foto de ${image.category ?? 'evento'} de AK Producciones! ${image.src}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
 
   return (
     <section id="galeria" className="py-24 bg-slate-900">
@@ -100,7 +155,7 @@ export function GallerySection({ images = DEFAULT_GALLERY }: GallerySectionProps
 
         {/* Category filter */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {ALL_CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
@@ -120,9 +175,12 @@ export function GallerySection({ images = DEFAULT_GALLERY }: GallerySectionProps
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           {filtered.map((image, index) => (
             <button
-              key={image.src}
+              key={image.id ?? `${image.src}-${index}`}
               onClick={() => openLightbox(index)}
-              className="relative aspect-square rounded-2xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary"
+              className={cn(
+                'relative rounded-2xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary',
+                image.destacada ? 'aspect-[4/3] md:col-span-1' : 'aspect-square'
+              )}
             >
               <Image
                 src={image.src}
@@ -131,13 +189,30 @@ export function GallerySection({ images = DEFAULT_GALLERY }: GallerySectionProps
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 sizes="(max-width: 768px) 50vw, 33vw"
                 data-ai-hint={image.hint}
+                unoptimized={!isNextJsOptimizableUrl(image.src)}
               />
+              {image.destacada && (
+                <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 text-xs font-black px-2 py-0.5 rounded-full">
+                  ⭐ Destacada
+                </div>
+              )}
+              {image.category && (
+                <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
+                  {image.category}
+                </div>
+              )}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                 <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
               </div>
             </button>
           ))}
         </div>
+
+        {filtered.length === 0 && (
+          <div className="text-center py-16 text-slate-500">
+            No hay fotos en esta categoría todavía.
+          </div>
+        )}
       </div>
 
       {/* Lightbox */}
@@ -159,17 +234,43 @@ export function GallerySection({ images = DEFAULT_GALLERY }: GallerySectionProps
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div
-            className="relative max-w-4xl max-h-[85vh] w-full h-full"
+            className="relative max-w-4xl max-h-[80vh] w-full h-full flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
-              src={filtered[lightboxIndex].src}
-              alt={filtered[lightboxIndex].alt}
-              fill
-              className="object-contain"
-              sizes="100vw"
-              priority
-            />
+            <div className="relative flex-1">
+              <Image
+                src={filtered[lightboxIndex].src}
+                alt={filtered[lightboxIndex].alt}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+                unoptimized={!isNextJsOptimizableUrl(filtered[lightboxIndex].src)}
+              />
+            </div>
+            {/* Info bar */}
+            {(filtered[lightboxIndex].titulo || filtered[lightboxIndex].category || filtered[lightboxIndex].descripcion) && (
+              <div className="bg-black/70 text-white p-3 rounded-b-xl mt-1 flex items-center justify-between gap-2">
+                <div>
+                  {filtered[lightboxIndex].titulo && (
+                    <p className="font-bold text-sm">{filtered[lightboxIndex].titulo}</p>
+                  )}
+                  {filtered[lightboxIndex].category && (
+                    <p className="text-xs text-white/60">{filtered[lightboxIndex].category}</p>
+                  )}
+                  {filtered[lightboxIndex].descripcion && (
+                    <p className="text-xs text-white/70 mt-0.5">{filtered[lightboxIndex].descripcion}</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleShareWhatsApp(filtered[lightboxIndex])}
+                  className="w-9 h-9 rounded-full bg-green-500/20 hover:bg-green-500/40 flex items-center justify-center text-green-400 shrink-0 transition-colors"
+                  title="Compartir por WhatsApp"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); nextImage(); }}
