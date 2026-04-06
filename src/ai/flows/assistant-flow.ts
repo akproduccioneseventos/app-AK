@@ -16,7 +16,27 @@ const AssistantInputSchema = z.object({
 const AssistantOutputSchema = z.object({
   response: z.string(),
   action: z.object({
-    type: z.enum(['none', 'create_budget', 'create_customer', 'create_lead', 'navigate', 'generate_social_post', 'show_manual']).optional(),
+    type: z.enum([
+      'none',
+      'create_budget',
+      'create_customer',
+      'create_lead',
+      'navigate',
+      'generate_social_post',
+      'show_manual',
+      'import_budget_from_image',
+      'register_payment',
+      'create_invoice',
+      'update_service_price',
+      'query_data',
+      'create_employee',
+      'create_supplier',
+      'create_event',
+      'update_event',
+      'generate_contract',
+      'check_availability',
+      'update_marketing_content',
+    ]).optional(),
     data: z.any().optional(),
   }).optional(),
 });
@@ -47,20 +67,75 @@ Si dice "ingresame un cliente" o "agregá este cliente":
 - action.type = "create_customer"
 - action.data: { name, phone, partyDate, partyType, guestCount, venueName }
 
-### 📸 ANALIZAR IMAGEN/PDF
-Si el usuario sube un archivo (viene en imageDataUri):
-- Analizá el contenido visual
-- Si es un presupuesto/contrato: extraé datos (cliente, monto, fecha, tipo evento) y ofrecé crear presupuesto
-- Si es una foto de un evento: describí lo que ves y sugerí cómo replicarlo
-- Si es un recibo: extraé monto, fecha, concepto
-- Si es contenido de marketing: sugerí cómo mejorar o reutilizar
+### 📸 IMPORTAR PRESUPUESTO DESDE FOTO/PDF (imageDataUri presente)
+Si el usuario sube una foto o PDF de un presupuesto viejo:
+- Analizá el contenido del archivo
+- Extraé: clienteNombre, eventoTipo, eventoFecha, invitados, servicios[], totalMonto
+- Respondé con action.type = "import_budget_from_image"
+- action.data: { clienteNombre, eventoTipo, eventoFecha, invitados, servicios[], totalMonto, notas }
+- Si es una foto de un evento o decoración: describí lo que ves y sugerí cómo replicarlo
+- Si es un recibo: extraé monto, fecha, concepto y sugerí registrarlo como pago
+
+### 💰 REGISTRAR PAGOS Y SEÑAS
+Si el usuario dice "registrá una seña" o "anotá un pago":
+- action.type = "register_payment"
+- action.data: { clienteNombre, monto, metodoPago (Efectivo|Transferencia|Tarjeta|Otro), referencia, presupuestoId (si lo sabés) }
+- Buscá en el contexto de presupuestos para encontrar el presupuesto correcto
+
+### 📋 CREAR FACTURAS
+Si el usuario pide crear una factura:
+- action.type = "create_invoice"
+- action.data: { clienteNombre, clienteEmail, items: [{ description, quantity, unitPrice }], notas, currency }
+
+### ✏️ CAMBIAR PRECIOS DE SERVICIOS
+Si el usuario dice "actualizá el precio de X a $Y":
+- action.type = "update_service_price"
+- action.data: { servicioNombre, nuevoPrecio, servicioId (si está en contexto) }
+
+### 📊 CONSULTAR DATOS
+Si el usuario pregunta por datos específicos (lista de clientes, presupuestos, disponibilidad, etc.):
+- action.type = "query_data"
+- action.data: { queryType: 'presupuestos'|'clientes'|'eventos'|'servicios'|'empleados'|'proveedores', filtros }
+
+### 👤 CREAR EMPLEADOS
+Si el usuario dice "agregá un empleado" o "dá de alta a X":
+- action.type = "create_employee"
+- action.data: { nombre, cedula, fechaNacimiento }
+
+### 🏢 CREAR PROVEEDORES/SERVICIOS
+Si el usuario dice "agregá un proveedor" o "registrá este servicio":
+- action.type = "create_supplier"
+- action.data: { nombreEmpresa, nombre, servicioPrincipal, tipo: 'Proveedor'|'Servicio Subcontratado', telefono, email, notas }
+
+### 🎉 CREAR EVENTOS
+Si el usuario dice "creá un evento" o "agendate un evento de X":
+- action.type = "create_event"
+- action.data: { clienteNombre, clientePhone, eventoTipo, eventoFecha, invitados, venueName }
+- Si el cliente no existe, se creará automáticamente
+
+### 🔄 ACTUALIZAR EVENTOS
+Si el usuario quiere modificar un evento existente (cambiar fecha, lugar, etc.):
+- action.type = "update_event"
+- action.data: { fiestaId (si sabés), clienteNombre, camposAActualizar: { fechaEvento, nombreEvento, venueName, etc. } }
+
+### 📄 GENERAR CONTRATOS
+Si el usuario pide generar o ver un contrato:
+- action.type = "generate_contract"
+- action.data: { fiestaId (si sabés), clienteNombre }
+- Navegá al portal del cliente o a la sección de contratos
+
+### 🗓️ CONSULTAR DISPONIBILIDAD
+Si el usuario pregunta "¿tengo algo el [fecha]?" o "¿estoy libre el [fecha]?":
+- action.type = "check_availability"
+- action.data: { fecha } (formato YYYY-MM-DD)
 
 ### 📱 AGENTE DE MARKETING
 Conocés toda la info de la empresa (viene en el contexto). Podés:
 - Generar posts para redes sociales sobre eventos
 - Crear textos promocionales
 - Sugerir estrategias de marketing para eventos
-- Responder con action.type = "generate_social_post" y action.data con el contenido generado
+- Respondé con action.type = "generate_social_post" y action.data con el contenido generado
+- Para actualizar contenido de marketing existente: action.type = "update_marketing_content"
 
 ### 🗺️ NAVEGACIÓN
 Si el usuario pregunta dónde hacer algo, respondé con action.type = "navigate" y action.data.href con la ruta exacta.
