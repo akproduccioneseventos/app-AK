@@ -22,7 +22,7 @@ const defaultConfig: MultiChannelConfig = {
     logMessageHistory: true,
   },
   globalSchedule: {
-    days: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'],
+    days: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'],
     startTime: '09:00',
     endTime: '18:00',
   },
@@ -61,8 +61,8 @@ export async function saveChannelConfig(
     }
     await writeData(CHANNELS_CONFIG_FILE, fullConfig);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al guardar configuración del canal.' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Error al guardar configuración del canal.' };
   }
 }
 
@@ -82,8 +82,8 @@ export async function toggleChannel(
     }
     await writeData(CHANNELS_CONFIG_FILE, fullConfig);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al cambiar estado del canal.' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Error al cambiar estado del canal.' };
   }
 }
 
@@ -95,8 +95,8 @@ export async function saveGlobalChannelSettings(
     const updated: MultiChannelConfig = { ...fullConfig, ...settings };
     await writeData(CHANNELS_CONFIG_FILE, updated);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al guardar configuración global.' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Error al guardar configuración global.' };
   }
 }
 
@@ -239,8 +239,8 @@ export async function takeOverConversation(
     conversations[idx].updatedAt = new Date().toISOString();
     await writeData(CHANNEL_CONVERSATIONS_FILE, conversations);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -256,8 +256,8 @@ export async function returnToBotConversation(
     conversations[idx].updatedAt = new Date().toISOString();
     await writeData(CHANNEL_CONVERSATIONS_FILE, conversations);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -272,8 +272,8 @@ export async function closeConversation(
     conversations[idx].updatedAt = new Date().toISOString();
     await writeData(CHANNEL_CONVERSATIONS_FILE, conversations);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 

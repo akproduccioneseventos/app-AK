@@ -7,7 +7,7 @@
     "logMessageHistory": true
   },
   "globalSchedule": {
-    "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+    "days": ["lunes", "martes", "miércoles", "jueves", "viernes"],
     "startTime": "09:00",
     "endTime": "18:00"
   },
@@ -32,7 +32,7 @@
         "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
       },
       "schedule": {
-        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "days": ["lunes", "martes", "miércoles", "jueves", "viernes"],
         "startTime": "09:00",
         "endTime": "18:00"
       },
@@ -62,7 +62,7 @@
         "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
       },
       "schedule": {
-        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "days": ["lunes", "martes", "miércoles", "jueves", "viernes"],
         "startTime": "09:00",
         "endTime": "18:00"
       },
@@ -92,7 +92,7 @@
         "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
       },
       "schedule": {
-        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "days": ["lunes", "martes", "miércoles", "jueves", "viernes"],
         "startTime": "09:00",
         "endTime": "18:00"
       },
@@ -122,7 +122,7 @@
         "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
       },
       "schedule": {
-        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "days": ["lunes", "martes", "miércoles", "jueves", "viernes"],
         "startTime": "09:00",
         "endTime": "18:00"
       },
