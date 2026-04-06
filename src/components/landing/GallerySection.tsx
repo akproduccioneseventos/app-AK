@@ -6,7 +6,23 @@ import { X, ZoomIn, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { GaleriaFoto } from '@/types/galeria';
 
+function isNextJsOptimizableUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return (
+      hostname === 'images.unsplash.com' ||
+      hostname === 'img.youtube.com' ||
+      hostname === 'placehold.co' ||
+      hostname === 'picsum.photos' ||
+      hostname === 'i.imgur.com'
+    );
+  } catch {
+    return false;
+  }
+}
+
 export interface GalleryImage {
+  id?: string;
   src: string;
   alt: string;
   hint: string;
@@ -74,8 +90,9 @@ const DEFAULT_GALLERY: GalleryImage[] = [
   },
 ];
 
-function galeriaFotoToGalleryImage(foto: GaleriaFoto): GalleryImage {
+function galeriaFotoToGalleryImage(foto: GaleriaFoto): GalleryImage & { id: string } {
   return {
+    id: foto.id,
     src: foto.url,
     alt: foto.titulo ?? foto.categoria,
     hint: foto.categoria,
@@ -93,13 +110,8 @@ interface GallerySectionProps {
 
 export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   // Convert GaleriaFoto[] to GalleryImage[] and merge with provided images
-  const dynamicImages: GalleryImage[] = galeriaFotos && galeriaFotos.length > 0
-    ? galeriaFotos.map(galeriaFotoToGalleryImage)
-    : [];
-
-  const allImages: GalleryImage[] = dynamicImages.length > 0
-    ? dynamicImages
-    : (images ?? DEFAULT_GALLERY);
+  const dynamicImages: GalleryImage[] = galeriaFotos?.map(galeriaFotoToGalleryImage) ?? [];
+  const allImages: GalleryImage[] = dynamicImages.length > 0 ? dynamicImages : images ?? DEFAULT_GALLERY;
 
   // Sort: destacadas first
   const sortedImages = [...allImages].sort((a, b) =>
@@ -163,7 +175,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           {filtered.map((image, index) => (
             <button
-              key={`${image.src}-${index}`}
+              key={image.id ?? `${image.src}-${index}`}
               onClick={() => openLightbox(index)}
               className={cn(
                 'relative rounded-2xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary',
@@ -177,7 +189,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 sizes="(max-width: 768px) 50vw, 33vw"
                 data-ai-hint={image.hint}
-                unoptimized={!image.src.includes('unsplash.com')}
+                unoptimized={!isNextJsOptimizableUrl(image.src)}
               />
               {image.destacada && (
                 <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 text-xs font-black px-2 py-0.5 rounded-full">
@@ -233,7 +245,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 className="object-contain"
                 sizes="100vw"
                 priority
-                unoptimized={!filtered[lightboxIndex].src.includes('unsplash.com')}
+                unoptimized={!isNextJsOptimizableUrl(filtered[lightboxIndex].src)}
               />
             </div>
             {/* Info bar */}

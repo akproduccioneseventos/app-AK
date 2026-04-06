@@ -42,9 +42,22 @@ import {
 function extractYoutubeId(url: string): string | null {
   try {
     const u = new URL(url);
+    if (!['http:', 'https:'].includes(u.protocol)) return null;
     if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
-    if (u.hostname.includes('youtube.com')) {
+    if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
       return u.searchParams.get('v');
+    }
+  } catch {
+    // invalid url
+  }
+  return null;
+}
+
+function sanitizeHttpUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return parsed.href;
     }
   } catch {
     // invalid url
@@ -257,9 +270,9 @@ export default function GaleriaAdminPage() {
                     value={fotoUrl}
                     onChange={(e) => setFotoUrl(e.target.value)}
                   />
-                  {fotoUrl && (
+                  {fotoUrl && sanitizeHttpUrl(fotoUrl) && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={fotoUrl} alt="preview" className="mt-2 rounded-lg w-full h-32 object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    <img src={sanitizeHttpUrl(fotoUrl)!} alt="Vista previa de la imagen" className="mt-2 rounded-lg w-full h-32 object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   )}
                 </div>
                 <div className="space-y-1">
@@ -327,7 +340,7 @@ export default function GaleriaAdminPage() {
                   <div key={foto.id} className="relative group rounded-xl overflow-hidden border bg-card">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={foto.url}
+                      src={sanitizeHttpUrl(foto.url) ?? ''}
                       alt={foto.titulo ?? foto.categoria}
                       className="w-full aspect-square object-cover"
                     />
@@ -402,7 +415,7 @@ export default function GaleriaAdminPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={`https://img.youtube.com/vi/${extractYoutubeId(videoUrl)}/mqdefault.jpg`}
-                      alt="thumbnail"
+                      alt="Vista previa del video de YouTube"
                       className="mt-2 rounded-lg w-full aspect-video object-cover"
                     />
                   )}
@@ -473,7 +486,7 @@ export default function GaleriaAdminPage() {
                     <div className="relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={video.thumbnailUrl}
+                        src={sanitizeHttpUrl(video.thumbnailUrl) ?? ''}
                         alt={video.titulo}
                         className="w-full aspect-video object-cover"
                       />
@@ -502,7 +515,7 @@ export default function GaleriaAdminPage() {
                           >
                             <Star className={`w-3 h-3 ${video.destacada ? 'fill-white' : ''}`} />
                           </Button>
-                          <Link href={video.youtubeUrl} target="_blank">
+                          <Link href={sanitizeHttpUrl(video.youtubeUrl) ?? '#'} target="_blank" rel="noopener noreferrer">
                             <Button size="icon" variant="ghost" className="w-7 h-7">
                               <ExternalLink className="w-3 h-3" />
                             </Button>

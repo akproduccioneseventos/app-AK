@@ -107,22 +107,14 @@ interface VideoSectionProps {
 }
 
 export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
-  const dynamicVideos: VideoItem[] = galeriaVideos && galeriaVideos.length > 0
-    ? galeriaVideos.map(galeriaVideoToVideoItem)
-    : [];
+  const dynamicVideos: VideoItem[] = galeriaVideos?.map(galeriaVideoToVideoItem) ?? [];
+  const allVideos: VideoItem[] = dynamicVideos.length > 0 ? dynamicVideos : videos ?? DEFAULT_VIDEOS;
 
-  const allVideos: VideoItem[] = dynamicVideos.length > 0
-    ? dynamicVideos
-    : (videos ?? DEFAULT_VIDEOS);
-
-  // Sort: destacados first
-  const sortedVideos = galeriaVideos && galeriaVideos.length > 0
-    ? [...allVideos].sort((a, b) => {
-        const aDestacada = galeriaVideos.find((v) => v.id === a.id)?.destacada ? 1 : 0;
-        const bDestacada = galeriaVideos.find((v) => v.id === b.id)?.destacada ? 1 : 0;
-        return bDestacada - aDestacada;
-      })
-    : allVideos;
+  // Sort: destacados first using a Map for O(n) performance
+  const destacadaMap = new Map(galeriaVideos?.map((v) => [v.id, v.destacada]));
+  const sortedVideos = [...allVideos].sort(
+    (a, b) => (destacadaMap.get(b.id) ? 1 : 0) - (destacadaMap.get(a.id) ? 1 : 0)
+  );
 
   // Build dynamic categories
   const uniqueCategories = Array.from(
