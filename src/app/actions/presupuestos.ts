@@ -13,6 +13,9 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import { getAllFiestas, saveFiesta, syncFiestaFromBudget } from './fiesta/fiesta.actions';
 import { syncLaundryCosts } from './fiesta/costos.actions';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
+import { parseBudgetText } from '@/lib/parse-budget-text';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -284,4 +287,172 @@ export async function deletePagoFromPresupuesto(
 
   const updatedPagos = (presupuesto.pagosCliente || []).filter(p => p.id !== pagoId);
   return updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+}
+
+export interface ImportarPresupuestoOptions {
+  crearFiesta?: boolean;
+  senaManual?: number;
+  eventoFechaOverride?: string;
+}
+
+export async function importarPresupuestoDesdeTexto(
+  texto: string,
+  options: ImportarPresupuestoOptions = {}
+): Promise<{
+  success: boolean;
+  presupuestoId?: string;
+  fiestaId?: string;
+  warnings?: string[];
+  error?: string;
+}> {
+  if (!texto || texto.trim().length < 20) {
+    return { success: false, error: 'El texto pegado está vacío o es demasiado corto.' };
+  }
+
+  const parsed = parseBudgetText(texto);
+
+  if (!parsed.clienteNombre) {
+    return {
+      success: false,
+      error: 'No se pudo detectar el nombre del cliente. Revisá el formato del texto.',
+      warnings: parsed.warnings,
+    };
+  }
+
+  const eventoFecha = options.eventoFechaOverride || parsed.eventoFecha || '';
+  const total = parsed.totalDeclarado;
+  const senaPct = parsed.senaCondicion;
+  const sena = options.senaManual !== undefined ? options.senaManual : Math.round(total * senaPct / 100);
+
+  const notas = [
+    parsed.notas,
+    `Total declarado: $${total.toLocaleString('es-UY')}`,
+    `Seña: $${sena.toLocaleString('es-UY')} (${senaPct}%)`,
+    `Saldo: $${(total - sena).toLocaleString('es-UY')}`,
+  ].filter(Boolean).join(' | ');
+
+  const budgetData: Omit<Presupuesto, 'id'> = {
+    clienteNombre: parsed.clienteNombre,
+    eventoTipo: parsed.eventoTipo || 'Otro',
+    eventoFecha,
+    invitadosCantidad: parsed.invitadosCantidad,
+    invitadosAdultos: parsed.invitadosCantidad,
+    invitadosNinos: 0,
+    invitadosAdolescentes: 0,
+    salonFiestas: parsed.salonFiestas || '',
+    itemsPresupuestados: parsed.items as ItemPresupuestado[],
+    costoTotalEstimado: total,
+    totalConDescuento: total,
+    notas,
+    estado: 'Borrador',
+    timestamp: new Date().toISOString(),
+    source: 'manual',
+  };
+
+  const presupuestoResult = await savePresupuesto(budgetData, { source: 'manual' });
+  if (!presupuestoResult.success || !presupuestoResult.id) {
+    return {
+      success: false,
+      error: presupuestoResult.error || 'Error al guardar el presupuesto.',
+      warnings: parsed.warnings,
+    };
+  }
+
+  const presupuestoId = presupuestoResult.id;
+  let fiestaId: string | undefined;
+
+  if (options.crearFiesta) {
+    try {
+      const newFiesta: FiestaEnPlanificacion = {
+        ...initialFiestaActualData,
+        id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        presupuestoId,
+        estado: 'En Planificación',
+        configuracion: {
+          ...initialFiestaActualData.configuracion,
+          nombreEvento: `${parsed.eventoTipo || 'Evento'} de ${parsed.clienteNombre}`,
+          tipoCelebracion: parsed.eventoTipo || 'Otro',
+          fechaEvento: eventoFecha,
+          invitadosEstimados: parsed.invitadosCantidad,
+          invitadosAdultos: parsed.invitadosCantidad,
+          invitadosNinos: 0,
+          invitadosAdolescentes: 0,
+          presupuestoEstimado: total,
+          nombreLugar: parsed.salonFiestas || '',
+          clienteId: presupuestoResult.leadId,
+          clienteNombre: parsed.clienteNombre,
+        },
+        modulosContratados: { ...defaultModulosContratados },
+      };
+
+      const fiestaResult = await saveFiesta(newFiesta);
+      if (fiestaResult.success && fiestaResult.fiesta) {
+        fiestaId = fiestaResult.fiesta.id;
+        await createNotification({
+          mensaje: `Nuevo evento creado desde presupuesto importado: ${newFiesta.configuracion.nombreEvento}`,
+          href: `/fiestas/nueva?fiestaId=${fiestaId}`,
+          icono: 'PartyPopper',
+        });
+      } else {
+        parsed.warnings.push(`El presupuesto se creó pero no se pudo crear la fiesta: ${fiestaResult.error}`);
+      }
+    } catch (e: any) {
+      parsed.warnings.push(`El presupuesto se creó pero hubo un error al crear la fiesta: ${e.message}`);
+    }
+  }
+
+  return {
+    success: true,
+    presupuestoId,
+    fiestaId,
+    warnings: parsed.warnings.length > 0 ? parsed.warnings : undefined,
+  };
+}
+
+export async function createFiestaFromPresupuesto(
+  presupuestoId: string
+): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  const presupuesto = await getPresupuestoById(presupuestoId);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
+
+  const allFiestas = await getAllFiestas();
+  const existing = allFiestas.find(f => f.presupuestoId === presupuestoId);
+  if (existing) {
+    return { success: true, fiestaId: existing.id };
+  }
+
+  const newFiesta: FiestaEnPlanificacion = {
+    ...initialFiestaActualData,
+    id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    presupuestoId,
+    estado: 'En Planificación',
+    configuracion: {
+      ...initialFiestaActualData.configuracion,
+      nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
+      tipoCelebracion: presupuesto.eventoTipo,
+      fechaEvento: presupuesto.eventoFecha || '',
+      invitadosEstimados: presupuesto.invitadosCantidad,
+      invitadosAdultos: presupuesto.invitadosAdultos,
+      invitadosNinos: presupuesto.invitadosNinos,
+      invitadosAdolescentes: presupuesto.invitadosAdolescentes,
+      presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
+      nombreLugar: presupuesto.salonFiestas || '',
+      clienteId: presupuesto.leadId,
+      clienteNombre: presupuesto.clienteNombre,
+    },
+    modulosContratados: { ...defaultModulosContratados },
+  };
+
+  const result = await saveFiesta(newFiesta);
+  if (!result.success || !result.fiesta) {
+    return { success: false, error: result.error || 'Error al crear el evento.' };
+  }
+
+  await createNotification({
+    mensaje: `Nuevo evento creado desde presupuesto: ${newFiesta.configuracion.nombreEvento}`,
+    href: `/fiestas/nueva?fiestaId=${result.fiesta.id}`,
+    icono: 'PartyPopper',
+  });
+
+  return { success: true, fiestaId: result.fiesta.id };
 }

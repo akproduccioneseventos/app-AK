@@ -14,7 +14,8 @@ import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
-import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto } from '@/app/actions/presupuestos';
+import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto } from '@/app/actions/presupuestos';
+import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { Customer } from '@/types/customer';
@@ -66,6 +67,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [isCreatingFiesta, setIsCreatingFiesta] = useState(false);
+  const [linkedFiestaId, setLinkedFiestaId] = useState<string | null>(null);
+
   // Payment management state
   const [isAddingPago, setIsAddingPago] = useState(false);
   const [isSavingPago, setIsSavingPago] = useState(false);
@@ -101,6 +105,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             const clienteData = await getCustomerById((fetchedPresupuesto as any).clienteId);
             setCliente(clienteData);
         }
+        // Check if a fiesta already exists for this budget
+        try {
+          const fiestas = await getFiestas(false);
+          const linked = fiestas.find(f => f.presupuestoId === fetchedPresupuesto.id);
+          if (linked) setLinkedFiestaId(linked.id);
+        } catch (_) { /* non-critical */ }
       }
     } catch (err: any) {
       setError(err.message);
@@ -240,6 +250,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleCrearFiesta = async () => {
+    if (!presupuesto) return;
+    setIsCreatingFiesta(true);
+    try {
+      const result = await createFiestaFromPresupuesto(presupuesto.id);
+      if (!result.success) throw new Error(result.error);
+      setLinkedFiestaId(result.fiestaId || null);
+      toast({ title: '¡Fiesta/Evento creado!', description: 'Podés planificarlo ahora.' });
+      if (result.fiestaId) router.push(`/fiestas/nueva?fiestaId=${result.fiestaId}`);
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsCreatingFiesta(false);
+    }
+  };
+
   const getEffectiveQty = (item: any): number => {
     if (!presupuesto) return item.cantidad || 1;
     const adults = presupuesto.invitadosAdultos || 0;
@@ -272,6 +298,24 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             <Link href={`/presupuestos/${presupuestoId}/recibo-contrato`}><Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 text-white"><FileSignature className="mr-2 h-4 w-4"/>Recibo y Contrato</Button></Link>
             <Button onClick={handlePrint} size="sm" className="rounded-xl"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
             <Link href={`/presupuestos/${presupuestoId}/edit`}><Button variant="outline" size="sm" className="rounded-xl"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
+            {linkedFiestaId ? (
+              <Link href={`/fiestas/nueva?fiestaId=${linkedFiestaId}`}>
+                <Button size="sm" variant="outline" className="rounded-xl border-violet-200 text-violet-700 hover:bg-violet-50" data-testid="btn-ver-fiesta">
+                  <PartyPopper className="mr-2 h-4 w-4"/>Ver Fiesta/Evento
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                size="sm"
+                onClick={handleCrearFiesta}
+                disabled={isCreatingFiesta}
+                className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white"
+                data-testid="btn-crear-fiesta-from-budget"
+              >
+                {isCreatingFiesta ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PartyPopper className="mr-2 h-4 w-4"/>}
+                Crear Fiesta/Evento
+              </Button>
+            )}
           </div>
         </div>
 
