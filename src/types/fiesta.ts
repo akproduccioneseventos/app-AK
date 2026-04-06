@@ -208,6 +208,34 @@ export interface ElementoDecorativo {
   etiqueta?: string;
 }
 
+// --- CREATOR PARTY EXTENDED TYPES ---
+
+export interface DecoItem {
+  id: string;
+  nombre: string;
+  categoria: string;
+  cantidad: number;
+  precioUnitario?: number;
+  zona?: string;
+  color?: string;
+  notas?: string;
+  estado?: 'pendiente' | 'comprado' | 'instalado';
+}
+
+export interface DecoZona {
+  id: string;
+  nombre: string; // 'Entrada', 'Mesas', 'Mesa Principal', 'Pista', 'Candy Bar', etc.
+  items: string[]; // IDs de DecoItem
+  preview?: string; // URL de preview
+}
+
+export interface DecoChecklistItem {
+  id: string;
+  item: string;
+  zona: string;
+  completado: boolean;
+}
+
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
@@ -237,6 +265,20 @@ export interface DecoracionData {
     fondoColor?: string;
     fondoImagenUrl?: string;
   };
+  // Creator Party extended fields
+  colorPalette?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  estiloDecoracion?: 'elegante' | 'rustico' | 'moderno' | 'infantil' | 'tropical' | 'romantico' | 'industrial';
+  itemsDecoracion?: DecoItem[];
+  moodboardImages?: string[];
+  zonas?: DecoZona[];
+  presupuestoDecoracion?: number;
+  checklistDecoracion?: DecoChecklistItem[];
+  documentacionImageUrl?: string;
+  salonPreview3dUrl?: string;
 }
 
 export interface GiftItem {
