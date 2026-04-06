@@ -36,7 +36,7 @@ export default function ReporteActivosFijosPage() {
       ]);
       const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo');
       setAllItems(inventoryItems);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar el inventario de activos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });

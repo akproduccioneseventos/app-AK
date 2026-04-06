@@ -115,7 +115,7 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
                         nombre: `${item.nombreServicio} (Costo Proveedor)`,
                         category: 'Servicio Proveedor',
                         montoEstimado: Math.round(totalLineCost),
-                        notes: `Sincronizado de Presupuesto.`
+                        notas: 'Sincronizado de Presupuesto.'
                     });
                 }
             }
@@ -167,7 +167,7 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
                     nombre: name,
                     category: 'Servicio Proveedor',
                     montoEstimado: Math.round(amount),
-                    notes: 'Auto-generado: Lavadero del Sol'
+                    notas: 'Auto-generado: Lavadero del Sol'
                 });
             }
         } else if (index > -1) {

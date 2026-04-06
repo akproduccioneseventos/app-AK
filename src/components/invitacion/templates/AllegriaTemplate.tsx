@@ -2,7 +2,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, TextStyle, Invitado } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SeccionInvitacion, GiftItem, TextStyle, Invitado } from '@/types/fiesta';
+import type { SocialConnection } from '@/types/settings';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';

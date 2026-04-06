@@ -15,7 +15,8 @@ import {
     Layers, PackageSearch, AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getMenuById, getMenus } from '@/app/actions/menus-catering';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getEmpleados } from '@/app/actions/empleados';

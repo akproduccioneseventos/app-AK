@@ -146,7 +146,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     }, 0);
 
     let descPromo = 0;
-    const valorDesc = parseFloat(formData.descuentoValue || formData.descuentoValor || '0') || 0;
+    const valorDesc = parseFloat(formData.descuentoValor || '0') || 0;
     if (formData.descuentoTipo === 'porcentaje') descPromo = (brutoVenta * valorDesc) / 100;
     else if (formData.descuentoTipo === 'fijo') descPromo = valorDesc;
     
@@ -319,7 +319,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Valor</Label>
-                <Input type="number" value={formData.descuentoValue || formData.descuentoValor ?? ''} onChange={e => setFormData({...formData, descuentoValor: e.target.value})} className="rounded-xl border-slate-200 h-11 font-black text-primary bg-white shadow-sm" />
+                <Input type="number" value={formData.descuentoValor ?? ''} onChange={e => setFormData({...formData, descuentoValor: e.target.value})} className="rounded-xl border-slate-200 h-11 font-black text-primary bg-white shadow-sm" />
               </div>
             </div>
 
@@ -396,7 +396,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         
         <div className="space-y-3">
             <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-4 flex items-center gap-2"><Info className="w-3.5 h-3.5"/> Notas y Condiciones para el Cliente</Label>
-            <Textarea value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows={4} className="rounded-[2rem] p-6 bg-slate-50 border-none shadow-inner font-medium text-slate-600 leading-relaxed" placeholder="Ej: Forma de pago, plazos de reserva, etc." />
+            <Textarea value={formData.notas} onChange={(e) => setFormData({...formData, notas: e.target.value})} rows={4} className="rounded-[2rem] p-6 bg-slate-50 border-none shadow-inner font-medium text-slate-600 leading-relaxed" placeholder="Ej: Forma de pago, plazos de reserva, etc." />
         </div>
     </div>
   );

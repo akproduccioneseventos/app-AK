@@ -28,7 +28,7 @@ interface Paso4ResumenProps {
 
 const formatCurrency = (amount?: number, includeSymbol = true, useNUS = false) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  const options = { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 };
+  const options = { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 } as Intl.NumberFormatOptions;
   const formatted = new Intl.NumberFormat('es-UY', options).format(amount);
   if (!includeSymbol) return formatted;
   return useNUS ? `NU$ ${formatted}` : `$ ${formatted}`;
@@ -69,7 +69,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
           getInvoiceTemplateSettings(),
         ]);
         setDisplaySettings(budgetSettings);
-        setLogoUrl(templateSettings.logoUrl);
+        setLogoUrl(templateSettings.logoUrl ?? null);
       } catch (e) {
         toast({title: "Error", description: "No se pudo cargar la configuración de visualización.", variant: "destructive"});
       } finally {

@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Loader2, AlertTriangle, Info, Cake, GlassWater, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FullMenu, MenuItem, ReposteriaData, BebidasData } from '@/types/fiesta';
+import type { ReposteriaData, BebidasData } from '@/types/fiesta';
+import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
@@ -40,7 +41,7 @@ export default function ReporteMenusPage() {
       setAllMenus(menusData);
       setReposteria(reposteriaData);
       setBebidas(bebidasData);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar el catálogo gastronómico.");
       toast({ title: "Error", description: err.message, variant: "destructive" });

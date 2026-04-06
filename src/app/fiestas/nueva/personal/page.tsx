@@ -157,7 +157,7 @@ function AsignarPersonalEventoContent() {
             findAndAdd('Ayudante de Decoración', 1, item.nombreServicio);
           }
           if (name.includes('mozo')) {
-            findAndAdd('Mozo', item.quantity, item.nombreServicio);
+            findAndAdd('Mozo', item.cantidad, item.nombreServicio);
           }
           if (name.includes('asado') || name.includes('asador')) {
             findAndAdd('Asador', 1, item.nombreServicio);

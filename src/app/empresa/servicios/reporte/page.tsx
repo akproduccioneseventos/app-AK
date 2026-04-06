@@ -44,7 +44,7 @@ export default function ReporteServiciosPage() {
       ]);
       const services = data.filter(s => s.tipoItem === 'Servicio');
       setAllItems(services);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar el catálogo de servicios.");
       toast({ title: "Error", description: err.message, variant: "destructive" });

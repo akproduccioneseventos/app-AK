@@ -153,7 +153,7 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
                       </div>
                       <div className="pt-3 print:pt-1 min-w-0">
                           <p className="font-bold text-lg print:text-sm leading-none mb-1">{item.titulo}</p>
-                          <p className="text-sm text-muted-foreground print:text-xs leading-relaxed">{item.description || item.descripcion}</p>
+                          <p className="text-sm text-muted-foreground print:text-xs leading-relaxed">{item.descripcion}</p>
                       </div>
                   </div>
               )

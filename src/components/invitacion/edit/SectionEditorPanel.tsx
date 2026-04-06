@@ -67,19 +67,19 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
 
         switch (selectedSection.tipo) {
             case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={(newData) => update({ cabecera: { ...data.cabecera, ...newData } })} fiestaId={fiestaId || undefined} />;
-            case 'bienvenida': return <SeccionBienvenidaEditor {...props} />;
-            case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor {...props} />;
-            case 'detallesEvento': return <SeccionDetallesEventoEditor {...props} />;
-            case 'itinerario': return <SeccionItinerarioEditor {...props} />;
-            case 'galeria': return <SeccionGaleriaEditor {...props} />;
-            case 'historia': return <SeccionHistoriaEditor {...props} />;
-            case 'regalos': return <SeccionRegalosEditor {...props} />;
-            case 'dressCode': return <SeccionDressCodeEditor {...props} />;
-            case 'confirmacion': return <SeccionConfirmacionEditor {...props} />;
-            case 'musica': return <SeccionMusicaEditor {...props} />;
-            case 'redesSociales': return <SeccionRedesSocialesEditor {...props} />;
-            case 'despedida': return <SeccionDespedidaEditor {...props} />;
-            case 'footer': return <SeccionFooterEditor {...props} />;
+            case 'bienvenida': return <SeccionBienvenidaEditor {...props} data={props.data as any} />;
+            case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor {...props} data={props.data as any} />;
+            case 'detallesEvento': return <SeccionDetallesEventoEditor {...props} data={props.data as any} />;
+            case 'itinerario': return <SeccionItinerarioEditor {...props} data={props.data as any} />;
+            case 'galeria': return <SeccionGaleriaEditor {...props} data={props.data as any} />;
+            case 'historia': return <SeccionHistoriaEditor {...props} data={props.data as any} />;
+            case 'regalos': return <SeccionRegalosEditor {...props} data={props.data as any} />;
+            case 'dressCode': return <SeccionDressCodeEditor {...props} data={props.data as any} />;
+            case 'confirmacion': return <SeccionConfirmacionEditor {...props} data={props.data as any} />;
+            case 'musica': return <SeccionMusicaEditor {...props} data={props.data as any} />;
+            case 'redesSociales': return <SeccionRedesSocialesEditor {...props} data={props.data as any} />;
+            case 'despedida': return <SeccionDespedidaEditor {...props} data={props.data as any} />;
+            case 'footer': return <SeccionFooterEditor {...props} data={props.data as any} />;
             default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
         }
     }

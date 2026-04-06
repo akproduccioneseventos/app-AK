@@ -12,7 +12,8 @@ import { ArrowLeft, Plus, Trash2, Users, Edit3, Save, Loader2, AlertTriangle, Qr
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, NuevoInvitadoData, CategoriaInvitado } from '@/types/invitado';
-import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual, type FiestaEnPlanificacion } from '@/app/actions/fiesta-actual';
+import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import QRCodeStylized from 'qrcode.react';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';

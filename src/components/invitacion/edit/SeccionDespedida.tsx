@@ -18,7 +18,7 @@ export const SeccionDespedidaEditor: React.FC<Props> = ({ data, update }) => {
   };
   
   const handleTextStyleChange = (style: Partial<TextWithStyle['style']>) => {
-    handleFieldChange('texto', { ...data.texto, style: { ...(data.texto.style || {}), ...style } });
+    handleFieldChange('texto', { ...data.texto, style: { ...(data.texto?.style || {}), ...style } });
   };
   
   const handleTextChange = (text: string) => {
@@ -39,11 +39,11 @@ export const SeccionDespedidaEditor: React.FC<Props> = ({ data, update }) => {
             <div className="space-y-2 p-2 border rounded-md">
                 <Label>Texto de Despedida</Label>
                 <Input
-                  value={data.texto.text || ''}
+                  value={data.texto?.text || ''}
                   onChange={(e) => handleTextChange(e.target.value)}
                 />
                 <TextStyleEditor 
-                  style={data.texto.style || {}}
+                  style={data.texto?.style || {}}
                   onStyleChange={handleTextStyleChange}
                 />
             </div>

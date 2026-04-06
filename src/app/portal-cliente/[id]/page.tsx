@@ -64,8 +64,8 @@ function cuotaStatusLabel(estado: CuotaPlanPago['estado']) {
 
 function rsvpIcon(rsvp: Invitado['rsvp']) {
   switch (rsvp) {
-    case 'confirmed': return <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />;
-    case 'declined':  return <XCircle       className="w-4 h-4 text-red-400  shrink-0" />;
+    case 'Confirmado': return <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />;
+    case 'Rechazado':  return <XCircle       className="w-4 h-4 text-red-400  shrink-0" />;
     default:          return <HelpCircle    className="w-4 h-4 text-slate-400 shrink-0" />;
   }
 }
@@ -256,9 +256,9 @@ export default function PortalClientePage() {
   const balance     = totalCost - totalPaid;
 
   // ── RSVP ────────────────────────────────────────────────────
-  const confirmed = invitados.filter(i => i.rsvp === 'confirmed');
-  const declined  = invitados.filter(i => i.rsvp === 'declined');
-  const pending   = invitados.filter(i => i.rsvp !== 'confirmed' && i.rsvp !== 'declined');
+  const confirmed = invitados.filter(i => i.rsvp === 'Confirmado');
+  const declined  = invitados.filter(i => i.rsvp === 'Rechazado');
+  const pending   = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
 
   // ── Check-in stats ───────────────────────────────────────────
   const today = new Date();

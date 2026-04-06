@@ -40,7 +40,9 @@ import type {
   ClientTarea, 
   ClientPortalSettings, 
   MenuMesaData, 
-  NumerosMesaData 
+  NumerosMesaData,
+  VideoVidaData,
+  GiftItem
 } from '@/types/fiesta';
 
 // --- ACCIONES GENERALES ---

@@ -35,9 +35,9 @@ export async function GET(
       const zip = new JSZip();
       
       // Add all documents from 'otrosDocumentos'
-      if (fiesta.otrosDocumentos && fiesta.otrosDocumentos.length > 0) {
+      if (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0) {
         const docsDir = path.join(DOCS_DIR, fiestaId);
-        for (const doc of fiesta.otrosDocumentos) {
+        for (const doc of fiesta.othersDocumentos) {
           const filePath = path.join(docsDir, doc.fileName);
           await addFileToZip(zip, filePath, doc.fileName);
         }
@@ -49,7 +49,7 @@ export async function GET(
       const headers = new Headers();
       headers.set('Content-Type', 'application/zip');
       headers.set('Content-Disposition', `attachment; filename="${zipFilename}"`);
-      return new NextResponse(zipContent, { status: 200, headers });
+      return new NextResponse(zipContent as BodyInit, { status: 200, headers });
 
     } catch (error: any) {
       console.error('Error creating all-documents zip:', error);
@@ -91,7 +91,7 @@ export async function GET(
     headers.set('Content-Type', contentType);
     headers.set('Content-Disposition', `inline; filename="${safeFilename}"`);
 
-    return new NextResponse(fileBuffer, { status: 200, headers });
+    return new NextResponse(fileBuffer as BodyInit, { status: 200, headers });
   } catch (error) {
     console.error(`Error serving fiesta document ${safeFilename}:`, error);
     // @ts-ignore

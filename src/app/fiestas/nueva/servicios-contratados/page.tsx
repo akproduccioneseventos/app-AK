@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,7 +76,7 @@ export default function ServiciosContratadosPage() {
         const [empleadosData, rolesData] = await Promise.all([getEmpleados(), getRoles()]);
         const personalDetallado = fiesta.personalAsignado.map(pa => {
           const empleado = empleadosData.find(e => e.id === pa.empleadoId);
-          const rol = empleado?.rolId ? rolesData.find(r => r.id === empleado.rolId) : undefined;
+          const rol = empleado?.rolIds?.[0] ? rolesData.find(r => r.id === empleado.rolIds![0]) : undefined;
           return { empleado: empleado!, rol }; // Aseguramos que empleado exista o filtramos antes
         }).filter(p => p.empleado);
         setPersonalConRol(personalDetallado);

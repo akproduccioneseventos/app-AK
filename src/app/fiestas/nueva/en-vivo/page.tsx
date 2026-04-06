@@ -21,7 +21,9 @@ import {
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getInvoiceById } from '@/app/actions/invoices';
-import type { FiestaEnPlanificacion, Empleado, Rol, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
+import type { Empleado } from '@/types/empleado';
+import type { Rol } from '@/types/rol';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -360,7 +362,7 @@ function LiveEventDashboardContent() {
                             <Card className="bg-red-600 border-none rounded-3xl overflow-hidden text-white">
                                 <CardContent className="p-5">
                                     <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">No Vienen</p>
-                                    <p className="text-4xl font-black">{(fiesta?.invitados || []).filter(i => i.rsvp === 'declined' || i.rsvp === 'Declinado').length}</p>
+                                    <p className="text-4xl font-black">{(fiesta?.invitados || []).filter(i => i.rsvp === 'Rechazado').length}</p>
                                     <p className="text-xs opacity-60">confirmaron ausencia</p>
                                 </CardContent>
                             </Card>
@@ -423,8 +425,8 @@ function LiveEventDashboardContent() {
                                         {(fiesta?.invitados || [])
                                             .filter(inv => {
                                                 if (guestFilter === 'arrived') return inv.checkedIn;
-                                                if (guestFilter === 'waiting') return !inv.checkedIn && inv.rsvp !== 'declined' && inv.rsvp !== 'Declinado';
-                                                if (guestFilter === 'declined') return inv.rsvp === 'declined' || inv.rsvp === 'Declinado';
+                                                if (guestFilter === 'waiting') return !inv.checkedIn && inv.rsvp !== 'Rechazado';
+                                                if (guestFilter === 'declined') return inv.rsvp === 'Rechazado';
                                                 return true;
                                             })
                                             .filter(inv => !guestSearch || inv.nombre.toLowerCase().includes(guestSearch.toLowerCase()))
@@ -439,11 +441,11 @@ function LiveEventDashboardContent() {
                                                         "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0",
                                                         inv.checkedIn
                                                             ? "bg-emerald-500/20 text-emerald-400"
-                                                            : (inv.rsvp === 'declined' || inv.rsvp === 'Declinado')
+                                                            : (inv.rsvp === 'Rechazado')
                                                                 ? "bg-red-500/20 text-red-400"
                                                                 : "bg-amber-500/20 text-amber-400"
                                                     )}>
-                                                        {inv.checkedIn ? '✅' : (inv.rsvp === 'declined' || inv.rsvp === 'Declinado') ? '❌' : '⏳'}
+                                                        {inv.checkedIn ? '✅' : (inv.rsvp === 'Rechazado') ? '❌' : '⏳'}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className={cn("font-bold text-sm truncate", inv.checkedIn ? "text-white" : "text-slate-400")}>{inv.nombre}</p>

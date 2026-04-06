@@ -33,7 +33,7 @@ const Ornament: React.FC<{ position: string; color: string }> = ({ position, col
     }
 
     return (
-        <div className={cn(baseClasses, positionClasses[position])} style={{ borderColor: color }}>
+        <div className={cn(baseClasses, positionClasses[position as keyof typeof positionClasses])} style={{ borderColor: color }}>
             <div className={cn(innerClasses, innerPositionClasses[position])} style={{ borderColor: color }} />
         </div>
     );
@@ -91,7 +91,7 @@ export const MenuMesaTemplate: React.FC<MenuMesaTemplateProps> = ({ fiesta, data
                        MENÚ
                     </h1>
                      <h2 className="font-['Dancing_Script',_cursive] text-4xl -mt-2" style={{color: paleta.secondary}}>
-                        {isPreview ? <EditableText initialValue={fiesta.configuracion.protagonista1Nombre || 'Luciana'} onSave={(val) => onUpdate?.({ protagonistaNombre: val })} textarea={false}/> : (fiesta.configuracion.protagonista1Nombre || 'Luciana')}
+                        {isPreview ? <EditableText initialValue={fiesta.configuracion.protagonista1Nombre || 'Luciana'} onSave={(val) => onUpdate?.({ protagonista1Nombre: val } as any)} textarea={false}/> : (fiesta.configuracion.protagonista1Nombre || 'Luciana')}
                     </h2>
                 </div>
             </header>

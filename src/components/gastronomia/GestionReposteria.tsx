@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -213,7 +214,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
               <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={(v) => handleItemChange('unidad', v)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
               <div className="space-y-1 relative"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', e.target.value)} className="pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
             </div>
-            <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notes || ''} onChange={e => handleItemChange('notes', e.target.value)} /></div>
+            <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notas || ''} onChange={e => handleItemChange('notas', e.target.value)} /></div>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveItem}>Guardar Ítem</Button></DialogFooter>
         </DialogContent>

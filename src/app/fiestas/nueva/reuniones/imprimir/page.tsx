@@ -59,7 +59,7 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest }) => {
 
   return (
     <div
-      ref={drag}
+      ref={drag as unknown as React.Ref<HTMLDivElement>}
       className={cn(
         "p-2 border rounded-md bg-background shadow-sm cursor-grab",
         isDragging && "opacity-50"
@@ -87,7 +87,7 @@ const TableDropZone: React.FC<TableDropZoneProps> = ({ element, onDrop, children
   }));
 
   return (
-    <div ref={drop} className={cn("absolute", isOver && "ring-2 ring-offset-2 ring-primary rounded-md")}>
+    <div ref={drop as unknown as React.Ref<HTMLDivElement>} className={cn("absolute", isOver && "ring-2 ring-offset-2 ring-primary rounded-md")}>
         {children}
     </div>
   );

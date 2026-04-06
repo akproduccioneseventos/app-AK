@@ -113,6 +113,7 @@ export interface ServicioEmpresa {
   precioBase?: number; // Used for 'ratio'
   invitadosPorUnidad?: number; // Used for 'ratio'
   tramosDePrecio?: TramoDePrecio[]; // Used for 'tramos'
+  cantidad?: number; // Fixed quantity to charge
 
   contactoPrincipal?: string;
 }

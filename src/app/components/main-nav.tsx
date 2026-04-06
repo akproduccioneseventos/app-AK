@@ -44,7 +44,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import AppLogo from "./app-logo";
+import AppLogo from "@/components/app-logo";
 import { cn } from "@/lib/utils";
 
 export function MainNav() {
@@ -153,42 +153,42 @@ export function MainNav() {
                 </SidebarMenuButton>
                 <SidebarMenuSub className="ml-6 border-l-2 border-slate-50 space-y-2 mt-2">
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/servicios" asChild>
+                    <Link href="/empresa/servicios">
                       <SidebarMenuSubButton isActive={isActive("/empresa/servicios")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Catálogo Maestro
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/menus" asChild>
+                    <Link href="/empresa/menus">
                       <SidebarMenuSubButton isActive={isActive("/empresa/menus")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Gastronomía
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/activos-fijos" asChild>
+                    <Link href="/empresa/activos-fijos">
                       <SidebarMenuSubButton isActive={isActive("/empresa/activos-fijos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Activos Fijos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/insumos" asChild>
+                    <Link href="/empresa/insumos">
                       <SidebarMenuSubButton isActive={isActive("/empresa/insumos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Insumos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empleados" asChild>
+                    <Link href="/empleados">
                       <SidebarMenuSubButton isActive={isActive("/empleados")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Recursos Humanos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/proveedores" asChild>
+                    <Link href="/proveedores">
                       <SidebarMenuSubButton isActive={isActive("/proveedores")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Proveedores
                       </SidebarMenuSubButton>
@@ -214,56 +214,56 @@ export function MainNav() {
                 </SidebarMenuButton>
                 <SidebarMenuSub className="ml-6 border-l-2 border-slate-50 space-y-2 mt-2">
                   <SidebarMenuSubItem>
-                    <Link href="/contabilidad/crm" asChild>
+                    <Link href="/contabilidad/crm">
                       <SidebarMenuSubButton isActive={isActive("/contabilidad/crm")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-emerald-600">
                         CRM Prospectos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/contabilidad/crm/agenda" asChild>
+                    <Link href="/contabilidad/crm/agenda">
                       <SidebarMenuSubButton isActive={isActive("/contabilidad/crm/agenda")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Agenda Citas
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                    <SidebarMenuSubItem>
-                    <Link href="/customers" asChild>
+                    <Link href="/customers">
                       <SidebarMenuSubButton isActive={isActive("/customers")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Base Clientes
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/presupuestos/nuevo" asChild>
+                    <Link href="/presupuestos/nuevo">
                       <SidebarMenuSubButton isActive={isActive("/presupuestos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Presupuestos
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/invoices" asChild>
+                    <Link href="/invoices">
                       <SidebarMenuSubButton isActive={isActive("/invoices")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Facturación
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/contabilidad/flujo-caja" asChild>
+                    <Link href="/empresa/contabilidad/flujo-caja">
                       <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/flujo-caja")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-blue-600">
                         Flujo de Caja
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/contabilidad/gastos" asChild>
+                    <Link href="/empresa/contabilidad/gastos">
                       <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/gastos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Gastos Empresa
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/contabilidad/fiestas-historicas" asChild>
+                    <Link href="/contabilidad/fiestas-historicas">
                       <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Historial Base
                       </SidebarMenuSubButton>

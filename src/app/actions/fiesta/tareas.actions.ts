@@ -26,7 +26,7 @@ export async function updateTareas(fiestaId: string, tareas: Tarea[]) {
 }
 
 export async function addTarea(fiestaId: string, tareaData: Omit<Tarea, 'id' | 'completada'>): Promise<{ success: boolean; tarea?: Tarea; error?: string }> {
-    let newTarea: Tarea | null = null;
+    let newTarea: Tarea | undefined = undefined;
     const result = await updateFiestaData(fiestaId, data => {
         newTarea = { ...tareaData, id: `task_${Date.now()}`, completada: false };
         const tareas = [newTarea, ...(data.tareas || [])];

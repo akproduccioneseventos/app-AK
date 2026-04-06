@@ -249,7 +249,7 @@ function GestionCostosRentabilidadContent() {
                                           <TableCell className="text-right pr-8 font-black">{formatCurrency(gestionCostos.others?.totalPersonalCost || 0)}</TableCell>
                                       </TableRow>
                                       {/* PROVEEDORES PRESUPUESTO */}
-                                      {gestionCostos.others?.totalProveedorCost > 0 && (
+                                      {(gestionCostos.others?.totalProveedorCost ?? 0) > 0 && (
                                           <TableRow className="border-slate-50">
                                               <TableCell className="pl-8 py-4"><div className="flex items-center gap-3"><Truck className="w-5 h-5 text-primary"/><p className="font-bold text-slate-700">Proveedores Externos (Presupuesto)</p></div></TableCell>
                                               <TableCell className="text-right pr-8 font-black">{formatCurrency(gestionCostos.others.totalProveedorCost)}</TableCell>

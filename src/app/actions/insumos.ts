@@ -79,7 +79,7 @@ export async function saveInsumo(
   const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
     ...itemData,
     tipoItem: itemData.tipoItem || 'Insumo/Ingrediente',
-    valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimated)) ? Number(itemData.valorUnitarioEstimado) : (itemData.valorUnitarioEstimado || 0),
+    valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado)) ? Number(itemData.valorUnitarioEstimado) : (itemData.valorUnitarioEstimado || 0),
     cantidadDisponible: itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible)) ? Number(itemData.cantidadDisponible) : undefined,
     subcategoria: itemData.subcategoria?.trim() || undefined,
     notas: (itemData as any).notas?.trim() || undefined,

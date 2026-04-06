@@ -71,17 +71,17 @@ function PaginaWebPageContent() {
         const templates = await getInvitationTemplates();
         data = templates.find(t => t.id === templateId);
         if(!data) throw new Error("Plantilla no encontrada");
-        setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuracion: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as FiestaEnPlanificacion);
+        setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuracion: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as unknown as FiestaEnPlanificacion);
       } else {
         throw new Error("ID no proporcionado");
       }
 
       const baseData = cloneDeep(defaultInvitacionDigitalData);
-      const savedData = data?.invitacionDigital || data;
+      const savedData = (data as any)?.invitacionDigital || data;
       const mergedData = merge(baseData, savedData);
       
-      if (fiestaId && data && data.configuracion) {
-          const config = data.configuracion;
+      if (fiestaId && data && (data as any).configuracion) {
+          const config = (data as any).configuracion;
           const isXV = config.tipoCelebracion === 'XV años';
 
           mergedData.cabecera.protagonista1 = config.protagonista1Nombre || mergedData.cabecera.protagonista1;
@@ -229,7 +229,7 @@ function PaginaWebPageContent() {
         {/* SELECTOR DE DISPOSITIVOS - MEJORADO PARA VISIBILIDAD */}
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
             <Button 
-                variant={previewMode === 'mobile' ? 'white' : 'ghost'} 
+                variant={previewMode === 'mobile' ? 'outline' : 'ghost'} 
                 size="sm" 
                 onClick={() => setPreviewMode('mobile')} 
                 className={cn("rounded-xl h-9 px-3", previewMode === 'mobile' && "shadow-sm bg-white")}
@@ -237,7 +237,7 @@ function PaginaWebPageContent() {
                 <Smartphone className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">Móvil</span>
             </Button>
             <Button 
-                variant={previewMode === 'tablet' ? 'white' : 'ghost'} 
+                variant={previewMode === 'tablet' ? 'outline' : 'ghost'} 
                 size="sm" 
                 onClick={() => setPreviewMode('tablet')} 
                 className={cn("rounded-xl h-9 px-3", previewMode === 'tablet' && "shadow-sm bg-white")}
@@ -245,7 +245,7 @@ function PaginaWebPageContent() {
                 <Tablet className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">Tablet</span>
             </Button>
             <Button 
-                variant={previewMode === 'desktop' ? 'white' : 'ghost'} 
+                variant={previewMode === 'desktop' ? 'outline' : 'ghost'} 
                 size="sm" 
                 onClick={() => setPreviewMode('desktop')} 
                 className={cn("rounded-xl h-9 px-3", previewMode === 'desktop' && "shadow-sm bg-white")}

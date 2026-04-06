@@ -13,7 +13,8 @@ import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { Invoice, InvoiceStatus, Customer as InvoiceCustomerType } from '@/types/invoice';
+import type { Invoice, InvoiceStatus } from '@/types/invoice';
+import type { Customer as InvoiceCustomerType } from '@/types/customer';
 import { getInvoiceById, saveInvoice as updateInvoiceAction } from '@/app/actions/invoices';
 import { getCustomers } from '@/app/actions/customers'; // To fetch customers for dropdown
 import type { Customer } from '@/types/customer'; // Main Customer type

@@ -99,7 +99,7 @@ export default function FeedbackPage() {
               setIsPostModalOpen(false);
               toast({ title: "Publicación Programada/Creada" });
           }}
-          postToDuplicate={postToCreate} // Using duplicate to pre-fill text
+          postToDuplicate={postToCreate as import('@/types/social-media').SocialPost | null} // Using duplicate to pre-fill text
       />
      
       <div className="flex items-center justify-between">

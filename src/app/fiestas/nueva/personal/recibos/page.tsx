@@ -93,7 +93,7 @@ function RecibosDePagoContent() {
         getInvoiceTemplateSettings()
       ]);
       setFiesta(fiestaData);
-      setLogoUrl(settings.logoUrl);
+      setLogoUrl(settings.logoUrl ?? null);
       
       const details = (fiestaData.personalAsignado || []).map(assigned => {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);
@@ -107,7 +107,7 @@ function RecibosDePagoContent() {
           eventSalary: assigned.eventSalary,
           employerContribution: contribution
         };
-      }).filter((item): item is FullStaffDetail => item !== null);
+      }).filter((item): item is NonNullable<typeof item> => item !== null) as FullStaffDetail[];
       
       setAssignedStaffDetails(details);
 

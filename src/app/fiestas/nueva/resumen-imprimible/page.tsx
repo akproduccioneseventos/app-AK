@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2, Download } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, CalendarDays, Users, MapPin, ChefHat, Palette, UserCheck, Clock, Loader2, Download, ListChecks } from 'lucide-react';
 import type { FiestaEnPlanificacion, DecorationItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -64,7 +64,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
       
       if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
-      setLogoUrl(templateSettings.logoUrl);
+      setLogoUrl(templateSettings.logoUrl ?? null);
 
       const dataPromises: Promise<any>[] = [];
       if (fiestaData.configuracion.clienteId) {
