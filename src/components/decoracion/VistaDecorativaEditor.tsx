@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Download, Save, Loader2 } from 'lucide-react';
+import { Trash2, Download, Save, Loader2, ImageIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import type { ElementoDecorativo, ColorPalette } from '@/types/fiesta';
+import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Types
@@ -549,13 +550,24 @@ export default function VistaDecorativaEditor({
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">URL de imagen de fondo</Label>
-                  <Input
-                    value={fondoImagenUrl}
-                    onChange={e => setFondoImagenUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="h-8 text-sm"
+                  <Label className="text-xs">Imagen de fondo (foto del salón)</Label>
+                  <UploadButton
+                    currentUrl={fondoImagenUrl || undefined}
+                    onUrlChange={url => setFondoImagenUrl(url)}
+                    fiestaId={fiestaId}
+                    accept="image/*"
                   />
+                  {fondoImagenUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-destructive mt-1"
+                      onClick={() => setFondoImagenUrl('')}
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" /> Quitar imagen
+                    </Button>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Hacé clic en un elemento del canvas para editar sus propiedades.
