@@ -39,10 +39,16 @@ export async function injectAuthSession(context: BrowserContext): Promise<void> 
  * Use this when you want to test the login flow itself.
  *
  * Reads credentials from environment variables:
- *   E2E_DEMO_PASSWORD (default: from app source)
+ *   E2E_DEMO_PASSWORD (required)
  */
 export async function loginAsDemo(page: Page): Promise<void> {
-  const password = process.env.E2E_DEMO_PASSWORD || 'SOydocenTE2124';
+  const password = process.env.E2E_DEMO_PASSWORD;
+  if (!password) {
+    throw new Error(
+      'E2E_DEMO_PASSWORD environment variable is not set. ' +
+        'Set it before running login tests (e.g. E2E_DEMO_PASSWORD=your_password npm run test:e2e).'
+    );
+  }
 
   await page.goto('/login');
   await page.waitForSelector('#app-password');

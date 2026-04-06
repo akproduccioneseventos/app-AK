@@ -1,8 +1,11 @@
 import { test, expect } from './fixtures';
+import { loginAsDemo } from './helpers/auth';
 
 /**
  * Test: Login flow through the UI.
  * Verifies that the login page works and redirects to home.
+ *
+ * Requires: E2E_DEMO_PASSWORD environment variable to be set.
  */
 test.describe('Login', () => {
   test('muestra la página de login y permite ingresar', async ({ browser }) => {
@@ -15,13 +18,10 @@ test.describe('Login', () => {
     await expect(page.locator('#app-password')).toBeVisible();
     await expect(page.getByRole('button', { name: /ingresar/i })).toBeVisible();
 
-    // Fill password and submit
-    const password = process.env.E2E_DEMO_PASSWORD || 'SOydocenTE2124';
-    await page.fill('#app-password', password);
-    await page.click('button[type="submit"]');
+    // Use the shared helper which reads E2E_DEMO_PASSWORD from env
+    await loginAsDemo(page);
 
-    // Should redirect to home
-    await page.waitForURL('/', { timeout: 10_000 });
+    // Should have navigated to home
     await expect(page).toHaveURL('/');
 
     await context.close();
