@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -61,6 +61,7 @@ function PresupuestoDashboardContent() {
                 </h1>
                 <div className="flex gap-2 flex-wrap">
                   <Link href="/presupuestos/reporte"><Button variant="secondary">Reporte</Button></Link>
+                  <Link href="/presupuestos/importar"><Button variant="outline" data-testid="btn-importar-presupuesto"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Button></Link>
                   <Link href="/presupuestos/nuevo/crear"><Button><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Button></Link>
                   <Link href="/empresa/contabilidad"><Button variant="outline">Volver</Button></Link>
                 </div>
