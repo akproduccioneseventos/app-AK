@@ -31,6 +31,27 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+
+const ALLERGEN_MAP: Record<string, string> = {
+  gluten: '🌾',
+  lacteos: '🥛',
+  huevo: '🥚',
+  frutos_secos: '🥜',
+  pescado: '🐟',
+  mariscos: '🦐',
+  soja: '🫘',
+};
+
+const DISH_TYPE_EMOJI: Record<string, string> = {
+  'Entrada': '🥗',
+  'Plato Principal': '🍽️',
+  'Postre': '🍰',
+  'Bebida': '🍹',
+  'Menú Infantil': '🧒',
+  'Menú Infantil/Adolescente': '🧒',
+  '': '🍴',
+};
 
 interface PlatoConMenu extends MenuItem {
   menuId: string;
@@ -203,6 +224,33 @@ export default function CatalogoPlatosPage() {
     }
   };
 
+  const handleDuplicateDish = async (menuId: string, dish: PlatoConMenu) => {
+    setProcessingId(dish.id);
+    try {
+      const menuToUpdate = allMenus.find(m => m.id === menuId);
+      if (!menuToUpdate) throw new Error("Menú no encontrado.");
+
+      const duplicated: MenuItem = {
+        ...JSON.parse(JSON.stringify(dish)),
+        id: `dupe_dish_${Date.now()}`,
+        name: `${dish.name} (copia)`,
+      };
+      const { menuId: _mid, menuName: _mname, ...cleanDish } = duplicated as any;
+
+      const result = await saveMenu({ ...menuToUpdate, items: [...menuToUpdate.items, cleanDish] });
+      if (result.success) {
+        toast({ title: "Plato Duplicado", description: `Se creó "${cleanDish.name}".` });
+        await loadData();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (err: any) {
+      toast({ title: "Error al Duplicar Plato", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -223,6 +271,20 @@ export default function CatalogoPlatosPage() {
                 </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-2">
+                {editingDish?.imageUrl && (
+                  <div className="w-full h-40 rounded-lg border overflow-hidden">
+                    <img src={editingDish.imageUrl} alt={editingDish.name} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                {(editingDish?.allergenTags || []).length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {(editingDish?.allergenTags || []).map(a => (
+                      <Badge key={a} variant="outline" className="text-xs gap-1">
+                        {ALLERGEN_MAP[a] || a}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 <div className="space-y-1">
                     <Label htmlFor="edit-profitMargin" className="flex items-center gap-1"><Percent className="w-4 h-4"/>Margen de Ganancia (%)</Label>
                     <Input id="edit-profitMargin" type="text" inputMode="decimal" value={editingDish?.profitMargin ?? ''} onChange={e => handlePriceFormChange('profitMargin', e.target.value)} />
@@ -267,12 +329,28 @@ export default function CatalogoPlatosPage() {
                             <AccordionContent className="p-2">
                                 <ul className="space-y-1">
                                 {platosAgrupados[categoria].map(plato => (
-                                    <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center">
-                                      <div>
-                                        <p className="font-medium">{plato.name}</p>
-                                        <p className="text-xs text-muted-foreground">Del menú: "{plato.menuName}"</p>
+                                    <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center gap-2">
+                                      <div className="flex items-center gap-2 min-w-0">
+                                        <div className="w-10 h-10 rounded-md border bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center">
+                                          {plato.imageUrl ? (
+                                            <img src={plato.imageUrl} alt={plato.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                                          ) : (
+                                            <span className="text-lg">{DISH_TYPE_EMOJI[plato.type || ''] || '🍴'}</span>
+                                          )}
+                                        </div>
+                                        <div className="min-w-0">
+                                          <p className="font-medium truncate">{plato.name}</p>
+                                          <p className="text-xs text-muted-foreground truncate">Del menú: "{plato.menuName}"</p>
+                                          {(plato.allergenTags || []).length > 0 && (
+                                            <div className="flex flex-wrap gap-0.5 mt-0.5">
+                                              {(plato.allergenTags || []).map(a => (
+                                                <span key={a} title={a} className="text-sm">{ALLERGEN_MAP[a] || a}</span>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
-                                      <div className="flex items-center gap-1">
+                                      <div className="flex items-center gap-1 shrink-0">
                                         <p className="font-semibold text-primary">{formatCurrency(plato.suggestedSellingPrice)}</p>
                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(plato)} title="Editar precio del plato">
                                             <Edit className="w-4 h-4" />
@@ -289,6 +367,10 @@ export default function CatalogoPlatosPage() {
                                                         <Edit className="w-4 h-4 mr-2" />
                                                         Editar Menú Completo
                                                     </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDuplicateDish(plato.menuId, plato)}>
+                                                    <Copy className="w-4 h-4 mr-2" />
+                                                    Duplicar Plato
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleDuplicateMenu(plato.menuId, plato.menuName)}>
                                                     <Copy className="w-4 h-4 mr-2" />

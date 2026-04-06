@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, MapPin, MonitorPlay, Camera } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, MapPin, MonitorPlay, Camera, ExternalLink } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -13,6 +13,33 @@ interface HubItem {
   icon: React.ElementType;
   actionLabel: string;
 }
+
+const CANVA_CATALOGS = [
+  {
+    emoji: '🍽️',
+    title: 'Catálogo Catering',
+    description: 'Menús, platos y opciones gastronómicas para todo tipo de eventos.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+  },
+  {
+    emoji: '💍',
+    title: 'Catálogo Bodas',
+    description: 'Servicio completo para bodas: decoración, catering, fotografía y más.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas',
+  },
+  {
+    emoji: '👑',
+    title: 'Catálogo XV Años',
+    description: 'Todo lo que necesitás para una fiesta de 15 años inolvidable.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web',
+  },
+  {
+    emoji: '🎉',
+    title: 'Catálogo Fiestas',
+    description: 'Servicio completo para fiestas en general: cumpleaños, celebraciones y más.',
+    href: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+  },
+];
 
 const empresaHubItems: HubItem[] = [
   {
@@ -138,6 +165,38 @@ export default function EmpresaHubPage() {
             </CardFooter>
           </Card>
         ))}
+      </div>
+
+      {/* Catálogos Públicos Canva */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Globe className="w-6 h-6 text-primary" />
+          <h2 className="text-xl font-bold tracking-tight font-headline">Catálogos Públicos Canva</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">Compartí estos catálogos con tus clientes para que puedan ver todos tus servicios.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {CANVA_CATALOGS.map((cat) => (
+            <Card key={cat.title} className="flex flex-col shadow hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{cat.emoji}</span>
+                  <CardTitle className="text-base font-headline">{cat.title}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-xs text-muted-foreground">{cat.description}</p>
+              </CardContent>
+              <CardFooter className="pt-2">
+                <a href={cat.href} target="_blank" rel="noopener noreferrer" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full gap-1.5">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Ver Catálogo
+                  </Button>
+                </a>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

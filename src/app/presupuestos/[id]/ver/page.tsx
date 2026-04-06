@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
@@ -332,6 +332,27 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                     <Printer className="w-3.5 h-3.5 mr-2"/> Guardar PDF
                                 </Button>
                             </div>
+                            {/* Canva catalog contextual link */}
+                            {presupuesto && (() => {
+                              const tipo = (presupuesto.eventoTipo || '').toLowerCase();
+                              const isBoda = tipo.includes('boda') || tipo.includes('casamiento');
+                              const isXV = tipo.includes('xv') || tipo.includes('quince');
+                              const isCatering = tipo.includes('catering');
+                              const canvaUrl = isBoda
+                                ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas'
+                                : isXV
+                                ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web'
+                                : 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web';
+                              const emoji = isBoda ? '💍' : isXV ? '👑' : '🎉';
+                              const label = isBoda ? 'Ver Catálogo Bodas' : isXV ? 'Ver Catálogo XV Años' : 'Ver Catálogo Fiestas';
+                              return (
+                                <a href={canvaUrl} target="_blank" rel="noopener noreferrer">
+                                  <Button variant="outline" size="sm" className="rounded-xl gap-1.5 text-primary border-primary/20 hover:bg-primary/5 text-[11px] font-bold uppercase tracking-widest">
+                                    <ExternalLink className="w-3.5 h-3.5" />{emoji} {label}
+                                  </Button>
+                                </a>
+                              );
+                            })()}
                         </div>
                     </CardContent>
                 </Card>

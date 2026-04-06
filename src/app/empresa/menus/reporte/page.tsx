@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Loader2, AlertTriangle, Info, Cake, GlassWater, Eye } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, ChefHat, Loader2, AlertTriangle, Info, Cake, GlassWater, Eye, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ReposteriaData, BebidasData } from '@/types/fiesta';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -105,10 +105,15 @@ export default function ReporteMenusPage() {
           <Link href="/empresa/menus">
             <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Menús</Button>
           </Link>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button onClick={handlePrint} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1.5"/>Vista Previa</Button>
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
+            <a href="https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm" className="gap-1.5 text-primary border-primary/30 hover:bg-primary/5">
+                <ExternalLink className="w-4 h-4" />🍽️ Ver Catálogo Catering
+              </Button>
+            </a>
           </div>
         </div>
 

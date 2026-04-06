@@ -20,6 +20,8 @@ import type {
     ListaDeCargaOperativa,
     CargaOperativaCategoria,
     CargaOperativaItem,
+    Tarea,
+    ProgramaEventoItem,
 } from '@/types/fiesta';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import {
@@ -353,6 +355,100 @@ async function syncCargaOperativaFromBudget(
     };
 }
 
+function generateTareasFromServices(modulos: ModulosContratados, eventoTipo: string): Tarea[] {
+    const tareas: Tarea[] = [];
+    let idCounter = 1;
+    const makeId = () => `auto_tarea_${Date.now()}_${idCounter++}`;
+
+    // Tareas generales siempre presentes
+    const tareasGenerales = [
+        'Confirmar fecha y lugar del evento',
+        'Enviar invitaciones a los invitados',
+        'Confirmar número final de invitados',
+        'Preparar lista de invitados con necesidades especiales',
+        'Hacer check de equipo y materiales el día anterior',
+    ];
+    tareasGenerales.forEach(texto => tareas.push({ id: makeId(), texto, completada: false, asignadaA: 'Organizador', esPredeterminada: true }));
+
+    if (modulos.catering) {
+        ['Confirmar menú definitivo con el cliente', 'Calcular insumos y hacer lista de compras', 'Coordinar personal de cocina', 'Verificar restricciones alimentarias de invitados'].forEach(texto =>
+            tareas.push({ id: makeId(), texto: `[Catering] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
+        );
+    }
+
+    if (modulos.musica) {
+        ['Confirmar playlist o setlist con el DJ/Banda', 'Verificar equipo de sonido e iluminación', 'Coordinar horarios de DJ'].forEach(texto =>
+            tareas.push({ id: makeId(), texto: `[Música] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
+        );
+    }
+
+    if (modulos.fotografia) {
+        ['Confirmar horario y lugar con fotógrafo/filmador', 'Preparar lista de fotos especiales requeridas', 'Coordinar acceso del fotógrafo al lugar'].forEach(texto =>
+            tareas.push({ id: makeId(), texto: `[Foto/Video] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
+        );
+    }
+
+    if (modulos.decoracion) {
+        ['Confirmar esquema de decoración con el cliente', 'Coordinar montaje y desmontaje de decoración', 'Verificar disponibilidad de materiales decorativos'].forEach(texto =>
+            tareas.push({ id: makeId(), texto: `[Decoración] ${texto}`, completada: false, asignadaA: 'Organizador', esPredeterminada: true })
+        );
+    }
+
+    // Tareas cliente
+    tareas.push({ id: makeId(), texto: 'Confirmar asistencia al evento', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+    tareas.push({ id: makeId(), texto: 'Compartir lista de invitados VIP', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+    if (eventoTipo?.toLowerCase().includes('boda') || eventoTipo?.toLowerCase().includes('casamiento')) {
+        tareas.push({ id: makeId(), texto: '[Boda] Confirmar canción de apertura y primer baile', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+        tareas.push({ id: makeId(), texto: '[Boda] Entregar lista de testigos y padrinos', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+    }
+    if (eventoTipo?.toLowerCase().includes('xv') || eventoTipo?.toLowerCase().includes('quince')) {
+        tareas.push({ id: makeId(), texto: '[XV Años] Confirmar vals de honor y vals sorpresa', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+        tareas.push({ id: makeId(), texto: '[XV Años] Confirmar chambelanes/damas de honor', completada: false, asignadaA: 'Cliente', esPredeterminada: true });
+    }
+
+    return tareas;
+}
+
+function generateItinerarioSugerido(eventoTipo: string, modulos: ModulosContratados): ProgramaEventoItem[] {
+    const items: ProgramaEventoItem[] = [];
+    let idCounter = 1;
+    const makeId = () => `auto_prog_${Date.now()}_${idCounter++}`;
+
+    const isBoda = eventoTipo?.toLowerCase().includes('boda') || eventoTipo?.toLowerCase().includes('casamiento');
+    const isXV = eventoTipo?.toLowerCase().includes('xv') || eventoTipo?.toLowerCase().includes('quince');
+
+    if (isBoda) {
+        items.push({ id: makeId(), hora: '18:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida en la entrada del salón', icono: '👋' });
+        items.push({ id: makeId(), hora: '19:00', titulo: 'Ceremonia', descripcion: 'Ceremonia civil o religiosa de los novios', icono: '💍' });
+        items.push({ id: makeId(), hora: '20:00', titulo: 'Cóctel', descripcion: 'Aperitivos y bienvenida formal a los invitados', icono: '🥂' });
+        items.push({ id: makeId(), hora: '21:00', titulo: 'Ingreso al salón', descripcion: 'Entrada de los novios y primera danza', icono: '🎊' });
+        items.push({ id: makeId(), hora: '21:15', titulo: 'Vals', descripcion: 'Primer baile de los novios', icono: '💃' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '21:30', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: '🍽️' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '23:00', titulo: 'Pista de baile', descripcion: 'DJ / Banda en vivo — fiesta abierta', icono: '🎶' });
+        items.push({ id: makeId(), hora: '01:00', titulo: 'Torta', descripcion: 'Corte de torta nupcial', icono: '🎂' });
+        items.push({ id: makeId(), hora: '04:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: '🌅' });
+    } else if (isXV) {
+        items.push({ id: makeId(), hora: '19:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida en la entrada del salón', icono: '👋' });
+        items.push({ id: makeId(), hora: '20:00', titulo: 'Ingreso de la festejada', descripcion: 'Entrada de la quinceañera al salón', icono: '👑' });
+        items.push({ id: makeId(), hora: '20:15', titulo: 'Vals de honor', descripcion: 'Primer vals de la quinceañera con su padre/padrino', icono: '💃' });
+        items.push({ id: makeId(), hora: '20:30', titulo: 'Vals sorpresa', descripcion: 'Coreografía sorpresa de chambelanes/damas de honor', icono: '🎭' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '21:00', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: '🍽️' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '22:30', titulo: 'Pista de baile', descripcion: 'DJ en vivo — fiesta abierta', icono: '🎶' });
+        items.push({ id: makeId(), hora: '00:30', titulo: 'Torta', descripcion: 'Corte de torta de la quinceañera', icono: '🎂' });
+        items.push({ id: makeId(), hora: '03:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: '🌅' });
+    } else {
+        // Fiesta general / cumpleaños
+        items.push({ id: makeId(), hora: '20:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida', icono: '👋' });
+        items.push({ id: makeId(), hora: '20:30', titulo: 'Apertura oficial', descripcion: 'Palabras de bienvenida del festejado/organizador', icono: '🎉' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '21:00', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: '🍽️' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '22:30', titulo: 'Pista de baile', descripcion: 'DJ en vivo — fiesta abierta', icono: '🎶' });
+        items.push({ id: makeId(), hora: '00:00', titulo: 'Torta', descripcion: 'Corte de torta y brindis', icono: '🎂' });
+        items.push({ id: makeId(), hora: '03:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: '🌅' });
+    }
+
+    return items;
+}
+
 /**
  * MOTOR DE SINCRONIZACIÓN MAESTRA
  * Dispara la configuración operativa de la fiesta basándose en el presupuesto aceptado.
@@ -490,6 +586,16 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         items,
         guests
     );
+
+    // 12. TAREAS AUTOMÁTICAS por servicio (solo si no hay tareas previas)
+    if (!updatedFiesta.tareas || updatedFiesta.tareas.length === 0) {
+        updatedFiesta.tareas = generateTareasFromServices(modulos, presupuesto.eventoTipo || 'General');
+    }
+
+    // 13. ITINERARIO SUGERIDO por tipo de evento (solo si no hay itinerario previo)
+    if (!updatedFiesta.programa || updatedFiesta.programa.length === 0) {
+        updatedFiesta.programa = generateItinerarioSugerido(presupuesto.eventoTipo || 'General', modulos);
+    }
 
     return await saveFiesta(updatedFiesta);
 }
