@@ -122,6 +122,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
+  if (pathname === '/settings/whatsapp-business') return 'WhatsApp Business Bot';
+  if (pathname === '/settings/whatsapp-business/conversations') return 'Conversaciones WhatsApp';
   if (pathname === '/admin/carga-historicos') return 'Carga Rápida de Históricos';
   if (pathname === '/admin/ventas') return 'Tablero Comercial';
   if (pathname === '/admin/finanzas') return 'Dashboard de Rentabilidad';
@@ -210,6 +212,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/feedback') return Star;
   if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
+  if (pathname === '/settings/whatsapp-business') return Bot;
+  if (pathname === '/settings/whatsapp-business/conversations') return MessageSquareText;
   if (pathname === '/admin/carga-historicos') return FileArchive;
   if (pathname === '/admin/ventas') return KanbanSquare;
   if (pathname === '/admin/finanzas') return TrendingUp;
