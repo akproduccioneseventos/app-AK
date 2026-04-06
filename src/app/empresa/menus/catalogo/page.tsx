@@ -305,11 +305,10 @@ export default function CatalogoPlatosPage() {
                                 {platosAgrupados[categoria].map(plato => (
                                     <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center gap-2">
                                       {/* Thumbnail */}
-                                      <div className="w-10 h-10 flex-shrink-0 rounded overflow-hidden border bg-muted flex items-center justify-center text-lg">
-                                        {plato.imageUrl ? (
-                                          <img src={plato.imageUrl} alt={plato.name} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
-                                        ) : (
-                                          <span>{DISH_TYPE_EMOJIS[plato.type || ''] || '🍴'}</span>
+                                      <div className="w-10 h-10 flex-shrink-0 rounded overflow-hidden border bg-muted flex items-center justify-center text-lg relative">
+                                        <span>{DISH_TYPE_EMOJIS[plato.type || ''] || '🍴'}</span>
+                                        {plato.imageUrl && (
+                                          <img src={plato.imageUrl} alt={plato.name} className="absolute inset-0 w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
                                         )}
                                       </div>
                                       <div className="flex-1 min-w-0">

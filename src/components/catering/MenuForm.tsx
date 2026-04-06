@@ -371,11 +371,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                      </div>
                      {/* Foto del plato */}
                      <div className="mt-3 flex items-start gap-3">
-                       <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border bg-muted flex items-center justify-center text-2xl">
-                         {item.imageUrl ? (
-                           <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
-                         ) : (
-                           <span>{DISH_TYPE_EMOJIS[item.type || ''] || '🍴'}</span>
+                       <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border bg-muted flex items-center justify-center text-2xl relative">
+                         <span className="text-2xl">{DISH_TYPE_EMOJIS[item.type || ''] || '🍴'}</span>
+                         {item.imageUrl && (
+                           <img src={item.imageUrl} alt={item.name} className="absolute inset-0 w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
                          )}
                        </div>
                        <div className="flex-1 space-y-1">
@@ -434,7 +433,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                       <Label className="text-xs">Nombre</Label>
                                       <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/>
                                       {cheaperProvider && (
-                                        <p className="text-[10px] text-green-600 flex items-center gap-1"><AlertCircle className="w-3 h-3"/>Opción más barata: {formatCurrency(cheaperProvider.valorUnitarioEstimado)}/{cheaperProvider.unidad}</p>
+                                        <p className="text-[10px] text-green-700 flex items-center gap-1 bg-green-50 px-1.5 py-0.5 rounded"><AlertCircle className="w-3 h-3"/>Opción más barata: {formatCurrency(cheaperProvider.valorUnitarioEstimado)}/{cheaperProvider.unidad}</p>
                                       )}
                                     </div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
