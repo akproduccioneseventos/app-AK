@@ -209,7 +209,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           setLocalSettings(prev => ({ ...prev, ...fiestaData.socialGallerySettings }));
       }
       setChatMessages(fetchedChat);
-      setCompanyLogoUrl(settingsData.logoUrl);
+      setCompanyLogoUrl(settingsData.logoUrl ?? null);
       setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
 
     } catch (e) {

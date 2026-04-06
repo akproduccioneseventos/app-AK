@@ -2,7 +2,7 @@
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
-import type { FiestaEnPlanificacion, CompraProveedorEstado } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CompraProveedorEstado, Tarea } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
@@ -23,7 +23,7 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
     if (!fiestaId) return { success: false, error: "ID de Fiesta no proporcionado." };
 
     try {
-        let fiesta = await getFiestaById(fiestaId);
+        let fiesta: FiestaEnPlanificacion = await getFiestaById(fiestaId) as FiestaEnPlanificacion;
         if (!fiesta) throw new Error("Fiesta no encontrada");
         
         // Buscar cambios para crear tareas automáticas de pago

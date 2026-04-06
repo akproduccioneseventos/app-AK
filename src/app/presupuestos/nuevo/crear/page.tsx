@@ -169,7 +169,7 @@ function CrearPresupuestoContent() {
                             eventoFecha: new Date(presupuestoToEdit.eventoFecha),
                             serviciosSeleccionados: serviciosMap,
                             descuentoValor: presupuestoToEdit.descuentoValor?.toString() || '10'
-                        });
+                        } as PresupuestoFormData);
                     }
                 } else {
                     const leadName = searchParams.get('leadName');
@@ -259,6 +259,7 @@ function CrearPresupuestoContent() {
             estado: formData.estado,
             invoiceId: formData.invoiceId,
             marketingMarkupPercent: formData.marketingMarkupPercent,
+            timestamp: formData.timestamp || new Date().toISOString(),
         };
         
         setIsSaving(true);

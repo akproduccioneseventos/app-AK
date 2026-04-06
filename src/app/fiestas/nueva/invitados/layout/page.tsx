@@ -57,7 +57,7 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
 
   return (
     <div
-      ref={drag}
+      ref={drag as unknown as React.Ref<HTMLDivElement>}
       className={cn(
         "p-3 border rounded-xl bg-white shadow-sm cursor-grab hover:border-primary/50 transition-all",
         isDragging && "opacity-50"
@@ -799,7 +799,7 @@ function SalonLayoutContent() {
                                     <TableCell className="font-medium text-sm pl-8 text-slate-700">
                                         <div className="flex items-center gap-2">
                                             {guest.nombre}
-                                            {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" title="Celíaco" />}
+                                            {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" aria-label="Celíaco" />}
                                             {guest.tag && <Badge variant="outline" className="text-[8px] bg-slate-50 text-slate-400 border-none font-bold uppercase">{guest.tag}</Badge>}
                                         </div>
                                     </TableCell>
@@ -823,7 +823,7 @@ function SalonLayoutContent() {
                                     <TableCell className="font-bold text-sm pl-8 text-emerald-700">
                                         <div className="flex items-center gap-2">
                                             {guest.nombre}
-                                            {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" title="Celíaco" />}
+                                            {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600" aria-label="Celíaco" />}
                                             {guest.tag && <Badge variant="outline" className="text-[8px] bg-emerald-100/50 text-emerald-600 border-none font-bold uppercase">{guest.tag}</Badge>}
                                         </div>
                                     </TableCell>

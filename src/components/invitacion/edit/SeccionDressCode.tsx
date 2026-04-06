@@ -76,7 +76,7 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId
       <div className="p-3 border rounded-md">
         <Label>Tipo de Vestimenta</Label>
         <RadioGroup
-          value={isPredefined ? data.texto.text : 'Otro'}
+          value={isPredefined ? (data.texto?.text ?? '') : 'Otro'}
           onValueChange={(value) => handleTextChange(value === 'Otro' ? '' : value)}
           className="mt-2"
         >

@@ -172,7 +172,7 @@ function MenuDeMesaContent() {
                     fiesta={fiesta}
                     data={data}
                     logoUrl={logoUrl}
-                    onUpdate={setData}
+                    onUpdate={(newData) => setData(prev => ({ ...prev, ...newData } as typeof prev))}
                     isPreview={true}
                 />
             </div>
@@ -181,7 +181,7 @@ function MenuDeMesaContent() {
                     fiesta={fiesta}
                     data={data}
                     logoUrl={logoUrl}
-                    onUpdate={setData}
+                    onUpdate={(newData) => setData(prev => ({ ...prev, ...newData } as typeof prev))}
                     isPreview={true}
                 />
             </div>

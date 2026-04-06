@@ -150,8 +150,8 @@ export interface LayoutElement {
   name: string;
   x: number;
   y: number;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   rotation: number;
   type: LayoutElementType;
   category?: string;
@@ -856,8 +856,4 @@ export interface BebidaReceta {
 }
 
 // --- COSTO CATEGORIA ---
-export interface CostoCategoria {
-  id: string;
-  nombre: string;
-  items: CostoItem[];
-}
+export type CostoCategoria = string;

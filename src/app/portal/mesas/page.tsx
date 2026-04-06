@@ -370,7 +370,7 @@ function AsignacionMesasContent() {
                                                 <div className="flex items-center gap-2">
                                                     <p className="font-bold text-sm">{guest.nombre}</p>
                                                     {seatingMode === 'numerada' && !guest.tableNumber && (
-                                                        <AlertTriangle className="w-3 h-3 text-rose-500" title="Falta asignar mesa" />
+                                                        <AlertTriangle className="w-3 h-3 text-rose-500" aria-label="Falta asignar mesa" />
                                                     )}
                                                 </div>
                                                 <p className="text-[10px] text-muted-foreground uppercase">{guest.categoria}</p>

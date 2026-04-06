@@ -107,7 +107,7 @@ function RecibosDePagoContent() {
           eventSalary: assigned.eventSalary,
           employerContribution: contribution
         };
-      }).filter((item): item is FullStaffDetail => item !== null);
+      }).filter((item): item is NonNullable<typeof item> => item !== null) as FullStaffDetail[];
       
       setAssignedStaffDetails(details);
 

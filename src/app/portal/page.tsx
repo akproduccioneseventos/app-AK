@@ -54,7 +54,7 @@ function ClientPortalContent() {
 
         async function loadFiesta() {
             try {
-                const fiestaData = await getFiestaById(fiestaId);
+                const fiestaData = await getFiestaById(fiestaId!);
                 if (!fiestaData || !fiestaData.clientPortalSettings?.enabled) {
                     setError("El portal para este evento no está habilitado o el evento no existe.");
                 } else {

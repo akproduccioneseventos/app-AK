@@ -56,7 +56,7 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
 
   return (
     <div
-      ref={drag}
+      ref={drag as unknown as React.Ref<HTMLDivElement>}
       className={cn(
         "p-2 border rounded-md bg-background shadow-sm cursor-grab",
         isDragging && "opacity-50"

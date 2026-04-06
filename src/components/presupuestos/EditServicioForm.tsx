@@ -68,7 +68,7 @@ const EditServicioForm: React.FC<{ onCatalogUpdate: () => Promise<void> }> = ({ 
     };
 
     const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
-        setCurrentItem(prev => prev ? { ...prev, [field]: value } : null);
+        setCurrentItem(prev => (prev ? { ...prev, [field]: value } : {}) as Partial<ServicioEmpresa>);
     };
 
     const handleSave = async (e: FormEvent) => {

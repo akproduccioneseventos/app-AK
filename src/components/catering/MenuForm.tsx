@@ -184,7 +184,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   
   const handleIngredientChange = (itemId: string, ingId: string, field: keyof Ingredient, value: any) => {
     setMenu(prev => {
-      if (!prev) return null;
+      if (!prev) return {} as Partial<FullMenu>;
       const newItems = (prev.items || []).map(item => {
         if (item.id === itemId) {
             const newIngredients = (item.ingredients || []).map(ing => {
