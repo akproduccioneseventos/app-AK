@@ -73,6 +73,23 @@ const DEFAULT_ZONA_DISENO: ZonaDiseno = {
   vistaDecorativa: { elementos: [] },
 };
 
+// ─── Helper functions ─────────────────────────────────────────────────────────
+
+/** Returns the internal cost of a DecoItem, preferring costoUnitario over the legacy precioUnitario */
+function getItemCosto(item: DecoItem): number {
+  return item.costoUnitario ?? item.precioUnitario ?? 0;
+}
+
+/** Returns the display name for a zone ID, looking up in both design zones and default IDs */
+function getZonaDisplayName(zonaId: string | undefined, zonasDiseno: ZonaDiseno[]): string {
+  if (!zonaId) return '—';
+  return (
+    zonasDiseno.find(z => z.id === zonaId)?.nombre ||
+    ZONAS_DEFAULT_IDS.find(z => z.id === zonaId)?.nombre ||
+    zonaId
+  );
+}
+
 const predefinedPalettes: { name: string; colors: ColorPalette }[] = [
   { name: 'Sueño Lavanda', colors: { primary: '#D9B8FF', secondary: '#E6BFB2', accent: '#DCDCDC' } },
   { name: 'Atardecer Cálido', colors: { primary: '#FCD3DE', secondary: '#F0E6CC', accent: '#F1C40F' } },
@@ -352,8 +369,7 @@ function DecoracionYDisenoEventoContent() {
 
   const calcGastosTotal = () =>
     (decoracionData.itemsDecoracion || []).reduce((sum, it) => {
-      const costo = it.costoUnitario ?? it.precioUnitario ?? 0;
-      return sum + (costo * it.cantidad);
+      return sum + (getItemCosto(it) * it.cantidad);
     }, 0);
 
   const currentZona = zonasDiseno.find(z => z.id === selectedZonaId) ?? zonasDiseno[0];
@@ -583,7 +599,7 @@ function DecoracionYDisenoEventoContent() {
                           {item.imageUrl && <NextImage src={item.imageUrl} alt={item.nombre} width={20} height={20} className="rounded-sm object-cover shrink-0" />}
                           <span className="font-semibold text-slate-700">{item.nombre}</span>
                           <span className="text-slate-400">x{item.cantidad}</span>
-                          {(item.costoUnitario ?? item.precioUnitario) ? <span className="text-emerald-600 font-medium">${((item.costoUnitario ?? item.precioUnitario ?? 0) * item.cantidad).toLocaleString()}</span> : null}
+                          {getItemCosto(item) > 0 ? <span className="text-emerald-600 font-medium">${(getItemCosto(item) * item.cantidad).toLocaleString()}</span> : null}
                           <button type="button" onClick={() => handleDeleteDecoItem(item.id)} className="text-slate-300 hover:text-destructive transition-colors ml-1"><Trash2 className="w-3 h-3" /></button>
                         </div>
                       ))}
@@ -795,8 +811,8 @@ function DecoracionYDisenoEventoContent() {
                       </thead>
                       <tbody>
                         {(decoracionData.itemsDecoracion || []).map((item, i) => {
-                          const costo = item.costoUnitario ?? item.precioUnitario ?? 0;
-                          const zonaName = zonasDiseno.find(z => z.id === item.zona)?.nombre || ZONAS_DEFAULT_IDS.find(z => z.id === item.zona)?.nombre || item.zona || '—';
+                          const costo = getItemCosto(item);
+                          const zonaName = getZonaDisplayName(item.zona, zonasDiseno);
                           return (
                             <tr key={item.id} className={cn("border-b border-slate-50 hover:bg-slate-50/50", i % 2 === 0 ? "bg-white" : "bg-slate-50/30")}>
                               <td className="p-4 font-semibold text-slate-800">{item.nombre}</td>
