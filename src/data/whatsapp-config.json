@@ -1,0 +1,23 @@
+{
+  "enabled": false,
+  "phoneNumber": "",
+  "apiKey": "",
+  "provider": "meta",
+  "mode": "semi-automatic",
+  "messages": {
+    "welcome": "¡Hola! 👋 Soy el asistente de AK Producciones Eventos. ¿En qué puedo ayudarte?",
+    "offHours": "Gracias por escribir. Nuestro horario de atención es de Lun a Vie de 9 a 18hs. Te responderemos a la brevedad.",
+    "followUp": "¡Hola! Hace unos días consultaste por nuestros servicios. ¿Pudiste decidirte? Estamos para ayudarte 🎉",
+    "farewell": "¡Gracias por contactarnos! Si necesitás algo más, escribinos. 🎉"
+  },
+  "schedule": {
+    "days": ["mon", "tue", "wed", "thu", "fri"],
+    "startTime": "09:00",
+    "endTime": "18:00"
+  },
+  "integrations": {
+    "createCrmLead": true,
+    "sendMarketingFollowUp": true,
+    "logMessageHistory": true
+  }
+}

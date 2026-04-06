@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageCircle } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageCircle, Bot } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -47,6 +47,13 @@ const settingsCards = [
     href: "/settings/whatsapp",
     icon: MessageCircle,
     buttonLabel: "Configurar WhatsApp"
+  },
+  {
+    title: "WhatsApp Business Bot",
+    description: "Chatbot automático para atender clientes por WhatsApp. Integrado con el CRM y Marketing. Activalo cuando contrates una API de WhatsApp (Twilio, Meta, etc.).",
+    href: "/settings/whatsapp-business",
+    icon: Bot,
+    buttonLabel: "Configurar Bot"
   },
   {
     title: "Accesos para Colaboradores",
