@@ -136,7 +136,7 @@ ${servicios.slice(0, 20).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
 
         // Step 3: Create budget
         const totalCalculado = d.total || itemsPresupuestados.reduce((s: number, i: any) => s + i.costoTotalItem, 0);
-        const senia = d.senia || d.seña || 0;
+        const seña = d.senia || d.seña || 0;
 
         const budgetRes = await savePresupuesto({
           clienteNombre: d.clienteNombre || 'Cliente importado',
@@ -151,7 +151,7 @@ ${servicios.slice(0, 20).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           itemsPresupuestados,
           costoTotalEstimado: totalCalculado,
           totalConDescuento: totalCalculado,
-          notas: `Importado desde imagen por el Asistente AK. Seña: $${senia}`,
+          notas: `Importado desde imagen por el Asistente AK. Seña: $${seña}`,
           estado: d.estado === 'Aceptado' || (d.estado || '').toLowerCase().includes('contrat') || (d.estado || '').toLowerCase().includes('firmad') ? 'Aceptado' : 'Enviado',
         } as Omit<Presupuesto, 'id'>);
 
@@ -170,10 +170,10 @@ ${servicios.slice(0, 20).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         }
 
         // Step 5: Register seña payment if present
-        if (senia > 0 && budgetRes.success && budgetRes.id) {
+        if (seña > 0 && budgetRes.success && budgetRes.id) {
           await addPagoToPresupuesto(budgetRes.id, {
             fecha: d.eventoFecha || new Date().toISOString(),
-            monto: senia,
+            monto: seña,
             metodoPago: 'Efectivo',
             referencia: 'Seña registrada al importar desde imagen',
           });
@@ -186,7 +186,7 @@ ${servicios.slice(0, 20).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           fiestaId,
           clienteNombre: d.clienteNombre,
           total: totalCalculado,
-          senia,
+          senia: seña,
           error: budgetRes.error,
         };
       } catch (e: any) {
@@ -421,7 +421,7 @@ ${servicios.slice(0, 20).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       try {
         const targetDate = d.fecha ? new Date(d.fecha) : null;
         const targetMes = d.mes ? Number(d.mes) : null;
-        const targetAno = d.año || d.anio ? Number(d.año || d.anio) : new Date().getFullYear();
+        const targetAño = d.año || d.anio ? Number(d.año || d.anio) : new Date().getFullYear();
 
         let eventosEnFecha: typeof fiestas = [];
         if (targetDate) {
@@ -434,7 +434,7 @@ ${servicios.slice(0, 20).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             const fe = f.configuracion.fechaEvento;
             if (!fe) return false;
             const d = new Date(fe);
-            return d.getMonth() + 1 === targetMes && d.getFullYear() === targetAno;
+            return d.getMonth() + 1 === targetMes && d.getFullYear() === targetAño;
           });
         }
 
