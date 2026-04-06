@@ -43,6 +43,18 @@ const DISH_TYPE_EMOJI: Record<string, string> = {
   '': '🍴',
 };
 
+/** Returns the URL if it's a safe http/https URL, otherwise undefined */
+const sanitizeImageUrl = (url?: string): string | undefined => {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return url;
+  } catch {
+    // invalid URL
+  }
+  return undefined;
+};
+
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { 
@@ -362,6 +374,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             const totalCost = item.totalDishCost || 0;
             const hasIngCosts = totalCost > 0 && (item.ingredients?.length || 0) > 0;
             const ingredientColors = ['#f59e0b','#3b82f6','#10b981','#8b5cf6','#ef4444','#06b6d4','#f97316','#ec4899','#84cc16','#6366f1'];
+            // Pre-calculate max cost once (O(n) instead of O(n²))
+            const maxIngCost = hasIngCosts ? Math.max(...(item.ingredients || []).map(i => i.costoTotalReceta)) : 0;
             return (
             <Card key={item.id} className="p-4">
                 <CardHeader className="p-0 pb-4">
@@ -384,8 +398,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                          />
                        </div>
                        <div className="flex items-center justify-center sm:justify-start h-20 w-20 rounded-lg border bg-muted/40 overflow-hidden shrink-0">
-                         {item.imageUrl ? (
-                           <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                         {sanitizeImageUrl(item.imageUrl) ? (
+                           <img src={sanitizeImageUrl(item.imageUrl)} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
                          ) : (
                            <span className="text-3xl">{DISH_TYPE_EMOJI[item.type || ''] || '🍴'}</span>
                          )}
@@ -468,7 +482,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                                   {item.ingredients!.map((ing, ingIdx) => {
                                     const pct = totalCost > 0 ? Math.round((ing.costoTotalReceta / totalCost) * 100) : 0;
                                     if (pct === 0) return null;
-                                    const isMax = ing.costoTotalReceta === Math.max(...item.ingredients!.map(i => i.costoTotalReceta));
+                                    const isMax = maxIngCost > 0 && ing.costoTotalReceta === maxIngCost;
                                     return (
                                       <div key={ing.id} className="space-y-0.5">
                                         <div className="flex justify-between items-center text-[11px]">

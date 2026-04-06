@@ -63,6 +63,15 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
+const sanitizeImageUrl = (url?: string): string | undefined => {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return url;
+  } catch { /* invalid URL */ }
+  return undefined;
+};
+
 
 export default function CatalogoPlatosPage() {
   const { toast } = useToast();
@@ -271,9 +280,9 @@ export default function CatalogoPlatosPage() {
                 </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-2">
-                {editingDish?.imageUrl && (
+                {sanitizeImageUrl(editingDish?.imageUrl) && (
                   <div className="w-full h-40 rounded-lg border overflow-hidden">
-                    <img src={editingDish.imageUrl} alt={editingDish.name} className="w-full h-full object-cover" />
+                    <img src={sanitizeImageUrl(editingDish?.imageUrl)!} alt={editingDish.name} className="w-full h-full object-cover" />
                   </div>
                 )}
                 {(editingDish?.allergenTags || []).length > 0 && (
@@ -332,8 +341,8 @@ export default function CatalogoPlatosPage() {
                                     <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center gap-2">
                                       <div className="flex items-center gap-2 min-w-0">
                                         <div className="w-10 h-10 rounded-md border bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center">
-                                          {plato.imageUrl ? (
-                                            <img src={plato.imageUrl} alt={plato.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                                          {sanitizeImageUrl(plato.imageUrl) ? (
+                                            <img src={sanitizeImageUrl(plato.imageUrl)!} alt={plato.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
                                           ) : (
                                             <span className="text-lg">{DISH_TYPE_EMOJI[plato.type || ''] || '🍴'}</span>
                                           )}
