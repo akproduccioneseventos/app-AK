@@ -3,6 +3,7 @@
 import { Play } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import type { GaleriaVideo } from '@/types/galeria';
 
 export interface VideoItem {
   id: string;
@@ -11,6 +12,7 @@ export interface VideoItem {
   thumbnailUrl: string;
   youtubeId?: string;
   embedUrl?: string;
+  categoria?: string;
 }
 
 const DEFAULT_VIDEOS: VideoItem[] = [
@@ -21,6 +23,7 @@ const DEFAULT_VIDEOS: VideoItem[] = [
     thumbnailUrl:
       'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80&auto=format&fit=crop',
     youtubeId: 'dQw4w9WgXcQ',
+    categoria: 'Bodas',
   },
   {
     id: 'v2',
@@ -29,6 +32,7 @@ const DEFAULT_VIDEOS: VideoItem[] = [
     thumbnailUrl:
       'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=80&auto=format&fit=crop',
     youtubeId: 'dQw4w9WgXcQ',
+    categoria: 'XV Años',
   },
   {
     id: 'v3',
@@ -37,8 +41,20 @@ const DEFAULT_VIDEOS: VideoItem[] = [
     thumbnailUrl:
       'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80&auto=format&fit=crop',
     youtubeId: 'dQw4w9WgXcQ',
+    categoria: 'Eventos Corporativos',
   },
 ];
+
+function galeriaVideoToVideoItem(video: GaleriaVideo): VideoItem {
+  return {
+    id: video.id,
+    title: video.titulo,
+    description: video.descripcion ?? '',
+    thumbnailUrl: video.thumbnailUrl,
+    youtubeId: video.youtubeId,
+    categoria: video.categoria,
+  };
+}
 
 interface VideoCardProps {
   video: VideoItem;
@@ -68,11 +84,18 @@ function VideoCard({ video, onPlay }: VideoCardProps) {
             <Play className="w-7 h-7 text-primary fill-primary ml-1" />
           </div>
         </div>
+        {video.categoria && (
+          <div className="absolute top-3 left-3 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
+            {video.categoria}
+          </div>
+        )}
       </div>
       {/* Info */}
       <div className="p-5">
         <h4 className="font-headline text-lg font-black text-white mb-1">{video.title}</h4>
-        <p className="text-slate-400 text-sm leading-relaxed">{video.description}</p>
+        {video.description && (
+          <p className="text-slate-400 text-sm leading-relaxed">{video.description}</p>
+        )}
       </div>
     </div>
   );
@@ -80,10 +103,39 @@ function VideoCard({ video, onPlay }: VideoCardProps) {
 
 interface VideoSectionProps {
   videos?: VideoItem[];
+  galeriaVideos?: GaleriaVideo[];
 }
 
-export function VideoSection({ videos = DEFAULT_VIDEOS }: VideoSectionProps) {
+export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
+  const dynamicVideos: VideoItem[] = galeriaVideos && galeriaVideos.length > 0
+    ? galeriaVideos.map(galeriaVideoToVideoItem)
+    : [];
+
+  const allVideos: VideoItem[] = dynamicVideos.length > 0
+    ? dynamicVideos
+    : (videos ?? DEFAULT_VIDEOS);
+
+  // Sort: destacados first
+  const sortedVideos = galeriaVideos && galeriaVideos.length > 0
+    ? [...allVideos].sort((a, b) => {
+        const aDestacada = galeriaVideos.find((v) => v.id === a.id)?.destacada ? 1 : 0;
+        const bDestacada = galeriaVideos.find((v) => v.id === b.id)?.destacada ? 1 : 0;
+        return bDestacada - aDestacada;
+      })
+    : allVideos;
+
+  // Build dynamic categories
+  const uniqueCategories = Array.from(
+    new Set(sortedVideos.map((v) => v.categoria).filter(Boolean))
+  ) as string[];
+  const categories = ['Todos', ...uniqueCategories];
+
+  const [activeCategory, setActiveCategory] = useState('Todos');
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+
+  const filtered = activeCategory === 'Todos'
+    ? sortedVideos
+    : sortedVideos.filter((v) => v.categoria === activeCategory);
 
   const embedSrc = activeVideo?.youtubeId
     ? `https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`
@@ -103,12 +155,38 @@ export function VideoSection({ videos = DEFAULT_VIDEOS }: VideoSectionProps) {
           </p>
         </div>
 
+        {/* Category filter */}
+        {categories.length > 2 && (
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={cn(
+                  'px-5 py-2 rounded-full text-sm font-black uppercase tracking-wider transition-all duration-200',
+                  activeCategory === cat
+                    ? 'bg-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/30 scale-105'
+                    : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Video grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {videos.map((video) => (
+          {filtered.map((video) => (
             <VideoCard key={video.id} video={video} onPlay={setActiveVideo} />
           ))}
         </div>
+
+        {filtered.length === 0 && (
+          <div className="text-center py-16 text-slate-500">
+            No hay videos en esta categoría todavía.
+          </div>
+        )}
       </div>
 
       {/* Video modal */}
