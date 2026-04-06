@@ -367,7 +367,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         const fecha = d.fecha || '';
         const eventosEnFecha = allFiestas.filter(f => {
           const fe = f.configuracion?.fechaEvento || '';
-          return fe && fe.startsWith(fecha.substring(0, 10));
+          return fe && fe.startsWith(fecha.substring(0, Math.min(10, fecha.length)));
         });
         actionResult = {
           success: true,

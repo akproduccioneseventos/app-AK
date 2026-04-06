@@ -237,7 +237,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
       <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Proveedor {action.data?.nombreEmpresa || action.data?.nombre} registrado</span>
+          <span className="text-xs text-green-800 font-medium">Proveedor {action.data?.nombreEmpresa || action.data?.nombre || 'sin nombre'} registrado</span>
         </div>
         <Link href="/proveedores" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
       </div>
