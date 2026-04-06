@@ -35,7 +35,7 @@ const Ornament: React.FC<{ position: string; color: string }> = ({ position, col
 
     return (
         <div className={cn(baseClasses, positionClasses[position as keyof typeof positionClasses])} style={{ borderColor: color }}>
-            <div className={cn(innerClasses, innerPositionClasses[position])} style={{ borderColor: color }} />
+            <div className={cn(innerClasses, innerPositionClasses[position as keyof typeof innerPositionClasses])} style={{ borderColor: color }} />
         </div>
     );
 };

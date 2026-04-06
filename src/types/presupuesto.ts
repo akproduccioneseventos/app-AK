@@ -136,4 +136,5 @@ export interface PresupuestoFormData {
   invoiceId?: string;
   pagosCliente?: PagoCliente[];
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real
+  timestamp?: string;
 }

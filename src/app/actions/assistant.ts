@@ -191,8 +191,6 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           partyType: '',
           guestCount: 0,
           venueName: '',
-          notes: '',
-          email: d.clienteEmail || '',
         };
         const rawItems: Array<{ description?: string; quantity?: number; unitPrice?: number }> = Array.isArray(d.items) ? d.items : [];
         const invoiceItems: InvoiceItem[] = rawItems.map((item, i) => ({
@@ -315,7 +313,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           ? allFiestas.find(f => f.id === d.fiestaId)
           : allFiestas.find(f =>
               (f.configuracion?.nombreEvento || '').toLowerCase().includes((d.clienteNombre || '').toLowerCase()) ||
-              (f.configuracion?.nombreCliente || '').toLowerCase().includes((d.clienteNombre || '').toLowerCase())
+              (f.configuracion?.clienteNombre || '').toLowerCase().includes((d.clienteNombre || '').toLowerCase())
             );
         if (!fiesta) {
           actionResult = { success: false, error: 'No se encontró el evento.' };
@@ -347,7 +345,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         } else if (d.clienteNombre) {
           const allFiestas = await getAllFiestas();
           const fiesta = allFiestas.find(f =>
-            (f.configuracion?.nombreCliente || '').toLowerCase().includes(d.clienteNombre.toLowerCase())
+            (f.configuracion?.clienteNombre || '').toLowerCase().includes(d.clienteNombre.toLowerCase())
           );
           actionResult = fiesta
             ? { success: true, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}` }
@@ -374,8 +372,8 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           fecha,
           disponible: eventosEnFecha.length === 0,
           eventosEnFecha: eventosEnFecha.map(f => ({
-            nombre: f.configuracion?.nombreEvento || f.configuracion?.nombreCliente || 'Evento sin nombre',
-            tipo: f.configuracion?.tipoEvento || '',
+            nombre: f.configuracion?.nombreEvento || f.configuracion?.clienteNombre || 'Evento sin nombre',
+            tipo: f.configuracion?.tipoCelebracion || '',
           })),
         };
       } catch (e: any) {
