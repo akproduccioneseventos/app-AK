@@ -261,9 +261,7 @@ function ImportarPresupuestoContent() {
       const result = parseBudgetText(texto);
       setParsed(result);
       if (result.eventoFecha) {
-        const d = new Date(result.eventoFecha);
-        const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        setEventoFechaOverride(iso);
+        setEventoFechaOverride(new Date(result.eventoFecha).toISOString().split('T')[0]);
       }
     } catch (e: any) {
       toast({ title: 'Error al parsear', description: e.message, variant: 'destructive' });

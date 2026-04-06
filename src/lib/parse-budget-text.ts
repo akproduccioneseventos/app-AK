@@ -100,19 +100,10 @@ export function parseBudgetText(text: string): ParsedBudget {
       precioUnitario,
       precioUnitarioPresupuesto: precioUnitario,
       esRegalo,
-      // Store discount info in notas-like field or use calculationMethod=fijo
       calculationMethod: 'fijo',
-      // We'll store the declared importe in costoTotalItem during creation
-      // by passing it as precioUnitario=importe, cantidad=1 when discount!=0
-      // Actually, let's store the real amount correctly:
-      // costoTotalItem will be recalculated. To preserve original importe, set unitPrice = importe, qty=1
-      // But we want to retain the original structure. Let's use precioUnitario=unitPrice, qty=qty
-      // and trust recalcularCostoItem to use fijo: precioUnitario * cantidad.
-      // We'll adjust below.
     } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
-    // Fix: ensure the declared importe is achievable with qty*unitPrice*(1-discount)
-    // Since recalcularCostoItem for 'fijo' = precioUnitario * cantidad, we store importe/qty as unitPrice
-    // when discount has been applied externally.
+    // Ensure the stored unit price produces the declared importe when multiplied by qty.
+    // recalcularCostoItem for 'fijo' = precioUnitario * cantidad, so we set precioUnitario = importe/qty.
     if (currentImporte > 0 && !esRegalo && currentQty > 0) {
       items[items.length - 1].precioUnitario = currentImporte / currentQty;
       items[items.length - 1].precioUnitarioPresupuesto = currentImporte / currentQty;
@@ -164,8 +155,8 @@ export function parseBudgetText(text: string): ParsedBudget {
       if (
         lower.includes('detalle de artículos') ||
         lower.includes('detalle de articulos') ||
-        lower.includes('artículos') ||
-        lower.includes('servicios')
+        lower.startsWith('artículos') ||
+        lower.startsWith('articulos')
       ) {
         inItems = true;
         continue;
@@ -217,14 +208,23 @@ export function parseBudgetText(text: string): ParsedBudget {
         continue;
       }
 
-      // Lines that don't match field patterns are item names
-      // Skip empty lines and separator lines
+      // Lines that don't match field patterns are item names.
+      // Only treat as item name if we're not currently mid-parsing an item's fields
+      // (i.e., after a previous item's Importe: was processed or at the start).
       if (line && !line.match(/^[-=*]+$/)) {
-        // Could be a new item name (if no active item or after flushing)
-        if (!currentQty && !currentUnitPrice) {
-          flushItem(); // flush any leftover
+        // A new item name begins when we encounter a non-field line without a pending item name,
+        // OR when the current item name is set but we haven't collected any fields yet.
+        // The safest check: if currentItemName is empty, this line is a new item name.
+        // If currentItemName is set but we already have quantity/price data, this is unexpected -
+        // flush what we have (partial item) and start a new one.
+        if (!currentItemName) {
+          currentItemName = line;
+        } else if (currentQty > 0 || currentUnitPrice > 0 || currentImporte > 0) {
+          // Mid-item and we see another non-field line: flush partial item and start new
+          flushItem();
           currentItemName = line;
         }
+        // else: currentItemName is set but no fields yet - ignore duplicate name lines
       }
     }
   }
