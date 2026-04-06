@@ -275,6 +275,20 @@ export default function WhatsAppBusinessPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="verify-token">Token de Verificación del Webhook</Label>
+              <Input
+                id="verify-token"
+                placeholder="Tu token secreto para verificar el webhook..."
+                value={config.verifyToken}
+                onChange={e => set('verifyToken', e.target.value)}
+                disabled={isSaving}
+              />
+              <p className="text-xs text-muted-foreground">
+                Ingresá este mismo token en la configuración de webhooks de tu proveedor (Meta, Twilio, etc.).
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="webhook">URL del Webhook</Label>
               <div className="flex gap-2">
                 <Input
@@ -303,7 +317,7 @@ export default function WhatsAppBusinessPage() {
         <Card className={`shadow-lg transition-opacity ${!config.enabled ? 'opacity-60' : ''}`}>
           <CardHeader>
             <CardTitle className="font-headline text-xl">Modo de Operación</CardTitle>
-            <CardDescription>Elegí cómo quiere que el bot maneje las conversaciones.</CardDescription>
+            <CardDescription>Elegí cómo querés que el bot maneje las conversaciones.</CardDescription>
           </CardHeader>
           <CardContent>
             <RadioGroup

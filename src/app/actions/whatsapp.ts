@@ -12,6 +12,7 @@ const defaultConfig: WhatsAppConfig = {
   enabled: false,
   phoneNumber: '',
   apiKey: '',
+  verifyToken: '',
   provider: 'meta',
   mode: 'semi-automatic',
   messages: {

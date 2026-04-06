@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
   // Meta webhook verification
   if (mode === 'subscribe' && challenge) {
     const config = await getWhatsAppConfig();
-    // Use the last 8 chars of the API key as verify token, or a default
-    const verifyToken = config.apiKey ? config.apiKey.slice(-8) : 'ak_whatsapp_verify';
+    // Use a dedicated verifyToken if set, otherwise fall back to a default
+    const verifyToken = config.verifyToken || 'ak_whatsapp_verify';
 
     if (token === verifyToken) {
       return new NextResponse(challenge, { status: 200 });

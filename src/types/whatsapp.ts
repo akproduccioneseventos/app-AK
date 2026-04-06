@@ -5,6 +5,7 @@ export interface WhatsAppConfig {
   enabled: boolean;
   phoneNumber: string;
   apiKey: string;
+  verifyToken: string;
   provider: WhatsAppProvider;
   mode: WhatsAppMode;
   messages: {
