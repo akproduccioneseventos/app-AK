@@ -57,11 +57,14 @@ const QUICK_ACTIONS = [
 ];
 
 const SUGGESTED_CHIPS = [
+  '📸 Importá un presupuesto desde foto',
   '¿Cómo creo un presupuesto?',
   '¿Tengo pagos pendientes?',
+  'Registrá una seña de $50.000',
   'Generame un post para Instagram',
-  '¿Cómo funciona el simulador?',
-  'Resumen de mi semana',
+  '¿Estoy libre el próximo sábado?',
+  'Creame un empleado',
+  'Agregá un proveedor',
   'Enseñame a usar el CRM',
 ];
 
@@ -146,6 +149,160 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
       <div className="mt-2">
         <Link href={action.data.href} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
           Ir ahí <ChevronRight className="h-3 w-3" />
+        </Link>
+      </div>
+    );
+  }
+
+  if (action.type === 'import_budget_from_image' && action.result?.success) {
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 space-y-1">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-xs text-green-800 font-medium">Presupuesto importado para {action.data?.clienteNombre}</span>
+        </div>
+        {action.result.id && (
+          <Link href={`/presupuestos/${action.result.id}/ver`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver presupuesto →</Link>
+        )}
+        {action.result.fiestaId && (
+          <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
+        )}
+      </div>
+    );
+  }
+
+  if (action.type === 'register_payment') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Pago de ${action.data?.monto?.toLocaleString('es-UY')} registrado</span>
+          </div>
+          {action.result.presupuestoId && (
+            <Link href={`/presupuestos/${action.result.presupuestoId}/ver`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          )}
+        </div>
+      );
+    }
+    if (action.result && !action.result.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2">
+          <span className="text-xs text-red-700">{action.result.error || 'No se pudo registrar el pago.'}</span>
+        </div>
+      );
+    }
+  }
+
+  if (action.type === 'create_invoice' && action.result?.success) {
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-xs text-green-800 font-medium">Factura creada para {action.data?.clienteNombre}</span>
+        </div>
+        {action.result.id && (
+          <Link href={`/invoices/${action.result.id}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+        )}
+      </div>
+    );
+  }
+
+  if (action.type === 'update_service_price' && action.result?.success) {
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-xs text-green-800 font-medium">Precio de "{action.data?.servicioNombre}" actualizado a ${action.data?.nuevoPrecio?.toLocaleString('es-UY')}</span>
+        </div>
+        <Link href="/empresa/servicios" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+      </div>
+    );
+  }
+
+  if (action.type === 'create_employee' && action.result?.success) {
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-xs text-green-800 font-medium">Empleado {action.data?.nombre} registrado</span>
+        </div>
+        <Link href="/empresa/empleados" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+      </div>
+    );
+  }
+
+  if (action.type === 'create_supplier' && action.result?.success) {
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-xs text-green-800 font-medium">Proveedor {action.data?.nombreEmpresa || action.data?.nombre || 'sin nombre'} registrado</span>
+        </div>
+        <Link href="/proveedores" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+      </div>
+    );
+  }
+
+  if (action.type === 'create_event' && action.result?.success) {
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 space-y-1">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-xs text-green-800 font-medium">Evento creado para {action.data?.clienteNombre}</span>
+        </div>
+        {action.result.fiestaId && (
+          <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
+        )}
+      </div>
+    );
+  }
+
+  if (action.type === 'update_event' && action.result?.success) {
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Check className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-xs text-green-800 font-medium">Evento actualizado</span>
+        </div>
+        {action.result.fiestaId && (
+          <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+        )}
+      </div>
+    );
+  }
+
+  if (action.type === 'generate_contract' && action.result?.success) {
+    return (
+      <div className="mt-2">
+        <Link href={action.result.href || '/fiestas/nueva/gestion-documental/contrato-digital'} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
+          Ver contrato <ChevronRight className="h-3 w-3" />
+        </Link>
+      </div>
+    );
+  }
+
+  if (action.type === 'check_availability' && action.result) {
+    const r = action.result;
+    if (r.success) {
+      return (
+        <div className={`mt-2 p-2.5 rounded-xl border ${r.disponible ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+          <p className={`text-xs font-medium ${r.disponible ? 'text-green-800' : 'text-amber-800'}`}>
+            {r.disponible ? `✅ Fecha libre: ${r.fecha}` : `⚠️ Tenés ${r.eventosEnFecha?.length} evento(s) ese día`}
+          </p>
+          {!r.disponible && r.eventosEnFecha?.map((e: { nombre: string; tipo: string }, i: number) => (
+            <p key={i} className="text-[11px] text-amber-700 mt-0.5">· {e.nombre} {e.tipo ? `(${e.tipo})` : ''}</p>
+          ))}
+        </div>
+      );
+    }
+  }
+
+  if (action.type === 'update_marketing_content' && action.result?.success) {
+    return (
+      <div className="mt-2">
+        <Link href="/marketing" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
+          Ir a Marketing <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
     );
