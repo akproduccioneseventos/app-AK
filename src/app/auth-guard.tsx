@@ -4,17 +4,20 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { subscribeToAuthState, signOut, isAdminEmail } from '@/lib/firebase/auth-client';
 
-const SESSION_KEY = 'ak_producciones_auth_session';
-
-export function triggerAppLogout() {
+export async function triggerAppLogout() {
+  try {
+    await signOut();
+  } catch {
+    // ignore sign-out errors
+  }
   if (typeof window !== 'undefined') {
-    sessionStorage.removeItem(SESSION_KEY);
     // Remove portal-specific session keys
     Object.keys(sessionStorage).forEach(key => {
-        if (key.startsWith('portal_auth_')) {
-            sessionStorage.removeItem(key);
-        }
+      if (key.startsWith('portal_auth_')) {
+        sessionStorage.removeItem(key);
+      }
     });
     window.location.href = '/login';
   }
@@ -33,7 +36,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     if (typeof window === 'undefined') {
       return;
     }
-    
+
     const publicPathPrefixes = [
       '/login',
       '/landing',
@@ -58,15 +61,13 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/evento/mi-mesa',
       '/evento/en-vivo',
     ];
-    
+
     let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
     // Budget view pages require a share token in the URL to be accessed publicly.
-    // Without a valid ?token= parameter, they require authentication.
     if (!isPublic) {
       const budgetRegex = /^\/presupuestos\/[^/]+\/ver\/?$/;
       if (budgetRegex.test(pathname)) {
-        // Only allow public access if a share token is present in the URL
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('token')) {
           isPublic = true;
@@ -76,32 +77,40 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     // PDF and printable summaries: only public if accessed with a share token
     if (!isPublic) {
-        if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('token')) {
-                isPublic = true;
-            }
+      if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('token')) {
+          isPublic = true;
         }
+      }
     }
-    
+
     if (isPublic) {
       setIsVerified(true);
       return;
     }
-    
-    const session = sessionStorage.getItem(SESSION_KEY);
-    const isAuthenticated = !!(session && session.startsWith('YWtfYXV0aF8')); // base64 prefix of 'ak_auth_'
-    
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else {
-      setIsVerified(true);
-    }
 
+    // Subscribe to Firebase Auth state
+    const unsubscribe = subscribeToAuthState(async (user) => {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      // Only allow admin emails
+      if (!isAdminEmail(user.email)) {
+        await signOut();
+        router.push('/login');
+        return;
+      }
+
+      setIsVerified(true);
+    });
+
+    return unsubscribe;
   }, [pathname, router]);
 
   if (!isVerified) {
-    // Render a loading state to avoid flashes of content
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
