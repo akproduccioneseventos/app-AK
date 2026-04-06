@@ -1,0 +1,137 @@
+{
+  "globalMode": "semi-automatic",
+  "sharedSchedule": true,
+  "globalIntegrations": {
+    "createCrmLead": true,
+    "sendMarketingFollowUp": true,
+    "logMessageHistory": true
+  },
+  "globalSchedule": {
+    "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+    "startTime": "09:00",
+    "endTime": "18:00"
+  },
+  "channels": [
+    {
+      "id": "whatsapp",
+      "enabled": false,
+      "name": "WhatsApp Business",
+      "icon": "MessageCircle",
+      "provider": "twilio",
+      "apiKey": "",
+      "apiSecret": "",
+      "accessToken": "",
+      "phoneNumber": "",
+      "webhookUrl": "",
+      "webhookVerifyToken": "",
+      "mode": "semi-automatic",
+      "messages": {
+        "welcome": "¡Hola! 👋 Soy el asistente de AK Producciones Eventos. ¿En qué te puedo ayudar hoy?",
+        "offHours": "Hola, gracias por contactarnos. Nuestro horario de atención es de lunes a viernes de 9 a 18hs. Te responderemos a la brevedad 🙏",
+        "followUp": "Hola! ✨ Hace unos días nos consultaste sobre nuestros servicios. ¿Pudiste pensar en tu evento? ¡Estamos acá para ayudarte!",
+        "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
+      },
+      "schedule": {
+        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "startTime": "09:00",
+        "endTime": "18:00"
+      },
+      "integrations": {
+        "createCrmLead": true,
+        "sendMarketingFollowUp": true,
+        "logMessageHistory": true
+      },
+      "status": "not_configured"
+    },
+    {
+      "id": "instagram",
+      "enabled": false,
+      "name": "Instagram DM",
+      "icon": "Instagram",
+      "provider": "meta-instagram",
+      "apiKey": "",
+      "accessToken": "",
+      "pageId": "",
+      "webhookUrl": "",
+      "webhookVerifyToken": "",
+      "mode": "semi-automatic",
+      "messages": {
+        "welcome": "¡Hola! 👋 Gracias por escribirnos por Instagram. Soy el asistente de AK Producciones Eventos. ¿En qué te puedo ayudar?",
+        "offHours": "Hola, gracias por contactarnos. Nuestro horario de atención es de lunes a viernes de 9 a 18hs. Te responderemos a la brevedad 🙏",
+        "followUp": "Hola! ✨ Hace unos días nos consultaste sobre nuestros servicios. ¿Pudiste pensar en tu evento? ¡Estamos acá para ayudarte!",
+        "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
+      },
+      "schedule": {
+        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "startTime": "09:00",
+        "endTime": "18:00"
+      },
+      "integrations": {
+        "createCrmLead": true,
+        "sendMarketingFollowUp": true,
+        "logMessageHistory": true
+      },
+      "status": "not_configured"
+    },
+    {
+      "id": "facebook",
+      "enabled": false,
+      "name": "Facebook Messenger",
+      "icon": "Facebook",
+      "provider": "meta-messenger",
+      "apiKey": "",
+      "accessToken": "",
+      "pageId": "",
+      "webhookUrl": "",
+      "webhookVerifyToken": "",
+      "mode": "semi-automatic",
+      "messages": {
+        "welcome": "¡Hola! 👋 Gracias por escribirnos por Facebook. Soy el asistente de AK Producciones Eventos. ¿En qué te puedo ayudar?",
+        "offHours": "Hola, gracias por contactarnos. Nuestro horario de atención es de lunes a viernes de 9 a 18hs. Te responderemos a la brevedad 🙏",
+        "followUp": "Hola! ✨ Hace unos días nos consultaste sobre nuestros servicios. ¿Pudiste pensar en tu evento? ¡Estamos acá para ayudarte!",
+        "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
+      },
+      "schedule": {
+        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "startTime": "09:00",
+        "endTime": "18:00"
+      },
+      "integrations": {
+        "createCrmLead": true,
+        "sendMarketingFollowUp": true,
+        "logMessageHistory": true
+      },
+      "status": "not_configured"
+    },
+    {
+      "id": "tiktok",
+      "enabled": false,
+      "name": "TikTok",
+      "icon": "Music",
+      "provider": "tiktok-business",
+      "apiKey": "",
+      "apiSecret": "",
+      "accessToken": "",
+      "webhookUrl": "",
+      "webhookVerifyToken": "",
+      "mode": "semi-automatic",
+      "messages": {
+        "welcome": "¡Hola! 👋 Gracias por escribirnos por TikTok. Soy el asistente de AK Producciones Eventos. ¿En qué te puedo ayudar?",
+        "offHours": "Hola, gracias por contactarnos. Nuestro horario de atención es de lunes a viernes de 9 a 18hs. Te responderemos a la brevedad 🙏",
+        "followUp": "Hola! ✨ Hace unos días nos consultaste sobre nuestros servicios. ¿Pudiste pensar en tu evento? ¡Estamos acá para ayudarte!",
+        "farewell": "¡Fue un placer atenderte! Si necesitás algo más, no dudes en escribirnos. ¡Hasta pronto! 🎉"
+      },
+      "schedule": {
+        "days": ["lunes", "martes", "miercoles", "jueves", "viernes"],
+        "startTime": "09:00",
+        "endTime": "18:00"
+      },
+      "integrations": {
+        "createCrmLead": true,
+        "sendMarketingFollowUp": true,
+        "logMessageHistory": true
+      },
+      "status": "not_configured"
+    }
+  ]
+}

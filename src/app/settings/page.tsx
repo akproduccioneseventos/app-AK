@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageCircle } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageSquare } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -42,11 +42,11 @@ const settingsCards = [
     buttonLabel: "Gestionar Vínculos"
   },
   {
-    title: "Integración WhatsApp",
-    description: "Activá o pausá la integración con WhatsApp, elegí entre modo automático o manual, y personalizá los mensajes de recordatorio para reuniones y pagos pendientes.",
-    href: "/settings/whatsapp",
-    icon: MessageCircle,
-    buttonLabel: "Configurar WhatsApp"
+    title: "Canales de Comunicación",
+    description: "Configurá WhatsApp, Instagram, Facebook y TikTok para atender clientes automáticamente con IA. Cada canal con su propio toggle ON/OFF.",
+    href: "/settings/channels",
+    icon: MessageSquare,
+    buttonLabel: "Configurar Canales"
   },
   {
     title: "Accesos para Colaboradores",
