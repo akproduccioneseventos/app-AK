@@ -215,7 +215,7 @@ export interface DecoItem {
   nombre: string;
   categoria: string;
   cantidad: number;
-  /** @deprecated use costoUnitario for internal cost tracking */
+  /** @deprecated Use `costoUnitario` for internal cost tracking. Retained for backward compatibility with existing event data. */
   precioUnitario?: number;
   /** Costo interno del elemento (no se suma al presupuesto del cliente) */
   costoUnitario?: number;

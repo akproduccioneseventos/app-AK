@@ -104,7 +104,7 @@ export async function syncDecoGastosToModule(
           id: `deco_${item.id}`,
           nombre: `Decoración: ${item.nombre}${item.cantidad > 1 ? ` (x${item.cantidad})` : ''}`,
           category: 'Decoración',
-          montoEstimado: Math.round(costo * item.cantidad),
+          montoEstimado: Math.round(costo * item.cantidad), // Integer amount as gestionCostos uses whole currency units
           notas: item.notas || `Gasto interno de decoración - ${item.categoria}`,
         };
       });
