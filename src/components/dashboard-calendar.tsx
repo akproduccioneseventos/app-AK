@@ -6,8 +6,10 @@ import { Calendar, type CalendarProps } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { es } from 'date-fns/locale';
 
-interface DashboardCalendarProps extends Omit<CalendarProps, 'mode'> {
+interface DashboardCalendarProps extends Omit<CalendarProps, 'mode' | 'selected' | 'onSelect'> {
   occupiedDates?: Date[];
+  selected?: Date;
+  onSelect?: (date: Date | undefined) => void;
 }
 
 export function DashboardCalendar({ occupiedDates = [], ...props }: DashboardCalendarProps) {

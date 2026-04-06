@@ -160,7 +160,7 @@ function DecoracionYDisenoEventoContent() {
         paletaColores: {
           ...defaultDecoracion.paletaColores,
           ...(loadedDecoracion.paletaColores || {})
-        },
+        } as ColorPalette,
         decoracionTorta: {
           ...defaultDecoracion.decoracionTorta,
           ...(loadedDecoracion.decoracionTorta || {})
@@ -181,7 +181,7 @@ function DecoracionYDisenoEventoContent() {
   }, [loadDecoracionData]);
 
   const handleInputChange = <K extends keyof DecoracionData>(field: K, value: DecoracionData[K]) => {
-    setDecoracionData(prev => ({ ...prev, [field]: value }));
+    setDecoracionData(prev => ({ ...prev, [field]: value } as DecoracionData));
   };
 
   const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
@@ -190,8 +190,8 @@ function DecoracionYDisenoEventoContent() {
       paletaColores: {
         ...(prev.paletaColores || defaultDecoracion.paletaColores),
         [colorType]: value,
-      },
-    }));
+      } as ColorPalette,
+    } as DecoracionData));
   };
   
   const handleSelectPalette = (palette: ColorPalette) => {
@@ -607,7 +607,7 @@ function DecoracionYDisenoEventoContent() {
             <div className="py-4 space-y-4">
               <div className="space-y-1"><Label htmlFor="item-name">Nombre *</Label><Input id="item-name" value={currentItem.name || ''} onChange={e => handleItemModalChange('name', e.target.value)} required /></div>
               <div className="space-y-1"><Label htmlFor="item-category">Categoría</Label><Select value={currentItem.category || 'Otro'} onValueChange={val => handleItemModalChange('category', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{ALL_DECORATION_ITEM_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}</SelectContent></Select></div>
-              <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="item-qty">Cantidad</Label><Input id="item-qty" type="number" value={currentItem.quantity ?? 1} onChange={e => handleItemModalChange('quantity', Number(e.target.value) || 1)} min="1"/></div><div className="space-y-1"><Label htmlFor="item-cost">Costo Est. ($)</Label><Input id="item-cost" type="number" value={currentItem.estimatedCost ?? ''} onChange={e => handleItemModalChange('estimatedCost', e.target.value === '' ? undefined : Number(e.target.value))} placeholder="0.00" min="0" step="any"/></div></div>
+              <div className="grid grid-cols-2 gap-3"><div className="space-y-1"><Label htmlFor="item-qty">Cantidad</Label><Input id="item-qty" type="number" value={currentItem.quantity ?? 1} onChange={e => handleItemModalChange('quantity', Number(e.target.value) || 1)} min="1"/></div><div className="space-y-1"><Label htmlFor="item-cost">Costo Est. ($)</Label><Input id="item-cost" type="number" value={currentItem.estimatedCost ?? 0} onChange={e => handleItemModalChange('estimatedCost', e.target.value === '' ? 0 : Number(e.target.value))} placeholder="0.00" min="0" step="any"/></div></div>
               <div className="space-y-1"><Label htmlFor="item-supplier">Proveedor (Opcional)</Label><Input id="item-supplier" value={currentItem.supplier || ''} onChange={e => handleItemModalChange('supplier', e.target.value)} /></div>
               <div className="space-y-1"><Label htmlFor="item-notes">Notas (Opcional)</Label><Textarea id="item-notes" value={currentItem.notes || ''} onChange={e => handleItemModalChange('notes', e.target.value)} rows={2}/></div>
               <div className="space-y-1">

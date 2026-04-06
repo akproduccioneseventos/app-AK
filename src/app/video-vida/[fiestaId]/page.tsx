@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
+import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';

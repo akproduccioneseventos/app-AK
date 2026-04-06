@@ -296,7 +296,7 @@ function CargaOperativaPdfContent() {
                                         CANT: {item.cantidad} {item.unit || item.unidad || 'Uds.'}
                                     </span>
                                 </div>
-                                {item.notes && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notes}</p>}
+                                {item.notas && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notas}</p>}
                                 </div>
                             </div>
                             ))}

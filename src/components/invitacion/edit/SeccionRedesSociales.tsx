@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
-  const handleFieldChange = (field: keyof typeof data, value: string | boolean) => {
+  const handleFieldChange = (field: keyof typeof data, value: unknown) => {
     update({ ...data, [field]: value });
   };
   

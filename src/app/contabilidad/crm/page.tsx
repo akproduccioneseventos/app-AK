@@ -170,7 +170,7 @@ export default function CrmPage() {
 
   const handleMeetingSubmit = useCallback(async (meetingDate: string) => {
     if (!leadForMeeting) return;
-    const success = await moveLead(leadForMeeting.id, leadForMeeting.currentStageId, meetingDate);
+    const success = await moveLead(leadForMeeting.id, leadForMeeting.currentStageId || '', meetingDate);
     if (success) {
       toast({ description: `Reunión agendada para "${leadForMeeting.name}".` });
     }

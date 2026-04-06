@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useMemo, Suspense } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -13,7 +14,7 @@ import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, S
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
+import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getFiestaById, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
@@ -22,7 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { getCargaOperativaMasterTemplate, checkAssetConflicts } from '@/app/actions/fiesta/carga-operativa.actions';
+import { getCargaOperativaMasterTemplate, checkAssetConflicts, updateListaDeCargaOperativa } from '@/app/actions/fiesta/carga-operativa.actions';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -104,7 +105,8 @@ function ListaDeCargaOperativaContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa>({ categorias: [], notasGenerales: '' });
-  const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -153,6 +155,7 @@ function ListaDeCargaOperativaContent() {
         items: cat.items || [] 
       }));
       setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
+      setFiesta(fiestaData);
       setActivosCatalogo(catalogoData);
 
     } catch (err: any) {
@@ -276,7 +279,7 @@ function ListaDeCargaOperativaContent() {
       if (result.success) {
         toast({ title: "¡Logística Actualizada!", description: "Se han guardado los cambios y verificado los conflictos." });
         if (result.updatedData) {
-           const categoriasConItems = (result.updatedData.categorias || []).map(cat => ({
+           const categoriasConItems = (result.updatedData.categorias || []).map((cat: CargaOperativaCategoria) => ({
             ...cat,
             items: cat.items || []
           }));

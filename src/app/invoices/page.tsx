@@ -78,7 +78,7 @@ export default function InvoicesListPage() {
         try {
             // Also remove from fiestaActual if assigned
             if (fiestaActual && invoices.find(inv => inv.id === id && fiestaActual.invoiceIds?.includes(id))) {
-                await removeInvoiceIdFromFiestaActual(id);
+                await removeInvoiceIdFromFiestaActual(fiestaActual.id, id);
             }
             const result = await deleteInvoiceAction(id);
             if (result.success) {
@@ -102,8 +102,8 @@ export default function InvoicesListPage() {
         
         try {
             const result = isCurrentlyAssigned 
-                ? await removeInvoiceIdFromFiestaActual(invoiceId)
-                : await addInvoiceIdToFiestaActual(invoiceId);
+                ? await removeInvoiceIdFromFiestaActual(fiestaActual.id, invoiceId)
+                : await addInvoiceIdToFiestaActual(fiestaActual.id, invoiceId);
             
             if (result.success) {
                 toast({ title: `Factura ${isCurrentlyAssigned ? 'desasignada' : 'asignada'} con éxito.` });

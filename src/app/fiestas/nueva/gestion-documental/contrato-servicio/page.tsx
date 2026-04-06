@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -356,5 +356,5 @@ export default function ContratoServicioPage() {
 function ContratoServicioPageContent() {
     const searchParams = useSearchParams();
     const fiestaId = searchParams.get('fiestaId');
-    return <ContratoServicioContent fiestaId={fiestaId} />;
+    return <ContratoServicioContent />;
 }

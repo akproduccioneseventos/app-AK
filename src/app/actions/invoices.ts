@@ -121,6 +121,7 @@ export async function registerBookingDeposit(data: { fiestaId: string; amount: n
       issueDate: data.date,
       dueDate: data.date,
       items: [{
+        id: `item_${Date.now()}`,
         description: `Seña para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
         quantity: 1,
         unitPrice: data.amount,

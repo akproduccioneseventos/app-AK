@@ -835,7 +835,7 @@ export interface ItineraryTemplate {
 }
 
 // --- DOCUMENT TYPES ---
-export type DocumentoTipo = 'contrato-servicio' | 'contrato-salon' | 'cancelacion' | 'cambio-fecha' | 'otro';
+export type DocumentoTipo = 'contrato-servicio' | 'contrato_servicio' | 'contrato-salon' | 'contrato_salon' | 'cancelacion' | 'cambio-fecha' | 'presupuesto_firmado' | 'recibo_pago' | 'recibo_salon' | 'recibo_agadu' | 'recibo_personal' | 'otro';
 
 // --- BEBIDA RECETAS ---
 export interface IngredienteReceta {

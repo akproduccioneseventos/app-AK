@@ -4,9 +4,10 @@ import { cn } from '@/lib/utils';
 
 interface StatusBadgeProps {
   status: InvoiceStatus;
+  className?: string;
 }
 
-export function StatusBadge({ status }: StatusBadgeProps) {
+export function StatusBadge({ status, className }: StatusBadgeProps) {
   const statusColors: Record<InvoiceStatus, string> = {
     Draft: 'bg-gray-500 hover:bg-gray-500/90 text-white',
     Sent: 'bg-blue-500 hover:bg-blue-500/90 text-white',
@@ -24,7 +25,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   };
 
   return (
-    <Badge className={cn('text-xs font-semibold', statusColors[status])}>
+    <Badge className={cn('text-xs font-semibold', statusColors[status], className)}>
       {statusDisplay[status] || status}
     </Badge>
   );

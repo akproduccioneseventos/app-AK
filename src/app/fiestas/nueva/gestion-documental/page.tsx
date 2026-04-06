@@ -228,8 +228,8 @@ function GestionDocumentalContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {(fiesta.otrosDocumentos && fiesta.otrosDocumentos.length > 0) ? (
-            fiesta.otrosDocumentos.map(doc => (
+          {(fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0) ? (
+            fiesta.othersDocumentos.map(doc => (
               <div key={doc.id} className="p-3 border rounded-md flex justify-between items-center bg-muted/40">
                 <div className="flex items-center gap-3">
                   <FileText className="w-5 h-5 text-primary"/>

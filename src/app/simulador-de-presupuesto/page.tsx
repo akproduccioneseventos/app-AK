@@ -297,7 +297,7 @@ function SimuladorContent() {
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
             if (dishToAdd) {
-                const invitados = getGuestCountForItem(dishToAdd, adultos, 0, ninosYAdolescentes);
+                const invitados = getGuestCountForItem(dishToAdd as any, adultos, 0, ninosYAdolescentes);
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, invitados));
             }
         });

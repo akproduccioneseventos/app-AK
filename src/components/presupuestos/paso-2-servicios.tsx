@@ -46,7 +46,7 @@ const formatCurrency = (amount?: number) => {
 type ServicioSeleccionadoValue = PresupuestoFormData['serviciosSeleccionados'] extends Map<any, infer V> ? V : never;
 
 const menuItemToServicioSeleccionado = (item: ServicioEmpresa, adultos: number, ninos: number): ServicioSeleccionadoValue => {
-    const qty = calculateSuggestedQuantity(item, adultos, ninos);
+    const qty = calculateSuggestedQuantity(item as any, adultos, ninos);
     return {
         cantidad: qty,
         precioUnitarioOriginal: item.precioPorPersona || item.precioVenta || 0,
@@ -102,7 +102,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         const servicioRequerido = serviciosCatalogo.find(s => s.id === dep.requiredServiceId);
         if (servicioRequerido) {
           wasModified = true;
-          const qty = calculateSuggestedQuantity(servicioRequerido, adultos, ninos);
+          const qty = calculateSuggestedQuantity(servicioRequerido as any, adultos, ninos);
           newSelected.set(servicioRequerido.id, {
             cantidad: qty,
             precioUnitarioOriginal: servicioRequerido.precioVenta || servicioRequerido.precioPorPersona || servicioRequerido.precioBase || 0,
@@ -140,7 +140,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       } else {
         const adultos = prev.invitadosAdultos || 0;
         const ninos = (prev.invitadosNinos || 0) + (prev.invitadosAdolescentes || 0);
-        const qty = calculateSuggestedQuantity(servicio, adultos, ninos);
+        const qty = calculateSuggestedQuantity(servicio as any, adultos, ninos);
 
         newSelected.set(servicio.id, {
           cantidad: qty,
@@ -184,7 +184,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
               const servicioCompleto = serviciosCatalogo.find(s => s.id === servicioEnPaquete.id);
               if (servicioCompleto) {
                   const esRegalo = servicioEnPaquete.esRegalo || false;
-                  const qty = calculateSuggestedQuantity(servicioCompleto, adultos, ninos);
+                  const qty = calculateSuggestedQuantity(servicioCompleto as any, adultos, ninos);
                   newSelected.set(servicioCompleto.id, {
                       cantidad: qty,
                       precioUnitarioOriginal: servicioCompleto.precioVenta || servicioCompleto.precioPorPersona || servicioCompleto.precioBase || 0,
@@ -217,7 +217,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         return setting !== undefined ? setting.visible : true;
     };
     
-    const sortByPrice = (a: { precioVenta: number }, b: { precioVenta: number }) => a.precioVenta - b.precioVenta;
+    const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => (a.precioVenta || 0) - (b.precioVenta || 0);
 
     const allDishes = Array.from(
       allMenus.flatMap(m => m.items)

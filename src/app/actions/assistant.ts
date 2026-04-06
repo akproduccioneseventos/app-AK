@@ -78,14 +78,14 @@ ${customers.slice(-5).map(c => `- ${c.name} | ${c.partyType ?? 'Sin tipo'} | ${c
         itemsPresupuestados: [],
         notas: 'Creado desde el Asistente AK',
         estado: 'Borrador',
-      } as Omit<import('@/types/presupuesto').Presupuesto, 'id'>);
+      } as unknown as Omit<import('@/types/presupuesto').Presupuesto, 'id'>);
       actionResult = budgetResult;
     }
 
     return {
       success: true,
       response: result.response,
-      action: result.action ? { ...result.action, result: actionResult } : undefined,
+      action: result.action ? { ...result.action, result: actionResult } as any : undefined,
     };
   } catch (error: any) {
     const errorMessage: string = error.message || '';

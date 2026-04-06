@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, FileArchive } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, FileArchive, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';

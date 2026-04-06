@@ -50,7 +50,7 @@ export async function previewPriceAdjustment(
       const item: PreviewItem = {
         id: s.id,
         nombre: s.nombre,
-        categoria: s.categoria,
+        categoria: s.categoria || '',
       };
 
       if (type === 'precios' || type === 'ambos') {
