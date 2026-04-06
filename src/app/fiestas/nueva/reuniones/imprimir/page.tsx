@@ -485,11 +485,11 @@ function SalonLayoutContent() {
               <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                       <Label htmlFor="el-width">Ancho (m)</Label>
-                      <Input id="el-width" type="number" value={(editingElement.width / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)}/>
+                      <Input id="el-width" type="number" value={((editingElement.width ?? 0) / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)}/>
                   </div>
                   <div className="space-y-1">
                       <Label htmlFor="el-height">Alto (m)</Label>
-                      <Input id="el-height" type="number" value={(editingElement.height / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)}/>
+                      <Input id="el-height" type="number" value={((editingElement.height ?? 0) / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)}/>
                   </div>
               </div>
               {editingElement.category?.includes('Mesa') && (
@@ -645,8 +645,8 @@ function SalonLayoutContent() {
                                           total={el.seats || 0}
                                           isOccupied={i < assignedSeatsCount}
                                           isRound={isRound}
-                                          width={el.width}
-                                          height={el.height}
+                                          width={el.width ?? 0}
+                                          height={el.height ?? 0}
                                         />
                                     ))}
                                     <div className={cn('w-full h-full border flex flex-col p-1', selectedElementId === el.id ? 'border-primary shadow-lg z-10' : 'border-gray-500', isRound && 'rounded-full')}

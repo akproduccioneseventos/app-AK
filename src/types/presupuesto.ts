@@ -129,6 +129,7 @@ export interface PresupuestoFormData {
   cuponId?: string;
   cuponDescuento?: number; // Monto calculado del cupón
   notas: string;
+  timestamp?: string; // Optional: preserved from existing budget
   // Campos que no están en el form pero se necesitan para la lógica
   id?: string;
   numero?: number;
