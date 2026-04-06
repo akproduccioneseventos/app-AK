@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, Environment } from '@react-three/drei';
 import type { DecoracionData, LayoutElement } from '@/types/fiesta';
@@ -26,14 +26,14 @@ interface SalonSceneProps {
 function CaptureHelper({ onReady }: { onReady: (ref: SalonSceneRef) => void }) {
   const { gl, scene, camera } = useThree();
 
-  useCallback(() => {
+  useEffect(() => {
     onReady({
       captureScreenshot: () => {
         gl.render(scene, camera);
         return gl.domElement.toDataURL('image/png');
       }
     });
-  }, [gl, scene, camera, onReady])();
+  }, [gl, scene, camera, onReady]);
 
   return null;
 }
