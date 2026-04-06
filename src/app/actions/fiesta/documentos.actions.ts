@@ -49,7 +49,7 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
         
         const updatedFiesta = {
             ...fiesta,
-            otrosDocumentos: [...(fiesta.otrosDocumentos || []), newDoc]
+            othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
         };
         await saveFiesta(updatedFiesta);
 
@@ -64,7 +64,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
 
-        const docToDelete = fiesta.otrosDocumentos?.find(d => d.id === docId);
+        const docToDelete = fiesta.othersDocumentos?.find(d => d.id === docId);
         if (!docToDelete) {
             return { success: false, error: 'Documento no encontrado.' };
         }
@@ -74,7 +74,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
 
         const updatedFiesta = {
             ...fiesta,
-            otrosDocumentos: (fiesta.otrosDocumentos || []).filter(d => d.id !== docId)
+            othersDocumentos: (fiesta.othersDocumentos || []).filter(d => d.id !== docId)
         };
         await saveFiesta(updatedFiesta);
 

@@ -39,6 +39,7 @@ export interface ProfitAndLossData {
   };
   gananciaNeta: number;
   margen: number;
+  nombreEvento?: string;
 }
 
 /**

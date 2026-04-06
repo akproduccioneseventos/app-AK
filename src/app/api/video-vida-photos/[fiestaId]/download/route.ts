@@ -40,7 +40,7 @@ export async function GET(
     headers.set('Content-Type', 'application/zip');
     headers.set('Content-Disposition', `attachment; filename="${zipFilename}"`);
 
-    return new NextResponse(zipContent, { status: 200, headers });
+    return new NextResponse(zipContent as BodyInit, { status: 200, headers });
 
   } catch (error: any) {
     console.error(`Error creating zip for fiesta ${fiestaId}:`, error);

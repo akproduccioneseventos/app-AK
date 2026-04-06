@@ -115,6 +115,10 @@ export interface ConfigEventoDataStorage {
   protagonista1Nombre?: string; 
   protagonista2Nombre?: string; 
   protagonistaFotoUrl?: string;
+  // Legacy / extended optional fields
+  nombreAgasajado?: string;
+  clienteNombre?: string;
+  primaryColor?: string;
 }
 
 export interface PersonalAsignadoDetalleStorage {
@@ -208,6 +212,7 @@ export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
   moodboardItems?: MoodboardItem[]; 
+  moodboardImageUrl?: string;
   colorCubremantel?: string;
   colorGlobos?: string;
   decoracionTorta?: {
@@ -340,6 +345,7 @@ export interface InvitacionDigitalData {
     visible: boolean;
     imagenFondoUrl?: string;
     texto?: TextWithStyle;
+    tipo?: string;
     sugeridos?: string[];
     evitar?: string[];
   };
@@ -354,6 +360,7 @@ export interface InvitacionDigitalData {
   };
   despedida: {
     visible: boolean;
+    texto?: TextWithStyle;
   };
   musica: {
     visible: boolean;
@@ -580,6 +587,7 @@ export interface CargaOperativaItem {
   notas?: string;
   origenId?: string; 
   unidad?: string;
+  unit?: string; // alias for unidad (legacy)
   hasConflict?: boolean; 
   availableStockAtDate?: number; 
 }
@@ -618,6 +626,7 @@ export interface GestionCostosData {
   costosItems: CostoItem[];
   ingresosTotalesEstimados: number; 
   notasGeneralesCostos?: string;
+  others?: Record<string, number>;
 }
 
 export interface VideoVidaData {
@@ -792,4 +801,63 @@ export interface EventoEnVivoData {
   solicitudesCanciones: SolicitudCancion[];
   mensajes: MensajeEnVivo[];
   votaciones: VotacionEnVivo[];
+}
+
+// --- FOTOGRAFÍA Y FILMACIÓN ---
+export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
+
+export interface ServicioFotografia {
+  id: string;
+  nombre: string;
+  estado: EntregaMaterialEstado;
+  fechaEntregaEstimada?: string;
+  linkEntrega?: string;
+  notas?: string;
+}
+
+export interface FotografiaYFilmacionData {
+  servicios: ServicioFotografia[];
+  notasGenerales?: string;
+}
+
+// --- BACKUP / RESTORE POINTS ---
+export interface RestorePoint {
+  name: string;
+  timestamp: string;
+  displayDate: string;
+}
+
+// --- ITINERARY TEMPLATES ---
+export interface ItineraryTemplate {
+  id: string;
+  name: string;
+  items: ProgramaEventoItem[];
+}
+
+// --- DOCUMENT TYPES ---
+export type DocumentoTipo = 'contrato-servicio' | 'contrato-salon' | 'cancelacion' | 'cambio-fecha' | 'otro';
+
+// --- BEBIDA RECETAS ---
+export interface IngredienteReceta {
+  id: string;
+  nombre: string;
+  cantidad: number;
+  unidad: string;
+  costoUnitario?: number;
+}
+
+export interface BebidaReceta {
+  id: string;
+  nombre: string;
+  porcionesBase: number;
+  costoTotalReceta?: number;
+  ingredientes: IngredienteReceta[];
+  notas?: string;
+}
+
+// --- COSTO CATEGORIA ---
+export interface CostoCategoria {
+  id: string;
+  nombre: string;
+  items: CostoItem[];
 }

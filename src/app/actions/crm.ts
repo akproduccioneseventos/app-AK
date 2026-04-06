@@ -196,7 +196,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const customerResult = await saveCustomer({
       name: lead.name,
       phone: lead.phone,
-      companyName: (lead as any).companyName || presupuesto.clienteEmpresa || undefined,
+      companyName: (lead as any).companyName || (presupuesto as any).clienteEmpresa || undefined,
       taxId: (lead as any).taxId || undefined,
       estadoCliente: 'Actual',
       partyDate: presupuesto.eventoFecha,
@@ -278,7 +278,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
     const customerResult = await saveCustomer({
       name: lead.name,
       phone: lead.phone,
-      companyName: (lead as any).companyName || presupuesto.clienteEmpresa || undefined,
+      companyName: (lead as any).companyName || (presupuesto as any).clienteEmpresa || undefined,
       taxId: (lead as any).taxId || undefined,
       estadoCliente: 'Actual',
       partyDate: presupuesto.eventoFecha,

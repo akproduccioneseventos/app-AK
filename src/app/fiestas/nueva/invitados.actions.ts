@@ -6,7 +6,7 @@ import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 
 const FIESTAS_DIR = 'fiestas';
 

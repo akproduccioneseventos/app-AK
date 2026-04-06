@@ -40,7 +40,6 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'accesos-personal.json': 'accesos_personal',
   'cupones.json': 'cupones',
   'cupones-usage.json': 'cupones_usage',
-  'price-adjustments-history.json': 'price_adjustments',
 };
 
 // Config files that map to single documents in 'configuracion' collection

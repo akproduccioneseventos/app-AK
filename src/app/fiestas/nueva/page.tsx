@@ -14,7 +14,8 @@ import {
     ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, updateModulosContratadosFiestaActual, type FiestaEnPlanificacion, type ModulosContratados } from '../../actions/fiesta-actual';
+import { getFiestaById, updateModulosContratadosFiestaActual } from '../../actions/fiesta-actual';
+import type { FiestaEnPlanificacion, ModulosContratados } from '@/types/fiesta';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";

@@ -7,7 +7,8 @@ import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/soci
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { FiestaEnPlanificacion, SocialConnection, SocialGallerySettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
+import type { SocialConnection } from '@/types/settings';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // UI Components

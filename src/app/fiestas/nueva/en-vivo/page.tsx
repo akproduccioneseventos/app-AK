@@ -21,7 +21,9 @@ import {
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getInvoiceById } from '@/app/actions/invoices';
-import type { FiestaEnPlanificacion, Empleado, Rol, ProgramaEventoItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
+import type { Empleado } from '@/types/empleado';
+import type { Rol } from '@/types/rol';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

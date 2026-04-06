@@ -41,7 +41,7 @@ export interface CrmStage {
 export interface CrmLead {
   id: string;
   name: string;
-  currentStageId: string;
+  currentStageId?: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   email?: string;

@@ -4,6 +4,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { RestorePoint } from '@/types/fiesta';
 
+export type { RestorePoint };
+
 const DATA_DIR = path.resolve(process.cwd(), 'src', 'data');
 const BACKUPS_DIR_NAME = 'backups';
 const BACKUPS_DIR = path.join(DATA_DIR, BACKUPS_DIR_NAME);

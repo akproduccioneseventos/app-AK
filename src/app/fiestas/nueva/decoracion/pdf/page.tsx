@@ -14,6 +14,7 @@ import type { FiestaEnPlanificacion, DecoracionData, ZonaContratada, LayoutEleme
 import type { Customer } from '@/types/customer';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
+import { cn } from '@/lib/utils';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
