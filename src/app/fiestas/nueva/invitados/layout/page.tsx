@@ -174,7 +174,7 @@ const DraggableElement: React.FC<{
             >
                 <div className="w-full h-full relative" style={{ transform: `rotate(${el.rotation}deg)` }}>
                     {!isArea && Array.from({ length: el.seats || 0 }).map((_, i) => (
-                        <Seat key={i} index={i} total={el.seats || 0} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
+                        <Seat key={i} index={i} total={el.seats || 0} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width ?? 0} height={el.height ?? 0} />
                     ))}
                     <div 
                         className={cn(
@@ -534,8 +534,8 @@ function SalonLayoutContent() {
             <div className="space-y-6 py-4">
               <div className="space-y-2"><Label htmlFor="el-name" className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre del Elemento</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)} className="rounded-xl h-12 bg-slate-50 border-none"/></div>
               <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Ancho (m)</Label><Input type="number" step="0.1" value={(editingElement.width / pixelsPerMeter).toFixed(1)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)} className="rounded-xl h-12 bg-slate-50 border-none"/></div>
-                  <div className="space-y-2"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Alto (m)</Label><Input type="number" step="0.1" value={(editingElement.height / pixelsPerMeter).toFixed(1)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)} className="rounded-xl h-12 bg-slate-50 border-none"/></div>
+                  <div className="space-y-2"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Ancho (m)</Label><Input type="number" step="0.1" value={((editingElement.width ?? 0) / pixelsPerMeter).toFixed(1)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)} className="rounded-xl h-12 bg-slate-50 border-none"/></div>
+                  <div className="space-y-2"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Alto (m)</Label><Input type="number" step="0.1" value={((editingElement.height ?? 0) / pixelsPerMeter).toFixed(1)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)} className="rounded-xl h-12 bg-slate-50 border-none"/></div>
               </div>
               {editingElement.category?.includes('Mesa') && (<div className="space-y-2"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Cantidad de Asientos</Label><Input type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)} className="rounded-xl h-12 bg-slate-50 border-none"/></div>)}
                <div className="space-y-2"><Label className="text-xs uppercase font-black tracking-widest text-slate-400">Color Visual</Label><div className="flex gap-3"><Input type="color" value={editingElement.backgroundColor || '#ffffff'} onChange={e => setEditingElement(prev => prev ? {...prev, backgroundColor: e.target.value} : null)} className="w-12 h-12 p-1 rounded-xl"/><Input value={editingElement.backgroundColor || '#ffffff'} onChange={e => setEditingElement(prev => prev ? {...prev, backgroundColor: e.target.value} : null)} className="rounded-xl h-12 bg-slate-50 border-none"/></div></div>

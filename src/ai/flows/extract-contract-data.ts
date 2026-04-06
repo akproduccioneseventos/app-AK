@@ -21,7 +21,7 @@ export type ExtractContractOutput = z.infer<typeof ExtractContractOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'extractContractPrompt',
-  model: 'googleai/gemini-1.5-flash',
+  model: 'googleai/gemini-2.5-flash',
   input: { schema: ExtractContractInputSchema },
   output: { schema: ExtractContractOutputSchema },
   config: {

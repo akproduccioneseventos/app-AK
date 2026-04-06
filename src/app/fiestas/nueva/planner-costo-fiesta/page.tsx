@@ -154,7 +154,7 @@ const DraggableElement: React.FC<{
             >
                 <div className="w-full h-full relative" style={{ transform: `rotate(${el.rotation}deg)` }}>
                     {Array.from({ length: el.seats || 0 }).map((_, i) => (
-                        <Seat key={i} index={i} total={el.seats || 0} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width} height={el.height} />
+                        <Seat key={i} index={i} total={el.seats || 0} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width ?? 0} height={el.height ?? 0} />
                     ))}
                     <div 
                         className={cn('w-full h-full border flex flex-col p-1 overflow-hidden', isRound && 'rounded-full')}
@@ -331,8 +331,8 @@ function SalonLayoutContent() {
             <div className="space-y-4">
               <div className="space-y-1"><Label htmlFor="el-name">Nombre</Label><Input id="el-name" value={editingElement.name} onChange={e => setEditingElement(prev => prev ? {...prev, name: e.target.value} : null)}/></div>
               <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1"><Label htmlFor="el-width">Ancho (m)</Label><Input id="el-width" type="number" value={(editingElement.width / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)}/></div>
-                  <div className="space-y-1"><Label htmlFor="el-height">Alto (m)</Label><Input id="el-height" type="number" value={(editingElement.height / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)}/></div>
+                  <div className="space-y-1"><Label htmlFor="el-width">Ancho (m)</Label><Input id="el-width" type="number" value={((editingElement.width ?? 0) / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, width: Number(e.target.value) * pixelsPerMeter} : null)}/></div>
+                  <div className="space-y-1"><Label htmlFor="el-height">Alto (m)</Label><Input id="el-height" type="number" value={((editingElement.height ?? 0) / pixelsPerMeter).toFixed(2)} onChange={e => setEditingElement(prev => prev ? {...prev, height: Number(e.target.value) * pixelsPerMeter} : null)}/></div>
               </div>
               {editingElement.category?.includes('Mesa') && (<div className="space-y-1"><Label htmlFor="el-seats">Asientos</Label><Input id="el-seats" type="number" value={editingElement.seats || 0} onChange={e => setEditingElement(prev => prev ? {...prev, seats: Number(e.target.value) || 0} : null)}/></div>)}
                <div className="space-y-1"><Label htmlFor="el-color">Color de Fondo</Label><Input id="el-color" type="color" value={editingElement.backgroundColor || '#ffffff'} onChange={e => setEditingElement(prev => prev ? {...prev, backgroundColor: e.target.value} : null)}/></div>
