@@ -11,7 +11,7 @@ import {
     ListChecks, DollarSign, Camera, Gift, Archive, 
     Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
-    ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown
+    ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '../../actions/fiesta-actual';
@@ -148,6 +148,35 @@ function PlannerDashboardContent() {
         </div>
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
+
+      {/* Pre-event alerts banner */}
+      {(() => {
+        if (!fiesta.configuracion.fechaEvento) return null;
+        const now = new Date();
+        const eventDate = new Date(fiesta.configuracion.fechaEvento);
+        const diffMs = eventDate.getTime() - now.getTime();
+        const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        if (daysLeft < 0 || daysLeft > 7) return null;
+
+        const alertConfig =
+          daysLeft <= 1 ? { bg: 'bg-red-50 border-red-200', text: 'text-red-800', icon: 'text-red-500', label: daysLeft <= 0 ? '¡HOY ES EL EVENTO! 🎉' : '¡MAÑANA ES EL EVENTO! 🚨' } :
+          daysLeft <= 2 ? { bg: 'bg-orange-50 border-orange-200', text: 'text-orange-800', icon: 'text-orange-500', label: `Faltan ${daysLeft} días para el evento 🔔` } :
+          daysLeft <= 3 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', icon: 'text-amber-500', label: `Faltan ${daysLeft} días para el evento ⏰` } :
+          { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-800', icon: 'text-blue-500', label: `Faltan ${daysLeft} días para el evento 📅` };
+
+        const pendingTasks = fiesta.tareas?.filter(t => !t.completada).length || 0;
+        return (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className={`flex items-center gap-3 p-4 rounded-2xl border ${alertConfig.bg}`}>
+            <Bell className={`w-5 h-5 shrink-0 ${alertConfig.icon}`} />
+            <div className="flex-1 min-w-0">
+              <p className={`font-black text-sm ${alertConfig.text}`}>{alertConfig.label}</p>
+              {pendingTasks > 0 && (
+                <p className={`text-xs font-bold mt-0.5 ${alertConfig.text} opacity-70`}>{pendingTasks} tarea{pendingTasks !== 1 ? 's' : ''} pendiente{pendingTasks !== 1 ? 's' : ''} — ¡revisá el checklist!</p>
+              )}
+            </div>
+          </motion.div>
+        );
+      })()}
 
       {/* Generate Documents PDF – Quick Action Dropdown */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>

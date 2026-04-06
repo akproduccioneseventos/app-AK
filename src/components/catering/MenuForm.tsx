@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, Info } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, Info, ImageIcon, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu, getMenus } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -18,7 +18,42 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+
+const ALLERGEN_OPTIONS: { id: string; label: string; emoji: string }[] = [
+  { id: 'gluten', label: 'Gluten', emoji: '🌾' },
+  { id: 'lacteos', label: 'Lácteos', emoji: '🥛' },
+  { id: 'huevo', label: 'Huevo', emoji: '🥚' },
+  { id: 'frutos_secos', label: 'Frutos secos', emoji: '🥜' },
+  { id: 'pescado', label: 'Pescado', emoji: '🐟' },
+  { id: 'mariscos', label: 'Mariscos', emoji: '🦐' },
+  { id: 'soja', label: 'Soja', emoji: '🫘' },
+];
+
+const DISH_TYPE_EMOJI: Record<string, string> = {
+  'Entrada': '🥗',
+  'Plato Principal': '🍽️',
+  'Postre': '🍰',
+  'Bebida': '🍹',
+  'Menú Infantil': '🧒',
+  'Menú Infantil/Adolescente': '🧒',
+  '': '🍴',
+};
+
+/** Returns the URL if it's a safe http/https URL, otherwise undefined */
+const sanitizeImageUrl = (url?: string): string | undefined => {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return url;
+  } catch {
+    // invalid URL
+  }
+  return undefined;
+};
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -335,7 +370,13 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
           <div className="relative pt-4"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Buscar plato..." value={dishSearchTerm} onChange={(e) => setDishSearchTerm(e.target.value)} className="w-full max-w-sm pl-9" /></div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {sortedAndFilteredItems.map((item) => (
+          {sortedAndFilteredItems.map((item) => {
+            const totalCost = item.totalDishCost || 0;
+            const hasIngCosts = totalCost > 0 && (item.ingredients?.length || 0) > 0;
+            const ingredientColors = ['#f59e0b','#3b82f6','#10b981','#8b5cf6','#ef4444','#06b6d4','#f97316','#ec4899','#84cc16','#6366f1'];
+            // Pre-calculate max cost once (O(n) instead of O(n²))
+            const maxIngCost = hasIngCosts ? Math.max(...(item.ingredients || []).map(i => i.costoTotalReceta)) : 0;
+            return (
             <Card key={item.id} className="p-4">
                 <CardHeader className="p-0 pb-4">
                      <div className="flex justify-between items-start">
@@ -345,6 +386,47 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         </div>
                         <div className="flex gap-1"><Button type="button" variant="ghost" size="icon" onClick={() => duplicateItem(item.id)}><Copy className="w-4 h-4"/></Button><Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => deleteItem(item.id)}><Trash2 className="w-4 h-4"/></Button></div>
                      </div>
+                     {/* Foto del plato */}
+                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 items-start">
+                       <div className="sm:col-span-2 space-y-1">
+                         <Label className="text-xs flex items-center gap-1"><ImageIcon className="w-3.5 h-3.5"/>URL Foto del Plato</Label>
+                         <Input
+                           placeholder="https://... (Canva, Google, etc.)"
+                           value={item.imageUrl || ''}
+                           onChange={(e) => handleItemChange(item.id, 'imageUrl', e.target.value)}
+                           className="h-8 text-sm"
+                         />
+                       </div>
+                       <div className="flex items-center justify-center sm:justify-start h-20 w-20 rounded-lg border bg-muted/40 overflow-hidden shrink-0">
+                         {sanitizeImageUrl(item.imageUrl) ? (
+                           <img src={sanitizeImageUrl(item.imageUrl)} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                         ) : (
+                           <span className="text-3xl">{DISH_TYPE_EMOJI[item.type || ''] || '🍴'}</span>
+                         )}
+                       </div>
+                     </div>
+                     {/* Alérgenos */}
+                     <div className="mt-2 space-y-1">
+                       <Label className="text-xs">Alérgenos</Label>
+                       <div className="flex flex-wrap gap-2">
+                         {ALLERGEN_OPTIONS.map(allergen => (
+                           <label key={allergen.id} className="flex items-center gap-1 cursor-pointer select-none">
+                             <Checkbox
+                               checked={(item.allergenTags || []).includes(allergen.id)}
+                               onCheckedChange={(checked) => {
+                                 const current = item.allergenTags || [];
+                                 const updated = checked
+                                   ? [...current, allergen.id]
+                                   : current.filter(a => a !== allergen.id);
+                                 handleItemChange(item.id, 'allergenTags', updated);
+                               }}
+                               className="h-3.5 w-3.5"
+                             />
+                             <span className="text-xs">{allergen.emoji} {allergen.label}</span>
+                           </label>
+                         ))}
+                       </div>
+                     </div>
                 </CardHeader>
                  <CardContent className="p-0">
                     <Accordion type="single" collapsible defaultValue="ingredients">
@@ -352,16 +434,72 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         <AccordionTrigger className="text-sm font-medium hover:no-underline">Ingredientes ({item.ingredients?.length || 0})</AccordionTrigger>
                         <AccordionContent>
                            <div className="mt-2 space-y-3 p-3 bg-muted/30 rounded-lg">
-                              {item.ingredients?.map(ing => (
+                              <TooltipProvider>
+                              {item.ingredients?.map((ing, ingIdx) => {
+                                const otherOptions = catalogoInsumos.filter(c =>
+                                  c.id !== ing.origenId &&
+                                  ing.name && c.nombre.toLowerCase().includes(ing.name.toLowerCase().split(' ')[0]) &&
+                                  (c.valorUnitarioEstimado || 0) < (ing.costoUnitario || 0) &&
+                                  (c.valorUnitarioEstimado || 0) > 0
+                                );
+                                const hasCheaperOption = otherOptions.length > 0;
+                                return (
                                 <div key={ing.id} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-2 items-end p-2 border-b last:border-b-0">
-                                    <div className="space-y-1 col-span-2 lg:col-span-3"><Label className="text-xs">Nombre</Label><Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
+                                    <div className="space-y-1 col-span-2 lg:col-span-3">
+                                      <Label className="text-xs">Nombre</Label>
+                                      <div className="relative">
+                                        <Input value={ing.name || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'name', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/>
+                                        {hasCheaperOption && (
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <span className="absolute right-1 top-1/2 -translate-y-1/2 cursor-help">
+                                                <Badge variant="outline" className="text-[9px] px-1 py-0 bg-green-50 text-green-700 border-green-300 font-bold">↓ Más barato</Badge>
+                                              </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top" className="max-w-48">
+                                              <p className="text-xs font-bold">Opción más económica:</p>
+                                              {otherOptions.slice(0,3).map(o => (
+                                                <p key={o.id} className="text-xs">{o.nombre} — ${o.valorUnitarioEstimado}/{o.unidad} {o.proveedor ? `(${o.proveedor})` : ''}</p>
+                                              ))}
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                      </div>
+                                    </div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Cant. p/p</Label><Input value={ing.quantityPerPerson || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'quantityPerPerson', e.target.value)} className="h-8 text-sm" /></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-1"><Label className="text-xs">Unidad</Label><Input value={ing.unit || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'unit', e.target.value)} className="h-8 text-sm" disabled={!!ing.origenId}/></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2 relative"><Label className="text-xs">Costo Unit.</Label><Input type="text" value={ing.costoUnitario || ''} onChange={e => handleIngredientChange(item.id, ing.id, 'costoUnitario', e.target.value)} onBlur={() => handleIngredientBlur(item.id, ing, 'costoUnitario')} className="h-8 pl-6 text-sm"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
                                     <div className="space-y-1 col-span-1 lg:col-span-2"><Label className="text-xs">Costo p/p</Label><p className="h-8 flex items-center font-medium text-sm">{formatCurrency(ing.costoTotalReceta)}</p></div>
                                     <div className="flex items-center justify-end col-span-2 lg:col-span-1"><Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteIngredient(item.id, ing.id)}><Trash2 className="w-3.5 h-3.5"/></Button></div>
                                 </div>
-                              ))}
+                                );
+                              })}
+                              </TooltipProvider>
+                              {/* Gráfico de costos por ingrediente */}
+                              {hasIngCosts && (
+                                <div className="mt-3 p-3 bg-white rounded-md border space-y-1.5">
+                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Distribución de costos</p>
+                                  {item.ingredients!.map((ing, ingIdx) => {
+                                    const pct = totalCost > 0 ? Math.round((ing.costoTotalReceta / totalCost) * 100) : 0;
+                                    if (pct === 0) return null;
+                                    const isMax = maxIngCost > 0 && ing.costoTotalReceta === maxIngCost;
+                                    return (
+                                      <div key={ing.id} className="space-y-0.5">
+                                        <div className="flex justify-between items-center text-[11px]">
+                                          <span className={cn("font-medium truncate max-w-[60%]", isMax && "font-bold text-orange-600")}>{ing.name || '—'}{isMax && ' ⭐'}</span>
+                                          <span className="text-muted-foreground">{pct}% · {formatCurrency(ing.costoTotalReceta)}</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                          <div
+                                            className="h-full rounded-full transition-all duration-500"
+                                            style={{ width: `${pct}%`, backgroundColor: ingredientColors[ingIdx % ingredientColors.length] }}
+                                          />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
                               <div className="flex gap-2 mt-3"><Button type="button" size="sm" variant="outline" onClick={() => addIngredient(item.id)}><PlusCircle className="w-4 h-4 mr-1.5"/>Manual</Button><Button type="button" size="sm" variant="outline" onClick={() => openCatalogModal(item.id)}><BookOpen className="w-4 h-4 mr-1.5"/>Catálogo</Button></div>
                           </div>
                         </AccordionContent>
@@ -382,7 +520,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                     </div>
                  </CardFooter>
             </Card>
-          ))}
+            );
+          })}
           <Button type="button" variant="secondary" onClick={addItem}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Plato</Button>
         </CardContent>
       </Card>

@@ -344,6 +344,34 @@ export default function PortalClientePage() {
           </CardContent>
         </Card>
 
+        {/* ── Catálogo Canva contextual ─────────────── */}
+        {(() => {
+          const tipo = (config.tipoCelebracion || '').toLowerCase();
+          const isBoda = tipo.includes('boda') || tipo.includes('casamiento');
+          const isXV = tipo.includes('xv') || tipo.includes('quince');
+          const canvaUrl = isBoda
+            ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas'
+            : isXV
+            ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web'
+            : 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web';
+          const emoji = isBoda ? '��' : isXV ? '👑' : '🎉';
+          const label = isBoda ? 'Ver Catálogo Completo de Bodas' : isXV ? 'Ver Catálogo Completo de XV Años' : 'Ver Catálogo Completo de Fiestas';
+          return (
+            <a href={canvaUrl} target="_blank" rel="noopener noreferrer" className="block">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{emoji}</span>
+                  <div>
+                    <p className="font-black text-sm text-slate-800">{label}</p>
+                    <p className="text-xs text-slate-500">Conocé todos los servicios disponibles</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-primary shrink-0" />
+              </div>
+            </a>
+          );
+        })()}
+
         {/* ── Llegadas en Vivo / Resumen post-evento ─────────── */}
         {(isEventToday || isEventPast) && (
           <Card className={isEventToday ? 'border-green-200 bg-green-50/50' : ''}>
