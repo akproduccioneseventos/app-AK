@@ -232,7 +232,7 @@ export default function PublicPortalView({
   };
 
   const handleSubmitPago = async () => {
-    const monto = parseFloat(pagoMonto.replace(/[^\d.,]/g, '').replace(',', '.'));
+    const monto = parseFloat(pagoMonto.replace(/[^\d.]/g, ''));
     if (!monto || monto <= 0) return;
     setPagoSubmitting(true);
     try {
@@ -255,7 +255,7 @@ export default function PublicPortalView({
     }
   };
 
-  // ── FAQ accordion state
+  // FAQ accordion state
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
 
   const handleToggleTask = async (taskId: string) => {

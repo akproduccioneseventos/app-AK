@@ -92,8 +92,6 @@ function PlanPagosContent() {
     }
   };
 
-  useEffect(() => { fetchPlan(); }, [fetchPlan]);
-
   const totalMonto = cuotas.reduce((sum, c) => sum + c.monto, 0);
   const totalPagado = cuotas.reduce((sum, c) => {
     if (c.estado === 'pagado') return sum + c.monto;

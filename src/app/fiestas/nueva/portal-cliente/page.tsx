@@ -155,9 +155,12 @@ function ClientPortalConfigContent() {
   };
 
   const addCuenta = () => {
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? `cuenta_${crypto.randomUUID()}`
+      : `cuenta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     setCuentasBancarias(prev => [
       ...prev,
-      { id: `cuenta_${Date.now()}`, banco: '', titular: '', numero: '', tipo: '' },
+      { id, banco: '', titular: '', numero: '', tipo: '' },
     ]);
   };
 

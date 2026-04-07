@@ -77,7 +77,7 @@ export async function submitClientPayment(
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
     const notification: ClientPaymentNotification = {
-      id: `cpn_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: `cpn_${crypto.randomUUID()}`,
       monto,
       comprobanteBase64,
       comprobanteNombre,
