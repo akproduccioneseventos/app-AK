@@ -9,7 +9,7 @@ import {
   type User,
   type ActionCodeSettings,
 } from 'firebase/auth';
-import { auth } from './config';
+import { auth, resolveAuth } from './config';
 
 /**
  * Comma-separated list of allowed admin emails.
@@ -33,10 +33,11 @@ export function isAdminEmail(email: string | null | undefined): boolean {
  * Throws if Firebase is not initialized or the user is not in the admin whitelist.
  */
 export async function signInAdmin(email: string, password: string): Promise<User> {
-  if (!auth) throw new Error('Firebase Auth is not initialized');
-  const credential = await signInWithEmailAndPassword(auth, email, password);
+  const authInstance = await resolveAuth();
+  if (!authInstance) throw new Error('Firebase Auth is not initialized');
+  const credential = await signInWithEmailAndPassword(authInstance, email, password);
   if (!isAdminEmail(credential.user.email)) {
-    await firebaseSignOut(auth);
+    await firebaseSignOut(authInstance);
     throw new Error('UNAUTHORIZED');
   }
   return credential.user;
@@ -44,8 +45,9 @@ export async function signInAdmin(email: string, password: string): Promise<User
 
 /** Signs out the current user. No-op when Firebase is not initialized. */
 export async function signOut(): Promise<void> {
-  if (!auth) return; // No active session to sign out of; safe to ignore.
-  await firebaseSignOut(auth);
+  const authInstance = await resolveAuth();
+  if (!authInstance) return;
+  await firebaseSignOut(authInstance);
 }
 
 /**
@@ -53,7 +55,8 @@ export async function signOut(): Promise<void> {
  * Uses NEXT_PUBLIC_APP_URL as the continue URL base; falls back to window.location.origin.
  */
 export async function sendPasswordResetEmail(email: string): Promise<void> {
-  if (!auth) throw new Error('Firebase Auth is not initialized');
+  const authInstance = await resolveAuth();
+  if (!authInstance) throw new Error('Firebase Auth is not initialized');
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     (typeof window !== 'undefined' ? window.location.origin : '');
@@ -63,19 +66,41 @@ export async function sendPasswordResetEmail(email: string): Promise<void> {
     handleCodeInApp: false,
   };
 
-  await firebaseSendPasswordResetEmail(auth, email, actionCodeSettings);
+  await firebaseSendPasswordResetEmail(authInstance, email, actionCodeSettings);
 }
 
 /** Subscribes to auth state changes. Returns an unsubscribe function. */
 export function subscribeToAuthState(
   callback: (user: User | null) => void
 ): () => void {
-  if (!auth) {
-    // Firebase not initialized (e.g. build without env vars): treat as unauthenticated
-    callback(null);
-    return () => {};
+  // Fast path: auth already initialized synchronously.
+  if (auth) {
+    return onAuthStateChanged(auth, callback);
   }
-  return onAuthStateChanged(auth, callback);
+
+  // Async path: wait for Firebase config to load from /__/firebase/init.json.
+  let unsubscribe: () => void = () => {};
+  let cancelled = false;
+
+  resolveAuth().then((authInstance) => {
+    if (!authInstance) {
+      if (!cancelled) callback(null);
+      return;
+    }
+    const unsub = onAuthStateChanged(authInstance, callback);
+    if (cancelled) {
+      // Cleanup function was already called while the promise was pending;
+      // immediately unsubscribe the newly-created listener to avoid a leak.
+      unsub();
+    } else {
+      unsubscribe = unsub;
+    }
+  });
+
+  return () => {
+    cancelled = true;
+    unsubscribe();
+  };
 }
 
 export { auth };
