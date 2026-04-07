@@ -786,7 +786,8 @@ export interface FiestaEnPlanificacion {
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
   contratoServicioTexto?: string;
-  contratoFirmaInfo?: ContratoFirmaInfo; 
+  contratoFirmaInfo?: ContratoFirmaInfo;
+  contratoDatos?: ContratoDatos;
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;
   musica?: MusicaFiesta;
@@ -817,6 +818,14 @@ export interface ContratoFirmaInfo {
     signedBy?: string;
     ip?: string;
     physicalContractUrl?: string; 
+}
+
+export interface ContratoDatos {
+  senia?: number;
+  saldo?: number;
+  ajusteAnualPorcentaje?: number;
+  fechaFirmaContrato?: string;
+  clausulas?: string;
 }
 
 export interface FotoEnVivo {
