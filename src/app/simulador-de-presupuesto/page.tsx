@@ -703,6 +703,24 @@ function SimuladorContent() {
 
     return (
         <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-2 sm:p-6 lg:p-8 gap-4">
+            {/* Chat Simulator Banner */}
+            <div className="w-full max-w-3xl print:hidden">
+              <Link href="/simulador-ak">
+                <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-violet-600 to-primary text-white rounded-2xl px-5 py-4 shadow-lg hover:shadow-xl hover:from-violet-500 hover:to-primary/90 transition-all cursor-pointer group">
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="w-6 h-6 shrink-0 text-yellow-300" />
+                    <div>
+                      <p className="font-black text-sm">¿Preferís hablar con el Asistente AK?</p>
+                      <p className="text-xs text-white/70">Simulador tipo chat · El bot te hace las preguntas y arma el presupuesto paso a paso</p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 bg-white/20 group-hover:bg-white/30 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors">
+                    Ir al Chat →
+                  </div>
+                </div>
+              </Link>
+            </div>
+
             <Card className="w-full max-w-3xl shadow-3xl rounded-[3rem] overflow-hidden border-none bg-white">
                 <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
                     <div className="flex justify-center mb-4">

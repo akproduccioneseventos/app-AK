@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem } from '@/types/fiesta';
+import React, { useEffect, useRef, useState } from 'react';
+import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import {
   Calendar,
@@ -40,6 +40,12 @@ import {
   Wine,
   Package,
   ExternalLink,
+  Crown,
+  Upload,
+  X,
+  Send,
+  Sparkles,
+  Building2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,7 +54,8 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { updateClientChecklist, updateClientNotes } from '@/app/actions/fiesta/portal.actions';
+import { Input } from '@/components/ui/input';
+import { updateClientChecklist, updateClientNotes, submitClientPayment } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
 import { MarketingBanner } from '@/components/marketing-banner';
@@ -198,6 +205,15 @@ export default function PublicPortalView({
   const [notesSaved, setNotesSaved] = useState(false);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
 
+  // Informar Pago modal state
+  const [showPagoModal, setShowPagoModal] = useState(false);
+  const [pagoMonto, setPagoMonto] = useState('');
+  const [pagoFile, setPagoFile] = useState<File | null>(null);
+  const [pagoFilePreview, setPagoFilePreview] = useState<string | null>(null);
+  const [pagoSubmitting, setPagoSubmitting] = useState(false);
+  const [pagoSuccess, setPagoSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Guest simulator state
   const [guestDelta, setGuestDelta] = useState(0);
 
@@ -205,6 +221,39 @@ export default function PublicPortalView({
   const [likedItems, setLikedItems] = useState<Set<string>>(
     new Set((fiesta.decoracion?.moodboardItems ?? []).filter(i => i.likedByClient).map(i => i.id))
   );
+
+  const handlePagoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPagoFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPagoFilePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmitPago = async () => {
+    const monto = parseFloat(pagoMonto.replace(/[^\d.]/g, ''));
+    if (!monto || monto <= 0) return;
+    setPagoSubmitting(true);
+    try {
+      let base64: string | undefined;
+      let nombre: string | undefined;
+      if (pagoFile) {
+        base64 = pagoFilePreview ?? undefined;
+        nombre = pagoFile.name;
+      }
+      const res = await submitClientPayment(fiesta.id, monto, base64, nombre);
+      if (res.success) {
+        setPagoSuccess(true);
+        setShowPagoModal(false);
+        setPagoMonto('');
+        setPagoFile(null);
+        setPagoFilePreview(null);
+      }
+    } finally {
+      setPagoSubmitting(false);
+    }
+  };
 
   // FAQ accordion state
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
@@ -359,16 +408,23 @@ export default function PublicPortalView({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5">
-      {/* Hero Header */}
-      <div className="relative bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground px-4 pb-10 pt-12 overflow-hidden">
+      {/* Hero Header - VIP Styling */}
+      <div className="relative bg-gradient-to-br from-violet-900 via-primary to-violet-700 text-primary-foreground px-4 pb-10 pt-12 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <Star className="absolute top-6 right-8 w-20 h-20 text-white rotate-12" />
-          <Star className="absolute bottom-4 left-6 w-12 h-12 text-white -rotate-12" />
+          <Star className="absolute top-6 right-8 w-20 h-20 text-yellow-300 rotate-12" />
+          <Star className="absolute bottom-4 left-6 w-12 h-12 text-yellow-300 -rotate-12" />
+          <Sparkles className="absolute top-12 left-12 w-8 h-8 text-yellow-200 rotate-45" />
         </div>
         <div className="relative max-w-lg mx-auto text-center space-y-3">
-          <Badge variant="secondary" className="bg-white/20 text-white border-white/30 hover:bg-white/20">
-            {companyName}
-          </Badge>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 hover:bg-white/20">
+              {companyName}
+            </Badge>
+            <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-0 font-black text-xs px-3 py-1 shadow-lg">
+              <Crown className="w-3 h-3 mr-1" />
+              PORTAL VIP
+            </Badge>
+          </div>
           <h1 className="text-3xl sm:text-4xl font-black leading-tight tracking-tight">
             {config.nombreEvento || 'Tu Evento Especial'}
           </h1>
@@ -540,6 +596,61 @@ export default function PublicPortalView({
                 <div className="text-center py-4 text-muted-foreground text-xs border border-dashed rounded-xl">
                   Sin pagos registrados aún
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Informar Pago VIP Section */}
+        {settings?.informarPago?.visible !== false && presupuesto && saldoPendiente > 0 && (
+          <Card className="shadow-xl border-0 rounded-3xl overflow-hidden bg-gradient-to-br from-violet-900 to-primary">
+            <CardContent className="pt-6 pb-6 space-y-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-white/20">
+                  <Crown className="w-6 h-6 text-yellow-300" />
+                </div>
+                <div>
+                  <p className="font-black text-lg">Informar un Pago</p>
+                  <p className="text-xs text-white/70">Subí tu comprobante y lo verificamos al instante</p>
+                </div>
+              </div>
+
+              {/* Bank accounts */}
+              {settings?.cuentasBancarias && settings.cuentasBancarias.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/60">
+                    Datos Bancarios para Transferencia
+                  </p>
+                  {settings.cuentasBancarias.map((cuenta) => (
+                    <div key={cuenta.id} className="flex items-start gap-3 bg-white/10 rounded-2xl px-4 py-3">
+                      <Building2 className="w-4 h-4 text-yellow-300 mt-0.5 shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-bold">{cuenta.banco}</p>
+                        <p className="text-white/80">{cuenta.titular}</p>
+                        <p className="text-white/60 text-xs font-mono">{cuenta.numero}</p>
+                        {cuenta.tipo && <p className="text-white/50 text-xs">{cuenta.tipo}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {pagoSuccess ? (
+                <div className="flex flex-col items-center gap-2 py-4 text-center">
+                  <CheckCircle2 className="w-10 h-10 text-green-300" />
+                  <p className="font-black text-lg">¡Pago informado!</p>
+                  <p className="text-sm text-white/70">
+                    Recibirás confirmación cuando lo verifiquemos. 🎉
+                  </p>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => setShowPagoModal(true)}
+                  className="w-full h-14 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-black text-base shadow-lg border-0"
+                >
+                  <Upload className="w-5 h-5 mr-2" />
+                  Informar Pago
+                </Button>
               )}
             </CardContent>
           </Card>
@@ -1359,6 +1470,102 @@ export default function PublicPortalView({
           </Button>
         </a>
       </div>
+
+      {/* Informar Pago Modal */}
+      {showPagoModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-4 sm:pb-0">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm space-y-4 p-6 animate-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-amber-500" />
+                <h2 className="font-black text-lg">Informar Pago</h2>
+              </div>
+              <button
+                onClick={() => setShowPagoModal(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Ingresá el monto transferido y subí la foto de tu comprobante.
+            </p>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Monto Pagado
+              </Label>
+              <Input
+                type="number"
+                min="1"
+                placeholder="Ej: 5000"
+                value={pagoMonto}
+                onChange={e => setPagoMonto(e.target.value)}
+                className="h-12 rounded-2xl bg-slate-50 border-slate-200 text-lg font-bold"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Comprobante / Foto del Recibo
+              </Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                className="hidden"
+                onChange={handlePagoFileChange}
+              />
+              {pagoFilePreview ? (
+                <div className="relative rounded-2xl overflow-hidden border border-slate-200">
+                  {pagoFile?.type.startsWith('image/') ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={pagoFilePreview}
+                      alt="Comprobante"
+                      className="w-full max-h-40 object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 bg-slate-50">
+                      <FileCheck2 className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-medium truncate">{pagoFile?.name}</span>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => { setPagoFile(null); setPagoFilePreview(null); }}
+                    className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white hover:bg-black/70"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full flex flex-col items-center gap-2 p-5 rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary/40 hover:bg-primary/5 transition-colors text-muted-foreground"
+                >
+                  <Upload className="w-7 h-7 text-primary" />
+                  <span className="text-sm font-medium">Subir comprobante</span>
+                  <span className="text-xs">Foto, captura o PDF</span>
+                </button>
+              )}
+            </div>
+
+            <Button
+              onClick={handleSubmitPago}
+              disabled={pagoSubmitting || !pagoMonto || parseFloat(pagoMonto) <= 0}
+              className="w-full h-12 rounded-2xl font-black bg-gradient-to-r from-violet-600 to-primary hover:from-violet-500 hover:to-primary/90"
+            >
+              {pagoSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              ) : (
+                <Send className="w-5 h-5 mr-2" />
+              )}
+              Enviar Pago
+            </Button>
+          </div>
+        </div>
+      )}
 
       <PublicFooter variant="light" />
     </div>

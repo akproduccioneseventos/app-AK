@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2 } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { updateFaqPortal } from '@/app/actions/fiesta/portal.actions';
 import { Separator } from '@/components/ui/separator';
@@ -40,6 +40,7 @@ const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessK
     { id: 'cartaTragos', label: 'Carta de Tragos' },
     { id: 'dressCode', label: 'Dress Code' },
     { id: 'faq', label: 'Preguntas Frecuentes (FAQ)' },
+    { id: 'informarPago', label: '💳 Informar Pago (Portal VIP)' },
 ];
 
 function ClientPortalConfigContent() {
@@ -55,6 +56,10 @@ function ClientPortalConfigContent() {
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
   const [isSavingFaq, setIsSavingFaq] = useState(false);
 
+  // Bank accounts state
+  const [cuentasBancarias, setCuentasBancarias] = useState<CuentaBancaria[]>([]);
+  const [isSavingCuentas, setIsSavingCuentas] = useState(false);
+
   // Drink calculator items state
   const [bebidasItems, setBebidasItems] = useState<BebidaCalculable[]>(defaultBebidaItems);
 
@@ -67,6 +72,7 @@ function ClientPortalConfigContent() {
       const settings = fiestaData.clientPortalSettings || defaultClientPortalSettings;
       setPortalSettings(settings);
       setFaqItems(fiestaData.faqPortal ?? defaultFaq);
+      setCuentasBancarias(settings.cuentasBancarias ?? []);
 
       // Resolve drink items with backward compat
       const calc = settings.calculadoraBebidas;
@@ -127,6 +133,43 @@ function ClientPortalConfigContent() {
     } finally {
       setIsSavingFaq(false);
     }
+  };
+
+  const handleSaveCuentas = async () => {
+    if (!fiestaId) return;
+    setIsSavingCuentas(true);
+    try {
+      const updatedSettings: ClientPortalSettings = { ...portalSettings, cuentasBancarias };
+      const result = await updatePortalSettingsFiestaActual(fiestaId, updatedSettings);
+      if (result.success) {
+        setPortalSettings(updatedSettings);
+        toast({ title: "Cuentas guardadas", description: "Los datos bancarios fueron actualizados en el portal." });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
+    } finally {
+      setIsSavingCuentas(false);
+    }
+  };
+
+  const addCuenta = () => {
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? `cuenta_${crypto.randomUUID()}`
+      : `cuenta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    setCuentasBancarias(prev => [
+      ...prev,
+      { id, banco: '', titular: '', numero: '', tipo: '' },
+    ]);
+  };
+
+  const removeCuenta = (id: string) => {
+    setCuentasBancarias(prev => prev.filter(c => c.id !== id));
+  };
+
+  const updateCuenta = (id: string, field: keyof CuentaBancaria, value: string) => {
+    setCuentasBancarias(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
   };
 
   const handlePortalSwitch = (moduleId: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, field: 'visible' | 'editable', value: boolean) => {
@@ -569,6 +612,64 @@ function ClientPortalConfigContent() {
           </CardFooter>
         </Card>
       )}
+
+      {/* Bank Accounts Editor */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Building2 className="w-5 h-5 text-primary" />
+            Datos Bancarios (Portal VIP)
+          </CardTitle>
+          <CardDescription>
+            Agregá tus cuentas bancarias. El cliente las verá en su Portal VIP al informar un pago.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {cuentasBancarias.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-3 border border-dashed rounded-xl">
+              Sin cuentas bancarias configuradas
+            </p>
+          )}
+          {cuentasBancarias.map((cuenta) => (
+            <div key={cuenta.id} className="border rounded-xl p-3 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs font-bold text-muted-foreground">Banco</Label>
+                  <Input value={cuenta.banco} onChange={e => updateCuenta(cuenta.id, 'banco', e.target.value)} placeholder="Ej: BROU" className="h-9 text-sm" />
+                </div>
+                <div>
+                  <Label className="text-xs font-bold text-muted-foreground">Titular</Label>
+                  <Input value={cuenta.titular} onChange={e => updateCuenta(cuenta.id, 'titular', e.target.value)} placeholder="Nombre del titular" className="h-9 text-sm" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs font-bold text-muted-foreground">Número de Cuenta</Label>
+                  <Input value={cuenta.numero} onChange={e => updateCuenta(cuenta.id, 'numero', e.target.value)} placeholder="Nº de cuenta" className="h-9 text-sm font-mono" />
+                </div>
+                <div>
+                  <Label className="text-xs font-bold text-muted-foreground">Tipo</Label>
+                  <Input value={cuenta.tipo ?? ''} onChange={e => updateCuenta(cuenta.id, 'tipo', e.target.value)} placeholder="Caja de ahorro, etc." className="h-9 text-sm" />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button type="button" variant="ghost" size="sm" onClick={() => removeCuenta(cuenta.id)} className="text-destructive hover:text-destructive h-8">
+                  <Trash2 className="w-3.5 h-3.5 mr-1" /> Eliminar
+                </Button>
+              </div>
+            </div>
+          ))}
+          <Button type="button" variant="outline" size="sm" onClick={addCuenta} className="w-full rounded-xl">
+            <Plus className="w-4 h-4 mr-2" /> Agregar Cuenta Bancaria
+          </Button>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={handleSaveCuentas} disabled={isSavingCuentas}>
+            {isSavingCuentas && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Guardar Datos Bancarios
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

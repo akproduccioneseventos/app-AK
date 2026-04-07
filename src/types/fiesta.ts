@@ -504,6 +504,8 @@ export interface ClientPortalSettings {
   cartaTragos: PortalViewOnlyModuleSettings;
   dressCode: PortalViewOnlyModuleSettings;
   faq: PortalViewOnlyModuleSettings;
+  informarPago: PortalModuleSettings;
+  cuentasBancarias?: CuentaBancaria[];
 }
 
 export interface SocialGallerySettings {
@@ -805,6 +807,7 @@ export interface FiestaEnPlanificacion {
   liveState?: LiveEventState;
   planDePagos?: PlanDePagos;
   eventoEnVivo?: EventoEnVivoData;
+  clientPaymentNotifications?: ClientPaymentNotification[];
 }
 
 export interface ContratoFirmaInfo {
@@ -916,3 +919,23 @@ export interface BebidaReceta {
 
 // --- COSTO CATEGORIA ---
 export type CostoCategoria = string;
+
+// --- CLIENT PAYMENT NOTIFICATIONS ---
+export interface ClientPaymentNotification {
+  id: string;
+  monto: number;
+  comprobanteBase64?: string; // base64 encoded receipt image
+  comprobanteNombre?: string;
+  estado: 'pendiente' | 'aprobado' | 'rechazado';
+  timestamp: string;
+  approvedAt?: string;
+  notas?: string;
+}
+
+export interface CuentaBancaria {
+  id: string;
+  banco: string;
+  titular: string;
+  numero: string;
+  tipo?: string; // 'Caja de ahorro' | 'Cuenta corriente' | etc.
+}

@@ -77,7 +77,7 @@ export interface Presupuesto {
   cuponCodigo?: string; // Código del cupón aplicado
   cuponId?: string; // ID del cupón aplicado
   timestamp: string; // ISO String
-  estado: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
+  estado: 'Borrador' | 'Pendiente Verificación' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado';
   notas?: string;
   invoiceId?: string;
   ajusteAnualActivo?: boolean; // NEW: Controls visibility of annual adjustment

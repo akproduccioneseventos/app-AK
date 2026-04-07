@@ -79,7 +79,7 @@ export async function generateBudgetAndLeadFromSimulator(
       descuentoTipo: data.descuentoGeneral && data.descuentoGeneral > 0 ? 'porcentaje' : undefined,
       descuentoValor: data.descuentoGeneral,
       totalConDescuento: data.costoEstimado,
-      estado: 'Enviado',
+      estado: 'Pendiente Verificación',
       source: 'simulator'
     };
 

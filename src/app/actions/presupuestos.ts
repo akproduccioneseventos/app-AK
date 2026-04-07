@@ -456,3 +456,19 @@ export async function createFiestaFromPresupuesto(
 
   return { success: true, fiestaId: result.fiesta.id };
 }
+
+export async function approvePresupuesto(
+  presupuestoId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const presupuestos = await getPresupuestos();
+    const index = presupuestos.findIndex(p => p.id === presupuestoId);
+    if (index === -1) return { success: false, error: 'Presupuesto no encontrado' };
+
+    presupuestos[index].estado = 'Enviado';
+    await writeData(PRESUPUESTOS_FILE, presupuestos);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}

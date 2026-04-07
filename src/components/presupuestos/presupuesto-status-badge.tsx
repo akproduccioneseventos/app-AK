@@ -15,18 +15,20 @@ export function PresupuestoStatusBadge({ status, className }: PresupuestoStatusB
 
   const statusColors: Record<NonNullable<Presupuesto['estado']>, string> = {
     Borrador: 'bg-yellow-500 hover:bg-yellow-500/90 text-black',
+    'Pendiente Verificación': 'bg-orange-500 hover:bg-orange-500/90 text-white',
     Enviado: 'bg-blue-500 hover:bg-blue-500/90 text-white',
     Aceptado: 'bg-green-500 hover:bg-green-500/90 text-white', 
     Rechazado: 'bg-red-600 hover:bg-red-600/90 text-white',
-    Facturado: 'bg-purple-500 hover:bg-purple-500/90 text-white', // Nuevo color para Facturado
+    Facturado: 'bg-purple-500 hover:bg-purple-500/90 text-white',
   };
 
   const statusDisplay: Record<NonNullable<Presupuesto['estado']>, string> = {
     Borrador: 'Borrador',
+    'Pendiente Verificación': '⏳ Pendiente Verificación',
     Enviado: 'Enviado',
     Aceptado: 'Aceptado',
     Rechazado: 'Rechazado',
-    Facturado: 'Facturado', // Nuevo display
+    Facturado: 'Facturado',
   };
 
   return (

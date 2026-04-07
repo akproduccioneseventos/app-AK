@@ -67,6 +67,7 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
     cartaTragos: { visible: false },
     dressCode: { visible: false },
     faq: { visible: true },
+    informarPago: { visible: true, editable: true },
 };
 
 export const defaultZonasContratadas: ZonaContratada[] = [
