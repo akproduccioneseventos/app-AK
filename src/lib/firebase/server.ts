@@ -32,11 +32,20 @@ if (!admin.apps.length) {
       });
       console.log('✅ Firebase Admin SDK initialized using individual environment variables.');
     }
-    // Option 3: Default initialization with projectId
-    // Works in Firebase App Hosting / GCP environments via Application Default Credentials
+    // Option 3: Application Default Credentials (Firebase App Hosting, GCP, Cloud Run, etc.)
+    // ADC is provided automatically by the metadata server — no env var needed.
     else {
-      admin.initializeApp({ projectId });
-      console.log(`✅ Firebase Admin SDK initialized with projectId: ${projectId} (using ADC)`);
+      try {
+        admin.initializeApp({
+          credential: admin.credential.applicationDefault(),
+          projectId,
+        });
+        console.log('✅ Firebase Admin SDK initialized with Application Default Credentials.');
+      } catch {
+        // Last resort: projectId only (local emulators without ADC, etc.)
+        admin.initializeApp({ projectId });
+        console.log(`✅ Firebase Admin SDK initialized with projectId only: ${projectId}`);
+      }
 
       if (process.env.FIRESTORE_EMULATOR_HOST) {
         console.log(`   📡 Using Firestore Emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
