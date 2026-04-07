@@ -113,7 +113,15 @@ export default function LoginPage() {
     setForgotError('');
     setForgotNoQuestions(false);
 
-    const result = await getSecurityQuestions(forgotEmail);
+    let result: Awaited<ReturnType<typeof getSecurityQuestions>>;
+    try {
+      result = await getSecurityQuestions(forgotEmail);
+    } catch (err: unknown) {
+      setForgotLoading(false);
+      const message = err instanceof Error ? err.message : String(err);
+      setForgotError(message || 'Error al obtener las preguntas de seguridad.');
+      return;
+    }
     setForgotLoading(false);
 
     if (!result.success || !result.questions) {
