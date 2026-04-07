@@ -26,11 +26,21 @@ export function generateSessionToken(): string {
  */
 export async function injectAuthSession(context: BrowserContext): Promise<void> {
   const token = generateSessionToken();
+  const session = {
+    token,
+    userId: 'e2e',
+    email: 'e2e@test.local',
+    role: 'admin',
+    modules: ['all'],
+    mustChangePassword: false,
+    createdAt: Date.now(),
+  };
   await context.addInitScript(
-    ({ key, sessionToken }: { key: string; sessionToken: string }) => {
-      window.sessionStorage.setItem(key, sessionToken);
+    ({ key, sessionJson }: { key: string; sessionJson: string }) => {
+      window.localStorage.setItem(key, sessionJson);
+      window.sessionStorage.setItem(key, sessionJson);
     },
-    { key: SESSION_KEY, sessionToken: token },
+    { key: SESSION_KEY, sessionJson: JSON.stringify(session) },
   );
 }
 
@@ -69,10 +79,20 @@ export async function loginAsDemo(page: Page): Promise<void> {
  */
 export async function setAuthSession(page: Page): Promise<void> {
   const token = generateSessionToken();
+  const session = {
+    token,
+    userId: 'e2e',
+    email: 'e2e@test.local',
+    role: 'admin',
+    modules: ['all'],
+    mustChangePassword: false,
+    createdAt: Date.now(),
+  };
   await page.evaluate(
-    ({ key, sessionToken }: { key: string; sessionToken: string }) => {
-      window.sessionStorage.setItem(key, sessionToken);
+    ({ key, sessionJson }: { key: string; sessionJson: string }) => {
+      window.localStorage.setItem(key, sessionJson);
+      window.sessionStorage.setItem(key, sessionJson);
     },
-    { key: SESSION_KEY, sessionToken: token },
+    { key: SESSION_KEY, sessionJson: JSON.stringify(session) },
   );
 }

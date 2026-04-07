@@ -53,6 +53,8 @@ const CONFIG_FILES: Record<string, string> = {
   'carga-operativa-master-template.json': 'carga-operativa-master-template',
   'carga-operativa-templates.json': 'carga-operativa-templates',
   'meeting-checklist-template.json': 'meeting-checklist-template',
+  'whatsapp-settings.json': 'whatsapp-settings',
+  'whatsapp-templates.json': 'whatsapp-templates',
 };
 
 // In production (Firebase App Hosting), NEXT_PUBLIC_FIREBASE_PROJECT_ID is always defined
@@ -118,8 +120,13 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
     }
   }
 
-  // Fallback to JSON
-  return readJsonData<T>(filePath, defaultValue);
+  // Fallback to JSON (may fail on read-only filesystems like Firebase App Hosting)
+  try {
+    return readJsonData<T>(filePath, defaultValue);
+  } catch (error) {
+    console.warn('⚠️ JSON read fallback failed, returning default for:', filePath, error);
+    return defaultValue;
+  }
 }
 
 /**
@@ -132,8 +139,13 @@ export async function writeData<T>(
 ): Promise<void> {
   const db = await getFirestoreDb();
 
-  // Always write to JSON (primary source of truth until full migration)
-  await writeJsonData(filePath, data, sortFn);
+  // Try to write to JSON for local fallback (may fail on read-only filesystems like Firebase App Hosting)
+  try {
+    await writeJsonData(filePath, data, sortFn);
+  } catch (error) {
+    console.warn('⚠️ JSON write failed (filesystem may be read-only), continuing to Firestore for:', filePath, error);
+    // Continue to Firestore write below
+  }
 
   // Also write to Firestore if available
   if (db) {
