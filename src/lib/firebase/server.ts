@@ -33,18 +33,21 @@ if (!admin.apps.length) {
       console.log('✅ Firebase Admin SDK initialized using individual environment variables.');
     }
     // Option 3: Default initialization with projectId
-    // Works in Firebase Studio, GCP environments, and with emulators
+    // Works in Firebase App Hosting / GCP environments via Application Default Credentials
     else {
       admin.initializeApp({ projectId });
-      console.log(`✅ Firebase Admin SDK initialized with projectId: ${projectId}`);
-      
+      console.log(`✅ Firebase Admin SDK initialized with projectId: ${projectId} (using ADC)`);
+
       if (process.env.FIRESTORE_EMULATOR_HOST) {
         console.log(`   📡 Using Firestore Emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
       }
     }
   } catch (error: any) {
     console.error('❌ Firebase Admin SDK initialization error:', error.message);
+    console.error('   Full error:', error);
   }
+} else {
+  console.log(`ℹ️ Firebase Admin SDK already initialized (${admin.apps.length} app(s))`);
 }
 
 // Get Firestore and Auth instances
@@ -55,16 +58,17 @@ try {
   if (admin.apps.length > 0) {
     dbInstance = admin.firestore();
     authInstance = admin.auth();
-    
-    // Log emulator status
+    console.log('✅ Firestore and Auth instances obtained successfully.');
+
     if (process.env.FIRESTORE_EMULATOR_HOST) {
       console.log(`✅ Firestore connected to emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
     }
   } else {
-    console.warn('⚠️ Firebase Admin SDK not initialized. Firestore/Auth not available server-side.');
+    console.error('❌ Firebase Admin SDK not initialized — Firestore/Auth not available. All server actions will return "Base de datos no disponible".');
   }
 } catch (e: any) {
   console.error('❌ Error getting Firestore/Auth instance:', e.message);
+  console.error('   Full error:', e);
 }
 
 export const dbAdmin = dbInstance;

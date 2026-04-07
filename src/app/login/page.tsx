@@ -15,11 +15,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { LogIn, Loader2, KeyRound, ShieldQuestion, CheckCircle2 } from "lucide-react";
+import { LogIn, Loader2, KeyRound, ShieldQuestion, CheckCircle2, Info } from "lucide-react";
 import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { loginUser, getSecurityQuestions, resetPasswordWithQuestions } from '@/app/actions/auth';
 import { getSession, setSession, generateToken } from '@/lib/auth';
 
@@ -38,6 +38,7 @@ export default function LoginPage() {
   const [forgotStep, setForgotStep] = useState<ForgotStep>('email');
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotError, setForgotError] = useState('');
+  const [forgotNoQuestions, setForgotNoQuestions] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const [securityQuestions, setSecurityQuestions] = useState<{ q1: string; q2: string; q3: string } | null>(null);
   const [answers, setAnswers] = useState({ a1: '', a2: '', a3: '' });
@@ -98,6 +99,7 @@ export default function LoginPage() {
     setForgotEmail(email);
     setForgotStep('email');
     setForgotError('');
+    setForgotNoQuestions(false);
     setSecurityQuestions(null);
     setAnswers({ a1: '', a2: '', a3: '' });
     setNewPassword('');
@@ -109,11 +111,15 @@ export default function LoginPage() {
     e.preventDefault();
     setForgotLoading(true);
     setForgotError('');
+    setForgotNoQuestions(false);
 
     const result = await getSecurityQuestions(forgotEmail);
     setForgotLoading(false);
 
     if (!result.success || !result.questions) {
+      if (result.noQuestionsConfigured) {
+        setForgotNoQuestions(true);
+      }
       setForgotError(result.error ?? 'Error al obtener las preguntas.');
       return;
     }
@@ -287,7 +293,14 @@ export default function LoginPage() {
                   autoComplete="email"
                   disabled={forgotLoading}
                 />
-                {forgotError && (
+                {forgotNoQuestions && forgotError && (
+                  <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Sin preguntas de seguridad</AlertTitle>
+                    <AlertDescription>{forgotError}</AlertDescription>
+                  </Alert>
+                )}
+                {!forgotNoQuestions && forgotError && (
                   <Alert variant="destructive">
                     <AlertDescription>{forgotError}</AlertDescription>
                   </Alert>

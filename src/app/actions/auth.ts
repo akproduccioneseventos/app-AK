@@ -175,6 +175,8 @@ export async function loginUser(
 export interface SecurityQuestionsResult {
   success: boolean;
   questions?: { q1: string; q2: string; q3: string };
+  /** True when the user has no security questions set — show a hint about the default password. */
+  noQuestionsConfigured?: boolean;
   error?: string;
 }
 
@@ -203,7 +205,11 @@ export async function getSecurityQuestions(
     if (!sq.q1?.question || !sq.q2?.question || !sq.q3?.question) {
       return {
         success: false,
-        error: 'Este usuario no tiene preguntas de seguridad configuradas. Contactá al administrador.',
+        noQuestionsConfigured: true,
+        error:
+          'Este usuario no tiene preguntas de seguridad configuradas. ' +
+          'Iniciá sesión con la contraseña por defecto: AKproducciones2024 ' +
+          'y luego configurá tus preguntas de seguridad desde tu perfil.',
       };
     }
 
@@ -249,7 +255,9 @@ export async function resetPasswordWithQuestions(
     if (!sq.q1?.answer || !sq.q2?.answer || !sq.q3?.answer) {
       return {
         success: false,
-        error: 'Este usuario no tiene preguntas de seguridad configuradas.',
+        error:
+          'Este usuario no tiene preguntas de seguridad configuradas. ' +
+          'Usá la contraseña por defecto: AKproducciones2024',
       };
     }
 
