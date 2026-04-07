@@ -133,12 +133,41 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     );
   }
 
-  if (action.type === 'generate_social_post' && action.data?.content) {
+  if (action.type === 'generate_social_post' && (action.data?.content || action.result?.content)) {
+    const content = action.data?.content || action.result?.content;
     return (
       <div className="mt-2 p-2.5 rounded-xl bg-indigo-50 border border-indigo-200">
         <p className="text-xs text-indigo-800 font-medium mb-1.5">📱 Post generado:</p>
-        <p className="text-xs text-indigo-700 whitespace-pre-wrap">{action.data.content}</p>
-        <Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-indigo-600 hover:text-indigo-800 mt-1" onClick={() => handleCopy(action.data.content)}>
+        <p className="text-xs text-indigo-700 whitespace-pre-wrap">{content}</p>
+        <Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-indigo-600 hover:text-indigo-800 mt-1" onClick={() => handleCopy(content)}>
+          {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+          {copied ? 'Copiado' : 'Copiar'}
+        </Button>
+      </div>
+    );
+  }
+
+  if (action.type === 'generate_whatsapp_message' && (action.data?.content || action.result?.content)) {
+    const content = action.data?.content || action.result?.content;
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200">
+        <p className="text-xs text-green-800 font-medium mb-1.5">💬 Mensaje de WhatsApp:</p>
+        <p className="text-xs text-green-700 whitespace-pre-wrap">{content}</p>
+        <Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-green-600 hover:text-green-800 mt-1" onClick={() => handleCopy(content)}>
+          {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+          {copied ? 'Copiado' : 'Copiar'}
+        </Button>
+      </div>
+    );
+  }
+
+  if (action.type === 'generate_promo' && (action.data?.content || action.result?.content)) {
+    const content = action.data?.content || action.result?.content;
+    return (
+      <div className="mt-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+        <p className="text-xs text-amber-800 font-medium mb-1.5">🎁 Promo generada:</p>
+        <p className="text-xs text-amber-700 whitespace-pre-wrap">{content}</p>
+        <Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-amber-600 hover:text-amber-800 mt-1" onClick={() => handleCopy(content)}>
           {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
           {copied ? 'Copiado' : 'Copiar'}
         </Button>
@@ -326,7 +355,15 @@ export function AKAssistantWidget() {
   const [presupuestosPendientes, setPresupuestosPendientes] = useState<number>(0);
   const [facturasPorVencer, setFacturasPorVencer] = useState<number>(0);
 
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem('ak-assistant-history');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [attachedFile, setAttachedFile] = useState<{ dataUri: string; name: string; preview?: string } | null>(null);
@@ -355,6 +392,14 @@ export function AKAssistantWidget() {
   }, [loaded]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ak-assistant-history', JSON.stringify(chatHistory));
+    } catch {
+      // storage full or not available
+    }
+  }, [chatHistory]);
 
   useEffect(() => {
     if (activeTab === 'chat') {
@@ -393,7 +438,9 @@ export function AKAssistantWidget() {
     setIsSending(true);
 
     try {
-      const historyForFlow = chatHistory.map(m => ({ role: m.role, content: m.content }));
+      // Build history including the current message so the flow has the full context
+      const nextHistory = [...chatHistory, userMsg];
+      const historyForFlow = nextHistory.map(m => ({ role: m.role, content: m.content }));
       const result = await sendAssistantMessage(text || '(archivo adjunto)', historyForFlow, userMsg.imageDataUri);
       if (result.success && result.response) {
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: result.response!, action: result.action }]);
@@ -457,6 +504,21 @@ export function AKAssistantWidget() {
                 toast({ title: '✅ Evento actualizado' });
               }
               break;
+            case 'generate_social_post':
+              if (actionResult?.success) {
+                toast({ title: '📱 Post generado', description: 'Listo para copiar y publicar' });
+              }
+              break;
+            case 'generate_whatsapp_message':
+              if (actionResult?.success) {
+                toast({ title: '💬 Mensaje generado', description: 'Listo para enviar por WhatsApp' });
+              }
+              break;
+            case 'generate_promo':
+              if (actionResult?.success) {
+                toast({ title: '🎁 Promo generada', description: 'Lista para publicar' });
+              }
+              break;
           }
         }
       } else {
@@ -476,6 +538,11 @@ export function AKAssistantWidget() {
   const handleManualAsk = (question: string) => {
     setActiveTab('chat');
     setTimeout(() => handleSend(question), 100);
+  };
+
+  const handleNewConversation = () => {
+    setChatHistory([]);
+    try { localStorage.removeItem('ak-assistant-history'); } catch { /* ignore */ }
   };
 
   const greeting = getGreeting();
@@ -668,8 +735,8 @@ export function AKAssistantWidget() {
                   </Button>
                 </div>
                 {chatHistory.length > 0 && (
-                  <button onClick={() => setChatHistory([])} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-rose-500 transition-colors">
-                    <Trash2 className="h-3 w-3" />Limpiar chat
+                  <button onClick={handleNewConversation} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-rose-500 transition-colors">
+                    <Trash2 className="h-3 w-3" />Nueva conversación
                   </button>
                 )}
               </div>

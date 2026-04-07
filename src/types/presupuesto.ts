@@ -85,6 +85,10 @@ export interface Presupuesto {
   source?: 'manual' | 'simulator';
   pagosCliente?: PagoCliente[]; // Detailed client payment records
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real (e.g. 15 → Precio de Lista)
+  senia?: number; // Monto de la seña acordada
+  saldo?: number; // Saldo restante a pagar
+  ajusteAnualPorcentaje?: number; // Porcentaje de ajuste anual pactado
+  fechaFirmaContrato?: string; // ISO date de firma del contrato
 }
 
 // FormData for the new unified builder.

@@ -79,17 +79,40 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     }
 
     if (result.action?.type === 'create_budget' && result.action.data) {
+      const d = result.action.data;
+      const servicios: Array<{
+        id?: string; nombre?: string; name?: string; descripcion?: string;
+        cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
+      }> = Array.isArray(d.servicios) ? d.servicios : [];
+      const items = servicios.map((s, i) => {
+        const qty = Number(s.cantidad) || 1;
+        const price = Number(s.precioUnitario) || Number(s.precio) || 0;
+        return {
+          idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
+          nombreServicio: s.nombre || s.name || 'Servicio',
+          descripcionServicio: s.descripcion,
+          cantidad: qty,
+          precioUnitario: price,
+          precioUnitarioPresupuesto: price,
+          costoTotalItem: qty * price,
+          categoriaServicio: s.categoria || s.category || 'Servicios',
+        };
+      });
       const budgetResult = await savePresupuesto({
-        clienteNombre: result.action.data.clienteNombre || 'Cliente nuevo',
-        eventoTipo: result.action.data.eventoTipo || '',
-        eventoFecha: result.action.data.eventoFecha || '',
-        invitadosCantidad: result.action.data.invitados || 0,
-        invitadosAdultos: result.action.data.invitados || 0,
+        clienteNombre: d.clienteNombre || 'Cliente nuevo',
+        eventoTipo: d.eventoTipo || '',
+        eventoFecha: d.eventoFecha || '',
+        invitadosCantidad: d.invitados || 0,
+        invitadosAdultos: d.invitados || 0,
         invitadosNinos: 0,
         invitadosAdolescentes: 0,
-        itemsPresupuestados: [],
-        notas: 'Creado desde el Asistente AK',
+        itemsPresupuestados: items,
+        notas: d.notas || 'Creado desde el Asistente AK',
         estado: 'Borrador',
+        senia: d.senia != null ? Number(d.senia) : undefined,
+        saldo: d.saldo != null ? Number(d.saldo) : undefined,
+        ajusteAnualPorcentaje: d.ajusteAnualPorcentaje != null ? Number(d.ajusteAnualPorcentaje) : undefined,
+        fechaFirmaContrato: d.fechaFirmaContrato,
       } as unknown as Omit<Presupuesto, 'id'>);
       actionResult = budgetResult;
     }
@@ -116,6 +139,24 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           }
         }
         // 2. Crear presupuesto
+        const importedServices: Array<{
+          id?: string; nombre?: string; name?: string; descripcion?: string;
+          cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
+        }> = Array.isArray(d.servicios) ? d.servicios : [];
+        const importedItems = importedServices.map((s, i) => {
+          const qty = Number(s.cantidad) || 1;
+          const price = Number(s.precioUnitario) || Number(s.precio) || 0;
+          return {
+            idServicioCatalogo: s.id || `importado_${i}_${Date.now()}`,
+            nombreServicio: s.nombre || s.name || 'Servicio',
+            descripcionServicio: s.descripcion,
+            cantidad: qty,
+            precioUnitario: price,
+            precioUnitarioPresupuesto: price,
+            costoTotalItem: qty * price,
+            categoriaServicio: s.categoria || s.category || 'Servicios',
+          };
+        });
         const budgetResult = await savePresupuesto({
           clienteNombre: d.clienteNombre || 'Cliente importado',
           eventoTipo: d.eventoTipo || '',
@@ -124,7 +165,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           invitadosAdultos: d.invitados || 0,
           invitadosNinos: 0,
           invitadosAdolescentes: 0,
-          itemsPresupuestados: [],
+          itemsPresupuestados: importedItems,
           notas: d.notas || 'Importado desde imagen/PDF vía Asistente AK',
           estado: 'Borrador',
         } as unknown as Omit<Presupuesto, 'id'>);
@@ -340,16 +381,29 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     if (result.action?.type === 'generate_contract' && result.action.data) {
       const d = result.action.data;
       try {
-        if (d.fiestaId) {
-          actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${d.fiestaId}` };
-        } else if (d.clienteNombre) {
-          const allFiestas = await getAllFiestas();
-          const fiesta = allFiestas.find(f =>
-            (f.configuracion?.clienteNombre || '').toLowerCase().includes(d.clienteNombre.toLowerCase())
-          );
-          actionResult = fiesta
-            ? { success: true, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}` }
-            : { success: false, error: 'No se encontró el evento de ese cliente.' };
+        const allFiestas = await getAllFiestas();
+        let fiesta = d.fiestaId
+          ? allFiestas.find(f => f.id === d.fiestaId)
+          : d.clienteNombre
+          ? allFiestas.find(f =>
+              (f.configuracion?.clienteNombre || '').toLowerCase().includes(d.clienteNombre.toLowerCase())
+            )
+          : undefined;
+
+        // Save contract data to fiesta when found
+        if (fiesta) {
+          const contratoDatos = {
+            senia: d.senia != null ? Number(d.senia) : fiesta.contratoDatos?.senia,
+            saldo: d.saldo != null ? Number(d.saldo) : fiesta.contratoDatos?.saldo,
+            ajusteAnualPorcentaje: (d.ajusteAnualPorcentaje ?? d.ajusteAnual) != null ? Number(d.ajusteAnualPorcentaje ?? d.ajusteAnual) : fiesta.contratoDatos?.ajusteAnualPorcentaje,
+            fechaFirmaContrato: d.fechaFirmaContrato || fiesta.contratoDatos?.fechaFirmaContrato,
+            clausulas: d.clausulas || fiesta.contratoDatos?.clausulas,
+          };
+          const updatedFiesta = { ...fiesta, contratoDatos };
+          await saveFiesta(updatedFiesta);
+          actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}` };
+        } else if (d.fiestaId) {
+          actionResult = { success: false, error: 'No se encontró el evento.' };
         } else {
           actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-digital' };
         }
@@ -379,6 +433,21 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
       }
+    }
+
+    if (result.action?.type === 'generate_social_post' && result.action.data) {
+      // Content is already generated by the AI in action.data.content — just confirm success
+      actionResult = { success: true, content: result.action.data.content };
+    }
+
+    if (result.action?.type === 'generate_whatsapp_message' && result.action.data) {
+      // Content is already generated by the AI in action.data.content — just confirm success
+      actionResult = { success: true, content: result.action.data.content };
+    }
+
+    if (result.action?.type === 'generate_promo' && result.action.data) {
+      // Content is already generated by the AI in action.data.content — just confirm success
+      actionResult = { success: true, content: result.action.data.content };
     }
 
     if (result.action?.type === 'update_marketing_content' && result.action.data) {
