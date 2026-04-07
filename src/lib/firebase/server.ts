@@ -41,8 +41,9 @@ if (!admin.apps.length) {
           projectId,
         });
         console.log('✅ Firebase Admin SDK initialized with Application Default Credentials.');
-      } catch {
-        // Last resort: projectId only (local emulators without ADC, etc.)
+      } catch (adcError: any) {
+        // ADC not available (e.g. local dev without gcloud auth). Fall back to projectId only.
+        console.warn('⚠️ applicationDefault() failed, falling back to projectId only:', adcError?.message ?? adcError);
         admin.initializeApp({ projectId });
         console.log(`✅ Firebase Admin SDK initialized with projectId only: ${projectId}`);
       }
