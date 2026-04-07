@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Save, Loader2, CreditCard, CheckCircle2, AlertTriangle, Clock, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Loader2, CreditCard, CheckCircle2, AlertTriangle, Clock, Trash2, Bell, ShieldCheck, X, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getPlanDePagos, savePlanDePagos, updateCuotaEstado } from '@/app/actions/payment-plans';
-import type { PlanDePagos, CuotaPlanPago, PlanPagoEstadoCuota } from '@/types/fiesta';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { approveClientPayment, rejectClientPayment } from '@/app/actions/fiesta/portal.actions';
+import type { PlanDePagos, CuotaPlanPago, PlanPagoEstadoCuota, ClientPaymentNotification } from '@/types/fiesta';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -28,15 +30,26 @@ function PlanPagosContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Client payment notifications state
+  const [clientNotifications, setClientNotifications] = useState<ClientPaymentNotification[]>([]);
+  const [processingNotifId, setProcessingNotifId] = useState<string | null>(null);
+  const [previewNotif, setPreviewNotif] = useState<ClientPaymentNotification | null>(null);
+
   const fetchPlan = useCallback(async () => {
     if (!fiestaId) { setIsLoading(false); return; }
     setIsLoading(true);
     try {
-      const data = await getPlanDePagos(fiestaId);
+      const [data, fiestaData] = await Promise.all([
+        getPlanDePagos(fiestaId),
+        getFiestaById(fiestaId),
+      ]);
       if (data) {
         setPlan(data);
         setCuotas(data.cuotas);
         setNotas(data.notas ?? '');
+      }
+      if (fiestaData?.clientPaymentNotifications) {
+        setClientNotifications(fiestaData.clientPaymentNotifications);
       }
     } catch {
       toast({ title: 'Error', description: 'No se pudo cargar el plan de pagos.', variant: 'destructive' });
@@ -44,6 +57,40 @@ function PlanPagosContent() {
       setIsLoading(false);
     }
   }, [fiestaId, toast]);
+
+  useEffect(() => { fetchPlan(); }, [fetchPlan]);
+
+  const handleApproveNotif = async (notifId: string) => {
+    setProcessingNotifId(notifId);
+    try {
+      const res = await approveClientPayment(fiestaId, notifId);
+      if (!res.success) throw new Error(res.error);
+      setClientNotifications(prev =>
+        prev.map(n => n.id === notifId ? { ...n, estado: 'aprobado', approvedAt: new Date().toISOString() } : n)
+      );
+      toast({ title: '✅ Pago aprobado', description: 'El saldo del evento fue actualizado.' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setProcessingNotifId(null);
+    }
+  };
+
+  const handleRejectNotif = async (notifId: string) => {
+    setProcessingNotifId(notifId);
+    try {
+      const res = await rejectClientPayment(fiestaId, notifId);
+      if (!res.success) throw new Error(res.error);
+      setClientNotifications(prev =>
+        prev.map(n => n.id === notifId ? { ...n, estado: 'rechazado' } : n)
+      );
+      toast({ title: 'Pago rechazado', description: 'Se notificó al sistema.' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setProcessingNotifId(null);
+    }
+  };
 
   useEffect(() => { fetchPlan(); }, [fetchPlan]);
 
@@ -280,6 +327,131 @@ function PlanPagosContent() {
           </Button>
         </CardFooter>
       </Card>
+
+      {/* Client Payment Notifications Panel */}
+      {clientNotifications.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Bell className="w-5 h-5 text-orange-500" />
+              Pagos Informados por el Cliente
+              {clientNotifications.filter(n => n.estado === 'pendiente').length > 0 && (
+                <span className="ml-1 bg-orange-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
+                  {clientNotifications.filter(n => n.estado === 'pendiente').length} pendiente(s)
+                </span>
+              )}
+            </CardTitle>
+            <CardDescription>Revisá y aprobá los pagos que el cliente informó desde su Portal VIP.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {clientNotifications.map(notif => (
+              <div
+                key={notif.id}
+                className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-xl border ${
+                  notif.estado === 'pendiente'
+                    ? 'bg-orange-50 border-orange-200'
+                    : notif.estado === 'aprobado'
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-slate-50 border-slate-200 opacity-60'
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-black text-base">
+                      {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(notif.monto)}
+                    </span>
+                    {notif.estado === 'pendiente' && (
+                      <span className="bg-orange-100 text-orange-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">⏳ Pendiente</span>
+                    )}
+                    {notif.estado === 'aprobado' && (
+                      <span className="bg-green-100 text-green-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">✅ Aprobado</span>
+                    )}
+                    {notif.estado === 'rechazado' && (
+                      <span className="bg-slate-100 text-slate-500 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">✗ Rechazado</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(notif.timestamp).toLocaleString('es-UY')}
+                  </p>
+                  {notif.approvedAt && (
+                    <p className="text-xs text-green-600">
+                      Aprobado: {new Date(notif.approvedAt).toLocaleString('es-UY')}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {notif.comprobanteBase64 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setPreviewNotif(notif)}
+                      className="rounded-xl text-xs"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5 mr-1" />
+                      Ver
+                    </Button>
+                  )}
+                  {notif.estado === 'pendiente' && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => handleApproveNotif(notif.id)}
+                        disabled={processingNotifId === notif.id}
+                        className="rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs"
+                      >
+                        {processingNotifId === notif.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+                        )}
+                        Aprobar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRejectNotif(notif.id)}
+                        disabled={processingNotifId === notif.id}
+                        className="rounded-xl border-red-200 text-red-600 hover:bg-red-50 text-xs"
+                      >
+                        <X className="w-3.5 h-3.5 mr-1" />
+                        Rechazar
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Comprobante preview modal */}
+      {previewNotif && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setPreviewNotif(null)}
+        >
+          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-4 space-y-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="font-black">Comprobante de Pago</p>
+              <button onClick={() => setPreviewNotif(null)} className="p-1.5 hover:bg-slate-100 rounded-full">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {previewNotif.comprobanteBase64?.startsWith('data:image') ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={previewNotif.comprobanteBase64} alt="Comprobante" className="w-full rounded-xl" />
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {previewNotif.comprobanteNombre ?? 'Archivo adjunto'}
+              </p>
+            )}
+            <p className="text-center text-sm font-bold">
+              Monto: {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(previewNotif.monto)}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

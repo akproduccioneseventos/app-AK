@@ -2,8 +2,10 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
+import { addPagoToPresupuesto } from '../presupuestos';
+import { createNotification } from '../notifications';
 
 async function updateFiestaData(
   fiestaId: string,
@@ -62,6 +64,104 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
   } catch {
     return null;
   }
+}
+
+export async function submitClientPayment(
+  fiestaId: string,
+  monto: number,
+  comprobanteBase64?: string,
+  comprobanteNombre?: string
+): Promise<{ success: boolean; notificationId?: string; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const notification: ClientPaymentNotification = {
+      id: `cpn_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      monto,
+      comprobanteBase64,
+      comprobanteNombre,
+      estado: 'pendiente',
+      timestamp: new Date().toISOString(),
+    };
+
+    const updated: FiestaEnPlanificacion = {
+      ...fiesta,
+      clientPaymentNotifications: [
+        ...(fiesta.clientPaymentNotifications ?? []),
+        notification,
+      ],
+    };
+
+    await saveFiesta(updated);
+
+    await createNotification({
+      mensaje: `💳 Pago informado por cliente para "${fiesta.configuracion.nombreEvento}": $${monto.toLocaleString('es-UY')}`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=pagos`,
+      icono: 'CreditCard',
+    });
+
+    return { success: true, notificationId: notification.id };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function approveClientPayment(
+  fiestaId: string,
+  notificationId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const notifications = fiesta.clientPaymentNotifications ?? [];
+    const notifIndex = notifications.findIndex(n => n.id === notificationId);
+    if (notifIndex === -1) return { success: false, error: 'Notificación no encontrada' };
+
+    const notif = notifications[notifIndex];
+    const updatedNotif: ClientPaymentNotification = {
+      ...notif,
+      estado: 'aprobado',
+      approvedAt: new Date().toISOString(),
+    };
+
+    const updatedNotifications = notifications.map((n, i) =>
+      i === notifIndex ? updatedNotif : n
+    );
+
+    const updated: FiestaEnPlanificacion = {
+      ...fiesta,
+      clientPaymentNotifications: updatedNotifications,
+    };
+    await saveFiesta(updated);
+
+    // Discount from budget if linked
+    if (fiesta.presupuestoId) {
+      await addPagoToPresupuesto(fiesta.presupuestoId, {
+        fecha: new Date().toISOString(),
+        monto: notif.monto,
+        metodoPago: 'Transferencia Bancaria',
+        referencia: `Pago verificado desde Portal VIP (${notif.id})`,
+      });
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function rejectClientPayment(
+  fiestaId: string,
+  notificationId: string
+): Promise<{ success: boolean; error?: string }> {
+  return updateFiestaData(fiestaId, fiesta => {
+    const updated = (fiesta.clientPaymentNotifications ?? []).map(n =>
+      n.id === notificationId ? { ...n, estado: 'rechazado' as const } : n
+    );
+    return { ...fiesta, clientPaymentNotifications: updated };
+  });
 }
 
     

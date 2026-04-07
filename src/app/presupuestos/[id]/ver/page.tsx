@@ -9,12 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
-import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto } from '@/app/actions/presupuestos';
+import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
@@ -69,6 +69,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const [isCreatingFiesta, setIsCreatingFiesta] = useState(false);
   const [linkedFiestaId, setLinkedFiestaId] = useState<string | null>(null);
+
+  // Sanity Check / Verification state
+  const [isApprovingPresupuesto, setIsApprovingPresupuesto] = useState(false);
 
   // Payment management state
   const [isAddingPago, setIsAddingPago] = useState(false);
@@ -266,6 +269,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleApprovePresupuesto = async () => {
+    if (!presupuesto) return;
+    setIsApprovingPresupuesto(true);
+    try {
+      const result = await approvePresupuesto(presupuesto.id);
+      if (!result.success) throw new Error(result.error);
+      setPresupuesto(prev => prev ? { ...prev, estado: 'Enviado' } : prev);
+      toast({ title: '✅ Presupuesto verificado', description: 'El presupuesto ya está disponible para compartir con el cliente.' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsApprovingPresupuesto(false);
+    }
+  };
+
   const getEffectiveQty = (item: any): number => {
     if (!presupuesto) return item.cantidad || 1;
     const adults = presupuesto.invitadosAdultos || 0;
@@ -320,6 +338,40 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         </div>
 
         <div className="max-w-3xl mx-auto space-y-8 px-2 sm:px-4 print:px-0">
+
+            {/* SANITY CHECK BANNER — shown when estado is 'Pendiente Verificación' */}
+            {presupuesto.estado === 'Pendiente Verificación' && (
+              <div className="print:hidden bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-lg text-white">
+                <div className="flex items-center gap-3 flex-1">
+                  <ShieldAlert className="w-8 h-8 shrink-0 text-white" />
+                  <div>
+                    <p className="font-black text-base">⏳ Verificación Pendiente</p>
+                    <p className="text-sm text-white/80">
+                      Este presupuesto fue generado por el simulador y requiere tu aprobación antes de ser compartido con el cliente.
+                    </p>
+                    <div className="mt-2 space-y-0.5 text-xs text-white/70">
+                      <p>✔ Total: <strong className="text-white">{new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado)}</strong></p>
+                      <p>✔ Items: <strong className="text-white">{presupuesto.itemsPresupuestados.length} servicio(s)</strong></p>
+                      {presupuesto.descuentoValor && presupuesto.descuentoValor > 0 && (
+                        <p>✔ Descuento: <strong className="text-white">{presupuesto.descuentoTipo === 'porcentaje' ? `${presupuesto.descuentoValor}%` : new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(presupuesto.descuentoValor)}</strong></p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleApprovePresupuesto}
+                  disabled={isApprovingPresupuesto}
+                  className="shrink-0 bg-white text-orange-600 hover:bg-white/90 font-black rounded-xl h-12 px-6 shadow-md"
+                >
+                  {isApprovingPresupuesto ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <ShieldCheck className="w-4 h-4 mr-2" />
+                  )}
+                  Aprobar y Habilitar
+                </Button>
+              </div>
+            )}
             
             {/* SECCIÓN VENTA PRO */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="print:hidden">
