@@ -293,17 +293,18 @@ export default function LoginPage() {
                   autoComplete="email"
                   disabled={forgotLoading}
                 />
-                {forgotNoQuestions ? (
+                {forgotNoQuestions && forgotError && (
                   <Alert>
                     <Info className="h-4 w-4" />
                     <AlertTitle>Sin preguntas de seguridad</AlertTitle>
                     <AlertDescription>{forgotError}</AlertDescription>
                   </Alert>
-                ) : forgotError ? (
+                )}
+                {!forgotNoQuestions && forgotError && (
                   <Alert variant="destructive">
                     <AlertDescription>{forgotError}</AlertDescription>
                   </Alert>
-                ) : null}
+                )}
               </div>
               <DialogFooter className="mt-4">
                 <Button type="button" variant="outline" onClick={() => setForgotOpen(false)} disabled={forgotLoading}>

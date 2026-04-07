@@ -28,9 +28,7 @@ export default function LoginError({ error, reset }: ErrorProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center text-sm text-muted-foreground">
-          <p>Si el problema persiste, podés ingresar directamente con:</p>
-          <p className="mt-2 font-medium">Correo: akproduccionessalto@gmail.com</p>
-          <p className="font-medium">Contraseña: AKproducciones2024</p>
+          <p>Si el problema persiste, cerrá y volvé a abrir la página de login.</p>
         </CardContent>
         <CardFooter>
           <Button className="w-full" onClick={reset}>
