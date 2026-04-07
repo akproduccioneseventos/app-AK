@@ -2,77 +2,81 @@
 
 ## Descripción general
 
-La app usa **Firebase Authentication (Email/Password)** para proteger todas las rutas privadas.  
-Solo los correos en la whitelist de administradores pueden ingresar.
+La app usa un **sistema de autenticación propio** basado en Firestore.  
+**No depende de Firebase Auth**, lo que hace que funcione en cualquier dominio
+(`akproducciones.uy`, `*.hosted.app`, `localhost`) sin configuración adicional.
+
+Las credenciales (contraseñas y respuestas de seguridad) se almacenan **hasheadas con SHA-256**
+en la colección `users` de Firestore.
 
 ---
 
-## Configuración inicial en Firebase Console
+## Primer acceso
 
-### 1. Habilitar Email/Password
+Al primer uso de la app (cuando no existe ningún usuario en Firestore), se crea
+automáticamente el usuario administrador:
 
-1. Ir a [Firebase Console](https://console.firebase.google.com/) → tu proyecto → **Authentication**
-2. Pestaña **Sign-in method**
-3. Habilitar **Email/Password** → Guardar
-
-### 2. Crear el usuario administrador
-
-1. **Authentication** → **Users** → **Add user**
-2. Correo: `akproduccionessalto@gmail.com`
-3. Contraseña: elegí una contraseña fuerte (mínimo 8 caracteres, letras y números)
-
-### 3. Agregar el dominio autorizado
-
-1. **Authentication** → **Settings** → **Authorized domains**
-2. Agregar: `ak-producciones--presupuestador-ak-producciones.us-east4.hosted.app`
-3. Si usás un dominio propio, agregarlo también aquí. Por ejemplo: `akproducciones.uy`
-
-> **⚠️ Importante para dominio personalizado:** Si el login falla en `akproducciones.uy`,
-> verificar que el dominio esté en la lista de dominios autorizados de Firebase Auth.
-> Sin esto, Firebase rechaza las solicitudes de autenticación desde ese dominio.
+- **Correo:** `akproduccionessalto@gmail.com`
+- **Contraseña:** `AKproducciones2024` *(temporal — cambiala desde el perfil)*
+- **Rol:** `admin` (acceso total)
 
 ---
 
 ## Variables de entorno
 
-Copiá `.env.local.example` a `.env.local` y completá los valores:
-
-```bash
-cp .env.local.example .env.local
-```
+Solo se requieren las variables de Firestore (ya NO se necesita Firebase Auth):
 
 | Variable | Descripción | Obligatoria |
 |---|---|---|
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | API Key del proyecto Firebase | ✅ |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Auth domain (ej: `tu-proyecto.firebaseapp.com`) | ✅ |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | ID del proyecto Firebase | ✅ |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Storage bucket | ✅ |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Messaging sender ID | ✅ |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | App ID de Firebase | ✅ |
-| `NEXT_PUBLIC_ADMIN_EMAILS` | Emails admin separados por coma | ❌ (default: `akproduccionessalto@gmail.com`) |
-| `NEXT_PUBLIC_APP_URL` | URL pública de la app (para links de reset) | ❌ (default: `window.location.origin`) |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | API Key (para client-side Firestore si aplica) | ❌ |
+| `FIREBASE_PROJECT_ID` | ID del proyecto (server-side Admin SDK) | ❌ (auto) |
+| `FIREBASE_CLIENT_EMAIL` | Email de la cuenta de servicio | ❌ (GCP auto-detecta) |
+| `FIREBASE_PRIVATE_KEY` | Clave privada de la cuenta de servicio | ❌ (GCP auto-detecta) |
 
 ---
 
-## Agregar más administradores en el futuro
+## Gestión de usuarios
 
-1. En Firebase Console → **Authentication** → **Users**: crear el nuevo usuario
-2. En `.env.local` (o variables de entorno de producción), agregar el correo a `NEXT_PUBLIC_ADMIN_EMAILS`:
-   ```
-   NEXT_PUBLIC_ADMIN_EMAILS=akproduccionessalto@gmail.com,otrocorreo@ejemplo.com
-   ```
-3. Redeploy (o reiniciar el servidor si es local)
+El usuario **admin** puede:
+
+1. Ir a **Mi Cuenta → Gestión de Usuarios** (o navegar a `/admin/usuarios`)
+2. **Crear usuarios**: correo + contraseña + rol + módulos accesibles
+3. **Editar permisos**: cambiar rol y módulos de cada usuario
+4. **Restablecer contraseñas**
+5. **Eliminar usuarios**
 
 ---
 
 ## Flujo "Olvidé mi contraseña"
 
-1. El usuario hace click en **¿Olvidaste tu contraseña?** en `/login`
-2. Ingresa su correo
-3. Firebase envía un email con enlace de restablecimiento
-4. El enlace redirige al usuario de vuelta a `/login` para ingresar con la nueva contraseña
+1. Click en **¿Olvidaste tu contraseña?** en `/login`
+2. Ingresar correo
+3. Responder las 3 preguntas de seguridad configuradas
+4. Si son correctas → crear nueva contraseña
+5. Si son incorrectas → mostrar error
 
-El enlace de reset apunta a la URL configurada en `NEXT_PUBLIC_APP_URL` (o el origen actual del navegador como fallback).
+---
+
+## Preguntas de seguridad
+
+Cada usuario puede configurar sus 3 preguntas de seguridad desde **Mi Perfil** (`/perfil`):
+
+1. ¿Nombre de tu primera mascota?
+2. ¿Tu color favorito?
+3. ¿Nombre de tu escuela?
+
+Las respuestas se guardan **hasheadas** en Firestore (no texto plano).
+Las comparaciones son insensibles a mayúsculas/minúsculas.
+
+---
+
+## Sesión del usuario
+
+La sesión se almacena en `localStorage` con la clave `ak_producciones_auth_session`.
+El token tiene el formato `btoa('ak_auth_<userId>_<timestamp>')`.
+
+Para cerrar sesión: **Mi Cuenta → Cerrar Sesión** (limpia el localStorage).
 
 ---
 
@@ -86,6 +90,8 @@ Las siguientes rutas requieren autenticación:
 - `/presupuestos` y subrutas
 - `/invoices` y subrutas
 - `/customers` y subrutas
+- `/perfil` — Cambiar contraseña y preguntas de seguridad
+- `/admin/usuarios` — Gestión de usuarios (solo admin)
 - Cualquier otra ruta no listada como pública
 
 ### Rutas públicas (sin autenticación)
@@ -112,36 +118,37 @@ Para ejecutar los tests E2E con autenticación, configurar las variables de ento
 
 ```bash
 E2E_DEMO_EMAIL=akproduccionessalto@gmail.com \
-E2E_DEMO_PASSWORD=tu_contraseña \
+E2E_DEMO_PASSWORD=AKproducciones2024 \
 npm run test:e2e
 ```
 
 O en GitHub Actions, guardar como Secrets:
-- `E2E_DEMO_EMAIL`
+- `E2E_DEMO_EMAIL` *(opcional — default: akproduccionessalto@gmail.com)*
 - `E2E_DEMO_PASSWORD`
+
+La mayoría de los tests inyectan una sesión directamente en `sessionStorage`
+(función `injectAuthSession`) para evitar depender de credenciales reales.
+Solo `02-login.spec.ts` prueba el flujo de login real.
 
 ---
 
-## Cambiar de dominio / Dominio personalizado
+## Estructura en Firestore
 
-Si en el futuro comprás un dominio propio (ej: `akproducciones.uy`):
+Colección `users`:
 
-1. Conectar el dominio al hosting
-2. Agregar en Firebase Console → **Authentication** → **Settings** → **Authorized domains**
-3. Actualizar `NEXT_PUBLIC_APP_URL` en las variables de entorno de producción (opcional)
-
-### ¿Por qué no se necesitan variables de entorno para el login?
-
-La configuración de Firebase se resuelve automáticamente en tiempo de ejecución:
-
-1. Si `NEXT_PUBLIC_FIREBASE_API_KEY` está configurado en el build → se usa ese valor.
-2. Si no → la app intenta `/__/firebase/init.json` en el dominio actual (disponible en `*.hosted.app`).
-3. Si eso falla (p. ej. en dominio personalizado) → se obtiene la config desde
-   `https://ak-producciones--presupuestador-ak-producciones.us-east4.hosted.app/__/firebase/init.json`
-   y se guarda en `localStorage` para evitar futuras peticiones cross-origin.
-
-Esto significa que el login funciona en `akproducciones.uy`, `*.hosted.app` y `localhost`
-**sin necesidad de configurar variables de entorno manualmente**.
-
-> **Requisito imprescindible:** el dominio debe estar en la lista de **Authorized domains**
-> de Firebase Auth (ver paso 3 arriba).
+```json
+{
+  "email": "akproduccionessalto@gmail.com",
+  "passwordHash": "sha256...",
+  "role": "admin",
+  "modules": ["all"],
+  "securityQuestions": {
+    "q1": { "question": "¿Nombre de tu primera mascota?", "answer": "sha256..." },
+    "q2": { "question": "¿Tu color favorito?", "answer": "sha256..." },
+    "q3": { "question": "¿Nombre de tu escuela?", "answer": "sha256..." }
+  },
+  "mustChangePassword": true,
+  "createdAt": "ISO8601",
+  "updatedAt": "ISO8601"
+}
+```

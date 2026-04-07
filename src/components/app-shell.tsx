@@ -119,6 +119,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/notifications') return 'Configurar Notificaciones';
   if (pathname === '/settings/account') return 'Cuenta y Seguridad';
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
+  if (pathname === '/admin/usuarios') return 'Gestión de Usuarios';
+  if (pathname === '/perfil') return 'Mi Perfil';
   if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
@@ -324,10 +326,18 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <DropdownMenuContent align="end" className="w-56 rounded-2xl border-white/60 shadow-xl shadow-indigo-500/10">
                   <DropdownMenuLabel className="font-black text-xs uppercase tracking-widest text-slate-400">Mi Cuenta</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem disabled>
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    <span>Perfil</span>
-                  </DropdownMenuItem>
+                  <Link href="/perfil">
+                    <DropdownMenuItem>
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      <span>Mi Perfil</span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/admin/usuarios">
+                    <DropdownMenuItem>
+                      <UserCog className="mr-2 h-4 w-4" />
+                      <span>Gestión de Usuarios</span>
+                    </DropdownMenuItem>
+                  </Link>
                   <Link href="/settings">
                     <DropdownMenuItem>
                       <SettingsIcon className="mr-2 h-4 w-4" />
