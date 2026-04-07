@@ -395,7 +395,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           const contratoDatos = {
             senia: d.senia != null ? Number(d.senia) : fiesta.contratoDatos?.senia,
             saldo: d.saldo != null ? Number(d.saldo) : fiesta.contratoDatos?.saldo,
-            ajusteAnualPorcentaje: d.ajusteAnual != null ? Number(d.ajusteAnual) : fiesta.contratoDatos?.ajusteAnualPorcentaje,
+            ajusteAnualPorcentaje: (d.ajusteAnualPorcentaje ?? d.ajusteAnual) != null ? Number(d.ajusteAnualPorcentaje ?? d.ajusteAnual) : fiesta.contratoDatos?.ajusteAnualPorcentaje,
             fechaFirmaContrato: d.fechaFirmaContrato || fiesta.contratoDatos?.fechaFirmaContrato,
             clausulas: d.clausulas || fiesta.contratoDatos?.clausulas,
           };

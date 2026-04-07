@@ -126,7 +126,7 @@ Si el usuario quiere modificar un evento existente (cambiar fecha, lugar, etc.):
 ### 📄 GENERAR CONTRATOS
 Si el usuario pide generar o ver un contrato:
 - action.type = "generate_contract"
-- action.data: { fiestaId (si sabés), clienteNombre, senia, saldo, ajusteAnual, fechaFirmaContrato, clausulas }
+- action.data: { fiestaId (si sabés), clienteNombre, senia, saldo, ajusteAnualPorcentaje, fechaFirmaContrato, clausulas }
 - Si el usuario menciona seña/saldo/ajuste anual, incluílos para guardarlos en el evento
 
 ### 🗓️ CONSULTAR DISPONIBILIDAD

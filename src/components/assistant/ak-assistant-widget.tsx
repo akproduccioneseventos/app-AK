@@ -540,6 +540,11 @@ export function AKAssistantWidget() {
     setTimeout(() => handleSend(question), 100);
   };
 
+  const handleNewConversation = () => {
+    setChatHistory([]);
+    try { localStorage.removeItem('ak-assistant-history'); } catch { /* ignore */ }
+  };
+
   const greeting = getGreeting();
   const highCount = alerts.filter(a => a.severity === 'high').length;
   const summaryText = alerts.length === 0 ? '¡Todo en orden por ahora! 🎉' : highCount > 0 ? `Tenés ${highCount} ${pluralize(highCount, 'asunto urgente', 'asuntos urgentes')} hoy.` : `Tenés ${alerts.length} ${pluralize(alerts.length, 'recordatorio pendiente', 'recordatorios pendientes')}.`;
@@ -730,7 +735,7 @@ export function AKAssistantWidget() {
                   </Button>
                 </div>
                 {chatHistory.length > 0 && (
-                  <button onClick={() => { setChatHistory([]); try { localStorage.removeItem('ak-assistant-history'); } catch {} }} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-rose-500 transition-colors">
+                  <button onClick={handleNewConversation} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-rose-500 transition-colors">
                     <Trash2 className="h-3 w-3" />Nueva conversación
                   </button>
                 )}
