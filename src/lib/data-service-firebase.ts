@@ -124,7 +124,7 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
   try {
     return readJsonData<T>(filePath, defaultValue);
   } catch (error) {
-    console.warn(`⚠️ JSON read fallback failed for ${filePath}, returning default:`, error);
+    console.warn('⚠️ JSON read fallback failed, returning default for:', filePath, error);
     return defaultValue;
   }
 }
@@ -143,7 +143,7 @@ export async function writeData<T>(
   try {
     await writeJsonData(filePath, data, sortFn);
   } catch (error) {
-    console.warn(`⚠️ JSON write failed for ${filePath} (filesystem may be read-only):`, error);
+    console.warn('⚠️ JSON write failed (filesystem may be read-only), continuing to Firestore for:', filePath, error);
     // Continue to Firestore write below
   }
 

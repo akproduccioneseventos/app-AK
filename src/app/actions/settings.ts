@@ -60,7 +60,8 @@ export async function getCompanyInfo(): Promise<CompanyInfo> {
   try {
     const data = await readData<Partial<CompanyInfo>>(COMPANY_INFO_FILE, {});
     return { ...defaultCompanyInfo, ...data };
-  } catch {
+  } catch (error) {
+    console.warn('[settings] getCompanyInfo failed, returning defaults:', error);
     return { ...defaultCompanyInfo };
   }
 }
@@ -82,7 +83,8 @@ export async function saveCompanyInfo(
 export async function getContractTemplate(): Promise<string> {
   try {
     return await readData<string>(CONTRACT_TEMPLATE_FILE, defaultContractTemplate);
-  } catch {
+  } catch (error) {
+    console.warn('[settings] getContractTemplate failed, returning defaults:', error);
     return defaultContractTemplate;
   }
 }
@@ -101,7 +103,8 @@ export async function getBudgetDisplaySettings(): Promise<BudgetDisplaySettings>
   try {
     const data = await readData<Partial<BudgetDisplaySettings>>(BUDGET_SETTINGS_FILE, {});
     return { ...defaultBudgetDisplaySettings, ...data };
-  } catch {
+  } catch (error) {
+    console.warn('[settings] getBudgetDisplaySettings failed, returning defaults:', error);
     return { ...defaultBudgetDisplaySettings };
   }
 }
@@ -133,7 +136,8 @@ export async function getInvoiceTemplateSettings(): Promise<InvoiceTemplateSetti
   try {
     const data = await readData<Partial<InvoiceTemplateSettings>>(INVOICE_SETTINGS_FILE, {});
     return { ...defaultInvoiceTemplateSettings, ...data };
-  } catch {
+  } catch (error) {
+    console.warn('[settings] getInvoiceTemplateSettings failed, returning defaults:', error);
     return { ...defaultInvoiceTemplateSettings };
   }
 }
@@ -159,7 +163,8 @@ export async function getWhatsAppSettings(): Promise<WhatsAppSettings> {
   try {
     const data = await readData<Partial<WhatsAppSettings>>(WHATSAPP_SETTINGS_FILE, {});
     return { ...defaultWhatsAppSettings, ...data };
-  } catch {
+  } catch (error) {
+    console.warn('[settings] getWhatsAppSettings failed, returning defaults:', error);
     return { ...defaultWhatsAppSettings };
   }
 }
@@ -182,7 +187,8 @@ export async function getWhatsAppTemplates(): Promise<WhatsAppTemplates> {
   try {
     const data = await readData<Partial<WhatsAppTemplates>>(WHATSAPP_TEMPLATES_FILE, {});
     return { ...defaultWhatsAppTemplates, ...data };
-  } catch {
+  } catch (error) {
+    console.warn('[settings] getWhatsAppTemplates failed, returning defaults:', error);
     return { ...defaultWhatsAppTemplates };
   }
 }
