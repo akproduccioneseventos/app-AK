@@ -2,15 +2,50 @@
 
 // src/app/actions/auth.ts
 // Server actions for the custom authentication system.
-// All password and security-question answers are hashed with SHA-256.
+// Passwords are hashed with scrypt (salt:hash format).
+// Security question answers are hashed the same way.
 
 import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
 
+// ── Constants ──────────────────────────────────────────────────────────────
+
+const SCRYPT_SALT_LEN = 16;
+const SCRYPT_KEY_LEN = 64;
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
+/**
+ * Hashes a value using scrypt with a random salt.
+ * Output format: "scrypt:<salt_hex>:<hash_hex>"
+ */
 function hashValue(value: string): string {
-  return crypto.createHash('sha256').update(value).digest('hex');
+  const salt = crypto.randomBytes(SCRYPT_SALT_LEN).toString('hex');
+  const hash = crypto.scryptSync(value, salt, SCRYPT_KEY_LEN).toString('hex');
+  return `scrypt:${salt}:${hash}`;
+}
+
+/**
+ * Verifies a plain-text value against a stored hash.
+ * Supports both:
+ *   - New format: "scrypt:<salt>:<hash>"
+ *   - Legacy format: plain SHA-256 hex (for any records created before migration)
+ */
+function verifyValue(value: string, stored: string): boolean {
+  if (stored.startsWith('scrypt:')) {
+    const parts = stored.split(':');
+    if (parts.length !== 3) return false;
+    const [, salt, hash] = parts;
+    try {
+      const derived = crypto.scryptSync(value, salt, SCRYPT_KEY_LEN).toString('hex');
+      return crypto.timingSafeEqual(Buffer.from(derived), Buffer.from(hash));
+    } catch {
+      return false;
+    }
+  }
+  // Legacy SHA-256 fallback (no salt) for existing records.
+  const legacyHash = crypto.createHash('sha256').update(value).digest('hex');
+  return legacyHash === stored;
 }
 
 function normalizeAnswer(answer: string): string {
@@ -21,7 +56,7 @@ function normalizeAnswer(answer: string): string {
 
 export interface SecurityQuestion {
   question: string;
-  answer: string; // stored hashed
+  answer: string; // stored as scrypt:<salt>:<hash>
 }
 
 export interface UserRecord {
@@ -102,7 +137,6 @@ export async function loginUser(
   await initializeAdminIfNeeded();
 
   try {
-    const passwordHash = hashValue(password);
     const snapshot = await dbAdmin
       .collection('users')
       .where('email', '==', email.trim().toLowerCase())
@@ -116,7 +150,7 @@ export async function loginUser(
     const doc = snapshot.docs[0];
     const data = doc.data();
 
-    if (data.passwordHash !== passwordHash) {
+    if (!verifyValue(password, data.passwordHash)) {
       return { success: false, error: 'Correo o contraseña incorrectos.' };
     }
 
@@ -219,20 +253,20 @@ export async function resetPasswordWithQuestions(
       };
     }
 
-    const a1Hash = hashValue(normalizeAnswer(answers.a1));
-    const a2Hash = hashValue(normalizeAnswer(answers.a2));
-    const a3Hash = hashValue(normalizeAnswer(answers.a3));
+    const a1 = normalizeAnswer(answers.a1);
+    const a2 = normalizeAnswer(answers.a2);
+    const a3 = normalizeAnswer(answers.a3);
 
     if (
-      sq.q1.answer !== a1Hash ||
-      sq.q2.answer !== a2Hash ||
-      sq.q3.answer !== a3Hash
+      !verifyValue(a1, sq.q1.answer) ||
+      !verifyValue(a2, sq.q2.answer) ||
+      !verifyValue(a3, sq.q3.answer)
     ) {
       return { success: false, error: 'Una o más respuestas son incorrectas.' };
     }
 
-    if (newPassword.length < 6) {
-      return { success: false, error: 'La contraseña debe tener al menos 6 caracteres.' };
+    if (newPassword.length < 8) {
+      return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
     await doc.ref.update({
@@ -267,12 +301,12 @@ export async function changePassword(
 
     const data = docSnap.data()!;
 
-    if (data.passwordHash !== hashValue(currentPassword)) {
+    if (!verifyValue(currentPassword, data.passwordHash)) {
       return { success: false, error: 'La contraseña actual es incorrecta.' };
     }
 
-    if (newPassword.length < 6) {
-      return { success: false, error: 'La nueva contraseña debe tener al menos 6 caracteres.' };
+    if (newPassword.length < 8) {
+      return { success: false, error: 'La nueva contraseña debe tener al menos 8 caracteres.' };
     }
 
     await docRef.update({
@@ -411,8 +445,8 @@ export async function createUser(data: {
       return { success: false, error: 'Ya existe un usuario con ese correo.' };
     }
 
-    if (data.password.length < 6) {
-      return { success: false, error: 'La contraseña debe tener al menos 6 caracteres.' };
+    if (data.password.length < 8) {
+      return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
     const docRef = await dbAdmin.collection('users').add({
@@ -474,8 +508,8 @@ export async function adminResetUserPassword(
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
-    if (newPassword.length < 6) {
-      return { success: false, error: 'La contraseña debe tener al menos 6 caracteres.' };
+    if (newPassword.length < 8) {
+      return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
     await dbAdmin.collection('users').doc(userId).update({

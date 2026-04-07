@@ -1,6 +1,6 @@
 // src/lib/auth/index.ts
 // Client-side session management for the custom auth system.
-// Sessions are stored in localStorage for persistence across page reloads.
+// Sessions are stored in localStorage for persistence.
 // sessionStorage is also checked for compatibility with E2E tests.
 
 export const SESSION_KEY = 'ak_producciones_auth_session';
@@ -18,8 +18,8 @@ export interface AuthSession {
 }
 
 /**
- * Generates a session token in the format expected by E2E tests.
- * Token = btoa('ak_auth_<userId>_<timestamp>') — always starts with YWtfYXV0aF8.
+ * Generates a session token.
+ * Token = btoa('ak_auth_<userId>_<timestamp>') — starts with YWtfYXV0aF8.
  */
 export function generateToken(userId: string): string {
   return btoa(`ak_auth_${userId}_${Date.now()}`);
@@ -34,7 +34,7 @@ export function isValidToken(token: string): boolean {
 
 /**
  * Reads the current session from localStorage (or sessionStorage for E2E tests).
- * Returns null if no valid session is found.
+ * Only accepts full JSON session objects with a valid token.
  */
 export function getSession(): AuthSession | null {
   if (typeof window === 'undefined') return null;
@@ -44,20 +44,7 @@ export function getSession(): AuthSession | null {
 
   if (!stored) return null;
 
-  // Plain token injected by E2E tests (not a JSON object).
-  if (!stored.startsWith('{')) {
-    if (isValidToken(stored)) {
-      return {
-        token: stored,
-        userId: 'e2e',
-        email: 'akproduccionessalto@gmail.com',
-        role: 'admin',
-        modules: ['all'],
-        createdAt: Date.now(),
-      };
-    }
-    return null;
-  }
+  if (!stored.startsWith('{')) return null;
 
   try {
     const session = JSON.parse(stored) as AuthSession;
