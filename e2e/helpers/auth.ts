@@ -39,6 +39,7 @@ export async function injectAuthSession(context: BrowserContext): Promise<void> 
  * Use this when you want to test the login flow itself.
  *
  * Reads credentials from environment variables:
+ *   E2E_DEMO_EMAIL    (optional, defaults to akproduccionessalto@gmail.com)
  *   E2E_DEMO_PASSWORD (required)
  */
 export async function loginAsDemo(page: Page): Promise<void> {
@@ -50,10 +51,13 @@ export async function loginAsDemo(page: Page): Promise<void> {
     );
   }
 
+  const email = process.env.E2E_DEMO_EMAIL || 'akproduccionessalto@gmail.com';
+
   await page.goto('/login');
-  await page.waitForSelector('#app-password');
-  await page.fill('#app-password', password);
-  await page.click('button[type="submit"]');
+  await page.waitForSelector('[data-testid="login-email"]');
+  await page.fill('[data-testid="login-email"]', email);
+  await page.fill('[data-testid="login-password"]', password);
+  await page.click('[data-testid="login-submit"]');
 
   // Wait for redirect to home after successful login
   await page.waitForURL('/', { timeout: 10_000 });

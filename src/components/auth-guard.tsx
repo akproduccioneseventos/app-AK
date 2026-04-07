@@ -4,14 +4,10 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { subscribeToAuthState, signOut, isAdminEmail } from '@/lib/firebase/auth-client';
+import { getSession, clearSession } from '@/lib/auth';
 
 export async function triggerAppLogout() {
-  try {
-    await signOut();
-  } catch {
-    // ignore sign-out errors
-  }
+  clearSession();
   if (typeof window !== 'undefined') {
     // Remove portal-specific session keys
     Object.keys(sessionStorage).forEach(key => {
@@ -55,22 +51,13 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
 
-    const unsubscribe = subscribeToAuthState(async (user) => {
-      if (!user) {
-        router.push('/login');
-        return;
-      }
+    const session = getSession();
+    if (!session) {
+      router.push('/login');
+      return;
+    }
 
-      if (!isAdminEmail(user.email)) {
-        await signOut();
-        router.push('/login');
-        return;
-      }
-
-      setIsVerified(true);
-    });
-
-    return unsubscribe;
+    setIsVerified(true);
   }, [pathname, router]);
 
   if (!isVerified) {
