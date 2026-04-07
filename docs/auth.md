@@ -25,7 +25,11 @@ Solo los correos en la whitelist de administradores pueden ingresar.
 
 1. **Authentication** → **Settings** → **Authorized domains**
 2. Agregar: `ak-producciones--presupuestador-ak-producciones.us-east4.hosted.app`
-3. (Opcional) Si comprás un dominio propio, agregarlo también aquí
+3. Si usás un dominio propio, agregarlo también aquí. Por ejemplo: `akproducciones.uy`
+
+> **⚠️ Importante para dominio personalizado:** Si el login falla en `akproducciones.uy`,
+> verificar que el dominio esté en la lista de dominios autorizados de Firebase Auth.
+> Sin esto, Firebase rechaza las solicitudes de autenticación desde ese dominio.
 
 ---
 
@@ -118,10 +122,26 @@ O en GitHub Actions, guardar como Secrets:
 
 ---
 
-## Cambiar de dominio
+## Cambiar de dominio / Dominio personalizado
 
-Si en el futuro comprás un dominio propio (ej: `akproducciones.com`):
+Si en el futuro comprás un dominio propio (ej: `akproducciones.uy`):
 
 1. Conectar el dominio al hosting
 2. Agregar en Firebase Console → **Authentication** → **Settings** → **Authorized domains**
-3. Actualizar `NEXT_PUBLIC_APP_URL` en las variables de entorno de producción
+3. Actualizar `NEXT_PUBLIC_APP_URL` en las variables de entorno de producción (opcional)
+
+### ¿Por qué no se necesitan variables de entorno para el login?
+
+La configuración de Firebase se resuelve automáticamente en tiempo de ejecución:
+
+1. Si `NEXT_PUBLIC_FIREBASE_API_KEY` está configurado en el build → se usa ese valor.
+2. Si no → la app intenta `/__/firebase/init.json` en el dominio actual (disponible en `*.hosted.app`).
+3. Si eso falla (p. ej. en dominio personalizado) → se obtiene la config desde
+   `https://ak-producciones--presupuestador-ak-producciones.us-east4.hosted.app/__/firebase/init.json`
+   y se guarda en `localStorage` para evitar futuras peticiones cross-origin.
+
+Esto significa que el login funciona en `akproducciones.uy`, `*.hosted.app` y `localhost`
+**sin necesidad de configurar variables de entorno manualmente**.
+
+> **Requisito imprescindible:** el dominio debe estar en la lista de **Authorized domains**
+> de Firebase Auth (ver paso 3 arriba).
