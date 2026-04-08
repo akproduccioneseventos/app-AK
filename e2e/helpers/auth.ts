@@ -20,17 +20,28 @@ export function generateSessionToken(): string {
 
 /**
  * Inject a valid auth session via addInitScript so it runs before every page load.
- * This avoids the login redirect without going through the login UI.
+ * Injects a full JSON session object (required by getSession()) into both
+ * localStorage and sessionStorage.
  *
  * Usage: call this right after creating a browser context, before any page.goto().
  */
 export async function injectAuthSession(context: BrowserContext): Promise<void> {
   const token = generateSessionToken();
+  const session = JSON.stringify({
+    token,
+    userId: 'e2e-user',
+    email: 'e2e@test.local',
+    role: 'admin',
+    modules: ['all'],
+    mustChangePassword: false,
+    createdAt: Date.now(),
+  });
   await context.addInitScript(
-    ({ key, sessionToken }: { key: string; sessionToken: string }) => {
-      window.sessionStorage.setItem(key, sessionToken);
+    ({ key, sessionJson }: { key: string; sessionJson: string }) => {
+      try { window.localStorage.setItem(key, sessionJson); } catch (e) { console.warn('[E2E] localStorage unavailable:', e); }
+      try { window.sessionStorage.setItem(key, sessionJson); } catch (e) { console.warn('[E2E] sessionStorage unavailable:', e); }
     },
-    { key: SESSION_KEY, sessionToken: token },
+    { key: SESSION_KEY, sessionJson: session },
   );
 }
 
@@ -65,14 +76,25 @@ export async function loginAsDemo(page: Page): Promise<void> {
 
 /**
  * Set the auth session directly in sessionStorage on an already-loaded page.
+ * Injects a full JSON session object as required by getSession().
  * Useful after navigation when addInitScript wasn't set up.
  */
 export async function setAuthSession(page: Page): Promise<void> {
   const token = generateSessionToken();
+  const session = JSON.stringify({
+    token,
+    userId: 'e2e-user',
+    email: 'e2e@test.local',
+    role: 'admin',
+    modules: ['all'],
+    mustChangePassword: false,
+    createdAt: Date.now(),
+  });
   await page.evaluate(
-    ({ key, sessionToken }: { key: string; sessionToken: string }) => {
-      window.sessionStorage.setItem(key, sessionToken);
+    ({ key, sessionJson }: { key: string; sessionJson: string }) => {
+      try { window.localStorage.setItem(key, sessionJson); } catch (e) { console.warn('[E2E] localStorage unavailable:', e); }
+      try { window.sessionStorage.setItem(key, sessionJson); } catch (e) { console.warn('[E2E] sessionStorage unavailable:', e); }
     },
-    { key: SESSION_KEY, sessionToken: token },
+    { key: SESSION_KEY, sessionJson: session },
   );
 }

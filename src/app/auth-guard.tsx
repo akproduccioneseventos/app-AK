@@ -86,6 +86,13 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
 
+    // E2E mode: bypass auth entirely in CI/E2E environments (never set in production).
+    if (process.env.NEXT_PUBLIC_E2E === 'true') {
+      console.warn('[AuthGuard] E2E mode active – skipping auth check');
+      setIsVerified(true);
+      return;
+    }
+
     // Check session-based auth (localStorage / sessionStorage).
     const session = getSession();
     if (!session) {
