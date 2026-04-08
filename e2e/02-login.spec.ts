@@ -41,7 +41,7 @@ test.describe('Login', () => {
     await page.click('[data-testid="login-submit"]');
 
     // Should show error message
-    const errorMsg = page.locator('p.text-destructive, p[class*="destructive"], [role="alert"], .text-destructive');
+    const errorMsg = page.locator('p.text-destructive, p[class*="destructive"], [role="alert"], .text-destructive').first();
     await expect(errorMsg).toBeVisible({ timeout: 15_000 });
 
     await context.close();

@@ -44,6 +44,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
     const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
     const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+    const [templateCategoryFilter, setTemplateCategoryFilter] = useState<string>('all');
 
     const allPossibleSections = defaultInvitacionDigitalData.secciones.map(s => s.tipo);
 
@@ -60,6 +61,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     const openTemplateModal = async () => {
         setIsTemplateModalOpen(true);
         setIsLoadingTemplates(true);
+        // Pre-select the filter matching the current category
+        setTemplateCategoryFilter(data.category || 'all');
         try {
             const tpls = await getInvitationTemplates();
             setTemplates(tpls);
@@ -116,13 +119,25 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                             <span>Elige una plantilla para aplicarla a esta invitación. <strong>Los cambios actuales no guardados se perderán</strong> al aplicar una plantilla nueva.</span>
                         </DialogDescription>
                     </DialogHeader>
+                    {/* Category filter buttons */}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                        {(['all', 'Boda', 'XV Años', 'Cumpleaños', 'Infantil', 'General'] as const).map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setTemplateCategoryFilter(cat)}
+                                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${templateCategoryFilter === cat ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                            >
+                                {cat === 'all' ? '🌐 Todas' : cat === 'Boda' ? '💍 Bodas' : cat === 'XV Años' ? '👑 XV Años' : cat === 'Cumpleaños' ? '🎂 Cumpleaños' : cat === 'Infantil' ? '🎈 Infantil' : '🎉 General'}
+                            </button>
+                        ))}
+                    </div>
                     {isLoadingTemplates ? (
                         <div className="flex justify-center py-10">
                             <Loader2 className="w-8 h-8 animate-spin text-primary" />
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            {templates.map(tpl => (
+                            {templates.filter(tpl => templateCategoryFilter === 'all' || tpl.category === templateCategoryFilter).map(tpl => (
                                 <button
                                     key={tpl.id}
                                     onClick={() => applyTemplate(tpl)}
@@ -133,12 +148,23 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                                         <Badge variant="secondary" className="text-[10px] shrink-0">{tpl.category}</Badge>
                                     </div>
                                     <p className="text-[11px] text-muted-foreground">
-                                        Estilo: {tpl.plantilla}
+                                        Estilo: {tpl.plantilla === 'Grazia' ? 'Clásica Elegante' : tpl.plantilla === 'Allegria' ? 'Moderna Vibrante' : tpl.plantilla}
                                     </p>
+                                    <div className="flex gap-1 mt-1">
+                                        {tpl.cabecera?.paletaColores?.primary && (
+                                            <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.primary }} />
+                                        )}
+                                        {tpl.cabecera?.paletaColores?.secondary && (
+                                            <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.secondary }} />
+                                        )}
+                                        {tpl.cabecera?.paletaColores?.accent && (
+                                            <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.accent }} />
+                                        )}
+                                    </div>
                                 </button>
                             ))}
-                            {templates.length === 0 && (
-                                <p className="col-span-2 text-center text-sm text-muted-foreground py-8">No hay plantillas disponibles.</p>
+                            {templates.filter(tpl => templateCategoryFilter === 'all' || tpl.category === templateCategoryFilter).length === 0 && (
+                                <p className="col-span-2 text-center text-sm text-muted-foreground py-8">No hay plantillas disponibles para esta categoría.</p>
                             )}
                         </div>
                     )}
@@ -171,8 +197,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                              <Select value={data.plantilla} onValueChange={v => update({plantilla: v as any})}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Grazia">Grazia (Clásico y Elegante)</SelectItem>
-                                    <SelectItem value="Allegria">Allegria (Moderno y Fotográfico)</SelectItem>
+                                    <SelectItem value="Grazia">Clásica Elegante</SelectItem>
+                                    <SelectItem value="Allegria">Moderna Vibrante</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

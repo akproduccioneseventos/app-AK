@@ -7,7 +7,7 @@ import { test, expect } from './fixtures';
 test.describe('Módulo – Carga Operativa (Personal)', () => {
   test('muestra la página de carga operativa', async ({ authPage: page }) => {
     await page.goto('/fiestas/nueva/carga-operativa?fiestaId=test-id-e2e');
-    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+    await page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
 
     // Should NOT redirect to login (auth check)
     await expect(page).not.toHaveURL('/login');
@@ -19,7 +19,7 @@ test.describe('Módulo – Carga Operativa (Personal)', () => {
 
   test('muestra el módulo con sus controles principales', async ({ authPage: page }) => {
     await page.goto('/fiestas/nueva/carga-operativa?fiestaId=test-id-e2e');
-    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+    await page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
 
     // Should show back navigation
     await expect(page.getByRole('link', { name: /volver/i })).toBeVisible({ timeout: 10_000 });

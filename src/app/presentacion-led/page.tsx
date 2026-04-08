@@ -23,6 +23,7 @@ import {
   Users,
   Zap,
   Package,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +34,27 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { CompanyInfo } from '@/types/settings';
 import { cn } from '@/lib/utils';
+
+// Canva catalog links per service category
+const CANVA_LINKS: Record<string, string> = {
+  catering: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+  bebida: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+  barra: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+  repostería: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+  boda: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas',
+  'xv años': 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web',
+  'xv': 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web',
+  default: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+};
+
+function getCanvaLinkForService(categoria?: string): string {
+  if (!categoria) return CANVA_LINKS.default;
+  const lower = categoria.toLowerCase();
+  for (const [key, link] of Object.entries(CANVA_LINKS)) {
+    if (key !== 'default' && lower.includes(key)) return link;
+  }
+  return CANVA_LINKS.default;
+}
 
 // ---- Security helpers ----
 
@@ -283,12 +305,12 @@ function ServiceSlide({
           </motion.p>
         )}
 
-        {/* Select button */}
+        {/* Select button + Ver Catálogo */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55 }}
-          className="flex justify-center"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <button
             onClick={onToggleSelect}
@@ -307,6 +329,15 @@ function ServiceSlide({
             </div>
             {isSelected ? '¡Le interesa!' : 'Marcar como interesado'}
           </button>
+          <a
+            href={getCanvaLinkForService(servicio.categoria)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-8 py-4 rounded-2xl text-lg font-bold border-2 bg-indigo-500/30 border-indigo-400/60 text-white/90 hover:bg-indigo-500/50 transition-all duration-200"
+          >
+            <ExternalLink className="h-5 w-5" />
+            Ver Catálogo
+          </a>
         </motion.div>
       </div>
 
@@ -337,7 +368,7 @@ function GiftsSlide({
   const gifts = servicios.filter(s => s.categoria === 'Regalo exclusivo');
   const safeEmail = isSafeEmail(companyInfo.companyContact) ? companyInfo.companyContact : null;
   // Build WhatsApp link from the email or contact info if available
-  const waHref = `https://wa.me/?text=${encodeURIComponent('¡Hola! Estuve viendo sus servicios y me gustaría solicitar un presupuesto personalizado.')}`;
+  const waHref = `https://wa.me/59898355530?text=${encodeURIComponent('¡Hola! Estuve viendo sus servicios y me gustaría solicitar un presupuesto personalizado.')}`;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-8 py-12 text-center">
