@@ -43,6 +43,7 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
           const { readFromFirestore } = await import('./firebase-sync');
           const firestoreData = await readFromFirestore(filePath);
           if (Array.isArray(firestoreData)) {
+            // Cache write failure is intentional: filesystem may be read-only in serverless environments.
             await fs.writeFile(absolutePath, JSON.stringify(firestoreData, null, 2), 'utf-8').catch(() => {});
             return firestoreData as T;
           }
@@ -59,7 +60,7 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
             if (Array.isArray(defaultValue) && !Array.isArray(firestoreData)) {
               return defaultValue;
             }
-            // Cache locally for subsequent reads
+            // Cache locally for subsequent reads. Failure is intentional: filesystem may be read-only in serverless environments.
             await fs.writeFile(absolutePath, JSON.stringify(firestoreData, null, 2), 'utf-8').catch(() => {});
             return firestoreData as T;
           }
