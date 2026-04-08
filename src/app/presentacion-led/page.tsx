@@ -26,16 +26,24 @@ import {
   ChevronDown,
   ChevronUp,
   ListChecks,
+  CalendarDays,
+  User,
+  PartyPopper,
+  BookOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { getMenus } from '@/app/actions/menus-catering';
 import { SERVICES } from '@/data/presentacion';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { CompanyInfo } from '@/types/settings';
+import type { FullMenu } from '@/types/catering';
 import { cn } from '@/lib/utils';
 
 // In-app catalog specs per service category (from presentacion.ts data)
@@ -102,6 +110,14 @@ interface PageData {
   servicios: ServicioEmpresa[];
   valuePropositions: string[];
   mostrarPrecios: boolean;
+  menus: FullMenu[];
+}
+
+interface ClientData {
+  nombre: string;
+  fechaEvento: string;
+  tipoFiesta: string;
+  cantidadInvitados: string;
 }
 
 // ---- Helpers ----
@@ -410,6 +426,218 @@ function ServiceSlide({
   );
 }
 
+function ClientDataSlide({
+  clientData,
+  onClientDataChange,
+  onNext,
+}: {
+  clientData: ClientData;
+  onClientDataChange: (data: ClientData) => void;
+  onNext: () => void;
+}) {
+  const TIPOS_FIESTA = ['Casamiento', 'Boda', 'Cumpleaños 15', 'Cumpleaños adultos', 'Cumpleaños infantil', 'Bautismo', 'Comunión', 'Graduación', 'Aniversario', 'Otro'];
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-16">
+      <motion.div
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="w-full max-w-lg"
+      >
+        <div className="text-center mb-8">
+          <div className="h-16 w-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-400/30 to-purple-500/30 border border-white/20 flex items-center justify-center mb-4">
+            <User className="h-8 w-8 text-indigo-300" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg mb-2">
+            ¿Para quién es el evento?
+          </h1>
+          <p className="text-white/60 text-lg">Completá los datos y armamos tu presupuesto a medida.</p>
+        </div>
+
+        <div className="space-y-5 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <User className="w-4 h-4" /> Nombre del festejado/a o pareja
+            </Label>
+            <input
+              type="text"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
+              placeholder="Ej: María y José"
+              value={clientData.nombre}
+              onChange={e => onClientDataChange({ ...clientData, nombre: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <CalendarDays className="w-4 h-4" /> Fecha del evento
+            </Label>
+            <input
+              type="date"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
+              value={clientData.fechaEvento}
+              onChange={e => onClientDataChange({ ...clientData, fechaEvento: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <PartyPopper className="w-4 h-4" /> Tipo de fiesta
+            </Label>
+            <select
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
+              value={clientData.tipoFiesta}
+              onChange={e => onClientDataChange({ ...clientData, tipoFiesta: e.target.value })}
+            >
+              <option value="">Seleccioná el tipo de evento...</option>
+              {TIPOS_FIESTA.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <Users className="w-4 h-4" /> Cantidad de invitados (aprox.)
+            </Label>
+            <input
+              type="number"
+              min="1"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
+              placeholder="Ej: 150"
+              value={clientData.cantidadInvitados}
+              onChange={e => onClientDataChange({ ...clientData, cantidadInvitados: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-6"
+        >
+          <button
+            onClick={onNext}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-lg transition-all flex items-center justify-center gap-2"
+          >
+            Continuar a la selección del menú
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+function MenuSelectionSlide({
+  menus,
+  selectedMenuId,
+  onSelectMenu,
+  onNext,
+}: {
+  menus: FullMenu[];
+  selectedMenuId: string | null;
+  onSelectMenu: (id: string | null) => void;
+  onNext: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-16 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="w-full max-w-3xl"
+      >
+        <div className="text-center mb-8">
+          <div className="h-16 w-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-400/30 to-orange-500/30 border border-white/20 flex items-center justify-center mb-4">
+            <Utensils className="h-8 w-8 text-amber-300" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg mb-2">
+            Seleccioná el Menú
+          </h1>
+          <p className="text-white/60 text-lg">Elegí la propuesta gastronómica para el evento.</p>
+        </div>
+
+        {menus.length === 0 ? (
+          <div className="text-center bg-white/5 border border-white/10 rounded-2xl p-8">
+            <BookOpen className="h-12 w-12 mx-auto text-white/30 mb-3" />
+            <p className="text-white/50 text-lg">No hay menús configurados aún.</p>
+            <p className="text-white/30 text-sm mt-1">Podés continuar y elegir el menú al momento de presupuestar.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            {/* No menu option */}
+            <button
+              onClick={() => onSelectMenu(null)}
+              className={cn(
+                'text-left p-4 rounded-2xl border-2 transition-all',
+                selectedMenuId === null
+                  ? 'border-amber-400 bg-amber-400/20'
+                  : 'border-white/10 bg-white/5 hover:bg-white/10'
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className={cn('h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0', selectedMenuId === null ? 'border-amber-400 bg-amber-400' : 'border-white/30')}>
+                  {selectedMenuId === null && <Check className="h-4 w-4 text-white" />}
+                </div>
+                <div>
+                  <p className="text-white font-semibold">Sin menú definido</p>
+                  <p className="text-white/50 text-xs mt-0.5">A cotizar por separado</p>
+                </div>
+              </div>
+            </button>
+
+            {menus.map(menu => (
+              <button
+                key={menu.id}
+                onClick={() => onSelectMenu(menu.id)}
+                className={cn(
+                  'text-left p-4 rounded-2xl border-2 transition-all',
+                  selectedMenuId === menu.id
+                    ? 'border-amber-400 bg-amber-400/20'
+                    : 'border-white/10 bg-white/5 hover:bg-white/10'
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={cn('h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5', selectedMenuId === menu.id ? 'border-amber-400 bg-amber-400' : 'border-white/30')}>
+                    {selectedMenuId === menu.id && <Check className="h-4 w-4 text-white" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-semibold leading-tight">{menu.name}</p>
+                    {menu.description && <p className="text-white/50 text-xs mt-0.5 line-clamp-2">{menu.description}</p>}
+                    {menu.items && menu.items.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {menu.items.slice(0, 4).map(item => (
+                          <span key={item.id} className="text-xs bg-white/10 text-white/60 rounded-full px-2 py-0.5">{item.name}</span>
+                        ))}
+                        {menu.items.length > 4 && <span className="text-xs text-white/40">+{menu.items.length - 4} más</span>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <button
+            onClick={onNext}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-lg transition-all flex items-center justify-center gap-2"
+          >
+            Continuar a los servicios
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
 function GiftsSlide({
   companyInfo,
   selectedServices,
@@ -565,17 +793,22 @@ export default function PresentacionLedPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
+  const [clientData, setClientData] = useState<ClientData>({
+    nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '',
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function load() {
       try {
-        const [servicios, companyInfo, invoiceSettings, budgetSettings] = await Promise.all([
+        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus] = await Promise.all([
           getServiciosEmpresa(),
           getCompanyInfo(),
           getInvoiceTemplateSettings(),
           getBudgetDisplaySettings(),
+          getMenus().catch(() => [] as FullMenu[]),
         ]);
         setData({
           companyInfo,
@@ -583,6 +816,7 @@ export default function PresentacionLedPage() {
           servicios: servicios.filter(s => s.tipoItem === 'Servicio' || !s.tipoItem),
           valuePropositions: budgetSettings.valuePropositions || [],
           mostrarPrecios: budgetSettings.showPriceBreakdown ?? true,
+          menus,
         });
       } finally {
         setLoading(false);
@@ -591,7 +825,9 @@ export default function PresentacionLedPage() {
     load();
   }, []);
 
-  const totalSlides = data ? 1 + data.servicios.length + 1 : 0; // company + services + gifts
+  // Slide layout: [0: company] [1: client data] [2: menu] [3..N+2: services] [last: gifts]
+  const FIXED_SLIDES_BEFORE_SERVICES = 3; // company + client + menu
+  const totalSlides = data ? FIXED_SLIDES_BEFORE_SERVICES + data.servicios.length + 1 : 0;
 
   const goToSlide = useCallback((next: number) => {
     if (!data) return;
@@ -615,8 +851,21 @@ export default function PresentacionLedPage() {
     if (safeIds.length > 0) {
       sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(safeIds));
     }
+    // Store client data and menu selection for pre-filling budget form
+    if (clientData.nombre || clientData.fechaEvento || clientData.tipoFiesta) {
+      const safeClientData = {
+        nombre: clientData.nombre.slice(0, 200),
+        fechaEvento: clientData.fechaEvento,
+        tipoFiesta: clientData.tipoFiesta.slice(0, 100),
+        cantidadInvitados: clientData.cantidadInvitados,
+      };
+      sessionStorage.setItem('presentacion_cliente_data', JSON.stringify(safeClientData));
+    }
+    if (selectedMenuId && /^[\w-]+$/.test(selectedMenuId)) {
+      sessionStorage.setItem('presentacion_menu_seleccionado', selectedMenuId);
+    }
     router.push('/presupuestos/nuevo/crear');
-  }, [selectedServices, router]);
+  }, [selectedServices, clientData, selectedMenuId, router]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -656,11 +905,21 @@ export default function PresentacionLedPage() {
 
   if (!data) return null;
 
-  const servicioIndex = currentSlide - 1;
   const isCompanySlide = currentSlide === 0;
+  const isClientDataSlide = currentSlide === 1;
+  const isMenuSlide = currentSlide === 2;
   const isGiftsSlide = currentSlide === totalSlides - 1;
-  const isServiceSlide = !isCompanySlide && !isGiftsSlide;
+  const isServiceSlide = !isCompanySlide && !isClientDataSlide && !isMenuSlide && !isGiftsSlide;
+  const servicioIndex = currentSlide - FIXED_SLIDES_BEFORE_SERVICES;
   const currentServicio = isServiceSlide ? data.servicios[servicioIndex] : null;
+
+  const getSlideLabel = () => {
+    if (isCompanySlide) return 'Presentación';
+    if (isClientDataSlide) return 'Datos del evento';
+    if (isMenuSlide) return 'Selección de menú';
+    if (isGiftsSlide) return 'Regalos y contacto';
+    return `Servicio ${servicioIndex + 1} de ${data.servicios.length}`;
+  };
 
   return (
     <div
@@ -694,7 +953,7 @@ export default function PresentacionLedPage() {
               />
             </div>
             <p className="text-white/40 text-xs mt-1 text-center">
-              {isCompanySlide ? 'Presentación' : isGiftsSlide ? 'Regalos y contacto' : `Servicio ${servicioIndex + 1} de ${data.servicios.length}`}
+              {getSlideLabel()}
             </p>
           </div>
         )}
@@ -725,6 +984,21 @@ export default function PresentacionLedPage() {
               companyInfo={data.companyInfo}
               logoUrl={data.logoUrl}
               valuePropositions={data.valuePropositions}
+              onNext={goNext}
+            />
+          )}
+          {isClientDataSlide && (
+            <ClientDataSlide
+              clientData={clientData}
+              onClientDataChange={setClientData}
+              onNext={goNext}
+            />
+          )}
+          {isMenuSlide && (
+            <MenuSelectionSlide
+              menus={data.menus}
+              selectedMenuId={selectedMenuId}
+              onSelectMenu={setSelectedMenuId}
               onNext={goNext}
             />
           )}

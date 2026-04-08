@@ -22,6 +22,7 @@ export default function NuevoEmpleadoPage() {
   const { toast } = useToast();
   const [nombre, setNombre] = useState('');
   const [cedula, setCedula] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
   const [rolIds, setRolIds] = useState<string[]>([]);
   const [rolesDisponibles, setRolesDisponibles] = useState<Rol[]>([]);
@@ -54,6 +55,7 @@ export default function NuevoEmpleadoPage() {
     const empleadoData: NuevoEmpleadoFormData = {
       nombre: nombre.trim(),
       cedula: cedula.trim() || undefined,
+      telefono: telefono.trim() || undefined,
       fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString() : undefined,
       rolIds: rolIds,
     };
@@ -133,6 +135,18 @@ export default function NuevoEmpleadoPage() {
                 placeholder="Ej: 1.234.567-8 (sin puntos ni guion)" 
                 className="text-base p-3"
                 disabled={isSaving}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empleado-telefono" className="text-base">Teléfono / WhatsApp</Label>
+              <Input 
+                id="empleado-telefono" 
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                placeholder="Ej: 59899123456 (con código de país)" 
+                className="text-base p-3"
+                disabled={isSaving}
+                type="tel"
               />
             </div>
             <div className="space-y-2">

@@ -41,6 +41,7 @@ export async function saveEmpleado(
     empleadoToSave.nombre = empleadoData.get('nombre') as string;
     empleadoToSave.cedula = empleadoData.get('cedula') as string | undefined;
     empleadoToSave.fechaNacimiento = empleadoData.get('fechaNacimiento') as string | undefined;
+    empleadoToSave.telefono = empleadoData.get('telefono') as string | undefined;
     const rolIdsStr = empleadoData.get('rolIds') as string | null;
     empleadoToSave.rolIds = rolIdsStr ? rolIdsStr.split(',') : [];
     contractFile = empleadoData.get('contract') as File | null;
