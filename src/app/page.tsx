@@ -27,6 +27,8 @@ import {
     Check
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
+import { PushNotificationPrompt } from '@/components/push-notification-prompt';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
@@ -346,6 +348,8 @@ export default function MainDashboardPage() {
       </div>
 
       <PublicFooter className="rounded-[1.5rem]" />
+      <PwaInstallPrompt />
+      <PushNotificationPrompt />
     </div>
   );
 }

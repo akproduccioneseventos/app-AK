@@ -603,7 +603,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const showKidsSelector = (Number(fiesta.configuracion.invitadosNinos) || 0) > 0;
 
   return (
-    <div className={cn("min-h-screen bg-white font-body selection:bg-primary/20 selection:text-white", isPreview && "h-full overflow-y-auto")}>
+    <div className={cn("min-h-screen w-full max-w-full overflow-x-hidden bg-white font-body selection:bg-primary/20 selection:text-white", isPreview && "h-full overflow-y-auto")}>
       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} isPreview={isPreview} />
       
       <main className="relative">

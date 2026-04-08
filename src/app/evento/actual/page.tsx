@@ -146,7 +146,7 @@ function EventoPublicoPageContent() {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     const qrValue = `${baseUrl}/evento/actual/checkin?fiestaId=${fiesta.id}&guestId=${confirmedGuest.id}`;
     return (
-       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+       <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-3xl border-none rounded-[3rem] overflow-hidden animate-in fade-in zoom-in duration-700">
           <CardHeader className="text-center pb-4 pt-12">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12 }}>
@@ -157,9 +157,9 @@ function EventoPublicoPageContent() {
             </CardTitle>
             <CardDescription className="text-lg">Gracias por confirmar, {confirmedGuest.nombre}.</CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-8 py-8 px-10">
-             <div className="p-8 bg-white rounded-[2rem] shadow-inner border border-slate-100 inline-block">
-                <QRCodeStylized id="qr-code-invitado" value={qrValue} size={200} level="H" />
+          <CardContent className="text-center space-y-8 py-8 px-6 sm:px-10">
+             <div className="p-6 sm:p-8 bg-white rounded-[2rem] shadow-inner border border-slate-100 inline-block max-w-full">
+                <QRCodeStylized id="qr-code-invitado" value={qrValue} size={Math.min(200, typeof window !== 'undefined' ? window.innerWidth - 120 : 200)} level="H" />
              </div>
              <div className="space-y-2">
                 <p className="text-xs font-bold uppercase tracking-[0.3em] text-slate-400">Tu pase digital</p>
@@ -169,7 +169,7 @@ function EventoPublicoPageContent() {
                 </p>
              </div>
           </CardContent>
-          <CardFooter className="flex-col gap-4 pb-12 px-10">
+          <CardFooter className="flex-col gap-4 pb-12 px-6 sm:px-10">
              <Button onClick={downloadQR} size="lg" className="w-full h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
                 <Download className="w-5 h-5 mr-3"/>GUARDAR EN GALERÍA
             </Button>
@@ -181,7 +181,7 @@ function EventoPublicoPageContent() {
   }
 
   return (
-    <>
+    <div className="w-full overflow-x-hidden">
       {renderTemplate()}
       <div className="w-full px-4 py-8 bg-gradient-to-b from-white to-purple-50 flex justify-center">
         <MarketingBanner
@@ -190,7 +190,7 @@ function EventoPublicoPageContent() {
           className="w-full max-w-xl"
         />
       </div>
-    </>
+    </div>
   );
 }
 
