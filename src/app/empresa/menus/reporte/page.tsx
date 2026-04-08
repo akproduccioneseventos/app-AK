@@ -38,7 +38,7 @@ export default function ReporteMenusPage() {
         getBebidasMasterTemplate(),
         getInvoiceTemplateSettings()
       ]);
-      setAllMenus(menusData);
+      setAllMenus(Array.isArray(menusData) ? menusData : []);
       setReposteria(reposteriaData);
       setBebidas(bebidasData);
       setLogoUrl(settings.logoUrl ?? null);

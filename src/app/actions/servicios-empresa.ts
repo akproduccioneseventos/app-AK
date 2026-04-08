@@ -8,7 +8,7 @@ const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
 
 export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
     const items = await readData<any[]>(SERVICIOS_EMPRESA_FILE, []);
-    return items.map(item => ({
+    return (Array.isArray(items) ? items : []).map(item => ({
       id: item.id,
       nombre: item.nombre,
       tipoItem: item.tipoItem || 'Servicio',

@@ -37,14 +37,30 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
     const fileContent = await fs.readFile(absolutePath, 'utf-8');
     if (fileContent && fileContent.trim()) {
       const localData = JSON.parse(fileContent) as T;
+      // Guard: if the default is an array but parsed data is not, treat as empty default
+      if (Array.isArray(defaultValue) && !Array.isArray(localData)) {
+        try {
+          const { readFromFirestore } = await import('./firebase-sync');
+          const firestoreData = await readFromFirestore(filePath);
+          if (Array.isArray(firestoreData)) {
+            await fs.writeFile(absolutePath, JSON.stringify(firestoreData, null, 2), 'utf-8').catch(() => {});
+            return firestoreData as T;
+          }
+        } catch { /* Firestore unavailable */ }
+        return defaultValue;
+      }
       // If local data matches default, try Firestore as a read-through fallback
       if (JSON.stringify(localData) === JSON.stringify(defaultValue)) {
         try {
           const { readFromFirestore } = await import('./firebase-sync');
           const firestoreData = await readFromFirestore(filePath);
           if (firestoreData !== null && firestoreData !== undefined) {
+            // For array defaults, only accept array data from Firestore
+            if (Array.isArray(defaultValue) && !Array.isArray(firestoreData)) {
+              return defaultValue;
+            }
             // Cache locally for subsequent reads
-            await fs.writeFile(absolutePath, JSON.stringify(firestoreData, null, 2), 'utf-8');
+            await fs.writeFile(absolutePath, JSON.stringify(firestoreData, null, 2), 'utf-8').catch(() => {});
             return firestoreData as T;
           }
         } catch { /* Firestore unavailable, use local */ }

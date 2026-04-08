@@ -63,7 +63,7 @@ export default function FinanzasPage() {
     setIsLoading(true);
     try {
       const data = await getFiestas(true);
-      const calculados: FiestaFinanzas[] = data.map(f => {
+      const calculados: FiestaFinanzas[] = (Array.isArray(data) ? data : []).map(f => {
         const ingresos = calcularIngresos(f);
         const egresos = calcularEgresos(f);
         return {

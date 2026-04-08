@@ -88,7 +88,7 @@ export default function CatalogoPlatosPage() {
     setIsLoading(true);
     try {
       const menusData = await getMenus();
-      setAllMenus(menusData);
+      setAllMenus(Array.isArray(menusData) ? menusData : []);
     } catch (error) {
       toast({ title: 'Error', description: 'No se pudieron cargar los menús.', variant: 'destructive' });
     } finally {

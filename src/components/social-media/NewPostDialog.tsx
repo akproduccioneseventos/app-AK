@@ -98,7 +98,7 @@ export function NewPostDialog({
             resetForm();
             const fetchInitialData = async () => {
                 const [actual, historial] = await Promise.all([getFiestaActual(), getHistorialFiestas()]);
-                const all = [actual, ...historial].filter(Boolean) as FiestaEnPlanificacion[];
+                const all = [actual, ...(Array.isArray(historial) ? historial : [])].filter(Boolean) as FiestaEnPlanificacion[];
                 setAllEvents(all);
             };
             fetchInitialData();

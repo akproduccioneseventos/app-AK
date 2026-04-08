@@ -26,7 +26,7 @@ function PresupuestoDashboardContent() {
         setIsLoading(true);
         try {
             const guardados = await getPresupuestos();
-            setPresupuestos(guardados.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+            setPresupuestos((Array.isArray(guardados) ? guardados : []).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
         } catch(e) {
             toast({ title: "Error", description: "No se pudieron cargar los presupuestos."});
         } finally {

@@ -51,7 +51,7 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
           getServicioEmpresaById(itemId),
           getProveedores()
       ]);
-      setProveedores(resProveedores);
+      setProveedores(Array.isArray(resProveedores) ? resProveedores : []);
       if (loadedItem) {
         setItem(loadedItem);
         setFormData({

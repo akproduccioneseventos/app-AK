@@ -9,7 +9,7 @@ const INSUMOS_FILE = 'insumos.json';
 
 export async function getInsumos(): Promise<ServicioEmpresa[]> {
     const items = await readData<any[]>(INSUMOS_FILE, []);
-    return items.map(item => ({
+    return (Array.isArray(items) ? items : []).map(item => ({
       ...item,
       tipoItem: item.tipoItem || 'Insumo/Ingrediente',
       valorUnitarioEstimado: item.valorUnitarioEstimado !== undefined && !isNaN(Number(item.valorUnitarioEstimado)) ? Number(item.valorUnitarioEstimado) : 0,

@@ -44,7 +44,7 @@ export default function ReportePresupuestosPage() {
           getPresupuestos(),
           getInvoiceTemplateSettings()
       ]);
-      setAllItems(data);
+      setAllItems(Array.isArray(data) ? data : []);
       setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar la lista de presupuestos.");

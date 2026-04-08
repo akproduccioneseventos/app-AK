@@ -46,7 +46,7 @@ function NuevoServicioContent() {
     async function loadData() {
         try {
             const res = await getProveedores();
-            setProveedores(res);
+            setProveedores(Array.isArray(res) ? res : []);
         } catch (e) {}
     }
     loadData();

@@ -246,9 +246,9 @@ function SimuladorContent() {
                 ]);
                 setConfig(armadoConfig);
                 setBudgetSettings(bSettings);
-                setServiciosCatalogo(serviciosData.filter(s => s.tipoItem === 'Servicio'));
-                setAllMenus(menuData);
-                const whatsappConnection = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
+                setServiciosCatalogo((Array.isArray(serviciosData) ? serviciosData : []).filter(s => s.tipoItem === 'Servicio'));
+                setAllMenus(Array.isArray(menuData) ? menuData : []);
+                const whatsappConnection = (Array.isArray(socialConnections) ? socialConnections : []).find(c => c.platform === 'WhatsApp' && c.isConnected);
                 if (whatsappConnection?.phoneNumber) {
                     setWhatsappNumber(whatsappConnection.phoneNumber);
                 }

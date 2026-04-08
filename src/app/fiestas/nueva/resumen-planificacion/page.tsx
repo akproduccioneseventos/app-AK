@@ -105,8 +105,8 @@ function ResumenPlanificacionContent() {
       
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setFiesta(fiestaData);
-      setEmpleados(emps);
-      setRoles(rolesData);
+      setEmpleados(Array.isArray(emps) ? emps : []);
+      setRoles(Array.isArray(rolesData) ? rolesData : []);
 
       let presupuestoData = null;
       if (fiestaData.presupuestoId) {

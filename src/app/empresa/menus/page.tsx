@@ -69,10 +69,10 @@ export default function GestionMenusPage() {
         getReposteriaMasterTemplate(),
         getInsumos()
       ]);
-      setMenus(menuData);
+      setMenus(Array.isArray(menuData) ? menuData : []);
       setBebidasMaster(bebidasData);
       setReposteriaMaster(reposteriaData);
-      setInsumos(insumosData);
+      setInsumos(Array.isArray(insumosData) ? insumosData : []);
     } catch (e) {
       toast({ title: 'Error', description: 'No se pudieron cargar los datos maestros.', variant: 'destructive' });
     } finally {

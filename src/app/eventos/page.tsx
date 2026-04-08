@@ -73,8 +73,8 @@ export default function GestorFiestasPage() {
       }
       // KPI failure doesn't block fiesta loading
       
-      setFiestasActivas(activas);
-      setFiestasArchivadas(archivadas);
+      setFiestasActivas(Array.isArray(activas) ? activas : []);
+      setFiestasArchivadas(Array.isArray(archivadas) ? archivadas : []);
 
     } catch (e: any) {
       console.error("Error loading fiestas data:", e);

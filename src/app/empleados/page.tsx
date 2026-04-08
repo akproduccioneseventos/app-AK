@@ -50,8 +50,8 @@ export default function EmpleadosPage() {
         getEmpleados(),
         getRoles()
       ]);
-      setEmpleados(empleadosData);
-      setRoles(rolesData);
+      setEmpleados(Array.isArray(empleadosData) ? empleadosData : []);
+      setRoles(Array.isArray(rolesData) ? rolesData : []);
     } catch (err: any) {
       setError("No se pudieron cargar los datos de empleados o roles.");
       toast({ title: "Error de Carga", description: (err as Error).message, variant: "destructive" });
