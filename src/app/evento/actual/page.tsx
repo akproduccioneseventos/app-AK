@@ -159,7 +159,7 @@ function EventoPublicoPageContent() {
           </CardHeader>
           <CardContent className="text-center space-y-8 py-8 px-6 sm:px-10">
              <div className="p-6 sm:p-8 bg-white rounded-[2rem] shadow-inner border border-slate-100 inline-block max-w-full">
-                <QRCodeStylized id="qr-code-invitado" value={qrValue} size={Math.min(200, typeof window !== 'undefined' ? window.innerWidth - 120 : 200)} level="H" />
+                <QRCodeStylized id="qr-code-invitado" value={qrValue} size={200} level="H" />
              </div>
              <div className="space-y-2">
                 <p className="text-xs font-bold uppercase tracking-[0.3em] text-slate-400">Tu pase digital</p>
