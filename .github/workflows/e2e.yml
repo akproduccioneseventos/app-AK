@@ -49,6 +49,7 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_E2E: 'true'
+          NEXT_PUBLIC_APP_PASSWORD: 'AK2024'
 
       - name: Start production server (background)
         run: npm run start &

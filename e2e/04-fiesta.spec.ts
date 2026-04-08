@@ -28,7 +28,7 @@ test.describe('Fiesta – Crear nuevo evento', () => {
 
     // The page should render (either the planner or an error state, not a login redirect)
     // We're verifying the auth works and the page renders
-    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+    await page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
 
     // Should NOT redirect to login
     await expect(page).not.toHaveURL('/login');

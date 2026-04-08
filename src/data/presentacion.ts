@@ -1,6 +1,4 @@
 // Presentation Mode data — used by /presentacion (LED showroom kiosk)
-// TODO: Replace CANVA_PLACEHOLDER and DRIVE_PLACEHOLDER values with the real
-// Canva presentation links and Google Drive backup links provided by the user.
 
 export interface EventType {
   id: string;
@@ -16,8 +14,8 @@ export interface Service {
   label: string;
   emoji: string;
   imageUrl?: string;      // Optional photo for service card
-  canvaLink?: string;     // TODO: Replace with real Canva link
-  driveLink?: string;     // TODO: Replace with real Drive link
+  canvaLink?: string;     // Canva catalog link
+  driveLink?: string;     // Google Drive link
   description: string;
   specs: string[];        // Bullet-point specifications
 }
@@ -75,9 +73,9 @@ export const SERVICES: Service[] = [
     label: 'Catering',
     emoji: '🍽️',
     // TODO: Replace with real Canva link
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_CATERING',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
     // TODO: Replace with real Drive link
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_CATERING',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
     description:
       'Menú diseñado a medida con ingredientes frescos y servicio de mozos profesionales. Lo que sobra, se devuelve.',
     specs: [
@@ -93,8 +91,8 @@ export const SERVICES: Service[] = [
     id: 'decoracion',
     label: 'Decoración',
     emoji: '🎀',
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_DECORACION',
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_DECORACION',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Ambientación completa y personalizada según el tema elegido: flores, telas, globos, iluminación decorativa y más.',
     specs: [
@@ -110,8 +108,8 @@ export const SERVICES: Service[] = [
     id: 'discoteca',
     label: 'Discoteca / Iluminación',
     emoji: '🎶',
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_DISCOTECA',
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_DISCOTECA',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'DJ profesional con equipo de sonido de alta calidad e iluminación show para mantener la pista encendida toda la noche.',
     specs: [
@@ -127,8 +125,8 @@ export const SERVICES: Service[] = [
     id: 'foto-video',
     label: 'Foto / Video',
     emoji: '📸',
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_FOTOVIDEO',
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_FOTOVIDEO',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Cobertura fotográfica y fílmica completa del evento para que cada momento quede registrado en alta calidad.',
     specs: [
@@ -144,8 +142,8 @@ export const SERVICES: Service[] = [
     id: 'barra',
     label: 'Barra',
     emoji: '🍹',
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_BARRA',
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_BARRA',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Barra completa con barman profesional, cócteles de autor, bebidas alcohólicas y sin alcohol durante todo el evento.',
     specs: [
@@ -161,8 +159,8 @@ export const SERVICES: Service[] = [
     id: 'shows',
     label: 'Shows',
     emoji: '🎭',
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_SHOWS',
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_SHOWS',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Espectáculos en vivo para sorprender a tus invitados: bandas, animadores, shows de magia, circo, y más.',
     specs: [
@@ -178,8 +176,8 @@ export const SERVICES: Service[] = [
     id: 'coordinacion',
     label: 'Coordinación',
     emoji: '📋',
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_COORDINACION',
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_COORDINACION',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Un coordinador dedicado para que el día del evento vos no tengas que preocuparte por nada. Gestión total.',
     specs: [
@@ -195,8 +193,8 @@ export const SERVICES: Service[] = [
     id: 'mobiliario',
     label: 'Mobiliario',
     emoji: '🪑',
-    canvaLink: 'https://www.canva.com/design/CANVA_PLACEHOLDER_MOBILIARIO',
-    driveLink: 'https://drive.google.com/drive/folders/DRIVE_PLACEHOLDER_MOBILIARIO',
+    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
+    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Mesas, sillas, lounge y elementos de salón en distintos estilos para complementar la ambientación de tu evento.',
     specs: [

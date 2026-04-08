@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Camera, ExternalLink, Loader2, Plus, Star, Trash2, Video, Eye } from 'lucide-react';
+import { ArrowLeft, Camera, ExternalLink, Loader2, Plus, Star, Trash2, Upload, Video, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
 import { GALERIA_CATEGORIAS } from '@/types/galeria';
@@ -38,6 +38,7 @@ import {
   deleteGaleriaItem,
   toggleDestacada,
 } from '@/app/actions/galeria';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 
 function extractYoutubeId(url: string): string | null {
   try {
@@ -79,6 +80,7 @@ export default function GaleriaAdminPage() {
   const [fotoCategoria, setFotoCategoria] = useState('');
   const [fotoDestacada, setFotoDestacada] = useState(false);
   const [isSavingFoto, setIsSavingFoto] = useState(false);
+  const [isUploadingFoto, setIsUploadingFoto] = useState(false);
 
   // Video form
   const [videoUrl, setVideoUrl] = useState('');
@@ -135,6 +137,46 @@ export default function GaleriaAdminPage() {
       toast({ title: 'Error', description: 'No se pudo guardar la foto.', variant: 'destructive' });
     } finally {
       setIsSavingFoto(false);
+    }
+  };
+
+  const handleUploadFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!fotoCategoria) {
+      toast({ title: 'Categoría requerida', description: 'Seleccioná una categoría antes de subir la foto.', variant: 'destructive' });
+      return;
+    }
+    setIsUploadingFoto(true);
+    try {
+      const result = await uploadPublicPageAsset('galeria-empresa', file);
+      if (!result.success || !result.url) {
+        throw new Error(result.error || 'Error al subir');
+      }
+      const foto: GaleriaFoto = {
+        id: `foto_${Date.now()}`,
+        tipo: 'foto',
+        url: result.url,
+        titulo: fotoTitulo.trim() || undefined,
+        descripcion: fotoDescripcion.trim() || undefined,
+        categoria: fotoCategoria,
+        destacada: fotoDestacada,
+        orden: fotos.length,
+        createdAt: new Date().toISOString(),
+      };
+      await addGaleriaFoto(foto);
+      toast({ title: '✅ Foto subida', description: 'La foto se subió y guardó en la galería.' });
+      setFotoUrl('');
+      setFotoTitulo('');
+      setFotoDescripcion('');
+      setFotoCategoria('');
+      setFotoDestacada(false);
+      await fetchData();
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo subir la foto.', variant: 'destructive' });
+    } finally {
+      setIsUploadingFoto(false);
+      e.target.value = '';
     }
   };
 
@@ -260,11 +302,11 @@ export default function GaleriaAdminPage() {
                   <Plus className="w-5 h-5" />
                   Agregar Foto
                 </CardTitle>
-                <CardDescription>Pegar URL de imagen (desde Firebase Storage, Google Drive, etc.)</CardDescription>
+                <CardDescription>Subí desde tu dispositivo o pegá una URL de imagen.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-1">
-                  <Label>URL de la imagen *</Label>
+                  <Label>URL de la imagen (opcional si subís archivo)</Label>
                   <Input
                     placeholder="https://..."
                     value={fotoUrl}
@@ -313,10 +355,33 @@ export default function GaleriaAdminPage() {
                   />
                   <Label htmlFor="foto-destacada">Foto destacada (aparece primero)</Label>
                 </div>
-                <Button onClick={handleAddFoto} disabled={isSavingFoto} className="w-full">
-                  {isSavingFoto ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-                  Agregar foto
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="upload-foto-input" className="w-full">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full"
+                      disabled={isUploadingFoto || !fotoCategoria}
+                    >
+                      <span>
+                        {isUploadingFoto ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                        {isUploadingFoto ? 'Subiendo...' : 'Subir desde dispositivo'}
+                      </span>
+                    </Button>
+                    <input
+                      id="upload-foto-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingFoto || !fotoCategoria}
+                      onChange={handleUploadFoto}
+                    />
+                  </label>
+                  <Button onClick={handleAddFoto} disabled={isSavingFoto || !fotoUrl.trim()} className="w-full">
+                    {isSavingFoto ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+                    Agregar por URL
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
