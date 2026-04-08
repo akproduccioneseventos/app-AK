@@ -13,7 +13,7 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSession, setSession } from '@/lib/auth';
 
-const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || 'ak2024';
+const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,7 +44,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setError('');
 
-    if (password !== APP_PASSWORD) {
+    if (!APP_PASSWORD || password !== APP_PASSWORD) {
       setError('Contraseña incorrecta.');
       setIsSubmitting(false);
       return;
