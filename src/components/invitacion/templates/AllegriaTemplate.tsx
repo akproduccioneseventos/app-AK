@@ -166,7 +166,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         : ["Familia", "Amigos", "Trabajo", "Otros"];
 
     return (
-        <div className={cn("font-body text-slate-900 bg-white selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
+        <div className={cn("font-body text-slate-900 bg-white w-full max-w-full overflow-x-hidden selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
             <section 
                 onClick={() => onSectionClick?.('cabecera')}
                 className="relative h-screen flex flex-col items-center justify-end pb-32 overflow-hidden"
