@@ -208,6 +208,7 @@ export default function GaleriaAdminPage() {
       const existingUrls = new Set(fotos.map(f => f.url));
       let added = 0;
       const newFotos: GaleriaFoto[] = [];
+      const makeId = () => `foto_catalog_${crypto.randomUUID().replace(/-/g, '').substring(0, 16)}`;
 
       // Sync service images
       for (const servicio of servicios) {
@@ -215,7 +216,7 @@ export default function GaleriaAdminPage() {
         if (imgUrl && !existingUrls.has(imgUrl)) {
           existingUrls.add(imgUrl);
           newFotos.push({
-            id: `foto_catalog_svc_${servicio.id}_${Date.now() + added}`,
+            id: makeId(),
             tipo: 'foto',
             url: imgUrl,
             titulo: servicio.nombre,
@@ -236,7 +237,7 @@ export default function GaleriaAdminPage() {
         if (menu.imageUrl && !existingUrls.has(menu.imageUrl)) {
           existingUrls.add(menu.imageUrl);
           newFotos.push({
-            id: `foto_catalog_menu_${menu.id}_${Date.now() + added}`,
+            id: makeId(),
             tipo: 'foto',
             url: menu.imageUrl,
             titulo: menu.name,
@@ -254,7 +255,7 @@ export default function GaleriaAdminPage() {
           if (item.imageUrl && !existingUrls.has(item.imageUrl)) {
             existingUrls.add(item.imageUrl);
             newFotos.push({
-              id: `foto_catalog_dish_${item.id}_${Date.now() + added}`,
+              id: makeId(),
               tipo: 'foto',
               url: item.imageUrl,
               titulo: item.name,
@@ -436,18 +437,18 @@ export default function GaleriaAdminPage() {
                 </div>
                 <div className="space-y-1">
                   <Label>Categoría *</Label>
-                  <Select value={fotoCategoria} onValueChange={setFotoCategoria}>
+                  <Select value={fotoCategoria} onValueChange={(v) => { if (v) setFotoCategoria(v); }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar categoría" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__base_header" disabled className="font-bold text-xs text-muted-foreground">— Categorías Base —</SelectItem>
+                      <p className="px-2 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Categorías Base</p>
                       {GALERIA_CATEGORIAS.map((cat) => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
-                      {servicioNames.length > 0 && (
+                      {servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any)).length > 0 && (
                         <>
-                          <SelectItem value="__service_header" disabled className="font-bold text-xs text-muted-foreground">— Servicios del Catálogo —</SelectItem>
+                          <p className="px-2 py-1 mt-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-t border-slate-100 pt-2">Servicios del Catálogo</p>
                           {servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any)).map((name) => (
                             <SelectItem key={name} value={name}>{name}</SelectItem>
                           ))}

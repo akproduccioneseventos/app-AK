@@ -506,10 +506,11 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       };
     }
 
-    // Generic fallback with the actual error for debugging
+    // Generic fallback - log error server-side, show generic message to user
+    console.error('[Asistente AK] Unhandled error type:', errorMessage);
     return {
       success: false,
-      error: `El asistente encontró un error inesperado. Por favor, intentá de nuevo. (${errorMessage.substring(0, 120)})`,
+      error: 'El asistente encontró un error inesperado. Por favor, intentá de nuevo o contactanos por WhatsApp al +59898355530.',
     };
   }
 }

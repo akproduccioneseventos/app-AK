@@ -18,6 +18,42 @@ import { getLandingSettings, saveLandingSettings } from '@/app/actions/landing-e
 import type { LandingSettings, LandingStatItem } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
 
+/**
+ * Sanitizes a URL to ensure it uses only http(s) protocol.
+ * Returns null if the URL is unsafe (e.g., javascript:).
+ */
+function sanitizeImageUrl(url: string): string | null {
+  if (!url || !url.trim()) return null;
+  try {
+    const parsed = new URL(url.trim());
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return parsed.href;
+    }
+  } catch {
+    // Invalid URL
+  }
+  return null;
+}
+
+/**
+ * Extract a hex color from a CSS color value (hex or rgba).
+ * Falls back to provided defaultHex if extraction fails.
+ */
+function extractHexColor(value: string, defaultHex: string): string {
+  if (!value) return defaultHex;
+  // Handle hex directly
+  if (/^#[0-9a-f]{3,6}$/i.test(value.trim())) return value.trim();
+  // Try to extract from rgba(r,g,b,...) by converting to hex
+  const rgbaMatch = value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbaMatch) {
+    const r = parseInt(rgbaMatch[1]).toString(16).padStart(2, '0');
+    const g = parseInt(rgbaMatch[2]).toString(16).padStart(2, '0');
+    const b = parseInt(rgbaMatch[3]).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  }
+  return defaultHex;
+}
+
 export default function LandingEditorPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<LandingSettings>(defaultLandingSettings);
@@ -216,10 +252,10 @@ export default function LandingEditorPage() {
                   placeholder="https://..."
                   className="rounded-xl"
                 />
-                {settings.hero.backgroundImageUrl && (
+                {settings.hero.backgroundImageUrl && sanitizeImageUrl(settings.hero.backgroundImageUrl) && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={settings.hero.backgroundImageUrl}
+                    src={sanitizeImageUrl(settings.hero.backgroundImageUrl)!}
                     alt="Vista previa del fondo"
                     className="mt-2 rounded-xl w-full h-40 object-cover border border-slate-200"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -394,7 +430,7 @@ export default function LandingEditorPage() {
                   <div className="flex gap-2 items-center">
                     <input
                       type="color"
-                      value={settings.colors.overlayFrom.replace(/[^#0-9a-f]/gi, '').substring(0, 7) || '#58007f'}
+                      value={extractHexColor(settings.colors.overlayFrom, '#58007f')}
                       onChange={e => updateColors('overlayFrom', e.target.value + 'cc')}
                       className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer"
                     />
@@ -411,7 +447,7 @@ export default function LandingEditorPage() {
                   <div className="flex gap-2 items-center">
                     <input
                       type="color"
-                      value={settings.colors.overlayTo.replace(/[^#0-9a-f]/gi, '').substring(0, 7) || '#7e007e'}
+                      value={extractHexColor(settings.colors.overlayTo, '#7e007e')}
                       onChange={e => updateColors('overlayTo', e.target.value + '99')}
                       className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer"
                     />
@@ -482,10 +518,10 @@ export default function LandingEditorPage() {
                   placeholder="https://..."
                   className="rounded-xl"
                 />
-                {settings.seo.ogImageUrl && (
+                {settings.seo.ogImageUrl && sanitizeImageUrl(settings.seo.ogImageUrl) && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={settings.seo.ogImageUrl}
+                    src={sanitizeImageUrl(settings.seo.ogImageUrl)!}
                     alt="Vista previa OG"
                     className="mt-2 rounded-xl w-full h-40 object-cover border border-slate-200"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
