@@ -607,39 +607,60 @@ function SimuladorContent() {
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-3xl print:shadow-none border-none rounded-[2.5rem] overflow-hidden">
-                        <CardHeader className="text-center bg-slate-50 p-6 sm:p-10 border-b border-slate-100">
-                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-slate-800">Resumen de Servicios</CardTitle>
+                    <Card className="shadow-3xl print:shadow-none border border-slate-200 rounded-[2.5rem] overflow-hidden bg-white">
+                        <CardHeader className="text-center bg-slate-800 p-6 sm:p-10 border-b border-slate-700">
+                            <div className="flex justify-center mb-4">
+                              <CompanyLogo size="sm" src={logoUrl || undefined} className="brightness-0 invert opacity-80" />
+                            </div>
+                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white">Presupuesto Estimado</CardTitle>
+                            <p className="text-slate-400 font-medium text-sm mt-2">AK Producciones Eventos — Salto, Uruguay</p>
                         </CardHeader>
                         <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
-                            <div className="border rounded-[2rem] overflow-x-auto shadow-sm print:border-slate-300">
+                            <div className="border border-slate-200 rounded-[2rem] overflow-x-auto print:border-slate-300">
                                 <Table>
                                     <TableHeader className="bg-slate-50">
-                                        <TableRow>
-                                            <TableHead className="font-black text-[10px] uppercase pl-8 py-4 min-w-[200px]">Artículo / Categoría</TableHead>
-                                            <TableHead className="text-center font-black text-[10px] uppercase">Cant.</TableHead>
-                                            <TableHead className="text-right pr-8 font-black text-[10px] uppercase min-w-[120px]">Subtotal</TableHead>
+                                        <TableRow className="border-slate-200">
+                                            <TableHead className="font-black text-[10px] uppercase pl-8 py-4 min-w-[200px] text-slate-600">Servicio / Categoría</TableHead>
+                                            {(budgetSettings.showIndividualPrices ?? true) && (
+                                              <>
+                                                <TableHead className="text-center font-black text-[10px] uppercase text-slate-600">Cant.</TableHead>
+                                                <TableHead className="text-right pr-8 font-black text-[10px] uppercase min-w-[120px] text-slate-600">Subtotal</TableHead>
+                                              </>
+                                            )}
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {Object.entries(stats.agrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
-                                                <TableRow className="bg-muted/30 border-y"><TableCell colSpan={3} className="font-black text-[10px] uppercase text-primary pl-8 tracking-widest py-2">{categoria}</TableCell></TableRow>
+                                                <TableRow className="bg-slate-50 border-y border-slate-200">
+                                                  <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 pl-8 tracking-widest py-2">{categoria}</TableCell>
+                                                </TableRow>
                                                 {items.map(item => (
-                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-50">
+                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
                                                         <TableCell className="pl-8 py-4">
                                                             <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
-                                                            <p className="text-[10px] text-muted-foreground uppercase font-medium">{formatCurrency(item.precioUnitario)} c/u</p>
+                                                            {(budgetSettings.showIndividualPrices ?? true) && (
+                                                              <p className="text-[10px] text-muted-foreground uppercase font-medium">{formatCurrency(item.precioUnitario)} c/u</p>
+                                                            )}
                                                         </TableCell>
-                                                        <TableCell className="text-center text-sm font-black text-slate-400">{item.cantidad}</TableCell>
-                                                        <TableCell className="text-right pr-8">
-                                                            {item.esRegalo ? (
-                                                                <div className="flex flex-col items-end">
-                                                                    <span className="text-[10px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
-                                                                    <span className="text-[10px] font-black text-green-600 tracking-tighter uppercase">Sin Costo</span>
-                                                                </div>
-                                                            ) : <span className="text-sm font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
-                                                        </TableCell>
+                                                        {(budgetSettings.showIndividualPrices ?? true) && (
+                                                          <>
+                                                            <TableCell className="text-center text-sm font-black text-slate-400">{item.cantidad}</TableCell>
+                                                            <TableCell className="text-right pr-8">
+                                                                {item.esRegalo ? (
+                                                                    <div className="flex flex-col items-end">
+                                                                        <span className="text-[10px] line-through text-slate-300 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                        <span className="text-[10px] font-black text-green-600 tracking-tighter uppercase">Sin Costo</span>
+                                                                    </div>
+                                                                ) : <span className="text-sm font-black text-slate-700">{formatCurrency(item.costoTotal)}</span>}
+                                                            </TableCell>
+                                                          </>
+                                                        )}
+                                                        {!(budgetSettings.showIndividualPrices ?? true) && item.esRegalo && (
+                                                          <TableCell className="text-right pr-8">
+                                                            <span className="text-[10px] font-black text-green-600 tracking-tighter uppercase">Sin Costo</span>
+                                                          </TableCell>
+                                                        )}
                                                     </TableRow>
                                                 ))}
                                             </React.Fragment>
@@ -648,33 +669,35 @@ function SimuladorContent() {
                                 </Table>
                             </div>
                             
-                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-900 text-white rounded-[3rem] shadow-2xl">
-                                <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
-                                    <span>Valor Real Servicios:</span>
-                                    <span>{formatCurrency(stats.subtotalBruto)}</span>
-                                </div>
+                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-800 text-white rounded-[2rem] shadow-xl border border-slate-700">
+                                {(budgetSettings.showIndividualPrices ?? true) && (
+                                  <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                                      <span>Subtotal Servicios:</span>
+                                      <span>{formatCurrency(stats.subtotalBruto)}</span>
+                                  </div>
+                                )}
                                 {stats.ahorroRegalos > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black text-green-400 uppercase tracking-[0.3em]">
-                                        <span>Ahorro Regalos:</span>
+                                    <div className="flex justify-between items-center text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">
+                                        <span>Ahorro Regalos Incluidos:</span>
                                         <span>-{formatCurrency(stats.ahorroRegalos)}</span>
                                     </div>
                                 )}
                                 {stats.descPromo > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-rose-400 tracking-widest">
-                                        <span>Bonificación Promo (10%):</span>
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400 tracking-widest">
+                                        <span>Bonificación Especial (10%):</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
                                     </div>
                                 )}
                                 {stats.ajusteAnual > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400 tracking-widest">
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-blue-400 tracking-widest">
                                         <span>Ajuste Anual ({stats.aniosDiferencia} añ.):</span>
                                         <span>+{formatCurrency(stats.ajusteAnual)}</span>
                                     </div>
                                 )}
                                 <Separator className="bg-white/10" />
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-sm font-black uppercase tracking-tighter">Presupuesto Estimado:</span>
-                                    <span className="text-3xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(stats.totalFinal)}</span>
+                                    <span className="text-sm font-black uppercase tracking-tighter text-white">Total Estimado:</span>
+                                    <span className="text-3xl font-black text-white">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -722,11 +745,11 @@ function SimuladorContent() {
             </div>
 
             <Card className="w-full max-w-3xl shadow-3xl rounded-[3rem] overflow-hidden border-none bg-white">
-                <CardHeader className="text-center bg-primary/5 p-6 sm:p-10 border-b border-primary/10">
+                <CardHeader className="text-center bg-slate-50 p-6 sm:p-10 border-b border-slate-200">
                     <div className="flex justify-center mb-4">
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
                     </div>
-                    <Wand2 className="w-12 h-12 mx-auto text-primary mb-4 animate-pulse"/>
+                    <Wand2 className="w-12 h-12 mx-auto text-slate-600 mb-4"/>
                     <CardTitle className="font-headline text-3xl sm:text-5xl font-black uppercase tracking-tighter text-slate-900 leading-tight">Tu Gran Evento</CardTitle>
                     <CardDescription className="text-base sm:text-xl font-bold text-slate-400 uppercase tracking-widest mt-2">Paso {step} de 3: {['Tus Datos', 'El Menú', 'El Paquete'][step-1]}</CardDescription>
                     <div className="mt-8">

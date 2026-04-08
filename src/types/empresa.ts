@@ -116,4 +116,5 @@ export interface ServicioEmpresa {
   cantidad?: number; // Fixed quantity to charge
 
   contactoPrincipal?: string;
+  imageUrl?: string; // URL de imagen representativa del servicio (para galería)
 }

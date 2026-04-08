@@ -42,7 +42,10 @@ import {
   Wallet,
   Calculator,
   TrendingUp,
-  Megaphone
+  Megaphone,
+  MessageSquare,
+  Layout,
+  Globe
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -285,7 +288,15 @@ export function MainNav() {
                 <Link href="/simulador-de-presupuesto">
                   <SidebarMenuButton isActive={isActive("/simulador-de-presupuesto")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/simulador-de-presupuesto") ? "bg-amber-50 text-amber-700" : "text-slate-500 hover:bg-amber-50/60 hover:text-amber-600")}>
                     <Wand2 className="w-4 h-4 text-amber-500" />
-                    <span className="ml-2">Simulador IA</span>
+                    <span className="ml-2">Simulador Presupuesto</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/simulador-ak">
+                  <SidebarMenuButton isActive={isActive("/simulador-ak")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/simulador-ak") ? "bg-violet-50 text-violet-700" : "text-slate-500 hover:bg-violet-50/60 hover:text-violet-600")}>
+                    <MessageSquare className="w-4 h-4 text-violet-500" />
+                    <span className="ml-2">Simulador Chat AK</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -306,10 +317,26 @@ export function MainNav() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Link href="/compras">
-                  <SidebarMenuButton isActive={isActive("/compras")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/compras") ? "bg-slate-100 text-slate-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700")}>
-                    <ShoppingCart className="w-4 h-4 text-slate-400" />
-                    <span className="ml-2">Insumos</span>
+                <Link href="/empresa/galeria">
+                  <SidebarMenuButton isActive={isActive("/empresa/galeria")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/empresa/galeria") ? "bg-pink-50 text-pink-700" : "text-slate-500 hover:bg-pink-50/60 hover:text-pink-600")}>
+                    <Camera className="w-4 h-4 text-pink-500" />
+                    <span className="ml-2">Galería</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/landing-editor">
+                  <SidebarMenuButton isActive={isActive("/empresa/landing-editor")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/empresa/landing-editor") ? "bg-cyan-50 text-cyan-700" : "text-slate-500 hover:bg-cyan-50/60 hover:text-cyan-600")}>
+                    <Layout className="w-4 h-4 text-cyan-500" />
+                    <span className="ml-2">Editor Landing</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/landing" target="_blank">
+                  <SidebarMenuButton className="h-10 rounded-xl font-bold text-xs text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all duration-300">
+                    <Globe className="w-4 h-4 text-slate-400" />
+                    <span className="ml-2">Ver Landing Pública</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
