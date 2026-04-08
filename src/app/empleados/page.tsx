@@ -32,15 +32,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "N/A";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit', month: '2-digit', year: 'numeric'
-    });
-  } catch (e) { return "Fecha Inválida"; }
-};
-
 const formatEventDate = (fechaEvento?: string) => {
   if (!fechaEvento) return 'Sin fecha';
   return new Date(fechaEvento + 'T00:00:00').toLocaleDateString('es-UY', {
