@@ -4,6 +4,19 @@
 
 export const SESSION_KEY = 'ak_producciones_auth_session';
 
+/** Available application modules for role-based access control. */
+export const APP_MODULES = [
+  { id: 'presupuestos',      label: 'Presupuestos' },
+  { id: 'fiestas',           label: 'Fiestas / Eventos' },
+  { id: 'carga-operativa',   label: 'Carga Operativa' },
+  { id: 'calendario',        label: 'Calendario' },
+  { id: 'proveedores',       label: 'Proveedores' },
+  { id: 'empleados',         label: 'Empleados' },
+  { id: 'customers',         label: 'Clientes' },
+  { id: 'empresa',           label: 'Empresa' },
+  { id: 'invoices',          label: 'Facturación' },
+] as const;
+
 /**
  * Returns true if there is an active session in localStorage or sessionStorage.
  */

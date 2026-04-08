@@ -60,6 +60,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
+    // Exact-path public routes (not prefix-based to avoid matching /eventos admin page)
+    if (pathname === '/evento' || pathname === '/evento/') isPublic = true;
+
     // Budget view pages require a share token in the URL to be accessed publicly.
     if (!isPublic) {
       const budgetRegex = /^\/presupuestos\/[^/]+\/ver\/?$/;
