@@ -469,8 +469,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       errorMessage.includes('GOOGLE_API_KEY') ||
       errorMessage.includes('403') ||
       errorMessage.includes('Forbidden') ||
-      errorMessage.includes('denied access') ||
-      errorMessage.includes('generativelanguage.googleapis.com')
+      errorMessage.includes('denied access')
     ) {
       return {
         success: false,
