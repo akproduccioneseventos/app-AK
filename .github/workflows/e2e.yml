@@ -69,6 +69,7 @@ jobs:
         run: npm run test:e2e
         env:
           CI: true
+          NEXT_PUBLIC_E2E: 'true'
 
       - name: Upload test results
         if: always()

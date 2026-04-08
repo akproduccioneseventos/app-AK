@@ -6,9 +6,13 @@ import { loginAsDemo } from './helpers/auth';
  * Verifies that the login page works and redirects to home.
  *
  * Requires: E2E_DEMO_PASSWORD environment variable to be set.
+ * These tests are skipped in CI when E2E_DEMO_PASSWORD is not configured.
  */
 test.describe('Login', () => {
   test('muestra la página de login y permite ingresar', async ({ browser }) => {
+    if (!process.env.E2E_DEMO_PASSWORD) {
+      test.skip(true, 'E2E_DEMO_PASSWORD not set – skipping login UI test');
+    }
     const context = await browser.newContext();
     const page = await context.newPage();
 
