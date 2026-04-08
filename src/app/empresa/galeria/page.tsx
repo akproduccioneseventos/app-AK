@@ -208,7 +208,12 @@ export default function GaleriaAdminPage() {
       const existingUrls = new Set(fotos.map(f => f.url));
       let added = 0;
       const newFotos: GaleriaFoto[] = [];
-      const makeId = () => `foto_catalog_${crypto.randomUUID().replace(/-/g, '').substring(0, 16)}`;
+      const makeId = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+          return `foto_catalog_${crypto.randomUUID().replace(/-/g, '').substring(0, 16)}`;
+        }
+        return `foto_catalog_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
+      };
 
       // Sync service images
       for (const servicio of servicios) {

@@ -84,7 +84,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
           'divide-x-0 md:divide-x divide-y md:divide-y-0 divide-white/10'
         )}>
           {displayStats.map((s, i) => (
-            <StatCard key={`${s.label}-${i}`} {...s} active={active} />
+            <StatCard key={`stat-${s.label}-${i}`} {...s} active={active} />
           ))}
         </div>
       </div>
