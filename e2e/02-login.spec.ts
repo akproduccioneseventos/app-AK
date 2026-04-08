@@ -18,8 +18,7 @@ test.describe('Login', () => {
 
     await page.goto('/login');
 
-    // Login form should be visible (email + password fields)
-    await expect(page.locator('[data-testid="login-email"]')).toBeVisible();
+    // Login form should be visible (only password field in simple auth)
     await expect(page.locator('[data-testid="login-password"]')).toBeVisible();
     await expect(page.locator('[data-testid="login-submit"]')).toBeVisible();
 
@@ -37,12 +36,11 @@ test.describe('Login', () => {
     const page = await context.newPage();
 
     await page.goto('/login');
-    await page.waitForSelector('[data-testid="login-email"]', { timeout: 15_000 });
-    await page.fill('[data-testid="login-email"]', 'akproduccionessalto@gmail.com');
+    await page.waitForSelector('[data-testid="login-password"]', { timeout: 15_000 });
     await page.fill('[data-testid="login-password"]', 'contraseña-incorrecta');
     await page.click('[data-testid="login-submit"]');
 
-    // Should show error message — may be auth error or server/connection error in CI
+    // Should show error message
     const errorMsg = page.locator('p.text-destructive, p[class*="destructive"], [role="alert"], .text-destructive');
     await expect(errorMsg).toBeVisible({ timeout: 15_000 });
 
