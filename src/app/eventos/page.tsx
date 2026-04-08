@@ -56,17 +56,22 @@ export default function GestorFiestasPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [kpiResult, activas, archivadas] = await Promise.all([
-        getDashboardKpiData(),
+      let kpiResult: Awaited<ReturnType<typeof getDashboardKpiData>> | undefined;
+      try {
+        kpiResult = await getDashboardKpiData();
+      } catch {
+        kpiResult = undefined;
+      }
+
+      const [activas, archivadas] = await Promise.all([
         getFiestas(false),
         getHistorialFiestas()
       ]);
 
-      if (kpiResult.success && kpiResult.data) {
+      if (kpiResult?.success && kpiResult?.data) {
         setKpiData(kpiResult.data);
-      } else {
-        throw new Error(kpiResult.error || "No se pudieron cargar los datos del panel.");
       }
+      // KPI failure doesn't block fiesta loading
       
       setFiestasActivas(activas);
       setFiestasArchivadas(archivadas);

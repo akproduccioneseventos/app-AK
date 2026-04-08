@@ -14,8 +14,6 @@ export interface Service {
   label: string;
   emoji: string;
   imageUrl?: string;      // Optional photo for service card
-  canvaLink?: string;     // Canva catalog link
-  driveLink?: string;     // Google Drive link
   description: string;
   specs: string[];        // Bullet-point specifications
 }
@@ -72,10 +70,6 @@ export const SERVICES: Service[] = [
     id: 'catering',
     label: 'Catering',
     emoji: '🍽️',
-    // TODO: Replace with real Canva link
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
-    // TODO: Replace with real Drive link
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
     description:
       'Menú diseñado a medida con ingredientes frescos y servicio de mozos profesionales. Lo que sobra, se devuelve.',
     specs: [
@@ -91,8 +85,6 @@ export const SERVICES: Service[] = [
     id: 'decoracion',
     label: 'Decoración',
     emoji: '🎀',
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Ambientación completa y personalizada según el tema elegido: flores, telas, globos, iluminación decorativa y más.',
     specs: [
@@ -108,8 +100,6 @@ export const SERVICES: Service[] = [
     id: 'discoteca',
     label: 'Discoteca / Iluminación',
     emoji: '🎶',
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'DJ profesional con equipo de sonido de alta calidad e iluminación show para mantener la pista encendida toda la noche.',
     specs: [
@@ -125,8 +115,6 @@ export const SERVICES: Service[] = [
     id: 'foto-video',
     label: 'Foto / Video',
     emoji: '📸',
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Cobertura fotográfica y fílmica completa del evento para que cada momento quede registrado en alta calidad.',
     specs: [
@@ -142,8 +130,6 @@ export const SERVICES: Service[] = [
     id: 'barra',
     label: 'Barra',
     emoji: '🍹',
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Barra completa con barman profesional, cócteles de autor, bebidas alcohólicas y sin alcohol durante todo el evento.',
     specs: [
@@ -159,8 +145,6 @@ export const SERVICES: Service[] = [
     id: 'shows',
     label: 'Shows',
     emoji: '🎭',
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Espectáculos en vivo para sorprender a tus invitados: bandas, animadores, shows de magia, circo, y más.',
     specs: [
@@ -176,8 +160,6 @@ export const SERVICES: Service[] = [
     id: 'coordinacion',
     label: 'Coordinación',
     emoji: '📋',
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Un coordinador dedicado para que el día del evento vos no tengas que preocuparte por nada. Gestión total.',
     specs: [
@@ -193,8 +175,6 @@ export const SERVICES: Service[] = [
     id: 'mobiliario',
     label: 'Mobiliario',
     emoji: '🪑',
-    canvaLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
-    driveLink: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
     description:
       'Mesas, sillas, lounge y elementos de salón en distintos estilos para complementar la ambientación de tu evento.',
     specs: [

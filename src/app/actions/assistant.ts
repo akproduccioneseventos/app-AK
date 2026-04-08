@@ -461,16 +461,21 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     };
   } catch (error: any) {
     const errorMessage: string = error.message || '';
+    const friendlyUnavailableMsg =
+      'El asistente no está disponible en este momento. Por favor, usá el simulador de presupuesto o contactanos por WhatsApp al 59898355530.';
     if (
       (errorMessage.includes('FAILED_PRECONDITION') && errorMessage.includes('API key')) ||
       errorMessage.includes('GEMINI_API_KEY') ||
-      errorMessage.includes('GOOGLE_API_KEY')
+      errorMessage.includes('GOOGLE_API_KEY') ||
+      errorMessage.includes('403') ||
+      errorMessage.includes('Forbidden') ||
+      errorMessage.includes('denied access')
     ) {
       return {
         success: false,
-        error: 'El Asistente IA no está configurado todavía. El administrador necesita configurar la API key de Google Gemini. Mientras tanto, podés usar las otras funciones de la app normalmente.',
+        error: friendlyUnavailableMsg,
       };
     }
-    return { success: false, error: errorMessage || 'Error al procesar el mensaje' };
+    return { success: false, error: friendlyUnavailableMsg };
   }
 }
