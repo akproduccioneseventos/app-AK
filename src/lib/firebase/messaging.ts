@@ -83,12 +83,24 @@ async function saveFcmTokenToFirestore(token: string, userId?: string): Promise<
   }
 }
 
+export interface FcmMessagePayload {
+  notification?: {
+    title?: string;
+    body?: string;
+    image?: string;
+  };
+  data?: Record<string, string>;
+  from?: string;
+  collapseKey?: string;
+  messageId?: string;
+}
+
 /**
  * Register a foreground message listener.
  * Returns an unsubscribe function.
  */
 export async function onForegroundMessage(
-  handler: (payload: any) => void
+  handler: (payload: FcmMessagePayload) => void
 ): Promise<() => void> {
   const messaging = await getMessagingInstance();
   if (!messaging) return () => {};
