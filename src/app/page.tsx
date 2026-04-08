@@ -155,7 +155,7 @@ export default function MainDashboardPage() {
                 <span>{greetingEmoji}</span> {greeting}, AK Producciones
               </p>
             )}
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tighter text-slate-900">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter text-slate-900 whitespace-nowrap">
                 Panel de <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent italic">Control</span>
             </h1>
             <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base">

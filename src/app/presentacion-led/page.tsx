@@ -23,7 +23,9 @@ import {
   Users,
   Zap,
   Package,
-  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  ListChecks,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,29 +33,52 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { SERVICES } from '@/data/presentacion';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { CompanyInfo } from '@/types/settings';
 import { cn } from '@/lib/utils';
 
-// Canva catalog links per service category
-const CANVA_LINKS: Record<string, string> = {
-  catering: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
-  bebida: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
-  barra: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
-  repostería: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering',
-  boda: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas',
-  'xv años': 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web',
-  'xv': 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web',
-  default: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web',
-};
+// In-app catalog specs per service category (from presentacion.ts data)
+function getCatalogSpecsForService(categoria?: string, nombre?: string): string[] {
+  if (!categoria && !nombre) return [];
+  const lower = (categoria ?? '').toLowerCase();
+  const nombreLower = (nombre ?? '').toLowerCase();
 
-function getCanvaLinkForService(categoria?: string): string {
-  if (!categoria) return CANVA_LINKS.default;
-  const lower = categoria.toLowerCase();
-  for (const [key, link] of Object.entries(CANVA_LINKS)) {
-    if (key !== 'default' && lower.includes(key)) return link;
+  const match = SERVICES.find(s => {
+    const sLabel = s.label.toLowerCase();
+    const sId = s.id.toLowerCase();
+    return lower.includes(sId) || lower.includes(sLabel) ||
+      nombreLower.includes(sId) || nombreLower.includes(sLabel);
+  });
+
+  if (match) return match.specs;
+
+  // Fallback by keyword
+  if (lower.includes('cater') || lower.includes('comida') || lower.includes('menú')) {
+    return SERVICES.find(s => s.id === 'catering')?.specs ?? [];
   }
-  return CANVA_LINKS.default;
+  if (lower.includes('decor')) {
+    return SERVICES.find(s => s.id === 'decoracion')?.specs ?? [];
+  }
+  if (lower.includes('dj') || lower.includes('music') || lower.includes('sonid') || lower.includes('iluminac')) {
+    return SERVICES.find(s => s.id === 'discoteca')?.specs ?? [];
+  }
+  if (lower.includes('foto') || lower.includes('video') || lower.includes('film')) {
+    return SERVICES.find(s => s.id === 'foto-video')?.specs ?? [];
+  }
+  if (lower.includes('barra') || lower.includes('bar') || lower.includes('bebida')) {
+    return SERVICES.find(s => s.id === 'barra')?.specs ?? [];
+  }
+  if (lower.includes('show') || lower.includes('animac')) {
+    return SERVICES.find(s => s.id === 'shows')?.specs ?? [];
+  }
+  if (lower.includes('coord')) {
+    return SERVICES.find(s => s.id === 'coordinacion')?.specs ?? [];
+  }
+  if (lower.includes('mobil') || lower.includes('silla') || lower.includes('mesa')) {
+    return SERVICES.find(s => s.id === 'mobiliario')?.specs ?? [];
+  }
+  return [];
 }
 
 // ---- Security helpers ----
@@ -239,6 +264,8 @@ function ServiceSlide({
   mostrarPrecios: boolean;
 }) {
   const price = mostrarPrecios ? formatPrice(servicio) : null;
+  const [showCatalog, setShowCatalog] = useState(false);
+  const specs = getCatalogSpecsForService(servicio.categoria, servicio.nombre);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-8 py-12">
@@ -329,16 +356,45 @@ function ServiceSlide({
             </div>
             {isSelected ? '¡Le interesa!' : 'Marcar como interesado'}
           </button>
-          <a
-            href={getCanvaLinkForService(servicio.categoria)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-8 py-4 rounded-2xl text-lg font-bold border-2 bg-indigo-500/30 border-indigo-400/60 text-white/90 hover:bg-indigo-500/50 transition-all duration-200"
-          >
-            <ExternalLink className="h-5 w-5" />
-            Ver Catálogo
-          </a>
+          {specs.length > 0 && (
+            <button
+              onClick={() => setShowCatalog(v => !v)}
+              className="flex items-center gap-2 px-8 py-4 rounded-2xl text-lg font-bold border-2 bg-indigo-500/30 border-indigo-400/60 text-white/90 hover:bg-indigo-500/50 transition-all duration-200"
+            >
+              <ListChecks className="h-5 w-5" />
+              {showCatalog ? 'Ocultar detalles' : 'Ver qué incluye'}
+              {showCatalog ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+          )}
         </motion.div>
+
+        {/* In-app catalog panel */}
+        <AnimatePresence>
+          {showCatalog && specs.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="mt-6 w-full max-w-2xl mx-auto"
+            >
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6">
+                <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                  <ListChecks className="h-5 w-5 text-indigo-300" />
+                  ¿Qué incluye {servicio.nombre}?
+                </h3>
+                <ul className="space-y-2">
+                  {specs.map((spec, i) => (
+                    <li key={i} className="flex items-start gap-3 text-white/85 text-base">
+                      <Check className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{spec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Progress indicator */}
