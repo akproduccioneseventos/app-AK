@@ -121,7 +121,11 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
   }
 
   // Fallback to JSON
-  return readJsonData<T>(filePath, defaultValue);
+  try {
+    return await readJsonData<T>(filePath, defaultValue);
+  } catch {
+    return defaultValue;
+  }
 }
 
 /**
@@ -135,7 +139,12 @@ export async function writeData<T>(
   const db = await getFirestoreDb();
 
   // Always write to JSON (primary source of truth until full migration)
-  await writeJsonData(filePath, data, sortFn);
+  try {
+    await writeJsonData(filePath, data, sortFn);
+  } catch (err) {
+    console.warn(`⚠️ JSON file write failed for ${filePath} (read-only filesystem?):`, err);
+    // Continue to Firestore write below
+  }
 
   // Also write to Firestore if available
   if (db) {

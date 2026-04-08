@@ -47,11 +47,14 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+        env:
+          NEXT_PUBLIC_E2E: 'true'
 
       - name: Start production server (background)
         run: npm run start &
         env:
           PORT: 3000
+          NEXT_PUBLIC_E2E: 'true'
 
       - name: Wait for server to be ready
         run: |
