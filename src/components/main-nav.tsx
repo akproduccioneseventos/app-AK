@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -45,15 +46,30 @@ import {
   Megaphone,
   MessageSquare,
   Layout,
-  Globe
+  Globe,
+  Bell,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
+import { getAlertasGlobalesConLeidas } from "@/app/actions/alertas.actions";
 
 export function MainNav() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname.startsWith(path);
   const isExactly = (path: string) => pathname === path;
+  const [alertCount, setAlertCount] = useState(0);
+  const prevPathname = React.useRef('');
+
+  useEffect(() => {
+    // Only fetch when mounting or when navigating away from the alerts page
+    const wasOnAlertas = prevPathname.current === '/alertas';
+    prevPathname.current = pathname;
+    if (alertCount === 0 || wasOnAlertas) {
+      getAlertasGlobalesConLeidas()
+        .then(alertas => setAlertCount(alertas.filter(a => !a.leida).length))
+        .catch(() => {});
+    }
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Sidebar className="border-r border-indigo-100/50 bg-white/98 backdrop-blur-xl shadow-[10px_0_40px_rgba(79,70,229,0.04)]">
@@ -347,6 +363,25 @@ export function MainNav() {
       </SidebarContent>
       <SidebarFooter className="p-5 space-y-3">
         <SidebarMenu>
+          <SidebarMenuItem>
+            <Link href="/alertas">
+              <SidebarMenuButton
+                isActive={isActive("/alertas")}
+                className={cn(
+                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em] relative",
+                    isActive("/alertas") ? "bg-red-600 text-white shadow-lg" : "text-slate-400 hover:bg-red-50 hover:text-red-600"
+                )}
+              >
+                <Bell className="w-4 h-4" />
+                <span className="ml-2">Alertas</span>
+                {alertCount > 0 && (
+                  <span className="absolute right-3 top-2 min-w-[18px] h-[18px] bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1 shadow">
+                    {alertCount > 99 ? '99+' : alertCount}
+                  </span>
+                )}
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <Link href="/settings">
               <SidebarMenuButton 
