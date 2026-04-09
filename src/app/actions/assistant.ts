@@ -75,6 +75,22 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     // finalResponse starts as the AI response; budget/import actions will replace it with verified data
     let finalResponse = result.response;
 
+    // Helper: build a verified response message from a saved presupuesto result
+    function buildBudgetResponseMessage(
+      pres: { numero?: number; clienteNombre: string; id: string; itemsPresupuestados?: any[]; totalConDescuento?: number; costoTotalEstimado?: number },
+      verb: string,
+      editPath: string,
+      extra?: string
+    ): string {
+      const itemCount = pres.itemsPresupuestados?.length ?? 0;
+      const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
+      const href = `/presupuestos/${pres.id}/ver`;
+      if (itemCount > 0) {
+        return `✅ ${verb} el presupuesto **#${pres.numero}** para **${pres.clienteNombre}** con **${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}** y total **$${total.toLocaleString('es-UY')}**. Podés verlo acá: ${href}${extra ?? ''}`;
+      }
+      return `⚠️ ${verb.charAt(0).toUpperCase() + verb.slice(1)} el presupuesto **#${pres.numero}** para **${pres.clienteNombre}**, pero quedó **sin servicios**. Podés editarlo manualmente para completarlo: ${editPath}${extra ?? ''}`;
+    }
+
     if (result.action?.type === 'create_customer' && result.action.data) {
       const customerResult = await saveCustomer(result.action.data);
       actionResult = customerResult;
@@ -126,11 +142,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
         const href = `/presupuestos/${pres.id}/ver`;
         actionResult = { ...budgetResult, itemCount, total, href };
-        if (itemCount > 0) {
-          finalResponse = `✅ Se creó el presupuesto **#${pres.numero}** para **${pres.clienteNombre}** con **${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}** y total **$${total.toLocaleString('es-UY')}**. Podés verlo acá: ${href}`;
-        } else {
-          finalResponse = `⚠️ Se creó el presupuesto **#${pres.numero}** para **${pres.clienteNombre}**, pero quedó **sin servicios** porque no pude estructurar los items desde los datos proporcionados. Podés editarlo y agregar los servicios manualmente: /presupuestos/${pres.id}/editar`;
-        }
+        finalResponse = buildBudgetResponseMessage(pres, 'Se creó', `/presupuestos/${pres.id}/editar`);
       } else {
         actionResult = budgetResult;
         finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
@@ -213,15 +225,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           const itemCount = pres.itemsPresupuestados?.length ?? 0;
           const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
           const href = `/presupuestos/${pres.id}/ver`;
+          const eventoExtra = fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '';
           actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
-          if (itemCount > 0) {
-            finalResponse = `✅ Se importó el presupuesto **#${pres.numero}** para **${pres.clienteNombre}** con **${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}** y total **$${total.toLocaleString('es-UY')}**. Podés verlo acá: ${href}` +
-              (fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '') +
-              (importedItems.length === 0 && d.totalMonto ? `\n\n⚠️ Nota: no se detectaron servicios individuales en el archivo — se registró solo el total general.` : '');
-          } else {
-            finalResponse = `⚠️ Se creó un borrador **#${pres.numero}** para **${pres.clienteNombre}**, pero quedó **sin servicios** porque no pude extraer los items del archivo. Total extraído: $${d.totalMonto?.toLocaleString('es-UY') ?? 0}. Podés editarlo manualmente para completarlo: /presupuestos/${pres.id}/editar` +
-              (fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '');
-          }
+          finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra);
         } else {
           actionResult = { success: false, error: budgetResult.error };
           finalResponse = `❌ No se pudo importar el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o subí el archivo nuevamente.`;
