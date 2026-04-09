@@ -25,7 +25,7 @@ function generarTimelineDesdeTemplate(fiesta: FiestaEnPlanificacion): TimelineHi
       id: t.id,
       nombre: t.nombre,
       emoji: t.emoji,
-      fechaProgramada: fecha.toISOString().split('T')[0],
+      fechaProgramada: fecha.toISOString().substring(0, 10),
       completado: false,
     };
   });
@@ -169,7 +169,10 @@ export default function TimelinePage() {
                             </Badge>
                           </div>
                           <p className="text-xs text-slate-400 mt-0.5">
-                            {new Date(hito.fechaProgramada + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+                            {(() => {
+                              const [year, month, day] = hito.fechaProgramada.split('-').map(Number);
+                              return new Date(year, month - 1, day).toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+                            })()}
                           </p>
                           {hito.completado && hito.fechaCompletado && (
                             <p className="text-xs text-green-600 mt-0.5">

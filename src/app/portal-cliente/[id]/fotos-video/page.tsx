@@ -30,7 +30,7 @@ export default function FotosVideoPortalPage() {
 
   useEffect(() => {
     const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
-    if (!accessKey) { router.replace(`/portal-cliente/${fiestaId}`); return; }
+    if (!accessKey) { sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId); router.replace(`/portal-cliente/${fiestaId}`); return; }
     getFiestaByAccessKey(fiestaId, accessKey)
       .then(data => {
         if (!data) { setError('Evento no encontrado.'); return; }
