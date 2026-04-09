@@ -609,14 +609,17 @@ export default function GaleriaAdminPage() {
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
                   />
-                  {videoUrl && extractYoutubeId(videoUrl) && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`https://img.youtube.com/vi/${extractYoutubeId(videoUrl)}/mqdefault.jpg`}
-                      alt="Vista previa del video de YouTube"
-                      className="mt-2 rounded-lg w-full aspect-video object-cover"
-                    />
-                  )}
+                  {videoUrl && (() => {
+                    const ytId = extractYoutubeId(videoUrl);
+                    return ytId ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`https://img.youtube.com/vi/${encodeURIComponent(ytId)}/mqdefault.jpg`}
+                        alt="Vista previa del video de YouTube"
+                        className="mt-2 rounded-lg w-full aspect-video object-cover"
+                      />
+                    ) : null;
+                  })()}
                 </div>
                 <div className="space-y-1">
                   <Label>Título *</Label>
