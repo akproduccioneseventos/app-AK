@@ -165,8 +165,11 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const archiveLead = formData.get('archiveLead') === 'true';
 
     if (!leadId || !presupuestoId) throw new Error('Datos incompletos.');
-    if (!contractFile || contractFile.type !== 'application/pdf') {
-      throw new Error('El contrato firmado (PDF) es obligatorio.');
+
+    // Validate file only if one was provided
+    const hasFile = contractFile && contractFile.size > 0;
+    if (hasFile && contractFile.type !== 'application/pdf') {
+      throw new Error('El archivo de contrato debe ser un PDF.');
     }
 
     const [leads, presupuesto, stages] = await Promise.all([
@@ -179,19 +182,23 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     if (!lead || !presupuesto) throw new Error('Datos no encontrados');
     const conversionStage = stages.find(s => s.isConversionStage);
 
-    // 1. Save contract file
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-    const contractsDir = path.join(DATA_DIR, 'contracts');
-    try { await fs.access(contractsDir); } catch { await fs.mkdir(contractsDir, { recursive: true }); }
-    
-    const contractFileName = `contrato_${lead.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
-    const contractFilePath = path.join(contractsDir, contractFileName);
-    const arrayBuffer = await contractFile.arrayBuffer();
-    await fs.writeFile(contractFilePath, Buffer.from(arrayBuffer));
+    let contractFileName: string | undefined;
 
-    // 2. Create Customer with contract linked and full data from lead + budget
+    // 1. Save contract file if provided
+    if (hasFile) {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+      const contractsDir = path.join(DATA_DIR, 'contracts');
+      try { await fs.access(contractsDir); } catch { await fs.mkdir(contractsDir, { recursive: true }); }
+
+      contractFileName = `contrato_${lead.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
+      const contractFilePath = path.join(contractsDir, contractFileName);
+      const arrayBuffer = await contractFile!.arrayBuffer();
+      await fs.writeFile(contractFilePath, Buffer.from(arrayBuffer));
+    }
+
+    // 2. Create Customer with full data from lead + budget
     //    Skip automatic fiesta creation - we create the fiesta manually below with budget data
     const customerResult = await saveCustomer({
       name: lead.name,
@@ -203,7 +210,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       partyType: presupuesto.eventoTipo,
       venueName: presupuesto.salonFiestas,
       guestCount: presupuesto.invitadosCantidad,
-      contractFileName: contractFileName,
+      ...(contractFileName ? { contractFileName } : {}),
       presupuestoId: presupuesto.id,
     } as any, { skipFiestaCreation: true });
 
@@ -234,7 +241,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 5. Update Presupuesto
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
 
-    // 6. Update lead: link contract file; optionally move to conversion stage
+    // 6. Update lead: optionally link contract file and move to conversion stage
     {
       const currentLeads = await getCrmLeads();
       const leadIdx = currentLeads.findIndex(l => l.id === leadId);
@@ -242,14 +249,16 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
         if (archiveLead && conversionStage) {
           currentLeads[leadIdx].currentStageId = conversionStage.id;
         }
-        (currentLeads[leadIdx] as any).contractFileName = contractFileName;
+        if (contractFileName) {
+          (currentLeads[leadIdx] as any).contractFileName = contractFileName;
+        }
         currentLeads[leadIdx].updatedAt = new Date().toISOString();
         await writeData(LEADS_FILE, currentLeads);
       }
     }
 
     await createNotification({
-      mensaje: `¡Contratación Confirmada! ${lead.name} es ahora cliente. Contrato vinculado.`,
+      mensaje: `¡Contratación Confirmada! ${lead.name} es ahora cliente. ${contractFileName ? 'Contrato vinculado.' : 'El borrador del contrato está listo para revisar.'}`,
       href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,
       icono: 'PartyPopper'
     });

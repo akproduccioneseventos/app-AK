@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -12,12 +11,13 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { CheckCircle, Loader2, PartyPopper, Calendar, MapPin, DollarSign, FileText, AlertCircle, Upload, Archive } from 'lucide-react';
+import { CheckCircle, Loader2, PartyPopper, Calendar, MapPin, DollarSign, FileText, AlertCircle, Upload, Archive, FileSignature, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { confirmBookingWithContract } from '@/app/actions/crm';
 import type { CrmLead } from '@/types/crm';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Props {
   isOpen: boolean;
@@ -63,25 +63,25 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
 
   const handleConfirm = async () => {
     if (!lead.presupuestoId) return;
-    
-    if (!contractFile) {
-      setFileError('El contrato firmado (PDF) es obligatorio para confirmar la contratación.');
-      return;
-    }
 
     setIsProcessing(true);
     try {
-      // Create FormData with the contract file
       const formData = new FormData();
       formData.append('leadId', lead.id);
       formData.append('presupuestoId', lead.presupuestoId);
-      formData.append('contract', contractFile);
+      if (contractFile) {
+        formData.append('contract', contractFile);
+      }
       formData.append('archiveLead', archiveLead ? 'true' : 'false');
 
       const result = await confirmBookingWithContract(formData);
       if (result.success && result.fiestaId) {
-        toast({ title: "¡Contratación Exitosa!", description: "Se ha creado el cliente, vinculado el contrato y activado el evento automáticamente." });
-        // Reset state
+        toast({
+          title: "¡Contratación Exitosa!",
+          description: contractFile
+            ? "Se ha creado el cliente, vinculado el contrato y activado el evento automáticamente."
+            : "Se ha creado el cliente y activado el evento. Podés generar el borrador del contrato desde el panel de gestión documental.",
+        });
         setContractFile(null);
         setFileError(null);
         onConfirmed(result.fiestaId);
@@ -143,12 +143,22 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
             </div>
           </div>
 
-          {/* Contract PDF Upload - MANDATORY */}
+          {/* Info: automatic contract generation */}
+          <Alert className="bg-emerald-50 border-emerald-200">
+            <FileSignature className="h-4 w-4 text-emerald-600" />
+            <AlertDescription className="text-emerald-800 text-xs space-y-1">
+              <p className="font-semibold">El sistema generará el borrador del contrato automáticamente.</p>
+              <p>Una vez confirmado, podés ir a <strong>Gestión Documental → Borrador Contrato</strong> para revisar, editar e imprimir el contrato con todos los datos pre-completados.</p>
+            </AlertDescription>
+          </Alert>
+
+          {/* Contract PDF Upload - OPTIONAL */}
           <div className="space-y-2">
             <Label htmlFor="contract-pdf" className="flex items-center gap-2 text-sm font-semibold">
-              <FileText className="w-4 h-4 text-red-500" />
-              Contrato Firmado (PDF) <span className="text-red-500">*</span>
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              Contrato Firmado (PDF) — <span className="font-normal text-muted-foreground">opcional</span>
             </Label>
+            <p className="text-[11px] text-muted-foreground">Si ya tenés el contrato firmado escaneado, podés adjuntarlo ahora como respaldo. De lo contrario, podés subirlo después.</p>
             <div
               className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
                 contractFile ? 'border-green-400 bg-green-50' : fileError ? 'border-red-400 bg-red-50' : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30'
@@ -172,7 +182,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
               ) : (
                 <div className="space-y-1">
                   <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Haz clic para cargar el PDF del contrato</p>
+                  <p className="text-sm text-muted-foreground">Haz clic para adjuntar PDF (opcional)</p>
                 </div>
               )}
             </div>
@@ -185,9 +195,9 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
 
           <div className="bg-blue-50 p-3 rounded-md text-xs text-blue-700 space-y-1">
             <p>● Se creará automáticamente la ficha del cliente.</p>
-            <p>● El contrato PDF se vinculará con el cliente.</p>
             <p>● Se activará el panel de planificación del evento.</p>
             <p>● El presupuesto se marcará como aceptado.</p>
+            <p>● El borrador del contrato quedará disponible para revisar y firmar.</p>
           </div>
 
           {/* Option: move lead to conversion stage */}
@@ -212,7 +222,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
 
         <DialogFooter>
           <Button variant="outline" onClick={() => handleClose(false)} disabled={isProcessing}>Cancelar</Button>
-          <Button onClick={handleConfirm} disabled={isProcessing || !contractFile} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={handleConfirm} disabled={isProcessing} className="bg-green-600 hover:bg-green-700">
             {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
             Confirmar Contratación
           </Button>
