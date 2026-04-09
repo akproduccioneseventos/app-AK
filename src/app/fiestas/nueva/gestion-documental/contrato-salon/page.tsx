@@ -21,11 +21,12 @@ import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settin
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
 
-const CLUB_URUGUAY_KEYWORDS = ['club uruguay', 'cluburuguay', 'club_uruguay'];
+const CLUB_URUGUAY_KEYWORDS = ['club uruguay', 'cluburuguay', 'club_uruguay', 'club-uruguay'];
 
 function isClubUruguay(salon?: string): boolean {
   if (!salon) return false;
-  return CLUB_URUGUAY_KEYWORDS.some(kw => salon.toLowerCase().includes(kw));
+  const normalized = salon.toLowerCase().trim().replace(/\s+/g, ' ');
+  return CLUB_URUGUAY_KEYWORDS.some(kw => normalized.includes(kw));
 }
 
 const formatDate = (dateString?: string) => {
@@ -92,6 +93,7 @@ function ContratoSalonContent() {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [contractText, setContractText] = useState('');
+  const [originalText, setOriginalText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -141,6 +143,7 @@ function ContratoSalonContent() {
           ciudadFecha,
         });
         setContractText(draft);
+        setOriginalText(draft);
       } else {
         setError('El evento debe tener un cliente asignado para generar este documento.');
       }
@@ -157,6 +160,18 @@ function ContratoSalonContent() {
   }, [loadData]);
 
   const handlePrint = () => window.print();
+
+  const handleToggleEdit = () => {
+    if (isEditing && contractText !== originalText) {
+      const confirmed = window.confirm('¿Descartar los cambios realizados y salir del modo edición?');
+      if (!confirmed) return;
+      setContractText(originalText);
+    }
+    if (!isEditing) {
+      setOriginalText(contractText);
+    }
+    setIsEditing(prev => !prev);
+  };
 
   if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
@@ -194,7 +209,7 @@ function ContratoSalonContent() {
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={() => setIsEditing(!isEditing)} variant={isEditing ? 'default' : 'outline'} size="sm">
+            <Button onClick={handleToggleEdit} variant={isEditing ? 'default' : 'outline'} size="sm">
               {isEditing ? <><CheckCircle2 className="w-4 h-4 mr-2" /> Finalizar</> : <><Edit className="w-4 h-4 mr-2" /> Editar</>}
             </Button>
             <Button onClick={handlePrint} size="sm" variant="outline">
