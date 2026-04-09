@@ -1,0 +1,87 @@
+/**
+ * Types for the Landing Page Visual Editor.
+ * The admin can edit these settings from the panel at /empresa/landing-editor.
+ * The public landing page at /landing reads these settings and renders accordingly.
+ */
+
+export interface LandingHeroSettings {
+  headline: string;
+  subheadline: string;
+  backgroundImageUrl: string;
+  badgeText: string;
+  ctaLabel: string;
+  ctaUrl: string;
+}
+
+export interface LandingStatItem {
+  value: string;
+  label: string;
+  icon: string; // emoji or icon name
+}
+
+export interface LandingCtaSettings {
+  headline: string;
+  subheadline: string;
+  ctaLabel: string;
+  whatsappNumber: string;
+}
+
+export interface LandingColorSettings {
+  overlayFrom: string; // CSS color, e.g. "rgba(88,28,135,0.8)"
+  overlayTo: string;   // CSS color
+  accentColor: string; // hex
+}
+
+export interface LandingSeoSettings {
+  title: string;
+  description: string;
+  ogImageUrl: string;
+}
+
+export interface LandingSettings {
+  hero: LandingHeroSettings;
+  stats: LandingStatItem[];
+  cta: LandingCtaSettings;
+  colors: LandingColorSettings;
+  seo: LandingSeoSettings;
+  whatsappNumber: string;
+  updatedAt?: string;
+}
+
+export const defaultLandingSettings: LandingSettings = {
+  whatsappNumber: '59898355530',
+  hero: {
+    headline: 'Hacemos Realidad\ntu Celebración',
+    subheadline:
+      'Bodas, XV Años, Cumpleaños y más — producción integral con calidad premium en Uruguay.',
+    backgroundImageUrl:
+      'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=85&auto=format&fit=crop',
+    badgeText: 'Producción Integral de Eventos',
+    ctaLabel: 'Cotizá tu evento ahora',
+    ctaUrl: '/simulador-de-presupuesto',
+  },
+  stats: [
+    { value: '+500', label: 'Eventos Realizados', icon: '🎉' },
+    { value: '+12', label: 'Años de Experiencia', icon: '⭐' },
+    { value: '100%', label: 'Clientes Satisfechos', icon: '❤️' },
+    { value: '24/7', label: 'Soporte al Cliente', icon: '📞' },
+  ],
+  cta: {
+    headline: '¿Listo para crear algo increíble?',
+    subheadline: 'Cotizá tu evento sin compromiso. Respondemos en menos de 24 horas.',
+    ctaLabel: 'Hablar con un asesor',
+    whatsappNumber: '59898355530',
+  },
+  colors: {
+    overlayFrom: 'rgba(88,28,135,0.8)',
+    overlayTo: 'rgba(112,26,117,0.6)',
+    accentColor: '#a855f7',
+  },
+  seo: {
+    title: 'AK Producciones Eventos — Bodas, XV Años y más en Uruguay',
+    description:
+      'Producción integral de eventos en Uruguay. Bodas, XV años, cumpleaños y eventos corporativos. ¡Cotizá hoy y hacé realidad tu celebración soñada!',
+    ogImageUrl:
+      'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=85&auto=format&fit=crop',
+  },
+};

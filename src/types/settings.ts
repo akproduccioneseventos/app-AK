@@ -11,6 +11,7 @@ export interface BudgetDisplaySettings {
   showPaymentMethodNotes: boolean;
   showCompanyLogo: boolean;
   showPriceBreakdown: boolean;
+  showIndividualPrices: boolean; // Toggle to show/hide individual service prices in budget
   annualAdjustmentPercentage?: number;
   promotionalDiscounts?: PromotionalDiscount[];
   // Campos Estratégicos de Venta
@@ -26,6 +27,7 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   showPaymentMethodNotes: true,
   showCompanyLogo: true,
   showPriceBreakdown: true,
+  showIndividualPrices: true,
   annualAdjustmentPercentage: 15,
   promotionalDiscounts: [],
   successMessage: "Ahora podés coordinar una reunión con nuestro equipo para revisar todos los detalles, despejar dudas y asegurar tu fecha.",

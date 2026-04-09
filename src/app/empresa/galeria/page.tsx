@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Camera, ExternalLink, Loader2, Plus, Star, Trash2, Upload, Video, Eye } from 'lucide-react';
+import { ArrowLeft, Camera, ExternalLink, Loader2, Plus, RefreshCw, Star, Trash2, Upload, Video, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
 import { GALERIA_CATEGORIAS } from '@/types/galeria';
@@ -39,6 +39,7 @@ import {
   toggleDestacada,
 } from '@/app/actions/galeria';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 
 function extractYoutubeId(url: string): string | null {
   try {
@@ -72,6 +73,7 @@ export default function GaleriaAdminPage() {
   const [videos, setVideos] = useState<GaleriaVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState<'fotos' | 'videos'>('fotos');
+  const [servicioNames, setServicioNames] = useState<string[]>([]);
 
   // Foto form
   const [fotoUrl, setFotoUrl] = useState('');
@@ -81,6 +83,7 @@ export default function GaleriaAdminPage() {
   const [fotoDestacada, setFotoDestacada] = useState(false);
   const [isSavingFoto, setIsSavingFoto] = useState(false);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
+  const [isSyncingCatalog, setIsSyncingCatalog] = useState(false);
 
   // Video form
   const [videoUrl, setVideoUrl] = useState('');
@@ -90,12 +93,27 @@ export default function GaleriaAdminPage() {
   const [videoDestacada, setVideoDestacada] = useState(false);
   const [isSavingVideo, setIsSavingVideo] = useState(false);
 
+  // Combined categories (base + service names)
+  const allCategories = useMemo(() => {
+    const serviceCategories = servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any));
+    return [...GALERIA_CATEGORIAS, ...serviceCategories];
+  }, [servicioNames]);
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getGaleriaItems();
+      const [data, servicios] = await Promise.all([
+        getGaleriaItems(),
+        getServiciosEmpresa(),
+      ]);
       setFotos(data.fotos.sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.orden - b.orden));
       setVideos(data.videos.sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0) || a.orden - b.orden));
+      // Extract unique service names and categories from catalog
+      const names = Array.from(new Set([
+        ...servicios.map(s => s.nombre),
+        ...servicios.filter(s => s.categoria).map(s => s.categoria!),
+      ])).sort();
+      setServicioNames(names);
     } catch {
       toast({ title: 'Error', description: 'No se pudo cargar la galería.', variant: 'destructive' });
     } finally {
@@ -180,7 +198,103 @@ export default function GaleriaAdminPage() {
     }
   };
 
-  const handleAddVideo = async () => {
+  const handleSyncCatalog = async () => {
+    setIsSyncingCatalog(true);
+    try {
+      const [servicios, menusData] = await Promise.all([
+        getServiciosEmpresa(),
+        import('@/app/actions/menus-catering').then(m => m.getMenus()),
+      ]);
+      const existingUrls = new Set(fotos.map(f => f.url));
+      let added = 0;
+      const newFotos: GaleriaFoto[] = [];
+      const makeId = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+          return `foto_catalog_${crypto.randomUUID().replace(/-/g, '').substring(0, 16)}`;
+        }
+        return `foto_catalog_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 10)}`;
+      };
+
+      // Sync service images
+      for (const servicio of servicios) {
+        const imgUrl = servicio.imageUrl;
+        if (imgUrl && !existingUrls.has(imgUrl)) {
+          existingUrls.add(imgUrl);
+          newFotos.push({
+            id: makeId(),
+            tipo: 'foto',
+            url: imgUrl,
+            titulo: servicio.nombre,
+            descripcion: servicio.notas || undefined,
+            categoria: servicio.categoria || servicio.nombre,
+            servicio: servicio.nombre,
+            destacada: false,
+            orden: fotos.length + added,
+            createdAt: new Date().toISOString(),
+          });
+          added++;
+        }
+      }
+
+      // Sync menu item images
+      for (const menu of menusData) {
+        // Full menu image
+        if (menu.imageUrl && !existingUrls.has(menu.imageUrl)) {
+          existingUrls.add(menu.imageUrl);
+          newFotos.push({
+            id: makeId(),
+            tipo: 'foto',
+            url: menu.imageUrl,
+            titulo: menu.name,
+            descripcion: menu.description || undefined,
+            categoria: menu.templateType || 'Catering',
+            servicio: menu.name,
+            destacada: false,
+            orden: fotos.length + added,
+            createdAt: new Date().toISOString(),
+          });
+          added++;
+        }
+        // Individual dish images
+        for (const item of menu.items) {
+          if (item.imageUrl && !existingUrls.has(item.imageUrl)) {
+            existingUrls.add(item.imageUrl);
+            newFotos.push({
+              id: makeId(),
+              tipo: 'foto',
+              url: item.imageUrl,
+              titulo: item.name,
+              descripcion: undefined,
+              categoria: item.type || 'Catering',
+              servicio: item.name,
+              destacada: false,
+              orden: fotos.length + added,
+              createdAt: new Date().toISOString(),
+            });
+            added++;
+          }
+        }
+      }
+
+      // Add all new photos
+      for (const foto of newFotos) {
+        await addGaleriaFoto(foto);
+      }
+
+      if (added > 0) {
+        toast({ title: `✅ ${added} imagen(es) importadas`, description: 'Las imágenes del catálogo se agregaron a la galería.' });
+        await fetchData();
+      } else {
+        toast({ title: 'Sin cambios', description: 'No se encontraron imágenes nuevas en el catálogo. Asegurate de agregar imágenes a los servicios y platos del menú.' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo sincronizar el catálogo.', variant: 'destructive' });
+    } finally {
+      setIsSyncingCatalog(false);
+    }
+  };
+
+
     if (!videoUrl.trim() || !videoCategoria || !videoTitulo.trim()) {
       toast({ title: 'Campos requeridos', description: 'Ingresá URL, título y categoría.', variant: 'destructive' });
       return;
@@ -250,7 +364,16 @@ export default function GaleriaAdminPage() {
             <p className="text-muted-foreground text-sm">Fotos y videos que se muestran en tu página web</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSyncCatalog}
+            disabled={isSyncingCatalog}
+          >
+            {isSyncingCatalog ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Sincronizar desde Catálogos
+          </Button>
           <Link href="/landing" target="_blank">
             <Button variant="outline" size="sm">
               <Eye className="w-4 h-4 mr-2" />
@@ -319,14 +442,23 @@ export default function GaleriaAdminPage() {
                 </div>
                 <div className="space-y-1">
                   <Label>Categoría *</Label>
-                  <Select value={fotoCategoria} onValueChange={setFotoCategoria}>
+                  <Select value={fotoCategoria} onValueChange={(v) => { if (v) setFotoCategoria(v); }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar categoría" />
                     </SelectTrigger>
                     <SelectContent>
+                      <p className="px-2 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Categorías Base</p>
                       {GALERIA_CATEGORIAS.map((cat) => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
+                      {servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any)).length > 0 && (
+                        <>
+                          <p className="px-2 py-1 mt-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-t border-slate-100 pt-2">Servicios del Catálogo</p>
+                          {servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any)).map((name) => (
+                            <SelectItem key={name} value={name}>{name}</SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

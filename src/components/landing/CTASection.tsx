@@ -7,12 +7,14 @@ interface CTASectionProps {
   whatsappNumber?: string;
   headline?: string;
   subheadline?: string;
+  ctaLabel?: string;
 }
 
 export function CTASection({
-  whatsappNumber = '59899123456',
+  whatsappNumber = '59898355530',
   headline = '¿Listo para tu\nEvento Soñado?',
   subheadline = 'Escribinos hoy y recibí una cotización personalizada sin costo. Estamos listos para hacer realidad tu celebración.',
+  ctaLabel = '¡Cotizá tu evento!',
 }: CTASectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     '¡Hola AK Producciones! Me gustaría cotizar mi evento.'
@@ -92,7 +94,7 @@ export function CTASection({
             )}
           >
             <MessageSquare className="w-6 h-6 shrink-0" />
-            ¡Cotizá tu evento!
+            {ctaLabel}
           </a>
           <a
             href={`tel:+${whatsappNumber}`}

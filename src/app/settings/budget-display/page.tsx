@@ -316,7 +316,7 @@ export default function BudgetDisplaySettingsPage() {
                         <ShieldCheck className="w-5 h-5 text-primary"/> Ajustes Globales
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 md:p-8">
+                <CardContent className="p-6 md:p-8 space-y-6">
                     <div className="flex flex-col md:flex-row md:items-center gap-6">
                         <div className="space-y-2 shrink-0">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ajuste Anual Automático (%)</Label>
@@ -331,6 +331,16 @@ export default function BudgetDisplaySettingsPage() {
                             <Info className="w-5 h-5 text-primary shrink-0"/>
                             <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Este ajuste se aplica si la fecha del evento es posterior al año en que se genera el presupuesto.</p>
                         </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <div className="space-y-1 mr-4">
+                            <p className="text-sm font-black uppercase tracking-widest text-white">Mostrar Precios Individuales</p>
+                            <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Si está desactivado, el presupuesto solo muestra el total, descuentos y regalos — sin desglosar precios por servicio. Útil por estrategia de venta.</p>
+                        </div>
+                        <Switch
+                            checked={budgetSettings?.showIndividualPrices ?? true}
+                            onCheckedChange={v => setBudgetSettings(s => s ? { ...s, showIndividualPrices: v } : null)}
+                        />
                     </div>
                 </CardContent>
             </Card>

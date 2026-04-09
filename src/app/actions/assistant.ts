@@ -460,22 +460,57 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       action: result.action ? { ...result.action, result: actionResult } as any : undefined,
     };
   } catch (error: any) {
-    const errorMessage: string = error.message || '';
-    const friendlyUnavailableMsg =
-      'El asistente no está disponible en este momento. Por favor, usá el simulador de presupuesto o contactanos por WhatsApp al 59898355530.';
-    if (
+    const errorMessage: string = error.message || String(error) || '';
+    console.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
+
+    const isApiKeyError =
       (errorMessage.includes('FAILED_PRECONDITION') && errorMessage.includes('API key')) ||
       errorMessage.includes('GEMINI_API_KEY') ||
       errorMessage.includes('GOOGLE_API_KEY') ||
+      errorMessage.includes('API_KEY_INVALID') ||
       errorMessage.includes('403') ||
       errorMessage.includes('Forbidden') ||
-      errorMessage.includes('denied access')
+      errorMessage.includes('denied access') ||
+      errorMessage.includes('API key not valid') ||
+      errorMessage.includes('not configured');
+
+    if (isApiKeyError) {
+      return {
+        success: false,
+        error: 'El asistente no está disponible: la clave de API de Gemini no está configurada o no es válida. Por favor, configurá la variable de entorno GOOGLE_API_KEY o GEMINI_API_KEY en el panel de despliegue.',
+      };
+    }
+
+    // For quota exceeded errors
+    if (
+      errorMessage.includes('429') ||
+      errorMessage.includes('RESOURCE_EXHAUSTED') ||
+      errorMessage.includes('quota')
     ) {
       return {
         success: false,
-        error: friendlyUnavailableMsg,
+        error: 'El asistente superó su cuota de uso. Intentá de nuevo en unos minutos o contactanos por WhatsApp al +59898355530.',
       };
     }
-    return { success: false, error: friendlyUnavailableMsg };
+
+    // For model not found / unavailable
+    if (
+      errorMessage.includes('404') ||
+      errorMessage.includes('NOT_FOUND') ||
+      errorMessage.includes('model') ||
+      errorMessage.includes('not found')
+    ) {
+      return {
+        success: false,
+        error: 'El modelo de IA no está disponible en este momento. Intentá de nuevo en unos minutos.',
+      };
+    }
+
+    // Generic fallback - log error server-side, show generic message to user
+    console.error('[Asistente AK] Unhandled error type:', errorMessage);
+    return {
+      success: false,
+      error: 'El asistente encontró un error inesperado. Por favor, intentá de nuevo o contactanos por WhatsApp al +59898355530.',
+    };
   }
 }

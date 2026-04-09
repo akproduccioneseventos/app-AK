@@ -9,6 +9,7 @@
 'use server';
 
 import { readData as readJsonData, writeData as writeJsonData } from './data-service';
+import { cacheGet, cacheSet, cacheInvalidate } from './server-cache';
 
 // Mapping of JSON file names to Firestore collection names
 const FILE_TO_COLLECTION: Record<string, string> = {
@@ -55,6 +56,7 @@ const CONFIG_FILES: Record<string, string> = {
   'meeting-checklist-template.json': 'meeting-checklist-template',
   'whatsapp-settings.json': 'whatsapp-settings',
   'whatsapp-templates.json': 'whatsapp-templates',
+  'landing-settings.json': 'landing-settings',
 };
 
 // In production (Firebase App Hosting), NEXT_PUBLIC_FIREBASE_PROJECT_ID is always defined
@@ -78,8 +80,13 @@ async function getFirestoreDb() {
 
 /**
  * Read data - tries Firestore first (if enabled), falls back to JSON.
+ * Results are cached in memory for 30 seconds to reduce redundant Firestore reads.
  */
 export async function readData<T>(filePath: string, defaultValue: T): Promise<T> {
+  // Check in-memory cache first
+  const cached = cacheGet<T>(`read:${filePath}`);
+  if (cached !== undefined) return cached;
+
   const db = await getFirestoreDb();
   
   if (db) {
@@ -95,8 +102,11 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
             delete data._migratedAt;
             delete data._source;
           }
-          return (data || defaultValue) as T;
+          const result = (data || defaultValue) as T;
+          cacheSet(`read:${filePath}`, result);
+          return result;
         }
+        cacheSet(`read:${filePath}`, defaultValue);
         return defaultValue;
       }
 
@@ -111,8 +121,10 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
             delete data._source;
             return { ...data, id: doc.id };
           });
+          cacheSet(`read:${filePath}`, docs as T);
           return docs as T;
         }
+        cacheSet(`read:${filePath}`, defaultValue);
         return defaultValue;
       }
     } catch (error) {
@@ -122,7 +134,9 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
 
   // Fallback to JSON
   try {
-    return await readJsonData<T>(filePath, defaultValue);
+    const result = await readJsonData<T>(filePath, defaultValue);
+    cacheSet(`read:${filePath}`, result);
+    return result;
   } catch {
     return defaultValue;
   }
@@ -130,12 +144,16 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
 
 /**
  * Write data - writes to both Firestore and JSON for dual-write consistency.
+ * Invalidates the in-memory cache for the written file.
  */
 export async function writeData<T>(
   filePath: string,
   data: T,
   sortFn?: (a: any, b: any) => number
 ): Promise<void> {
+  // Invalidate the cache for this file immediately on write
+  cacheInvalidate(`read:${filePath}`);
+
   const db = await getFirestoreDb();
 
   // Always write to JSON (primary source of truth until full migration)

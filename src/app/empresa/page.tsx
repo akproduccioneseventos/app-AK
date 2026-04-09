@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, MapPin, MonitorPlay, Camera, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, Layout, MapPin, MonitorPlay, Camera, ExternalLink } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -111,6 +111,13 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/galeria',
     icon: Camera,
     actionLabel: 'Gestionar Galería',
+  },
+  {
+    title: 'Editor de Landing Page',
+    description: 'Editá textos, colores, imágenes y estadísticas de tu página pública. Cambios se ven en tiempo real en akproducciones.uy/landing.',
+    href: '/empresa/landing-editor',
+    icon: Layout,
+    actionLabel: 'Editar Landing',
   },
   {
     title: 'Página Pública & Landing Pages',

@@ -25,6 +25,7 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
       invitadosPorUnidad: item.invitadosPorUnidad === undefined || item.invitadosPorUnidad === null || isNaN(Number(item.invitadosPorUnidad)) ? undefined : Number(item.invitadosPorUnidad),
       tramosDePrecio: item.tramosDePrecio || undefined,
       unidad: item.unidad || 'Unidad',
+      imageUrl: item.imageUrl || undefined,
     }));
 }
 
