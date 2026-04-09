@@ -47,6 +47,13 @@ const statusConfig = {
   futuro: { dot: 'bg-slate-300 border-slate-400', text: 'text-slate-600', badge: 'bg-slate-100 text-slate-600' },
 };
 
+/** Format an ISO date string (YYYY-MM-DD) to a localized date label without timezone shifting. */
+function formatFechaProgramada(fechaISO: string): string {
+  const [year, month, day] = fechaISO.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+}
+
 export default function TimelinePage() {
   const params = useParams();
   const router = useRouter();
@@ -169,7 +176,7 @@ export default function TimelinePage() {
                             </Badge>
                           </div>
                           <p className="text-xs text-slate-400 mt-0.5">
-                            {new Date(hito.fechaProgramada + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+                            {formatFechaProgramada(hito.fechaProgramada)}
                           </p>
                           {hito.completado && hito.fechaCompletado && (
                             <p className="text-xs text-green-600 mt-0.5">

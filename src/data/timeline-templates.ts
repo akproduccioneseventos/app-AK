@@ -45,8 +45,11 @@ export const fiestaGeneralTemplate: TimelineTemplate[] = [
 ];
 
 export function getTemplateForTipoEvento(tipoEvento: string): TimelineTemplate[] {
+  if (tipoEvento === 'Boda') return bodaTemplate;
+  if (tipoEvento === 'XV años') return xvAnosTemplate;
+  // Fallback: partial match for custom/legacy event type strings
   const tipo = tipoEvento?.toLowerCase() ?? '';
   if (tipo.includes('boda') || tipo.includes('casamiento')) return bodaTemplate;
-  if (tipo.includes('quince') || tipo.includes('xv') || tipo.includes('quincea')) return xvAnosTemplate;
+  if (tipo.includes('quince') || tipo.includes('xv')) return xvAnosTemplate;
   return fiestaGeneralTemplate;
 }
