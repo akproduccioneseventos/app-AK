@@ -196,3 +196,17 @@ export async function submitPublicRsvp(fiestaId: string, submission: {
 
     return { ...result, invitado: savedInvitado };
 }
+
+export async function updateGuestExperience(
+  fiestaId: string,
+  invitadoId: string,
+  data: { mensaje?: string; fotosSubidas?: string[] }
+): Promise<{ success: boolean; error?: string }> {
+  const result = await updateFiestaData(fiestaId, fiesta => {
+    const invitados = (fiesta.invitados ?? []).map(inv =>
+      inv.id === invitadoId ? { ...inv, ...data } : inv
+    );
+    return { ...fiesta, invitados };
+  });
+  return { success: result.success, error: result.error };
+}

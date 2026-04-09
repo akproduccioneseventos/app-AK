@@ -35,6 +35,8 @@ export interface Invitado {
   tag?: string;
   dietaryRestriction?: DietaryRestriction;
   cancionesDJ?: string[];
+  mensaje?: string;
+  fotosSubidas?: string[];
 }
 
 // --- MENU MESA ---
@@ -767,6 +769,36 @@ export interface PlanDePagos {
   updatedAt: string;
 }
 
+// --- TIMELINE ---
+export interface TimelineHito {
+  id: string;
+  nombre: string;
+  emoji: string;
+  fechaProgramada: string;
+  completado: boolean;
+  fechaCompletado?: string;
+  notas?: string;
+}
+
+// --- MENU SELECTION PORTAL ---
+export interface MenuSeleccionPortal {
+  entrada?: string;
+  principal?: string;
+  postre?: string;
+  bebidas?: string;
+  restriccionesAlimentarias?: string;
+  confirmado?: boolean;
+  fechaConfirmacion?: string;
+}
+
+// --- MUSIC LIST PORTAL ---
+export interface ListaMusicaPortal {
+  imprescindibles?: string[];
+  siEsPosible?: string[];
+  noQuiero?: string[];
+  fechaActualizacion?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   configuracion: ConfigEventoDataStorage;
@@ -809,6 +841,9 @@ export interface FiestaEnPlanificacion {
   planDePagos?: PlanDePagos;
   eventoEnVivo?: EventoEnVivoData;
   clientPaymentNotifications?: ClientPaymentNotification[];
+  timeline?: TimelineHito[];
+  menuSeleccionPortal?: MenuSeleccionPortal;
+  listaMusicaPortal?: ListaMusicaPortal;
 }
 
 export interface ContratoFirmaInfo {

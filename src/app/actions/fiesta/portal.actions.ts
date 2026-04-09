@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto } from '../presupuestos';
 import { createNotification } from '../notifications';
@@ -165,3 +165,39 @@ export async function rejectClientPayment(
 }
 
     
+export async function saveTimeline(
+  fiestaId: string,
+  timeline: TimelineHito[]
+): Promise<{ success: boolean; error?: string }> {
+  return updateFiestaData(fiestaId, fiesta => ({
+    ...fiesta,
+    timeline,
+  }));
+}
+
+export async function saveMenuSeleccion(
+  fiestaId: string,
+  menuSeleccion: MenuSeleccionPortal
+): Promise<{ success: boolean; error?: string }> {
+  return updateFiestaData(fiestaId, fiesta => ({
+    ...fiesta,
+    menuSeleccionPortal: {
+      ...menuSeleccion,
+      confirmado: true,
+      fechaConfirmacion: new Date().toISOString(),
+    },
+  }));
+}
+
+export async function saveListaMusica(
+  fiestaId: string,
+  listaMusica: ListaMusicaPortal
+): Promise<{ success: boolean; error?: string }> {
+  return updateFiestaData(fiestaId, fiesta => ({
+    ...fiesta,
+    listaMusicaPortal: {
+      ...listaMusica,
+      fechaActualizacion: new Date().toISOString(),
+    },
+  }));
+}
