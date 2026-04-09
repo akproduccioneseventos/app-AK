@@ -22,6 +22,7 @@ import {
   Palette,
   Image as ImageIcon,
   Heart,
+  Zap,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago } from '@/types/fie
 import NextImage from 'next/image';
 import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
+import { calcFiestaProgress } from '@/lib/fiesta-progress';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -472,6 +474,60 @@ export default function PortalClientePage() {
             </CardContent>
           </Card>
         )}
+
+        {/* ── Pendientes del Cliente ─────────────────────── */}
+        {(() => {
+          const progress = calcFiestaProgress(fiesta);
+          const pendientes: { texto: string; href?: string; emoji: string }[] = [];
+
+          if (progress.areas.menu.status !== 'verde' && fiesta.modulosContratados?.catering) {
+            pendientes.push({ texto: 'Confirmar menú', emoji: '🍽️', href: '#catering' });
+          }
+          if (progress.areas.musica.status === 'gris' || progress.areas.musica.status === 'amarillo') {
+            pendientes.push({ texto: 'Cargar lista de canciones', emoji: '🎵', href: '#musica' });
+          }
+          if (!fiesta.videoVida?.photosUploaded) {
+            pendientes.push({ texto: 'Subir fotos para video de vida', emoji: '📷', href: '#video-vida' });
+          }
+          const pendientesRsvp = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
+          if (pendientesRsvp.length > 0) {
+            pendientes.push({ texto: `Confirmar ${pendientesRsvp.length} invitado(s) pendientes`, emoji: '👥', href: '#invitados' });
+          }
+          const cuotasPendientes = (fiesta.planDePagos?.cuotas ?? []).filter(c => c.estado === 'pendiente' || c.estado === 'vencido');
+          if (cuotasPendientes.length > 0) {
+            pendientes.push({ texto: `Pago pendiente (${cuotasPendientes.length} cuota(s))`, emoji: '💳', href: '#pagos' });
+          }
+
+          if (pendientes.length === 0) return null;
+
+          return (
+            <Card className="border-amber-100 bg-gradient-to-br from-amber-50/80 to-orange-50/60">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base font-black text-amber-800">
+                  <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
+                </CardTitle>
+                <CardDescription className="text-amber-600 text-xs">
+                  Completá estos pasos para que tu evento esté 100% listo.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {pendientes.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-amber-100 text-sm cursor-pointer hover:bg-white transition-colors"
+                      onClick={() => item.href && document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' })}
+                    >
+                      <span className="text-xl shrink-0">{item.emoji}</span>
+                      <span className="flex-1 font-semibold text-slate-700">{item.texto}</span>
+                      <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* ── Financials ────────────────────────────────────── */}
         {showFinancials && (
