@@ -64,6 +64,21 @@ const USE_FIREBASE =
   process.env.USE_FIREBASE_DATA === 'true' ||
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID !== undefined;
 
+// Timeout for Firestore operations to prevent serverless function timeouts (503 errors)
+const FIRESTORE_TIMEOUT_MS = 8000;
+
+/**
+ * Wraps a promise with a timeout. Rejects with an error if the timeout is exceeded.
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Firestore operation timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
 /**
  * Attempts to get Firestore admin instance. Returns null if unavailable.
  */
@@ -71,7 +86,7 @@ async function getFirestoreDb() {
   if (!USE_FIREBASE) return null;
   
   try {
-    const { dbAdmin } = await import('./firebase/server');
+    const { dbAdmin } = await withTimeout(import('./firebase/server'), FIRESTORE_TIMEOUT_MS);
     return dbAdmin;
   } catch {
     return null;
@@ -94,7 +109,10 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
       // Check if it's a config file
       const configDocId = CONFIG_FILES[filePath];
       if (configDocId) {
-        const doc = await db.collection('configuracion').doc(configDocId).get();
+        const doc = await withTimeout(
+          db.collection('configuracion').doc(configDocId).get(),
+          FIRESTORE_TIMEOUT_MS
+        );
         if (doc.exists) {
           const data = doc.data();
           // Remove migration metadata
@@ -113,7 +131,10 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
       // Check if it's an array collection
       const collectionName = FILE_TO_COLLECTION[filePath];
       if (collectionName) {
-        const snapshot = await db.collection(collectionName).get();
+        const snapshot = await withTimeout(
+          db.collection(collectionName).get(),
+          FIRESTORE_TIMEOUT_MS
+        );
         if (!snapshot.empty) {
           const docs = snapshot.docs.map(doc => {
             const data = doc.data();
