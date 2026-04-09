@@ -41,14 +41,18 @@ import {
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 
+const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{1,20}$/;
+
 function extractYoutubeId(url: string): string | null {
   try {
     const u = new URL(url);
     if (!['http:', 'https:'].includes(u.protocol)) return null;
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
-    if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
-      return u.searchParams.get('v');
+    let id: string | null = null;
+    if (u.hostname === 'youtu.be') id = u.pathname.slice(1).split('?')[0];
+    else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
+      id = u.searchParams.get('v');
     }
+    return id && YOUTUBE_ID_RE.test(id) ? id : null;
   } catch {
     // invalid url
   }
