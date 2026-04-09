@@ -33,6 +33,7 @@ import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago } from '@/types/fie
 import NextImage from 'next/image';
 import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
+import { EventProgressBar } from '@/components/portal/EventProgressBar';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -343,6 +344,27 @@ export default function PortalClientePage() {
             )}
           </CardContent>
         </Card>
+
+        {/* ── Progreso del Evento ──────────────────────── */}
+        <EventProgressBar fiesta={fiesta} />
+
+        {/* ── Feature Navigation Cards ─────────────────── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
+            { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
+            { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
+            { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Estado de confirmaciones' },
+          ].map((item, i) => (
+            <a key={i} href={item.href} className="block">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 text-center hover:shadow-md hover:border-purple-200 transition-all cursor-pointer space-y-1">
+                <span className="text-3xl block">{item.emoji}</span>
+                <p className="font-black text-sm text-slate-800">{item.label}</p>
+                <p className="text-xs text-slate-400">{item.desc}</p>
+              </div>
+            </a>
+          ))}
+        </div>
 
         {/* ── Catálogo Canva contextual ─────────────── */}
         {(() => {
