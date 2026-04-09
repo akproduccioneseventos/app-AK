@@ -8,7 +8,7 @@ const ACTIVOS_FIJOS_FILE = 'activos-fijos.json';
 
 export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
     const items = await readData<any[]>(ACTIVOS_FIJOS_FILE, []);
-    return items.map(item => ({
+    return (Array.isArray(items) ? items : []).map(item => ({
       ...item,
       tipoItem: 'Activo Fijo',
       valorUnitarioEstimado: item.valorUnitarioEstimado !== undefined && !isNaN(Number(item.valorUnitarioEstimado)) ? Number(item.valorUnitarioEstimado) : 0,

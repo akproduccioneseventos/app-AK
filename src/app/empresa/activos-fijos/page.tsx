@@ -43,8 +43,8 @@ export default function InventarioActivosPage() {
     setError(null);
     try {
       const data = await getActivosFijos();
-      setAllItems(data);
-      setFilteredItems(data);
+      setAllItems(Array.isArray(data) ? data : []);
+      setFilteredItems(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError("No se pudo cargar el inventario de activos.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -59,7 +59,7 @@ export default function InventarioActivosPage() {
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
-    const filteredData = allItems.filter(item =>
+    const filteredData = (Array.isArray(allItems) ? allItems : []).filter(item =>
       (item.nombre.toLowerCase().includes(lowercasedFilter) ||
       (item.categoria && item.categoria.toLowerCase().includes(lowercasedFilter)))
     );

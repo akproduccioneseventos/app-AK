@@ -42,7 +42,7 @@ export default function ReporteServiciosPage() {
           getServiciosEmpresa(),
           getInvoiceTemplateSettings()
       ]);
-      const services = data.filter(s => s.tipoItem === 'Servicio');
+      const services = (Array.isArray(data) ? data : []).filter(s => s.tipoItem === 'Servicio');
       setAllItems(services);
       setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {

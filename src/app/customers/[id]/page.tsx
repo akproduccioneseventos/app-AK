@@ -82,7 +82,7 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
         getFiestaActual()
       ]);
       
-      const todasLasFiestasDelCliente = [actual, ...historial].filter(
+      const todasLasFiestasDelCliente = [actual, ...(Array.isArray(historial) ? historial : [])].filter(
         (f): f is FiestaEnPlanificacion => f !== null && f.configuracion.clienteId === customerId
       );
       

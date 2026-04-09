@@ -32,8 +32,8 @@ export default function ReporteEmpleadosPage() {
           getRoles(),
           getInvoiceTemplateSettings()
       ]);
-      setAllItems(empleadosData);
-      setAllRoles(rolesData);
+      setAllItems(Array.isArray(empleadosData) ? empleadosData : []);
+      setAllRoles(Array.isArray(rolesData) ? rolesData : []);
       setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudo cargar la lista de empleados.");

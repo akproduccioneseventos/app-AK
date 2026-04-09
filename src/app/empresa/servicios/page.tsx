@@ -61,7 +61,7 @@ export default function CatalogoServiciosPage() {
     setError(null);
     try {
       const data = await getServiciosEmpresa();
-      const services = data.filter(s => s.tipoItem === 'Servicio');
+      const services = (Array.isArray(data) ? data : []).filter(s => s.tipoItem === 'Servicio');
       setAllItems(services);
       setFilteredItems(services);
     } catch (err: any) {
@@ -78,7 +78,7 @@ export default function CatalogoServiciosPage() {
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
-    const filteredData = allItems.filter(item =>
+    const filteredData = (Array.isArray(allItems) ? allItems : []).filter(item =>
       (item.nombre.toLowerCase().includes(lowercasedFilter) ||
       (item.categoria && item.categoria.toLowerCase().includes(lowercasedFilter)))
     );

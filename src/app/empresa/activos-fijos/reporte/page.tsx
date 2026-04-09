@@ -34,7 +34,7 @@ export default function ReporteActivosFijosPage() {
           getActivosFijos(),
           getInvoiceTemplateSettings()
       ]);
-      const inventoryItems = data.filter(s => s.tipoItem === 'Activo Fijo');
+      const inventoryItems = (Array.isArray(data) ? data : []).filter(s => s.tipoItem === 'Activo Fijo');
       setAllItems(inventoryItems);
       setLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {

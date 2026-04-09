@@ -88,11 +88,11 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
       setCliente(clienteData);
       setMenu(menuData);
 
-      if (empleadosData.length > 0) {
-        const personalDetallado = fiestaData.personalAsignado.map(pa => {
+      if (Array.isArray(empleadosData) && empleadosData.length > 0) {
+        const personalDetallado = (fiestaData.personalAsignado || []).map(pa => {
           const empleado = empleadosData.find((e:any) => e.id === pa.empleadoId);
           if (!empleado) return null;
-          const rol = rolesData.find((r:any) => r.id === pa.rolId);
+          const rol = (Array.isArray(rolesData) ? rolesData : []).find((r:any) => r.id === pa.rolId);
           return { nombre: empleado.nombre, rol: rol?.nombre || 'Sin rol asignado' };
         }).filter(Boolean);
         setPersonal(personalDetallado as { nombre: string, rol: string }[]);

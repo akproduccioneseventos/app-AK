@@ -136,8 +136,11 @@ export default function CustomersPage() {
       const now = new Date();
       now.setHours(0, 0, 0, 0); 
       
-      const customersWithData = customersData.map(customer => {
-          const customerFiestas = fiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
+      const safeCustomersData = Array.isArray(customersData) ? customersData : [];
+      const safefiestasData = Array.isArray(fiestasData) ? fiestasData : [];
+      
+      const customersWithData = safeCustomersData.map(customer => {
+          const customerFiestas = safefiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
           
           let calculatedStatus: CustomerStatus = 'Actual'; 
           let displayDate = customer.partyDate;

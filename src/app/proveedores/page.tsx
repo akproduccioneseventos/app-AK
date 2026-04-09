@@ -52,8 +52,8 @@ export default function ProveedoresPage() {
     setError(null);
     try {
       const data = await getProveedores();
-      setProveedores(data);
-      setFilteredProveedores(data);
+      setProveedores(Array.isArray(data) ? data : []);
+      setFilteredProveedores(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError("No se pudieron cargar los proveedores.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -67,7 +67,7 @@ export default function ProveedoresPage() {
   }, [fetchProveedores]);
 
   useEffect(() => {
-    const filtered = proveedores.filter(p => tipoFilter[p.tipo]);
+    const filtered = (Array.isArray(proveedores) ? proveedores : []).filter(p => tipoFilter[p.tipo]);
     setFilteredProveedores(filtered);
   }, [tipoFilter, proveedores]);
 

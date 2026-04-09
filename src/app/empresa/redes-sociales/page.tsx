@@ -48,8 +48,8 @@ function SocialMediaPageContent() {
                 getFiestaActual(),
                 getHistorialFiestas(),
             ]);
-            setPosts(fetchedPosts);
-            const all = [actual, ...historial].filter(Boolean) as FiestaEnPlanificacion[];
+            setPosts(Array.isArray(fetchedPosts) ? fetchedPosts : []);
+            const all = [actual, ...(Array.isArray(historial) ? historial : [])].filter(Boolean) as FiestaEnPlanificacion[];
             setAllEvents(all);
         } catch (err: any) {
             setError("No se pudieron cargar los datos.");
@@ -64,7 +64,7 @@ function SocialMediaPageContent() {
     }, [fetchData]);
 
     useEffect(() => {
-        let tempPosts = posts;
+        let tempPosts = Array.isArray(posts) ? posts : [];
         if (eventFilter !== 'all') {
             if (eventFilter === 'general') {
                 tempPosts = tempPosts.filter(p => p.isGeneralCampaign);

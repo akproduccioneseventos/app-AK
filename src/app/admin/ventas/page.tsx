@@ -36,7 +36,7 @@ export default function VentasPage() {
     setIsLoading(true);
     try {
       const data = await getFiestas(true);
-      setFiestas(data);
+      setFiestas(Array.isArray(data) ? data : []);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los eventos.', variant: 'destructive' });
     } finally {

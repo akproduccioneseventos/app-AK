@@ -58,7 +58,7 @@ export default function SalonesPage() {
     setIsLoading(true);
     try {
       const data = await getSalones();
-      setSalones(data);
+      setSalones(Array.isArray(data) ? data : []);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los salones.', variant: 'destructive' });
     } finally {
