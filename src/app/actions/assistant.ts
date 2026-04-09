@@ -72,19 +72,24 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
 
     // 3. Ejecutar acciones si la IA las pidió
     let actionResult: any = null;
+    // finalResponse starts as the AI response; budget/import actions will replace it with verified data
+    let finalResponse = result.response;
 
     if (result.action?.type === 'create_customer' && result.action.data) {
       const customerResult = await saveCustomer(result.action.data);
       actionResult = customerResult;
+      if (!customerResult.success) {
+        finalResponse = `❌ No se pudo guardar el cliente: ${customerResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /customers/new.`;
+      }
     }
 
     if (result.action?.type === 'create_budget' && result.action.data) {
       const d = result.action.data;
-      const servicios: Array<{
+      const serviciosRaw: Array<{
         id?: string; nombre?: string; name?: string; descripcion?: string;
         cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
       }> = Array.isArray(d.servicios) ? d.servicios : [];
-      const items = servicios.map((s, i) => {
+      const items = serviciosRaw.map((s, i) => {
         const qty = Number(s.cantidad) || 1;
         const price = Number(s.precioUnitario) || Number(s.precio) || 0;
         return {
@@ -114,7 +119,22 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         ajusteAnualPorcentaje: d.ajusteAnualPorcentaje != null ? Number(d.ajusteAnualPorcentaje) : undefined,
         fechaFirmaContrato: d.fechaFirmaContrato,
       } as unknown as Omit<Presupuesto, 'id'>);
-      actionResult = budgetResult;
+
+      if (budgetResult.success && budgetResult.presupuesto) {
+        const pres = budgetResult.presupuesto;
+        const itemCount = pres.itemsPresupuestados?.length ?? 0;
+        const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
+        const href = `/presupuestos/${pres.id}/ver`;
+        actionResult = { ...budgetResult, itemCount, total, href };
+        if (itemCount > 0) {
+          finalResponse = `✅ Se creó el presupuesto **#${pres.numero}** para **${pres.clienteNombre}** con **${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}** y total **$${total.toLocaleString('es-UY')}**. Podés verlo acá: ${href}`;
+        } else {
+          finalResponse = `⚠️ Se creó el presupuesto **#${pres.numero}** para **${pres.clienteNombre}**, pero quedó **sin servicios** porque no pude estructurar los items desde los datos proporcionados. Podés editarlo y agregar los servicios manualmente: /presupuestos/${pres.id}/editar`;
+        }
+      } else {
+        actionResult = budgetResult;
+        finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
+      }
     }
 
     if (result.action?.type === 'import_budget_from_image' && result.action.data) {
@@ -187,9 +207,28 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             guestCount: d.invitados,
           });
         }
-        actionResult = { success: budgetResult.success, id: budgetResult.id, fiestaId: fiestaResult?.fiestaId };
+
+        if (budgetResult.success && budgetResult.presupuesto) {
+          const pres = budgetResult.presupuesto;
+          const itemCount = pres.itemsPresupuestados?.length ?? 0;
+          const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
+          const href = `/presupuestos/${pres.id}/ver`;
+          actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
+          if (itemCount > 0) {
+            finalResponse = `✅ Se importó el presupuesto **#${pres.numero}** para **${pres.clienteNombre}** con **${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}** y total **$${total.toLocaleString('es-UY')}**. Podés verlo acá: ${href}` +
+              (fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '') +
+              (importedItems.length === 0 && d.totalMonto ? `\n\n⚠️ Nota: no se detectaron servicios individuales en el archivo — se registró solo el total general.` : '');
+          } else {
+            finalResponse = `⚠️ Se creó un borrador **#${pres.numero}** para **${pres.clienteNombre}**, pero quedó **sin servicios** porque no pude extraer los items del archivo. Total extraído: $${d.totalMonto?.toLocaleString('es-UY') ?? 0}. Podés editarlo manualmente para completarlo: /presupuestos/${pres.id}/editar` +
+              (fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '');
+          }
+        } else {
+          actionResult = { success: false, error: budgetResult.error };
+          finalResponse = `❌ No se pudo importar el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o subí el archivo nuevamente.`;
+        }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ Error al importar el presupuesto: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -456,7 +495,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
 
     return {
       success: true,
-      response: result.response,
+      response: finalResponse,
       action: result.action ? { ...result.action, result: actionResult } as any : undefined,
     };
   } catch (error: any) {

@@ -105,32 +105,57 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     });
   };
 
-  if (action.type === 'create_budget' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Presupuesto creado para {action.data?.clienteNombre}</span>
+  // Generic error card helper
+  const errorCard = (msg: string) => (
+    <div className="mt-2 p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2">
+      <span className="text-xs text-red-700">❌ {msg}</span>
+    </div>
+  );
+
+  if (action.type === 'create_budget') {
+    if (action.result?.success) {
+      const itemCount: number = action.result.itemCount ?? 0;
+      const total: number = action.result.total ?? 0;
+      const href: string = action.result.href || (action.result.id ? `/presupuestos/${action.result.id}/ver` : '');
+      const isPartial = itemCount === 0;
+      return (
+        <div className={`mt-2 p-2.5 rounded-xl border space-y-1 ${isPartial ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
+          <div className="flex items-center gap-2">
+            {isPartial
+              ? <span className="text-xs text-amber-800 font-medium">⚠️ Borrador creado sin servicios para {action.data?.clienteNombre}</span>
+              : <><Check className="h-4 w-4 text-green-600 shrink-0" /><span className="text-xs text-green-800 font-medium">Presupuesto creado — {itemCount} {itemCount === 1 ? 'servicio' : 'servicios'} · ${total.toLocaleString('es-UY')}</span></>
+            }
+          </div>
+          {href && (
+            <Link href={href} className={`text-xs underline block ${isPartial ? 'text-amber-700 hover:text-amber-900' : 'text-green-700 hover:text-green-900'}`}>
+              {isPartial ? 'Editar y completar →' : 'Ver presupuesto →'}
+            </Link>
+          )}
         </div>
-        {action.result.id && (
-          <Link href={`/presupuestos/${action.result.id}/ver`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
-        )}
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo crear el presupuesto.');
+    }
   }
 
-  if (action.type === 'create_customer' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Cliente {action.data?.name} ingresado</span>
+  if (action.type === 'create_customer') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Cliente {action.data?.name} ingresado</span>
+          </div>
+          {action.result.id && (
+            <Link href={`/customers/${action.result.id}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          )}
         </div>
-        {action.result.id && (
-          <Link href={`/customers/${action.result.id}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
-        )}
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo guardar el cliente.');
+    }
   }
 
   if (action.type === 'generate_social_post' && (action.data?.content || action.result?.content)) {
@@ -185,21 +210,34 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     );
   }
 
-  if (action.type === 'import_budget_from_image' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 space-y-1">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Presupuesto importado para {action.data?.clienteNombre}</span>
+  if (action.type === 'import_budget_from_image') {
+    if (action.result?.success) {
+      const itemCount: number = action.result.itemCount ?? 0;
+      const total: number = action.result.total ?? 0;
+      const href: string = action.result.href || (action.result.id ? `/presupuestos/${action.result.id}/ver` : '');
+      const isPartial = itemCount === 0;
+      return (
+        <div className={`mt-2 p-2.5 rounded-xl border space-y-1 ${isPartial ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
+          <div className="flex items-center gap-2">
+            {isPartial
+              ? <span className="text-xs text-amber-800 font-medium">⚠️ Borrador importado sin servicios para {action.data?.clienteNombre}</span>
+              : <><Check className="h-4 w-4 text-green-600 shrink-0" /><span className="text-xs text-green-800 font-medium">Importado — {itemCount} {itemCount === 1 ? 'servicio' : 'servicios'} · ${total.toLocaleString('es-UY')}</span></>
+            }
+          </div>
+          {href && (
+            <Link href={href} className={`text-xs underline block ${isPartial ? 'text-amber-700 hover:text-amber-900' : 'text-green-700 hover:text-green-900'}`}>
+              {isPartial ? 'Editar y completar →' : 'Ver presupuesto →'}
+            </Link>
+          )}
+          {action.result.fiestaId && (
+            <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
+          )}
         </div>
-        {action.result.id && (
-          <Link href={`/presupuestos/${action.result.id}/ver`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver presupuesto →</Link>
-        )}
-        {action.result.fiestaId && (
-          <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
-        )}
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo importar el presupuesto.');
+    }
   }
 
   if (action.type === 'register_payment') {
@@ -225,92 +263,127 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     }
   }
 
-  if (action.type === 'create_invoice' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Factura creada para {action.data?.clienteNombre}</span>
+  if (action.type === 'create_invoice') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Factura creada para {action.data?.clienteNombre}</span>
+          </div>
+          {action.result.id && (
+            <Link href={`/invoices/${action.result.id}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          )}
         </div>
-        {action.result.id && (
-          <Link href={`/invoices/${action.result.id}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
-        )}
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo crear la factura.');
+    }
   }
 
-  if (action.type === 'update_service_price' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Precio de "{action.data?.servicioNombre}" actualizado a ${action.data?.nuevoPrecio?.toLocaleString('es-UY')}</span>
+  if (action.type === 'update_service_price') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Precio de "{action.data?.servicioNombre}" actualizado a ${action.data?.nuevoPrecio?.toLocaleString('es-UY')}</span>
+          </div>
+          <Link href="/empresa/servicios" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
         </div>
-        <Link href="/empresa/servicios" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo actualizar el precio.');
+    }
   }
 
-  if (action.type === 'create_employee' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Empleado {action.data?.nombre} registrado</span>
+  if (action.type === 'create_employee') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Empleado {action.data?.nombre} registrado</span>
+          </div>
+          <Link href="/empresa/empleados" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
         </div>
-        <Link href="/empresa/empleados" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo registrar el empleado.');
+    }
   }
 
-  if (action.type === 'create_supplier' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Proveedor {action.data?.nombreEmpresa || action.data?.nombre || 'sin nombre'} registrado</span>
+  if (action.type === 'create_supplier') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Proveedor {action.data?.nombreEmpresa || action.data?.nombre || 'sin nombre'} registrado</span>
+          </div>
+          <Link href="/proveedores" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
         </div>
-        <Link href="/proveedores" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo registrar el proveedor.');
+    }
   }
 
-  if (action.type === 'create_event' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 space-y-1">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Evento creado para {action.data?.clienteNombre}</span>
+  if (action.type === 'create_event') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 space-y-1">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Evento creado para {action.data?.clienteNombre}</span>
+          </div>
+          {action.result.fiestaId && (
+            <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
+          )}
         </div>
-        {action.result.fiestaId && (
-          <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
-        )}
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo crear el evento.');
+    }
   }
 
-  if (action.type === 'update_event' && action.result?.success) {
-    return (
-      <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-xs text-green-800 font-medium">Evento actualizado</span>
+  if (action.type === 'update_event') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">Evento actualizado</span>
+          </div>
+          {action.result.fiestaId && (
+            <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          )}
         </div>
-        {action.result.fiestaId && (
-          <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
-        )}
-      </div>
-    );
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo actualizar el evento.');
+    }
   }
 
-  if (action.type === 'generate_contract' && action.result?.success) {
-    return (
-      <div className="mt-2">
-        <Link href={action.result.href || '/fiestas/nueva/gestion-documental/contrato-digital'} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
-          Ver contrato <ChevronRight className="h-3 w-3" />
-        </Link>
-      </div>
-    );
+  if (action.type === 'generate_contract') {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2">
+          <Link href={action.result.href || '/fiestas/nueva/gestion-documental/contrato-digital'} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
+            Ver contrato <ChevronRight className="h-3 w-3" />
+          </Link>
+        </div>
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo generar el contrato.');
+    }
   }
 
   if (action.type === 'check_availability' && action.result) {
