@@ -112,26 +112,46 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     </div>
   );
 
+  // Shared budget result card for create_budget and import_budget_from_image
+  const budgetResultCard = (itemCount: number, total: number, href: string, fiestaId?: string, partialLabel?: string, successLabel?: string) => {
+    const isPartial = itemCount === 0;
+    const containerClass = `mt-2 p-2.5 rounded-xl border space-y-1 ${isPartial ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`;
+    const linkClass = `text-xs underline block ${isPartial ? 'text-amber-700 hover:text-amber-900' : 'text-green-700 hover:text-green-900'}`;
+    return (
+      <div className={containerClass}>
+        <div className="flex items-center gap-2">
+          {isPartial ? (
+            <span className="text-xs text-amber-800 font-medium">{partialLabel ?? '⚠️ Borrador creado sin servicios'}</span>
+          ) : (
+            <>
+              <Check className="h-4 w-4 text-green-600 shrink-0" />
+              <span className="text-xs text-green-800 font-medium">
+                {successLabel ?? `Presupuesto creado`} — {itemCount} {itemCount === 1 ? 'servicio' : 'servicios'} · ${total.toLocaleString('es-UY')}
+              </span>
+            </>
+          )}
+        </div>
+        {href && (
+          <Link href={href} className={linkClass}>
+            {isPartial ? 'Editar y completar →' : 'Ver presupuesto →'}
+          </Link>
+        )}
+        {fiestaId && (
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
+        )}
+      </div>
+    );
+  };
+
   if (action.type === 'create_budget') {
     if (action.result?.success) {
       const itemCount: number = action.result.itemCount ?? 0;
       const total: number = action.result.total ?? 0;
       const href: string = action.result.href || (action.result.id ? `/presupuestos/${action.result.id}/ver` : '');
-      const isPartial = itemCount === 0;
-      return (
-        <div className={`mt-2 p-2.5 rounded-xl border space-y-1 ${isPartial ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
-          <div className="flex items-center gap-2">
-            {isPartial
-              ? <span className="text-xs text-amber-800 font-medium">⚠️ Borrador creado sin servicios para {action.data?.clienteNombre}</span>
-              : <><Check className="h-4 w-4 text-green-600 shrink-0" /><span className="text-xs text-green-800 font-medium">Presupuesto creado — {itemCount} {itemCount === 1 ? 'servicio' : 'servicios'} · ${total.toLocaleString('es-UY')}</span></>
-            }
-          </div>
-          {href && (
-            <Link href={href} className={`text-xs underline block ${isPartial ? 'text-amber-700 hover:text-amber-900' : 'text-green-700 hover:text-green-900'}`}>
-              {isPartial ? 'Editar y completar →' : 'Ver presupuesto →'}
-            </Link>
-          )}
-        </div>
+      return budgetResultCard(
+        itemCount, total, href, undefined,
+        `⚠️ Borrador creado sin servicios para ${action.data?.clienteNombre}`,
+        'Presupuesto creado'
       );
     }
     if (action.result && !action.result.success) {
@@ -215,24 +235,10 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
       const itemCount: number = action.result.itemCount ?? 0;
       const total: number = action.result.total ?? 0;
       const href: string = action.result.href || (action.result.id ? `/presupuestos/${action.result.id}/ver` : '');
-      const isPartial = itemCount === 0;
-      return (
-        <div className={`mt-2 p-2.5 rounded-xl border space-y-1 ${isPartial ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
-          <div className="flex items-center gap-2">
-            {isPartial
-              ? <span className="text-xs text-amber-800 font-medium">⚠️ Borrador importado sin servicios para {action.data?.clienteNombre}</span>
-              : <><Check className="h-4 w-4 text-green-600 shrink-0" /><span className="text-xs text-green-800 font-medium">Importado — {itemCount} {itemCount === 1 ? 'servicio' : 'servicios'} · ${total.toLocaleString('es-UY')}</span></>
-            }
-          </div>
-          {href && (
-            <Link href={href} className={`text-xs underline block ${isPartial ? 'text-amber-700 hover:text-amber-900' : 'text-green-700 hover:text-green-900'}`}>
-              {isPartial ? 'Editar y completar →' : 'Ver presupuesto →'}
-            </Link>
-          )}
-          {action.result.fiestaId && (
-            <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
-          )}
-        </div>
+      return budgetResultCard(
+        itemCount, total, href, action.result.fiestaId,
+        `⚠️ Borrador importado sin servicios para ${action.data?.clienteNombre}`,
+        'Importado'
       );
     }
     if (action.result && !action.result.success) {

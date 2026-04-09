@@ -85,11 +85,11 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
 
     if (result.action?.type === 'create_budget' && result.action.data) {
       const d = result.action.data;
-      const serviciosRaw: Array<{
+      const serviciosInput: Array<{
         id?: string; nombre?: string; name?: string; descripcion?: string;
         cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
       }> = Array.isArray(d.servicios) ? d.servicios : [];
-      const items = serviciosRaw.map((s, i) => {
+      const items = serviciosInput.map((s, i) => {
         const qty = Number(s.cantidad) || 1;
         const price = Number(s.precioUnitario) || Number(s.precio) || 0;
         return {
