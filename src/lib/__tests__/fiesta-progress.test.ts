@@ -115,7 +115,12 @@ describe('calculateOverallProgress', () => {
     const f = makeBase({
       planDePagos: {
         id: 'p1', fiestaId: 'test-fiesta-1',
-        cuotas: [{ id: 'c1', descripcion: 'Seña', monto: 20000, fechaVencimiento: new Date().toISOString(), estado: 'pagado' }],
+        // Two cuotas: first is paid, second is pending — this isolates the +15 bonus
+        // for paying the first cuota, without triggering the "todo pagado" +10 bonus.
+        cuotas: [
+          { id: 'c1', descripcion: 'Seña', monto: 20000, fechaVencimiento: new Date().toISOString(), estado: 'pagado' },
+          { id: 'c2', descripcion: 'Resto', monto: 80000, fechaVencimiento: new Date().toISOString(), estado: 'pendiente' },
+        ],
         createdAt: '', updatedAt: '',
       },
     });
