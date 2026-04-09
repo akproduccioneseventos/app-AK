@@ -9,9 +9,6 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug",
     "firebase:emulators": "firebase emulators:start --project presupuestador-ak-producciones",
     "firebase:migrate": "npx tsx src/scripts/migrate-to-firebase.ts",
     "firebase:migrate:verify": "npx tsx src/scripts/migrate-to-firebase.ts --verify",
@@ -87,7 +84,6 @@
     "@genkit-ai/google-cloud": "1.20.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@types/jest": "^29.5.12",

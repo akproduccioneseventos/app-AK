@@ -41,6 +41,10 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { getAlertasGlobalesConLeidas } from '@/app/actions/alertas.actions';
+import type { AlertaAutomatica } from '@/types/automatizaciones';
+
+const MAX_DASHBOARD_ALERTS = 3;
 
 export default function MainDashboardPage() {
     const [kpiData, setKpiData] = useState<any>(null);
@@ -49,6 +53,7 @@ export default function MainDashboardPage() {
     const [copiedLink, setCopiedLink] = useState(false);
     const [greeting, setGreeting] = useState('');
     const [greetingEmoji, setGreetingEmoji] = useState('');
+    const [alertasUrgentes, setAlertasUrgentes] = useState<AlertaAutomatica[]>([]);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -74,14 +79,16 @@ export default function MainDashboardPage() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [dashboardResult, fiestaData] = await Promise.all([
+            const [dashboardResult, fiestaData, alertasData] = await Promise.all([
                 getDashboardKpiData(),
-                getFiestaActual()
+                getFiestaActual(),
+                getAlertasGlobalesConLeidas(),
             ]);
             if (dashboardResult.success) {
                 setKpiData(dashboardResult.data);
             }
             setFiestaActual(fiestaData);
+            setAlertasUrgentes(alertasData.filter(a => !a.leida).slice(0, MAX_DASHBOARD_ALERTS));
         } catch(e) {
             toast({ title: "Error", description: "No se pudieron cargar los datos del panel.", variant: "destructive" });
         } finally {
@@ -182,6 +189,46 @@ export default function MainDashboardPage() {
         <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} />
         <KpiCard title="Prospectos Activos" value={isLoading ? '...' : (kpiData?.prospectosActivos ?? 0)} icon={Users} isLoading={isLoading} />
       </div>
+
+      {/* ── Alertas Automáticas Widget ─────────────────────────── */}
+      {!isLoading && alertasUrgentes.length > 0 && (
+        <Card className="border-red-100 bg-gradient-to-r from-red-50/80 to-orange-50/60 shadow-md rounded-2xl overflow-hidden">
+          <CardHeader className="pb-2 pt-4 px-5 flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-red-100 rounded-lg">
+                <Bell className="w-4 h-4 text-red-600" />
+              </div>
+              <CardTitle className="text-sm font-black text-slate-800">
+                Alertas Urgentes
+                <Badge className="ml-2 bg-red-500 text-white text-[10px] px-1.5 py-0">{alertasUrgentes.length}</Badge>
+              </CardTitle>
+            </div>
+            <Link href="/alertas">
+              <Button variant="outline" size="sm" className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50">
+                Ver todas <ArrowRight className="w-3 h-3 ml-1" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent className="px-5 pb-4 space-y-2">
+            {alertasUrgentes.map(alerta => (
+              <div key={alerta.id} className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-red-100 text-sm">
+                <span className="text-lg shrink-0">{alerta.tipo === 'urgente' ? '🔴' : alerta.tipo === 'atencion' ? '🟡' : '🔵'}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold text-slate-700 text-xs truncate block">{alerta.fiestaName}</span>
+                  <span className="text-slate-500 text-xs">{alerta.mensaje}</span>
+                </div>
+                {alerta.accionUrl && (
+                  <Link href={alerta.accionUrl}>
+                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-red-500 hover:text-red-700 shrink-0">
+                      <ArrowRight className="w-3 h-3" />
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
             <div className="lg:col-span-8 space-y-6 sm:space-y-8">
