@@ -44,6 +44,8 @@ import { Badge } from '@/components/ui/badge';
 import { getAlertasGlobalesConLeidas } from '@/app/actions/alertas.actions';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 
+const MAX_DASHBOARD_ALERTS = 3;
+
 export default function MainDashboardPage() {
     const [kpiData, setKpiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -86,7 +88,7 @@ export default function MainDashboardPage() {
                 setKpiData(dashboardResult.data);
             }
             setFiestaActual(fiestaData);
-            setAlertasUrgentes(alertasData.filter(a => !a.leida).slice(0, 3));
+            setAlertasUrgentes(alertasData.filter(a => !a.leida).slice(0, MAX_DASHBOARD_ALERTS));
         } catch(e) {
             toast({ title: "Error", description: "No se pudieron cargar los datos del panel.", variant: "destructive" });
         } finally {

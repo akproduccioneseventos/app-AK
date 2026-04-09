@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -58,12 +59,18 @@ export function MainNav() {
   const isActive = (path: string) => pathname.startsWith(path);
   const isExactly = (path: string) => pathname === path;
   const [alertCount, setAlertCount] = useState(0);
+  const prevPathname = React.useRef('');
 
   useEffect(() => {
-    getAlertasGlobalesConLeidas()
-      .then(alertas => setAlertCount(alertas.filter(a => !a.leida).length))
-      .catch(() => {});
-  }, [pathname]);
+    // Only fetch when mounting or when navigating away from the alerts page
+    const wasOnAlertas = prevPathname.current === '/alertas';
+    prevPathname.current = pathname;
+    if (alertCount === 0 || wasOnAlertas) {
+      getAlertasGlobalesConLeidas()
+        .then(alertas => setAlertCount(alertas.filter(a => !a.leida).length))
+        .catch(() => {});
+    }
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Sidebar className="border-r border-indigo-100/50 bg-white/98 backdrop-blur-xl shadow-[10px_0_40px_rgba(79,70,229,0.04)]">

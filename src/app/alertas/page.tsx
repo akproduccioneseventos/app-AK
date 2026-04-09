@@ -82,9 +82,17 @@ export default function AlertasPage() {
   useEffect(() => { fetchAlertas(); }, [fetchAlertas]);
 
   const handleMarcarLeida = useCallback(async (alertaId: string) => {
-    await marcarAlertaLeida(alertaId);
-    setAlertas(prev => prev.map(a => a.id === alertaId ? { ...a, leida: true } : a));
-  }, []);
+    try {
+      const result = await marcarAlertaLeida(alertaId);
+      if (result.success) {
+        setAlertas(prev => prev.map(a => a.id === alertaId ? { ...a, leida: true } : a));
+      } else {
+        toast({ title: 'Error', description: 'No se pudo marcar como leída.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo marcar como leída.', variant: 'destructive' });
+    }
+  }, [toast]);
 
   // Derived
   const urgentes = alertas.filter(a => a.tipo === 'urgente' && !a.leida).length;
