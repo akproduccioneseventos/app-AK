@@ -169,10 +169,7 @@ export default function TimelinePage() {
                             </Badge>
                           </div>
                           <p className="text-xs text-slate-400 mt-0.5">
-                            {(() => {
-                              const [year, month, day] = hito.fechaProgramada.split('-').map(Number);
-                              return new Date(year, month - 1, day).toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-                            })()}
+                            {new Date(hito.fechaProgramada + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
                           </p>
                           {hito.completado && hito.fechaCompletado && (
                             <p className="text-xs text-green-600 mt-0.5">

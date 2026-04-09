@@ -33,7 +33,8 @@ function calcularSemaforos(fiesta: FiestaEnPlanificacion): SemaforoCard[] {
   let pagoDesc = 'Todos los pagos al día ✓';
   if (cuotas.length > 0) {
     const vencidas = cuotas.filter(c => c.estado !== 'pagado' && c.fechaVencimiento && new Date(c.fechaVencimiento) < hoy);
-    const proximas = cuotas.filter(c => c.estado !== 'pagado' && c.fechaVencimiento && new Date(c.fechaVencimiento) >= hoy && new Date(c.fechaVencimiento) <= new Date(hoy.getTime() + 7 * 86400000));
+    const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
+    const proximas = cuotas.filter(c => c.estado !== 'pagado' && c.fechaVencimiento && new Date(c.fechaVencimiento) >= hoy && new Date(c.fechaVencimiento) <= new Date(hoy.getTime() + SIETE_DIAS_MS));
     if (vencidas.length > 0) { pagoColor = 'red'; pagoDesc = `${vencidas.length} cuota(s) vencida(s) sin pagar`; }
     else if (proximas.length > 0) { pagoColor = 'yellow'; pagoDesc = `${proximas.length} cuota(s) vencen en los próximos 7 días`; }
   } else {

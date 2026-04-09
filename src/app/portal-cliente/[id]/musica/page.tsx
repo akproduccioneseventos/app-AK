@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaByAccessKey, saveListaMusica } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { saveListaMusica } from '@/app/actions/fiesta/portal.actions';
 import type { FiestaEnPlanificacion, ListaMusicaPortal } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ export default function MusicaPortalPage() {
   useEffect(() => {
     const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
     if (!accessKey) { sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId); router.replace(`/portal-cliente/${fiestaId}`); return; }
-    getFiestaByAccessKey(fiestaId, accessKey)
+    getFiestaById(fiestaId)
       .then(data => {
         if (!data) { setError('Evento no encontrado.'); return; }
         setFiesta(data);
