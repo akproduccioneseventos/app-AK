@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Unit Tests (Jest)
@@ -27,4 +30,4 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npm test -- --passWithNoTests
+        run: npm test
