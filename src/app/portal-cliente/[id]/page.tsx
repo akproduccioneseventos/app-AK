@@ -513,15 +513,16 @@ export default function PortalClientePage() {
               <CardContent>
                 <div className="space-y-2">
                   {pendientes.map((item, idx) => (
-                    <div
+                    <button
                       key={idx}
-                      className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-amber-100 text-sm cursor-pointer hover:bg-white transition-colors"
+                      type="button"
+                      className="w-full flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-amber-100 text-sm cursor-pointer hover:bg-white transition-colors text-left"
                       onClick={() => item.href && document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' })}
                     >
                       <span className="text-xl shrink-0">{item.emoji}</span>
                       <span className="flex-1 font-semibold text-slate-700">{item.texto}</span>
                       <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
-                    </div>
+                    </button>
                   ))}
                 </div>
               </CardContent>

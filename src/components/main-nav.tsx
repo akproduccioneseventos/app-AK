@@ -63,7 +63,7 @@ export function MainNav() {
     getAlertasGlobalesConLeidas()
       .then(alertas => setAlertCount(alertas.filter(a => !a.leida).length))
       .catch(() => {});
-  }, []);
+  }, [pathname]);
 
   return (
     <Sidebar className="border-r border-indigo-100/50 bg-white/98 backdrop-blur-xl shadow-[10px_0_40px_rgba(79,70,229,0.04)]">

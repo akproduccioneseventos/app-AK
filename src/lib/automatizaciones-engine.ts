@@ -2,6 +2,24 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { AutomatizacionRule, AlertaAutomatica } from '@/types/automatizaciones';
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Area mapping per rule ID (explicit to avoid inconsistencies)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const REGLA_AREA_MAP: Record<string, string> = {
+  'falta-sena': 'pagos',
+  'faltan-canciones': 'musica',
+  'faltan-fotos-video-vida': 'fotografia',
+  'tareas-vencidas': 'timeline',
+  'cuota-vencida': 'pagos',
+  'saldo-pendiente-evento-cercano': 'pagos',
+  'menu-sin-definir': 'menu',
+  'invitados-sin-confirmar': 'invitados',
+  'decoracion-sin-definir': 'decoracion',
+  'cronograma-vacio': 'timeline',
+  'contrato-sin-firmar': 'documentos',
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Predefined rules
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -220,10 +238,9 @@ export function evaluarReglasParaFiesta(
       }
 
       case 'dias_despues_creacion': {
-        // We don't have a "createdAt" on the fiesta, so we use the presence of
-        // the presupuesto or just treat all existing fiestas as eligible.
-        // For the 'sin_primer_pago' / 'sin_contrato' conditions we simply fire
-        // when the condition is met (conservative approach).
+        // NOTE: FiestaEnPlanificacion does not have a createdAt field.
+        // We evaluate the condition immediately when met.
+        // If a createdAt field is added in the future, the dias check can be enforced here.
         shouldFire = evaluarCondicion(regla.trigger.condicion, fiesta);
         break;
       }
@@ -236,7 +253,6 @@ export function evaluarReglasParaFiesta(
 
       case 'campo_faltante': {
         if (regla.trigger.campo === 'timeline_hitos') {
-          // Check if any tareas are overdue
           const tareas = fiesta.tareas ?? [];
           shouldFire = tareas.some(t => {
             if (t.completada) return false;
@@ -259,7 +275,7 @@ export function evaluarReglasParaFiesta(
         fiestaName,
         tipo: mapRuleToAlertType(regla),
         mensaje: regla.descripcion,
-        area: regla.id.split('-')[0],
+        area: REGLA_AREA_MAP[regla.id] ?? regla.id,
         fechaGenerada: hoy.toISOString(),
         leida: false,
         accionUrl: buildAccionUrl(regla, fiestaId),
