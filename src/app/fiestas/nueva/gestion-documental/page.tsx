@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks, Receipt } from 'lucide-react';
+import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks, Receipt, Building2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, DocumentoTipo } from '@/types/fiesta';
@@ -213,6 +213,9 @@ function GestionDocumentalContent() {
                 </Link>
                 <Link href={`/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`}>
                   <Button variant="secondary" size="sm"><FileSignature className="w-4 h-4 mr-1.5"/>Borrador Contrato Servicio</Button>
+                </Link>
+                <Link href={`/fiestas/nueva/gestion-documental/contrato-salon?fiestaId=${fiestaId}`}>
+                  <Button variant="secondary" size="sm"><Building2 className="w-4 h-4 mr-1.5"/>Borrador Contrato Salón</Button>
                 </Link>
                 <Link href={`/fiestas/nueva/gestion-documental/cambio-fecha?fiestaId=${fiestaId}`}>
                   <Button variant="secondary" size="sm"><FileArchive className="w-4 h-4 mr-1.5"/>Generar Cambio de Fecha</Button>
