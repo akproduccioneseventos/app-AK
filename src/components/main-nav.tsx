@@ -61,15 +61,15 @@ export function MainNav() {
   const prevPathname = React.useRef('');
 
   useEffect(() => {
-    // Only fetch when mounting or when navigating away from the alerts page
+    // Refresh alert count on mount and when navigating away from the alerts page
     const wasOnAlertas = prevPathname.current === '/alertas';
     prevPathname.current = pathname;
-    if (alertCount === 0 || wasOnAlertas) {
+    if (wasOnAlertas || pathname !== '/alertas') {
       getAlertasGlobalesConLeidas()
         .then(alertas => setAlertCount(alertas.filter(a => !a.leida).length))
         .catch(() => {});
     }
-  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <Sidebar className="border-r border-indigo-100/50 bg-white/98 backdrop-blur-xl shadow-[10px_0_40px_rgba(79,70,229,0.04)]">
