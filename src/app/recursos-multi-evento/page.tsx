@@ -231,7 +231,7 @@ function RecursosMultiEventoContent() {
               {fechasMultiples.map(([fecha, eventosEnFecha]) => (
                 <div key={fecha} className="border border-amber-200 rounded-xl p-4 bg-amber-50">
                   <p className="font-semibold text-amber-800 mb-2">
-                    📅 {new Date(fecha + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+                    📅 {(() => { const [y, m, d] = fecha.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }); })()}
                     <Badge className="ml-2 bg-amber-200 text-amber-800">{eventosEnFecha.length} eventos</Badge>
                   </p>
                   <div className="space-y-2">

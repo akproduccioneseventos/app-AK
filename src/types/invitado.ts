@@ -1,7 +1,7 @@
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Otro';
-// Phase 3: Guest segmentation
+// Guest segmentation for personalized event experience
 export type SegmentoInvitado = 'VIP' | 'Familia' | 'General';
 
 export interface Invitado {
