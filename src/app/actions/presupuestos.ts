@@ -117,6 +117,17 @@ export async function savePresupuesto(
   
   await syncLinkedFiesta(nuevoPresupuesto);
 
+  // Notificación de negocio: nuevo presupuesto creado
+  createNotification({
+    titulo: 'Nuevo Presupuesto',
+    mensaje: `Nuevo presupuesto #${nuevoNumero} creado para ${nuevoPresupuesto.clienteNombre}.`,
+    href: `/presupuestos/${presupuestoId}/ver`,
+    icono: 'ListChecks',
+    tipo: 'info',
+    entidadRelacionadaId: presupuestoId,
+    rolDestino: 'admin',
+  }).catch(err => console.warn('Error creating budget notification:', err));
+
   return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
 }
 
@@ -275,7 +286,22 @@ export async function addPagoToPresupuesto(
   };
 
   const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
-  return updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+
+  if (result.success) {
+    const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
+    createNotification({
+      titulo: 'Pago Registrado',
+      mensaje: `Pago de ${montoFmt} registrado para ${presupuesto.clienteNombre} (${pago.metodoPago}).`,
+      href: `/presupuestos/${presupuestoId}/ver`,
+      icono: 'ListChecks',
+      tipo: 'exito',
+      entidadRelacionadaId: presupuestoId,
+      rolDestino: 'admin',
+    }).catch(err => console.warn('Error creating payment notification:', err));
+  }
+
+  return result;
 }
 
 export async function deletePagoFromPresupuesto(

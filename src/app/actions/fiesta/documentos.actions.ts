@@ -9,6 +9,7 @@ import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { headers } from 'next/headers';
 import { registerBookingDeposit } from '../invoices';
 import { addDays } from 'date-fns';
+import { createNotification } from '../notifications';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 
@@ -155,6 +156,17 @@ export async function signContractDigitally(fiestaId: string, signerName: string
             }
         }
 
+        // 5. NOTIFICACIÓN: Contrato firmado digitalmente
+        createNotification({
+            titulo: 'Contrato Firmado',
+            mensaje: `Contrato firmado digitalmente por ${signerName} — ${fiesta.configuracion.nombreEvento || fiesta.id}.`,
+            href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`,
+            icono: 'ListChecks',
+            tipo: 'exito',
+            entidadRelacionadaId: fiestaId,
+            rolDestino: 'admin',
+        }).catch(err => console.warn('Error creating contract signature notification:', err));
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -239,6 +251,17 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
                 console.warn("No se pudo sincronizar fiesta desde presupuesto:", e);
             }
         }
+
+        // NOTIFICACIÓN: Contrato físico cargado
+        createNotification({
+            titulo: 'Contrato Físico Registrado',
+            mensaje: `Contrato físico escaneado y registrado para ${fiesta.configuracion.nombreEvento || fiesta.id}.`,
+            href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`,
+            icono: 'ListChecks',
+            tipo: 'exito',
+            entidadRelacionadaId: fiestaId,
+            rolDestino: 'admin',
+        }).catch(err => console.warn('Error creating physical contract notification:', err));
 
         return { success: true };
     } catch (e: any) {

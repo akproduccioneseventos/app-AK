@@ -6,6 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
+import { createNotification } from './notifications';
 
 const CUSTOMERS_FILE = 'customers.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -181,6 +182,18 @@ export async function saveCustomer(
       // Don't fail the whole operation if fiesta creation fails, but log it.
       console.warn(`Customer ${customerId} created, but failed to create associated event: ${e.message}`);
     }
+  }
+
+  if (isNewCustomer) {
+    createNotification({
+      titulo: 'Nuevo Cliente',
+      mensaje: `Nuevo cliente registrado: ${(customerToSave as Customer).name}.`,
+      href: `/clientes`,
+      icono: 'KanbanSquare',
+      tipo: 'info',
+      entidadRelacionadaId: customerId,
+      rolDestino: 'admin',
+    }).catch(err => console.warn('Error creating customer notification:', err));
   }
   
   return { success: true, id: customerId, customer: customerToSave as Customer };
