@@ -341,17 +341,17 @@ function InvitadosEventoContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Nombre</Label>
-                  <Input value={editingInvitado.nombre} onChange={e => setEditingInvitado(prev => prev ? { ...prev, nombre: e.target.value } : null)} />
+                  <Input value={editingInvitado.nombre} onChange={e => setEditingInvitado(prev => prev ? { ...prev, nombre: e.target.value } : prev)} />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Contacto (email/tel)</Label>
-                  <Input value={editingInvitado.contacto ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, contacto: e.target.value } : null)} placeholder="+598 99..." />
+                  <Input value={editingInvitado.contacto ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, contacto: e.target.value } : prev)} placeholder="+598 99..." />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Categoría</Label>
-                  <Select value={editingInvitado.categoria ?? 'Adulto'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, categoria: v as CategoriaInvitado } : null)}>
+                  <Select value={editingInvitado.categoria ?? 'Adulto'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, categoria: v as CategoriaInvitado } : prev)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Adulto">Adulto</SelectItem>
@@ -361,7 +361,7 @@ function InvitadosEventoContent() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Estado RSVP</Label>
-                  <Select value={editingInvitado.rsvp} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, rsvp: v as RsvpStatus } : null)}>
+                  <Select value={editingInvitado.rsvp} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, rsvp: v as RsvpStatus } : prev)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Pendiente">Pendiente</SelectItem>
@@ -375,7 +375,7 @@ function InvitadosEventoContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Perfil (Fase 3)</Label>
-                  <Select value={editingInvitado.perfil ?? 'General'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, perfil: v as PerfilInvitado } : null)}>
+                  <Select value={editingInvitado.perfil ?? 'General'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, perfil: v as PerfilInvitado } : prev)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {PERFIL_OPTIONS.map(p => (
@@ -387,7 +387,7 @@ function InvitadosEventoContent() {
                 <div className="space-y-1.5">
                   <Label>Mesa asignada</Label>
                   {tableNames.length > 0 ? (
-                    <Select value={editingInvitado.tableNumber ?? ''} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, tableNumber: v || undefined } : null)}>
+                    <Select value={editingInvitado.tableNumber ?? ''} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, tableNumber: v || undefined } : prev)}>
                       <SelectTrigger><SelectValue placeholder="Sin asignar" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="">Sin asignar</SelectItem>
@@ -395,13 +395,13 @@ function InvitadosEventoContent() {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Input value={editingInvitado.tableNumber ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, tableNumber: e.target.value || undefined } : null)} placeholder="Ej: Mesa 1" />
+                    <Input value={editingInvitado.tableNumber ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, tableNumber: e.target.value || undefined } : prev)} placeholder="Ej: Mesa 1" />
                   )}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label>Restricción alimentaria</Label>
-                <Select value={editingInvitado.dietaryRestriction ?? 'Ninguna'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, dietaryRestriction: v as DietaryRestriction } : null)}>
+                <Select value={editingInvitado.dietaryRestriction ?? 'Ninguna'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, dietaryRestriction: v as DietaryRestriction } : prev)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {DIETARY_OPTIONS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
@@ -411,22 +411,22 @@ function InvitadosEventoContent() {
               {editingInvitado.dietaryRestriction && editingInvitado.dietaryRestriction !== 'Ninguna' && (
                 <div className="space-y-1.5">
                   <Label>Detalle de alergias (opcional)</Label>
-                  <Input value={editingInvitado.alergiasEspecificas ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, alergiasEspecificas: e.target.value } : null)} placeholder="Ej: alergia a maní..." />
+                  <Input value={editingInvitado.alergiasEspecificas ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, alergiasEspecificas: e.target.value } : prev)} placeholder="Ej: alergia a maní..." />
                 </div>
               )}
               {editingInvitado.perfil === 'VIP' && (
                 <div className="space-y-1.5">
                   <Label>Mensaje personalizado para VIP</Label>
-                  <Textarea value={editingInvitado.mensajePersonalizado ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, mensajePersonalizado: e.target.value } : null)} placeholder="Mensaje especial que verá este invitado en su portal..." rows={3} />
+                  <Textarea value={editingInvitado.mensajePersonalizado ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, mensajePersonalizado: e.target.value } : prev)} placeholder="Mensaje especial que verá este invitado en su portal..." rows={3} />
                 </div>
               )}
               <div className="flex items-center justify-between pt-2 border-t">
                 <div className="flex items-center space-x-2">
-                  <Switch checked={editingInvitado.isCeliac ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, isCeliac: v } : null)} />
+                  <Switch checked={editingInvitado.isCeliac ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, isCeliac: v } : prev)} />
                   <Label className="text-xs font-bold text-amber-600">Celíaco</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Switch checked={editingInvitado.requiereAccesibilidad ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, requiereAccesibilidad: v } : null)} />
+                  <Switch checked={editingInvitado.requiereAccesibilidad ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, requiereAccesibilidad: v } : prev)} />
                   <Label className="text-xs font-bold text-green-600">Requiere Accesibilidad</Label>
                 </div>
               </div>
