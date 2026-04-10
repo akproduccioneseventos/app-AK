@@ -67,3 +67,12 @@ src/data/last-auto-backup.txt
 /playwright-report/
 /test-results/
 /playwright/.auth/
+
+# Business data — NEVER commit real data
+src/data/presupuestos.json
+src/data/customers.json
+src/data/empleados.json
+src/data/proveedores.json
+src/data/crm-leads.json
+src/data/invoices.json
+src/data/accesos-personal.json

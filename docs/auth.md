@@ -6,7 +6,7 @@ La app usa un **sistema de autenticación propio** basado en Firestore.
 **No depende de Firebase Auth**, lo que hace que funcione en cualquier dominio
 (`akproducciones.uy`, `*.hosted.app`, `localhost`) sin configuración adicional.
 
-Las credenciales (contraseñas y respuestas de seguridad) se almacenan **hasheadas con SHA-256**
+Las credenciales (contraseñas y respuestas de seguridad) se almacenan **hasheadas con scrypt**
 en la colección `users` de Firestore.
 
 ---
@@ -14,11 +14,14 @@ en la colección `users` de Firestore.
 ## Primer acceso
 
 Al primer uso de la app (cuando no existe ningún usuario en Firestore), se crea
-automáticamente el usuario administrador:
+automáticamente el usuario administrador usando variables de entorno:
 
-- **Correo:** `akproduccionessalto@gmail.com`
-- **Contraseña:** `AKproducciones2024` *(temporal — cambiala desde el perfil)*
+- **Correo:** valor de `ADMIN_BOOTSTRAP_EMAIL` (default: `admin@akproducciones.uy`)
+- **Contraseña:** valor de `ADMIN_BOOTSTRAP_PASSWORD` (obligatoria)
 - **Rol:** `admin` (acceso total)
+
+> ⚠️ NUNCA escribas la contraseña en el código fuente. Configurala como variable de entorno.
+> Después del primer login, cambiala desde el perfil.
 
 ---
 
@@ -33,6 +36,9 @@ Solo se requieren las variables de Firestore (ya NO se necesita Firebase Auth):
 | `FIREBASE_PROJECT_ID` | ID del proyecto (server-side Admin SDK) | ❌ (auto) |
 | `FIREBASE_CLIENT_EMAIL` | Email de la cuenta de servicio | ❌ (GCP auto-detecta) |
 | `FIREBASE_PRIVATE_KEY` | Clave privada de la cuenta de servicio | ❌ (GCP auto-detecta) |
+| `SESSION_SECRET` | Secreto para firmar cookies de sesión | ✅ |
+| `ADMIN_BOOTSTRAP_EMAIL` | Email del admin inicial | ❌ (default: admin@akproducciones.uy) |
+| `ADMIN_BOOTSTRAP_PASSWORD` | Contraseña del admin inicial | ✅ (solo primer uso) |
 
 ---
 
@@ -76,6 +82,9 @@ Las comparaciones son insensibles a mayúsculas/minúsculas.
 La sesión se almacena en `localStorage` con la clave `ak_producciones_auth_session`.
 El token tiene el formato `btoa('ak_auth_<userId>_<timestamp>')`.
 
+Adicionalmente, el login establece una cookie HTTP-only firmada (`ak_session`) que
+es verificada por el middleware de Next.js y los Server Actions.
+
 Para cerrar sesión: **Mi Cuenta → Cerrar Sesión** (limpia el localStorage).
 
 ---
@@ -117,13 +126,13 @@ Las siguientes rutas requieren autenticación:
 Para ejecutar los tests E2E con autenticación, configurar las variables de entorno:
 
 ```bash
-E2E_DEMO_EMAIL=akproduccionessalto@gmail.com \
-E2E_DEMO_PASSWORD=AKproducciones2024 \
+E2E_DEMO_EMAIL=admin@akproducciones.uy \
+E2E_DEMO_PASSWORD=<tu-contraseña-segura> \
 npm run test:e2e
 ```
 
 O en GitHub Actions, guardar como Secrets:
-- `E2E_DEMO_EMAIL` *(opcional — default: akproduccionessalto@gmail.com)*
+- `E2E_DEMO_EMAIL` *(opcional — default: admin@akproducciones.uy)*
 - `E2E_DEMO_PASSWORD`
 
 La mayoría de los tests inyectan una sesión directamente en `sessionStorage`
@@ -138,14 +147,14 @@ Colección `users`:
 
 ```json
 {
-  "email": "akproduccionessalto@gmail.com",
-  "passwordHash": "sha256...",
+  "email": "admin@akproducciones.uy",
+  "passwordHash": "scrypt:<salt>:<hash>",
   "role": "admin",
   "modules": ["all"],
   "securityQuestions": {
-    "q1": { "question": "¿Nombre de tu primera mascota?", "answer": "sha256..." },
-    "q2": { "question": "¿Tu color favorito?", "answer": "sha256..." },
-    "q3": { "question": "¿Nombre de tu escuela?", "answer": "sha256..." }
+    "q1": { "question": "¿Nombre de tu primera mascota?", "answer": "scrypt:<salt>:<hash>" },
+    "q2": { "question": "¿Tu color favorito?", "answer": "scrypt:<salt>:<hash>" },
+    "q3": { "question": "¿Nombre de tu escuela?", "answer": "scrypt:<salt>:<hash>" }
   },
   "mustChangePassword": true,
   "createdAt": "ISO8601",

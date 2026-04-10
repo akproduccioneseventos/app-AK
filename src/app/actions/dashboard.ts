@@ -10,6 +10,7 @@ import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonth
 import { es } from 'date-fns/locale';
 import { getCrmKpiData, getCrmLeads } from './crm';
 import { getRoles } from './roles';
+import { requireSession } from '@/lib/auth/session-server';
 
 export interface MonthlyChartData {
   month: string;
@@ -34,6 +35,7 @@ export interface GlobalAlert {
 }
 
 export async function getDashboardKpiData() {
+  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   try {
     // Run reminder checks in the background
     checkAndCreateTaskReminders().catch(err => console.warn("Background task reminder check failed:", err));
@@ -237,6 +239,7 @@ export async function getDashboardKpiData() {
 }
 
 export async function getCashFlowProjection() {
+    try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
     try {
         const [fiestas, invoices, roles, presupuestos] = await Promise.all([
             getAllFiestas(),

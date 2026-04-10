@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { CatalogoFoto } from '@/types/catalogo';
+import { requireSession } from '@/lib/auth/session-server';
 
 const CATALOGO_FILE = 'catalogo-fotos.json';
 
@@ -10,12 +11,14 @@ export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
 }
 
 export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
+  try { await requireSession(); } catch { return; }
   const fotos = await getCatalogoFotos();
   fotos.push(foto);
   await writeData(CATALOGO_FILE, fotos);
 }
 
 export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
+  try { await requireSession(); } catch { return; }
   const fotos = await getCatalogoFotos();
   const idx = fotos.findIndex(f => f.id === foto.id);
   if (idx !== -1) {
@@ -25,11 +28,13 @@ export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
 }
 
 export async function deleteCatalogoFoto(id: string): Promise<void> {
+  try { await requireSession(); } catch { return; }
   const fotos = await getCatalogoFotos();
   await writeData(CATALOGO_FILE, fotos.filter(f => f.id !== id));
 }
 
 export async function toggleCatalogoFotoDestacada(id: string): Promise<void> {
+  try { await requireSession(); } catch { return; }
   const fotos = await getCatalogoFotos();
   const idx = fotos.findIndex(f => f.id === id);
   if (idx !== -1) {
