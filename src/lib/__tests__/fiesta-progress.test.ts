@@ -86,10 +86,10 @@ const fiestaCompleta = makeBase({
     moodboardItems: [{ id: 'm1', url: 'http://example.com/img.jpg' } as any],
   },
   programa: [
-    { hora: '21:00', titulo: 'Ingreso' },
-    { hora: '21:30', titulo: 'Vals' },
-    { hora: '22:00', titulo: 'Cena' },
-    { hora: '23:00', titulo: 'Baile' },
+    { id: 'p1', hora: '21:00', titulo: 'Ingreso' },
+    { id: 'p2', hora: '21:30', titulo: 'Vals' },
+    { id: 'p3', hora: '22:00', titulo: 'Cena' },
+    { id: 'p4', hora: '23:00', titulo: 'Baile' },
   ],
   musica: {
     cancionEntrada: 'Mi canción favorita',
@@ -288,10 +288,10 @@ describe('calcTimelineStatus', () => {
   it('returns verde when programa has >3 items', () => {
     const f = makeBase({
       programa: [
-        { hora: '21:00', titulo: 'Ingreso' },
-        { hora: '21:30', titulo: 'Vals' },
-        { hora: '22:00', titulo: 'Cena' },
-        { hora: '23:00', titulo: 'Baile' },
+        { id: 'p1', hora: '21:00', titulo: 'Ingreso' },
+        { id: 'p2', hora: '21:30', titulo: 'Vals' },
+        { id: 'p3', hora: '22:00', titulo: 'Cena' },
+        { id: 'p4', hora: '23:00', titulo: 'Baile' },
       ],
     });
     expect(calcTimelineStatus(f).status).toBe('verde');

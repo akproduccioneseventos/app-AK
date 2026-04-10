@@ -21,7 +21,7 @@ const DEFAULT_REGALOS = [
 
 export function RegalosSlide({ servicios, tipoFiesta }: RegalosSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
-  const gifts = servicios.filter(s => s.categoria === 'Regalo exclusivo' || s.tipoItem === 'Regalo');
+  const gifts = servicios.filter(s => s.categoria === 'Regalo exclusivo');
   const itemsToShow = gifts.length > 0 ? gifts.map(g => ({ titulo: g.nombre, descripcion: g.notas || '' })) : DEFAULT_REGALOS;
 
   return (

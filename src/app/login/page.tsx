@@ -12,11 +12,11 @@ import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSession, setSession } from '@/lib/auth';
-
-const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || 'AK2024';
+import { loginUser } from '@/app/actions/auth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,18 +39,26 @@ export default function LoginPage() {
     fetchLogo();
   }, [router]);
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
-    if (password !== APP_PASSWORD) {
-      setError('Contraseña incorrecta.');
+    const result = await loginUser(email, password);
+
+    if (!result.success || !result.user) {
+      setError(result.error ?? 'Correo o contraseña incorrectos.');
       setIsSubmitting(false);
       return;
     }
 
-    setSession();
+    setSession({
+      userId: result.user.id,
+      email: result.user.email,
+      role: result.user.role,
+      modules: result.user.modules,
+      mustChangePassword: result.user.mustChangePassword,
+    });
     router.push('/');
   };
 
@@ -80,10 +88,24 @@ export default function LoginPage() {
             )}
           </div>
           <CardTitle className="text-3xl font-bold font-headline">Acceso Protegido</CardTitle>
-          <CardDescription>Ingresá la contraseña para acceder.</CardDescription>
+          <CardDescription>Ingresá tu correo y contraseña para acceder.</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="login-email">Correo electrónico</Label>
+              <Input
+                id="login-email"
+                data-testid="login-email"
+                type="email"
+                placeholder="admin@ejemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                disabled={isSubmitting}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="login-password">Contraseña</Label>
               <Input
