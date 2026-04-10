@@ -4,6 +4,8 @@ export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments
 export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
+/** Alias for PerfilInvitado — used in segmentation views and reports */
+export type SegmentoInvitado = PerfilInvitado;
 
 export interface Invitado {
   id: string;
@@ -28,6 +30,8 @@ export interface Invitado {
   mensaje?: string; // Mensaje enviado por el invitado a los festejados
   fotosSubidas?: string[];
   requiereAccesibilidad?: boolean; // Requiere acceso adaptado para movilidad reducida
+  /** 0-100 readiness score reflecting how complete the guest's event preparation data is */
+  readinessScore?: number;
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID

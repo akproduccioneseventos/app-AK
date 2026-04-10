@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, AlertTriangle, Send, CheckCircle2, XCircle, HelpCircle, Star, Accessibility, Crown, Users, User } from 'lucide-react';
+import { Loader2, AlertTriangle, Send, CheckCircle2, XCircle, HelpCircle, Star, Accessibility, Crown, Users, User, Map, CloudRain, ParkingCircle, Navigation } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const rsvpConfig = {
@@ -243,6 +243,65 @@ export default function InvitadoPage() {
               {invitado.alergiasEspecificas && (
                 <p className="text-xs text-slate-500 mt-1">Detalle: {invitado.alergiasEspecificas}</p>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Salon Map */}
+        {config?.mapaDelSalonUrl && (
+          <Card className="border-indigo-200 bg-indigo-50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-black flex items-center gap-2 text-indigo-800">
+                <Map className="w-4 h-4" />
+                Mapa del Salón
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <a
+                href={config.mapaDelSalonUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 underline underline-offset-2"
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                Ver mapa del salón
+              </a>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Arrival instructions */}
+        {config?.instruccionesLlegada && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-black flex items-center gap-2 text-slate-700">
+                <Navigation className="w-4 h-4" />
+                Cómo llegar
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-600 leading-relaxed">{config.instruccionesLlegada}</p>
+              {config.infoEstacionamiento && (
+                <div className="mt-2 flex items-start gap-2 text-xs text-slate-500">
+                  <ParkingCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  <span>{config.infoEstacionamiento}</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Rain protocol */}
+        {config?.protocoloLluvia && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-black flex items-center gap-2 text-blue-800">
+                <CloudRain className="w-4 h-4" />
+                Plan de lluvia
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-blue-700 leading-relaxed">{config.protocoloLluvia}</p>
             </CardContent>
           </Card>
         )}
