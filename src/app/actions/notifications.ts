@@ -22,7 +22,11 @@ const MAX_LOCAL_NOTIFICATIONS = 50;
 // Helper: generate a unique notification ID
 // ============================================================
 function generateNotifId(): string {
-  return `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const uuid =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 11)}`;
+  return `notif_${uuid}`;
 }
 
 // ============================================================
