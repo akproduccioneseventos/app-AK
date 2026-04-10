@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle } from 'lucide-react';
 import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -113,6 +114,23 @@ export default function GestorFiestasPage() {
     fiestasArchivadas.filter(fiesta => 
       fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase())
     ), [fiestasArchivadas, searchTerm]);
+
+  // Phase 3.13: Multi-event resource conflict detection
+  // Detect active events scheduled on the same date
+  const conflictingDates = useMemo(() => {
+    const dateGroups: Record<string, FiestaEnPlanificacion[]> = {};
+    filteredFiestasActivas.forEach(fiesta => {
+      const fecha = fiesta.configuracion.fechaEvento;
+      if (!fecha) return;
+      const dateKey = fecha.split('T')[0]; // YYYY-MM-DD
+      if (!dateGroups[dateKey]) dateGroups[dateKey] = [];
+      dateGroups[dateKey].push(fiesta);
+    });
+    // Only return dates with more than one event
+    return Object.entries(dateGroups)
+      .filter(([, fiestas]) => fiestas.length > 1)
+      .map(([date, fiestas]) => ({ date, fiestas }));
+  }, [filteredFiestasActivas]);
 
   const handleDeleteFiesta = async (fiestaId: string, nombreFiesta: string) => {
     setIsProcessing(fiestaId);
@@ -282,6 +300,49 @@ export default function GestorFiestasPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Phase 3.13: Resource Conflict Detection */}
+      {conflictingDates.length > 0 && !isLoading && (
+        <Card className="border-red-300 bg-red-50 shadow-sm print:hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-black flex items-center gap-2 text-red-800">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              ⚠️ Conflicto de Fechas Detectado
+              <Badge className="bg-red-200 text-red-800 border-0">{conflictingDates.length} conflicto(s)</Badge>
+            </CardTitle>
+            <CardDescription className="text-red-700">
+              Se detectaron múltiples eventos programados para la misma fecha. Verificar disponibilidad de personal y recursos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {conflictingDates.map(({ date, fiestas }) => (
+              <div key={date} className="p-3 rounded-lg bg-white border border-red-200">
+                <p className="text-sm font-bold text-red-800 mb-2">
+                  📅 {new Date(date + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+                <div className="space-y-1">
+                  {fiestas.map(f => (
+                    <div key={f.id} className="flex items-center justify-between">
+                      <div>
+                        <span className="text-sm font-semibold text-slate-700">{f.configuracion.nombreEvento}</span>
+                        <span className="text-xs text-slate-400 ml-2">
+                          {f.configuracion.horaInicio && `${f.configuracion.horaInicio}hs`}
+                          {f.configuracion.nombreLugar && ` · ${f.configuracion.nombreLugar}`}
+                        </span>
+                      </div>
+                      <Link href={`/fiestas/nueva?fiestaId=${f.id}`}>
+                        <Button size="sm" variant="outline" className="text-xs h-7 border-red-200 text-red-700 hover:bg-red-100">
+                          Ver evento
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
        
       <Separator className="my-6 print:my-3" />
 

@@ -1,6 +1,9 @@
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
-export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Otro';
+export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
+
+// Phase 3.9: Personalized Guest Experience - Guest profile segments
+export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
 
 export interface Invitado {
   id: string;
@@ -17,7 +20,14 @@ export interface Invitado {
   isCeliac?: boolean; // Módulo 2: Seguridad alimentaria
   tag?: string; // Punto 6: Etiqueta de relación (Familia, Amigos, etc.)
   dietaryRestriction?: DietaryRestriction; // Restricción dietaria detallada
+  alergiasEspecificas?: string; // Texto libre para detallar alergias específicas
   cancionesDJ?: string[]; // Sugerencias de canciones para el DJ
+  // Phase 3.9: VIP/Segmentation fields
+  perfil?: PerfilInvitado; // Segmento del invitado (VIP, Familia, General, Necesidades Especiales)
+  mensajePersonalizado?: string; // Mensaje personalizado para mostrar al invitado
+  mensaje?: string; // Mensaje enviado por el invitado a los festejados
+  fotosSubidas?: string[];
+  requiereAccesibilidad?: boolean; // Requiere acceso adaptado para movilidad reducida
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID

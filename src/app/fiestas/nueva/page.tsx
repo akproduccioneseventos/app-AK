@@ -68,6 +68,8 @@ const modules = [
   { id: 'menuMesa', title: "Menú Mesa", href: "menu-mesa", icon: Printer, description: "Diseño impreso.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'numerosMesa', title: "Números Mesa", href: "invitados/numeros-mesa", icon: Printer, description: "Impresión de señalética.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'carteleria', title: "Cartelería de Mesas", href: "carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'Herramientas Adicionales', color: "bg-violet-100 text-violet-600" },
+  { id: 'logistica', title: "Logística & Accesibilidad", href: "logistica", icon: MapPin, description: "Estacionamiento, accesibilidad y protocolo de lluvia.", category: 'Herramientas Adicionales', color: "bg-indigo-100 text-indigo-600" },
+  { id: 'alergias', title: "Gestión Alimentaria", href: "alergias", icon: Users2, description: "Alergias y dietas para catering.", category: 'Herramientas Adicionales', color: "bg-orange-100 text-orange-600" },
 ];
 
 const moduleCategories = [

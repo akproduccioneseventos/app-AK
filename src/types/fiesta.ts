@@ -17,7 +17,10 @@ export interface Notificacion {
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 
-export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Otro';
+export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
+
+// Phase 3.9: Personalized Guest Experience - Guest profile segments
+export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
 
 export interface Invitado {
   id: string;
@@ -34,9 +37,14 @@ export interface Invitado {
   isCeliac?: boolean;
   tag?: string;
   dietaryRestriction?: DietaryRestriction;
+  alergiasEspecificas?: string;
   cancionesDJ?: string[];
   mensaje?: string;
   fotosSubidas?: string[];
+  // Phase 3.9: VIP/Segmentation fields
+  perfil?: PerfilInvitado;
+  mensajePersonalizado?: string;
+  requiereAccesibilidad?: boolean;
 }
 
 // --- MENU MESA ---
@@ -121,6 +129,13 @@ export interface ConfigEventoDataStorage {
   nombreAgasajado?: string;
   clienteNombre?: string;
   primaryColor?: string;
+  // Phase 3.10: Logistics & Accessibility
+  infoEstacionamiento?: string;
+  rutaAccesibilidad?: string;
+  telefonoAsistencia?: string;
+  protocoloLluvia?: string;
+  mapaDelSalonUrl?: string;
+  instruccionesLlegada?: string;
 }
 
 export interface PersonalAsignadoDetalleStorage {
