@@ -563,7 +563,14 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       actionResult = { success: true, href: '/marketing' };
     }
 
-    // CATCH-ALL: si hubo una acción de backend pero no se ejecutó nada real, evitar respuesta falsa
+    // CATCH-ALL: si hubo una acción de backend pero no se ejecutó nada real, evitar respuesta falsa.
+    // "noActionTypes" son tipos que no requieren ejecución en el backend o ya tienen su lógica de respuesta:
+    // - 'none': sin acción
+    // - 'navigate': solo redirige en el cliente
+    // - 'show_manual': solo muestra contenido estático
+    // - 'query_data': consulta datos sin modificarlos
+    // - 'generate_*': el contenido ya viene en action.data generado por la IA
+    // - 'update_marketing_content': solo navega a /marketing
     const noActionTypes = ['none', 'navigate', 'show_manual', 'query_data', 'generate_social_post', 'generate_whatsapp_message', 'generate_promo', 'update_marketing_content'];
     if (result.action?.type && !noActionTypes.includes(result.action.type) && actionResult === null) {
       actionResult = { success: false, error: 'Acción no reconocida o no ejecutable.' };

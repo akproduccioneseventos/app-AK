@@ -166,11 +166,9 @@ export async function writeData<T>(
       // Await in production — if Firestore fails, log but don't crash (local JSON is the backup)
       await syncToFirestore(filePath, dataToWrite).catch(err => {
         logger.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
+        logger.warn(`   Los datos están SEGUROS en el archivo JSON local (Firestore es primario en producción — sincronizalo manualmente si es crítico).`);
         logger.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
       });
-      if (process.env.NODE_ENV === 'development') {
-        logger.info(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
-      }
     } else {
       syncToFirestore(filePath, dataToWrite)
         .then(() => {
