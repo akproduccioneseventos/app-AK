@@ -11,7 +11,8 @@ import {
     ListChecks, DollarSign, Camera, Gift, Archive, 
     Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
-    ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell
+    ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell,
+    Activity, ShieldCheck, Users2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '../../actions/fiesta-actual';
@@ -52,6 +53,9 @@ const modules = [
   { id: 'itinerario', title: "Itinerario", href: "itinerario", icon: Clock, description: "Cronograma minuto a minuto.", category: 'Planificación del Evento', color: "bg-blue-100 text-blue-600" },
   
   { id: 'enVivo', title: "EVENTO EN VIVO", href: "en-vivo", icon: Zap, description: "Modo táctico para el día de la fiesta.", category: 'Evento en Vivo', color: "bg-primary text-white shadow-xl shadow-primary/30" },
+  { id: 'missionControl', title: "Mission Control", href: "mission-control", icon: Activity, description: "Control táctico minuto a minuto.", category: 'Evento en Vivo', color: "bg-indigo-600 text-white shadow-xl shadow-indigo-500/30" },
+  { id: 'readiness', title: "Readiness Score", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación del evento.", category: 'Evento en Vivo', color: "bg-emerald-100 text-emerald-700" },
+  { id: 'proveedoresPortal', title: "Portal Proveedores", href: "proveedores-portal", icon: Users2, description: "Acceso restringido para externos.", category: 'Evento en Vivo', color: "bg-cyan-100 text-cyan-700" },
 
   { id: 'portalCliente', title: "Portal Cliente", href: "portal-cliente", icon: KeyRound, description: "Centro de colaboración.", category: 'Portal del Cliente', color: "bg-amber-100 text-amber-600" },
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva.", category: 'Portal del Cliente', color: "bg-blue-100 text-blue-600" },
@@ -274,7 +278,8 @@ function PlannerDashboardContent() {
       <div className="space-y-10 sm:space-y-16">
           <AnimatePresence>
           {moduleCategories.map((category) => {
-            const categoryModules = modules.filter(m => m.category === category && (modulosContratados[m.id as keyof ModulosContratados] || m.id === 'enVivo'));
+            const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal'];
+            const categoryModules = modules.filter(m => m.category === category && (modulosContratados[m.id as keyof ModulosContratados] || alwaysVisibleIds.includes(m.id)));
             if (categoryModules.length === 0) return null;
             return (
               <motion.div key={category} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-6">

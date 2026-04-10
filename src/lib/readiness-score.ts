@@ -82,7 +82,7 @@ export function calculateReadinessScore(fiesta: FiestaEnPlanificacion): Readines
   const cateringContratado = fiesta.modulosContratados?.catering === true;
   const tieneDatosCatering =
     !!(fiesta as any).catering ||
-    !!(fiesta.menuMesa?.categorias?.length) ||
+    !!(fiesta.menuMesa?.entrada) ||
     !!(fiesta.bebidas?.categorias?.length);
 
   if (cateringContratado) {

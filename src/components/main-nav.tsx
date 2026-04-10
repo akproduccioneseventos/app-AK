@@ -48,6 +48,12 @@ import {
   Layout,
   Globe,
   Bell,
+  BookOpen,
+  CheckSquare,
+  Shield,
+  AlertTriangle,
+  Activity,
+  Zap,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -291,6 +297,46 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Inteligencia &amp; Control</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-1.5">
+              <SidebarMenuItem>
+                <Link href="/playbooks">
+                  <SidebarMenuButton isActive={isActive("/playbooks")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/playbooks") ? "bg-violet-50 text-violet-700" : "text-slate-500 hover:bg-violet-50/60 hover:text-violet-600")}>
+                    <BookOpen className="w-4 h-4 text-violet-500" />
+                    <span className="ml-2">Playbooks</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/aprobaciones">
+                  <SidebarMenuButton isActive={isActive("/aprobaciones")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/aprobaciones") ? "bg-amber-50 text-amber-700" : "text-slate-500 hover:bg-amber-50/60 hover:text-amber-600")}>
+                    <CheckSquare className="w-4 h-4 text-amber-500" />
+                    <span className="ml-2">Aprobaciones</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/auditoria">
+                  <SidebarMenuButton isActive={isActive("/auditoria")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/auditoria") ? "bg-slate-100 text-slate-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700")}>
+                    <Shield className="w-4 h-4 text-slate-500" />
+                    <span className="ml-2">Auditoría</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/incidentes">
+                  <SidebarMenuButton isActive={isActive("/incidentes")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/incidentes") ? "bg-red-50 text-red-700" : "text-slate-500 hover:bg-red-50/60 hover:text-red-600")}>
+                    <AlertTriangle className="w-4 h-4 text-red-500" />
+                    <span className="ml-2">Incidentes</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
