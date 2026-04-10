@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,15 @@ import { slugify } from '../lib/string-utils';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { CatalogoFoto } from '@/types/catalogo';
 import { SERVICES } from '@/data/presentacion';
+
+function isSafeHttpsUrl(url: string): boolean {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === 'https:' || protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
 
 interface CategoriaServiciosSlideProps {
   categoria: string;
@@ -164,10 +173,13 @@ export function CategoriaServiciosSlide({
 
   const categorySlug = slugify(categoria);
 
-  // Filter catalog photos matching this category (up to 4)
-  const fotosCategoria = catalogoFotos
-    .filter(f => f.categoriaServicio.toLowerCase() === categoria.toLowerCase())
-    .slice(0, 4);
+  // Memoize filtered catalog photos to avoid recalculating on every render
+  const fotosCategoria = useMemo(
+    () => catalogoFotos
+      .filter(f => isSafeHttpsUrl(f.url) && f.categoriaServicio.toLowerCase() === categoria.toLowerCase())
+      .slice(0, 4),
+    [catalogoFotos, categoria],
+  );
 
   return (
     <SlideLayout overflowScroll>
@@ -213,18 +225,18 @@ export function CategoriaServiciosSlide({
                 'grid gap-2 rounded-2xl overflow-hidden',
                 fotosCategoria.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
               )}>
-                {fotosCategoria.map((foto, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={foto.id}
-                    src={foto.url}
-                    alt={foto.titulo ?? categoria}
-                    className={cn(
-                      'w-full object-cover rounded-xl',
-                      fotosCategoria.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
-                    )}
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
+                {fotosCategoria.map((foto) => (
+                   // eslint-disable-next-line @next/next/no-img-element
+                   <img
+                     key={foto.id}
+                     src={foto.url}
+                     alt={foto.titulo ?? categoria}
+                     className={cn(
+                       'w-full object-cover rounded-xl',
+                       fotosCategoria.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
+                     )}
+                     onError={(e) => { (e.target as HTMLImageElement).parentElement?.removeChild(e.target as HTMLImageElement); }}
+                   />
                 ))}
               </div>
             ) : (
