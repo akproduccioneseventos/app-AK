@@ -1,6 +1,6 @@
 // src/lib/auth/index.ts
-// Client-side session management — simple shared-password system.
-// A session is represented by the presence of the key in sessionStorage/localStorage.
+// Client-side session management — user-based auth system.
+// Session data is stored as JSON in localStorage/sessionStorage.
 
 export const SESSION_KEY = 'ak_producciones_auth_session';
 
@@ -17,19 +17,40 @@ export const APP_MODULES = [
   { id: 'invoices',          label: 'Facturación' },
 ] as const;
 
-/**
- * Returns true if there is an active session in localStorage or sessionStorage.
- */
-export function getSession(): boolean {
-  if (typeof window === 'undefined') return false;
-  return !!(localStorage.getItem(SESSION_KEY) ?? sessionStorage.getItem(SESSION_KEY));
+/** User session data stored client-side. */
+export interface SessionData {
+  userId: string;
+  email: string;
+  role: 'admin' | 'user';
+  modules: string[];
+  mustChangePassword?: boolean;
 }
 
-/** Persists the session to both sessionStorage and localStorage. */
-export function setSession(): void {
+/**
+ * Returns the active session data from localStorage/sessionStorage, or null if not logged in.
+ */
+export function getSession(): SessionData | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem(SESSION_KEY) ?? sessionStorage.getItem(SESSION_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    // Validate it has the required shape of a SessionData object.
+    if (parsed && typeof parsed === 'object' && 'userId' in parsed) {
+      return parsed as SessionData;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/** Persists the session data to both sessionStorage and localStorage. */
+export function setSession(data: SessionData): void {
   if (typeof window === 'undefined') return;
-  sessionStorage.setItem(SESSION_KEY, 'true');
-  localStorage.setItem(SESSION_KEY, 'true');
+  const serialized = JSON.stringify(data);
+  sessionStorage.setItem(SESSION_KEY, serialized);
+  localStorage.setItem(SESSION_KEY, serialized);
 }
 
 /** Removes the session from both localStorage and sessionStorage. */
