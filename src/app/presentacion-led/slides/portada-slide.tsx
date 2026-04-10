@@ -16,8 +16,11 @@ interface PortadaSlideProps {
 
 export function PortadaSlide({ companyInfo, logoUrl, tipoFiesta, onNext }: PortadaSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
-  // Validate logo URL before rendering to prevent XSS — only allow https/http or data:image URIs
-  const safeLogoUrl = (logoUrl && /^(https?:\/\/|data:image\/)/i.test(logoUrl)) ? logoUrl : null;
+  // Validate logo URL before rendering to prevent XSS:
+  // Allow only https/http URLs or properly-formed data:image base64 URIs
+  const safeLogoUrl = (logoUrl && /^https?:\/\//i.test(logoUrl)) || (logoUrl && /^data:image\/(png|jpeg|jpg|gif|svg\+xml|webp);base64,/i.test(logoUrl))
+    ? logoUrl
+    : null;
 
   return (
     <SlideLayout className="text-center">

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
 import { cn } from '@/lib/utils';
+import { slugify } from '../lib/string-utils';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { SERVICES } from '@/data/presentacion';
 
@@ -158,11 +159,7 @@ export function CategoriaServiciosSlide({
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
 
-  const categorySlug = categoria
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '-');
+  const categorySlug = slugify(categoria);
 
   return (
     <SlideLayout overflowScroll>

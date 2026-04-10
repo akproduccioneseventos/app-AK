@@ -175,6 +175,7 @@ export default function PresentacionLedPage() {
   }, []);
 
   const handleGenerateBudget = useCallback(() => {
+    // IDs come from server-fetched ServicioEmpresa records (alphanumeric + hyphens/underscores)
     const safeIds = selectedServices.filter(id => /^[\w-]+$/.test(id));
     if (safeIds.length > 0) {
       sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(safeIds));
