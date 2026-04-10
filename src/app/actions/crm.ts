@@ -69,6 +69,18 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
   };
   leads.push(newLead);
   await writeData(LEADS_FILE, leads);
+
+  // Notificación de negocio: nuevo prospecto/lead ingresado
+  createNotification({
+    titulo: 'Nuevo Prospecto',
+    mensaje: `Nuevo lead registrado: ${newLead.name}${newLead.partyType ? ` (${newLead.partyType})` : ''}.`,
+    href: `/contabilidad/crm`,
+    icono: 'MessageSquareText',
+    tipo: 'aviso',
+    entidadRelacionadaId: newLead.id,
+    rolDestino: 'admin',
+  }).catch(err => console.warn('Error creating lead notification:', err));
+
   return { success: true, lead: newLead };
 }
 

@@ -4,13 +4,19 @@ import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
 
 // --- NOTIFICACIONES ---
+export type NotificacionTipo = 'info' | 'aviso' | 'urgente' | 'exito';
+
 export interface Notificacion {
   id: string;
+  titulo?: string;
   mensaje: string;
+  tipo?: NotificacionTipo;
   href?: string;
   fecha: string;
   leida: boolean;
   icono?: string;
+  entidadRelacionadaId?: string;
+  rolDestino?: string;
 }
 
 // --- INVITADOS ---

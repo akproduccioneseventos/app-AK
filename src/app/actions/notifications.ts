@@ -1,6 +1,14 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
+import {
+  createDocument,
+  getAllDocuments,
+  updateDocument,
+  deleteDocument,
+  batchWrite,
+  COLLECTIONS,
+} from '@/lib/firebase/firestore';
 import type { Notificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
@@ -8,15 +16,45 @@ import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'dat
 
 const NOTIFICATIONS_FILE = 'notifications.json';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
+const MAX_LOCAL_NOTIFICATIONS = 50;
+
+// ============================================================
+// Helper: generate a unique notification ID
+// ============================================================
+function generateNotifId(): string {
+  const uuid =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 11)}`;
+  return `notif_${uuid}`;
+}
+
+// ============================================================
+// CORE CRUD – Firestore primary, local-file fallback
+// ============================================================
 
 export async function getNotifications(): Promise<Notificacion[]> {
   try {
+    // Try Firestore first
+    const result = await getAllDocuments<Notificacion>(COLLECTIONS.NOTIFICACIONES, {
+      orderBy: 'fecha',
+      orderDirection: 'desc',
+      limit: 100,
+    });
+    if (result.success && Array.isArray(result.data)) {
+      return result.data;
+    }
+  } catch (e) {
+    console.warn('Firestore unavailable for getNotifications, falling back to local file:', e);
+  }
+
+  // Fallback: local JSON file
+  try {
     const notifications = await readData<Notificacion[]>(NOTIFICATIONS_FILE, []);
     if (!Array.isArray(notifications)) return [];
-    // Sort by date descending
     return [...notifications].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
   } catch (e) {
-    console.error("Error al obtener notificaciones:", e);
+    console.error('Error reading local notifications file:', e);
     return [];
   }
 }
@@ -24,33 +62,45 @@ export async function getNotifications(): Promise<Notificacion[]> {
 export async function createNotification(
   data: Omit<Notificacion, 'id' | 'fecha' | 'leida'>
 ): Promise<{ success: boolean; notification?: Notificacion; error?: string }> {
+  const newNotification: Notificacion = {
+    ...data,
+    id: generateNotifId(),
+    fecha: new Date().toISOString(),
+    leida: false,
+  };
+
   try {
-    const notifications = await getNotifications();
-    
-    // Prevent duplicate notifications for the same message in a short time frame
+    // Try Firestore first
+    const firestoreResult = await createDocument<Notificacion>(
+      COLLECTIONS.NOTIFICACIONES,
+      newNotification,
+      newNotification.id
+    );
+    if (firestoreResult.success) {
+      return { success: true, notification: newNotification };
+    }
+  } catch (e) {
+    console.warn('Firestore unavailable for createNotification, falling back to local file:', e);
+  }
+
+  // Fallback: local JSON file with deduplication
+  try {
+    const notifications = await getNotificationsFromLocal();
+
     const existingNotification = notifications.find(
-      n => n.mensaje === data.mensaje && new Date(n.fecha) > new Date(Date.now() - 24 * 60 * 60 * 1000) // 24 hour window for daily reminders
+      n => n.mensaje === data.mensaje && new Date(n.fecha) > new Date(Date.now() - 24 * 60 * 60 * 1000)
     );
     if (existingNotification) {
-        return { success: true, notification: existingNotification };
+      return { success: true, notification: existingNotification };
     }
 
-    const newNotification: Notificacion = {
-      ...data,
-      id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      fecha: new Date().toISOString(),
-      leida: false,
-    };
-    notifications.unshift(newNotification); // Add to the beginning
-    
-    // Keep only the latest 50 notifications to prevent the file from growing too large
-    const limitedNotifications = notifications.slice(0, 50);
-    
-    await writeData(NOTIFICATIONS_FILE, limitedNotifications);
+    notifications.unshift(newNotification);
+    const limited = notifications.slice(0, MAX_LOCAL_NOTIFICATIONS);
+    await writeData(NOTIFICATIONS_FILE, limited);
     return { success: true, notification: newNotification };
   } catch (e: any) {
-    console.error("Error creating notification:", e);
-    return { success: false, error: "No se pudo crear la notificación." };
+    console.error('Error creating notification:', e);
+    return { success: false, error: 'No se pudo crear la notificación.' };
   }
 }
 
@@ -58,7 +108,15 @@ export async function markNotificationAsRead(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    let notifications = await getNotifications();
+    const result = await updateDocument<Notificacion>(COLLECTIONS.NOTIFICACIONES, notificationId, { leida: true });
+    if (result.success) return { success: true };
+  } catch (e) {
+    console.warn('Firestore unavailable for markNotificationAsRead, falling back to local file:', e);
+  }
+
+  // Fallback
+  try {
+    const notifications = await getNotificationsFromLocal();
     const index = notifications.findIndex(n => n.id === notificationId);
     if (index > -1) {
       notifications[index].leida = true;
@@ -66,33 +124,74 @@ export async function markNotificationAsRead(
     }
     return { success: true };
   } catch (e: any) {
-    return { success: false, error: "No se pudo marcar la notificación como leída." };
+    return { success: false, error: 'No se pudo marcar la notificación como leída.' };
   }
 }
 
 export async function markAllNotificationsAsRead(): Promise<{ success: boolean; error?: string }> {
   try {
-    let notifications = await getNotifications();
-    notifications.forEach(n => n.leida = true);
+    const unreadResult = await getAllDocuments<Notificacion>(COLLECTIONS.NOTIFICACIONES, {
+      where: [{ field: 'leida', op: '==', value: false }],
+    });
+    if (unreadResult.success && Array.isArray(unreadResult.data) && unreadResult.data.length > 0) {
+      const batchResult = await batchWrite(
+        unreadResult.data.map(n => ({
+          type: 'update' as const,
+          collection: COLLECTIONS.NOTIFICACIONES,
+          docId: n.id,
+          data: { leida: true },
+        }))
+      );
+      if (batchResult.success) return { success: true };
+    } else if (unreadResult.success) {
+      return { success: true }; // nothing to mark
+    }
+  } catch (e) {
+    console.warn('Firestore unavailable for markAllNotificationsAsRead, falling back to local file:', e);
+  }
+
+  // Fallback
+  try {
+    const notifications = await getNotificationsFromLocal();
+    notifications.forEach(n => (n.leida = true));
     await writeData(NOTIFICATIONS_FILE, notifications);
     return { success: true };
   } catch (e: any) {
-    return { success: false, error: "No se pudieron marcar todas las notificaciones como leídas." };
+    return { success: false, error: 'No se pudieron marcar todas las notificaciones como leídas.' };
   }
 }
 
 export async function deleteNotification(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
-    try {
-        let notifications = await getNotifications();
-        const updatedNotifications = notifications.filter(n => n.id !== notificationId);
-        await writeData(NOTIFICATIONS_FILE, updatedNotifications);
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: "No se pudo eliminar la notificación." };
-    }
+  try {
+    const result = await deleteDocument(COLLECTIONS.NOTIFICACIONES, notificationId);
+    if (result.success) return { success: true };
+  } catch (e) {
+    console.warn('Firestore unavailable for deleteNotification, falling back to local file:', e);
+  }
+
+  // Fallback
+  try {
+    const notifications = await getNotificationsFromLocal();
+    const updated = notifications.filter(n => n.id !== notificationId);
+    await writeData(NOTIFICATIONS_FILE, updated);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: 'No se pudo eliminar la notificación.' };
+  }
 }
+
+// Internal helper: always reads from local file (used in fallback paths)
+async function getNotificationsFromLocal(): Promise<Notificacion[]> {
+  const data = await readData<Notificacion[]>(NOTIFICATIONS_FILE, []);
+  if (!Array.isArray(data)) return [];
+  return [...data].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+}
+
+// ============================================================
+// SMART NOTIFICATION GENERATORS (time-based alerts)
+// ============================================================
 
 
 export async function checkAndCreateTaskReminders(): Promise<{ success: boolean; created: number }> {

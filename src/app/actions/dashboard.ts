@@ -5,7 +5,7 @@ import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
-import { checkAndCreateTaskReminders, checkAndCreateReunionReminders } from './notifications';
+import { checkAndCreateTaskReminders, checkAndCreateReunionReminders, getNotifications } from './notifications';
 import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonths, isAfter } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getCrmKpiData, getCrmLeads } from './crm';
@@ -46,6 +46,7 @@ export async function getDashboardKpiData() {
       fiestasData,
       crmKpis,
       leadsData,
+      notificationsData,
     ] = await Promise.all([
       getCustomers(),
       getPresupuestos(),
@@ -53,6 +54,7 @@ export async function getDashboardKpiData() {
       getAllFiestas(),
       getCrmKpiData(),
       getCrmLeads(),
+      getNotifications().catch(() => []),
     ]);
     
     const now = new Date();
@@ -201,6 +203,7 @@ export async function getDashboardKpiData() {
         totalPendiente,
         monthlyChartData: monthlyData,
         alerts: alerts.sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6),
+        notificacionesNoLeidas: notificationsData.filter(n => !n.leida).length,
         proximoEvento: (() => {
           const futuras = fiestasData
             .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today)
