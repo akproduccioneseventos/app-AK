@@ -40,10 +40,13 @@ import { getCompanyInfo } from '@/app/actions/settings';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getMenus } from '@/app/actions/menus-catering';
+import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
+import { mapCategoriaToCatalogo } from '@/types/catalogo';
 import { SERVICES } from '@/data/presentacion';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { CompanyInfo } from '@/types/settings';
 import type { FullMenu } from '@/types/catering';
+import type { CatalogoFoto } from '@/types/catalogo';
 import { cn } from '@/lib/utils';
 
 // In-app catalog specs per service category (from presentacion.ts data)
@@ -111,6 +114,7 @@ interface PageData {
   valuePropositions: string[];
   mostrarPrecios: boolean;
   menus: FullMenu[];
+  catalogoFotos: CatalogoFoto[];
 }
 
 interface ClientData {
@@ -271,6 +275,7 @@ function ServiceSlide({
   isSelected,
   onToggleSelect,
   mostrarPrecios,
+  catalogoFotos,
 }: {
   servicio: ServicioEmpresa;
   index: number;
@@ -278,10 +283,17 @@ function ServiceSlide({
   isSelected: boolean;
   onToggleSelect: () => void;
   mostrarPrecios: boolean;
+  catalogoFotos?: CatalogoFoto[];
 }) {
   const price = mostrarPrecios ? formatPrice(servicio) : null;
   const [showCatalog, setShowCatalog] = useState(false);
   const specs = getCatalogSpecsForService(servicio.categoria, servicio.nombre);
+
+  // Filter catalog photos for this service's category (only safe https URLs)
+  const categoriaCatalogo = mapCategoriaToCatalogo(servicio.categoria);
+  const fotosServicio = catalogoFotos?.filter(
+    (f) => f.activa !== false && f.categoriaServicio === categoriaCatalogo && isSafeImageUrl(f.url)
+  ).slice(0, 4) ?? [];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-8 py-12">
@@ -300,17 +312,52 @@ function ServiceSlide({
           </motion.div>
         )}
 
-        {/* Icon */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-          className="flex justify-center mb-8"
-        >
-          <div className="h-32 w-32 rounded-3xl bg-gradient-to-br from-indigo-500/40 to-emerald-500/40 border border-white/20 backdrop-blur-sm flex items-center justify-center text-white/80">
-            {getServiceIcon(servicio.categoria)}
-          </div>
-        </motion.div>
+        {/* Mini photo gallery from catalog (if any) */}
+        {fotosServicio.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.15 }}
+            className="mb-8"
+          >
+            <div className={`grid gap-3 ${fotosServicio.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {fotosServicio.map((foto, i) => (
+                <div
+                  key={foto.id}
+                  className={`relative overflow-hidden rounded-2xl border border-white/20 ${
+                    fotosServicio.length === 3 && i === 0 ? 'col-span-2' : ''
+                  }`}
+                  style={{ aspectRatio: fotosServicio.length === 1 ? '16/7' : '4/3' }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={isSafeImageUrl(foto.url) ? foto.url : ''}
+                    alt={foto.titulo ?? servicio.nombre}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  {foto.titulo && (
+                    <p className="absolute bottom-2 left-3 text-white/90 text-xs font-medium truncate max-w-[calc(100%-1.5rem)]">
+                      {foto.titulo}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          /* Icon fallback when no photos */
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            className="flex justify-center mb-8"
+          >
+            <div className="h-32 w-32 rounded-3xl bg-gradient-to-br from-indigo-500/40 to-emerald-500/40 border border-white/20 backdrop-blur-sm flex items-center justify-center text-white/80">
+              {getServiceIcon(servicio.categoria)}
+            </div>
+          </motion.div>
+        )}
 
         {/* Name */}
         <motion.h1
@@ -803,12 +850,13 @@ export default function PresentacionLedPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus] = await Promise.all([
+        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoFotos] = await Promise.all([
           getServiciosEmpresa(),
           getCompanyInfo(),
           getInvoiceTemplateSettings(),
           getBudgetDisplaySettings(),
           getMenus().catch(() => [] as FullMenu[]),
+          getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
         ]);
         setData({
           companyInfo,
@@ -817,6 +865,7 @@ export default function PresentacionLedPage() {
           valuePropositions: budgetSettings.valuePropositions || [],
           mostrarPrecios: budgetSettings.showPriceBreakdown ?? true,
           menus,
+          catalogoFotos,
         });
       } finally {
         setLoading(false);
@@ -1010,6 +1059,7 @@ export default function PresentacionLedPage() {
               isSelected={selectedServices.includes(currentServicio.id)}
               onToggleSelect={() => toggleSelect(currentServicio.id)}
               mostrarPrecios={data.mostrarPrecios}
+              catalogoFotos={data.catalogoFotos}
             />
           )}
           {isGiftsSlide && (

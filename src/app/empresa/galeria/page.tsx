@@ -31,6 +31,7 @@ import { ArrowLeft, Camera, ExternalLink, Loader2, Plus, RefreshCw, Star, Trash2
 import { useToast } from '@/hooks/use-toast';
 import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
 import { GALERIA_CATEGORIAS } from '@/types/galeria';
+import { CATALOGO_TIPOS_FIESTA, mapCategoriaToCatalogo } from '@/types/catalogo';
 import {
   getGaleriaItems,
   addGaleriaFoto,
@@ -38,6 +39,7 @@ import {
   deleteGaleriaItem,
   toggleDestacada,
 } from '@/app/actions/galeria';
+import { addCatalogoFoto } from '@/app/actions/catalogo-fotos';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 
@@ -84,6 +86,7 @@ export default function GaleriaAdminPage() {
   const [fotoTitulo, setFotoTitulo] = useState('');
   const [fotoDescripcion, setFotoDescripcion] = useState('');
   const [fotoCategoria, setFotoCategoria] = useState('');
+  const [fotoTipoFiesta, setFotoTipoFiesta] = useState('');
   const [fotoDestacada, setFotoDestacada] = useState(false);
   const [isSavingFoto, setIsSavingFoto] = useState(false);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
@@ -148,11 +151,23 @@ export default function GaleriaAdminPage() {
         createdAt: new Date().toISOString(),
       };
       await addGaleriaFoto(foto);
-      toast({ title: '✅ Foto agregada', description: 'La foto se guardó en la galería.' });
+      // Dual-write to centralized catalog
+      await addCatalogoFoto({
+        url: foto.url,
+        titulo: foto.titulo,
+        descripcion: foto.descripcion,
+        categoriaServicio: mapCategoriaToCatalogo(fotoCategoria),
+        tipoFiesta: fotoTipoFiesta || undefined,
+        destacada: foto.destacada,
+        activa: true,
+        source: 'url',
+      });
+      toast({ title: '✅ Foto agregada', description: 'La foto se guardó en la galería y el catálogo.' });
       setFotoUrl('');
       setFotoTitulo('');
       setFotoDescripcion('');
       setFotoCategoria('');
+      setFotoTipoFiesta('');
       setFotoDestacada(false);
       await fetchData();
     } catch {
@@ -187,11 +202,23 @@ export default function GaleriaAdminPage() {
         createdAt: new Date().toISOString(),
       };
       await addGaleriaFoto(foto);
-      toast({ title: '✅ Foto subida', description: 'La foto se subió y guardó en la galería.' });
+      // Dual-write to centralized catalog
+      await addCatalogoFoto({
+        url: foto.url,
+        titulo: foto.titulo,
+        descripcion: foto.descripcion,
+        categoriaServicio: mapCategoriaToCatalogo(fotoCategoria),
+        tipoFiesta: fotoTipoFiesta || undefined,
+        destacada: foto.destacada,
+        activa: true,
+        source: 'upload',
+      });
+      toast({ title: '✅ Foto subida', description: 'La foto se subió y guardó en la galería y el catálogo.' });
       setFotoUrl('');
       setFotoTitulo('');
       setFotoDescripcion('');
       setFotoCategoria('');
+      setFotoTipoFiesta('');
       setFotoDestacada(false);
       await fetchData();
     } catch {
@@ -463,6 +490,20 @@ export default function GaleriaAdminPage() {
                           ))}
                         </>
                       )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>Tipo de Fiesta (opcional)</Label>
+                  <Select value={fotoTipoFiesta} onValueChange={setFotoTipoFiesta}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar tipo de fiesta" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Sin especificar</SelectItem>
+                      {CATALOGO_TIPOS_FIESTA.map((tipo) => (
+                        <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

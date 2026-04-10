@@ -13,7 +13,10 @@ import { PublicFooter } from '@/components/public-footer';
 import { getPromoActiva } from '@/app/actions/promos';
 import { PromoWidget } from '@/components/promo/PromoWidget';
 import { getGaleriaItems } from '@/app/actions/galeria';
+import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
 import { getLandingSettings } from '@/app/actions/landing-editor';
+import type { GaleriaFoto } from '@/types/galeria';
+import type { CatalogoFoto } from '@/types/catalogo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
@@ -32,13 +35,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LandingPage() {
-  const [promo, galeriaData, landingSettings] = await Promise.all([
+  const [promo, galeriaData, landingSettings, catalogoFotos] = await Promise.all([
     getPromoActiva(),
     getGaleriaItems(),
     getLandingSettings(),
+    getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
   ]);
 
   const whatsapp = landingSettings.whatsappNumber || '59898355530';
+
+  // Convert catalog photos to GaleriaFoto format and merge (deduplicate by URL)
+  const galeriaUrls = new Set(galeriaData.fotos.map((f) => f.url));
+  const catalogoAsGaleria: GaleriaFoto[] = catalogoFotos
+    .filter((f) => f.activa !== false && !galeriaUrls.has(f.url))
+    .map((f) => ({
+      id: f.id,
+      tipo: 'foto' as const,
+      url: f.url,
+      titulo: f.titulo,
+      descripcion: f.descripcion,
+      categoria: f.tipoFiesta ?? f.categoriaServicio ?? 'General',
+      destacada: f.destacada,
+      orden: f.orden,
+      createdAt: f.createdAt,
+    }));
+
+  const todasLasFotos: GaleriaFoto[] = [...galeriaData.fotos, ...catalogoAsGaleria];
 
   return (
     <div className="min-h-screen bg-white">
@@ -54,7 +76,7 @@ export default async function LandingPage() {
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
       <ServicesSection whatsappNumber={whatsapp} />
       <ProcessSection />
-      <GallerySection galeriaFotos={galeriaData.fotos} />
+      <GallerySection galeriaFotos={todasLasFotos} />
       <VideoSection galeriaVideos={galeriaData.videos} />
       <TestimonialsSection />
       <FAQSection />
