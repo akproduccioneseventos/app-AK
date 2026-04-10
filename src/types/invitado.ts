@@ -1,6 +1,8 @@
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
 export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Otro';
+// Guest segmentation for personalized event experience
+export type SegmentoInvitado = 'VIP' | 'Familia' | 'General';
 
 export interface Invitado {
   id: string;
@@ -18,6 +20,12 @@ export interface Invitado {
   tag?: string; // Punto 6: Etiqueta de relación (Familia, Amigos, etc.)
   dietaryRestriction?: DietaryRestriction; // Restricción dietaria detallada
   cancionesDJ?: string[]; // Sugerencias de canciones para el DJ
+  // Phase 3 - Personalized Guest Experience
+  segmento?: SegmentoInvitado; // VIP, Familia, General
+  horaLlegadaEstimada?: string; // "HH:MM" - expected arrival time
+  mensajePersonalizado?: string; // Customized message from organizer to this guest
+  requiereAccesibilidad?: boolean; // Wheelchair or reduced mobility needs
+  alergias?: string; // Detailed allergy / dietary info
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID
