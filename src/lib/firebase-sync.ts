@@ -54,11 +54,61 @@ const CONFIG_FILES: Record<string, string> = {
 const MAX_RETRIES = 2;
 const isDev = process.env.NODE_ENV === 'development';
 
+// ============================================================
+// Circuit Breaker — prevents spam when Firestore is down
+// ============================================================
+const CIRCUIT_MAX_FAILURES = 3;
+const CIRCUIT_COOLDOWN_MS = 60_000; // 60 seconds
+
+const circuitBreaker = {
+  consecutiveFailures: 0,
+  disabledUntil: 0,
+  loggedOpen: false,
+};
+
+function isCircuitOpen(): boolean {
+  if (circuitBreaker.disabledUntil > 0) {
+    if (Date.now() < circuitBreaker.disabledUntil) {
+      return true; // still cooling down
+    }
+    // Cooldown expired — reset and try again
+    circuitBreaker.consecutiveFailures = 0;
+    circuitBreaker.disabledUntil = 0;
+    circuitBreaker.loggedOpen = false;
+  }
+  return false;
+}
+
+function recordCircuitSuccess(): void {
+  circuitBreaker.consecutiveFailures = 0;
+  circuitBreaker.disabledUntil = 0;
+  circuitBreaker.loggedOpen = false;
+}
+
+function recordCircuitFailure(): void {
+  circuitBreaker.consecutiveFailures++;
+  if (
+    circuitBreaker.consecutiveFailures >= CIRCUIT_MAX_FAILURES &&
+    circuitBreaker.disabledUntil === 0
+  ) {
+    circuitBreaker.disabledUntil = Date.now() + CIRCUIT_COOLDOWN_MS;
+    // Log ONCE that the circuit has opened — prevents repeated error spam
+    if (!circuitBreaker.loggedOpen) {
+      circuitBreaker.loggedOpen = true;
+      logger.warn(
+        `🔴 [Circuit Breaker] Firebase Firestore temporalmente deshabilitado por ${CIRCUIT_COOLDOWN_MS / 1000}s` +
+        ` tras ${circuitBreaker.consecutiveFailures} errores consecutivos. Los datos JSON locales están seguros.`
+      );
+    }
+  }
+}
+
 async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const result = await fn();
+      recordCircuitSuccess();
       if (attempt > 0 && isDev) {
         logger.info(`✅ [Firebase Sync] ${context} — exitoso en intento ${attempt + 1}`);
       }
@@ -74,6 +124,7 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
       }
     }
   }
+  recordCircuitFailure();
   throw lastError;
 }
 
@@ -82,6 +133,9 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
  * This is called asynchronously from data-service.ts writeData() when USE_FIREBASE_DATA=true.
  */
 export async function syncToFirestore(filePath: string, data: any): Promise<void> {
+  // Circuit breaker: skip if Firestore has been failing repeatedly
+  if (isCircuitOpen()) return;
+
   let db: FirebaseFirestore.Firestore;
 
   try {
@@ -166,6 +220,9 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
  * Returns null if no data is found or Firebase is unavailable.
  */
 export async function readFromFirestore(filePath: string): Promise<any> {
+  // Circuit breaker: skip reads too when Firestore is consistently failing
+  if (isCircuitOpen()) return null;
+
   let db: FirebaseFirestore.Firestore;
 
   try {
@@ -186,8 +243,10 @@ export async function readFromFirestore(filePath: string): Promise<any> {
       if (doc.exists) {
         const data = doc.data();
         if (data) delete data._syncedAt;
+        recordCircuitSuccess();
         return data || null;
       }
+      recordCircuitSuccess();
       return null;
     }
 
@@ -195,6 +254,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName) {
       const snapshot = await db.collection(collectionName).get();
+      recordCircuitSuccess();
       if (snapshot.empty) return null;
       return snapshot.docs.map(doc => {
         const data = doc.data();
@@ -213,12 +273,15 @@ export async function readFromFirestore(filePath: string): Promise<any> {
       if (doc.exists) {
         const data = doc.data();
         if (data) delete data._syncedAt;
+        recordCircuitSuccess();
         return data || null;
       }
     }
 
+    recordCircuitSuccess();
     return null;
   } catch (error) {
+    recordCircuitFailure();
     logger.warn(`⚠️ Firestore read failed for ${filePath}:`, error);
     return null;
   }

@@ -1,7 +1,7 @@
 
 'use server';
 
-import { readData, writeData } from '@/lib/data-service-firebase';
+import { readData, writeData } from '@/lib/data-service';
 import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates } from '@/types/settings';
 import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates } from '@/types/settings';
 

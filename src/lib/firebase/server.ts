@@ -2,6 +2,7 @@
 // Server-side Firebase Admin SDK configuration
 import admin from 'firebase-admin';
 import type { DecodedIdToken } from 'firebase-admin/auth';
+import * as logger from '@/lib/logger';
 
 // Ensure Firebase app is initialized only once
 if (!admin.apps.length) {
@@ -16,7 +17,7 @@ if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
       });
-      console.log('✅ Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.');
+      logger.info('Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.');
     }
     // Option 2: Using individual environment variables (service account)
     else if (
@@ -30,7 +31,7 @@ if (!admin.apps.length) {
           privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         }),
       });
-      console.log('✅ Firebase Admin SDK initialized using individual environment variables.');
+      logger.info('Firebase Admin SDK initialized using individual environment variables.');
     }
     // Option 3: Application Default Credentials (Firebase App Hosting, GCP, Cloud Run, etc.)
     // ADC is provided automatically by the metadata server — no env var needed.
@@ -40,24 +41,24 @@ if (!admin.apps.length) {
           credential: admin.credential.applicationDefault(),
           projectId,
         });
-        console.log('✅ Firebase Admin SDK initialized with Application Default Credentials.');
-      } catch (adcError: any) {
-        // ADC not available (e.g. local dev without gcloud auth). Fall back to projectId only.
-        console.warn('⚠️ applicationDefault() failed, falling back to projectId only:', adcError?.message ?? adcError);
-        admin.initializeApp({ projectId });
-        console.log(`✅ Firebase Admin SDK initialized with projectId only: ${projectId}`);
-      }
+        logger.info('Firebase Admin SDK initialized with Application Default Credentials.');
 
-      if (process.env.FIRESTORE_EMULATOR_HOST) {
-        console.log(`   📡 Using Firestore Emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+        if (process.env.FIRESTORE_EMULATOR_HOST) {
+          logger.info(`Using Firestore Emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+        }
+      } catch (adcError: any) {
+        // ADC not available (e.g. local dev without gcloud auth).
+        // Do NOT fall back to projectId-only initialization — that creates a zombie state
+        // where dbAdmin appears non-null but ALL Firestore operations fail with auth errors.
+        logger.info('Firebase Admin SDK: ADC not available, running without Firebase (no credentials configured).');
+        // admin.apps remains empty → dbInstance stays null → all operations skip Firebase cleanly
       }
     }
   } catch (error: any) {
-    console.error('❌ Firebase Admin SDK initialization error:', error.message);
-    console.error('   Full error:', error);
+    logger.error('Firebase Admin SDK initialization error:', error.message);
   }
 } else {
-  console.log(`ℹ️ Firebase Admin SDK already initialized (${admin.apps.length} app(s))`);
+  logger.info(`Firebase Admin SDK already initialized (${admin.apps.length} app(s))`);
 }
 
 // Get Firestore and Auth instances
@@ -68,17 +69,16 @@ try {
   if (admin.apps.length > 0) {
     dbInstance = admin.firestore();
     authInstance = admin.auth();
-    console.log('✅ Firestore and Auth instances obtained successfully.');
+    logger.info('Firestore and Auth instances obtained successfully.');
 
     if (process.env.FIRESTORE_EMULATOR_HOST) {
-      console.log(`✅ Firestore connected to emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+      logger.info(`Firestore connected to emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
     }
-  } else {
-    console.error('❌ Firebase Admin SDK not initialized — Firestore/Auth not available. All server actions will return "Base de datos no disponible".');
   }
+  // If no apps initialized, dbInstance/authInstance remain null — this is correct and expected
+  // when Firebase credentials are not configured in this environment.
 } catch (e: any) {
-  console.error('❌ Error getting Firestore/Auth instance:', e.message);
-  console.error('   Full error:', e);
+  logger.error('Error getting Firestore/Auth instance:', e.message);
 }
 
 export const dbAdmin = dbInstance;
@@ -96,14 +96,14 @@ export function isFirebaseAvailable(): boolean {
  */
 export async function verifyIdToken(idToken: string): Promise<DecodedIdToken | null> {
   if (!authAdmin) {
-    console.error('Auth Admin SDK not available for token verification.');
+    logger.error('Auth Admin SDK not available for token verification.');
     return null;
   }
   try {
     const decodedToken = await authAdmin.verifyIdToken(idToken);
     return decodedToken;
   } catch (error) {
-    console.error('Error verifying ID token:', error);
+    logger.error('Error verifying ID token:', String(error));
     return null;
   }
 }
