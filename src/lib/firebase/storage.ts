@@ -5,6 +5,15 @@
 
 import admin from 'firebase-admin';
 
+/** Resolves the Firebase Storage bucket name from environment variables. */
+function resolveBucketName(): string {
+  return (
+    process.env.FIREBASE_STORAGE_BUCKET ||
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    `${process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'presupuestador-ak-producciones'}.appspot.com`
+  );
+}
+
 /**
  * Returns the Firebase Storage bucket, or null if not available.
  * Requires Firebase Admin SDK to be initialized (see server.ts).
@@ -12,11 +21,7 @@ import admin from 'firebase-admin';
 function getBucket(): admin.storage.Bucket | null {
   try {
     if (!admin.apps.length) return null;
-    const bucketName =
-      process.env.FIREBASE_STORAGE_BUCKET ||
-      process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-      `${process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'presupuestador-ak-producciones'}.appspot.com`;
-    return admin.storage().bucket(bucketName);
+    return admin.storage().bucket(resolveBucketName());
   } catch {
     return null;
   }
@@ -39,11 +44,6 @@ export async function uploadToStorage(
   const bucket = getBucket();
   if (!bucket) return null;
 
-  const bucketName =
-    process.env.FIREBASE_STORAGE_BUCKET ||
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-    `${process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'presupuestador-ak-producciones'}.appspot.com`;
-
   try {
     const file = bucket.file(storagePath);
     await file.save(buffer, {
@@ -52,7 +52,7 @@ export async function uploadToStorage(
     });
     // Make the file publicly readable
     await file.makePublic();
-    const publicUrl = `https://storage.googleapis.com/${bucketName}/${storagePath}`;
+    const publicUrl = `https://storage.googleapis.com/${resolveBucketName()}/${storagePath}`;
     return publicUrl;
   } catch (error: any) {
     console.error(`[Storage] Error uploading ${storagePath}:`, error?.message ?? error);
@@ -64,18 +64,18 @@ export async function uploadToStorage(
  * Deletes a file from Firebase Storage.
  * Silently ignores errors (e.g. file not found).
  *
- * @param storagePath - Path inside the bucket (e.g. 'contracts/cust_123/contrato.pdf')
+ * @param storageUrlOrPath - Full Storage URL or path inside the bucket
  */
-export async function deleteFromStorage(storagePath: string): Promise<void> {
+export async function deleteFromStorage(storageUrlOrPath: string): Promise<void> {
   const bucket = getBucket();
   if (!bucket) return;
 
   try {
     // If the value is a full URL, extract the path component
-    let resolvedPath = storagePath;
-    if (storagePath.startsWith('https://storage.googleapis.com/')) {
+    let resolvedPath = storageUrlOrPath;
+    if (storageUrlOrPath.startsWith('https://storage.googleapis.com/')) {
       // URL format: https://storage.googleapis.com/{bucket}/{path}
-      const withoutBase = storagePath.replace('https://storage.googleapis.com/', '');
+      const withoutBase = storageUrlOrPath.replace('https://storage.googleapis.com/', '');
       const slashIdx = withoutBase.indexOf('/');
       if (slashIdx !== -1) {
         resolvedPath = withoutBase.slice(slashIdx + 1);
@@ -83,7 +83,7 @@ export async function deleteFromStorage(storagePath: string): Promise<void> {
     }
     await bucket.file(resolvedPath).delete({ ignoreNotFound: true });
   } catch (error: any) {
-    console.warn(`[Storage] Could not delete ${storagePath}:`, error?.message ?? error);
+    console.warn(`[Storage] Could not delete ${storageUrlOrPath}:`, error?.message ?? error);
   }
 }
 
@@ -93,3 +93,4 @@ export async function deleteFromStorage(storagePath: string): Promise<void> {
 export function isStorageAvailable(): boolean {
   return getBucket() !== null;
 }
+
