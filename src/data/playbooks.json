@@ -1,0 +1,393 @@
+[
+  {
+    "id": "pb_boda_default",
+    "nombre": "Boda Clásica",
+    "tipoEvento": "Boda",
+    "descripcion": "Playbook completo para organización de bodas. Cubre todos los aspectos desde la planificación inicial hasta el día del evento.",
+    "esPlantillaDefault": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "tareas": [
+      { "titulo": "Definir fecha y lugar del evento", "descripcion": "Confirmar disponibilidad del salón y reservar fecha oficial.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -180 },
+      { "titulo": "Contratar fotógrafo y videógrafo", "descripcion": "Solicitar cotizaciones y confirmar cobertura completa del evento.", "prioridad": "Alta", "categoria": "Proveedores", "diasAntesEvento": -150 },
+      { "titulo": "Seleccionar menú de catering", "descripcion": "Degustación y aprobación del menú principal con el proveedor.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -120 },
+      { "titulo": "Enviar invitaciones formales", "descripcion": "Distribución de invitaciones físicas o digitales a todos los invitados.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -90 },
+      { "titulo": "Confirmar decoración y flores", "descripcion": "Definir paleta de colores, arreglos florales y decoración general.", "prioridad": "Media", "categoria": "Decoración", "diasAntesEvento": -90 },
+      { "titulo": "Confirmar lista de invitados y mesa", "descripcion": "Cerrar lista definitiva y asignar lugares en el salón.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -60 },
+      { "titulo": "Prueba de vestido/traje", "descripcion": "Última prueba y ajustes finales de la vestimenta nupcial.", "prioridad": "Alta", "categoria": "Vestuario", "diasAntesEvento": -45 },
+      { "titulo": "Confirmar música y DJ/Banda", "descripcion": "Revisar playlist, horarios y requerimientos técnicos del músico.", "prioridad": "Media", "categoria": "Entretenimiento", "diasAntesEvento": -30 },
+      { "titulo": "Coordinar transporte para invitados", "descripcion": "Organizar traslados desde puntos de reunión al salón.", "prioridad": "Media", "categoria": "Logística", "diasAntesEvento": -14 },
+      { "titulo": "Reunión final con todos los proveedores", "descripcion": "Confirmar horarios, accesos y requerimientos del día del evento.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": -7 },
+      { "titulo": "Preparar kit de emergencia", "descripcion": "Aguja, hilo, imperdibles, maquillaje de retoque, botiquín básico.", "prioridad": "Media", "categoria": "Logística", "diasAntesEvento": -3 },
+      { "titulo": "Supervisión montaje del salón", "descripcion": "Verificar decoración, mesas, sonido e iluminación en sitio.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+    ],
+    "documentos": [
+      { "nombre": "Contrato con el salón", "tipo": "Contrato", "obligatorio": true },
+      { "nombre": "Contrato con catering", "tipo": "Contrato", "obligatorio": true },
+      { "nombre": "Lista de invitados confirmados", "tipo": "Lista", "obligatorio": true },
+      { "nombre": "Itinerario del día", "tipo": "Planificación", "obligatorio": true },
+      { "nombre": "Permisos municipales (si aplica)", "tipo": "Legal", "obligatorio": false }
+    ],
+    "compras": [
+      { "nombre": "Arreglos florales y decoración", "categoria": "Decoración", "prioridad": "Alta", "descripcion": "Flores de temporada para centros de mesa y arco nupcial." },
+      { "nombre": "Pastel de bodas", "categoria": "Catering", "prioridad": "Alta", "descripcion": "Pastel personalizado según diseño acordado con los novios." },
+      { "nombre": "Recuerdos para invitados", "categoria": "Souvenirs", "prioridad": "Media", "descripcion": "Detalles personalizados para cada invitado." },
+      { "nombre": "Papelería (invitaciones, menús, mesa)", "categoria": "Papelería", "prioridad": "Media", "descripcion": "Invitaciones, menús de mesa, carteles y señalización." },
+      { "nombre": "Iluminación especial", "categoria": "Técnico", "prioridad": "Media", "descripcion": "Luces LED, candelabros o iluminación ambiental adicional." },
+      { "nombre": "Transporte de novios (limusina/auto clásico)", "categoria": "Logística", "prioridad": "Alta", "descripcion": "Vehículo especial para traslado de los novios." }
+    ],
+    "etapas": [
+      {
+        "nombre": "Planificación Inicial",
+        "descripcion": "Definición de bases: fecha, lugar, presupuesto y proveedores clave.",
+        "orden": 1,
+        "tareas": [
+          { "titulo": "Definir fecha y lugar del evento", "descripcion": "Confirmar disponibilidad del salón y reservar fecha oficial.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -180 },
+          { "titulo": "Contratar fotógrafo y videógrafo", "descripcion": "Solicitar cotizaciones y confirmar cobertura completa del evento.", "prioridad": "Alta", "categoria": "Proveedores", "diasAntesEvento": -150 }
+        ]
+      },
+      {
+        "nombre": "Organización de Detalles",
+        "descripcion": "Confirmación de menú, invitaciones y decoración.",
+        "orden": 2,
+        "tareas": [
+          { "titulo": "Seleccionar menú de catering", "descripcion": "Degustación y aprobación del menú principal con el proveedor.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -120 },
+          { "titulo": "Enviar invitaciones formales", "descripcion": "Distribución de invitaciones a todos los invitados.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -90 }
+        ]
+      },
+      {
+        "nombre": "Confirmaciones Finales",
+        "descripcion": "Cierre de listas, confirmaciones con proveedores y detalles de último momento.",
+        "orden": 3,
+        "tareas": [
+          { "titulo": "Confirmar lista de invitados y mesa", "descripcion": "Cerrar lista definitiva y asignar lugares en el salón.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -60 },
+          { "titulo": "Reunión final con todos los proveedores", "descripcion": "Confirmar horarios, accesos y requerimientos del día del evento.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": -7 }
+        ]
+      },
+      {
+        "nombre": "Día del Evento",
+        "descripcion": "Coordinación en sitio y supervisión general del evento.",
+        "orden": 4,
+        "tareas": [
+          { "titulo": "Supervisión montaje del salón", "descripcion": "Verificar decoración, mesas, sonido e iluminación en sitio.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+        ]
+      }
+    ],
+    "timingsRecomendados": {
+      "Planificación Inicial": "6 meses antes: Reservar lugar y proveedores clave.",
+      "Organización de Detalles": "3-4 meses antes: Confirmar menú, invitaciones y decoración.",
+      "Confirmaciones Finales": "1-2 meses antes: Cerrar listas y reconfirmar todo.",
+      "Día del Evento": "Día del evento: Coordinación en sitio desde 4 horas antes."
+    }
+  },
+  {
+    "id": "pb_xv_default",
+    "nombre": "XV Años Tradicional",
+    "tipoEvento": "XV años",
+    "descripcion": "Playbook para quinceañeras. Desde la planificación hasta el gran día, cubriendo vals, chambelanes y todos los detalles especiales.",
+    "esPlantillaDefault": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "tareas": [
+      { "titulo": "Reservar salón y fecha", "descripcion": "Confirmar disponibilidad y firmar contrato con el salón.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -150 },
+      { "titulo": "Seleccionar vestido de quinceañera", "descripcion": "Búsqueda, prueba y pedido del vestido principal.", "prioridad": "Alta", "categoria": "Vestuario", "diasAntesEvento": -120 },
+      { "titulo": "Contratar DJ y/o banda", "descripcion": "Seleccionar música, incluyendo vals y canciones especiales.", "prioridad": "Alta", "categoria": "Entretenimiento", "diasAntesEvento": -120 },
+      { "titulo": "Armar grupo de chambelanes", "descripcion": "Seleccionar y confirmar chambelanes para el vals de honor.", "prioridad": "Alta", "categoria": "Participantes", "diasAntesEvento": -90 },
+      { "titulo": "Enviar invitaciones", "descripcion": "Diseñar y distribuir invitaciones a familiares y amigos.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -75 },
+      { "titulo": "Ensayo del vals y coreografías", "descripcion": "Coordinar clases y ensayos con chambelanes y quinceañera.", "prioridad": "Alta", "categoria": "Entretenimiento", "diasAntesEvento": -60 },
+      { "titulo": "Definir decoración y temática", "descripcion": "Confirmar colores, flores y elementos decorativos del salón.", "prioridad": "Media", "categoria": "Decoración", "diasAntesEvento": -60 },
+      { "titulo": "Confirmar menú y pastel", "descripcion": "Degustación y selección de menú y diseño del pastel.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -45 },
+      { "titulo": "Contratar fotógrafo y videógrafo", "descripcion": "Confirmar cobertura completa del evento.", "prioridad": "Alta", "categoria": "Proveedores", "diasAntesEvento": -45 },
+      { "titulo": "Confirmar lista final de invitados", "descripcion": "Cerrar la lista y distribuir mesas en el salón.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -30 },
+      { "titulo": "Ensayo general en el salón", "descripcion": "Prueba de vals, entrada, música y coordinación general.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": -7 },
+      { "titulo": "Coordinación el día del evento", "descripcion": "Supervisar montaje, recibir proveedores y coordinar inicio.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+    ],
+    "documentos": [
+      { "nombre": "Contrato del salón", "tipo": "Contrato", "obligatorio": true },
+      { "nombre": "Lista de chambelanes confirmados", "tipo": "Lista", "obligatorio": true },
+      { "nombre": "Lista de invitados", "tipo": "Lista", "obligatorio": true },
+      { "nombre": "Itinerario del evento", "tipo": "Planificación", "obligatorio": true },
+      { "nombre": "Contrato fotógrafo/videógrafo", "tipo": "Contrato", "obligatorio": false }
+    ],
+    "compras": [
+      { "nombre": "Vestido de quinceañera", "categoria": "Vestuario", "prioridad": "Alta", "descripcion": "Vestido principal con accesorios: tiara, aretes, zapatillas." },
+      { "nombre": "Vestimenta de chambelanes", "categoria": "Vestuario", "prioridad": "Alta", "descripcion": "Trajes o atuendos coordinados para los chambelanes." },
+      { "nombre": "Pastel de XV años", "categoria": "Catering", "prioridad": "Alta", "descripcion": "Pastel temático personalizado según diseño elegido." },
+      { "nombre": "Recuerdos para invitados", "categoria": "Souvenirs", "prioridad": "Media", "descripcion": "Detalles personalizados con nombre y fecha." },
+      { "nombre": "Decoración y flores", "categoria": "Decoración", "prioridad": "Media", "descripcion": "Centros de mesa, arco de flores y decoración general." }
+    ],
+    "etapas": [
+      {
+        "nombre": "Planificación Base",
+        "descripcion": "Reserva del salón, selección de vestido y proveedores principales.",
+        "orden": 1,
+        "tareas": [
+          { "titulo": "Reservar salón y fecha", "descripcion": "Confirmar disponibilidad y firmar contrato con el salón.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -150 },
+          { "titulo": "Seleccionar vestido de quinceañera", "descripcion": "Búsqueda, prueba y pedido del vestido principal.", "prioridad": "Alta", "categoria": "Vestuario", "diasAntesEvento": -120 }
+        ]
+      },
+      {
+        "nombre": "Organización y Ensayos",
+        "descripcion": "Confirmación de chambelanes, invitaciones y ensayos de vals.",
+        "orden": 2,
+        "tareas": [
+          { "titulo": "Armar grupo de chambelanes", "descripcion": "Seleccionar y confirmar chambelanes para el vals de honor.", "prioridad": "Alta", "categoria": "Participantes", "diasAntesEvento": -90 },
+          { "titulo": "Ensayo del vals y coreografías", "descripcion": "Coordinar clases y ensayos con chambelanes y quinceañera.", "prioridad": "Alta", "categoria": "Entretenimiento", "diasAntesEvento": -60 }
+        ]
+      },
+      {
+        "nombre": "Confirmaciones y Detalles",
+        "descripcion": "Cierre de menú, lista de invitados y detalles finales.",
+        "orden": 3,
+        "tareas": [
+          { "titulo": "Confirmar menú y pastel", "descripcion": "Degustación y selección de menú y diseño del pastel.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -45 },
+          { "titulo": "Confirmar lista final de invitados", "descripcion": "Cerrar la lista y distribuir mesas en el salón.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -30 }
+        ]
+      },
+      {
+        "nombre": "Día del Evento",
+        "descripcion": "Coordinación en sitio y supervisión de la celebración.",
+        "orden": 4,
+        "tareas": [
+          { "titulo": "Coordinación el día del evento", "descripcion": "Supervisar montaje, recibir proveedores y coordinar inicio.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+        ]
+      }
+    ],
+    "timingsRecomendados": {
+      "Planificación Base": "5 meses antes: Salón, vestido y proveedores principales.",
+      "Organización y Ensayos": "2-3 meses antes: Chambelanes, invitaciones y ensayos.",
+      "Confirmaciones y Detalles": "1 mes antes: Menú, lista final y detalles.",
+      "Día del Evento": "Día del evento: Coordinación desde 3 horas antes."
+    }
+  },
+  {
+    "id": "pb_cumple_default",
+    "nombre": "Cumpleaños Adultos",
+    "tipoEvento": "Cumpleaños",
+    "descripcion": "Playbook para celebraciones de cumpleaños de adultos. Flexible y adaptable a diferentes estilos y presupuestos.",
+    "esPlantillaDefault": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "tareas": [
+      { "titulo": "Definir concepto y temática del evento", "descripcion": "Elegir el estilo, colores y ambiente de la celebración.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -60 },
+      { "titulo": "Confirmar lugar y reservar", "descripcion": "Salón, jardín o espacio seleccionado y reservado.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -60 },
+      { "titulo": "Enviar invitaciones", "descripcion": "Digitales o físicas con datos completos del evento.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -45 },
+      { "titulo": "Contratar entretenimiento", "descripcion": "DJ, música en vivo u opciones de entretenimiento.", "prioridad": "Media", "categoria": "Entretenimiento", "diasAntesEvento": -30 },
+      { "titulo": "Confirmar menú y bebidas", "descripcion": "Seleccionar opciones de comida y bebida según el presupuesto.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -30 },
+      { "titulo": "Ordenar pastel de cumpleaños", "descripcion": "Diseño personalizado según temática del cumpleaños.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -21 },
+      { "titulo": "Confirmar decoración", "descripcion": "Globos, flores, letreros y elementos decorativos.", "prioridad": "Media", "categoria": "Decoración", "diasAntesEvento": -14 },
+      { "titulo": "Confirmar lista definitiva de asistentes", "descripcion": "Número final de invitados para coordinar catering y lugar.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -7 },
+      { "titulo": "Coordinar llegada de proveedores", "descripcion": "Horarios de montaje, DJ y decoradores.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": -1 },
+      { "titulo": "Supervisar montaje y recibir invitados", "descripcion": "Verificar decoración y coordinar la llegada de invitados.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+    ],
+    "documentos": [
+      { "nombre": "Lista de invitados", "tipo": "Lista", "obligatorio": true },
+      { "nombre": "Contrato con el lugar", "tipo": "Contrato", "obligatorio": true },
+      { "nombre": "Itinerario del evento", "tipo": "Planificación", "obligatorio": false },
+      { "nombre": "Cotización de catering", "tipo": "Cotización", "obligatorio": false }
+    ],
+    "compras": [
+      { "nombre": "Decoración y globos", "categoria": "Decoración", "prioridad": "Alta", "descripcion": "Globos, letreros, centros de mesa según temática." },
+      { "nombre": "Pastel personalizado", "categoria": "Catering", "prioridad": "Alta", "descripcion": "Pastel decorado con temática del cumpleaños." },
+      { "nombre": "Bebidas y hielo", "categoria": "Catering", "prioridad": "Alta", "descripcion": "Bebidas alcohólicas y no alcohólicas según lista de invitados." },
+      { "nombre": "Recuerdos para invitados", "categoria": "Souvenirs", "prioridad": "Baja", "descripcion": "Detalles opcionales para los asistentes." }
+    ],
+    "etapas": [
+      {
+        "nombre": "Planificación",
+        "descripcion": "Definición de concepto, lugar e invitados.",
+        "orden": 1,
+        "tareas": [
+          { "titulo": "Definir concepto y temática del evento", "descripcion": "Elegir el estilo, colores y ambiente de la celebración.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -60 },
+          { "titulo": "Confirmar lugar y reservar", "descripcion": "Salón, jardín o espacio seleccionado y reservado.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -60 }
+        ]
+      },
+      {
+        "nombre": "Organización",
+        "descripcion": "Confirmación de catering, entretenimiento y decoración.",
+        "orden": 2,
+        "tareas": [
+          { "titulo": "Confirmar menú y bebidas", "descripcion": "Seleccionar opciones de comida y bebida según el presupuesto.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -30 },
+          { "titulo": "Confirmar decoración", "descripcion": "Globos, flores, letreros y elementos decorativos.", "prioridad": "Media", "categoria": "Decoración", "diasAntesEvento": -14 }
+        ]
+      },
+      {
+        "nombre": "Semana del Evento",
+        "descripcion": "Confirmaciones finales y coordinación de proveedores.",
+        "orden": 3,
+        "tareas": [
+          { "titulo": "Confirmar lista definitiva de asistentes", "descripcion": "Número final de invitados para coordinar catering y lugar.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -7 }
+        ]
+      },
+      {
+        "nombre": "Día del Evento",
+        "descripcion": "Montaje y coordinación en sitio.",
+        "orden": 4,
+        "tareas": [
+          { "titulo": "Supervisar montaje y recibir invitados", "descripcion": "Verificar decoración y coordinar la llegada de invitados.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+        ]
+      }
+    ],
+    "timingsRecomendados": {
+      "Planificación": "2 meses antes: Lugar, concepto e invitados.",
+      "Organización": "1 mes antes: Catering, entretenimiento y decoración.",
+      "Semana del Evento": "1 semana antes: Confirmaciones finales.",
+      "Día del Evento": "Día del evento: Montaje y coordinación."
+    }
+  },
+  {
+    "id": "pb_corporativo_default",
+    "nombre": "Evento Corporativo",
+    "tipoEvento": "Evento corporativo",
+    "descripcion": "Playbook para eventos corporativos: conferencias, cenas de gala, team buildings y lanzamientos de productos.",
+    "esPlantillaDefault": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "tareas": [
+      { "titulo": "Definir objetivos y presupuesto del evento", "descripcion": "Alinear con dirección los objetivos, presupuesto y alcance del evento.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -90 },
+      { "titulo": "Seleccionar y reservar venue", "descripcion": "Evaluar espacios según capacidad, equipamiento AV y ubicación.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -75 },
+      { "titulo": "Confirmar ponentes o presentadores", "descripcion": "Gestionar disponibilidad, honorarios y requerimientos técnicos.", "prioridad": "Alta", "categoria": "Participantes", "diasAntesEvento": -60 },
+      { "titulo": "Diseñar agenda del evento", "descripcion": "Estructura de tiempos, sesiones, descansos y actividades.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -60 },
+      { "titulo": "Enviar invitaciones corporativas", "descripcion": "Comunicación formal por correo con datos y confirmación de asistencia.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -45 },
+      { "titulo": "Confirmar catering y coffee breaks", "descripcion": "Menú de almuerzo/cena y opciones de coffee break para pausas.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -30 },
+      { "titulo": "Verificar equipamiento audiovisual", "descripcion": "Proyectores, micrófonos, pantallas y conexión a internet.", "prioridad": "Alta", "categoria": "Técnico", "diasAntesEvento": -21 },
+      { "titulo": "Preparar materiales y kits para asistentes", "descripcion": "Carpetas, bolígrafos, agendas, merchandising o materiales impresos.", "prioridad": "Media", "categoria": "Materiales", "diasAntesEvento": -14 },
+      { "titulo": "Confirmar asistencia final", "descripcion": "Cierre de lista definitiva para catering y logística.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -7 },
+      { "titulo": "Prueba técnica en venue", "descripcion": "Test de sonido, proyección y conectividad el día previo.", "prioridad": "Alta", "categoria": "Técnico", "diasAntesEvento": -1 },
+      { "titulo": "Montaje y coordinación del evento", "descripcion": "Supervisar setup, recibir participantes y gestionar agenda.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+    ],
+    "documentos": [
+      { "nombre": "Brief del evento", "tipo": "Planificación", "obligatorio": true },
+      { "nombre": "Contrato con el venue", "tipo": "Contrato", "obligatorio": true },
+      { "nombre": "Lista de asistentes confirmados", "tipo": "Lista", "obligatorio": true },
+      { "nombre": "Agenda detallada", "tipo": "Planificación", "obligatorio": true },
+      { "nombre": "Contratos con ponentes", "tipo": "Contrato", "obligatorio": false }
+    ],
+    "compras": [
+      { "nombre": "Material impreso y papelería corporativa", "categoria": "Materiales", "prioridad": "Alta", "descripcion": "Programas, credenciales, carpetas y materiales de marca." },
+      { "nombre": "Equipamiento audiovisual adicional", "categoria": "Técnico", "prioridad": "Alta", "descripcion": "Micrófono de solapa, puntero laser, pantallas adicionales." },
+      { "nombre": "Decoración y señalética", "categoria": "Decoración", "prioridad": "Media", "descripcion": "Banners, señalética, flores y elementos de marca." },
+      { "nombre": "Kits para asistentes", "categoria": "Materiales", "prioridad": "Media", "descripcion": "Cuadernos, bolígrafos, USB u otros obsequios corporativos." },
+      { "nombre": "Fotografía del evento", "categoria": "Proveedores", "prioridad": "Media", "descripcion": "Fotógrafo profesional para documentación del evento." }
+    ],
+    "etapas": [
+      {
+        "nombre": "Planificación Estratégica",
+        "descripcion": "Definición de objetivos, venue y ponentes.",
+        "orden": 1,
+        "tareas": [
+          { "titulo": "Definir objetivos y presupuesto del evento", "descripcion": "Alinear con dirección los objetivos, presupuesto y alcance.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -90 },
+          { "titulo": "Seleccionar y reservar venue", "descripcion": "Evaluar espacios según capacidad, equipamiento AV y ubicación.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -75 }
+        ]
+      },
+      {
+        "nombre": "Organización Operativa",
+        "descripcion": "Gestión de agenda, invitaciones, catering y materiales.",
+        "orden": 2,
+        "tareas": [
+          { "titulo": "Diseñar agenda del evento", "descripcion": "Estructura de tiempos, sesiones, descansos y actividades.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -60 },
+          { "titulo": "Confirmar catering y coffee breaks", "descripcion": "Menú y opciones de coffee break para pausas.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -30 }
+        ]
+      },
+      {
+        "nombre": "Semana Previa",
+        "descripcion": "Pruebas técnicas, materiales y confirmación final.",
+        "orden": 3,
+        "tareas": [
+          { "titulo": "Verificar equipamiento audiovisual", "descripcion": "Proyectores, micrófonos, pantallas y conexión a internet.", "prioridad": "Alta", "categoria": "Técnico", "diasAntesEvento": -21 },
+          { "titulo": "Prueba técnica en venue", "descripcion": "Test de sonido, proyección y conectividad el día previo.", "prioridad": "Alta", "categoria": "Técnico", "diasAntesEvento": -1 }
+        ]
+      },
+      {
+        "nombre": "Ejecución del Evento",
+        "descripcion": "Montaje, coordinación y cierre del evento.",
+        "orden": 4,
+        "tareas": [
+          { "titulo": "Montaje y coordinación del evento", "descripcion": "Supervisar setup, recibir participantes y gestionar agenda.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+        ]
+      }
+    ],
+    "timingsRecomendados": {
+      "Planificación Estratégica": "3 meses antes: Objetivos, venue y ponentes.",
+      "Organización Operativa": "1-2 meses antes: Agenda, invitaciones y catering.",
+      "Semana Previa": "1 semana antes: Pruebas técnicas y materiales.",
+      "Ejecución del Evento": "Día del evento: Montaje desde 3 horas antes."
+    }
+  },
+  {
+    "id": "pb_cumple_infantil_default",
+    "nombre": "Cumpleaños Infantil",
+    "tipoEvento": "Cumpleaños infantil",
+    "descripcion": "Playbook para fiestas infantiles. Divertido, seguro y lleno de actividades para los más pequeños.",
+    "esPlantillaDefault": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "tareas": [
+      { "titulo": "Elegir temática de la fiesta", "descripcion": "Definir personaje, colores y concepto según gustos del niño/a.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -45 },
+      { "titulo": "Reservar espacio o salón infantil", "descripcion": "Confirmar lugar adecuado para niños con área de juegos.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -45 },
+      { "titulo": "Enviar invitaciones a niños y padres", "descripcion": "Invitaciones temáticas con datos del evento e indicaciones.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -30 },
+      { "titulo": "Contratar animador o payaso", "descripcion": "Seleccionar animador infantil con juegos y actividades.", "prioridad": "Alta", "categoria": "Entretenimiento", "diasAntesEvento": -30 },
+      { "titulo": "Ordenar pastel temático", "descripcion": "Pastel con diseño del personaje elegido, tamaño adecuado.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -21 },
+      { "titulo": "Comprar decoración temática", "descripcion": "Globos, banderines, platos, vasos y mantel del tema.", "prioridad": "Media", "categoria": "Decoración", "diasAntesEvento": -14 },
+      { "titulo": "Preparar bolsas de regalo para niños", "descripcion": "Bolsitas con dulces, juguetes pequeños y recuerdito del tema.", "prioridad": "Media", "categoria": "Souvenirs", "diasAntesEvento": -14 },
+      { "titulo": "Confirmar menú infantil y adultos", "descripcion": "Snacks, pizzas o lonches para niños; opciones para adultos.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -10 },
+      { "titulo": "Confirmar número final de asistentes", "descripcion": "Confirmar con padres la asistencia de cada niño.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -5 },
+      { "titulo": "Montaje y supervisión del evento", "descripcion": "Decorar el salón, recibir a los niños y coordinar actividades.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+    ],
+    "documentos": [
+      { "nombre": "Lista de niños invitados", "tipo": "Lista", "obligatorio": true },
+      { "nombre": "Contrato con el salón infantil", "tipo": "Contrato", "obligatorio": true },
+      { "nombre": "Contrato con animador", "tipo": "Contrato", "obligatorio": false },
+      { "nombre": "Alergias e intolerancias alimentarias", "tipo": "Salud", "obligatorio": true }
+    ],
+    "compras": [
+      { "nombre": "Decoración temática completa", "categoria": "Decoración", "prioridad": "Alta", "descripcion": "Globos, banderines, mantel, platos y vasos temáticos." },
+      { "nombre": "Pastel temático infantil", "categoria": "Catering", "prioridad": "Alta", "descripcion": "Pastel con diseño del personaje favorito del cumpleañero." },
+      { "nombre": "Bolsas de regalo para invitados", "categoria": "Souvenirs", "prioridad": "Alta", "descripcion": "Bolsitas con dulces, juguetes y recuerdito personalizado." },
+      { "nombre": "Piñata y dulces para piñata", "categoria": "Entretenimiento", "prioridad": "Media", "descripcion": "Piñata temática con dulces y golosinas para los niños." },
+      { "nombre": "Snacks y bebidas para niños y adultos", "categoria": "Catering", "prioridad": "Alta", "descripcion": "Pizzas, sandwiches, jugos, refrescos y snacks varios." }
+    ],
+    "etapas": [
+      {
+        "nombre": "Planificación",
+        "descripcion": "Temática, lugar y entretenimiento.",
+        "orden": 1,
+        "tareas": [
+          { "titulo": "Elegir temática de la fiesta", "descripcion": "Definir personaje, colores y concepto según gustos del niño/a.", "prioridad": "Alta", "categoria": "Planificación", "diasAntesEvento": -45 },
+          { "titulo": "Contratar animador o payaso", "descripcion": "Seleccionar animador infantil con juegos y actividades.", "prioridad": "Alta", "categoria": "Entretenimiento", "diasAntesEvento": -30 }
+        ]
+      },
+      {
+        "nombre": "Compras y Decoración",
+        "descripcion": "Adquirir decoración, pastel y bolsas de regalo.",
+        "orden": 2,
+        "tareas": [
+          { "titulo": "Ordenar pastel temático", "descripcion": "Pastel con diseño del personaje elegido, tamaño adecuado.", "prioridad": "Alta", "categoria": "Catering", "diasAntesEvento": -21 },
+          { "titulo": "Comprar decoración temática", "descripcion": "Globos, banderines, platos, vasos y mantel del tema.", "prioridad": "Media", "categoria": "Decoración", "diasAntesEvento": -14 }
+        ]
+      },
+      {
+        "nombre": "Confirmaciones Finales",
+        "descripcion": "Asistencia, menú y detalles de último momento.",
+        "orden": 3,
+        "tareas": [
+          { "titulo": "Confirmar número final de asistentes", "descripcion": "Confirmar con padres la asistencia de cada niño.", "prioridad": "Alta", "categoria": "Invitados", "diasAntesEvento": -5 }
+        ]
+      },
+      {
+        "nombre": "Día del Evento",
+        "descripcion": "Decoración, bienvenida y coordinación de actividades.",
+        "orden": 4,
+        "tareas": [
+          { "titulo": "Montaje y supervisión del evento", "descripcion": "Decorar el salón, recibir a los niños y coordinar actividades.", "prioridad": "Alta", "categoria": "Coordinación", "diasAntesEvento": 0 }
+        ]
+      }
+    ],
+    "timingsRecomendados": {
+      "Planificación": "45 días antes: Temática, lugar y entretenimiento.",
+      "Compras y Decoración": "2-3 semanas antes: Decoración, pastel y souvenirs.",
+      "Confirmaciones Finales": "1 semana antes: Asistencia final y menú.",
+      "Día del Evento": "Día del evento: Montaje 2 horas antes."
+    }
+  }
+]
