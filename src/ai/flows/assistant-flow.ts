@@ -112,6 +112,12 @@ Si el usuario dice "agregá un proveedor" o "registrá este servicio":
 - action.type = "create_supplier"
 - action.data: { nombreEmpresa, nombre, servicioPrincipal, tipo: 'Proveedor'|'Servicio Subcontratado', telefono, email, notas }
 
+### 📋 REGISTRAR PROSPECTO/LEAD EN CRM
+Si el usuario dice "registrá un prospecto", "anotá un lead", "agregá una consulta" o menciona a alguien que preguntó por el servicio:
+- action.type = "create_lead"
+- action.data: { name, phone, email, partyType, followUpDate, guestCount, notes }
+- El nombre es obligatorio; teléfono altamente recomendado para seguimiento
+
 ### 🎉 CREAR EVENTOS
 Si el usuario dice "creá un evento" o "agendate un evento de X":
 - action.type = "create_event"

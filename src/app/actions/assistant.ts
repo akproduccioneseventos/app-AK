@@ -10,6 +10,7 @@ import { getServiciosEmpresa, saveServicioEmpresa } from './servicios-empresa';
 import { saveEmpleado } from './empleados';
 import { saveProveedor } from './proveedores';
 import { createNewFiestaForCustomer, getAllFiestas, saveFiesta } from './fiesta/fiesta.actions';
+import { addCrmLead } from './crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
@@ -401,6 +402,38 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el proveedor: ${e.message}. Intentá de nuevo.`;
+      }
+    } else if (result.action?.type === 'create_lead' && result.action.data) {
+      const d = result.action.data;
+      try {
+        if (!d.name) {
+          actionResult = { success: false, error: 'Falta el nombre del prospecto.' };
+          finalResponse = `❌ No se pudo registrar el prospecto: falta el nombre. Intentá de nuevo.`;
+        } else {
+          const leadResult = await addCrmLead({
+            name: d.name,
+            phone: d.phone,
+            email: d.email,
+            partyType: d.partyType,
+            followUpDate: d.followUpDate,
+            guestCount: d.guestCount != null ? (Number(d.guestCount) || undefined) : undefined,
+            notes: d.notes,
+            budgetSource: 'manual',
+          });
+          actionResult = leadResult;
+          if (leadResult.success && leadResult.lead) {
+            const nombre = d.name;
+            const id = leadResult.lead.id;
+            finalResponse = `✅ Prospecto **${nombre}** registrado en el CRM${id ? ` (ID: ${id})` : ''}. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+          } else if (leadResult.duplicate) {
+            finalResponse = `⚠️ Ya existe un prospecto con ese teléfono: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+          } else {
+            finalResponse = `❌ No se pudo registrar el prospecto: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /contabilidad/crm.`;
+          }
+        }
+      } catch (e: any) {
+        actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo registrar el prospecto: ${e.message}. Intentá de nuevo.`;
       }
     } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;

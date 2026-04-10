@@ -604,6 +604,15 @@ export function AKAssistantWidget() {
                 toast({ title: '❌ No se pudo registrar el proveedor', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
+            case 'create_lead':
+              if (actionResult?.success) {
+                toast({ title: '✅ Prospecto registrado en el CRM', description: actionData?.name || '' });
+              } else if (actionResult?.duplicate) {
+                toast({ title: '⚠️ Prospecto duplicado', description: actionResult.error || 'Ya existe un prospecto con ese teléfono.', variant: 'destructive' });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo registrar el prospecto', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
+              }
+              break;
             case 'update_event':
               if (actionResult?.success) {
                 toast({ title: '✅ Evento actualizado' });
