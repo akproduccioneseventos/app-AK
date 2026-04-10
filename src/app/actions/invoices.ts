@@ -7,6 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { markPresupuestoAsFacturado } from './presupuestos';
 import { addInvoiceId } from './fiesta/fiesta.actions';
+import { uploadToStorage } from '@/lib/firebase/storage';
 
 const INVOICES_FILE = 'invoices.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -20,7 +21,6 @@ async function ensureSubdirectoryExists(dirPath: string) {
         await fs.mkdir(dirPath, { recursive: true });
     }
 }
-ensureSubdirectoryExists(paymentProofsDirectoryPath);
 
 
 export async function getInvoices(): Promise<Invoice[]> {
@@ -208,12 +208,20 @@ export async function addPaymentToInvoice(
 
   if (transactionProofFile && transactionProofFile.size > 0) {
     try {
-      await ensureSubdirectoryExists(paymentProofsDirectoryPath);
       const bytes = await transactionProofFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `proof_${paymentId}_${transactionProofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(paymentProofsDirectoryPath, uniqueFilename), buffer);
-      transactionProofUrl = `/api/payment-proofs/${uniqueFilename}`;
+
+      // Try Firebase Storage first
+      const storageUrl = await uploadToStorage(buffer, `payment-proofs/${uniqueFilename}`, transactionProofFile.type || 'application/octet-stream');
+      if (storageUrl) {
+        transactionProofUrl = storageUrl;
+      } else {
+        // Fallback: local filesystem
+        await ensureSubdirectoryExists(paymentProofsDirectoryPath);
+        await fs.writeFile(path.join(paymentProofsDirectoryPath, uniqueFilename), buffer);
+        transactionProofUrl = `/api/payment-proofs/${uniqueFilename}`;
+      }
     } catch (fileError: any) {
       console.error("Error saving payment proof file:", fileError);
       return { success: false, error: `Error al guardar el comprobante: ${fileError.message}` };

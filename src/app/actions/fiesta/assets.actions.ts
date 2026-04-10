@@ -1,17 +1,17 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
+import { uploadToStorage } from '@/lib/firebase/storage';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const ASSETS_DIR = path.join(DATA_DIR, 'public-page-assets');
 
-async function ensureDirectoryExists() {
+async function ensureDirectoryExists(dirPath: string) {
   try {
-    await fs.access(ASSETS_DIR);
+    await fs.access(dirPath);
   } catch {
-    await fs.mkdir(ASSETS_DIR, { recursive: true });
+    await fs.mkdir(dirPath, { recursive: true });
   }
 }
 
@@ -24,22 +24,28 @@ export async function uploadPublicPageAsset(
   }
 
   try {
-    await ensureDirectoryExists();
-
-    const eventAssetDir = path.join(ASSETS_DIR, fiestaId);
-    await fs.mkdir(eventAssetDir, { recursive: true });
-    
     const fileExtension = path.extname(file.name);
     const uniqueFilename = `asset_${Date.now()}_${Math.random().toString(36).substring(2, 9)}${fileExtension}`;
-    const filePath = path.join(eventAssetDir, uniqueFilename);
-    
     const bytes = await file.arrayBuffer();
-    await fs.writeFile(filePath, Buffer.from(bytes));
+    const buffer = Buffer.from(bytes);
 
-    const publicUrl = `/api/public-page-assets/${fiestaId}/${uniqueFilename}`;
-    
-    return { success: true, url: publicUrl };
+    // Try Firebase Storage first
+    const storageUrl = await uploadToStorage(
+      buffer,
+      `public-page-assets/${fiestaId}/${uniqueFilename}`,
+      file.type || 'application/octet-stream'
+    );
+    if (storageUrl) {
+      return { success: true, url: storageUrl };
+    }
 
+    // Fallback: local filesystem (development / no Firebase credentials)
+    const eventAssetDir = path.join(ASSETS_DIR, fiestaId);
+    await ensureDirectoryExists(eventAssetDir);
+    const filePath = path.join(eventAssetDir, uniqueFilename);
+    await fs.writeFile(filePath, buffer);
+
+    return { success: true, url: `/api/public-page-assets/${fiestaId}/${uniqueFilename}` };
   } catch (error: any) {
     console.error('Error uploading asset:', error);
     return { success: false, error: 'Error al subir el archivo: ' + error.message };

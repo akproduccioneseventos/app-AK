@@ -13,6 +13,11 @@ export async function GET(
     return new NextResponse('Filename is required', { status: 400 });
   }
 
+  // If the stored value is a full URL (Firebase Storage), redirect to it
+  if (filename.startsWith('https://')) {
+    return NextResponse.redirect(filename, { status: 302 });
+  }
+
   // Sanitize filename to prevent directory traversal
   const safeFilename = path.basename(filename);
   if (safeFilename !== filename) {

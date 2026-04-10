@@ -6,6 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const EMPLEADOS_FILE = 'empleados.json';
 const CONTRACTS_DIR = path.join(process.cwd(), 'src', 'data', 'employee-contracts');
@@ -89,12 +90,20 @@ export async function saveEmpleado(
         }
         return { success: false, error: 'El contrato debe ser un archivo PDF.' };
       }
-      await ensureContractsDirectoryExists();
+      const uniqueFilename = `contract_${empleadoId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       const bytes = await contractFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      const uniqueFilename = `contract_${empleadoId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), buffer);
-      empleadoToSave.contractFileName = uniqueFilename;
+
+      // Try Firebase Storage first
+      const storageUrl = await uploadToStorage(buffer, `employee-contracts/${uniqueFilename}`, contractFile.type || 'application/pdf');
+      if (storageUrl) {
+        empleadoToSave.contractFileName = storageUrl;
+      } else {
+        // Fallback: local filesystem
+        await ensureContractsDirectoryExists();
+        await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), buffer);
+        empleadoToSave.contractFileName = uniqueFilename;
+      }
     } catch (fileError: any) {
       console.error("Error saving employee contract file:", fileError);
       // Rollback in-memory addition for new employees before returning
@@ -128,10 +137,14 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
   }
 
   if (empleadoToDelete?.contractFileName) {
-    try {
-      await fs.unlink(path.join(CONTRACTS_DIR, empleadoToDelete.contractFileName));
-    } catch (fileError: any) {
-      console.warn(`Error deleting contract file ${empleadoToDelete.contractFileName}:`, fileError.message);
+    if (empleadoToDelete.contractFileName.startsWith('https://')) {
+      await deleteFromStorage(empleadoToDelete.contractFileName);
+    } else {
+      try {
+        await fs.unlink(path.join(CONTRACTS_DIR, empleadoToDelete.contractFileName));
+      } catch (fileError: any) {
+        console.warn(`Error deleting contract file ${empleadoToDelete.contractFileName}:`, fileError.message);
+      }
     }
   }
 

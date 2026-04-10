@@ -6,6 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const CUSTOMERS_FILE = 'customers.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -24,9 +25,32 @@ async function ensureSubdirectoryExists(dirPath: string) {
         await fs.mkdir(dirPath, { recursive: true });
     }
 }
-ensureSubdirectoryExists(contractsDirectoryPath);
-ensureSubdirectoryExists(budgetsDirectoryPath);
-ensureSubdirectoryExists(salonContractsDirectoryPath);
+
+/**
+ * Uploads a PDF file to Firebase Storage or falls back to local disk.
+ * Returns the resulting URL/filename to store in the database record.
+ */
+async function uploadFileToStorageOrDisk(
+  file: File,
+  storageFolder: string,
+  localDir: string,
+  filenamePrefix: string,
+  customerId: string
+): Promise<string> {
+  const uniqueFilename = `${filenamePrefix}_${customerId}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  // Try Firebase Storage first
+  const storageUrl = await uploadToStorage(buffer, `${storageFolder}/${uniqueFilename}`, file.type || 'application/pdf');
+  if (storageUrl) return storageUrl;
+
+  // Fallback: local filesystem
+  await ensureSubdirectoryExists(localDir);
+  await fs.writeFile(path.join(localDir, uniqueFilename), buffer);
+  return uniqueFilename;
+}
+
 
 
 export async function getCustomers(): Promise<Customer[]> {
@@ -123,12 +147,10 @@ export async function saveCustomer(
       if (contractFile.type !== 'application/pdf') {
         throw new Error('El contrato debe ser un archivo PDF.');
       }
-      await ensureSubdirectoryExists(contractsDirectoryPath);
-      const bytes = await contractFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const uniqueFilename = `contract_${customerId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(contractsDirectoryPath, uniqueFilename), buffer);
-      (customerToSave as Customer).contractFileName = uniqueFilename;
+      const fileRef = await uploadFileToStorageOrDisk(
+        contractFile, 'contracts', contractsDirectoryPath, 'contract', customerId
+      );
+      (customerToSave as Customer).contractFileName = fileRef;
     } catch (fileError: any) {
       console.error("Error saving contract file:", fileError);
       return { success: false, error: `Error al guardar archivo de contrato: ${fileError.message}` };
@@ -140,12 +162,10 @@ export async function saveCustomer(
        if (budgetFile.type !== 'application/pdf') {
         throw new Error('El presupuesto debe ser un archivo PDF.');
       }
-      await ensureSubdirectoryExists(budgetsDirectoryPath);
-      const bytes = await budgetFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const uniqueFilename = `budget_${customerId}_${Date.now()}_${budgetFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(budgetsDirectoryPath, uniqueFilename), buffer);
-      (customerToSave as Customer).budgetFileName = uniqueFilename;
+      const fileRef = await uploadFileToStorageOrDisk(
+        budgetFile, 'budgets', budgetsDirectoryPath, 'budget', customerId
+      );
+      (customerToSave as Customer).budgetFileName = fileRef;
     } catch (fileError: any) {
       console.error("Error saving budget file:", fileError);
       return { success: false, error: `Error al guardar archivo de presupuesto: ${fileError.message}` };
@@ -157,12 +177,10 @@ export async function saveCustomer(
       if (salonContractFile.type !== 'application/pdf') {
         throw new Error('El contrato del salón debe ser un archivo PDF.');
       }
-      await ensureSubdirectoryExists(salonContractsDirectoryPath);
-      const bytes = await salonContractFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const uniqueFilename = `salon_contract_${customerId}_${Date.now()}_${salonContractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(salonContractsDirectoryPath, uniqueFilename), buffer);
-      (customerToSave as Customer).salonContractFileName = uniqueFilename;
+      const fileRef = await uploadFileToStorageOrDisk(
+        salonContractFile, 'salon-contracts', salonContractsDirectoryPath, 'salon_contract', customerId
+      );
+      (customerToSave as Customer).salonContractFileName = fileRef;
     } catch (fileError: any) {
       console.error("Error saving salon contract file:", fileError);
       return { success: false, error: `Error al guardar archivo de contrato del salón: ${fileError.message}` };
@@ -198,24 +216,36 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
   }
 
   if (customerToDelete?.contractFileName) {
-    try {
-      await fs.unlink(path.join(contractsDirectoryPath, customerToDelete.contractFileName));
-    } catch (fileError: any) {
-      console.warn(`Error deleting contract file ${customerToDelete.contractFileName}:`, fileError.message);
+    if (customerToDelete.contractFileName.startsWith('https://')) {
+      await deleteFromStorage(customerToDelete.contractFileName);
+    } else {
+      try {
+        await fs.unlink(path.join(contractsDirectoryPath, customerToDelete.contractFileName));
+      } catch (fileError: any) {
+        console.warn(`Error deleting contract file ${customerToDelete.contractFileName}:`, fileError.message);
+      }
     }
   }
   if (customerToDelete?.budgetFileName) { 
-    try {
-      await fs.unlink(path.join(budgetsDirectoryPath, customerToDelete.budgetFileName));
-    } catch (fileError: any) {
-      console.warn(`Error deleting budget file ${customerToDelete.budgetFileName}:`, fileError.message);
+    if (customerToDelete.budgetFileName.startsWith('https://')) {
+      await deleteFromStorage(customerToDelete.budgetFileName);
+    } else {
+      try {
+        await fs.unlink(path.join(budgetsDirectoryPath, customerToDelete.budgetFileName));
+      } catch (fileError: any) {
+        console.warn(`Error deleting budget file ${customerToDelete.budgetFileName}:`, fileError.message);
+      }
     }
   }
   if (customerToDelete?.salonContractFileName) { 
-    try {
-      await fs.unlink(path.join(salonContractsDirectoryPath, customerToDelete.salonContractFileName));
-    } catch (fileError: any) {
-      console.warn(`Error deleting salon contract file ${customerToDelete.salonContractFileName}:`, fileError.message);
+    if (customerToDelete.salonContractFileName.startsWith('https://')) {
+      await deleteFromStorage(customerToDelete.salonContractFileName);
+    } else {
+      try {
+        await fs.unlink(path.join(salonContractsDirectoryPath, customerToDelete.salonContractFileName));
+      } catch (fileError: any) {
+        console.warn(`Error deleting salon contract file ${customerToDelete.salonContractFileName}:`, fileError.message);
+      }
     }
   }
 

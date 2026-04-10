@@ -45,10 +45,18 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         let uniqueFilename: string | undefined = undefined;
 
         if (contractFile && contractFile.size > 0) {
-            await ensureDirectoryExists(CONTRACTS_DIR);
-            uniqueFilename = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            const { uploadToStorage } = await import('@/lib/firebase/storage');
+            const filenameBase = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
             const bytes = await contractFile.arrayBuffer();
-            await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), Buffer.from(bytes));
+            const buffer = Buffer.from(bytes);
+            const storageUrl = await uploadToStorage(buffer, `contracts/${filenameBase}`, contractFile.type || 'application/pdf');
+            if (storageUrl) {
+              uniqueFilename = storageUrl;
+            } else {
+              await ensureDirectoryExists(CONTRACTS_DIR);
+              uniqueFilename = filenameBase;
+              await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), buffer);
+            }
         }
 
         const newCustomer: Customer = {

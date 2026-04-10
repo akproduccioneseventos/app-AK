@@ -6,6 +6,7 @@ import path from 'path';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { uploadToStorage } from '@/lib/firebase/storage';
 
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const VIDEO_VIDA_DIR = path.join(DATA_DIR, 'video-vida-photos');
@@ -53,19 +54,31 @@ export async function saveLifeStoryVideoPhoto(
   }
 
   try {
-    await ensureDirectoryExists(VIDEO_VIDA_DIR);
-    const eventAssetDir = path.join(VIDEO_VIDA_DIR, fiestaId);
-    await fs.mkdir(eventAssetDir, { recursive: true });
-
     const fileExtension = path.extname(file.name);
     const formattedNumber = String(photoNumber).padStart(2, '0');
     const newFilename = `${formattedNumber}${fileExtension}`;
-    const filePath = path.join(eventAssetDir, newFilename);
-
     const bytes = await file.arrayBuffer();
-    await fs.writeFile(filePath, Buffer.from(bytes));
+    const buffer = Buffer.from(bytes);
 
-    const publicUrl = `/api/video-vida-photos/${fiestaId}/${newFilename}`;
+    // Try Firebase Storage first
+    const storageUrl = await uploadToStorage(
+      buffer,
+      `video-vida-photos/${fiestaId}/${newFilename}`,
+      file.type || 'image/jpeg'
+    );
+
+    let publicUrl: string;
+    if (storageUrl) {
+      publicUrl = storageUrl;
+    } else {
+      // Fallback: local filesystem
+      await ensureDirectoryExists(VIDEO_VIDA_DIR);
+      const eventAssetDir = path.join(VIDEO_VIDA_DIR, fiestaId);
+      await fs.mkdir(eventAssetDir, { recursive: true });
+      const filePath = path.join(eventAssetDir, newFilename);
+      await fs.writeFile(filePath, buffer);
+      publicUrl = `/api/video-vida-photos/${fiestaId}/${newFilename}`;
+    }
     
     // Also update fiesta to mark that photos have been uploaded
     const fiesta = await getFiestaActual();
@@ -104,3 +117,4 @@ export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ succ
         return { success: false, error: error.message };
     }
 }
+

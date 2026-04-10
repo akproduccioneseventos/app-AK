@@ -5,6 +5,7 @@ import type { SocialPost } from '@/types/social-media';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const POSTS_FILE = 'social-posts.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -15,7 +16,115 @@ async function ensureDataDirectoriesExist() {
   try { await fs.access(DATA_DIR); } catch { await fs.mkdir(DATA_DIR, { recursive: true }); }
   try { await fs.access(assetsDirectoryPath); } catch { await fs.mkdir(assetsDirectoryPath, { recursive: true }); }
 }
-ensureDataDirectoriesExist();
+
+export async function getSocialPosts(): Promise<SocialPost[]> {
+  return readData<SocialPost[]>(POSTS_FILE, []);
+}
+
+export async function saveSocialPost(
+  formData: FormData
+): Promise<{ success: boolean; post?: SocialPost; error?: string }> {
+  let posts = await getSocialPosts();
+  const postId = (formData.get('id') as string) || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const mediaFile = formData.get('mediaFile') as File | null;
+  const autoPublish = formData.get('autoPublish') === 'true';
+
+  let mediaUrl: string | undefined = formData.get('existingMediaUrl') as string || undefined;
+  let mediaType: 'image' | 'video' | undefined = formData.get('existingMediaType') as 'image' | 'video' || undefined;
+
+  if (mediaFile && mediaFile.size > 0) {
+    try {
+      const fileExtension = path.extname(mediaFile.name);
+      const newFilename = `${postId}${fileExtension}`;
+      const bytes = await mediaFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      // Try Firebase Storage first
+      const storageUrl = await uploadToStorage(buffer, `social-media-assets/${newFilename}`, mediaFile.type || 'application/octet-stream');
+      if (storageUrl) {
+        mediaUrl = storageUrl;
+      } else {
+        // Fallback: local filesystem
+        await ensureDataDirectoriesExist();
+        const filePath = path.join(assetsDirectoryPath, newFilename);
+        await fs.writeFile(filePath, buffer);
+        mediaUrl = `/api/social-media-assets/${newFilename}`;
+      }
+      mediaType = mediaFile.type.startsWith('image/') ? 'image' : 'video';
+    } catch (fileError: any) {
+      return { success: false, error: `Error al guardar el archivo multimedia: ${fileError.message}` };
+    }
+  }
+
+  const postData: Omit<SocialPost, 'id' | 'createdAt' | 'updatedAt'> = {
+    platform: formData.get('platform') as SocialPost['platform'],
+    isGeneralCampaign: formData.get('isGeneralCampaign') === 'true',
+    eventId: formData.get('eventId') as string || undefined,
+    eventName: formData.get('eventName') as string || undefined,
+    publishDate: formData.get('publishDate') as string,
+    text: formData.get('text') as string,
+    link: formData.get('link') as string || undefined,
+    status: autoPublish ? 'Publicado' : (formData.get('status') as SocialPost['status']),
+    promotionCost: Number(formData.get('promotionCost')) || undefined,
+    performance: {
+        likes: Number(formData.get('performance.likes')) || undefined,
+        views: Number(formData.get('performance.views')) || undefined,
+        interactions: Number(formData.get('performance.interactions')) || undefined,
+    },
+    mediaUrl,
+    mediaType,
+  };
+
+  const existingIndex = posts.findIndex(p => p.id === postId);
+  let finalPost: SocialPost;
+
+  if (existingIndex > -1) {
+    finalPost = { ...posts[existingIndex], ...postData, updatedAt: new Date().toISOString() };
+    posts[existingIndex] = finalPost;
+  } else {
+    finalPost = { ...postData, id: postId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    posts.push(finalPost);
+  }
+  
+  if (autoPublish) {
+    console.log(`[SIMULATION] Attempting to auto-publish post ${postId} to ${finalPost.platform}.`);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    const isSuccess = Math.random() > 0.1;
+    if (!isSuccess) {
+      return { success: false, error: `Error simulado al publicar en ${finalPost.platform}.` };
+    }
+  }
+
+  await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+  return { success: true, post: finalPost };
+}
+
+
+export async function deleteSocialPost(postId: string): Promise<{ success: boolean, error?: string }> {
+  let posts = await getSocialPosts();
+  const postToDelete = posts.find(p => p.id === postId);
+
+  if (!postToDelete) return { success: false, error: "Publicación no encontrada." };
+
+  if (postToDelete.mediaUrl) {
+    try {
+      if (postToDelete.mediaUrl.startsWith('https://')) {
+        await deleteFromStorage(postToDelete.mediaUrl);
+      } else {
+        const filename = path.basename(postToDelete.mediaUrl);
+        const filePath = path.join(assetsDirectoryPath, filename);
+        await fs.unlink(filePath);
+      }
+    } catch (fileError: any) {
+      console.warn(`Could not delete media file for post ${postId}: ${fileError.message}`);
+    }
+  }
+  
+  const updatedPosts = posts.filter(p => p.id !== postId);
+  await writeData(POSTS_FILE, updatedPosts);
+  return { success: true };
+}
+
 
 export async function getSocialPosts(): Promise<SocialPost[]> {
   return readData<SocialPost[]>(POSTS_FILE, []);

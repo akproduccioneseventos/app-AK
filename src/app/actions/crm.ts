@@ -186,16 +186,26 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
 
     // 1. Save contract file if provided
     if (hasFile) {
-      const fs = await import('fs/promises');
+      const { uploadToStorage } = await import('@/lib/firebase/storage');
       const path = await import('path');
-      const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-      const contractsDir = path.join(DATA_DIR, 'contracts');
-      try { await fs.access(contractsDir); } catch { await fs.mkdir(contractsDir, { recursive: true }); }
-
-      contractFileName = `contrato_${lead.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
-      const contractFilePath = path.join(contractsDir, contractFileName);
+      const uniqueFilename = `contrato_${lead.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
       const arrayBuffer = await contractFile!.arrayBuffer();
-      await fs.writeFile(contractFilePath, Buffer.from(arrayBuffer));
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Try Firebase Storage first
+      const storageUrl = await uploadToStorage(buffer, `contracts/${uniqueFilename}`, 'application/pdf');
+      if (storageUrl) {
+        contractFileName = storageUrl;
+      } else {
+        // Fallback: local filesystem
+        const fs = await import('fs/promises');
+        const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+        const contractsDir = path.join(DATA_DIR, 'contracts');
+        try { await fs.access(contractsDir); } catch { await fs.mkdir(contractsDir, { recursive: true }); }
+        const contractFilePath = path.join(contractsDir, uniqueFilename);
+        await fs.writeFile(contractFilePath, buffer);
+        contractFileName = uniqueFilename;
+      }
     }
 
     // 2. Create Customer with full data from lead + budget

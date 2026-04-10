@@ -6,6 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const SOCIAL_GALLERY_DIR_NAME = 'social-gallery';
 const SOCIAL_CHAT_DIR_NAME = 'social-chat';
@@ -17,8 +18,6 @@ const MAX_PHOTOS_PER_EVENT = 200;
 async function ensureDataDirectoryExists(dirPath: string) {
   try { await fs.access(dirPath); } catch { await fs.mkdir(dirPath, { recursive: true }); }
 }
-ensureDataDirectoryExists(SOCIAL_GALLERY_DIR);
-ensureDataDirectoryExists(SOCIAL_CHAT_DIR);
 
 // Photo Gallery Functions
 async function getMetadata(): Promise<SocialGalleryPost[]> {
@@ -50,22 +49,36 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
     return { success: false, error: `Se ha alcanzado el límite de ${limit} fotos para este evento.` };
   }
 
-  const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
   try {
-    await ensureDataDirectoryExists(eventPhotoDirPath);
-
     const fileExtension = path.extname(file.name);
     const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newFilename = `${postId}${fileExtension}`;
-    const filePath = path.join(eventPhotoDirPath, newFilename);
-
     const bytes = await file.arrayBuffer();
-    await fs.writeFile(filePath, Buffer.from(bytes));
+    const buffer = Buffer.from(bytes);
+
+    // Try Firebase Storage first
+    const storageUrl = await uploadToStorage(
+      buffer,
+      `social-gallery/${fiestaId}/${newFilename}`,
+      file.type || 'image/jpeg'
+    );
+
+    let imageUrl: string;
+    if (storageUrl) {
+      imageUrl = storageUrl;
+    } else {
+      // Fallback: local filesystem
+      const eventPhotoDirPath = path.join(SOCIAL_GALLERY_DIR, fiestaId);
+      await ensureDataDirectoryExists(eventPhotoDirPath);
+      const filePath = path.join(eventPhotoDirPath, newFilename);
+      await fs.writeFile(filePath, buffer);
+      imageUrl = `/api/social-gallery/${fiestaId}/${newFilename}`;
+    }
 
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId: fiestaId,
-      imageUrl: `/api/social-gallery/${fiestaId}/${newFilename}`,
+      imageUrl,
       timestamp: new Date().toISOString(),
       authorName: authorName,
       likes: 0,
@@ -118,9 +131,15 @@ export async function deleteSocialPost(postId: string): Promise<{ success: boole
   if (!postToDelete) return { success: false, error: "Publicación no encontrada para eliminar." };
   
   try {
-    const filename = path.basename(postToDelete.imageUrl);
-    const filePath = path.join(SOCIAL_GALLERY_DIR, postToDelete.fiestaId, filename);
-    await fs.unlink(filePath);
+    if (postToDelete.imageUrl.startsWith('https://')) {
+      // Firebase Storage URL
+      await deleteFromStorage(postToDelete.imageUrl);
+    } else {
+      // Local file (e.g. /api/social-gallery/...)
+      const filename = path.basename(postToDelete.imageUrl);
+      const filePath = path.join(SOCIAL_GALLERY_DIR, postToDelete.fiestaId, filename);
+      await fs.unlink(filePath);
+    }
   } catch (fileError: any) {
     console.warn(`Could not delete file for post ${postId}: ${fileError.message}`);
   }

@@ -96,6 +96,8 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
 
 /**
  * Writes data to a JSON file and triggers an automatic backup if needed.
+ * In production (Vercel / serverless), writes ONLY to Firestore to avoid
+ * relying on the ephemeral local filesystem.
  */
 export async function writeData<T>(
   filePath: string,
@@ -108,6 +110,34 @@ export async function writeData<T>(
     throw new Error(`Invalid data file path: ${filePath}`);
   }
 
+  let dataToWrite = data;
+  if (Array.isArray(dataToWrite) && sortFn) {
+    (dataToWrite as any[]).sort(sortFn);
+  }
+
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+
+  if (isProduction) {
+    // In production: write ONLY to Firestore — skip local filesystem entirely.
+    // The ephemeral filesystem on Vercel/Cloud Run cannot be used as a data store.
+    try {
+      const { syncToFirestore } = await import('./firebase-sync');
+      await syncToFirestore(filePath, dataToWrite).catch(err => {
+        logger.error(`❌ [Firestore Write] "${filePath}" failed. Data may be lost. Detail: ${err instanceof Error ? err.message : err}`);
+        throw err; // Re-throw so callers know the write failed
+      });
+    } catch (err) {
+      // If Firestore isn't available in production we still attempt the local write
+      // as a last resort so the request doesn't silently drop data.
+      logger.warn(`⚠️ [Production] Firestore write failed for "${filePath}". Attempting emergency local write.`);
+      const absolutePath = path.join(DATA_DIR, normalizedFilePath);
+      await ensureFile(absolutePath);
+      await fs.writeFile(absolutePath, JSON.stringify(dataToWrite, null, 2), 'utf-8').catch(() => {});
+    }
+    return;
+  }
+
+  // Development mode: write to local filesystem + sync to Firestore (dual-write)
   const absolutePath = path.join(DATA_DIR, normalizedFilePath);
   await ensureFile(absolutePath);
 
@@ -143,11 +173,6 @@ export async function writeData<T>(
     // No existing file to back up, or backup failed — proceed without interrupting write
   }
 
-  let dataToWrite = data;
-  if (Array.isArray(dataToWrite) && sortFn) {
-    dataToWrite.sort(sortFn);
-  }
-  
   await fs.writeFile(absolutePath, JSON.stringify(dataToWrite, null, 2), 'utf-8');
 
   // TRIGGER AUTO-BACKUP LOGIC
@@ -157,31 +182,20 @@ export async function writeData<T>(
   // We don't await this to keep the UI fast
   triggerAutoBackup().catch(err => logger.error("Background auto-backup failed:", err));
 
-  // FIRESTORE SYNC: In production, await Firestore write to ensure data durability.
-  // In development, fire-and-forget to keep local iteration fast.
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  // FIRESTORE SYNC: fire-and-forget in development to keep local iteration fast.
   try {
     const { syncToFirestore } = await import('./firebase-sync');
-    if (isProduction) {
-      // Await in production — if Firestore fails, log but don't crash (local JSON is the backup)
-      await syncToFirestore(filePath, dataToWrite).catch(err => {
+    syncToFirestore(filePath, dataToWrite)
+      .then(() => {
+        if (process.env.NODE_ENV === 'development') {
+          logger.info(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
+        }
+      })
+      .catch(err => {
         logger.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
-        logger.warn(`   Los datos están SEGUROS en el archivo JSON local (Firestore es primario en producción — sincronizalo manualmente si es crítico).`);
+        logger.warn(`   Tus datos están SEGUROS en el archivo JSON local.`);
         logger.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
       });
-    } else {
-      syncToFirestore(filePath, dataToWrite)
-        .then(() => {
-          if (process.env.NODE_ENV === 'development') {
-            logger.info(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
-          }
-        })
-        .catch(err => {
-          logger.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
-          logger.warn(`   Tus datos están SEGUROS en el archivo JSON local.`);
-          logger.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
-        });
-    }
   } catch {
     // Firebase sync module not available, skip silently
   }

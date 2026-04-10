@@ -2,15 +2,11 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Solo usuarios autenticados pueden leer/escribir
+    // Toda escritura y lectura directa al cliente requiere autenticación.
+    // La app gestiona la seguridad desde el backend (Server Actions con Firebase Admin SDK),
+    // por lo que el acceso directo del cliente a la base de datos está denegado.
     match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Regla temporal para desarrollo: permitir acceso sin autenticación
-    // IMPORTANTE: Desactivar en producción
-    match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }
