@@ -45,7 +45,7 @@ export default async function LandingPage() {
   const galeriaUrls = new Set(galeriaData.fotos.map(f => f.url));
   const catalogoComoGaleria: GaleriaFoto[] = catalogoFotos
     .filter(f => !galeriaUrls.has(f.url))
-    .map((f, i) => ({
+    .map((f) => ({
       id: f.id,
       tipo: 'foto' as const,
       url: f.url,
@@ -53,7 +53,7 @@ export default async function LandingPage() {
       descripcion: f.descripcion,
       categoria: f.categoriaServicio,
       destacada: f.destacada,
-      orden: galeriaData.fotos.length + i,
+      orden: galeriaData.fotos.length + f.orden,
       createdAt: f.createdAt,
     }));
   const fotosCombinadas = [...galeriaData.fotos, ...catalogoComoGaleria];

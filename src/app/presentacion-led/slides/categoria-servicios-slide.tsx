@@ -170,6 +170,7 @@ export function CategoriaServiciosSlide({
 }: CategoriaServiciosSlideProps) {
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
 
   const categorySlug = slugify(categoria);
 
@@ -179,6 +180,11 @@ export function CategoriaServiciosSlide({
       .filter(f => isSafeHttpsUrl(f.url) && f.categoriaServicio.toLowerCase() === categoria.toLowerCase())
       .slice(0, 4),
     [catalogoFotos, categoria],
+  );
+
+  const visibleFotos = useMemo(
+    () => fotosCategoria.filter(f => !failedIds.has(f.id)),
+    [fotosCategoria, failedIds],
   );
 
   return (
@@ -220,12 +226,12 @@ export function CategoriaServiciosSlide({
             transition={{ delay: 0.2 }}
             className="flex flex-col gap-4"
           >
-            {fotosCategoria.length > 0 ? (
+            {visibleFotos.length > 0 ? (
               <div className={cn(
                 'grid gap-2 rounded-2xl overflow-hidden',
-                fotosCategoria.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+                visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
               )}>
-                {fotosCategoria.map((foto) => (
+                {visibleFotos.map((foto) => (
                    // eslint-disable-next-line @next/next/no-img-element
                    <img
                      key={foto.id}
@@ -233,9 +239,9 @@ export function CategoriaServiciosSlide({
                      alt={foto.titulo ?? categoria}
                      className={cn(
                        'w-full object-cover rounded-xl',
-                       fotosCategoria.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
+                       visibleFotos.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
                      )}
-                     onError={(e) => { (e.target as HTMLImageElement).parentElement?.removeChild(e.target as HTMLImageElement); }}
+                     onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
                    />
                 ))}
               </div>

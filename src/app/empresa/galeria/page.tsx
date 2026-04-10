@@ -153,7 +153,7 @@ export default function GaleriaAdminPage() {
       };
       await addGaleriaFoto(foto);
       await addCatalogoFoto({
-        id: `cat_${Date.now()}`,
+        id: `cat_${fotoId}`,
         url: fotoUrl.trim(),
         titulo: fotoTitulo.trim() || undefined,
         descripcion: fotoDescripcion.trim() || undefined,
@@ -206,7 +206,7 @@ export default function GaleriaAdminPage() {
       };
       await addGaleriaFoto(foto);
       await addCatalogoFoto({
-        id: `cat_${Date.now()}`,
+        id: `cat_${fotoId}`,
         url: result.url,
         titulo: fotoTitulo.trim() || undefined,
         descripcion: fotoDescripcion.trim() || undefined,
