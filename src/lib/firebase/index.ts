@@ -13,3 +13,10 @@ export {
   checkFirestoreConnection,
   type CollectionName,
 } from './firestore';
+export {
+  uploadToStorage,
+  deleteFromStorage,
+  getSignedUrl,
+  extractStoragePath,
+  isStorageAvailable,
+} from './storage';

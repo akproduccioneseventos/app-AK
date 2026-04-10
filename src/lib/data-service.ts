@@ -108,10 +108,31 @@ export async function writeData<T>(
     throw new Error(`Invalid data file path: ${filePath}`);
   }
 
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+
+  let dataToWrite: T = data;
+  if (Array.isArray(data) && sortFn) {
+    dataToWrite = [...data].sort(sortFn) as unknown as T;
+  }
+
+  // In production: write ONLY to Firestore. Local filesystem is ephemeral on Vercel/Cloud Run.
+  if (isProduction) {
+    try {
+      const { syncToFirestore } = await import('./firebase-sync');
+      await syncToFirestore(filePath, dataToWrite);
+      logger.info(`✅ [Firestore] "${filePath}" guardado correctamente en Firestore.`);
+    } catch (err) {
+      logger.error(`❌ [Firestore] "${filePath}" — falló escritura en Firestore: ${err instanceof Error ? err.message : err}`);
+      throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
+    }
+    return;
+  }
+
+  // In development: write to local JSON and sync to Firestore in the background.
   const absolutePath = path.join(DATA_DIR, normalizedFilePath);
   await ensureFile(absolutePath);
 
-  // Fase 2: best-effort backup of existing file before overwriting
+  // Best-effort backup of existing file before overwriting
   try {
     const resolvedPath = path.resolve(absolutePath);
     const resolvedDataDir = path.resolve(DATA_DIR);
@@ -143,45 +164,27 @@ export async function writeData<T>(
     // No existing file to back up, or backup failed — proceed without interrupting write
   }
 
-  let dataToWrite = data;
-  if (Array.isArray(dataToWrite) && sortFn) {
-    dataToWrite.sort(sortFn);
-  }
-  
   await fs.writeFile(absolutePath, JSON.stringify(dataToWrite, null, 2), 'utf-8');
 
   // TRIGGER AUTO-BACKUP LOGIC
   // Avoid circular dependency by importing here
   const { triggerAutoBackup } = await import('@/app/actions/backup');
-  
+
   // We don't await this to keep the UI fast
   triggerAutoBackup().catch(err => logger.error("Background auto-backup failed:", err));
 
-  // FIRESTORE SYNC: In production, await Firestore write to ensure data durability.
-  // In development, fire-and-forget to keep local iteration fast.
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  // Fire-and-forget Firestore sync in development
   try {
     const { syncToFirestore } = await import('./firebase-sync');
-    if (isProduction) {
-      // Await in production — if Firestore fails, log but don't crash (local JSON is the backup)
-      await syncToFirestore(filePath, dataToWrite).catch(err => {
+    syncToFirestore(filePath, dataToWrite)
+      .then(() => {
+        logger.info(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
+      })
+      .catch(err => {
         logger.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
-        logger.warn(`   Los datos están SEGUROS en el archivo JSON local (Firestore es primario en producción — sincronizalo manualmente si es crítico).`);
+        logger.warn(`   Tus datos están SEGUROS en el archivo JSON local.`);
         logger.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
       });
-    } else {
-      syncToFirestore(filePath, dataToWrite)
-        .then(() => {
-          if (process.env.NODE_ENV === 'development') {
-            logger.info(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
-          }
-        })
-        .catch(err => {
-          logger.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
-          logger.warn(`   Tus datos están SEGUROS en el archivo JSON local.`);
-          logger.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
-        });
-    }
   } catch {
     // Firebase sync module not available, skip silently
   }
