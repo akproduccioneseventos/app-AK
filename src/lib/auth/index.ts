@@ -35,8 +35,15 @@ export function getSession(): SessionData | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
-    // Validate it has the required shape of a SessionData object.
-    if (parsed && typeof parsed === 'object' && 'userId' in parsed) {
+    // Validate all required fields have correct types before trusting the data.
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      typeof parsed.userId === 'string' && parsed.userId.length > 0 &&
+      typeof parsed.email === 'string' && parsed.email.length > 0 &&
+      (parsed.role === 'admin' || parsed.role === 'user') &&
+      Array.isArray(parsed.modules)
+    ) {
       return parsed as SessionData;
     }
     return null;
