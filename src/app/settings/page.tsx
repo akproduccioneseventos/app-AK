@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageCircle, Bot } from 'lucide-react';
+import { Building, Bell, ShieldCheck, Settings as SettingsIcon, BarChart3, Link as LinkIcon, Star, HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket, FileSignature, MessageCircle, Bot, ToggleRight } from 'lucide-react';
 
 const settingsCards = [
    {
@@ -33,6 +33,13 @@ const settingsCards = [
     href: "/settings/budget-display",
     icon: Wand2,
     buttonLabel: "Gestionar Presupuestos"
+  },
+  {
+    title: "Feature Flags & Tiers de Servicio",
+    description: "Activá o desactivá módulos (Portal Invitado, Mission Control, Portal Proveedores) según el tier de cada cliente. Gestioná overrides globales con un clic.",
+    href: "/settings/feature-flags",
+    icon: ToggleRight,
+    buttonLabel: "Gestionar Módulos"
   },
    {
     title: "Cuentas Sociales Vinculadas",

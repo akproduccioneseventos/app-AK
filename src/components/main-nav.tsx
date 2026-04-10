@@ -292,7 +292,7 @@ export function MainNav() {
                     <Link href="/analytics">
                       <SidebarMenuSubButton isActive={isActive("/analytics")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter text-indigo-600 hover:text-indigo-700">
                         <TrendingUp className="w-3.5 h-3.5 mr-1" />
-                        Dashboard Analítico
+                        Dashboard Ejecutivo
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
@@ -335,6 +335,14 @@ export function MainNav() {
                   <SidebarMenuButton isActive={isActive("/incidentes")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/incidentes") ? "bg-red-50 text-red-700" : "text-slate-500 hover:bg-red-50/60 hover:text-red-600")}>
                     <AlertTriangle className="w-4 h-4 text-red-500" />
                     <span className="ml-2">Incidentes</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/settings/feature-flags">
+                  <SidebarMenuButton isActive={isActive("/settings/feature-flags")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/settings/feature-flags") ? "bg-violet-50 text-violet-700" : "text-slate-500 hover:bg-violet-50/60 hover:text-violet-600")}>
+                    <Activity className="w-4 h-4 text-violet-500" />
+                    <span className="ml-2">Feature Flags</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
