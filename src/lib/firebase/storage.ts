@@ -97,10 +97,10 @@ export async function deleteFromStorage(storageUrlOrPath: string): Promise<void>
       if (slashIdx !== -1) {
         resolvedPath = withoutBase.slice(slashIdx + 1);
       }
-    } else if (storageUrlOrPath.startsWith('https://storage.googleapis.com') || storageUrlOrPath.startsWith('https://firebasestorage.googleapis.com')) {
-      // Signed URL — extract path from URL query params is complex; use bucket metadata instead
-      // In this case, we skip deletion (signed URL paths are hard to reverse without the original path)
-      console.warn(`[Storage] Cannot delete from signed URL; store original storagePath for deletion.`);
+    } else if (storageUrlOrPath.startsWith('https://')) {
+      // Signed URL or other HTTPS URL — path extraction is not straightforward.
+      // Callers should store the original storagePath separately for deletion.
+      console.warn(`[Storage] Cannot reliably delete from a signed URL; store the original storagePath for deletion.`);
       return;
     }
     await bucket.file(resolvedPath).delete({ ignoreNotFound: true });

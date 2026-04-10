@@ -120,22 +120,12 @@ export async function writeData<T>(
   if (isProduction) {
     // In production: write ONLY to Firestore — skip local filesystem entirely.
     // The ephemeral filesystem on Vercel/Cloud Run cannot be used as a data store.
-    try {
-      const { syncToFirestore } = await import('./firebase-sync');
-      await syncToFirestore(filePath, dataToWrite).catch(err => {
-        logger.error(`❌ [Firestore Write] "${filePath}" failed. Data may be lost. Detail: ${err instanceof Error ? err.message : err}`);
-        throw err; // Re-throw so callers know the write failed
-      });
-    } catch (err) {
-      // If Firestore isn't available in production we still attempt the local write
-      // as a last resort so the request doesn't silently drop data.
-      logger.warn(`⚠️ [Production] Firestore write failed for "${filePath}". Attempting emergency local write.`);
-      const absolutePath = path.join(DATA_DIR, normalizedFilePath);
-      await ensureFile(absolutePath);
-      await fs.writeFile(absolutePath, JSON.stringify(dataToWrite, null, 2), 'utf-8').catch(localErr => {
-        logger.error(`❌ [Production] Emergency local write also failed for "${filePath}": ${localErr instanceof Error ? localErr.message : localErr}`);
-      });
-    }
+    const { syncToFirestore } = await import('./firebase-sync');
+    await syncToFirestore(filePath, dataToWrite).catch(err => {
+      const detail = err instanceof Error ? err.message : String(err);
+      logger.error(`❌ [Firestore Write] "${filePath}" failed. Data was NOT saved. Detail: ${detail}`);
+      throw err; // Re-throw so callers receive an error response instead of silently losing data
+    });
     return;
   }
 
