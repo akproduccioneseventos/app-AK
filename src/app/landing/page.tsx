@@ -14,6 +14,8 @@ import { getPromoActiva } from '@/app/actions/promos';
 import { PromoWidget } from '@/components/promo/PromoWidget';
 import { getGaleriaItems } from '@/app/actions/galeria';
 import { getLandingSettings } from '@/app/actions/landing-editor';
+import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
+import type { GaleriaFoto } from '@/types/galeria';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
@@ -32,11 +34,29 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LandingPage() {
-  const [promo, galeriaData, landingSettings] = await Promise.all([
+  const [promo, galeriaData, landingSettings, catalogoFotos] = await Promise.all([
     getPromoActiva(),
     getGaleriaItems(),
     getLandingSettings(),
+    getCatalogoFotos().catch(() => []),
   ]);
+
+  // Merge catalog photos into galería, deduplicating by URL
+  const galeriaUrls = new Set(galeriaData.fotos.map(f => f.url));
+  const catalogoComoGaleria: GaleriaFoto[] = catalogoFotos
+    .filter(f => !galeriaUrls.has(f.url))
+    .map((f, i) => ({
+      id: f.id,
+      tipo: 'foto' as const,
+      url: f.url,
+      titulo: f.titulo,
+      descripcion: f.descripcion,
+      categoria: f.categoriaServicio,
+      destacada: f.destacada,
+      orden: galeriaData.fotos.length + i,
+      createdAt: f.createdAt,
+    }));
+  const fotosCombinadas = [...galeriaData.fotos, ...catalogoComoGaleria];
 
   const whatsapp = landingSettings.whatsappNumber || '59898355530';
 
@@ -54,7 +74,7 @@ export default async function LandingPage() {
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
       <ServicesSection whatsappNumber={whatsapp} />
       <ProcessSection />
-      <GallerySection galeriaFotos={galeriaData.fotos} />
+      <GallerySection galeriaFotos={fotosCombinadas} />
       <VideoSection galeriaVideos={galeriaData.videos} />
       <TestimonialsSection />
       <FAQSection />

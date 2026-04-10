@@ -9,6 +9,7 @@ import { ImagePlaceholder } from '../components/image-placeholder';
 import { cn } from '@/lib/utils';
 import { slugify } from '../lib/string-utils';
 import type { ServicioEmpresa } from '@/types/empresa';
+import type { CatalogoFoto } from '@/types/catalogo';
 import { SERVICES } from '@/data/presentacion';
 
 interface CategoriaServiciosSlideProps {
@@ -19,6 +20,7 @@ interface CategoriaServiciosSlideProps {
   mostrarPrecios: boolean;
   categoriaIndex: number;
   totalCategorias: number;
+  catalogoFotos?: CatalogoFoto[];
 }
 
 function getServiceIcon(categoria?: string) {
@@ -155,11 +157,17 @@ export function CategoriaServiciosSlide({
   mostrarPrecios,
   categoriaIndex,
   totalCategorias,
+  catalogoFotos = [],
 }: CategoriaServiciosSlideProps) {
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
 
   const categorySlug = slugify(categoria);
+
+  // Filter catalog photos matching this category (up to 4)
+  const fotosCategoria = catalogoFotos
+    .filter(f => f.categoriaServicio.toLowerCase() === categoria.toLowerCase())
+    .slice(0, 4);
 
   return (
     <SlideLayout overflowScroll>
@@ -200,11 +208,32 @@ export function CategoriaServiciosSlide({
             transition={{ delay: 0.2 }}
             className="flex flex-col gap-4"
           >
-            <ImagePlaceholder
-              id={`categoria-${categorySlug}-hero`}
-              label={`Foto de ${categoria}`}
-              aspectRatio="4/3"
-            />
+            {fotosCategoria.length > 0 ? (
+              <div className={cn(
+                'grid gap-2 rounded-2xl overflow-hidden',
+                fotosCategoria.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+              )}>
+                {fotosCategoria.map((foto, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={foto.id}
+                    src={foto.url}
+                    alt={foto.titulo ?? categoria}
+                    className={cn(
+                      'w-full object-cover rounded-xl',
+                      fotosCategoria.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
+                    )}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <ImagePlaceholder
+                id={`categoria-${categorySlug}-hero`}
+                label={`Foto de ${categoria}`}
+                aspectRatio="4/3"
+              />
+            )}
 
             {/* Select all / deselect all shortcut */}
             {servicios.length > 1 && (
