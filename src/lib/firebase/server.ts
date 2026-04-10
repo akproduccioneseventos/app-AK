@@ -103,7 +103,7 @@ export async function verifyIdToken(idToken: string): Promise<DecodedIdToken | n
     const decodedToken = await authAdmin.verifyIdToken(idToken);
     return decodedToken;
   } catch (error) {
-    logger.error('Error verifying ID token:', String(error));
+    logger.error('Error verifying ID token:', error instanceof Error ? error.message : String(error));
     return null;
   }
 }

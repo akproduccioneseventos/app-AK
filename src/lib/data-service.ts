@@ -44,11 +44,18 @@ async function ensureFile(filePath: string, defaultContent: string = '[]'): Prom
  * Uses in-memory cache to reduce redundant disk and Firestore reads.
  */
 export async function readData<T>(filePath: string, defaultValue: T): Promise<T> {
+  // Sanitize filePath: must be a relative path that stays within DATA_DIR
+  const normalizedFilePath = path.normalize(filePath);
+  if (normalizedFilePath.startsWith('..') || path.isAbsolute(normalizedFilePath)) {
+    logger.warn(`[readData] Invalid data file path blocked: ${filePath}`);
+    return defaultValue;
+  }
+
   // Check in-memory cache first
   const cached = cacheGet<T>(`read:${filePath}`);
   if (cached !== undefined) return cached;
 
-  const absolutePath = path.join(DATA_DIR, filePath);
+  const absolutePath = path.join(DATA_DIR, normalizedFilePath);
   await ensureFile(absolutePath, JSON.stringify(defaultValue, null, 2));
   try {
     const fileContent = await fs.readFile(absolutePath, 'utf-8');
@@ -165,7 +172,7 @@ export async function writeData<T>(
   try {
     const { triggerAutoBackup } = await import('@/app/actions/backup');
     // We don't await this to keep the UI fast
-    triggerAutoBackup().catch(err => logger.error("Background auto-backup failed:", String(err)));
+    triggerAutoBackup().catch(err => logger.error("Background auto-backup failed:", err instanceof Error ? err.message : String(err)));
   } catch {
     // Backup module not available — proceed without error
   }

@@ -14,14 +14,25 @@ const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || KNOWN_PROJECT_I
 // Never use a dummy key — it initializes the SDK but causes all Firestore ops to fail.
 const shouldInitialize = !!apiKey || projectId === KNOWN_PROJECT_ID;
 
-const firebaseConfig = {
-  apiKey: apiKey || '',
+const firebaseConfig: {
+  apiKey?: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+} = {
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`,
   projectId,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || `${projectId}.firebasestorage.app`,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
 };
+
+// Only include apiKey when it's actually available — an empty string causes auth errors
+if (apiKey) {
+  firebaseConfig.apiKey = apiKey;
+}
 
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;

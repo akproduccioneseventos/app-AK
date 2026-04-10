@@ -59,6 +59,7 @@ const isDev = process.env.NODE_ENV === 'development';
 // ============================================================
 const CIRCUIT_MAX_FAILURES = 3;
 const CIRCUIT_COOLDOWN_MS = 60_000; // 60 seconds
+const CIRCUIT_COOLDOWN_SECONDS = CIRCUIT_COOLDOWN_MS / 1_000;
 
 const circuitBreaker = {
   consecutiveFailures: 0,
@@ -96,7 +97,7 @@ function recordCircuitFailure(): void {
     if (!circuitBreaker.loggedOpen) {
       circuitBreaker.loggedOpen = true;
       logger.warn(
-        `🔴 [Circuit Breaker] Firebase Firestore temporalmente deshabilitado por ${CIRCUIT_COOLDOWN_MS / 1000}s` +
+        `🔴 [Circuit Breaker] Firebase Firestore temporalmente deshabilitado por ${CIRCUIT_COOLDOWN_SECONDS}s` +
         ` tras ${circuitBreaker.consecutiveFailures} errores consecutivos. Los datos JSON locales están seguros.`
       );
     }
