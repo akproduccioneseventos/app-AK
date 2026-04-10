@@ -62,6 +62,7 @@ const modules = [
   { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital.", category: 'Portal del Cliente', color: "bg-rose-100 text-rose-600" },
   { id: 'videoVida', title: "Video Vida", href: "video-vida", icon: Video, description: "Carga de fotos de infancia.", category: 'Portal del Cliente', color: "bg-indigo-100 text-indigo-600" },
   { id: 'feedback', title: "Feedback", href: "/settings/feedback", icon: Star, description: "Encuesta post-evento.", category: 'Portal del Cliente', color: "bg-yellow-100 text-yellow-600" },
+  { id: 'postEvento', title: "Post-Evento Premium", href: "post-evento", icon: Star, description: "NPS, galería y referidos.", category: 'Portal del Cliente', color: "bg-rose-100 text-rose-600" },
 
   { id: 'checkin', title: "Check-in QR", href: "invitados/checkin-scanner", icon: QrCode, description: "Recepción de invitados.", category: 'Herramientas Adicionales', color: "bg-green-100 text-green-600" },
   { id: 'listaCompras', title: "Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
