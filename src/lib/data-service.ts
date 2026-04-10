@@ -29,8 +29,27 @@ async function ensureFile(filePath: string, defaultContent: string = '[]'): Prom
 
 /**
  * Reads and parses a JSON file.
+ * In production (Vercel), tries Firestore FIRST before falling back to local JSON.
+ * In development, uses local JSON first with Firestore as fallback for empty/default data.
  */
 export async function readData<T>(filePath: string, defaultValue: T): Promise<T> {
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+
+  // In production: try Firestore FIRST as the primary source of truth
+  if (isProduction) {
+    try {
+      const { readFromFirestore } = await import('./firebase-sync');
+      const firestoreData = await readFromFirestore(filePath);
+      if (firestoreData !== null && firestoreData !== undefined) {
+        if (Array.isArray(defaultValue) && !Array.isArray(firestoreData)) {
+          // Type mismatch — fall through to local JSON
+        } else {
+          return firestoreData as T;
+        }
+      }
+    } catch { /* Firestore unavailable in production — fall through to local JSON */ }
+  }
+
   const absolutePath = path.join(DATA_DIR, filePath);
   await ensureFile(absolutePath, JSON.stringify(defaultValue, null, 2));
   try {
@@ -50,8 +69,8 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
         } catch { /* Firestore unavailable */ }
         return defaultValue;
       }
-      // If local data matches default, try Firestore as a read-through fallback
-      if (JSON.stringify(localData) === JSON.stringify(defaultValue)) {
+      // In development: if local data matches default, try Firestore as a read-through fallback
+      if (!isProduction && JSON.stringify(localData) === JSON.stringify(defaultValue)) {
         try {
           const { readFromFirestore } = await import('./firebase-sync');
           const firestoreData = await readFromFirestore(filePath);
@@ -138,20 +157,31 @@ export async function writeData<T>(
   // We don't await this to keep the UI fast
   triggerAutoBackup().catch(err => logger.error("Background auto-backup failed:", err));
 
-  // DUAL-WRITE: Always attempt Firestore sync; fail silently if unavailable
+  // FIRESTORE SYNC: In production, await Firestore write to ensure data durability.
+  // In development, fire-and-forget to keep local iteration fast.
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
     const { syncToFirestore } = await import('./firebase-sync');
-    syncToFirestore(filePath, dataToWrite)
-      .then(() => {
-        if (process.env.NODE_ENV === 'development') {
-          logger.info(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
-        }
-      })
-      .catch(err => {
+    if (isProduction) {
+      // Await in production — if Firestore fails, log but don't crash (local JSON is the backup)
+      await syncToFirestore(filePath, dataToWrite).catch(err => {
         logger.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
-        logger.warn(`   Tus datos están SEGUROS en el archivo JSON local.`);
+        logger.warn(`   Los datos están SEGUROS en el archivo JSON local (Firestore es primario en producción — sincronizalo manualmente si es crítico).`);
         logger.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
       });
+    } else {
+      syncToFirestore(filePath, dataToWrite)
+        .then(() => {
+          if (process.env.NODE_ENV === 'development') {
+            logger.info(`📝 [Dual-Write] "${filePath}" — JSON ✅ + Firebase ✅`);
+          }
+        })
+        .catch(err => {
+          logger.warn(`⚠️ [Dual-Write] "${filePath}" — JSON ✅ guardado correctamente | Firebase ❌ falló.`);
+          logger.warn(`   Tus datos están SEGUROS en el archivo JSON local.`);
+          logger.warn(`   Detalle Firebase: ${err instanceof Error ? err.message : err}`);
+        });
+    }
   } catch {
     // Firebase sync module not available, skip silently
   }

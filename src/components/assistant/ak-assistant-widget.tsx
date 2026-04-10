@@ -418,6 +418,14 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     );
   }
 
+  // Fallback: if there's a backend action with a failed result but no specific card above, show generic error.
+  // NOTE: This list must stay in sync with the backend action types handled in assistant.ts.
+  // Any new backend action type added there should also appear here.
+  const backendActionTypes = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract'];
+  if (backendActionTypes.includes(action.type) && action.result && !action.result.success) {
+    return errorCard(action.result.error || 'No se pudo completar la acción. Intentá de nuevo o hacelo manualmente.');
+  }
+
   return null;
 }
 
@@ -536,51 +544,71 @@ export function AKAssistantWidget() {
             case 'create_budget':
               if (actionResult?.success) {
                 toast({ title: '✅ Presupuesto creado', description: `Para ${actionData?.clienteNombre || 'el cliente'}` });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo crear el presupuesto', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'create_customer':
               if (actionResult?.success) {
                 toast({ title: '✅ Cliente ingresado', description: actionData?.name || '' });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo guardar el cliente', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'create_event':
               if (actionResult?.success) {
                 toast({ title: '✅ Evento creado', description: `Para ${actionData?.clienteNombre || 'el cliente'}` });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo crear el evento', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'import_budget_from_image':
               if (actionResult?.success) {
                 toast({ title: '✅ Presupuesto importado', description: `Para ${actionData?.clienteNombre || 'el cliente'}` });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo importar el presupuesto', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'register_payment':
               if (actionResult?.success) {
                 toast({ title: '✅ Pago registrado', description: actionData?.monto != null ? `$${Number(actionData.monto).toLocaleString('es-UY')}` : undefined });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo registrar el pago', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'create_invoice':
               if (actionResult?.success) {
                 toast({ title: '✅ Factura creada', description: `Para ${actionData?.clienteNombre || 'el cliente'}` });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo crear la factura', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'update_service_price':
               if (actionResult?.success) {
                 toast({ title: '✅ Precio actualizado', description: actionData?.servicioNombre || '' });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo actualizar el precio', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'create_employee':
               if (actionResult?.success) {
                 toast({ title: '✅ Empleado registrado', description: actionData?.nombre || '' });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo registrar el empleado', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'create_supplier':
               if (actionResult?.success) {
                 toast({ title: '✅ Proveedor registrado', description: actionData?.nombreEmpresa || actionData?.nombre || '' });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo registrar el proveedor', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'update_event':
               if (actionResult?.success) {
                 toast({ title: '✅ Evento actualizado' });
+              } else if (actionResult && !actionResult.success) {
+                toast({ title: '❌ No se pudo actualizar el evento', description: actionResult.error || 'Intentá de nuevo.', variant: 'destructive' });
               }
               break;
             case 'generate_social_post':
@@ -596,6 +624,11 @@ export function AKAssistantWidget() {
             case 'generate_promo':
               if (actionResult?.success) {
                 toast({ title: '🎁 Promo generada', description: 'Lista para publicar' });
+              }
+              break;
+            default:
+              if (actionResult && !actionResult.success) {
+                toast({ title: '❌ Error al ejecutar acción', description: actionResult.error || 'No se pudo completar la operación.', variant: 'destructive' });
               }
               break;
           }

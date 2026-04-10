@@ -94,7 +94,11 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     if (result.action?.type === 'create_customer' && result.action.data) {
       const customerResult = await saveCustomer(result.action.data);
       actionResult = customerResult;
-      if (!customerResult.success) {
+      if (customerResult.success) {
+        const name = result.action.data.name || 'Cliente';
+        const id = customerResult.id;
+        finalResponse = `✅ Cliente **${name}** guardado correctamente${id ? ` (ID: ${id})` : ''}. Podés verlo en [/customers${id ? `/${id}` : ''}](/customers${id ? `/${id}` : ''}).`;
+      } else {
         finalResponse = `❌ No se pudo guardar el cliente: ${customerResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /customers/new.`;
       }
     }
@@ -250,6 +254,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         }
         if (!presupuestoId) {
           actionResult = { success: false, error: 'No se encontró el presupuesto para ese cliente.' };
+          finalResponse = `❌ No se pudo registrar el pago: No se encontró el presupuesto para ese cliente. Buscalo manualmente en /presupuestos.`;
         } else {
           const pagoResult = await addPagoToPresupuesto(presupuestoId, {
             fecha: new Date().toISOString(),
@@ -258,9 +263,16 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             referencia: d.referencia,
           });
           actionResult = { success: pagoResult.success, presupuestoId, error: pagoResult.error };
+          if (pagoResult.success) {
+            const monto = Number(d.monto) || 0;
+            finalResponse = `✅ Pago de **$${monto.toLocaleString('es-UY')}** registrado correctamente (${d.metodoPago || 'Efectivo'}). Podés ver el presupuesto en [/presupuestos/${presupuestoId}/ver](/presupuestos/${presupuestoId}/ver).`;
+          } else {
+            finalResponse = `❌ No se pudo registrar el pago: ${pagoResult.error || 'Error desconocido'}. Intentá de nuevo o registralo manualmente.`;
+          }
         }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo registrar el pago: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -303,8 +315,15 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         };
         const invoiceResult = await saveInvoice(invoiceData as any);
         actionResult = invoiceResult;
+        if (invoiceResult.success) {
+          const id = (invoiceResult as any).id;
+          finalResponse = `✅ Factura creada para **${d.clienteNombre || 'el cliente'}**${id ? ` (ID: ${id})` : ''}. Podés verla en [/invoices${id ? `/${id}` : ''}](/invoices${id ? `/${id}` : ''}).`;
+        } else {
+          finalResponse = `❌ No se pudo crear la factura: ${(invoiceResult as any).error || 'Error desconocido'}. Intentá de nuevo o creala manualmente desde /invoices/new.`;
+        }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo crear la factura: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -316,12 +335,19 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           : servicios.find(s => s.nombre.toLowerCase().includes((d.servicioNombre || '').toLowerCase()));
         if (!servicio) {
           actionResult = { success: false, error: `No se encontró el servicio "${d.servicioNombre}".` };
+          finalResponse = `❌ No se pudo actualizar el precio: No se encontró el servicio "${d.servicioNombre}". Verificá el nombre en /empresa/servicios.`;
         } else {
           const updated = await saveServicioEmpresa({ ...servicio, precioVenta: Number(d.nuevoPrecio) });
           actionResult = { success: updated.success, id: updated.id, error: updated.error };
+          if (updated.success) {
+            finalResponse = `✅ Precio del servicio **"${servicio.nombre}"** actualizado a **$${Number(d.nuevoPrecio).toLocaleString('es-UY')}**. Podés verlo en [/empresa/servicios](/empresa/servicios).`;
+          } else {
+            finalResponse = `❌ No se pudo actualizar el precio: ${updated.error || 'Error desconocido'}. Intentá de nuevo.`;
+          }
         }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo actualizar el precio: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -334,8 +360,14 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           fechaNacimiento: d.fechaNacimiento,
         });
         actionResult = empResult;
+        if (empResult.success) {
+          finalResponse = `✅ Empleado **${d.nombre || 'nuevo'}** registrado correctamente. Podés verlo en [/empresa/empleados](/empresa/empleados).`;
+        } else {
+          finalResponse = `❌ No se pudo registrar el empleado: ${(empResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /empresa/empleados.`;
+        }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo registrar el empleado: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -352,8 +384,15 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           notas: d.notas,
         });
         actionResult = provResult;
+        if (provResult.success) {
+          const nombre = d.nombreEmpresa || d.nombre || 'nuevo';
+          finalResponse = `✅ Proveedor **${nombre}** registrado correctamente. Podés verlo en [/proveedores](/proveedores).`;
+        } else {
+          finalResponse = `❌ No se pudo registrar el proveedor: ${(provResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /proveedores.`;
+        }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo registrar el proveedor: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -386,8 +425,15 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           guestCount: Number(d.invitados) || 0,
         });
         actionResult = { success: fiestaResult.success, fiestaId: fiestaResult.fiestaId, clienteId, error: fiestaResult.error };
+        if (fiestaResult.success) {
+          const fiestaId = fiestaResult.fiestaId;
+          finalResponse = `✅ Evento creado para **${d.clienteNombre || 'el cliente'}**${d.eventoFecha ? ` el ${d.eventoFecha}` : ''}${fiestaId ? `. Podés verlo en [/fiestas/nueva?fiestaId=${fiestaId}](/fiestas/nueva?fiestaId=${fiestaId})` : ''}.`;
+        } else {
+          finalResponse = `❌ No se pudo crear el evento: ${fiestaResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente.`;
+        }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo crear el evento: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -403,6 +449,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             );
         if (!fiesta) {
           actionResult = { success: false, error: 'No se encontró el evento.' };
+          finalResponse = `❌ No se pudo actualizar el evento: No se encontró el evento para "${d.clienteNombre || d.fiestaId}". Verificalo en /fiestas/nueva.`;
         } else {
           const updates = d.camposAActualizar || {};
           const updatedFiesta = {
@@ -417,9 +464,15 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           };
           const saveResult = await saveFiesta(updatedFiesta);
           actionResult = { success: saveResult.success, fiestaId: fiesta.id, error: saveResult.error };
+          if (saveResult.success) {
+            finalResponse = `✅ Evento actualizado correctamente. Podés verlo en [/fiestas/nueva?fiestaId=${fiesta.id}](/fiestas/nueva?fiestaId=${fiesta.id}).`;
+          } else {
+            finalResponse = `❌ No se pudo actualizar el evento: ${saveResult.error || 'Error desconocido'}. Intentá de nuevo.`;
+          }
         }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo actualizar el evento: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -447,13 +500,17 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           const updatedFiesta = { ...fiesta, contratoDatos };
           await saveFiesta(updatedFiesta);
           actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}` };
+          finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}).`;
         } else if (d.fiestaId) {
           actionResult = { success: false, error: 'No se encontró el evento.' };
+          finalResponse = `❌ No se pudo generar el contrato: No se encontró el evento. Verificalo en /fiestas/nueva.`;
         } else {
           actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-digital' };
+          finalResponse = `✅ Podés generar el contrato en [contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital). Seleccioná el evento desde ahí.`;
         }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo generar el contrato: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -475,8 +532,15 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             tipo: f.configuracion?.tipoCelebracion || '',
           })),
         };
+        if (eventosEnFecha.length === 0) {
+          finalResponse = `✅ La fecha **${fecha}** está **libre** — no tenés eventos agendados para ese día.`;
+        } else {
+          const nombres = eventosEnFecha.map(f => f.configuracion?.nombreEvento || f.configuracion?.clienteNombre || 'Evento').join(', ');
+          finalResponse = `⚠️ La fecha **${fecha}** ya tiene **${eventosEnFecha.length} evento(s)** agendado(s): ${nombres}. Verificá antes de comprometerte.`;
+        }
       } catch (e: any) {
         actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo verificar la disponibilidad: ${e.message}. Intentá de nuevo.`;
       }
     }
 
@@ -497,6 +561,20 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
 
     if (result.action?.type === 'update_marketing_content' && result.action.data) {
       actionResult = { success: true, href: '/marketing' };
+    }
+
+    // CATCH-ALL: si hubo una acción de backend pero no se ejecutó nada real, evitar respuesta falsa.
+    // "noActionTypes" son tipos que no requieren ejecución en el backend o ya tienen su lógica de respuesta:
+    // - 'none': sin acción
+    // - 'navigate': solo redirige en el cliente
+    // - 'show_manual': solo muestra contenido estático
+    // - 'query_data': consulta datos sin modificarlos
+    // - 'generate_*': el contenido ya viene en action.data generado por la IA
+    // - 'update_marketing_content': solo navega a /marketing
+    const noActionTypes = ['none', 'navigate', 'show_manual', 'query_data', 'generate_social_post', 'generate_whatsapp_message', 'generate_promo', 'update_marketing_content'];
+    if (result.action?.type && !noActionTypes.includes(result.action.type) && actionResult === null) {
+      actionResult = { success: false, error: 'Acción no reconocida o no ejecutable.' };
+      finalResponse = `⚠️ No se pudo ejecutar la acción "${result.action.type}". Intentá de nuevo o hacelo manualmente desde la sección correspondiente.`;
     }
 
     return {
