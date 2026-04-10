@@ -13,6 +13,7 @@ import { createNewFiestaForCustomer, getAllFiestas, saveFiesta } from './fiesta/
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
+import * as logger from '@/lib/logger';
 
 export async function sendAssistantMessage(
   message: string,
@@ -92,68 +93,85 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     }
 
     if (result.action?.type === 'create_customer' && result.action.data) {
-      const customerResult = await saveCustomer(result.action.data);
-      actionResult = customerResult;
-      if (customerResult.success) {
-        const name = result.action.data.name || 'Cliente';
-        const id = customerResult.id;
-        finalResponse = `✅ Cliente **${name}** guardado correctamente${id ? ` (ID: ${id})` : ''}. Podés verlo en [/customers${id ? `/${id}` : ''}](/customers${id ? `/${id}` : ''}).`;
-      } else {
-        finalResponse = `❌ No se pudo guardar el cliente: ${customerResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /customers/new.`;
-      }
-    }
-
-    if (result.action?.type === 'create_budget' && result.action.data) {
       const d = result.action.data;
-      const serviciosInput: Array<{
-        id?: string; nombre?: string; name?: string; descripcion?: string;
-        cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
-      }> = Array.isArray(d.servicios) ? d.servicios : [];
-      const items = serviciosInput.map((s, i) => {
-        const qty = Number(s.cantidad) || 1;
-        const price = Number(s.precioUnitario) || Number(s.precio) || 0;
-        return {
-          idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
-          nombreServicio: s.nombre || s.name || 'Servicio',
-          descripcionServicio: s.descripcion,
-          cantidad: qty,
-          precioUnitario: price,
-          precioUnitarioPresupuesto: price,
-          costoTotalItem: qty * price,
-          categoriaServicio: s.categoria || s.category || 'Servicios',
-        };
-      });
-      const budgetResult = await savePresupuesto({
-        clienteNombre: d.clienteNombre || 'Cliente nuevo',
-        eventoTipo: d.eventoTipo || '',
-        eventoFecha: d.eventoFecha || '',
-        invitadosCantidad: d.invitados || 0,
-        invitadosAdultos: d.invitados || 0,
-        invitadosNinos: 0,
-        invitadosAdolescentes: 0,
-        itemsPresupuestados: items,
-        notas: d.notas || 'Creado desde el Asistente AK',
-        estado: 'Borrador',
-        senia: d.senia != null ? Number(d.senia) : undefined,
-        saldo: d.saldo != null ? Number(d.saldo) : undefined,
-        ajusteAnualPorcentaje: d.ajusteAnualPorcentaje != null ? Number(d.ajusteAnualPorcentaje) : undefined,
-        fechaFirmaContrato: d.fechaFirmaContrato,
-      } as unknown as Omit<Presupuesto, 'id'>);
-
-      if (budgetResult.success && budgetResult.presupuesto) {
-        const pres = budgetResult.presupuesto;
-        const itemCount = pres.itemsPresupuestados?.length ?? 0;
-        const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
-        const href = `/presupuestos/${pres.id}/ver`;
-        actionResult = { ...budgetResult, itemCount, total, href };
-        finalResponse = buildBudgetResponseMessage(pres, 'Se creó', `/presupuestos/${pres.id}/editar`);
-      } else {
-        actionResult = budgetResult;
-        finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
+      try {
+        if (!d.name) {
+          actionResult = { success: false, error: 'Falta el nombre del cliente.' };
+          finalResponse = `❌ No se pudo guardar el cliente: falta el nombre. Intentá de nuevo.`;
+        } else {
+          const customerResult = await saveCustomer(d);
+          actionResult = customerResult;
+          if (customerResult.success) {
+            const name = d.name;
+            const id = customerResult.id;
+            finalResponse = `✅ Cliente **${name}** guardado correctamente${id ? ` (ID: ${id})` : ''}. Podés verlo en [/customers${id ? `/${id}` : ''}](/customers${id ? `/${id}` : ''}).`;
+          } else {
+            finalResponse = `❌ No se pudo guardar el cliente: ${customerResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /customers/new.`;
+          }
+        }
+      } catch (e: any) {
+        actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo guardar el cliente: ${e.message}. Intentá de nuevo.`;
       }
-    }
+    } else if (result.action?.type === 'create_budget' && result.action.data) {
+      const d = result.action.data;
+      try {
+        if (!d.clienteNombre) {
+          actionResult = { success: false, error: 'Falta el nombre del cliente.' };
+          finalResponse = `❌ No se pudo crear el presupuesto: falta el nombre del cliente. Intentá de nuevo.`;
+        } else {
+          const serviciosInput: Array<{
+            id?: string; nombre?: string; name?: string; descripcion?: string;
+            cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
+          }> = Array.isArray(d.servicios) ? d.servicios : [];
+          const items = serviciosInput.map((s, i) => {
+            const qty = Number(s.cantidad) || 1;
+            const price = Number(s.precioUnitario) || Number(s.precio) || 0;
+            return {
+              idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
+              nombreServicio: s.nombre || s.name || 'Servicio',
+              descripcionServicio: s.descripcion,
+              cantidad: qty,
+              precioUnitario: price,
+              precioUnitarioPresupuesto: price,
+              costoTotalItem: qty * price,
+              categoriaServicio: s.categoria || s.category || 'Servicios',
+            };
+          });
+          const budgetResult = await savePresupuesto({
+            clienteNombre: d.clienteNombre,
+            eventoTipo: d.eventoTipo || '',
+            eventoFecha: d.eventoFecha || '',
+            invitadosCantidad: d.invitados || 0,
+            invitadosAdultos: d.invitados || 0,
+            invitadosNinos: 0,
+            invitadosAdolescentes: 0,
+            itemsPresupuestados: items,
+            notas: d.notas || 'Creado desde el Asistente AK',
+            estado: 'Borrador',
+            senia: d.senia != null ? Number(d.senia) : undefined,
+            saldo: d.saldo != null ? Number(d.saldo) : undefined,
+            ajusteAnualPorcentaje: d.ajusteAnualPorcentaje != null ? Number(d.ajusteAnualPorcentaje) : undefined,
+            fechaFirmaContrato: d.fechaFirmaContrato,
+          } as unknown as Omit<Presupuesto, 'id'>);
 
-    if (result.action?.type === 'import_budget_from_image' && result.action.data) {
+          if (budgetResult.success && budgetResult.presupuesto) {
+            const pres = budgetResult.presupuesto;
+            const itemCount = pres.itemsPresupuestados?.length ?? 0;
+            const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
+            const href = `/presupuestos/${pres.id}/ver`;
+            actionResult = { ...budgetResult, itemCount, total, href };
+            finalResponse = buildBudgetResponseMessage(pres, 'Se creó', `/presupuestos/${pres.id}/editar`);
+          } else {
+            actionResult = budgetResult;
+            finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
+          }
+        }
+      } catch (e: any) {
+        actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo crear el presupuesto: ${e.message}. Intentá de nuevo.`;
+      }
+    } else if (result.action?.type === 'import_budget_from_image' && result.action.data) {
       const d = result.action.data;
       try {
         // 1. Crear cliente si viene nombre
@@ -240,9 +258,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ Error al importar el presupuesto: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'register_payment' && result.action.data) {
+    } else if (result.action?.type === 'register_payment' && result.action.data) {
       const d = result.action.data;
       try {
         let presupuestoId = d.presupuestoId;
@@ -274,9 +290,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el pago: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'create_invoice' && result.action.data) {
+    } else if (result.action?.type === 'create_invoice' && result.action.data) {
       const d = result.action.data;
       try {
         const customer: Customer = customers.find(c =>
@@ -325,9 +339,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo crear la factura: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'update_service_price' && result.action.data) {
+    } else if (result.action?.type === 'update_service_price' && result.action.data) {
       const d = result.action.data;
       try {
         let servicio = d.servicioId
@@ -349,9 +361,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo actualizar el precio: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'create_employee' && result.action.data) {
+    } else if (result.action?.type === 'create_employee' && result.action.data) {
       const d = result.action.data;
       try {
         const empResult = await saveEmpleado({
@@ -369,9 +379,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el empleado: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'create_supplier' && result.action.data) {
+    } else if (result.action?.type === 'create_supplier' && result.action.data) {
       const d = result.action.data;
       try {
         const provResult = await saveProveedor({
@@ -394,9 +402,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el proveedor: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'create_event' && result.action.data) {
+    } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;
       try {
         let clienteId: string;
@@ -435,9 +441,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo crear el evento: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'update_event' && result.action.data) {
+    } else if (result.action?.type === 'update_event' && result.action.data) {
       const d = result.action.data;
       try {
         const allFiestas = await getAllFiestas();
@@ -474,9 +478,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo actualizar el evento: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'generate_contract' && result.action.data) {
+    } else if (result.action?.type === 'generate_contract' && result.action.data) {
       const d = result.action.data;
       try {
         const allFiestas = await getAllFiestas();
@@ -512,9 +514,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo generar el contrato: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'check_availability' && result.action.data) {
+    } else if (result.action?.type === 'check_availability' && result.action.data) {
       const d = result.action.data;
       try {
         const allFiestas = await getAllFiestas();
@@ -542,37 +542,19 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo verificar la disponibilidad: ${e.message}. Intentá de nuevo.`;
       }
-    }
-
-    if (result.action?.type === 'generate_social_post' && result.action.data) {
+    } else if (result.action?.type === 'generate_social_post' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
-    }
-
-    if (result.action?.type === 'generate_whatsapp_message' && result.action.data) {
+    } else if (result.action?.type === 'generate_whatsapp_message' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
-    }
-
-    if (result.action?.type === 'generate_promo' && result.action.data) {
+    } else if (result.action?.type === 'generate_promo' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
-    }
-
-    if (result.action?.type === 'update_marketing_content' && result.action.data) {
+    } else if (result.action?.type === 'update_marketing_content') {
       actionResult = { success: true, href: '/marketing' };
-    }
-
-    // CATCH-ALL: si hubo una acción de backend pero no se ejecutó nada real, evitar respuesta falsa.
-    // "noActionTypes" son tipos que no requieren ejecución en el backend o ya tienen su lógica de respuesta:
-    // - 'none': sin acción
-    // - 'navigate': solo redirige en el cliente
-    // - 'show_manual': solo muestra contenido estático
-    // - 'query_data': consulta datos sin modificarlos
-    // - 'generate_*': el contenido ya viene en action.data generado por la IA
-    // - 'update_marketing_content': solo navega a /marketing
-    const noActionTypes = ['none', 'navigate', 'show_manual', 'query_data', 'generate_social_post', 'generate_whatsapp_message', 'generate_promo', 'update_marketing_content'];
-    if (result.action?.type && !noActionTypes.includes(result.action.type) && actionResult === null) {
+    } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual' && result.action.type !== 'query_data') {
+      // CATCH-ALL: acción de backend no reconocida — evitar respuesta falsa.
       actionResult = { success: false, error: 'Acción no reconocida o no ejecutable.' };
       finalResponse = `⚠️ No se pudo ejecutar la acción "${result.action.type}". Intentá de nuevo o hacelo manualmente desde la sección correspondiente.`;
     }
@@ -584,7 +566,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     };
   } catch (error: any) {
     const errorMessage: string = error.message || String(error) || '';
-    console.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
+    logger.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
 
     const isApiKeyError =
       (errorMessage.includes('FAILED_PRECONDITION') && errorMessage.includes('API key')) ||
@@ -630,7 +612,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     }
 
     // Generic fallback - log error server-side, show generic message to user
-    console.error('[Asistente AK] Unhandled error type:', errorMessage);
+    logger.error('[Asistente AK] Unhandled error type:', errorMessage);
     return {
       success: false,
       error: 'El asistente encontró un error inesperado. Por favor, intentá de nuevo o contactanos por WhatsApp al +59898355530.',
