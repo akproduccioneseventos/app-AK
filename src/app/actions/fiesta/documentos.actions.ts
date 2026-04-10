@@ -2,20 +2,12 @@
 'use server';
 
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, Tarea } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
-import path from 'path';
-import fs from 'fs/promises';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { headers } from 'next/headers';
 import { registerBookingDeposit } from '../invoices';
 import { addDays } from 'date-fns';
 import { createNotification } from '../notifications';
-
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-
-async function ensureDirectoryExists(dirPath: string) {
-  try { await fs.access(dirPath); } catch { await fs.mkdir(dirPath, { recursive: true }); }
-}
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 export async function uploadDocumento(formData: FormData): Promise<{ success: boolean; error?: string }> {
     const file = formData.get('file') as File | null;
@@ -30,21 +22,18 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
 
-        const docsDir = path.join(DATA_DIR, 'documentos-varios-fiesta', fiestaId);
-        await ensureDirectoryExists(docsDir);
-        
         const docId = `doc_${Date.now()}`;
-        const newFilename = `${docId}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-        const filePath = path.join(docsDir, newFilename);
+        const safeFilename = `${docId}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const storagePath = `documentos-varios-fiesta/${fiestaId}/${safeFilename}`;
 
         const bytes = await file.arrayBuffer();
-        await fs.writeFile(filePath, Buffer.from(bytes));
+        const fileUrl = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/octet-stream', false);
         
         const newDoc: OtroDocumento = {
             id: docId,
             nombre: customName.trim() || file.name,
             tipo: docType,
-            fileName: newFilename,
+            fileName: fileUrl,
             timestamp: new Date().toISOString(),
         };
         
@@ -70,8 +59,12 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
             return { success: false, error: 'Documento no encontrado.' };
         }
         
-        const filePath = path.join(DATA_DIR, 'documentos-varios-fiesta', fiestaId, docToDelete.fileName);
-        try { await fs.unlink(filePath); } catch (e) { console.warn(`No se pudo eliminar el archivo físico ${filePath}, puede que ya no exista.`); }
+        // Delete from Firebase Storage (fileName is now a URL or storage path)
+        if (docToDelete.fileName) {
+            await deleteFromStorage(docToDelete.fileName).catch(e => {
+                console.warn(`No se pudo eliminar el archivo de Storage ${docToDelete.fileName}:`, e?.message);
+            });
+        }
 
         const updatedFiesta = {
             ...fiesta,
@@ -183,16 +176,11 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado");
 
-        const contractsDir = path.join(DATA_DIR, 'contracts', 'signed-physical', fiestaId);
-        await ensureDirectoryExists(contractsDir);
-
         const newFilename = `contrato_fisico_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-        const filePath = path.join(contractsDir, newFilename);
+        const storagePath = `contracts/signed-physical/${fiestaId}/${newFilename}`;
 
         const bytes = await file.arrayBuffer();
-        await fs.writeFile(filePath, Buffer.from(bytes));
-
-        const publicUrl = `/api/signed-contracts/${fiestaId}/${newFilename}`;
+        const publicUrl = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/pdf', false);
 
         const updatedFiesta: FiestaEnPlanificacion = {
             ...fiesta,

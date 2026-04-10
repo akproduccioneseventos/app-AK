@@ -3,31 +3,16 @@
 
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { readData, writeData } from '@/lib/data-service';
-import fs from 'fs/promises';
-import path from 'path';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 import { createNotification } from './notifications';
 
 const CUSTOMERS_FILE = 'customers.json';
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-const CONTRACTS_DIR_NAME = 'contracts';
-const BUDGETS_DIR_NAME = 'budgets'; 
-const SALON_CONTRACTS_DIR_NAME = 'salon-contracts';
-const contractsDirectoryPath = path.join(DATA_DIR, CONTRACTS_DIR_NAME);
-const budgetsDirectoryPath = path.join(DATA_DIR, BUDGETS_DIR_NAME); 
-const salonContractsDirectoryPath = path.join(DATA_DIR, SALON_CONTRACTS_DIR_NAME);
 
-
-async function ensureSubdirectoryExists(dirPath: string) {
-    try {
-        await fs.access(dirPath);
-    } catch {
-        await fs.mkdir(dirPath, { recursive: true });
-    }
-}
-ensureSubdirectoryExists(contractsDirectoryPath);
-ensureSubdirectoryExists(budgetsDirectoryPath);
-ensureSubdirectoryExists(salonContractsDirectoryPath);
+// Storage paths for different document types
+const STORAGE_CONTRACTS_PATH = 'contracts';
+const STORAGE_BUDGETS_PATH = 'budgets';
+const STORAGE_SALON_CONTRACTS_PATH = 'salon-contracts';
 
 
 export async function getCustomers(): Promise<Customer[]> {
@@ -124,12 +109,12 @@ export async function saveCustomer(
       if (contractFile.type !== 'application/pdf') {
         throw new Error('El contrato debe ser un archivo PDF.');
       }
-      await ensureSubdirectoryExists(contractsDirectoryPath);
       const bytes = await contractFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `contract_${customerId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(contractsDirectoryPath, uniqueFilename), buffer);
-      (customerToSave as Customer).contractFileName = uniqueFilename;
+      const storagePath = `${STORAGE_CONTRACTS_PATH}/${customerId}/${uniqueFilename}`;
+      const fileUrl = await uploadToStorage(buffer, storagePath, 'application/pdf', false);
+      (customerToSave as Customer).contractFileName = fileUrl;
     } catch (fileError: any) {
       console.error("Error saving contract file:", fileError);
       return { success: false, error: `Error al guardar archivo de contrato: ${fileError.message}` };
@@ -141,12 +126,12 @@ export async function saveCustomer(
        if (budgetFile.type !== 'application/pdf') {
         throw new Error('El presupuesto debe ser un archivo PDF.');
       }
-      await ensureSubdirectoryExists(budgetsDirectoryPath);
       const bytes = await budgetFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `budget_${customerId}_${Date.now()}_${budgetFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(budgetsDirectoryPath, uniqueFilename), buffer);
-      (customerToSave as Customer).budgetFileName = uniqueFilename;
+      const storagePath = `${STORAGE_BUDGETS_PATH}/${customerId}/${uniqueFilename}`;
+      const fileUrl = await uploadToStorage(buffer, storagePath, 'application/pdf', false);
+      (customerToSave as Customer).budgetFileName = fileUrl;
     } catch (fileError: any) {
       console.error("Error saving budget file:", fileError);
       return { success: false, error: `Error al guardar archivo de presupuesto: ${fileError.message}` };
@@ -158,12 +143,12 @@ export async function saveCustomer(
       if (salonContractFile.type !== 'application/pdf') {
         throw new Error('El contrato del salón debe ser un archivo PDF.');
       }
-      await ensureSubdirectoryExists(salonContractsDirectoryPath);
       const bytes = await salonContractFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `salon_contract_${customerId}_${Date.now()}_${salonContractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(salonContractsDirectoryPath, uniqueFilename), buffer);
-      (customerToSave as Customer).salonContractFileName = uniqueFilename;
+      const storagePath = `${STORAGE_SALON_CONTRACTS_PATH}/${customerId}/${uniqueFilename}`;
+      const fileUrl = await uploadToStorage(buffer, storagePath, 'application/pdf', false);
+      (customerToSave as Customer).salonContractFileName = fileUrl;
     } catch (fileError: any) {
       console.error("Error saving salon contract file:", fileError);
       return { success: false, error: `Error al guardar archivo de contrato del salón: ${fileError.message}` };
@@ -212,21 +197,21 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
 
   if (customerToDelete?.contractFileName) {
     try {
-      await fs.unlink(path.join(contractsDirectoryPath, customerToDelete.contractFileName));
+      await deleteFromStorage(customerToDelete.contractFileName);
     } catch (fileError: any) {
       console.warn(`Error deleting contract file ${customerToDelete.contractFileName}:`, fileError.message);
     }
   }
   if (customerToDelete?.budgetFileName) { 
     try {
-      await fs.unlink(path.join(budgetsDirectoryPath, customerToDelete.budgetFileName));
+      await deleteFromStorage(customerToDelete.budgetFileName);
     } catch (fileError: any) {
       console.warn(`Error deleting budget file ${customerToDelete.budgetFileName}:`, fileError.message);
     }
   }
   if (customerToDelete?.salonContractFileName) { 
     try {
-      await fs.unlink(path.join(salonContractsDirectoryPath, customerToDelete.salonContractFileName));
+      await deleteFromStorage(customerToDelete.salonContractFileName);
     } catch (fileError: any) {
       console.warn(`Error deleting salon contract file ${customerToDelete.salonContractFileName}:`, fileError.message);
     }
@@ -237,33 +222,21 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
 }
 
 export async function getContractFilePath(filename: string): Promise<string | null> {
-  const filePath = path.join(contractsDirectoryPath, filename);
-  try {
-    await fs.access(filePath);
-    return filePath;
-  } catch {
-    return null;
-  }
+  // filename may now be a Firebase Storage URL — return it directly
+  if (filename.startsWith('https://')) return filename;
+  return null;
 }
 
 export async function getBudgetFilePath(filename: string): Promise<string | null> {
-  const filePath = path.join(budgetsDirectoryPath, filename);
-  try {
-    await fs.access(filePath);
-    return filePath;
-  } catch {
-    return null;
-  }
+  // filename may now be a Firebase Storage URL — return it directly
+  if (filename.startsWith('https://')) return filename;
+  return null;
 }
 
 export async function getSalonContractFilePath(filename: string): Promise<string | null> {
-  const filePath = path.join(salonContractsDirectoryPath, filename);
-  try {
-    await fs.access(filePath);
-    return filePath;
-  } catch {
-    return null;
-  }
+  // filename may now be a Firebase Storage URL — return it directly
+  if (filename.startsWith('https://')) return filename;
+  return null;
 }
 
 export async function syncCustomerFromFiestaConfig(
