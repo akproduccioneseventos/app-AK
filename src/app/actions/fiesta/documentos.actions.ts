@@ -62,7 +62,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
         // Delete from Firebase Storage (fileName is now a URL or storage path)
         if (docToDelete.fileName) {
             await deleteFromStorage(docToDelete.fileName).catch(e => {
-                console.warn(`No se pudo eliminar el archivo de Storage ${docToDelete.fileName}:`, e?.message);
+                console.warn('No se pudo eliminar el archivo de Storage:', e?.message);
             });
         }
 

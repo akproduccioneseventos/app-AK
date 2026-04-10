@@ -62,7 +62,7 @@ export async function uploadToStorage(
   // Return a signed URL valid for 7 days
   const [signedUrl] = await file.getSignedUrl({
     action: 'read',
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
   return signedUrl;
 }
@@ -100,7 +100,7 @@ export async function deleteFromStorage(urlOrPath: string): Promise<void> {
   } catch (err: any) {
     // Ignore "not found" errors — file may have already been deleted
     if (err?.code !== 404) {
-      console.warn(`[Storage] Could not delete ${storagePath}:`, err?.message ?? err);
+      console.warn('[Storage] Could not delete file:', err?.message ?? err);
     }
   }
 }
@@ -109,7 +109,7 @@ export async function deleteFromStorage(urlOrPath: string): Promise<void> {
  * Generate a fresh signed URL for an existing file in Storage.
  *
  * @param storagePath Raw path inside the bucket.
- * @param expiresInMs How long the URL should be valid (default: 7 days).
+ * @param expiresInMs How long the URL should be valid in milliseconds (default: 7 days).
  */
 export async function getSignedUrl(
   storagePath: string,
@@ -121,7 +121,7 @@ export async function getSignedUrl(
   try {
     const [url] = await bucket.file(storagePath).getSignedUrl({
       action: 'read',
-      expires: Date.now() + expiresInMs,
+      expires: new Date(Date.now() + expiresInMs),
     });
     return url;
   } catch {

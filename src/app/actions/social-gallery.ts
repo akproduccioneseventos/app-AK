@@ -134,10 +134,15 @@ export async function getPhotoFilePathsForZip(fiestaId: string): Promise<{ path:
     // Photos are now in Firebase Storage — return their public URLs as paths
     const allPosts = await getMetadata();
     const fiestasPosts = allPosts.filter(p => p.fiestaId === fiestaId);
-    return fiestasPosts.map(post => ({
-        path: post.imageUrl,
-        name: path.basename(post.imageUrl.split('?')[0]),
-    }));
+    return fiestasPosts.map(post => {
+        let name: string;
+        try {
+            name = new URL(post.imageUrl).pathname.split('/').pop() || post.id;
+        } catch {
+            name = post.id;
+        }
+        return { path: post.imageUrl, name };
+    });
 }
 
 // --- Live Chat Functions ---
