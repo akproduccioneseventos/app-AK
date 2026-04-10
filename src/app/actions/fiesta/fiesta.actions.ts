@@ -719,6 +719,25 @@ export async function updateCartaTragos(fiestaId: string, data: CartaTragosData)
 }
 
 /**
+ * Phase 3: Update post-event data (gallery, NPS, referrals).
+ */
+export async function updateFiestaPostEvento(
+  fiestaId: string,
+  data: {
+    galeriaUrl?: string;
+    galeriaEntregada?: boolean;
+    npsScore?: number;
+    referidoPor?: string;
+    referidosGenerados?: string[];
+    postEventoCompletado?: boolean;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+  return await saveFiesta({ ...f, ...data });
+}
+
+/**
  * Crea un nuevo evento/fiesta vinculado a un cliente recién creado.
  * Se usa cuando se crea un cliente directamente (no desde el CRM).
  */
