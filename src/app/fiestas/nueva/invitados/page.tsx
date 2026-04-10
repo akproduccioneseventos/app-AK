@@ -207,6 +207,8 @@ function InvitadosEventoContent() {
                             <TableCell className="font-bold">
                                 {inv.nombre}
                                 {inv.isCeliac && <Badge className="ml-2 bg-amber-500 text-white text-[8px] h-4">CELIACO</Badge>}
+                                {inv.segmento === 'VIP' && <Badge className="ml-1 bg-amber-100 text-amber-800 border-amber-200 text-[8px] h-4">VIP</Badge>}
+                                {inv.segmento === 'Familia' && <Badge className="ml-1 bg-blue-100 text-blue-800 border-blue-200 text-[8px] h-4">FAM</Badge>}
                             </TableCell>
                             <TableCell><span className="text-[10px] font-black uppercase text-slate-400">{inv.categoria}</span></TableCell>
                             <TableCell><RsvpStatusBadge status={inv.rsvp}/></TableCell>

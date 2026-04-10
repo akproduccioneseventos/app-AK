@@ -108,12 +108,14 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/readiness') return 'Readiness Score & Riesgos';
   if (pathname === '/fiestas/nueva/mission-control') return 'Mission Control - Día del Evento';
   if (pathname === '/fiestas/nueva/proveedores-portal') return 'Portal de Proveedores';
+  if (pathname === '/fiestas/nueva/post-evento') return 'Post-Evento Premium';
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/playbooks') return 'Playbooks Inteligentes';
   if (pathname === '/aprobaciones') return 'Centro de Aprobaciones';
   if (pathname === '/auditoria') return 'Registro de Auditoría';
   if (pathname === '/incidentes') return 'Gestión de Incidentes';
+  if (pathname === '/recursos-multi-evento') return 'Recursos Multi-Evento';
 
   if (pathname === '/contabilidad/crm') return 'Gestión de Prospectos (CRM)';
   if (pathname === '/contabilidad/crm/agenda') return 'Agenda de Prospectos (CRM)';
@@ -182,6 +184,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/en-vivo') return Zap;
+    if (pathname === '/fiestas/nueva/post-evento') return Star;
     if (pathname === '/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }

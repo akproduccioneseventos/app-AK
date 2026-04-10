@@ -338,6 +338,14 @@ export function MainNav() {
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/recursos-multi-evento">
+                  <SidebarMenuButton isActive={isActive("/recursos-multi-evento")} className={cn("h-10 rounded-xl font-bold text-xs transition-all duration-300", isActive("/recursos-multi-evento") ? "bg-orange-50 text-orange-700" : "text-slate-500 hover:bg-orange-50/60 hover:text-orange-600")}>
+                    <Zap className="w-4 h-4 text-orange-500" />
+                    <span className="ml-2">Recursos Multi-Evento</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

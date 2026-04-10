@@ -19,6 +19,9 @@ export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Otro';
 
+// Phase 3: Guest segmentation
+export type SegmentoInvitado = 'VIP' | 'Familia' | 'General';
+
 export interface Invitado {
   id: string;
   nombre: string;
@@ -37,6 +40,12 @@ export interface Invitado {
   cancionesDJ?: string[];
   mensaje?: string;
   fotosSubidas?: string[];
+  // Phase 3 - Personalized Guest Experience
+  segmento?: SegmentoInvitado;
+  horaLlegadaEstimada?: string; // "HH:MM"
+  mensajePersonalizado?: string; // Customized message from organizer to this guest
+  requiereAccesibilidad?: boolean; // Wheelchair or reduced mobility
+  alergias?: string; // Detailed allergy info beyond dietaryRestriction
 }
 
 // --- MENU MESA ---
@@ -121,6 +130,12 @@ export interface ConfigEventoDataStorage {
   nombreAgasajado?: string;
   clienteNombre?: string;
   primaryColor?: string;
+  // Phase 3 - Logistics & Accessibility
+  infoParking?: string; // Parking details for guests
+  accesibilidad?: string; // Accessibility info (ramps, elevators, etc.)
+  mapaUrl?: string; // Salon floor map URL
+  protocoloLluvia?: string; // Rain protocol / backup plan
+  contactoUrgencias?: string; // Emergency contact on event day
 }
 
 export interface PersonalAsignadoDetalleStorage {
@@ -844,6 +859,13 @@ export interface FiestaEnPlanificacion {
   timeline?: TimelineHito[];
   menuSeleccionPortal?: MenuSeleccionPortal;
   listaMusicaPortal?: ListaMusicaPortal;
+  // Phase 3 - Post-Event Premium
+  referidoPor?: string; // Who referred this client
+  referidosGenerados?: string[]; // Client IDs this event generated as referrals
+  npsScore?: number; // 0-10 post-event NPS score from feedback
+  galeriaEntregada?: boolean; // Whether gallery was delivered to client
+  galeriaUrl?: string; // URL to delivered gallery
+  postEventoCompletado?: boolean; // Post-event process completed flag
 }
 
 export interface ContratoFirmaInfo {
