@@ -41,15 +41,15 @@ if (!admin.apps.length) {
           projectId,
         });
         console.log('✅ Firebase Admin SDK initialized with Application Default Credentials.');
-      } catch (adcError: any) {
-        // ADC not available (e.g. local dev without gcloud auth). Fall back to projectId only.
-        console.warn('⚠️ applicationDefault() failed, falling back to projectId only:', adcError?.message ?? adcError);
-        admin.initializeApp({ projectId });
-        console.log(`✅ Firebase Admin SDK initialized with projectId only: ${projectId}`);
-      }
 
-      if (process.env.FIRESTORE_EMULATOR_HOST) {
-        console.log(`   📡 Using Firestore Emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+        if (process.env.FIRESTORE_EMULATOR_HOST) {
+          console.log(`   📡 Using Firestore Emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+        }
+      } catch (adcError: any) {
+        // ADC not available (e.g. local dev without gcloud auth).
+        // Do NOT initialize with projectId only — that creates a "zombie" app that
+        // fails on every Firestore operation. Leave dbAdmin = null so JSON fallback works cleanly.
+        console.warn('⚠️ Firebase Admin SDK: no credentials available (GOOGLE_APPLICATION_CREDENTIALS, FIREBASE_CLIENT_EMAIL, or ADC). Firestore will be unavailable; falling back to local JSON.', adcError?.message ?? adcError);
       }
     }
   } catch (error: any) {

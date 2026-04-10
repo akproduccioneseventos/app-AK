@@ -46,6 +46,16 @@ export const GALERIA_CATEGORIAS = [
   'Eventos Corporativos',
   'Infantiles',
   'Cumpleaños',
+  'Filmación',
+  'Fotografía',
+  'Entretenimiento',
+  'Bebidas',
+  'Repostería',
+  'Personal',
+  'Entrada',
+  'Plato Principal',
+  'Postre',
+  'Menú Infantil',
 ] as const;
 
 export type GaleriaCategoria = (typeof GALERIA_CATEGORIAS)[number];

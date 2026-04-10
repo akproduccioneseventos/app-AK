@@ -1,6 +1,6 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service-firebase';
+import { readData, writeData } from '@/lib/data-service';
 import type { LandingSettings } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
 

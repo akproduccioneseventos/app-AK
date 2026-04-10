@@ -14,7 +14,9 @@ import { Button } from '@/components/ui/button';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCompanyInfo, getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getMenus } from '@/app/actions/menus-catering';
+import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
 import type { FullMenu } from '@/types/catering';
+import type { CatalogoFoto } from '@/types/catalogo';
 import { cn } from '@/lib/utils';
 
 // Slide components
@@ -84,6 +86,7 @@ const FIXED_SLIDES_END = 3;   // menu, regalos, cierre
 export default function PresentacionLedPage() {
   const router = useRouter();
   const [data, setData] = useState<PageData | null>(null);
+  const [catalogoFotos, setCatalogoFotos] = useState<CatalogoFoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -98,12 +101,13 @@ export default function PresentacionLedPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus] = await Promise.all([
+        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData] = await Promise.all([
           getServiciosEmpresa(),
           getCompanyInfo(),
           getInvoiceTemplateSettings(),
           getBudgetDisplaySettings(),
           getMenus().catch(() => [] as FullMenu[]),
+          getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
         ]);
         setData({
           companyInfo,
@@ -113,6 +117,7 @@ export default function PresentacionLedPage() {
           mostrarPrecios: budgetSettings.showPriceBreakdown ?? true,
           menus,
         });
+        setCatalogoFotos(catalogoData);
       } finally {
         setLoading(false);
       }
@@ -323,6 +328,7 @@ export default function PresentacionLedPage() {
               mostrarPrecios={data.mostrarPrecios}
               categoriaIndex={categoriaIndex}
               totalCategorias={categorias.length}
+              catalogoFotos={catalogoFotos}
             />
           )}
           {isMenuSlide && (

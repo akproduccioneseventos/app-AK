@@ -38,6 +38,8 @@ import {
   deleteGaleriaItem,
   toggleDestacada,
 } from '@/app/actions/galeria';
+import { addCatalogoFoto } from '@/app/actions/catalogo-fotos';
+import { TIPOS_FIESTA_CATALOGO } from '@/types/catalogo';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 
@@ -84,6 +86,7 @@ export default function GaleriaAdminPage() {
   const [fotoTitulo, setFotoTitulo] = useState('');
   const [fotoDescripcion, setFotoDescripcion] = useState('');
   const [fotoCategoria, setFotoCategoria] = useState('');
+  const [fotoTipoFiesta, setFotoTipoFiesta] = useState('');
   const [fotoDestacada, setFotoDestacada] = useState(false);
   const [isSavingFoto, setIsSavingFoto] = useState(false);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
@@ -136,8 +139,9 @@ export default function GaleriaAdminPage() {
     }
     setIsSavingFoto(true);
     try {
+      const fotoId = `foto_${Date.now()}`;
       const foto: GaleriaFoto = {
-        id: `foto_${Date.now()}`,
+        id: fotoId,
         tipo: 'foto',
         url: fotoUrl.trim(),
         titulo: fotoTitulo.trim() || undefined,
@@ -148,11 +152,24 @@ export default function GaleriaAdminPage() {
         createdAt: new Date().toISOString(),
       };
       await addGaleriaFoto(foto);
+      await addCatalogoFoto({
+        id: `cat_${fotoId}`,
+        url: fotoUrl.trim(),
+        titulo: fotoTitulo.trim() || undefined,
+        descripcion: fotoDescripcion.trim() || undefined,
+        categoriaServicio: fotoCategoria,
+        tipoFiesta: fotoTipoFiesta || undefined,
+        destacada: fotoDestacada,
+        orden: fotos.length,
+        source: 'galeria',
+        createdAt: new Date().toISOString(),
+      });
       toast({ title: '✅ Foto agregada', description: 'La foto se guardó en la galería.' });
       setFotoUrl('');
       setFotoTitulo('');
       setFotoDescripcion('');
       setFotoCategoria('');
+      setFotoTipoFiesta('');
       setFotoDestacada(false);
       await fetchData();
     } catch {
@@ -175,8 +192,9 @@ export default function GaleriaAdminPage() {
       if (!result.success || !result.url) {
         throw new Error(result.error || 'Error al subir');
       }
+      const fotoId = `foto_${Date.now()}`;
       const foto: GaleriaFoto = {
-        id: `foto_${Date.now()}`,
+        id: fotoId,
         tipo: 'foto',
         url: result.url,
         titulo: fotoTitulo.trim() || undefined,
@@ -187,11 +205,24 @@ export default function GaleriaAdminPage() {
         createdAt: new Date().toISOString(),
       };
       await addGaleriaFoto(foto);
+      await addCatalogoFoto({
+        id: `cat_${fotoId}`,
+        url: result.url,
+        titulo: fotoTitulo.trim() || undefined,
+        descripcion: fotoDescripcion.trim() || undefined,
+        categoriaServicio: fotoCategoria,
+        tipoFiesta: fotoTipoFiesta || undefined,
+        destacada: fotoDestacada,
+        orden: fotos.length,
+        source: 'galeria',
+        createdAt: new Date().toISOString(),
+      });
       toast({ title: '✅ Foto subida', description: 'La foto se subió y guardó en la galería.' });
       setFotoUrl('');
       setFotoTitulo('');
       setFotoDescripcion('');
       setFotoCategoria('');
+      setFotoTipoFiesta('');
       setFotoDestacada(false);
       await fetchData();
     } catch {
@@ -482,6 +513,19 @@ export default function GaleriaAdminPage() {
                     onChange={(e) => setFotoDescripcion(e.target.value)}
                     rows={2}
                   />
+                </div>
+                <div className="space-y-1">
+                  <Label>Tipo de Fiesta (opcional)</Label>
+                  <Select value={fotoTipoFiesta} onValueChange={setFotoTipoFiesta}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar tipo de fiesta" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIPOS_FIESTA_CATALOGO.map((tipo) => (
+                        <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex items-center gap-3">
                   <Switch

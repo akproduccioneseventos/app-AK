@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,17 @@ import { ImagePlaceholder } from '../components/image-placeholder';
 import { cn } from '@/lib/utils';
 import { slugify } from '../lib/string-utils';
 import type { ServicioEmpresa } from '@/types/empresa';
+import type { CatalogoFoto } from '@/types/catalogo';
 import { SERVICES } from '@/data/presentacion';
+
+function isSafeHttpsUrl(url: string): boolean {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === 'https:' || protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
 
 interface CategoriaServiciosSlideProps {
   categoria: string;
@@ -19,6 +29,7 @@ interface CategoriaServiciosSlideProps {
   mostrarPrecios: boolean;
   categoriaIndex: number;
   totalCategorias: number;
+  catalogoFotos?: CatalogoFoto[];
 }
 
 function getServiceIcon(categoria?: string) {
@@ -155,11 +166,26 @@ export function CategoriaServiciosSlide({
   mostrarPrecios,
   categoriaIndex,
   totalCategorias,
+  catalogoFotos = [],
 }: CategoriaServiciosSlideProps) {
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
 
   const categorySlug = slugify(categoria);
+
+  // Memoize filtered catalog photos to avoid recalculating on every render
+  const fotosCategoria = useMemo(
+    () => catalogoFotos
+      .filter(f => isSafeHttpsUrl(f.url) && f.categoriaServicio.toLowerCase() === categoria.toLowerCase())
+      .slice(0, 4),
+    [catalogoFotos, categoria],
+  );
+
+  const visibleFotos = useMemo(
+    () => fotosCategoria.filter(f => !failedIds.has(f.id)),
+    [fotosCategoria, failedIds],
+  );
 
   return (
     <SlideLayout overflowScroll>
@@ -200,11 +226,32 @@ export function CategoriaServiciosSlide({
             transition={{ delay: 0.2 }}
             className="flex flex-col gap-4"
           >
-            <ImagePlaceholder
-              id={`categoria-${categorySlug}-hero`}
-              label={`Foto de ${categoria}`}
-              aspectRatio="4/3"
-            />
+            {visibleFotos.length > 0 ? (
+              <div className={cn(
+                'grid gap-2 rounded-2xl overflow-hidden',
+                visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+              )}>
+                {visibleFotos.map((foto) => (
+                   // eslint-disable-next-line @next/next/no-img-element
+                   <img
+                     key={foto.id}
+                     src={foto.url}
+                     alt={foto.titulo ?? categoria}
+                     className={cn(
+                       'w-full object-cover rounded-xl',
+                       visibleFotos.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
+                     )}
+                     onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
+                   />
+                ))}
+              </div>
+            ) : (
+              <ImagePlaceholder
+                id={`categoria-${categorySlug}-hero`}
+                label={`Foto de ${categoria}`}
+                aspectRatio="4/3"
+              />
+            )}
 
             {/* Select all / deselect all shortcut */}
             {servicios.length > 1 && (
