@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateGuestExperience } from '@/app/actions/fiesta/invitados.actions';
-import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, PerfilInvitado } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, AlertTriangle, Send, CheckCircle2, XCircle, HelpCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, Send, CheckCircle2, XCircle, HelpCircle, Star, Accessibility, Crown, Users, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const rsvpConfig = {
@@ -17,6 +17,13 @@ const rsvpConfig = {
   Rechazado: { icon: XCircle, cls: 'text-red-400', badge: 'bg-red-100 text-red-700' },
   'Tal vez': { icon: HelpCircle, cls: 'text-amber-400', badge: 'bg-amber-100 text-amber-700' },
   Pendiente: { icon: HelpCircle, cls: 'text-slate-400', badge: 'bg-slate-100 text-slate-600' },
+};
+
+const perfilConfig: Record<PerfilInvitado, { label: string; icon: React.ElementType; color: string; bg: string; gradient: string }> = {
+  VIP: { label: 'Invitado VIP', icon: Crown, color: 'text-amber-700', bg: 'bg-amber-100', gradient: 'from-amber-500 to-yellow-500' },
+  Familia: { label: 'Familia', icon: Users, color: 'text-blue-700', bg: 'bg-blue-100', gradient: 'from-blue-500 to-indigo-500' },
+  General: { label: 'Invitado', icon: User, color: 'text-slate-700', bg: 'bg-slate-100', gradient: 'from-purple-500 to-pink-500' },
+  'Necesidades Especiales': { label: 'Atención Especial', icon: Accessibility, color: 'text-green-700', bg: 'bg-green-100', gradient: 'from-green-500 to-teal-500' },
 };
 
 export default function InvitadoPage() {
@@ -84,6 +91,13 @@ export default function InvitadoPage() {
   const fechaEvento = config?.fechaEvento ? new Date(config.fechaEvento) : null;
   const diasRestantes = fechaEvento ? Math.ceil((fechaEvento.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
 
+  // VIP/Perfil configuration
+  const perfil = invitado.perfil ?? 'General';
+  const perfilCfg = perfilConfig[perfil];
+  const PerfilIcon = perfilCfg.icon;
+  const isVip = perfil === 'VIP';
+  const isAccesibilidad = perfil === 'Necesidades Especiales' || invitado.requiereAccesibilidad;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       <header className="bg-white border-b border-slate-100 shadow-sm">
@@ -101,14 +115,26 @@ export default function InvitadoPage() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-8 space-y-6">
-        {/* Welcome Card */}
+        {/* Welcome Card with VIP styling */}
         <Card className="overflow-hidden">
-          <div className="h-2 bg-gradient-to-r from-purple-500 to-pink-500" />
+          <div className={`h-2 bg-gradient-to-r ${perfilCfg.gradient}`} />
           <CardContent className="pt-6 text-center space-y-3">
-            <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto text-3xl">
-              🎉
+            <div className={`w-16 h-16 rounded-full ${perfilCfg.bg} flex items-center justify-center mx-auto`}>
+              {isVip ? (
+                <Crown className={`w-8 h-8 ${perfilCfg.color}`} />
+              ) : (
+                <span className="text-3xl">🎉</span>
+              )}
             </div>
             <div>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                {perfil !== 'General' && (
+                  <Badge className={`${perfilCfg.bg} ${perfilCfg.color} border-0 text-xs`}>
+                    <PerfilIcon className="w-3 h-3 mr-1" />
+                    {perfilCfg.label}
+                  </Badge>
+                )}
+              </div>
               <p className="text-xl font-black text-slate-900">¡Hola, {invitado.nombre}!</p>
               <p className="text-sm text-slate-500 mt-1">Estás invitado/a a <span className="font-semibold">{config?.nombreEvento}</span></p>
             </div>
@@ -122,6 +148,38 @@ export default function InvitadoPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Personalized message for VIP guests */}
+        {invitado.mensajePersonalizado && (
+          <Card className={`border ${isVip ? 'border-amber-200 bg-amber-50' : 'border-indigo-200 bg-indigo-50'}`}>
+            <CardHeader className="pb-2">
+              <CardTitle className={`text-sm font-black flex items-center gap-2 ${isVip ? 'text-amber-800' : 'text-indigo-800'}`}>
+                <Star className="w-4 h-4" />
+                Mensaje especial para vos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className={`text-sm leading-relaxed italic ${isVip ? 'text-amber-900' : 'text-indigo-900'}`}>
+                &ldquo;{invitado.mensajePersonalizado}&rdquo;
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Accessibility info */}
+        {isAccesibilidad && config?.rutaAccesibilidad && (
+          <Card className="border-green-200 bg-green-50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-black flex items-center gap-2 text-green-800">
+                <Accessibility className="w-4 h-4" />
+                Información de Accesibilidad
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-green-800 leading-relaxed">{config.rutaAccesibilidad}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* RSVP Status */}
         <Card>
@@ -182,6 +240,9 @@ export default function InvitadoPage() {
               <p className="text-sm text-slate-700">
                 🍽️ Restricción alimentaria registrada: <span className="font-semibold">{invitado.dietaryRestriction}</span>
               </p>
+              {invitado.alergiasEspecificas && (
+                <p className="text-xs text-slate-500 mt-1">Detalle: {invitado.alergiasEspecificas}</p>
+              )}
             </CardContent>
           </Card>
         )}

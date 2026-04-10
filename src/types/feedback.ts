@@ -1,4 +1,5 @@
 
+// Phase 3.12: Enhanced NPS Survey
 export interface FeedbackSubmission {
   id: string;
   fiestaId: string;
@@ -8,6 +9,12 @@ export interface FeedbackSubmission {
   toImprove: string;
   generalComments?: string;
   timestamp: string; // ISO Date String
+  // NPS & ratings
+  npsScore?: number; // 0-10 NPS score
+  ratingComida?: number; // 1-5 star rating
+  ratingMusica?: number; // 1-5 star rating
+  ratingOrganizacion?: number; // 1-5 star rating
+  ratingLugar?: number; // 1-5 star rating
 }
 
 export interface Testimonial {

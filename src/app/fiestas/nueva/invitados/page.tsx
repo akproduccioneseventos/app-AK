@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Plus, Trash2, Users, Edit3, Save, Loader2, AlertTriangle, QrCode, Printer, Tag, Search, Download } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import type { Invitado, RsvpStatus, NuevoInvitadoData, CategoriaInvitado } from '@/types/invitado';
+import type { Invitado, RsvpStatus, NuevoInvitadoData, CategoriaInvitado, PerfilInvitado } from '@/types/invitado';
 import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import QRCodeStylized from 'qrcode.react';
@@ -207,6 +207,8 @@ function InvitadosEventoContent() {
                             <TableCell className="font-bold">
                                 {inv.nombre}
                                 {inv.isCeliac && <Badge className="ml-2 bg-amber-500 text-white text-[8px] h-4">CELIACO</Badge>}
+                                {inv.perfil === 'VIP' && <Badge className="ml-2 bg-yellow-500 text-white text-[8px] h-4">VIP</Badge>}
+                                {inv.perfil === 'Necesidades Especiales' && <Badge className="ml-2 bg-green-500 text-white text-[8px] h-4">ACCESIB.</Badge>}
                             </TableCell>
                             <TableCell><span className="text-[10px] font-black uppercase text-slate-400">{inv.categoria}</span></TableCell>
                             <TableCell><RsvpStatusBadge status={inv.rsvp}/></TableCell>

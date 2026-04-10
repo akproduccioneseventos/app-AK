@@ -87,14 +87,40 @@ function MissionControlContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
 
+  const cacheKey = `mission_control_${fiestaId}`;
+
   const loadData = useCallback(async (silent = false) => {
     if (!fiestaId) return;
     if (!silent) setIsLoading(true);
-    const res = await getMissionControl(fiestaId);
-    if (res.success && res.data) {
-      setData(res.data);
-    } else {
-      if (!silent) toast({ title: 'Error', description: res.error, variant: 'destructive' });
+    try {
+      const res = await getMissionControl(fiestaId);
+      if (res.success && res.data) {
+        setData(res.data);
+        // Cache data in localStorage for offline use
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({ data: res.data, timestamp: Date.now() }));
+        } catch {}
+      } else {
+        // Try loading from cache if server fails
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          setData(parsed.data);
+          if (!silent) toast({ title: '📶 Sin conexión', description: 'Mostrando datos guardados localmente.', variant: 'default' });
+        } else {
+          if (!silent) toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        }
+      }
+    } catch {
+      // Network error - load from cache
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setData(parsed.data);
+          if (!silent) toast({ title: '📶 Modo Offline', description: 'Usando datos guardados. Los cambios se sincronizarán al recuperar conexión.', variant: 'default' });
+        } catch {}
+      }
     }
     if (!silent) setIsLoading(false);
   }, [fiestaId, toast]);
