@@ -137,7 +137,7 @@ export async function getPhotoFilePathsForZip(fiestaId: string): Promise<{ path:
     return fiestasPosts.map(post => {
         let name: string;
         try {
-            name = new URL(post.imageUrl).pathname.split('/').pop() || post.id;
+            name = new URL(post.imageUrl).pathname.split('/').filter(Boolean).pop() || post.id;
         } catch {
             name = post.id;
         }

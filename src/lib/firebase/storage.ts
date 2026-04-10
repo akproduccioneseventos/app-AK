@@ -9,6 +9,9 @@ const STORAGE_BUCKET =
   process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
   'presupuestador-ak-producciones.firebasestorage.app';
 
+/** Default signed URL validity: 7 days in milliseconds */
+const DEFAULT_SIGNED_URL_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+
 /**
  * Returns the Firebase Storage bucket instance, or null if unavailable.
  */
@@ -62,7 +65,7 @@ export async function uploadToStorage(
   // Return a signed URL valid for 7 days
   const [signedUrl] = await file.getSignedUrl({
     action: 'read',
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRY_MS),
   });
   return signedUrl;
 }
@@ -82,14 +85,14 @@ export async function deleteFromStorage(urlOrPath: string): Promise<void> {
   if (urlOrPath.startsWith('https://')) {
     try {
       const url = new URL(urlOrPath);
-      // Handle signed URLs (path is after the bucket name) and public URLs
-      // Public: https://storage.googleapis.com/<bucket>/<path>
-      // Signed: https://storage.googleapis.com/<bucket>/<path>?X-Goog-...
-      storagePath = url.pathname.replace(`/${STORAGE_BUCKET}/`, '').replace(/^\//, '');
-      // If still looks like a full path (signed URL may have extra segments), clean it
-      if (storagePath.includes(STORAGE_BUCKET)) {
-        storagePath = storagePath.split(STORAGE_BUCKET + '/')[1] || storagePath;
-      }
+      // Strip leading slash and bucket prefix to get the raw storage path
+      // Public:  https://storage.googleapis.com/<bucket>/<path>
+      // Signed:  https://storage.googleapis.com/<bucket>/<path>?X-Goog-...
+      const bucketPrefix = `/${STORAGE_BUCKET}/`;
+      const idx = url.pathname.indexOf(bucketPrefix);
+      storagePath = idx !== -1
+        ? url.pathname.slice(idx + bucketPrefix.length)
+        : url.pathname.replace(/^\//, '');
     } catch {
       // If URL parsing fails, use as-is
     }
@@ -113,7 +116,7 @@ export async function deleteFromStorage(urlOrPath: string): Promise<void> {
  */
 export async function getSignedUrl(
   storagePath: string,
-  expiresInMs: number = 7 * 24 * 60 * 60 * 1000
+  expiresInMs: number = DEFAULT_SIGNED_URL_EXPIRY_MS
 ): Promise<string | null> {
   const bucket = getBucket();
   if (!bucket) return null;
@@ -137,7 +140,11 @@ export function extractStoragePath(urlOrPath: string): string {
   if (!urlOrPath.startsWith('https://')) return urlOrPath;
   try {
     const url = new URL(urlOrPath);
-    return url.pathname.replace(`/${STORAGE_BUCKET}/`, '').replace(/^\//, '').split('?')[0];
+    const bucketPrefix = `/${STORAGE_BUCKET}/`;
+    const idx = url.pathname.indexOf(bucketPrefix);
+    return idx !== -1
+      ? url.pathname.slice(idx + bucketPrefix.length)
+      : url.pathname.replace(/^\//, '');
   } catch {
     return urlOrPath;
   }

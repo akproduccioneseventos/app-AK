@@ -110,9 +110,9 @@ export async function writeData<T>(
 
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 
-  let dataToWrite = data;
-  if (Array.isArray(dataToWrite) && sortFn) {
-    (dataToWrite as unknown[]).sort(sortFn);
+  let dataToWrite: T = data;
+  if (Array.isArray(data) && sortFn) {
+    dataToWrite = [...data].sort(sortFn) as unknown as T;
   }
 
   // In production: write ONLY to Firestore. Local filesystem is ephemeral on Vercel/Cloud Run.
