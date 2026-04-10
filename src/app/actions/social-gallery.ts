@@ -56,11 +56,12 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Try Firebase Storage first
+    // Try Firebase Storage first (public: photos are meant to be shared)
     const storageUrl = await uploadToStorage(
       buffer,
       `social-gallery/${fiestaId}/${newFilename}`,
-      file.type || 'image/jpeg'
+      file.type || 'image/jpeg',
+      true
     );
 
     let imageUrl: string;

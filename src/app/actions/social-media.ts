@@ -39,8 +39,8 @@ export async function saveSocialPost(
       const bytes = await mediaFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Try Firebase Storage first
-      const storageUrl = await uploadToStorage(buffer, `social-media-assets/${newFilename}`, mediaFile.type || 'application/octet-stream');
+      // Try Firebase Storage first (public: social media posts are public by nature)
+      const storageUrl = await uploadToStorage(buffer, `social-media-assets/${newFilename}`, mediaFile.type || 'application/octet-stream', true);
       if (storageUrl) {
         mediaUrl = storageUrl;
       } else {

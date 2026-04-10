@@ -1,6 +1,6 @@
 // src/lib/firebase/storage.ts
 // Server-side Firebase Storage helper using Firebase Admin SDK.
-// Used to upload files to Firebase Storage and obtain public URLs.
+// Used to upload files to Firebase Storage and obtain public URLs or signed URLs.
 'use server';
 
 import admin from 'firebase-admin';
@@ -28,18 +28,27 @@ function getBucket(): admin.storage.Bucket | null {
 }
 
 /**
- * Uploads a file buffer to Firebase Storage and returns its public URL.
+ * Uploads a file buffer to Firebase Storage.
+ *
+ * For public files (gallery images, social media assets): set `isPublic = true`.
+ * This makes the file publicly readable and returns a stable public URL.
+ *
+ * For sensitive files (contracts, budgets, invoices): omit `isPublic` or pass `false`.
+ * A long-lived signed URL (10 years) is generated instead, keeping the file private.
+ *
  * Returns null if Firebase Storage is not available (falls back to caller).
  *
- * @param buffer     - File content as a Buffer
- * @param storagePath - Path inside the bucket (e.g. 'contracts/cust_123/contrato.pdf')
- * @param contentType - MIME type (e.g. 'application/pdf', 'image/jpeg')
- * @returns Public URL string on success, null if Storage is unavailable
+ * @param buffer      - File content as a Buffer
+ * @param storagePath  - Path inside the bucket (e.g. 'contracts/cust_123/contrato.pdf')
+ * @param contentType  - MIME type (e.g. 'application/pdf', 'image/jpeg')
+ * @param isPublic     - If true, makes the file publicly readable. Default: false (signed URL)
+ * @returns URL string on success, null if Storage is unavailable
  */
 export async function uploadToStorage(
   buffer: Buffer,
   storagePath: string,
-  contentType: string
+  contentType: string,
+  isPublic = false
 ): Promise<string | null> {
   const bucket = getBucket();
   if (!bucket) return null;
@@ -50,10 +59,18 @@ export async function uploadToStorage(
       contentType,
       metadata: { contentType },
     });
-    // Make the file publicly readable
-    await file.makePublic();
-    const publicUrl = `https://storage.googleapis.com/${resolveBucketName()}/${storagePath}`;
-    return publicUrl;
+
+    if (isPublic) {
+      await file.makePublic();
+      return `https://storage.googleapis.com/${resolveBucketName()}/${storagePath}`;
+    } else {
+      // Generate a long-lived signed URL (10 years) for private/sensitive files
+      const [signedUrl] = await file.getSignedUrl({
+        action: 'read',
+        expires: Date.now() + 10 * 365 * 24 * 60 * 60 * 1000, // 10 years
+      });
+      return signedUrl;
+    }
   } catch (error: any) {
     console.error(`[Storage] Error uploading ${storagePath}:`, error?.message ?? error);
     return null;
@@ -64,7 +81,7 @@ export async function uploadToStorage(
  * Deletes a file from Firebase Storage.
  * Silently ignores errors (e.g. file not found).
  *
- * @param storageUrlOrPath - Full Storage URL or path inside the bucket
+ * @param storageUrlOrPath - Full Storage URL / signed URL, or path inside the bucket
  */
 export async function deleteFromStorage(storageUrlOrPath: string): Promise<void> {
   const bucket = getBucket();
@@ -74,12 +91,17 @@ export async function deleteFromStorage(storageUrlOrPath: string): Promise<void>
     // If the value is a full URL, extract the path component
     let resolvedPath = storageUrlOrPath;
     if (storageUrlOrPath.startsWith('https://storage.googleapis.com/')) {
-      // URL format: https://storage.googleapis.com/{bucket}/{path}
+      // Public URL format: https://storage.googleapis.com/{bucket}/{path}
       const withoutBase = storageUrlOrPath.replace('https://storage.googleapis.com/', '');
       const slashIdx = withoutBase.indexOf('/');
       if (slashIdx !== -1) {
         resolvedPath = withoutBase.slice(slashIdx + 1);
       }
+    } else if (storageUrlOrPath.startsWith('https://storage.googleapis.com') || storageUrlOrPath.startsWith('https://firebasestorage.googleapis.com')) {
+      // Signed URL — extract path from URL query params is complex; use bucket metadata instead
+      // In this case, we skip deletion (signed URL paths are hard to reverse without the original path)
+      console.warn(`[Storage] Cannot delete from signed URL; store original storagePath for deletion.`);
+      return;
     }
     await bucket.file(resolvedPath).delete({ ignoreNotFound: true });
   } catch (error: any) {

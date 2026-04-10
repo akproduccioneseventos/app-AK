@@ -132,7 +132,9 @@ export async function writeData<T>(
       logger.warn(`⚠️ [Production] Firestore write failed for "${filePath}". Attempting emergency local write.`);
       const absolutePath = path.join(DATA_DIR, normalizedFilePath);
       await ensureFile(absolutePath);
-      await fs.writeFile(absolutePath, JSON.stringify(dataToWrite, null, 2), 'utf-8').catch(() => {});
+      await fs.writeFile(absolutePath, JSON.stringify(dataToWrite, null, 2), 'utf-8').catch(localErr => {
+        logger.error(`❌ [Production] Emergency local write also failed for "${filePath}": ${localErr instanceof Error ? localErr.message : localErr}`);
+      });
     }
     return;
   }

@@ -29,11 +29,12 @@ export async function uploadPublicPageAsset(
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Try Firebase Storage first
+    // Try Firebase Storage first (public: shown on public event landing pages)
     const storageUrl = await uploadToStorage(
       buffer,
       `public-page-assets/${fiestaId}/${uniqueFilename}`,
-      file.type || 'application/octet-stream'
+      file.type || 'application/octet-stream',
+      true
     );
     if (storageUrl) {
       return { success: true, url: storageUrl };

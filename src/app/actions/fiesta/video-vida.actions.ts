@@ -60,11 +60,12 @@ export async function saveLifeStoryVideoPhoto(
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Try Firebase Storage first
+    // Try Firebase Storage first (public: gallery photos are shared event memories)
     const storageUrl = await uploadToStorage(
       buffer,
       `video-vida-photos/${fiestaId}/${newFilename}`,
-      file.type || 'image/jpeg'
+      file.type || 'image/jpeg',
+      true
     );
 
     let publicUrl: string;
