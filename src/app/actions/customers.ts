@@ -6,6 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 import { createNotification } from './notifications';
+import { requireSession, requireAdmin } from '@/lib/auth/session-server';
 
 const CUSTOMERS_FILE = 'customers.json';
 
@@ -16,11 +17,13 @@ const STORAGE_SALON_CONTRACTS_PATH = 'salon-contracts';
 
 
 export async function getCustomers(): Promise<Customer[]> {
+  try { await requireSession(); } catch { return []; }
   return readData<Customer[]>(CUSTOMERS_FILE, []);
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {
-  const customers = await getCustomers();
+  try { await requireSession(); } catch { return null; }
+  const customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
   return customers.find(c => c.id === id) || null;
 }
 
@@ -28,7 +31,8 @@ export async function saveCustomer(
   customerData: Omit<Customer, 'id'> | Customer | FormData,
   options?: { skipFiestaCreation?: boolean }
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
-  let customers = await getCustomers();
+  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
+  let customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
   let customerId: string;
   let customerToSave: Partial<Customer> = {}; 
   let isNewCustomer = false;
@@ -186,7 +190,8 @@ export async function saveCustomer(
 
 
 export async function deleteCustomer(id: string): Promise<{ success: boolean; error?: string }> {
-  let customers = await getCustomers();
+  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
+  let customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
   const customerToDelete = customers.find(c => c.id === id);
   const initialLength = customers.length;
   customers = customers.filter(c => c.id !== id);
@@ -222,18 +227,21 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
 }
 
 export async function getContractFilePath(filename: string): Promise<string | null> {
+  try { await requireSession(); } catch { return null; }
   // filename may now be a Firebase Storage URL — return it directly
   if (filename.startsWith('https://')) return filename;
   return null;
 }
 
 export async function getBudgetFilePath(filename: string): Promise<string | null> {
+  try { await requireSession(); } catch { return null; }
   // filename may now be a Firebase Storage URL — return it directly
   if (filename.startsWith('https://')) return filename;
   return null;
 }
 
 export async function getSalonContractFilePath(filename: string): Promise<string | null> {
+  try { await requireSession(); } catch { return null; }
   // filename may now be a Firebase Storage URL — return it directly
   if (filename.startsWith('https://')) return filename;
   return null;
@@ -243,6 +251,7 @@ export async function syncCustomerFromFiestaConfig(
   customerId: string,
   config: Partial<import('@/types/fiesta').ConfigEventoDataStorage>
 ): Promise<{ success: boolean; error?: string }> {
+  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   const customerToUpdate = await getCustomerById(customerId);
   if (!customerToUpdate) {
     return { success: false, error: `Customer with ID ${customerId} not found for sync.` };
@@ -291,7 +300,8 @@ export async function syncCustomerFromFiestaConfig(
 }
 
 export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget' | 'salonContract', filename: string): Promise<{ success: boolean, error?: string}> {
-    const customers = await getCustomers();
+    try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
+    const customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
     const customerIndex = customers.findIndex(c => c.id === customerId);
     if (customerIndex === -1) {
         return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };

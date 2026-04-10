@@ -3,6 +3,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { LandingSettings } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
+import { requireAdmin } from '@/lib/auth/session-server';
 
 const LANDING_SETTINGS_FILE = 'landing-settings.json';
 
@@ -27,6 +28,7 @@ export async function getLandingSettings(): Promise<LandingSettings> {
 export async function saveLandingSettings(
   settings: LandingSettings
 ): Promise<{ success: boolean; error?: string }> {
+  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   try {
     const dataToSave: LandingSettings = {
       ...settings,

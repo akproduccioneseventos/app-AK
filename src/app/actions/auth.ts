@@ -6,7 +6,9 @@
 // Security question answers are hashed the same way.
 
 import crypto from 'crypto';
+import { cookies } from 'next/headers';
 import { dbAdmin } from '@/lib/firebase/server';
+import { signSession, requireAdmin } from '@/lib/auth/session-server';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -98,9 +100,17 @@ export async function initializeAdminIfNeeded(): Promise<void> {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
 
+    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL || 'admin@akproducciones.uy';
+    const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
+
+    if (!bootstrapPassword) {
+      console.error('[auth] ADMIN_BOOTSTRAP_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configurala como variable de entorno.');
+      return;
+    }
+
     await dbAdmin.collection('users').add({
-      email: 'akproduccionessalto@gmail.com',
-      passwordHash: hashValue('AKproducciones2024'),
+      email: bootstrapEmail.trim().toLowerCase(),
+      passwordHash: hashValue(bootstrapPassword),
       role: 'admin',
       modules: ['all'],
       securityQuestions: {},
@@ -108,6 +118,8 @@ export async function initializeAdminIfNeeded(): Promise<void> {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
+
+    console.log(`[auth] Usuario admin inicial creado: ${bootstrapEmail}`);
   } catch (err) {
     console.error('[auth] initializeAdminIfNeeded error:', err);
   }
@@ -152,6 +164,27 @@ export async function loginUser(
 
     if (!verifyValue(password, data.passwordHash)) {
       return { success: false, error: 'Correo o contraseña incorrectos.' };
+    }
+
+    // Set server-side signed session cookie
+    try {
+      const token = signSession({
+        userId: doc.id,
+        email: data.email,
+        role: data.role,
+        modules: data.modules,
+      });
+      const cookieStore = await cookies();
+      cookieStore.set('ak_session', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 86400, // 24 hours
+        path: '/',
+      });
+    } catch (cookieError) {
+      // Don't fail login if cookie can't be set (SESSION_SECRET not configured)
+      console.warn('[auth] Could not set session cookie:', cookieError);
     }
 
     return {
@@ -208,8 +241,7 @@ export async function getSecurityQuestions(
         noQuestionsConfigured: true,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Iniciá sesión con la contraseña por defecto: AKproducciones2024 ' +
-          'y luego configurá tus preguntas de seguridad desde tu perfil.',
+          'Contactá al administrador para que restablezca tu contraseña.',
       };
     }
 
@@ -257,7 +289,7 @@ export async function resetPasswordWithQuestions(
         success: false,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Usá la contraseña por defecto: AKproducciones2024',
+          'Contactá al administrador para que restablezca tu contraseña.',
       };
     }
 
@@ -402,6 +434,7 @@ export async function listUsers(): Promise<{
   users?: PublicUserRecord[];
   error?: string;
 }> {
+  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -437,6 +470,7 @@ export async function createUser(data: {
   role: 'admin' | 'user';
   modules: string[];
 }): Promise<{ success: boolean; id?: string; error?: string }> {
+  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -480,6 +514,7 @@ export async function updateUserModules(
   modules: string[],
   role: 'admin' | 'user'
 ): Promise<{ success: boolean; error?: string }> {
+  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -498,6 +533,7 @@ export async function updateUserModules(
 export async function deleteUser(
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
+  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -513,6 +549,7 @@ export async function adminResetUserPassword(
   userId: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
+  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {

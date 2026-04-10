@@ -13,6 +13,7 @@ import type { Notificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
+import { requireSession } from '@/lib/auth/session-server';
 
 const NOTIFICATIONS_FILE = 'notifications.json';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
@@ -34,6 +35,7 @@ function generateNotifId(): string {
 // ============================================================
 
 export async function getNotifications(): Promise<Notificacion[]> {
+  try { await requireSession(); } catch { return []; }
   try {
     // Try Firestore first
     const result = await getAllDocuments<Notificacion>(COLLECTIONS.NOTIFICACIONES, {
@@ -107,6 +109,7 @@ export async function createNotification(
 export async function markNotificationAsRead(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
+  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   try {
     const result = await updateDocument<Notificacion>(COLLECTIONS.NOTIFICACIONES, notificationId, { leida: true });
     if (result.success) return { success: true };
@@ -129,6 +132,7 @@ export async function markNotificationAsRead(
 }
 
 export async function markAllNotificationsAsRead(): Promise<{ success: boolean; error?: string }> {
+  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   try {
     const unreadResult = await getAllDocuments<Notificacion>(COLLECTIONS.NOTIFICACIONES, {
       where: [{ field: 'leida', op: '==', value: false }],
@@ -164,6 +168,7 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean; 
 export async function deleteNotification(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
+  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   try {
     const result = await deleteDocument(COLLECTIONS.NOTIFICACIONES, notificationId);
     if (result.success) return { success: true };
