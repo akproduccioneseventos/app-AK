@@ -418,6 +418,12 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     );
   }
 
+  // Fallback: if there's a backend action with a failed result but no specific card above, show generic error
+  const backendActionTypes = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract'];
+  if (backendActionTypes.includes(action.type) && action.result && !action.result.success) {
+    return errorCard(action.result.error || 'No se pudo completar la acción. Intentá de nuevo o hacelo manualmente.');
+  }
+
   return null;
 }
 
@@ -598,6 +604,16 @@ export function AKAssistantWidget() {
                 toast({ title: '🎁 Promo generada', description: 'Lista para publicar' });
               }
               break;
+            default:
+              if (actionResult && !actionResult.success) {
+                toast({ title: '❌ Error al ejecutar acción', description: actionResult.error || 'No se pudo completar la operación.', variant: 'destructive' });
+              }
+              break;
+          }
+          // Show error toast for any backend action that failed (not covered by specific cases above)
+          const backendActions = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract'];
+          if (backendActions.includes(result.action.type) && actionResult && !actionResult.success) {
+            toast({ title: '❌ No se pudo completar la acción', description: actionResult.error || 'Intentá de nuevo o hacelo manualmente.', variant: 'destructive' });
           }
         }
       } else {
