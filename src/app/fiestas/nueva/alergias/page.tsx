@@ -291,7 +291,7 @@ function AlergiasContent() {
                           <span className="font-medium">Detalle:</span> {guest.alergiasEspecificas}
                         </p>
                       )}
-                      {guest.isCeliac && !diet?.includes('Celiac') && (
+                      {guest.isCeliac && !diet?.includes('Celiaco') && (
                         <p className="text-xs text-amber-700 mt-1 font-medium">⚠️ También marcado como Celíaco</p>
                       )}
                       {guest.notes && (

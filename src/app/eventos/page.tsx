@@ -122,7 +122,10 @@ export default function GestorFiestasPage() {
     filteredFiestasActivas.forEach(fiesta => {
       const fecha = fiesta.configuracion.fechaEvento;
       if (!fecha) return;
-      const dateKey = fecha.split('T')[0]; // YYYY-MM-DD
+      // Use Date parsing to safely extract YYYY-MM-DD, handling timezones
+      const dateObj = new Date(fecha);
+      if (isNaN(dateObj.getTime())) return;
+      const dateKey = dateObj.toISOString().substring(0, 10); // YYYY-MM-DD
       if (!dateGroups[dateKey]) dateGroups[dateKey] = [];
       dateGroups[dateKey].push(fiesta);
     });

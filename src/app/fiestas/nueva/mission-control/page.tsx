@@ -87,7 +87,7 @@ function MissionControlContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
 
-  const CACHE_KEY = `mission_control_${fiestaId}`;
+  const cacheKey = `mission_control_${fiestaId}`;
 
   const loadData = useCallback(async (silent = false) => {
     if (!fiestaId) return;
@@ -98,11 +98,11 @@ function MissionControlContent() {
         setData(res.data);
         // Cache data in localStorage for offline use
         try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ data: res.data, timestamp: Date.now() }));
+          localStorage.setItem(cacheKey, JSON.stringify({ data: res.data, timestamp: Date.now() }));
         } catch {}
       } else {
         // Try loading from cache if server fails
-        const cached = localStorage.getItem(CACHE_KEY);
+        const cached = localStorage.getItem(cacheKey);
         if (cached) {
           const parsed = JSON.parse(cached);
           setData(parsed.data);
@@ -113,7 +113,7 @@ function MissionControlContent() {
       }
     } catch {
       // Network error - load from cache
-      const cached = localStorage.getItem(CACHE_KEY);
+      const cached = localStorage.getItem(cacheKey);
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
@@ -123,7 +123,7 @@ function MissionControlContent() {
       }
     }
     if (!silent) setIsLoading(false);
-  }, [fiestaId, toast, CACHE_KEY]);
+  }, [fiestaId, toast]);
 
   useEffect(() => {
     loadData();
