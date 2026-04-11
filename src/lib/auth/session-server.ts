@@ -1,4 +1,4 @@
-'use server';
+// src/lib/auth/session-server.ts
 
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
