@@ -211,18 +211,24 @@ Ir a [Firestore Console](https://console.firebase.google.com/project/presupuesta
 
 ## Reglas de Seguridad
 
-Las reglas están en `firestore.rules`. La configuración actual permite acceso abierto para desarrollo. **Para producción**, usar:
+Las reglas están en `firestore.rules`. La configuración actual **bloquea todo acceso cliente**:
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }
 ```
+
+Todas las operaciones de base de datos se realizan a través del **Firebase Admin SDK** en
+Server Actions, que no están sujetas a las reglas de seguridad del cliente.
+
+> ⚠️ No agregues reglas que permitan acceso al cliente. Todo el acceso a datos
+> debe pasar por Server Actions del lado del servidor.
 
 Desplegar reglas:
 ```bash
