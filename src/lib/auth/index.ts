@@ -1,6 +1,8 @@
 // src/lib/auth/index.ts
-// Client-side session management — user-based auth system.
-// Session data is stored as JSON in localStorage/sessionStorage.
+// Client-side session cache — convenience layer for UI rendering.
+// Security decisions are NOT based on this data. The server-side session
+// cookie (verified by the middleware, AuthGuard, and server actions) is the
+// source of truth for authentication.
 
 export const SESSION_KEY = 'ak_producciones_auth_session';
 

@@ -100,11 +100,11 @@ export async function initializeAdminIfNeeded(): Promise<void> {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
 
-    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL || 'admin@akproducciones.uy';
-    const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
+    const bootstrapEmail = process.env.ADMIN_EMAIL || 'admin@akproducciones.uy';
+    const bootstrapPassword = process.env.ADMIN_INITIAL_PASSWORD;
 
     if (!bootstrapPassword) {
-      console.error('[auth] ADMIN_BOOTSTRAP_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configurala como variable de entorno.');
+      console.error('[auth] ADMIN_INITIAL_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configurala como variable de entorno.');
       return;
     }
 
@@ -208,7 +208,7 @@ export async function loginUser(
 export interface SecurityQuestionsResult {
   success: boolean;
   questions?: { q1: string; q2: string; q3: string };
-  /** True when the user has no security questions set — show a hint about the default password. */
+  /** True when the user has no security questions set. */
   noQuestionsConfigured?: boolean;
   error?: string;
 }

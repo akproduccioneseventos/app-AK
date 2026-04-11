@@ -2,10 +2,21 @@ import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
+import { requireVerifiedAdmin } from '@/lib/auth/verify-session-cookie';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 
 export async function POST(request: Request) {
+  // Require admin session before allowing backup upload
+  try {
+    await requireVerifiedAdmin();
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'No autorizado.' },
+      { status: 401 },
+    );
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('backupFile') as File | null;

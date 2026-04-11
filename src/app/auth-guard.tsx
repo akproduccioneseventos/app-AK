@@ -1,12 +1,17 @@
 
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { getSession, clearSession } from '@/lib/auth';
+import { clearSession } from '@/lib/auth';
 
 export async function triggerAppLogout() {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST' });
+  } catch {
+    // Ignore — cookie might already be cleared
+  }
   clearSession();
   if (typeof window !== 'undefined') {
     // Remove portal-specific session keys
@@ -27,6 +32,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isVerified, setIsVerified] = useState(false);
+  const sessionChecked = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -99,14 +105,33 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
 
-    // Check session-based auth (localStorage / sessionStorage).
-    const session = getSession();
-    if (!session) {
-      router.push('/login');
+    // Already verified once in this session — trust the result.
+    // The middleware already checks cookie existence on every navigation,
+    // and server actions validate the cookie signature on every call.
+    if (sessionChecked.current) {
+      setIsVerified(true);
       return;
     }
 
-    setIsVerified(true);
+    // Verify session against the server (validates the httpOnly cookie signature).
+    const controller = new AbortController();
+    fetch('/api/auth/session', { signal: controller.signal })
+      .then(res => {
+        if (!res.ok) {
+          clearSession();
+          router.push('/login');
+          return;
+        }
+        sessionChecked.current = true;
+        setIsVerified(true);
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        clearSession();
+        router.push('/login');
+      });
+
+    return () => { controller.abort(); };
   }, [pathname, router]);
 
   if (!isVerified) {
@@ -119,3 +144,4 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   return <>{children}</>;
 }
+
