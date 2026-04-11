@@ -100,11 +100,11 @@ export async function initializeAdminIfNeeded(): Promise<void> {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
 
-    const bootstrapEmail = process.env.ADMIN_EMAIL || 'admin@akproducciones.uy';
-    const bootstrapPassword = process.env.ADMIN_INITIAL_PASSWORD;
+    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL;
+    const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
 
-    if (!bootstrapPassword) {
-      console.error('[auth] ADMIN_INITIAL_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configurala como variable de entorno.');
+    if (!bootstrapEmail || !bootstrapPassword) {
+      console.error('[auth] ADMIN_BOOTSTRAP_EMAIL y/o ADMIN_BOOTSTRAP_PASSWORD no están configuradas. No se puede crear el usuario admin inicial. Configuralas como variables de entorno.');
       return;
     }
 
@@ -183,8 +183,11 @@ export async function loginUser(
         path: '/',
       });
     } catch (cookieError) {
-      // Don't fail login if cookie can't be set (SESSION_SECRET not configured)
-      console.warn('[auth] Could not set session cookie:', cookieError);
+      console.error('[auth] Could not set session cookie:', cookieError);
+      return {
+        success: false,
+        error: 'Error de configuración del servidor. Contactá al administrador (SESSION_SECRET no configurada).',
+      };
     }
 
     return {

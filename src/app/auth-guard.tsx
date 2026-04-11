@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { clearSession } from '@/lib/auth';
 
 export async function triggerAppLogout() {
   try {
@@ -12,7 +11,6 @@ export async function triggerAppLogout() {
   } catch {
     // Ignore — cookie might already be cleared
   }
-  clearSession();
   if (typeof window !== 'undefined') {
     // Remove portal-specific session keys
     Object.keys(sessionStorage).forEach(key => {
@@ -65,6 +63,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/evento/en-vivo',
       '/invitado',
       '/portal-proveedor',
+      '/recuperar-contrasena',
     ];
 
     let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
@@ -118,7 +117,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
     fetch('/api/auth/session', { signal: controller.signal })
       .then(res => {
         if (!res.ok) {
-          clearSession();
           router.push('/login');
           return;
         }
@@ -127,7 +125,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
       })
       .catch((err) => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
-        clearSession();
         router.push('/login');
       });
 

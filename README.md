@@ -57,7 +57,7 @@ npx tsx src/scripts/migrate-to-firebase.ts
 npm run typecheck
 npm run lint
 npm test
-npx playwright test   # E2E (requiere ADMIN_EMAIL / ADMIN_INITIAL_PASSWORD)
+npx playwright test   # E2E (requiere ADMIN_BOOTSTRAP_EMAIL / ADMIN_BOOTSTRAP_PASSWORD)
 ```
 
 ## 📖 Documentación

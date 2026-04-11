@@ -3,6 +3,7 @@
 
 import { useState, type FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,6 @@ import { LogIn, Loader2, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getSession, setSession } from '@/lib/auth';
 import { loginUser } from '@/app/actions/auth';
 
 export default function LoginPage() {
@@ -21,12 +21,21 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    if (getSession()) {
-      router.push('/');
-      return;
-    }
+    // Check if already authenticated via server cookie
+    fetch('/api/auth/session')
+      .then(res => {
+        if (res.ok) {
+          router.push('/');
+        } else {
+          setCheckingSession(false);
+        }
+      })
+      .catch(() => {
+        setCheckingSession(false);
+      });
 
     async function fetchLogo() {
       try {
@@ -52,15 +61,17 @@ export default function LoginPage() {
       return;
     }
 
-    setSession({
-      userId: result.user.id,
-      email: result.user.email,
-      role: result.user.role,
-      modules: result.user.modules,
-      mustChangePassword: result.user.mustChangePassword,
-    });
+    // Server cookie is already set by loginUser(). Just redirect.
     router.push('/');
   };
+
+  if (checkingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-background p-4">
@@ -122,7 +133,7 @@ export default function LoginPage() {
             </div>
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-3">
             <Button
               className="w-full"
               type="submit"
@@ -136,6 +147,12 @@ export default function LoginPage() {
               )}
               {isSubmitting ? 'Ingresando...' : 'Ingresar'}
             </Button>
+            <Link
+              href="/recuperar-contrasena"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
           </CardFooter>
         </form>
       </Card>
