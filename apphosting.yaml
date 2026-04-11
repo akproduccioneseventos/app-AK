@@ -19,3 +19,15 @@ env:
     secret: google-api-key
     availability:
       - RUNTIME
+  - variable: SESSION_SECRET
+    secret: session-secret
+    availability:
+      - RUNTIME
+  - variable: ADMIN_BOOTSTRAP_EMAIL
+    secret: admin-bootstrap-email
+    availability:
+      - RUNTIME
+  - variable: ADMIN_BOOTSTRAP_PASSWORD
+    secret: admin-bootstrap-password
+    availability:
+      - RUNTIME
