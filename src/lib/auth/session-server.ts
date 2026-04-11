@@ -1,5 +1,3 @@
-'use server';
-
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { verifySessionCookie, type VerifiedSession } from './verify-session-cookie';
