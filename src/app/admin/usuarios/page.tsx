@@ -258,7 +258,7 @@ export default function AdminUsuariosPage() {
         <Alert className="border-amber-400 bg-amber-50 text-amber-800">
           <AlertTriangle className="w-4 h-4 text-amber-600" />
           <AlertDescription>
-            ⚠️ Solo hay un administrador. Se recomienda crear un segundo administrador de respaldo
+            Solo hay un administrador. Se recomienda crear un segundo administrador de respaldo
             para evitar perder acceso si olvidás tu contraseña.
           </AlertDescription>
         </Alert>
