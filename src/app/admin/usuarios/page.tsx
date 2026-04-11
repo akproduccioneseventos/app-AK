@@ -33,7 +33,6 @@ import {
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, UserPlus, Pencil, Trash2, ShieldCheck, User, Key } from 'lucide-react';
-import { getSession } from '@/lib/auth';
 import { APP_MODULES } from '@/lib/auth';
 import type { PublicUserRecord } from '@/app/actions/auth';
 import {
@@ -80,17 +79,32 @@ export default function AdminUsuariosPage() {
   const [deleteUser2, setDeleteUser2] = useState<PublicUserRecord | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
+
   useEffect(() => {
-    const session = getSession();
-    if (!session) {
-      router.push('/login');
-      return;
-    }
-    if (session.role !== 'admin') {
-      router.push('/');
-      return;
-    }
-    loadUsers();
+    fetch('/api/auth/session')
+      .then(res => {
+        if (!res.ok) {
+          router.push('/login');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (!data || !data.authenticated) {
+          router.push('/login');
+          return;
+        }
+        if (data.role !== 'admin') {
+          router.push('/');
+          return;
+        }
+        setCurrentUserId(data.userId);
+        loadUsers();
+      })
+      .catch(() => {
+        router.push('/login');
+      });
   }, [router]);
 
   async function loadUsers() {
@@ -213,9 +227,6 @@ export default function AdminUsuariosPage() {
       setter(current.filter(m => m !== moduleId));
     }
   };
-
-  const session = getSession();
-  const currentUserId = session?.userId;
 
   return (
     <div className="space-y-6">

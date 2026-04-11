@@ -9,13 +9,20 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, KeyRound, ShieldCheck, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { getSession } from '@/lib/auth';
+import { Loader2, KeyRound, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { SECURITY_QUESTIONS, changePassword, updateSecurityQuestions, getUserSecurityQuestionsForEdit } from '@/app/actions/auth';
+
+interface SessionInfo {
+  userId: string;
+  email: string;
+  role: 'admin' | 'user';
+  modules: string[];
+}
 
 export default function PerfilPage() {
   const router = useRouter();
-  const [session, setSession] = useState(getSession());
+  const [session, setSession] = useState<SessionInfo | null>(null);
+  const [loadingSession, setLoadingSession] = useState(true);
 
   // Change password
   const [currentPwd, setCurrentPwd] = useState('');
@@ -34,13 +41,32 @@ export default function PerfilPage() {
   const [answers, setAnswers] = useState({ a1: '', a2: '', a3: '' });
 
   useEffect(() => {
-    const s = getSession();
-    if (!s) {
-      router.push('/login');
-      return;
-    }
-    setSession(s);
-    loadSecurityQuestions(s.userId);
+    fetch('/api/auth/session')
+      .then(res => {
+        if (!res.ok) {
+          router.push('/login');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (!data || !data.authenticated) {
+          router.push('/login');
+          return;
+        }
+        const s: SessionInfo = {
+          userId: data.userId,
+          email: data.email,
+          role: data.role,
+          modules: data.modules,
+        };
+        setSession(s);
+        setLoadingSession(false);
+        loadSecurityQuestions(s.userId);
+      })
+      .catch(() => {
+        router.push('/login');
+      });
   }, [router]);
 
   async function loadSecurityQuestions(userId: string) {
@@ -113,6 +139,14 @@ export default function PerfilPage() {
 
   const alreadyConfigured = existingQuestions?.q1 && existingQuestions.q2 && existingQuestions.q3;
 
+  if (loadingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
@@ -143,27 +177,11 @@ export default function PerfilPage() {
                   ) : (
                     <Badge variant="outline" className="text-xs">Usuario</Badge>
                   )}
-                  {session.mustChangePassword && (
-                    <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
-                      <AlertTriangle className="w-3 h-3 mr-1" />
-                      Cambiar contraseña
-                    </Badge>
-                  )}
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Must change password alert */}
-      {session?.mustChangePassword && (
-        <Alert className="border-amber-400 bg-amber-50">
-          <AlertTriangle className="w-4 h-4 text-amber-600" />
-          <AlertDescription className="text-amber-700">
-            Por seguridad, debés cambiar tu contraseña y configurar tus preguntas de seguridad antes de continuar.
-          </AlertDescription>
-        </Alert>
       )}
 
       {/* Change Password */}

@@ -27,6 +27,7 @@ const PUBLIC_PATH_PREFIXES = [
   '/evento/en-vivo',
   '/invitado',
   '/portal-proveedor',
+  '/recuperar-contrasena',
 ];
 
 export function middleware(request: NextRequest) {
