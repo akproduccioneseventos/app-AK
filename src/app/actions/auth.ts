@@ -104,7 +104,7 @@ export async function initializeAdminIfNeeded(): Promise<void> {
     const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD || process.env.ADMIN_INITIAL_PASSWORD;
 
     if (!bootstrapPassword) {
-      console.error('[auth] ADMIN_BOOTSTRAP_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configurala como variable de entorno.');
+      console.error('[auth] ADMIN_BOOTSTRAP_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configúrala como variable de entorno.');
       return;
     }
 
