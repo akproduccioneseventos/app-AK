@@ -90,17 +90,29 @@ export interface PublicUserRecord {
 // ── Admin bootstrap ────────────────────────────────────────────────────────
 
 /**
- * Creates the default admin account if no users exist yet in Firestore.
+ * Creates the default admin account if no valid users exist yet in Firestore.
+ * A valid user must have a non-empty email AND a non-empty passwordHash.
  * Called on every login attempt so it triggers automatically on first use.
  */
 export async function initializeAdminIfNeeded(): Promise<void> {
   if (!dbAdmin) return;
 
   try {
-    const snapshot = await dbAdmin.collection('users').limit(1).get();
-    if (!snapshot.empty) return;
+    const snapshot = await dbAdmin.collection('users').get();
+    const validUsers = snapshot.docs.filter(doc => {
+      const d = doc.data();
+      return d.email && typeof d.email === 'string' && d.email.trim() !== '' &&
+             d.passwordHash && typeof d.passwordHash === 'string' && d.passwordHash.trim() !== '';
+    });
 
-    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL;
+    if (validUsers.length > 0) {
+      console.log(`[auth] Found ${validUsers.length} valid user(s). Skipping bootstrap.`);
+      return;
+    }
+
+    console.log(`[auth] No valid users found (${snapshot.size} documents exist but none valid). Running bootstrap...`);
+
+    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
     const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
 
     if (!bootstrapEmail || !bootstrapPassword) {
@@ -108,18 +120,29 @@ export async function initializeAdminIfNeeded(): Promise<void> {
       return;
     }
 
-    await dbAdmin.collection('users').add({
-      email: bootstrapEmail.trim().toLowerCase(),
+    const bootstrapData = {
+      email: bootstrapEmail,
       passwordHash: hashValue(bootstrapPassword),
       role: 'admin',
       modules: ['all'],
       securityQuestions: {},
       mustChangePassword: true,
-      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    });
+    };
 
-    console.log(`[auth] Usuario admin inicial creado: ${bootstrapEmail}`);
+    // Check if a document with the same email already exists (even if invalid)
+    const existingDoc = snapshot.docs.find(doc => doc.data().email?.trim().toLowerCase() === bootstrapEmail);
+
+    if (existingDoc) {
+      await existingDoc.ref.update(bootstrapData);
+      console.log(`[auth] Updated existing invalid document to valid admin: ${bootstrapEmail}`);
+    } else {
+      await dbAdmin.collection('users').add({
+        ...bootstrapData,
+        createdAt: new Date().toISOString(),
+      });
+      console.log(`[auth] Created new admin bootstrap user: ${bootstrapEmail}`);
+    }
   } catch (err) {
     console.error('[auth] initializeAdminIfNeeded error:', err);
   }

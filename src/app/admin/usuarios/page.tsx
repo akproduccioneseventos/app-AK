@@ -32,7 +32,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, UserPlus, Pencil, Trash2, ShieldCheck, User, Key } from 'lucide-react';
+import { Loader2, UserPlus, Pencil, Trash2, ShieldCheck, User, Key, AlertTriangle } from 'lucide-react';
 import { APP_MODULES } from '@/lib/auth';
 import type { PublicUserRecord } from '@/app/actions/auth';
 import {
@@ -251,6 +251,16 @@ export default function AdminUsuariosPage() {
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {!loading && users.filter(u => u.role === 'admin').length === 1 && (
+        <Alert className="border-amber-400 bg-amber-50 text-amber-800">
+          <AlertTriangle className="w-4 h-4 text-amber-600" />
+          <AlertDescription>
+            ⚠️ Solo hay un administrador. Se recomienda crear un segundo administrador de respaldo
+            para evitar perder acceso si olvidás tu contraseña.
+          </AlertDescription>
         </Alert>
       )}
 
