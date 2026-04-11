@@ -11,7 +11,6 @@ import { LogIn, Loader2, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getSession, setSession } from '@/lib/auth';
 import { loginUser } from '@/app/actions/auth';
 
 export default function LoginPage() {
@@ -21,12 +20,21 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    if (getSession()) {
-      router.push('/');
-      return;
-    }
+    // Check server-side session via the HttpOnly cookie
+    fetch('/api/auth/session')
+      .then(res => {
+        if (res.ok) {
+          router.push('/');
+          return;
+        }
+        setCheckingSession(false);
+      })
+      .catch(() => {
+        setCheckingSession(false);
+      });
 
     async function fetchLogo() {
       try {
@@ -52,15 +60,17 @@ export default function LoginPage() {
       return;
     }
 
-    setSession({
-      userId: result.user.id,
-      email: result.user.email,
-      role: result.user.role,
-      modules: result.user.modules,
-      mustChangePassword: result.user.mustChangePassword,
-    });
+    // Server action already set the HttpOnly cookie — just redirect
     router.push('/');
   };
+
+  if (checkingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-background p-4">

@@ -10,12 +10,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, KeyRound, ShieldCheck, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { getSession } from '@/lib/auth';
+import { fetchSession, type SessionData } from '@/lib/auth';
 import { SECURITY_QUESTIONS, changePassword, updateSecurityQuestions, getUserSecurityQuestionsForEdit } from '@/app/actions/auth';
 
 export default function PerfilPage() {
   const router = useRouter();
-  const [session, setSession] = useState(getSession());
+  const [session, setSession] = useState<SessionData | null>(null);
 
   // Change password
   const [currentPwd, setCurrentPwd] = useState('');
@@ -34,13 +34,16 @@ export default function PerfilPage() {
   const [answers, setAnswers] = useState({ a1: '', a2: '', a3: '' });
 
   useEffect(() => {
-    const s = getSession();
-    if (!s) {
-      router.push('/login');
-      return;
+    async function loadSession() {
+      const s = await fetchSession();
+      if (!s) {
+        router.push('/login');
+        return;
+      }
+      setSession(s);
+      loadSecurityQuestions(s.userId);
     }
-    setSession(s);
-    loadSecurityQuestions(s.userId);
+    loadSession();
   }, [router]);
 
   async function loadSecurityQuestions(userId: string) {

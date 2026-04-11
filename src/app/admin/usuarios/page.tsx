@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, UserPlus, Pencil, Trash2, ShieldCheck, User, Key } from 'lucide-react';
-import { getSession } from '@/lib/auth';
+import { fetchSession, type SessionData } from '@/lib/auth';
 import { APP_MODULES } from '@/lib/auth';
 import type { PublicUserRecord } from '@/app/actions/auth';
 import {
@@ -49,6 +49,7 @@ export default function AdminUsuariosPage() {
   const [users, setUsers] = useState<PublicUserRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
 
   // Create user dialog
   const [createOpen, setCreateOpen] = useState(false);
@@ -81,16 +82,20 @@ export default function AdminUsuariosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
-    const session = getSession();
-    if (!session) {
-      router.push('/login');
-      return;
+    async function init() {
+      const session = await fetchSession();
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+      if (session.role !== 'admin') {
+        router.push('/');
+        return;
+      }
+      setCurrentUserId(session.userId);
+      loadUsers();
     }
-    if (session.role !== 'admin') {
-      router.push('/');
-      return;
-    }
-    loadUsers();
+    init();
   }, [router]);
 
   async function loadUsers() {
@@ -213,9 +218,6 @@ export default function AdminUsuariosPage() {
       setter(current.filter(m => m !== moduleId));
     }
   };
-
-  const session = getSession();
-  const currentUserId = session?.userId;
 
   return (
     <div className="space-y-6">

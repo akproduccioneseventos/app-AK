@@ -100,11 +100,11 @@ export async function initializeAdminIfNeeded(): Promise<void> {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
 
-    const bootstrapEmail = process.env.ADMIN_EMAIL || 'admin@akproducciones.uy';
-    const bootstrapPassword = process.env.ADMIN_INITIAL_PASSWORD;
+    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL || process.env.ADMIN_EMAIL || 'admin@akproducciones.uy';
+    const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD || process.env.ADMIN_INITIAL_PASSWORD;
 
     if (!bootstrapPassword) {
-      console.error('[auth] ADMIN_INITIAL_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configurala como variable de entorno.');
+      console.error('[auth] ADMIN_BOOTSTRAP_PASSWORD no está configurada. No se puede crear el usuario admin inicial. Configurala como variable de entorno.');
       return;
     }
 
@@ -166,7 +166,7 @@ export async function loginUser(
       return { success: false, error: 'Correo o contraseña incorrectos.' };
     }
 
-    // Set server-side signed session cookie
+    // Set server-side signed session cookie — this is REQUIRED for auth to work.
     try {
       const token = signSession({
         userId: doc.id,
@@ -183,8 +183,11 @@ export async function loginUser(
         path: '/',
       });
     } catch (cookieError) {
-      // Don't fail login if cookie can't be set (SESSION_SECRET not configured)
-      console.warn('[auth] Could not set session cookie:', cookieError);
+      console.error('[auth] Could not set session cookie:', cookieError);
+      return {
+        success: false,
+        error: 'Error de configuración del servidor: no se pudo crear la sesión. Verificá que SESSION_SECRET esté configurado.',
+      };
     }
 
     return {

@@ -16,12 +16,15 @@ en la colección `users` de Firestore.
 Al primer uso de la app (cuando no existe ningún usuario en Firestore), se crea
 automáticamente el usuario administrador usando variables de entorno:
 
-- **Correo:** valor de `ADMIN_EMAIL` (default: `admin@akproducciones.uy`)
-- **Contraseña:** valor de `ADMIN_INITIAL_PASSWORD` (obligatoria)
+- **Correo:** valor de `ADMIN_BOOTSTRAP_EMAIL` (default: `admin@akproducciones.uy`)
+- **Contraseña:** valor de `ADMIN_BOOTSTRAP_PASSWORD` (obligatoria)
 - **Rol:** `admin` (acceso total)
 
 > ⚠️ NUNCA escribas la contraseña en el código fuente. Configurala como variable de entorno.
 > Después del primer login, cambiala desde el perfil.
+> 
+> **Nota:** También se aceptan los nombres legacy `ADMIN_EMAIL` y `ADMIN_INITIAL_PASSWORD`
+> por compatibilidad, pero se recomienda usar los nombres nuevos.
 
 ---
 
@@ -37,8 +40,8 @@ Solo se requieren las variables de Firestore (ya NO se necesita Firebase Auth):
 | `FIREBASE_CLIENT_EMAIL` | Email de la cuenta de servicio | ❌ (GCP auto-detecta) |
 | `FIREBASE_PRIVATE_KEY` | Clave privada de la cuenta de servicio | ❌ (GCP auto-detecta) |
 | `SESSION_SECRET` | Secreto para firmar cookies de sesión | ✅ |
-| `ADMIN_EMAIL` | Email del admin inicial | ❌ (default: admin@akproducciones.uy) |
-| `ADMIN_INITIAL_PASSWORD` | Contraseña del admin inicial | ✅ (solo primer uso) |
+| `ADMIN_BOOTSTRAP_EMAIL` | Email del admin inicial | ❌ (default: admin@akproducciones.uy) |
+| `ADMIN_BOOTSTRAP_PASSWORD` | Contraseña del admin inicial | ✅ (solo primer uso) |
 
 ---
 
@@ -86,11 +89,13 @@ El login establece una cookie HTTP-only firmada (`ak_session`) que es verificada
 
 La cookie tiene una expiración de 24 horas y se firma con `SESSION_SECRET`.
 
-Adicionalmente, el login almacena datos básicos de sesión en `localStorage` con la clave
-`ak_producciones_auth_session` como caché de conveniencia para la interfaz (no se usa para
-decisiones de seguridad).
+**No se usa `localStorage` ni `sessionStorage`** para decisiones de autenticación.
+La cookie HttpOnly del servidor es la única fuente de verdad.
 
-Para cerrar sesión: **Mi Cuenta → Cerrar Sesión** (limpia el cookie del servidor y el localStorage).
+Si `SESSION_SECRET` no está configurado, el login **rechaza el acceso** con un error claro
+en lugar de fallar silenciosamente.
+
+Para cerrar sesión: **Mi Cuenta → Cerrar Sesión** (limpia el cookie del servidor).
 
 ---
 
@@ -140,8 +145,7 @@ O en GitHub Actions, guardar como Secrets:
 - `E2E_DEMO_EMAIL` *(opcional — default: admin@akproducciones.uy)*
 - `E2E_DEMO_PASSWORD`
 
-La mayoría de los tests inyectan una sesión directamente en `sessionStorage`
-(función `injectAuthSession`) para evitar depender de credenciales reales.
+La mayoría de los tests inyectan una sesión a través de la cookie de sesión del servidor.
 Solo `02-login.spec.ts` prueba el flujo de login real.
 
 ---

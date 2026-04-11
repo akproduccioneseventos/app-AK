@@ -1,19 +1,18 @@
 // src/lib/firebase/auth-client.ts
-// Auth helpers — delegates to the simple session-based auth system.
+// Auth helpers — delegates to the server-side session system.
+// Client-side storage (localStorage/sessionStorage) is no longer used.
 
-export {
-  getSession,
-  setSession,
-  clearSession,
-  SESSION_KEY,
-} from '@/lib/auth';
+export { fetchSession, type SessionData } from '@/lib/auth';
 
 /**
- * Signs out the current user by clearing the session.
+ * Signs out the current user by clearing the server-side session cookie.
  */
 export async function signOut(): Promise<void> {
-  const { clearSession } = await import('@/lib/auth');
-  clearSession();
+  try {
+    await fetch('/api/auth/logout', { method: 'POST' });
+  } catch {
+    // Ignore — cookie might already be cleared
+  }
 }
 
 /**
