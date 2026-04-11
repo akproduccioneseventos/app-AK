@@ -37,8 +37,11 @@ export async function GET() {
   // Require admin session before allowing backup download
   try {
     await requireVerifiedAdmin();
-  } catch {
-    return new NextResponse(JSON.stringify({ error: 'No autorizado.' }), { status: 401 });
+  } catch (err) {
+    return new NextResponse(
+      JSON.stringify({ error: err instanceof Error ? err.message : 'No autorizado.' }),
+      { status: 401 },
+    );
   }
 
   try {

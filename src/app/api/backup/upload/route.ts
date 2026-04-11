@@ -10,8 +10,11 @@ export async function POST(request: Request) {
   // Require admin session before allowing backup upload
   try {
     await requireVerifiedAdmin();
-  } catch {
-    return NextResponse.json({ error: 'No autorizado.' }, { status: 401 });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'No autorizado.' },
+      { status: 401 },
+    );
   }
 
   try {

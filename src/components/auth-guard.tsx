@@ -71,7 +71,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
     }
 
     // Verify session against the server
-    fetch('/api/auth/session')
+    const controller = new AbortController();
+    fetch('/api/auth/session', { signal: controller.signal })
       .then(res => {
         if (!res.ok) {
           clearSession();
@@ -81,10 +82,13 @@ export function AuthGuard({ children }: AuthGuardProps) {
         sessionChecked.current = true;
         setIsVerified(true);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         clearSession();
         router.push('/login');
       });
+
+    return () => { controller.abort(); };
   }, [pathname, router]);
 
   if (!isVerified) {
