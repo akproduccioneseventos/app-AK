@@ -41,8 +41,11 @@ export default function RecuperarContrasenaPage() {
     if (!result.success || !result.questions) {
       if (result.noQuestionsConfigured) {
         setEmailError(
-          'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Contactá al administrador para que restablezca tu contraseña.'
+          'No tenés preguntas de seguridad configuradas. ' +
+          'Para recuperar tu acceso, pedile a otro administrador que restablezca tu contraseña ' +
+          'desde el panel de Administración → Usuarios. ' +
+          'Si no hay otro administrador disponible, se puede re-crear el acceso ' +
+          'usando las variables de entorno del servidor (ADMIN_BOOTSTRAP_EMAIL / ADMIN_BOOTSTRAP_PASSWORD).'
         );
       } else {
         setEmailError(result.error ?? 'No se pudo obtener las preguntas de seguridad.');
