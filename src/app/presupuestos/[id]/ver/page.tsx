@@ -214,7 +214,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const pagosSummary = useMemo(() => {
     if (!presupuesto) return { totalPagado: 0, saldoPendiente: 0, totalCosto: 0 };
     const totalCosto = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-    const totalPagado = (presupuesto.pagosCliente || []).reduce((sum, p) => sum + p.monto, 0);
+    const confirmedPagos = (presupuesto.pagosCliente || []).filter(p => p.estadoPago !== 'pendiente_confirmacion');
+    const totalPagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
     return { totalCosto, totalPagado, saldoPendiente: totalCosto - totalPagado };
   }, [presupuesto]);
 

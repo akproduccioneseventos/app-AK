@@ -320,7 +320,8 @@ export default function PublicPortalView({
     ? (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado)
     : 0;
   const pagos: PagoCliente[] = presupuesto?.pagosCliente ?? [];
-  const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
+  const confirmedPagos = pagos.filter(p => p.estadoPago !== 'pendiente_confirmacion');
+  const totalPagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
   const saldoPendiente = totalCosto - totalPagado;
   const isPaid = saldoPendiente <= 0;
   const porcentajePagado = totalCosto > 0 ? Math.min(100, (totalPagado / totalCosto) * 100) : 0;

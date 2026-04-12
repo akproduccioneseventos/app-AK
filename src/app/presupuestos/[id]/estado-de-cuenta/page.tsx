@@ -107,7 +107,8 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
     if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] };
     const total = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
     const pagos: PagoCliente[] = presupuesto.pagosCliente || [];
-    const pagado = pagos.reduce((sum, p) => sum + p.monto, 0);
+    const confirmedPagos = pagos.filter(p => p.estadoPago !== 'pendiente_confirmacion');
+    const pagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
     return {
       totalCosto: total,
       totalPagado: pagado,
@@ -323,6 +324,9 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
                       <TableHead className="text-[9px] font-black uppercase tracking-widest py-3">
                         Referencia
                       </TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest py-3">
+                        Estado
+                      </TableHead>
                       <TableHead className="text-[9px] font-black uppercase tracking-widest py-3 pr-4 text-right">
                         Monto
                       </TableHead>
@@ -345,6 +349,17 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
                         </TableCell>
                         <TableCell className="py-3 text-muted-foreground text-xs max-w-[120px] truncate">
                           {pago.referencia || '—'}
+                        </TableCell>
+                        <TableCell className="py-3">
+                          {pago.estadoPago === 'pendiente_confirmacion' ? (
+                            <Badge className="bg-amber-100 text-amber-700 text-[8px] font-bold flex items-center gap-0.5 w-fit">
+                              <Clock className="w-2.5 h-2.5" /> Pendiente
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-emerald-100 text-emerald-700 text-[8px] font-bold flex items-center gap-0.5 w-fit">
+                              <CheckCircle2 className="w-2.5 h-2.5" /> Confirmado
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell className="pr-4 py-3 text-right font-bold text-emerald-700">
                           {formatCurrency(pago.monto)}
