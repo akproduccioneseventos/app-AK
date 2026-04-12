@@ -9,7 +9,6 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:e2e": "playwright test",
     "firebase:emulators": "firebase emulators:start --project presupuestador-ak-producciones",
     "firebase:migrate": "npx tsx src/scripts/migrate-to-firebase.ts",
     "firebase:migrate:verify": "npx tsx src/scripts/migrate-to-firebase.ts --verify",
@@ -85,7 +84,6 @@
     "@genkit-ai/google-cloud": "1.20.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@types/jest": "^29.5.12",
@@ -96,10 +94,6 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/three": "^0.169.0",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.35",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",

@@ -6,9 +6,7 @@
 // Security question answers are hashed the same way.
 
 import crypto from 'crypto';
-import { cookies } from 'next/headers';
 import { dbAdmin } from '@/lib/firebase/server';
-import { signSession, requireAdmin } from '@/lib/auth/session-server';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -54,31 +52,6 @@ function normalizeAnswer(answer: string): string {
   return answer.trim().toLowerCase();
 }
 
-/**
- * Normalizes a role value from Firestore to a valid 'admin' | 'user'.
- * Only the exact string 'admin' (case-insensitive) maps to 'admin'.
- * Everything else (undefined, null, other strings) becomes 'user'.
- */
-function normalizeRole(raw: unknown): 'admin' | 'user' {
-  if (typeof raw === 'string' && raw.trim().toLowerCase() === 'admin') {
-    return 'admin';
-  }
-  return 'user';
-}
-
-/**
- * Normalizes a modules value from Firestore to a valid string[].
- * - If already an array, keep only non-empty strings.
- * - If not an array and role is 'admin', default to ['all'].
- * - If not an array and role is 'user', default to [].
- */
-function normalizeModules(raw: unknown, role: 'admin' | 'user'): string[] {
-  if (Array.isArray(raw)) {
-    return raw.filter((m): m is string => typeof m === 'string' && m.trim() !== '');
-  }
-  return role === 'admin' ? ['all'] : [];
-}
-
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface SecurityQuestion {
@@ -115,59 +88,34 @@ export interface PublicUserRecord {
 // ── Admin bootstrap ────────────────────────────────────────────────────────
 
 /**
- * Creates the default admin account if no valid users exist yet in Firestore.
- * A valid user must have a non-empty email AND a non-empty passwordHash.
+ * Creates the default admin account if no users exist yet in Firestore.
  * Called on every login attempt so it triggers automatically on first use.
  */
 export async function initializeAdminIfNeeded(): Promise<void> {
   if (!dbAdmin) return;
 
+  const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
+  const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
+
+  if (!bootstrapEmail || !bootstrapPassword) {
+    console.error('[auth] ADMIN_BOOTSTRAP_EMAIL y/o ADMIN_BOOTSTRAP_PASSWORD no están configuradas.');
+    return;
+  }
+
   try {
-    const snapshot = await dbAdmin.collection('users').get();
-    const validUsers = snapshot.docs.filter(doc => {
-      const d = doc.data();
-      return d.email && typeof d.email === 'string' && d.email.trim() !== '' &&
-             d.passwordHash && typeof d.passwordHash === 'string' && d.passwordHash.trim() !== '';
-    });
+    const snapshot = await dbAdmin.collection('users').limit(1).get();
+    if (!snapshot.empty) return;
 
-    if (validUsers.length > 0) {
-      console.log(`[auth] Found ${validUsers.length} valid user(s). Skipping bootstrap.`);
-      return;
-    }
-
-    console.log(`[auth] No valid users found (${snapshot.size} documents exist but none valid). Running bootstrap...`);
-
-    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-    const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
-
-    if (!bootstrapEmail || !bootstrapPassword) {
-      console.error('[auth] ADMIN_BOOTSTRAP_EMAIL y/o ADMIN_BOOTSTRAP_PASSWORD no están configuradas. No se puede crear el usuario admin inicial. Configuralas como variables de entorno.');
-      return;
-    }
-
-    const bootstrapData = {
+    await dbAdmin.collection('users').add({
       email: bootstrapEmail,
       passwordHash: hashValue(bootstrapPassword),
       role: 'admin',
       modules: ['all'],
       securityQuestions: {},
       mustChangePassword: true,
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
-
-    // Check if a document with the same email already exists (even if invalid)
-    const existingDoc = snapshot.docs.find(doc => doc.data().email?.trim().toLowerCase() === bootstrapEmail);
-
-    if (existingDoc) {
-      await existingDoc.ref.update(bootstrapData);
-      console.log(`[auth] Updated existing invalid document to valid admin: ${bootstrapEmail}`);
-    } else {
-      await dbAdmin.collection('users').add({
-        ...bootstrapData,
-        createdAt: new Date().toISOString(),
-      });
-      console.log(`[auth] Created new admin bootstrap user: ${bootstrapEmail}`);
-    }
+    });
   } catch (err) {
     console.error('[auth] initializeAdminIfNeeded error:', err);
   }
@@ -214,61 +162,13 @@ export async function loginUser(
       return { success: false, error: 'Correo o contraseña incorrectos.' };
     }
 
-    // Normalize legacy role/modules before signing cookie
-    const normalizedRole = normalizeRole(data.role);
-    const normalizedModules = normalizeModules(data.modules, normalizedRole);
-
-    // Auto-repair legacy data in Firestore so next login is clean
-    const needsRepair =
-      data.role !== normalizedRole ||
-      !Array.isArray(data.modules) ||
-      JSON.stringify(data.modules) !== JSON.stringify(normalizedModules);
-
-    if (needsRepair) {
-      try {
-        await doc.ref.update({
-          role: normalizedRole,
-          modules: normalizedModules,
-          updatedAt: new Date().toISOString(),
-        });
-        console.log(`[auth] Auto-repaired legacy role/modules for user ${doc.id}`);
-      } catch (repairErr) {
-        // Non-blocking: log but don't fail the login
-        console.error('[auth] Failed to auto-repair user:', repairErr);
-      }
-    }
-
-    // Set server-side signed session cookie
-    try {
-      const token = signSession({
-        userId: doc.id,
-        email: data.email,
-        role: normalizedRole,
-        modules: normalizedModules,
-      });
-      const cookieStore = await cookies();
-      cookieStore.set('ak_session', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 86400, // 24 hours
-        path: '/',
-      });
-    } catch (cookieError) {
-      console.error('[auth] Could not set session cookie:', cookieError);
-      return {
-        success: false,
-        error: 'Error del servidor. Contactá al administrador.',
-      };
-    }
-
     return {
       success: true,
       user: {
         id: doc.id,
         email: data.email,
-        role: normalizedRole,
-        modules: normalizedModules,
+        role: data.role,
+        modules: data.modules,
         mustChangePassword: data.mustChangePassword ?? false,
       },
     };
@@ -283,7 +183,7 @@ export async function loginUser(
 export interface SecurityQuestionsResult {
   success: boolean;
   questions?: { q1: string; q2: string; q3: string };
-  /** True when the user has no security questions set. */
+  /** True when the user has no security questions set — show a hint about the default password. */
   noQuestionsConfigured?: boolean;
   error?: string;
 }
@@ -509,7 +409,6 @@ export async function listUsers(): Promise<{
   users?: PublicUserRecord[];
   error?: string;
 }> {
-  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -545,7 +444,6 @@ export async function createUser(data: {
   role: 'admin' | 'user';
   modules: string[];
 }): Promise<{ success: boolean; id?: string; error?: string }> {
-  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -589,7 +487,6 @@ export async function updateUserModules(
   modules: string[],
   role: 'admin' | 'user'
 ): Promise<{ success: boolean; error?: string }> {
-  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -608,7 +505,6 @@ export async function updateUserModules(
 export async function deleteUser(
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
-  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -624,7 +520,6 @@ export async function adminResetUserPassword(
   userId: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
-  try { await requireAdmin(); } catch { return { success: false, error: 'No autorizado.' }; }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {

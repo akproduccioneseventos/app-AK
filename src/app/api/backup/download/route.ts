@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
-import { requireVerifiedAdmin } from '@/lib/auth/verify-session-cookie';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 
@@ -34,16 +33,6 @@ async function addFilesToZip(zip: JSZip, directoryPath: string, parentPath: stri
 }
 
 export async function GET() {
-  // Require admin session before allowing backup download
-  try {
-    await requireVerifiedAdmin();
-  } catch (err) {
-    return new NextResponse(
-      JSON.stringify({ error: err instanceof Error ? err.message : 'No autorizado.' }),
-      { status: 401 },
-    );
-  }
-
   try {
     const zip = new JSZip();
     

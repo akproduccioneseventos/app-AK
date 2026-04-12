@@ -35,16 +35,14 @@ npm run build && npm start
 - **Framework:** Next.js 14 (App Router)
 - **Lenguaje:** TypeScript 5
 - **Estilos:** Tailwind CSS + Radix UI
-- **Base de datos:** Firebase Firestore (con fallback a JSON local en desarrollo)
-- **Autenticación:** Sistema propio (scrypt + cookies de sesión firmadas con HMAC). No usa Firebase Auth.
+- **Base de datos:** Firebase Firestore (con fallback a JSON local)
+- **Autenticación:** Firebase Auth
 - **IA:** Google Genkit
 - **Gráficos:** Recharts
 
 ## 🔥 Firebase
 
-La aplicación usa Firestore como base de datos principal, accedida exclusivamente a través del
-Firebase Admin SDK (Server Actions). Las reglas de Firestore bloquean todo acceso cliente
-(`allow read, write: if false`). En desarrollo se soporta dual-write (JSON local + Firestore).
+La aplicación soporta dual-write (JSON local + Firestore). Ver `.env.example` para configuración.
 
 Para migrar datos existentes a Firestore:
 ```bash
@@ -56,12 +54,10 @@ npx tsx src/scripts/migrate-to-firebase.ts
 ```bash
 npm run typecheck
 npm run lint
-npm test
-npx playwright test   # E2E (requiere ADMIN_BOOTSTRAP_EMAIL / ADMIN_BOOTSTRAP_PASSWORD)
 ```
 
 ## 📖 Documentación
 
 - **Variables de entorno:** `.env.example`
-- **Autenticación:** `docs/auth.md`
 - **Estructura Firestore:** `docs/firestore-collections.md`
+- **Historial de cambios:** Ver `/home/ubuntu/CAMBIOS_COMPLETOS.md`

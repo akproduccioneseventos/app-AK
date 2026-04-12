@@ -16,18 +16,15 @@ import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { parseBudgetText } from '@/lib/parse-budget-text';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
-import { requireSession } from '@/lib/auth/session-server';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 export async function getPresupuestos(): Promise<Presupuesto[]> {
-  try { await requireSession(); } catch { return []; }
   return readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
 }
 
 export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
-  try { await requireSession(); } catch { return null; }
-  const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+  const presupuestos = await getPresupuestos();
   return presupuestos.find(p => p.id === id) || null;
 }
 
@@ -63,7 +60,6 @@ export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: 'manual' | 'simulator', leadId?: string }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   let presupuestos = await getPresupuestos();
   
   const maxNumero = presupuestos.reduce((max, p) => Math.max(max, p.numero || 0), 0);
@@ -136,7 +132,6 @@ export async function savePresupuesto(
 }
 
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
-    try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
     let presupuestos = await getPresupuestos();
     const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
     if (index === -1) return { success: false, error: "No encontrado" };
@@ -198,7 +193,6 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 }
 
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   let presupuestos = await getPresupuestos();
   presupuestos = presupuestos.filter(p => p.id !== id);
   try {
@@ -214,7 +208,6 @@ export async function markPresupuestoAsFacturado(
   presupuestoId: string,
   invoiceId: string
 ): Promise<{ success: boolean; error?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   let presupuestos = await getPresupuestos();
   const index = presupuestos.findIndex(p => p.id === presupuestoId);
 
@@ -260,7 +253,6 @@ export async function markPresupuestoAsFacturado(
 }
 
 export async function recalculatePresupuestoFromCatalog(presupuestoId: string): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'No encontrado' };
   
@@ -285,7 +277,6 @@ export async function addPagoToPresupuesto(
   presupuestoId: string,
   pago: Omit<PagoCliente, 'id'>
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
@@ -317,7 +308,6 @@ export async function deletePagoFromPresupuesto(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
@@ -344,7 +334,6 @@ export async function importarPresupuestoDesdeTexto(
   if (!texto || texto.trim().length < 20) {
     return { success: false, error: 'El texto pegado está vacío o es demasiado corto.' };
   }
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
 
   const parsed = parseBudgetText(texto);
 
@@ -449,7 +438,6 @@ export async function importarPresupuestoDesdeTexto(
 export async function createFiestaFromPresupuesto(
   presupuestoId: string
 ): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
 
@@ -498,7 +486,6 @@ export async function createFiestaFromPresupuesto(
 export async function approvePresupuesto(
   presupuestoId: string
 ): Promise<{ success: boolean; error?: string }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   try {
     const presupuestos = await getPresupuestos();
     const index = presupuestos.findIndex(p => p.id === presupuestoId);
