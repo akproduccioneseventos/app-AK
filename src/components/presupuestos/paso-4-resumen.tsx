@@ -465,7 +465,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                     {projectionRows.map((row) => (
                       <tr key={row.year} style={{ backgroundColor: '#e8f5e9' }}>
                         <td className="border border-gray-300 px-2 py-1.5 font-semibold">
-                          {row.year} {row.year === currentYear ? '(actual)' : `(1° enero)`}
+                          {row.year} {row.year === currentYear ? '(actual)' : `(1° de enero)`}
                         </td>
                         <td className="border border-gray-300 px-2 py-1.5 text-right">{formatCurrency(row.base, true)}</td>
                         <td className="border border-gray-300 px-2 py-1.5 text-right">
