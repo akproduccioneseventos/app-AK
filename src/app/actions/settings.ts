@@ -2,8 +2,8 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates } from '@/types/settings';
-import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates } from '@/types/settings';
+import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings } from '@/types/settings';
+import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings } from '@/types/settings';
 
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
@@ -11,6 +11,7 @@ const COMPANY_INFO_FILE = 'company-info.json';
 const CONTRACT_TEMPLATE_FILE = 'contract-template.json';
 const WHATSAPP_SETTINGS_FILE = 'whatsapp-settings.json';
 const WHATSAPP_TEMPLATES_FILE = 'whatsapp-templates.json';
+const CONTRACT_SETTINGS_FILE = 'contract-settings.json';
 
 const defaultContractTemplate = `CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVENTOS 
 
@@ -174,6 +175,25 @@ export async function saveWhatsAppSettings(
     return { success: true, settings: settingsToSave };
   } catch (error: any) {
     return { success: false, error: error.message || "Error desconocido al guardar la configuración de WhatsApp." };
+  }
+}
+
+// --- Contract Settings ---
+export async function getContractSettings(): Promise<ContractSettings> {
+  try {
+    const data = await readData<Partial<ContractSettings>>(CONTRACT_SETTINGS_FILE, {});
+    return { ...defaultContractSettings, ...data, clauses: data.clauses?.length ? data.clauses : defaultContractSettings.clauses };
+  } catch {
+    return { ...defaultContractSettings };
+  }
+}
+
+export async function saveContractSettings(settings: ContractSettings): Promise<{ success: boolean; error?: string }> {
+  try {
+    await writeData(CONTRACT_SETTINGS_FILE, settings);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
   }
 }
 

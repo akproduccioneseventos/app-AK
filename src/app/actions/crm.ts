@@ -175,6 +175,8 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const presupuestoId = formData.get('presupuestoId') as string;
     const contractFile = formData.get('contract') as File | null;
     const archiveLead = formData.get('archiveLead') === 'true';
+    const ci = formData.get('ci') as string || undefined;
+    const address = formData.get('address') as string || undefined;
 
     if (!leadId || !presupuestoId) throw new Error('Datos incompletos.');
 
@@ -214,9 +216,11 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     //    Skip automatic fiesta creation - we create the fiesta manually below with budget data
     const customerResult = await saveCustomer({
       name: lead.name,
-      phone: lead.phone,
-      companyName: (lead as any).companyName || (presupuesto as any).clienteEmpresa || undefined,
-      taxId: (lead as any).taxId || undefined,
+      phone: formData.get('phone') as string || lead.phone,
+      companyName: formData.get('companyName') as string || (lead as any).companyName || (presupuesto as any).clienteEmpresa || undefined,
+      taxId: formData.get('taxId') as string || (lead as any).taxId || undefined,
+      ci,
+      address,
       estadoCliente: 'Actual',
       partyDate: presupuesto.eventoFecha,
       partyType: presupuesto.eventoTipo,
