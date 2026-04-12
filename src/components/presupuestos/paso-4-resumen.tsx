@@ -191,7 +191,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     ? generateProjectionRows(totalFinal, adjustmentPct, currentYear, eventYear)
     : [];
     
-  const budgetNumber = presupuesto.numero || presupuesto.id.split('_').pop()?.substring(0,6).toUpperCase();
+  const budgetNumber = presupuesto.numero || (presupuesto.id.split('_').pop() || presupuesto.id).substring(0,6).toUpperCase();
 
   return (
     <div className="space-y-6">
