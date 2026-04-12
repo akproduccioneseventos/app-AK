@@ -20,34 +20,47 @@ export interface VerifiedSession {
 /**
  * Reads and cryptographically verifies the session cookie.
  * Returns the session payload if valid, or null otherwise.
+ * Never throws — any error results in null (invalid/expired session).
  */
 export async function verifySessionCookie(): Promise<VerifiedSession | null> {
-  const secret = process.env.SESSION_SECRET || '';
-  if (!secret) return null;
-
-  const cookieStore = await cookies();
-  const raw = cookieStore.get(SESSION_COOKIE)?.value;
-  if (!raw) return null;
-
-  const dotIdx = raw.lastIndexOf('.');
-  if (dotIdx === -1) return null;
-
-  const b64 = raw.slice(0, dotIdx);
-  const sig = raw.slice(dotIdx + 1);
-
-  const json = Buffer.from(b64, 'base64url').toString();
-  const expectedSig = crypto.createHmac('sha256', secret).update(json).digest('hex');
-
-  if (sig.length !== expectedSig.length) return null;
-  if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expectedSig, 'hex'))) {
-    return null;
-  }
-
   try {
+    const secret = process.env.SESSION_SECRET || '';
+    if (!secret) return null;
+
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(SESSION_COOKIE)?.value;
+    if (!raw) return null;
+
+    const dotIdx = raw.lastIndexOf('.');
+    if (dotIdx === -1) return null;
+
+    const b64 = raw.slice(0, dotIdx);
+    const sig = raw.slice(dotIdx + 1);
+
+    // Validate signature is non-empty and valid hex (even-length, only hex chars)
+    if (!sig || sig.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(sig)) return null;
+
+    const json = Buffer.from(b64, 'base64url').toString();
+    const expectedSig = crypto.createHmac('sha256', secret).update(json).digest('hex');
+
+    // Compare as hex strings first (different lengths → reject)
+    if (sig.length !== expectedSig.length) return null;
+
+    const sigBuf = Buffer.from(sig, 'hex');
+    const expectedBuf = Buffer.from(expectedSig, 'hex');
+
+    // Extra guard: timingSafeEqual requires identical byte lengths
+    if (sigBuf.length !== expectedBuf.length) return null;
+
+    if (!crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+      return null;
+    }
+
     const session: VerifiedSession = JSON.parse(json);
     if (Date.now() - session.iat > MAX_AGE_MS) return null;
     return session;
-  } catch {
+  } catch (err) {
+    console.error('[verifySessionCookie] Unexpected error during session verification:', err instanceof Error ? err.message : err);
     return null;
   }
 }
