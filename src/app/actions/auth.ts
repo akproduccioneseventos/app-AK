@@ -121,6 +121,52 @@ export async function initializeAdminIfNeeded(): Promise<void> {
   }
 }
 
+// ── Emergency reset ────────────────────────────────────────────────────────
+
+/**
+ * If the ADMIN_FORCE_RESET env var is "true" or "1", resets the admin user's
+ * password to the value of ADMIN_BOOTSTRAP_PASSWORD.  This lets the owner
+ * regain access by updating the secret and redeploying.
+ */
+export async function emergencyResetIfNeeded(): Promise<void> {
+  if (!dbAdmin) return;
+
+  const forceReset = process.env.ADMIN_FORCE_RESET;
+  if (forceReset !== 'true' && forceReset !== '1') return;
+
+  const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
+  const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
+
+  if (!bootstrapEmail || !bootstrapPassword) {
+    console.error('[auth] emergencyResetIfNeeded: ADMIN_BOOTSTRAP_EMAIL / ADMIN_BOOTSTRAP_PASSWORD not set.');
+    return;
+  }
+
+  try {
+    const snapshot = await dbAdmin
+      .collection('users')
+      .where('email', '==', bootstrapEmail)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      console.warn('[auth] emergencyResetIfNeeded: admin user not found, skipping reset.');
+      return;
+    }
+
+    const doc = snapshot.docs[0];
+    await doc.ref.update({
+      passwordHash: hashValue(bootstrapPassword),
+      mustChangePassword: true,
+      updatedAt: new Date().toISOString(),
+    });
+
+    console.log('[auth] emergencyResetIfNeeded: admin password was reset successfully.');
+  } catch (err) {
+    console.error('[auth] emergencyResetIfNeeded error:', err);
+  }
+}
+
 // ── Login ──────────────────────────────────────────────────────────────────
 
 export interface LoginResult {
@@ -133,6 +179,45 @@ export interface LoginResult {
     mustChangePassword?: boolean;
   };
   error?: string;
+}
+
+/**
+ * Login with password only — iterates all users and verifies the password
+ * against each one.  Returns the first matching user.
+ */
+export async function loginWithPasswordOnly(
+  password: string
+): Promise<LoginResult> {
+  if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
+
+  // Auto-create admin on first use & apply emergency reset if requested.
+  await initializeAdminIfNeeded();
+  await emergencyResetIfNeeded();
+
+  try {
+    const snapshot = await dbAdmin.collection('users').get();
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      if (verifyValue(password, data.passwordHash)) {
+        return {
+          success: true,
+          user: {
+            id: doc.id,
+            email: data.email,
+            role: data.role,
+            modules: data.modules,
+            mustChangePassword: data.mustChangePassword ?? false,
+          },
+        };
+      }
+    }
+
+    return { success: false, error: 'Contraseña incorrecta.' };
+  } catch (err) {
+    console.error('[auth] loginWithPasswordOnly error:', err);
+    return { success: false, error: 'Error al iniciar sesión. Intentá de nuevo.' };
+  }
 }
 
 export async function loginUser(
