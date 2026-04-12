@@ -52,6 +52,31 @@ function normalizeAnswer(answer: string): string {
   return answer.trim().toLowerCase();
 }
 
+/**
+ * Normalizes a role value from Firestore to a valid 'admin' | 'user'.
+ * Only the exact string 'admin' maps to 'admin'.
+ * Everything else (undefined, null, other strings) becomes 'user'.
+ */
+function normalizeRole(raw: unknown): 'admin' | 'user' {
+  return raw === 'admin' ? 'admin' : 'user';
+}
+
+/**
+ * Normalizes a modules value from Firestore to a valid string[].
+ * - If already an array, keep only non-empty strings.
+ * - If not an array and role is 'admin', default to ['all'].
+ * - If not an array and role is 'user', default to [].
+ */
+function normalizeModules(raw: unknown, role: 'admin' | 'user'): string[] {
+  if (Array.isArray(raw)) {
+    return raw.filter((m: unknown) => typeof m === 'string' && m.trim() !== '');
+  }
+  if (role === 'admin') {
+    return ['all'];
+  }
+  return [];
+}
+
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface SecurityQuestion {
@@ -162,13 +187,34 @@ export async function loginUser(
       return { success: false, error: 'Correo o contraseña incorrectos.' };
     }
 
+    // Normalizar role
+    const normalizedRole: 'admin' | 'user' = normalizeRole(data.role);
+
+    // Normalizar modules
+    const normalizedModules: string[] = normalizeModules(data.modules, normalizedRole);
+
+    // Auto-reparar usuario legacy en Firestore
+    if (data.role !== normalizedRole || !Array.isArray(data.modules) || JSON.stringify(data.modules) !== JSON.stringify(normalizedModules)) {
+      try {
+        await doc.ref.update({
+          role: normalizedRole,
+          modules: normalizedModules,
+          updatedAt: new Date().toISOString(),
+        });
+        console.log(`[auth] Auto-repaired legacy user ${data.email}: role=${normalizedRole}, modules=${JSON.stringify(normalizedModules)}`);
+      } catch (repairErr) {
+        console.warn('[auth] Could not auto-repair legacy user:', repairErr);
+        // No bloquear el login por esto
+      }
+    }
+
     return {
       success: true,
       user: {
         id: doc.id,
         email: data.email,
-        role: data.role,
-        modules: data.modules,
+        role: normalizedRole,
+        modules: normalizedModules,
         mustChangePassword: data.mustChangePassword ?? false,
       },
     };
