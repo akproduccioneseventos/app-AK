@@ -9,6 +9,7 @@ import {
   ChevronRight, Calendar, FileText, Receipt, Send, Paperclip, Check, Copy,
   BookOpen, MessageSquare, LayoutDashboard, Users, PartyPopper, BarChart2,
   Building2, Megaphone, Settings, Hash, Globe, ShoppingCart, Trash2,
+  Mic, MicOff, Volume2, VolumeX,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -456,6 +457,15 @@ export function AKAssistantWidget() {
   const [attachedFile, setAttachedFile] = useState<{ dataUri: string; name: string; preview?: string } | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
+  // Voice input (STT) state
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  // Voice output (TTS) state
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -646,7 +656,7 @@ export function AKAssistantWidget() {
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: result.error || 'Ocurrió un error.' }]);
       }
     } catch {
-      setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Hubo un problema de conexión. Intentálo de nuevo.' }]);
+      setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: 'No se pudo conectar al servicio. Verificá tu conexión e intentá de nuevo.' }]);
     } finally {
       setIsSending(false);
     }
@@ -665,6 +675,91 @@ export function AKAssistantWidget() {
     setChatHistory([]);
     try { localStorage.removeItem('ak-assistant-history'); } catch { /* ignore */ }
   };
+
+  // --- Voice Input (Speech-to-Text) ---
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast({ title: '🎤 Micrófono no disponible', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
+      setVoiceError(true);
+      return;
+    }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-UY';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setInputText(transcript);
+      };
+      recognition.onerror = (event: any) => {
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          toast({ title: '🎤 Permiso denegado', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
+          setVoiceError(true);
+        }
+        setIsListening(false);
+      };
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      recognition.start();
+      recognitionRef.current = recognition;
+      setIsListening(true);
+      setVoiceError(false);
+    } catch {
+      toast({ title: '🎤 Error', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
+      setVoiceError(true);
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
+
+  // --- Voice Output (Text-to-Speech) ---
+  const speakMessage = useCallback((text: string, msgId: string) => {
+    if (!window.speechSynthesis) return;
+    // Don't read error messages
+    if (text.startsWith('⚠️') || text.startsWith('❌')) return;
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'es-ES';
+    utterance.onend = () => setSpeakingMsgId(null);
+    utterance.onerror = () => setSpeakingMsgId(null);
+    setSpeakingMsgId(msgId);
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  const stopSpeaking = () => {
+    window.speechSynthesis?.cancel();
+    setSpeakingMsgId(null);
+  };
+
+  // Auto-speak new assistant messages when TTS is enabled
+  useEffect(() => {
+    if (!ttsEnabled || chatHistory.length === 0) return;
+    const lastMsg = chatHistory[chatHistory.length - 1];
+    if (lastMsg.role === 'assistant' && lastMsg.content && !lastMsg.content.startsWith('⚠️') && !lastMsg.content.startsWith('❌')) {
+      speakMessage(lastMsg.content, lastMsg.id);
+    }
+  }, [chatHistory, ttsEnabled, speakMessage]);
 
   const greeting = getGreeting();
   const highCount = alerts.filter(a => a.severity === 'high').length;
@@ -811,6 +906,15 @@ export function AKAssistantWidget() {
                       {msg.content && msg.content !== '(archivo adjunto)' && (
                         <div className={cn('px-3 py-2 rounded-2xl text-xs leading-relaxed', msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-white text-slate-800 rounded-tl-sm shadow-sm border border-slate-100')}>
                           <p className="whitespace-pre-wrap">{msg.content}</p>
+                          {msg.role === 'assistant' && !msg.content.startsWith('⚠️') && !msg.content.startsWith('❌') && (
+                            <button
+                              onClick={() => speakingMsgId === msg.id ? stopSpeaking() : speakMessage(msg.content, msg.id)}
+                              className={cn('mt-1 inline-flex items-center gap-0.5 text-[10px]', speakingMsgId === msg.id ? 'text-indigo-600' : 'text-slate-400 hover:text-indigo-500')}
+                              title={speakingMsgId === msg.id ? 'Detener' : 'Escuchar'}
+                            >
+                              <Volume2 className="h-3 w-3" />{speakingMsgId === msg.id ? 'Hablando...' : 'Escuchar'}
+                            </button>
+                          )}
                         </div>
                       )}
                       {msg.action && msg.action.type !== 'none' && <ActionResultCard action={msg.action} />}
@@ -845,21 +949,51 @@ export function AKAssistantWidget() {
                     <button onClick={() => setAttachedFile(null)} className="text-indigo-400 hover:text-indigo-600"><X className="h-3.5 w-3.5" /></button>
                   </div>
                 )}
+                {isListening && (
+                  <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-rose-50 border border-rose-200">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500" />
+                    </span>
+                    <span className="text-xs text-rose-700 flex-1">Escuchando...</span>
+                    <button onClick={stopListening} className="text-rose-400 hover:text-rose-600"><X className="h-3.5 w-3.5" /></button>
+                  </div>
+                )}
                 <div className="flex items-end gap-1.5">
                   <input ref={fileInputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileChange} />
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600 shrink-0" onClick={() => fileInputRef.current?.click()} title="Adjuntar imagen o PDF">
                     <Paperclip className="h-4 w-4" />
                   </Button>
-                  <textarea value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Escribí algo o adjuntá un archivo..." rows={1} className="flex-1 resize-none text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 bg-slate-50 max-h-20 min-h-[32px]" style={{ lineHeight: '1.4' }} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn('h-8 w-8 shrink-0', isListening ? 'text-rose-500 animate-pulse' : voiceError ? 'text-slate-300' : 'text-slate-400 hover:text-indigo-600')}
+                    onClick={toggleListening}
+                    title={isListening ? 'Detener escucha' : voiceError ? 'Micrófono no disponible' : 'Hablar'}
+                    disabled={isSending}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                  <textarea value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Escribí algo, adjuntá un archivo o usá el micrófono..." rows={1} className="flex-1 resize-none text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 bg-slate-50 max-h-20 min-h-[32px]" style={{ lineHeight: '1.4' }} />
                   <Button size="icon" className="h-8 w-8 bg-indigo-600 hover:bg-indigo-700 text-white shrink-0 rounded-xl" onClick={() => handleSend()} disabled={isSending || (!inputText.trim() && !attachedFile)}>
                     {isSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                   </Button>
                 </div>
-                {chatHistory.length > 0 && (
-                  <button onClick={handleNewConversation} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-rose-500 transition-colors">
-                    <Trash2 className="h-3 w-3" />Nueva conversación
+                <div className="flex items-center justify-between">
+                  {chatHistory.length > 0 ? (
+                    <button onClick={handleNewConversation} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-rose-500 transition-colors">
+                      <Trash2 className="h-3 w-3" />Nueva conversación
+                    </button>
+                  ) : <span />}
+                  <button
+                    onClick={() => setTtsEnabled(prev => !prev)}
+                    className={cn('flex items-center gap-1 text-[10px] transition-colors', ttsEnabled ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600')}
+                    title={ttsEnabled ? 'Desactivar respuestas por voz' : 'Activar respuestas por voz'}
+                  >
+                    {ttsEnabled ? <Volume2 className="h-3 w-3" /> : <VolumeX className="h-3 w-3" />}
+                    {ttsEnabled ? 'Voz activada' : 'Voz'}
                   </button>
-                )}
+                </div>
               </div>
             </TabsContent>
 

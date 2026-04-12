@@ -16,6 +16,8 @@ import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
 import * as logger from '@/lib/logger';
 
+const DEFAULT_SERVICE_NAME = 'Servicio';
+
 export async function sendAssistantMessage(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -113,8 +115,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en create_customer:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo guardar el cliente: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo guardar el cliente. Intentá de nuevo o ingresalo manualmente desde [/customers/new](/customers/new).`;
       }
     } else if (result.action?.type === 'create_customer') {
       actionResult = { success: false, error: 'Falta información del cliente.' };
@@ -135,7 +138,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             const price = Number(s.precioUnitario) || Number(s.precio) || 0;
             return {
               idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
-              nombreServicio: s.nombre || s.name || 'Servicio',
+              nombreServicio: s.nombre || s.name || DEFAULT_SERVICE_NAME,
               descripcionServicio: s.descripcion,
               cantidad: qty,
               precioUnitario: price,
@@ -174,8 +177,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en create_budget:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo crear el presupuesto: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo crear el presupuesto. Intentá de nuevo o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'create_budget') {
       actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
@@ -183,93 +187,117 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     } else if (result.action?.type === 'import_budget_from_image' && result.action.data) {
       const d = result.action.data;
       try {
-        // 1. Crear cliente si viene nombre
-        let clienteId: string | undefined;
-        if (d.clienteNombre) {
-          const existingCustomer = customers.find(
-            c => c.name.toLowerCase().includes(d.clienteNombre.toLowerCase())
-          );
-          if (existingCustomer) {
-            clienteId = existingCustomer.id;
-          } else {
-            const newCustomer = await saveCustomer({
-              name: d.clienteNombre,
-              partyType: d.eventoTipo || '',
-              partyDate: d.eventoFecha || '',
-              guestCount: d.invitados || 0,
-            });
-            clienteId = newCustomer.id;
-          }
-        }
-        // 2. Crear presupuesto
+        // Paso 1: Validar datos mínimos antes de crear
         const importedServices: Array<{
           id?: string; nombre?: string; name?: string; descripcion?: string;
           cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
         }> = Array.isArray(d.servicios) ? d.servicios : [];
-        const importedItems = importedServices.map((s, i) => {
-          const qty = Number(s.cantidad) || 1;
+        const validServices = importedServices.filter(s => {
+          const name = s.nombre || s.name;
           const price = Number(s.precioUnitario) || Number(s.precio) || 0;
-          return {
-            idServicioCatalogo: s.id || `importado_${i}_${Date.now()}`,
-            nombreServicio: s.nombre || s.name || 'Servicio',
-            descripcionServicio: s.descripcion,
-            cantidad: qty,
-            precioUnitario: price,
-            precioUnitarioPresupuesto: price,
-            costoTotalItem: qty * price,
-            categoriaServicio: s.categoria || s.category || 'Servicios',
-          };
+          return name && name !== DEFAULT_SERVICE_NAME && price > 0;
         });
-        const budgetResult = await savePresupuesto({
-          clienteNombre: d.clienteNombre || 'Cliente importado',
-          eventoTipo: d.eventoTipo || '',
-          eventoFecha: d.eventoFecha || '',
-          invitadosCantidad: d.invitados || 0,
-          invitadosAdultos: d.invitados || 0,
-          invitadosNinos: 0,
-          invitadosAdolescentes: 0,
-          itemsPresupuestados: importedItems,
-          notas: d.notas || 'Importado desde imagen/PDF vía Asistente AK',
-          estado: 'Borrador',
-        } as unknown as Omit<Presupuesto, 'id'>);
-        // 3. Crear fiesta si tenemos clienteId
-        let fiestaResult: any = null;
-        if (clienteId) {
-          const customerForFiesta = customers.find(c => c.id === clienteId) || {
-            id: clienteId,
-            name: d.clienteNombre,
-            partyDate: d.eventoFecha,
-            partyType: d.eventoTipo,
-            guestCount: d.invitados,
-          };
-          fiestaResult = await createNewFiestaForCustomer({
-            id: clienteId,
-            name: customerForFiesta.name || d.clienteNombre,
-            partyDate: d.eventoFecha,
-            partyType: d.eventoTipo,
-            guestCount: d.invitados,
-          });
-        }
 
-        if (budgetResult.success && budgetResult.presupuesto) {
-          const pres = budgetResult.presupuesto;
-          const itemCount = pres.itemsPresupuestados?.length ?? 0;
-          const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
-          const href = `/presupuestos/${pres.id}/ver`;
-          const eventoExtra = fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '';
-          actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
-          finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra);
+        if (validServices.length === 0) {
+          // NO crear presupuesto si no hay servicios válidos
+          logger.warn('[Asistente AK] import_budget_from_image: no se detectaron servicios válidos. servicios_count:', importedServices.length);
+          actionResult = { success: false, error: 'No se detectaron servicios suficientes para crear el presupuesto.' };
+          const extractedInfo: string[] = [];
+          if (d.clienteNombre) extractedInfo.push(`Cliente: ${d.clienteNombre}`);
+          if (d.eventoTipo) extractedInfo.push(`Tipo: ${d.eventoTipo}`);
+          if (d.eventoFecha) extractedInfo.push(`Fecha: ${d.eventoFecha}`);
+          const extractedSummary = extractedInfo.length > 0 ? `\n\nDatos parciales detectados: ${extractedInfo.join(', ')}.` : '';
+          finalResponse = `⚠️ No se detectaron servicios suficientes para crear el presupuesto. Probá con una imagen más clara o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).${extractedSummary}`;
         } else {
-          actionResult = { success: false, error: budgetResult.error };
-          finalResponse = `❌ No se pudo importar el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o subí el archivo nuevamente.`;
+          // Paso 2: Crear cliente si viene nombre
+          let clienteId: string | undefined;
+          if (d.clienteNombre) {
+            const existingCustomer = customers.find(
+              c => c.name.toLowerCase().includes(d.clienteNombre.toLowerCase())
+            );
+            if (existingCustomer) {
+              clienteId = existingCustomer.id;
+            } else {
+              const newCustomer = await saveCustomer({
+                name: d.clienteNombre,
+                partyType: d.eventoTipo || '',
+                partyDate: d.eventoFecha || '',
+                guestCount: d.invitados || 0,
+              });
+              clienteId = newCustomer.id;
+            }
+          }
+          // Paso 3: Crear presupuesto solo con servicios válidos
+          const importedItems = validServices.map((s, i) => {
+            const qty = Number(s.cantidad) || 1;
+            const price = Number(s.precioUnitario) || Number(s.precio) || 0;
+            return {
+              idServicioCatalogo: s.id || `importado_${i}_${Date.now()}`,
+              nombreServicio: s.nombre || s.name || DEFAULT_SERVICE_NAME,
+              descripcionServicio: s.descripcion,
+              cantidad: qty,
+              precioUnitario: price,
+              precioUnitarioPresupuesto: price,
+              costoTotalItem: qty * price,
+              categoriaServicio: s.categoria || s.category || 'Servicios',
+            };
+          });
+          const budgetResult = await savePresupuesto({
+            clienteNombre: d.clienteNombre || 'Cliente importado',
+            eventoTipo: d.eventoTipo || '',
+            eventoFecha: d.eventoFecha || '',
+            invitadosCantidad: d.invitados || 0,
+            invitadosAdultos: d.invitados || 0,
+            invitadosNinos: 0,
+            invitadosAdolescentes: 0,
+            itemsPresupuestados: importedItems,
+            notas: d.notas || 'Importado desde imagen/PDF vía Asistente AK',
+            estado: 'Borrador',
+          } as unknown as Omit<Presupuesto, 'id'>);
+          // Paso 4: Crear fiesta si tenemos clienteId
+          let fiestaResult: any = null;
+          if (clienteId) {
+            const customerForFiesta = customers.find(c => c.id === clienteId) || {
+              id: clienteId,
+              name: d.clienteNombre,
+              partyDate: d.eventoFecha,
+              partyType: d.eventoTipo,
+              guestCount: d.invitados,
+            };
+            fiestaResult = await createNewFiestaForCustomer({
+              id: clienteId,
+              name: customerForFiesta.name || d.clienteNombre,
+              partyDate: d.eventoFecha,
+              partyType: d.eventoTipo,
+              guestCount: d.invitados,
+            });
+          }
+
+          if (budgetResult.success && budgetResult.presupuesto) {
+            const pres = budgetResult.presupuesto;
+            const itemCount = pres.itemsPresupuestados?.length ?? 0;
+            const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
+            const href = `/presupuestos/${pres.id}/ver`;
+            const eventoExtra = fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '';
+            actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
+            if (itemCount < importedServices.length) {
+              finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador incompleto de', `/presupuestos/${pres.id}/editar`, eventoExtra) + ' Revisalo y completá los servicios faltantes antes de usarlo.';
+            } else {
+              finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra);
+            }
+          } else {
+            actionResult = { success: false, error: budgetResult.error };
+            finalResponse = `❌ No se pudo importar el presupuesto. Intentá de nuevo o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+          }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en import_budget_from_image:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ Error al importar el presupuesto: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo importar el presupuesto. Intentá de nuevo o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'import_budget_from_image') {
       actionResult = { success: false, error: 'No se pudieron extraer datos del archivo.' };
-      finalResponse = `⚠️ No se pudieron extraer datos del archivo subido. Intentá subir una imagen más clara o con mejor resolución, o ingresá los datos manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+      finalResponse = `⚠️ No pude leer el archivo automáticamente. Probá con una imagen más clara o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
     } else if (result.action?.type === 'register_payment' && result.action.data) {
       const d = result.action.data;
       try {
@@ -299,8 +327,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en register_payment:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo registrar el pago: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo registrar el pago. Intentá de nuevo o registralo manualmente desde [/presupuestos](/presupuestos).`;
       }
     } else if (result.action?.type === 'register_payment') {
       actionResult = { success: false, error: 'Falta información del pago.' };
@@ -322,7 +351,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         const rawItems: Array<{ description?: string; quantity?: number; unitPrice?: number }> = Array.isArray(d.items) ? d.items : [];
         const invoiceItems: InvoiceItem[] = rawItems.map((item, i) => ({
           id: `item_${i}_${Date.now()}`,
-          description: item.description || 'Servicio',
+          description: item.description || DEFAULT_SERVICE_NAME,
           quantity: Number(item.quantity) || 1,
           unitPrice: Number(item.unitPrice) || 0,
           total: (Number(item.quantity) || 1) * (Number(item.unitPrice) || 0),
@@ -351,8 +380,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           finalResponse = `❌ No se pudo crear la factura: ${(invoiceResult as any).error || 'Error desconocido'}. Intentá de nuevo o creala manualmente desde /invoices/new.`;
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en create_invoice:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo crear la factura: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo crear la factura. Intentá de nuevo o creala manualmente desde [/invoices/new](/invoices/new).`;
       }
     } else if (result.action?.type === 'create_invoice') {
       actionResult = { success: false, error: 'Falta información de la factura.' };
@@ -376,8 +406,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en update_service_price:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo actualizar el precio: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo actualizar el precio. Intentá de nuevo o hacelo manualmente desde [/empresa/servicios](/empresa/servicios).`;
       }
     } else if (result.action?.type === 'update_service_price') {
       actionResult = { success: false, error: 'Falta información para actualizar el precio.' };
@@ -397,8 +428,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           finalResponse = `❌ No se pudo registrar el empleado: ${(empResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /empresa/empleados.`;
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en create_employee:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo registrar el empleado: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo registrar el empleado. Intentá de nuevo o ingresalo manualmente desde [/empresa/empleados](/empresa/empleados).`;
       }
     } else if (result.action?.type === 'create_employee') {
       actionResult = { success: false, error: 'Falta información del empleado.' };
@@ -423,8 +455,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           finalResponse = `❌ No se pudo registrar el proveedor: ${(provResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /proveedores.`;
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en create_supplier:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo registrar el proveedor: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo registrar el proveedor. Intentá de nuevo o ingresalo manualmente desde [/proveedores](/proveedores).`;
       }
     } else if (result.action?.type === 'create_supplier') {
       actionResult = { success: false, error: 'Falta información del proveedor.' };
@@ -458,8 +491,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en create_lead:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo registrar el prospecto: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
     } else if (result.action?.type === 'create_lead') {
       actionResult = { success: false, error: 'Falta información del prospecto.' };
@@ -500,8 +534,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           finalResponse = `❌ No se pudo crear el evento: ${fiestaResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente.`;
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en create_event:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo crear el evento: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo crear el evento. Intentá de nuevo o crealo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'create_event') {
       actionResult = { success: false, error: 'Falta información del evento.' };
@@ -540,8 +575,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en update_event:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo actualizar el evento: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo actualizar el evento. Intentá de nuevo o hacelo manualmente desde [/fiestas](/fiestas).`;
       }
     } else if (result.action?.type === 'update_event') {
       actionResult = { success: false, error: 'Falta información para actualizar el evento.' };
@@ -579,8 +615,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           finalResponse = `✅ Podés generar el contrato en [contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital). Seleccioná el evento desde ahí.`;
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en generate_contract:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo generar el contrato: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo generar el contrato. Intentá de nuevo o hacelo manualmente desde [/fiestas/nueva/gestion-documental/contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital).`;
       }
     } else if (result.action?.type === 'generate_contract') {
       actionResult = { success: false, error: 'Falta información para generar el contrato.' };
@@ -610,8 +647,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           finalResponse = `⚠️ La fecha **${fecha}** ya tiene **${eventosEnFecha.length} evento(s)** agendado(s): ${nombres}. Verificá antes de comprometerte.`;
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Error en check_availability:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo verificar la disponibilidad: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo verificar la disponibilidad. Intentá de nuevo o revisá el calendario en [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'check_availability') {
       actionResult = { success: false, error: 'Falta la fecha para consultar disponibilidad.' };
@@ -619,19 +657,28 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     } else if (result.action?.type === 'generate_social_post' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
+    } else if (result.action?.type === 'generate_social_post') {
+      actionResult = { success: false, error: 'No se pudo generar el post.' };
+      finalResponse = `⚠️ No se pudo generar el post. Indicá la plataforma y el contenido que querés, o crealo manualmente desde [/marketing](/marketing).`;
     } else if (result.action?.type === 'generate_whatsapp_message' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
+    } else if (result.action?.type === 'generate_whatsapp_message') {
+      actionResult = { success: false, error: 'No se pudo generar el mensaje de WhatsApp.' };
+      finalResponse = `⚠️ No se pudo generar el mensaje de WhatsApp. Indicá el tipo de mensaje y el cliente, o redactalo manualmente.`;
     } else if (result.action?.type === 'generate_promo' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
+    } else if (result.action?.type === 'generate_promo') {
+      actionResult = { success: false, error: 'No se pudo generar la promoción.' };
+      finalResponse = `⚠️ No se pudo generar la promoción. Indicá los detalles del descuento o vigencia, o creala manualmente desde [/marketing](/marketing).`;
     } else if (result.action?.type === 'update_marketing_content') {
       actionResult = { success: true, href: '/marketing' };
     } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual' && result.action.type !== 'query_data') {
       // CATCH-ALL: acción de backend no reconocida — evitar respuesta falsa.
       logger.warn('[Asistente AK] Unrecognized action type:', result.action.type, 'data:', JSON.stringify(result.action.data));
       actionResult = { success: false, error: 'Acción no reconocida o no ejecutable.' };
-      finalResponse = `⚠️ No se pudo ejecutar la acción "${result.action.type}". Intentá de nuevo o hacelo manualmente desde la sección correspondiente.`;
+      finalResponse = `⚠️ No pude ejecutar esa acción automáticamente. Podés hacerlo manualmente desde la sección correspondiente.`;
     }
 
     return {
@@ -657,7 +704,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     if (isApiKeyError) {
       return {
         success: false,
-        error: 'El asistente no está disponible: la clave de API de Gemini no está configurada o no es válida. Por favor, configurá la variable de entorno GOOGLE_API_KEY o GEMINI_API_KEY en el panel de despliegue.',
+        error: 'No pude procesar tu mensaje en este momento. Intentá de nuevo en unos minutos.',
       };
     }
 
@@ -669,7 +716,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     ) {
       return {
         success: false,
-        error: 'El asistente superó su cuota de uso. Intentá de nuevo en unos minutos o contactanos por WhatsApp al +59898355530.',
+        error: 'El asistente está temporalmente saturado. Intentá de nuevo en unos minutos.',
       };
     }
 
@@ -690,7 +737,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     logger.error('[Asistente AK] Unhandled error type:', errorMessage);
     return {
       success: false,
-      error: 'El asistente encontró un error inesperado. Por favor, intentá de nuevo o contactanos por WhatsApp al +59898355530.',
+      error: 'No se pudo conectar al servicio. Verificá tu conexión e intentá de nuevo.',
     };
   }
 }
