@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, ClipboardCopy, Printer, Gift, Share2, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import React, { useEffect, useState, useMemo } from 'react';
-import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { getBudgetDisplaySettings, getWhatsAppTemplates } from '@/app/actions/settings';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import type { BudgetDisplaySettings } from '@/types/settings';
+import type { BudgetDisplaySettings, WhatsAppTemplates } from '@/types/settings';
 import Image from 'next/image';
 
 // Company Info Constants
@@ -78,6 +78,7 @@ function generateProjectionRows(totalBase: number, adjustmentPct: number, curren
 export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const { toast } = useToast();
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
+  const [waTemplates, setWaTemplates] = useState<WhatsAppTemplates | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
@@ -85,12 +86,14 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     async function loadSettings() {
       setIsLoadingSettings(true);
       try {
-        const [budgetSettings, templateSettings] = await Promise.all([
+        const [budgetSettings, templateSettings, whatsappTemplates] = await Promise.all([
           getBudgetDisplaySettings(),
           getInvoiceTemplateSettings(),
+          getWhatsAppTemplates(),
         ]);
         setDisplaySettings(budgetSettings);
         setLogoUrl(templateSettings.logoUrl ?? null);
+        setWaTemplates(whatsappTemplates);
       } catch (e) {
         toast({title: "Error", description: "No se pudo cargar la configuración de visualización.", variant: "destructive"});
       } finally {
@@ -140,6 +143,20 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
  const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
+
+    // Use the configurable budgetShareTemplate when available; fall back to hardcoded text
+    const template = waTemplates?.budgetShareTemplate;
+    if (template) {
+      const fechaEvento = presupuesto.eventoFecha
+        ? new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
+        : '';
+      return template
+        .replace(/\{\{NOMBRE\}\}/g, presupuesto.clienteNombre || '')
+        .replace(/\{\{FECHA_EVENTO\}\}/g, fechaEvento)
+        .replace(/\{\{LINK\}\}/g, pageUrl);
+    }
+
+    // Fallback
     let texto = `🎉 *¡Hola ${presupuesto.clienteNombre}!* 🎉\n\n`;
     texto += `Gracias por considerar a *${COMPANY_NAME_BRAND}*.`;
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;

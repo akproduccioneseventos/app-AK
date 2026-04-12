@@ -16,6 +16,7 @@ import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { parseBudgetText } from '@/lib/parse-budget-text';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
+import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -127,6 +128,17 @@ export async function savePresupuesto(
     entidadRelacionadaId: presupuestoId,
     rolDestino: 'admin',
   }).catch(err => console.warn('Error creating budget notification:', err));
+
+  // Automation: fire presupuesto_generado rules (non-blocking)
+  triggerWhatsAppAutomation('presupuesto_generado', {
+    targetId: nuevoPresupuesto.leadId || presupuestoId,
+    targetName: nuevoPresupuesto.clienteNombre,
+    targetType: 'prospecto',
+    leadId: nuevoPresupuesto.leadId,
+    nombre: nuevoPresupuesto.clienteNombre,
+    fechaEvento: nuevoPresupuesto.eventoFecha,
+    link: `/presupuestos/${presupuestoId}/ver`,
+  }).catch(err => console.warn('Error firing presupuesto_generado automation:', err));
 
   return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
 }
@@ -493,6 +505,19 @@ export async function approvePresupuesto(
 
     presupuestos[index].estado = 'Enviado';
     await writeData(PRESUPUESTOS_FILE, presupuestos);
+
+    // Automation: fire presupuesto_enviado rules (non-blocking)
+    const p = presupuestos[index];
+    triggerWhatsAppAutomation('presupuesto_enviado', {
+      targetId: p.leadId || presupuestoId,
+      targetName: p.clienteNombre,
+      targetType: 'prospecto',
+      leadId: p.leadId,
+      nombre: p.clienteNombre,
+      fechaEvento: p.eventoFecha,
+      link: `/presupuestos/${presupuestoId}/ver`,
+    }).catch(err => console.warn('Error firing presupuesto_enviado automation:', err));
+
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };

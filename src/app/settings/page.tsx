@@ -50,10 +50,17 @@ const settingsCards = [
   },
   {
     title: "Integración WhatsApp",
-    description: "Activá o pausá la integración con WhatsApp, elegí entre modo automático o manual, y personalizá los mensajes de recordatorio para reuniones y pagos pendientes.",
+    description: "Activá o pausá la integración con WhatsApp, elegí entre modo automático o manual, personalizá los mensajes de recordatorio y configurá reglas de automatización.",
     href: "/settings/whatsapp",
     icon: MessageCircle,
     buttonLabel: "Configurar WhatsApp"
+  },
+  {
+    title: "Plantillas de Mensajes WhatsApp",
+    description: "Editá los mensajes predefinidos para compartir presupuestos, contratos, bienvenidas y confirmaciones de eventos. Usados por las reglas de automatización.",
+    href: "/settings/whatsapp-templates",
+    icon: MessageCircle,
+    buttonLabel: "Editar Plantillas"
   },
   {
     title: "WhatsApp Business Bot",
