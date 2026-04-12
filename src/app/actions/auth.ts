@@ -94,21 +94,13 @@ export interface PublicUserRecord {
 export async function initializeAdminIfNeeded(): Promise<void> {
   if (!dbAdmin) return;
 
-  const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-  const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
-
-  if (!bootstrapEmail || !bootstrapPassword) {
-    console.error('[auth] ADMIN_BOOTSTRAP_EMAIL y/o ADMIN_BOOTSTRAP_PASSWORD no están configuradas.');
-    return;
-  }
-
   try {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
 
     await dbAdmin.collection('users').add({
-      email: bootstrapEmail,
-      passwordHash: hashValue(bootstrapPassword),
+      email: 'akproduccionessalto@gmail.com',
+      passwordHash: hashValue('AKproducciones2024'),
       role: 'admin',
       modules: ['all'],
       securityQuestions: {},
@@ -124,46 +116,62 @@ export async function initializeAdminIfNeeded(): Promise<void> {
 // ── Emergency reset ────────────────────────────────────────────────────────
 
 /**
- * Always syncs the admin user's password to the value of
- * ADMIN_BOOTSTRAP_PASSWORD when they don't match.  This runs on every login
- * attempt so the owner can regain access simply by updating the secret and
- * redeploying — no extra env vars required.
+ * Ensures the admin user exists with a known password.
+ * If the admin email is found but the password doesn't match, it resets it.
+ * If no user with the admin email exists, it deletes all orphan users and
+ * recreates the admin — guaranteeing the owner can always log in.
+ * Does NOT depend on environment variables.
  */
 export async function emergencyResetIfNeeded(): Promise<void> {
   if (!dbAdmin) return;
 
-  const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-  const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
-
-  if (!bootstrapEmail || !bootstrapPassword) {
-    console.error('[auth] emergencyResetIfNeeded: ADMIN_BOOTSTRAP_EMAIL / ADMIN_BOOTSTRAP_PASSWORD not set.');
-    return;
-  }
+  const ADMIN_EMAIL = 'akproduccionessalto@gmail.com';
+  const ADMIN_PASSWORD = 'AKproducciones2024';
 
   try {
     const snapshot = await dbAdmin
       .collection('users')
-      .where('email', '==', bootstrapEmail)
+      .where('email', '==', ADMIN_EMAIL)
       .limit(1)
       .get();
 
     if (snapshot.empty) {
-      // No admin user exists, initializeAdminIfNeeded will handle creation
+      // No admin with this email — check if there are ANY users
+      const allUsers = await dbAdmin.collection('users').get();
+      if (!allUsers.empty) {
+        // There are users but none match the admin email —
+        // delete all and recreate (the user is locked out)
+        const batch = dbAdmin.batch();
+        allUsers.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        console.log('[auth] emergencyResetIfNeeded: deleted all orphan users.');
+      }
+      // Now create the admin
+      await dbAdmin.collection('users').add({
+        email: ADMIN_EMAIL,
+        passwordHash: hashValue(ADMIN_PASSWORD),
+        role: 'admin',
+        modules: ['all'],
+        securityQuestions: {},
+        mustChangePassword: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      console.log('[auth] emergencyResetIfNeeded: admin user recreated.');
       return;
     }
 
     const doc = snapshot.docs[0];
     const data = doc.data();
 
-    // Only reset if the current password does NOT match the bootstrap password
-    // This avoids unnecessary writes on every login attempt
-    if (!verifyValue(bootstrapPassword, data.passwordHash)) {
+    // Always reset to known password
+    if (!verifyValue(ADMIN_PASSWORD, data.passwordHash)) {
       await doc.ref.update({
-        passwordHash: hashValue(bootstrapPassword),
+        passwordHash: hashValue(ADMIN_PASSWORD),
         mustChangePassword: false,
         updatedAt: new Date().toISOString(),
       });
-      console.log('[auth] emergencyResetIfNeeded: admin password was synced to bootstrap password.');
+      console.log('[auth] emergencyResetIfNeeded: admin password synced.');
     }
   } catch (err) {
     console.error('[auth] emergencyResetIfNeeded error:', err);
@@ -193,9 +201,9 @@ export async function loginWithPasswordOnly(
 ): Promise<LoginResult> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
-  // Auto-create admin on first use & apply emergency reset if requested.
-  await initializeAdminIfNeeded();
+  // Auto-apply emergency reset first, then create admin if needed.
   await emergencyResetIfNeeded();
+  await initializeAdminIfNeeded();
 
   try {
     const snapshot = await dbAdmin.collection('users').get();
