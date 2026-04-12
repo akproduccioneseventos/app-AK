@@ -54,6 +54,31 @@ function normalizeAnswer(answer: string): string {
   return answer.trim().toLowerCase();
 }
 
+/**
+ * Normalizes a role value from Firestore to a valid 'admin' | 'user'.
+ * Only the exact string 'admin' (case-insensitive) maps to 'admin'.
+ * Everything else (undefined, null, other strings) becomes 'user'.
+ */
+function normalizeRole(raw: unknown): 'admin' | 'user' {
+  if (typeof raw === 'string' && raw.trim().toLowerCase() === 'admin') {
+    return 'admin';
+  }
+  return 'user';
+}
+
+/**
+ * Normalizes a modules value from Firestore to a valid string[].
+ * - If already an array, keep only non-empty strings.
+ * - If not an array and role is 'admin', default to ['all'].
+ * - If not an array and role is 'user', default to [].
+ */
+function normalizeModules(raw: unknown, role: 'admin' | 'user'): string[] {
+  if (Array.isArray(raw)) {
+    return raw.filter((m): m is string => typeof m === 'string' && m.trim() !== '');
+  }
+  return role === 'admin' ? ['all'] : [];
+}
+
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface SecurityQuestion {
@@ -189,13 +214,37 @@ export async function loginUser(
       return { success: false, error: 'Correo o contraseña incorrectos.' };
     }
 
+    // Normalize legacy role/modules before signing cookie
+    const normalizedRole = normalizeRole(data.role);
+    const normalizedModules = normalizeModules(data.modules, normalizedRole);
+
+    // Auto-repair legacy data in Firestore so next login is clean
+    const needsRepair =
+      data.role !== normalizedRole ||
+      !Array.isArray(data.modules) ||
+      JSON.stringify(data.modules) !== JSON.stringify(normalizedModules);
+
+    if (needsRepair) {
+      try {
+        await doc.ref.update({
+          role: normalizedRole,
+          modules: normalizedModules,
+          updatedAt: new Date().toISOString(),
+        });
+        console.log(`[auth] Auto-repaired legacy role/modules for user ${doc.id}`);
+      } catch (repairErr) {
+        // Non-blocking: log but don't fail the login
+        console.error('[auth] Failed to auto-repair user:', repairErr);
+      }
+    }
+
     // Set server-side signed session cookie
     try {
       const token = signSession({
         userId: doc.id,
         email: data.email,
-        role: data.role,
-        modules: data.modules,
+        role: normalizedRole,
+        modules: normalizedModules,
       });
       const cookieStore = await cookies();
       cookieStore.set('ak_session', token, {
@@ -218,8 +267,8 @@ export async function loginUser(
       user: {
         id: doc.id,
         email: data.email,
-        role: data.role,
-        modules: data.modules,
+        role: normalizedRole,
+        modules: normalizedModules,
         mustChangePassword: data.mustChangePassword ?? false,
       },
     };
