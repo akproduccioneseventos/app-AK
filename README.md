@@ -1,5 +1,7 @@
 # AK Producciones - Sistema de Gestión de Eventos
 
+[![CI](https://github.com/akproduccioneseventos/app-AK/actions/workflows/ci.yml/badge.svg)](https://github.com/akproduccioneseventos/app-AK/actions/workflows/ci.yml)
+
 Aplicación web para gestión integral de eventos y fiestas, desarrollada con Next.js 14, TypeScript y Firebase.
 
 ## 🚀 Inicio Rápido
@@ -54,10 +56,13 @@ npx tsx src/scripts/migrate-to-firebase.ts
 ```bash
 npm run typecheck
 npm run lint
+npm test
 ```
 
 ## 📖 Documentación
 
+- **Asistente AK:** [`docs/ASSISTANT.md`](docs/ASSISTANT.md) — arquitectura, tipos de acción, manejo de errores, reglas del system prompt
+- **Operaciones:** [`docs/OPERATIONS.md`](docs/OPERATIONS.md) — despliegue, variables de entorno, módulos, testing, troubleshooting
 - **Variables de entorno:** `.env.example`
 - **Estructura Firestore:** `docs/firestore-collections.md`
 - **Historial de cambios:** Ver `/home/ubuntu/CAMBIOS_COMPLETOS.md`
