@@ -134,7 +134,8 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
     if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[] };
     const total = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
     const pagosList: PagoCliente[] = presupuesto.pagosCliente || [];
-    const pagado = pagosList.reduce((sum, p) => sum + p.monto, 0);
+    const confirmedPagos = pagosList.filter(p => p.estadoPago !== 'pendiente_confirmacion');
+    const pagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
     return { totalCosto: total, totalPagado: pagado, saldoPendiente: total - pagado, pagos: pagosList };
   }, [presupuesto]);
 

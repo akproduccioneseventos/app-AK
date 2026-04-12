@@ -138,6 +138,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/ventas') return 'Tablero Comercial';
   if (pathname === '/admin/finanzas') return 'Dashboard de Rentabilidad';
   if (pathname === '/alertas') return 'Centro de Alertas';
+  if (pathname === '/pagos-rapidos') return 'Pagos Rápidos';
   
   if (pathname === '/simulador-de-presupuesto') return 'Wand2';
   

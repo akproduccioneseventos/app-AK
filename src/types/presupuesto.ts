@@ -13,12 +13,17 @@ export const ALL_METODOS_PAGO: MetodoPago[] = [
   'Otro',
 ];
 
+export type EstadoPago = 'confirmado' | 'pendiente_confirmacion';
+
 export interface PagoCliente {
   id: string;
   fecha: string; // ISO date string
   monto: number;
   metodoPago: MetodoPago;
   referencia?: string; // Notes / transaction reference
+  estadoPago?: EstadoPago; // Payment confirmation status
+  comprobanteUrl?: string; // URL or base64 of payment receipt image
+  motivoRechazo?: string; // Reason for rejection (if rejected by admin)
 }
 
 export type TipoEvento =

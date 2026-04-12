@@ -1,6 +1,6 @@
 'use server';
 
-import type { Presupuesto, ItemPresupuestado, PagoCliente } from '@/types/presupuesto'; 
+import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago } from '@/types/presupuesto'; 
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
@@ -497,4 +497,101 @@ export async function approvePresupuesto(
   } catch (e: any) {
     return { success: false, error: e.message };
   }
+}
+
+// ── Payment confirmation/rejection actions ──────────────────────────
+
+export async function addPagoClienteFromPortal(
+  presupuestoId: string,
+  pago: Omit<PagoCliente, 'id' | 'estadoPago'>
+): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const presupuesto = await getPresupuestoById(presupuestoId);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+
+  const newPago: PagoCliente = {
+    ...pago,
+    id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    estadoPago: 'pendiente_confirmacion',
+  };
+
+  const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
+  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+
+  if (result.success) {
+    const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
+    createNotification({
+      titulo: 'Pago Informado por Cliente',
+      mensaje: `${presupuesto.clienteNombre} informó un pago de ${montoFmt} (${pago.metodoPago}). Pendiente de confirmación.`,
+      href: `/pagos-rapidos`,
+      icono: 'ListChecks',
+      tipo: 'aviso',
+      entidadRelacionadaId: presupuestoId,
+      rolDestino: 'admin',
+    }).catch(err => console.warn('Error creating client payment notification:', err));
+  }
+
+  return result;
+}
+
+export async function confirmPagoCliente(
+  presupuestoId: string,
+  pagoId: string
+): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const presupuesto = await getPresupuestoById(presupuestoId);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+
+  const pagos = presupuesto.pagosCliente || [];
+  const pagoIndex = pagos.findIndex(p => p.id === pagoId);
+  if (pagoIndex === -1) return { success: false, error: 'Pago no encontrado' };
+
+  pagos[pagoIndex] = { ...pagos[pagoIndex], estadoPago: 'confirmado', motivoRechazo: undefined };
+  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: pagos });
+
+  if (result.success) {
+    const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pagos[pagoIndex].monto);
+    createNotification({
+      titulo: 'Pago Confirmado',
+      mensaje: `Pago de ${montoFmt} confirmado para ${presupuesto.clienteNombre}.`,
+      href: `/presupuestos/${presupuestoId}/estado-de-cuenta`,
+      icono: 'ListChecks',
+      tipo: 'exito',
+      entidadRelacionadaId: presupuestoId,
+      rolDestino: 'admin',
+    }).catch(err => console.warn('Error creating payment confirmation notification:', err));
+  }
+
+  return result;
+}
+
+export async function rejectPagoCliente(
+  presupuestoId: string,
+  pagoId: string,
+  motivo: string
+): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const presupuesto = await getPresupuestoById(presupuestoId);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+
+  const updatedPagos = (presupuesto.pagosCliente || []).filter(p => p.id !== pagoId);
+  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+
+  if (result.success) {
+    createNotification({
+      titulo: 'Pago Rechazado',
+      mensaje: `Pago rechazado para ${presupuesto.clienteNombre}. Motivo: ${motivo}`,
+      href: `/presupuestos/${presupuestoId}/ver`,
+      icono: 'ListChecks',
+      tipo: 'aviso',
+      entidadRelacionadaId: presupuestoId,
+      rolDestino: 'admin',
+    }).catch(err => console.warn('Error creating payment rejection notification:', err));
+  }
+
+  return result;
+}
+
+export async function getPresupuestosWithPendingPayments(): Promise<Presupuesto[]> {
+  const presupuestos = await getPresupuestos();
+  return presupuestos.filter(p =>
+    (p.pagosCliente || []).some(pago => pago.estadoPago === 'pendiente_confirmacion')
+  );
 }

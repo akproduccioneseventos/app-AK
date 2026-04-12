@@ -218,20 +218,29 @@ export function MainNav() {
                     isActive("/presupuestos") ||
                     isActive("/invoices") ||
                     isActive("/customers") ||
-                    isActive("/analytics")
+                    isActive("/analytics") ||
+                    isActive("/pagos-rapidos")
                   }
                   isSubmenu
                   className={cn(
                     "h-10 rounded-xl font-bold text-xs transition-all duration-300",
-                    isActive("/contabilidad") || isActive("/presupuestos") || isActive("/invoices") || isActive("/customers") || isActive("/analytics")
+                    isActive("/contabilidad") || isActive("/presupuestos") || isActive("/invoices") || isActive("/customers") || isActive("/analytics") || isActive("/pagos-rapidos")
                       ? "text-emerald-700 bg-emerald-50"
                       : "text-slate-500 hover:bg-emerald-50/50 hover:text-emerald-600"
                   )}
                 >
-                  <BarChart3 className={cn("w-4 h-4", isActive("/contabilidad") || isActive("/presupuestos") || isActive("/invoices") || isActive("/customers") || isActive("/analytics") ? "text-emerald-600" : "text-emerald-400")} />
+                  <BarChart3 className={cn("w-4 h-4", isActive("/contabilidad") || isActive("/presupuestos") || isActive("/invoices") || isActive("/customers") || isActive("/analytics") || isActive("/pagos-rapidos") ? "text-emerald-600" : "text-emerald-400")} />
                   <span className="ml-2">Finanzas & Ventas</span>
                 </SidebarMenuButton>
                 <SidebarMenuSub className="ml-5 border-l-2 border-emerald-100 space-y-1 mt-1.5">
+                  <SidebarMenuSubItem>
+                    <Link href="/pagos-rapidos">
+                      <SidebarMenuSubButton isActive={isActive("/pagos-rapidos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter text-emerald-600 hover:text-emerald-700">
+                        <Wallet className="w-3.5 h-3.5 mr-1" />
+                        Pagos Rápidos
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/contabilidad/crm">
                       <SidebarMenuSubButton isActive={isActive("/contabilidad/crm")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter text-emerald-600 hover:text-emerald-700">
