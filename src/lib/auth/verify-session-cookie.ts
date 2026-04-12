@@ -56,7 +56,20 @@ export async function verifySessionCookie(): Promise<VerifiedSession | null> {
       return null;
     }
 
-    const session: VerifiedSession = JSON.parse(json);
+    const parsed = JSON.parse(json);
+    // Validate all required fields exist and have correct types
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      typeof parsed.userId !== 'string' || !parsed.userId ||
+      typeof parsed.email !== 'string' || !parsed.email ||
+      (parsed.role !== 'admin' && parsed.role !== 'user') ||
+      !Array.isArray(parsed.modules) ||
+      typeof parsed.iat !== 'number'
+    ) {
+      return null;
+    }
+    const session: VerifiedSession = parsed;
     if (Date.now() - session.iat > MAX_AGE_MS) return null;
     return session;
   } catch (err) {

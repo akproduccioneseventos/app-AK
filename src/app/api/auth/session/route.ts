@@ -27,6 +27,6 @@ export async function GET() {
     });
   } catch (err) {
     console.error('[/api/auth/session] Unexpected error:', err instanceof Error ? err.message : err);
-    return NextResponse.json({ authenticated: false }, { status: 500 });
+    return NextResponse.json({ authenticated: false }, { status: 401 });
   }
 }

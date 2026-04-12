@@ -24,9 +24,13 @@ export default function LoginPage() {
   const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    // Check if already authenticated via server cookie
-    fetch('/api/auth/session')
+    // Check if already authenticated via server cookie (with 5s timeout)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    fetch('/api/auth/session', { signal: controller.signal })
       .then(res => {
+        clearTimeout(timeoutId);
         if (res.ok) {
           router.push('/');
         } else {
@@ -34,8 +38,14 @@ export default function LoginPage() {
         }
       })
       .catch(() => {
+        clearTimeout(timeoutId);
         setCheckingSession(false);
       });
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
 
     async function fetchLogo() {
       try {
