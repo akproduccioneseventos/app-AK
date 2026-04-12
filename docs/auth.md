@@ -6,8 +6,15 @@ La app usa un **sistema de autenticación propio** basado en Firestore.
 **No depende de Firebase Auth**, lo que hace que funcione en cualquier dominio
 (`akproducciones.uy`, `*.hosted.app`, `localhost`) sin configuración adicional.
 
-Las credenciales (contraseñas y respuestas de seguridad) se almacenan **hasheadas con SHA-256**
+Las credenciales (contraseñas) se almacenan **hasheadas con scrypt**
 en la colección `users` de Firestore.
+
+---
+
+## Login
+
+El login pide **solo la contraseña** (sin correo electrónico).  
+El sistema busca en todos los usuarios de Firestore si alguno tiene esa contraseña y, si hay match, inicia sesión con ese usuario.
 
 ---
 
@@ -24,8 +31,6 @@ automáticamente el usuario administrador:
 
 ## Variables de entorno
 
-Solo se requieren las variables de Firestore (ya NO se necesita Firebase Auth):
-
 | Variable | Descripción | Obligatoria |
 |---|---|---|
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | ID del proyecto Firebase | ✅ |
@@ -33,6 +38,36 @@ Solo se requieren las variables de Firestore (ya NO se necesita Firebase Auth):
 | `FIREBASE_PROJECT_ID` | ID del proyecto (server-side Admin SDK) | ❌ (auto) |
 | `FIREBASE_CLIENT_EMAIL` | Email de la cuenta de servicio | ❌ (GCP auto-detecta) |
 | `FIREBASE_PRIVATE_KEY` | Clave privada de la cuenta de servicio | ❌ (GCP auto-detecta) |
+| `ADMIN_BOOTSTRAP_EMAIL` | Email del usuario admin (secreto de Firebase) | ✅ |
+| `ADMIN_BOOTSTRAP_PASSWORD` | Contraseña del admin (secreto de Firebase) | ✅ |
+| `ADMIN_FORCE_RESET` | Si es `"true"` o `"1"`, resetea la contraseña del admin al hacer login | ❌ |
+
+---
+
+## Reset de emergencia
+
+Si te quedás bloqueado (olvidaste la contraseña), podés recuperar el acceso sin tocar código:
+
+### Pasos
+
+1. Ir a la [consola de Firebase](https://console.firebase.google.com/) → **App Hosting → Secrets**
+2. Actualizar el secreto `admin-bootstrap-password` con la nueva contraseña deseada.
+3. En `apphosting.yaml`, cambiar `ADMIN_FORCE_RESET` a `"true"`:
+   ```yaml
+   - variable: ADMIN_FORCE_RESET
+     value: "true"
+     availability:
+       - RUNTIME
+   ```
+4. Hacer **redeploy** (push al repositorio o redeploy manual desde Firebase Console).
+5. Intentar hacer login con la nueva contraseña. El sistema detectará `ADMIN_FORCE_RESET=true` y reseteará la contraseña del admin al valor del secreto `admin-bootstrap-password`.
+6. **Importante:** Después del reset exitoso, volver a cambiar `ADMIN_FORCE_RESET` a `"false"` en `apphosting.yaml` y hacer redeploy para que no se resetee en cada login.
+
+### Notas
+
+- La contraseña **nunca** está en el código — siempre se lee del secreto de Firebase.
+- El reset marca `mustChangePassword: true`, por lo que el sistema pedirá cambiar la contraseña después del primer login.
+- Si el usuario admin no existe, el reset se ignora silenciosamente.
 
 ---
 
@@ -45,29 +80,6 @@ El usuario **admin** puede:
 3. **Editar permisos**: cambiar rol y módulos de cada usuario
 4. **Restablecer contraseñas**
 5. **Eliminar usuarios**
-
----
-
-## Flujo "Olvidé mi contraseña"
-
-1. Click en **¿Olvidaste tu contraseña?** en `/login`
-2. Ingresar correo
-3. Responder las 3 preguntas de seguridad configuradas
-4. Si son correctas → crear nueva contraseña
-5. Si son incorrectas → mostrar error
-
----
-
-## Preguntas de seguridad
-
-Cada usuario puede configurar sus 3 preguntas de seguridad desde **Mi Perfil** (`/perfil`):
-
-1. ¿Nombre de tu primera mascota?
-2. ¿Tu color favorito?
-3. ¿Nombre de tu escuela?
-
-Las respuestas se guardan **hasheadas** en Firestore (no texto plano).
-Las comparaciones son insensibles a mayúsculas/minúsculas.
 
 ---
 
@@ -90,7 +102,7 @@ Las siguientes rutas requieren autenticación:
 - `/presupuestos` y subrutas
 - `/invoices` y subrutas
 - `/customers` y subrutas
-- `/perfil` — Cambiar contraseña y preguntas de seguridad
+- `/perfil` — Cambiar contraseña
 - `/admin/usuarios` — Gestión de usuarios (solo admin)
 - Cualquier otra ruta no listada como pública
 
@@ -112,26 +124,6 @@ Las siguientes rutas requieren autenticación:
 
 ---
 
-## E2E Tests (Playwright)
-
-Para ejecutar los tests E2E con autenticación, configurar las variables de entorno:
-
-```bash
-E2E_DEMO_EMAIL=your-test-email@example.com \
-E2E_DEMO_PASSWORD=your-test-password \
-npm run test:e2e
-```
-
-O en GitHub Actions, guardar como Secrets:
-- `E2E_DEMO_EMAIL` *(opcional — default: akproduccionessalto@gmail.com)*
-- `E2E_DEMO_PASSWORD`
-
-La mayoría de los tests inyectan una sesión directamente en `sessionStorage`
-(función `injectAuthSession`) para evitar depender de credenciales reales.
-Solo `02-login.spec.ts` prueba el flujo de login real.
-
----
-
 ## Estructura en Firestore
 
 Colección `users`:
@@ -139,14 +131,10 @@ Colección `users`:
 ```json
 {
   "email": "akproduccionessalto@gmail.com",
-  "passwordHash": "sha256...",
+  "passwordHash": "scrypt:<salt>:<hash>",
   "role": "admin",
   "modules": ["all"],
-  "securityQuestions": {
-    "q1": { "question": "¿Nombre de tu primera mascota?", "answer": "sha256..." },
-    "q2": { "question": "¿Tu color favorito?", "answer": "sha256..." },
-    "q3": { "question": "¿Nombre de tu escuela?", "answer": "sha256..." }
-  },
+  "securityQuestions": {},
   "mustChangePassword": true,
   "createdAt": "ISO8601",
   "updatedAt": "ISO8601"

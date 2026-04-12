@@ -31,3 +31,7 @@ env:
     secret: admin-bootstrap-password
     availability:
       - RUNTIME
+  - variable: ADMIN_FORCE_RESET
+    value: "false"
+    availability:
+      - RUNTIME
