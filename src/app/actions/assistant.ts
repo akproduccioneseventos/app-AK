@@ -545,7 +545,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       }
     } else if (result.action?.type === 'update_event') {
       actionResult = { success: false, error: 'Falta información para actualizar el evento.' };
-      finalResponse = `⚠️ Falta información para actualizar el evento. Indicá qué cambios querés hacer, o editalo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
+      finalResponse = `⚠️ Falta información para actualizar el evento. Indicá qué cambios querés hacer, o buscá el evento en [/fiestas](/fiestas).`;
     } else if (result.action?.type === 'generate_contract' && result.action.data) {
       const d = result.action.data;
       try {
