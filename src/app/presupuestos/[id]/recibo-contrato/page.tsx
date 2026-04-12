@@ -180,6 +180,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
     const result = buildContractFromSettings(contractSettings, {
       ciudadFecha,
       clienteNombre: presupuesto.clienteNombre,
+      // Check both field names for backward compatibility with different data sources
       clienteDomicilio: (presupuesto as any).clienteDomicilio || (presupuesto as any).clienteAddress || '___________________',
       clienteCi: (presupuesto as any).clienteCi || '___________________',
       clienteTelefono: presupuesto.clienteContacto || '___________________',

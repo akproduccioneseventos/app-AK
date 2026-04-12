@@ -78,7 +78,7 @@ export default function ClausulasContractPage() {
     toast({ title: 'Restaurado', description: 'Se restauraron las cláusulas predeterminadas. Recordá guardar los cambios.' });
   };
 
-  const updateClause = (id: string, field: keyof ContractClause, value: any) => {
+  const updateClause = (id: string, field: keyof ContractClause, value: string | number | boolean) => {
     if (!settings) return;
     setSettings({
       ...settings,

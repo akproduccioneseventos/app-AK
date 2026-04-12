@@ -125,7 +125,7 @@ export function buildContractFromSettings(
     }));
 
   return {
-    title: replacePlaceholders(settings.headerText),
+    title: 'CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVENTOS',
     intro: replacePlaceholders(settings.headerText),
     clauses: activeClauses,
     signerName: settings.companySignerName,
