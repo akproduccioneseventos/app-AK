@@ -8,6 +8,7 @@ export interface Customer {
   phone?: string;
   companyName?: string;
   address?: string; // Nuevo campo para domicilio fiscal/personal
+  ci?: string; // Cédula de identidad
   taxId?: string; 
   estadoCliente?: CustomerStatus; // 'Actual' o 'Antiguo'
   

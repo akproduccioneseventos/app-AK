@@ -21,9 +21,10 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
+import { getInvoiceTemplateSettings, getCompanyInfo, getContractSettings } from '@/app/actions/settings';
 import Image from 'next/image';
-import { fillContractTemplate } from '@/lib/contract-template';
+import { fillContractTemplate, buildContractFromSettings } from '@/lib/contract-template';
+import type { ContractSettings } from '@/types/settings';
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -99,16 +100,18 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const [companyName, setCompanyName] = useState('AK Producciones Eventos');
   const [companyAddress, setCompanyAddress] = useState('Gaboto 3390, Salto, Uruguay');
   const [companyContact, setCompanyContact] = useState('akproduccionessalto@gmail.com');
+  const [contractSettings, setContractSettings] = useState<ContractSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fetchedPresupuesto, templateSettings, companyInfo] = await Promise.all([
+      const [fetchedPresupuesto, templateSettings, companyInfo, contractSettingsData] = await Promise.all([
         getPresupuestoById(presupuestoId),
         getInvoiceTemplateSettings(),
         getCompanyInfo(),
+        getContractSettings(),
       ]);
 
       if (!fetchedPresupuesto) {
@@ -121,6 +124,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       setCompanyName(companyInfo?.companyName || 'AK Producciones Eventos');
       setCompanyAddress(companyInfo?.companyAddress || 'Gaboto 3390, Salto, Uruguay');
       setCompanyContact(companyInfo?.companyContact || 'akproduccionessalto@gmail.com');
+      setContractSettings(contractSettingsData);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al cargar los datos.');
     } finally {
@@ -163,6 +167,34 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       montoSena: montoSenaStr,
     });
   }, [presupuesto, primerPago]);
+
+  const { contractIntro, contractClauses } = useMemo(() => {
+    if (!presupuesto || !contractSettings) return { contractIntro: '', contractClauses: [] as { title: string; content: string }[] };
+    const today = new Date();
+    const ciudadFecha = `Salto, a los ${today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+
+    const montoSenaNum = primerPago;
+    const montoSenaWords = numberToSpanishWords(montoSenaNum);
+    const montoSenaStr = `$ ${montoSenaNum.toLocaleString('es-UY')} (pesos uruguayos ${montoSenaWords})`;
+
+    const result = buildContractFromSettings(contractSettings, {
+      ciudadFecha,
+      clienteNombre: presupuesto.clienteNombre,
+      clienteDomicilio: (presupuesto as any).clienteDomicilio || (presupuesto as any).clienteAddress || '___________________',
+      clienteCi: (presupuesto as any).clienteCi || '___________________',
+      clienteTelefono: presupuesto.clienteContacto || '___________________',
+      fechaEvento: presupuesto.eventoFecha
+        ? new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : '___________________',
+      salon: presupuesto.salonFiestas || '___________________',
+      montoSena: montoSenaStr,
+    });
+
+    return {
+      contractIntro: result.intro,
+      contractClauses: result.clauses,
+    };
+  }, [presupuesto, contractSettings, primerPago]);
 
   const handlePrint = () => window.print();
 
@@ -410,37 +442,29 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
             </div>
 
             {/* Contract body */}
-            <div className="px-8 py-8 print:px-8 print:py-6">
-              <div className="prose prose-sm max-w-none text-slate-700 leading-relaxed space-y-0">
-                {contractText.split('\n\n').map((paragraph, idx) => {
-                  const trimmed = paragraph.trim();
-                  if (!trimmed) return null;
+            <div className="px-8 py-6 print:px-8 print:py-4">
+              {/* Title */}
+              <h2 className="text-center text-sm font-black uppercase tracking-wide text-slate-900 mb-4 pb-3 border-b-2 border-slate-200">
+                CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVENTOS
+              </h2>
 
-                  // Main title
-                  if (idx === 0) {
-                    return (
-                      <h2 key={idx} className="text-center text-base font-black uppercase tracking-wide text-slate-900 mb-4 pb-3 border-b-2 border-slate-200">
-                        {trimmed}
-                      </h2>
-                    );
-                  }
+              {/* Intro paragraph */}
+              <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-3 text-justify">
+                {contractIntro}
+              </p>
 
-                  // Section headers (e.g. "PRIMERA: OBJETO")
-                  const isHeader = /^[A-ZÁÉÍÓÚÑ\s]+:/.test(trimmed) && trimmed.length < 60;
-                  if (isHeader) {
-                    return (
-                      <h3 key={idx} className="font-black text-slate-900 text-xs uppercase tracking-wider mt-4 mb-1">
-                        {trimmed}
-                      </h3>
-                    );
-                  }
-
-                  return (
-                    <p key={idx} className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-2">
-                      {trimmed}
+              {/* Clauses */}
+              <div className="space-y-0">
+                {contractClauses.map((clause, idx) => (
+                  <div key={idx} className={`py-2 ${idx < contractClauses.length - 1 ? 'border-b border-slate-200' : ''}`}>
+                    <h3 className="font-black text-slate-900 text-[10px] uppercase tracking-wider mb-0.5">
+                      {clause.title}
+                    </h3>
+                    <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 text-justify">
+                      {clause.content}
                     </p>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
 
               {/* Signature block — always shown at bottom of contract */}
@@ -448,9 +472,9 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                 <div>
                   <div className="border-b border-slate-400 h-12" />
                   <p className="text-[9px] font-black uppercase text-slate-500 mt-1 text-center tracking-wider">
-                    POR AK PRODUCCIONES EVENTOS
+                    {contractSettings?.companySignerRole || 'POR AK PRODUCCIONES EVENTOS'}
                   </p>
-                  <p className="text-[9px] text-slate-400 text-center">Tec. Alexander Knuth</p>
+                  <p className="text-[9px] text-slate-400 text-center">{contractSettings?.companySignerName || 'Tec. Alexander Knuth'}</p>
                 </div>
                 <div>
                   <div className="border-b border-slate-400 h-12" />

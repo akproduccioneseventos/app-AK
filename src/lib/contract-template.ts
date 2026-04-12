@@ -88,3 +88,47 @@ export function fillContractTemplate(vars: {
     .replace(/\{\{SALON\}\}/g, vars.salon ?? '___________________')
     .replace(/\{\{MONTO_SENA\}\}/g, vars.montoSena ?? '___________________');
 }
+
+import type { ContractSettings } from '@/types/settings';
+
+export function buildContractFromSettings(
+  settings: ContractSettings,
+  vars: {
+    ciudadFecha?: string;
+    clienteNombre?: string;
+    clienteDomicilio?: string;
+    clienteCi?: string;
+    clienteTelefono?: string;
+    fechaEvento?: string;
+    salon?: string;
+    montoSena?: string;
+  }
+): { title: string; intro: string; clauses: { title: string; content: string }[]; signerName: string; signerRole: string } {
+  const replacePlaceholders = (text: string): string => {
+    return text
+      .replace(/\{\{CIUDAD_FECHA\}\}/g, vars.ciudadFecha ?? 'Salto')
+      .replace(/\{\{CLIENTE_NOMBRE\}\}/g, vars.clienteNombre ?? '___________________')
+      .replace(/\{\{CLIENTE_DOMICILIO\}\}/g, vars.clienteDomicilio ?? '___________________')
+      .replace(/\{\{CLIENTE_CI\}\}/g, vars.clienteCi ?? '___________________')
+      .replace(/\{\{CLIENTE_TELEFONO\}\}/g, vars.clienteTelefono ?? '___________________')
+      .replace(/\{\{FECHA_EVENTO\}\}/g, vars.fechaEvento ?? '___________________')
+      .replace(/\{\{SALON\}\}/g, vars.salon ?? '___________________')
+      .replace(/\{\{MONTO_SENA\}\}/g, vars.montoSena ?? '___________________');
+  };
+
+  const activeClauses = settings.clauses
+    .filter(c => c.isActive)
+    .sort((a, b) => a.order - b.order)
+    .map(c => ({
+      title: c.title,
+      content: replacePlaceholders(c.content),
+    }));
+
+  return {
+    title: replacePlaceholders(settings.headerText),
+    intro: replacePlaceholders(settings.headerText),
+    clauses: activeClauses,
+    signerName: settings.companySignerName,
+    signerRole: settings.companySignerRole,
+  };
+}
