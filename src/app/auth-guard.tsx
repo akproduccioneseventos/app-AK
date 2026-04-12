@@ -116,31 +116,60 @@ export function AuthGuard({ children }: AuthGuardProps) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    fetch('/api/auth/session', { signal: controller.signal })
-      .then(async (res) => {
+    const verifySession = async (isRetry = false): Promise<void> => {
+      try {
+        const res = await fetch('/api/auth/session', { signal: controller.signal });
         clearTimeout(timeoutId);
-        if (!res.ok) {
-          // Session invalid — clean up cookie before redirecting
-          try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
-          window.location.href = '/login';
+        if (res.ok) {
+          sessionChecked.current = true;
+          lastVerifiedAt.current = Date.now();
+          setIsVerified(true);
           return;
         }
-        sessionChecked.current = true;
-        lastVerifiedAt.current = Date.now();
-        setIsVerified(true);
-      })
-      .catch(async (err) => {
-        clearTimeout(timeoutId);
-        if (err instanceof DOMException && err.name === 'AbortError') {
-          // Timeout — clean up and redirect
-          try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
-          window.location.href = '/login';
-          return;
+        // First attempt failed — retry once after a short delay to handle
+        // the race condition right after login (cookie may not be ready yet)
+        if (!isRetry) {
+          await new Promise(resolve => setTimeout(resolve, 400));
+          return verifySession(true);
         }
-        // Network error — clean up and redirect
+        // Second attempt also failed — session is truly invalid
         try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
         window.location.href = '/login';
-      });
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          if (!isRetry) {
+            // Timeout on first try — one more attempt
+            const retryController = new AbortController();
+            const retryTimeout = setTimeout(() => retryController.abort(), 3000);
+            try {
+              const res = await fetch('/api/auth/session', { signal: retryController.signal });
+              clearTimeout(retryTimeout);
+              if (res.ok) {
+                sessionChecked.current = true;
+                lastVerifiedAt.current = Date.now();
+                setIsVerified(true);
+                return;
+              }
+            } catch {
+              clearTimeout(retryTimeout);
+            }
+          }
+          try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+          window.location.href = '/login';
+          return;
+        }
+        // Network error
+        if (!isRetry) {
+          await new Promise(resolve => setTimeout(resolve, 400));
+          return verifySession(true);
+        }
+        try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+        window.location.href = '/login';
+      }
+    };
+
+    verifySession();
 
     return () => {
       clearTimeout(timeoutId);
