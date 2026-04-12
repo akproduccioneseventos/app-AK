@@ -51,7 +51,40 @@ const formatDate = (dateString?: string) => {
 const COMPANY_MAIN_TITLE = "Presupuesto para fiestas o eventos - AK PRODUCCIONES";
 const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
 const COMPANY_ADDRESS_LINE1_PDF = "Salto";
+const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
+const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
+const BUDGET_VALIDITY_DAYS_PDF = 30;
+const BUDGET_VALIDITY_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
+
+const formatDateShort = (dateString?: string) => {
+  if (!dateString) return "—";
+  try {
+    const date = new Date(dateString);
+    return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+  } catch { return '—'; }
+};
+
+/** Generate annual price projection rows */
+function generateProjectionRows(totalBase: number, adjustmentPct: number, currentYear: number, eventYear: number): { year: number; base: number; adjustment: number; total: number }[] {
+  const rows: { year: number; base: number; adjustment: number; total: number }[] = [];
+  const maxYears = 4;
+  const yearsToShow = Math.min(Math.max(0, eventYear - currentYear), maxYears);
+
+  if (yearsToShow <= 0) return rows;
+
+  rows.push({ year: currentYear, base: totalBase, adjustment: 0, total: totalBase });
+
+  let prevTotal = totalBase;
+  for (let i = 1; i <= yearsToShow; i++) {
+    const adj = Math.round(prevTotal * (adjustmentPct / 100));
+    const newTotal = prevTotal + adj;
+    rows.push({ year: currentYear + i, base: Math.round(prevTotal), adjustment: adj, total: newTotal });
+    prevTotal = newTotal;
+  }
+
+  return rows;
+}
 
 function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -621,80 +654,193 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </Card>
             </motion.div>
 
-            <div className="bg-white shadow-xl print:shadow-none p-6 sm:p-16 print:p-2 rounded-[2rem] sm:rounded-[2.5rem] print:rounded-none">
-                <header className="mb-8 print:mb-4 flex justify-between items-start gap-4">
-                    <div className="space-y-1 min-w-0">
-                        <h1 className="text-xl sm:text-2xl font-bold text-primary uppercase tracking-tighter truncate">{COMPANY_MAIN_TITLE}</h1>
-                        <div className="text-[10px] sm:text-xs text-muted-foreground">
-                            <p className="font-bold text-slate-800">{COMPANY_CONTACT_PERSON}</p>
-                            <p>{COMPANY_ADDRESS_LINE1_PDF} | {COMPANY_CONTACT_EMAIL_PDF}</p>
+            {/* ═══ PRINTABLE DOCUMENT — Classic Invoice Format ═══ */}
+            <div className="ver-budget-print-document bg-white print:bg-[#e8f5e9]">
+              {/* Wrapping table for repeating thead/tfoot on each print page */}
+              <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
+                <thead>
+                  <tr><td className="p-0">
+                    <div className="budget-print-thead-content" style={{ padding: '0 0 4px 0' }}>
+                      <p className="text-[8px] text-gray-500 text-center print:text-[7pt]">
+                        {presupuesto.clienteNombre} — Presupuesto #{presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase()} — {formatDateShort(presupuesto.timestamp)}
+                      </p>
+                    </div>
+                  </td></tr>
+                </thead>
+                <tfoot>
+                  <tr><td className="p-0">
+                    <div className="budget-print-tfoot-content" style={{ paddingTop: '20px' }}>
+                      <div className="flex justify-between" style={{ gap: '40px' }}>
+                        <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
+                          <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma del Cliente</p>
+                          <p className="text-[8px] text-gray-500 print:text-[6pt]">{cliente?.name || presupuesto.clienteNombre}</p>
                         </div>
+                        <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
+                          <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma y sello de la empresa</p>
+                          <p className="text-[8px] text-gray-500 print:text-[6pt]">AK PRODUCCIONES</p>
+                        </div>
+                      </div>
+                    </div>
+                  </td></tr>
+                </tfoot>
+                <tbody>
+                  <tr><td className="p-0">
+
+              <div className="shadow-xl print:shadow-none p-6 sm:p-16 print:p-2 rounded-[2rem] sm:rounded-[2.5rem] print:rounded-none">
+
+                {/* HEADER — Title + company info + logo */}
+                <h1 className="text-center text-base sm:text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[12pt] mb-3 print:mb-2"
+                    style={{ borderBottom: '2px solid #2e7d32', paddingBottom: '4px' }}>
+                  {COMPANY_MAIN_TITLE}
+                </h1>
+
+                <header className="mb-4 print:mb-3 flex justify-between items-start gap-4">
+                    <div className="space-y-0.5 text-xs print:text-[8pt]">
+                        <p className="font-bold text-gray-800">{COMPANY_CONTACT_PERSON}</p>
+                        <p className="text-gray-600">{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
+                        <p className="text-gray-600">{COMPANY_CONTACT_EMAIL_PDF}</p>
+                        <p className="text-gray-600">{COMPANY_WEBSITE_PDF}</p>
                     </div>
                     {logoUrl ? (
-                        <div className="w-16 h-16 sm:w-24 sm:h-24 relative shrink-0">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 relative shrink-0">
                             <Image src={logoUrl} alt="Logo" layout="fill" className="object-contain" />
                         </div>
                     ) : (
-                        <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 sm:w-24 sm:h-24 bg-primary/5 border-2 border-primary/20 rounded-2xl text-center">
-                            <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-primary leading-tight px-1">AK Producciones</span>
-                        </div>
+                        <span className="text-lg font-extrabold tracking-widest text-gray-800 uppercase print:text-[14pt] shrink-0">
+                          AK PRODUCCIONES
+                        </span>
                     )}
                 </header>
 
-                <section className="mb-8 p-4 sm:p-6 bg-slate-50 border border-slate-100 rounded-[1.5rem] sm:rounded-[2rem] print:bg-white print:border-none print:p-0">
+                {/* Centered "Presupuesto" label */}
+                <p className="text-center font-bold text-sm uppercase tracking-widest text-gray-700 mb-4 print:text-[10pt]"
+                   style={{ backgroundColor: '#c8e6c9', padding: '4px 0', borderRadius: '2px' }}>
+                  Presupuesto
+                </p>
+
+                {/* Note at top */}
+                <p className="text-[10px] text-center text-gray-600 italic print:text-[7pt] border border-gray-300 rounded px-2 py-1 mb-4 print:border-gray-400"
+                   style={{ backgroundColor: '#f1f8e9' }}>
+                  {BUDGET_VALIDITY_NOTE_PDF}
+                </p>
+
+                {/* Document data table */}
+                {(() => {
+                  const fechaValidoHasta = new Date(presupuesto.timestamp);
+                  fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
+                  const budgetNumber = presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase();
+                  return (
+                    <section className="mb-4 print:mb-3">
+                      <table className="w-full text-xs print:text-[8pt] border-collapse">
+                        <thead>
+                          <tr style={{ backgroundColor: '#a5d6a7' }}>
+                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de cliente</th>
+                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de Documento</th>
+                            <th className="border border-gray-400 px-2 py-1.5 text-center font-semibold">Página</th>
+                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Fecha</th>
+                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Válido hasta</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style={{ backgroundColor: '#e8f5e9' }}>
+                            <td className="border border-gray-300 px-2 py-1.5 font-mono">{presupuesto.clienteNombre.substring(0, 3).toUpperCase()}-{presupuesto.id.substring(0, 4).toUpperCase()}</td>
+                            <td className="border border-gray-300 px-2 py-1.5 font-mono font-semibold">#{budgetNumber}</td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-center">1/1</td>
+                            <td className="border border-gray-300 px-2 py-1.5">{formatDateShort(presupuesto.timestamp)}</td>
+                            <td className="border border-gray-300 px-2 py-1.5">{formatDateShort(fechaValidoHasta.toISOString())}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </section>
+                  );
+                })()}
+
+                {/* Client + event info */}
+                <section className="mb-4 print:mb-3 border border-gray-300 rounded px-3 py-2 print:border-gray-400"
+                         style={{ backgroundColor: '#f1f8e9' }}>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-[11px] sm:text-sm">
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Cliente</p><p className="font-bold truncate">{presupuesto.clienteNombre}</p></div>
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Fecha</p><p className="font-bold">{formatDate(presupuesto.eventoFecha)}</p></div>
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Invitados</p><p className="font-bold">{totalInvitados}</p></div>
+                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Cliente</p><p className="font-bold truncate">{presupuesto.clienteNombre}</p></div>
+                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Fecha Evento</p><p className="font-bold">{formatDate(presupuesto.eventoFecha)}</p></div>
+                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Invitados</p><p className="font-bold">{totalInvitados}</p></div>
+                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Tipo Evento</p><p className="font-bold">{presupuesto.eventoTipo}</p></div>
+                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Salón</p><p className="font-bold truncate">{presupuesto.salonFiestas || '—'}</p></div>
+                        {presupuesto.clienteContacto && (
+                          <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Contacto</p><p className="font-bold truncate">{presupuesto.clienteContacto}</p></div>
+                        )}
                     </div>
                 </section>
 
-                <section className="mb-8">
-                    <div className="border rounded-[1.5rem] overflow-hidden shadow-sm print:border-slate-300 overflow-x-auto">
-                        <Table>
-                            <TableHeader className="bg-slate-50">
-                                <TableRow>
-                                    <TableHead className="w-1/2 font-black text-[9px] sm:text-[10px] uppercase pl-4 sm:pl-8 py-4 min-w-[200px]">Artículo</TableHead>
-                                    <TableHead className="text-center font-black text-[9px] sm:text-[10px] uppercase min-w-[60px]">Cant.</TableHead>
-                                    <TableHead className="text-right pr-4 sm:pr-8 font-black text-[9px] sm:text-[10px] uppercase min-w-[100px]">Importe</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
-                                    <React.Fragment key={categoria}>
-                                        <TableRow className="bg-muted/30 border-y"><TableCell colSpan={3} className="font-black text-[9px] sm:text-[10px] uppercase text-primary pl-4 sm:pl-8 tracking-widest py-2">{categoria}</TableCell></TableRow>
-                                        {items.map(item => {
-                                            const effectiveQty = getEffectiveQty(item);
-                                            return (
-                                                <TableRow key={item.idServicioCatalogo} className="hover:bg-slate-50/50 transition-colors border-slate-50">
-                                                    <TableCell className="pl-4 sm:pl-8 py-3 text-[11px] sm:text-xs">
-                                                        {item.esRegalo ? <span className="text-rose-600 font-bold flex items-center gap-1.5"><Gift className="w-3.5 h-3.5"/> {item.nombreServicio} (REGALO)</span> : item.nombreServicio}
-                                                        <p className="text-[9px] text-muted-foreground">
-                                                            {item.calculationMethod === 'tramos' ? 'Precio por tramo' : `${formatCurrency(item.precioUnitarioPresupuesto)} c/u`}
-                                                        </p>
-                                                    </TableCell>
-                                                    <TableCell className="text-center text-[11px] sm:text-xs font-bold text-slate-400">{effectiveQty}</TableCell>
-                                                    <TableCell className="text-right pr-4 sm:pr-8">
-                                                        {item.esRegalo ? (
-                                                            <div className="flex flex-col items-end">
-                                                                <span className="text-[9px] line-through text-slate-300 font-bold">{formatCurrency(item.precioUnitario * item.cantidad)}</span>
-                                                                <Badge className="bg-green-600 text-white border-none font-black text-[8px] h-4">REGALO</Badge>
-                                                            </div>
-                                                        ) : <span className="text-[11px] sm:text-xs font-black text-slate-700">{formatCurrency(item.costoTotalItem)}</span>}
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
-                                    </React.Fragment>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
+                {/* Services/items table */}
+                <section className="mb-4 print:mb-3">
+                    <table className="w-full text-xs print:text-[8pt] border-collapse">
+                      <thead>
+                        <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
+                          <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold" style={{ width: '35%' }}>Artículo</th>
+                          <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Cantidad</th>
+                          <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Unidad</th>
+                          <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Precio</th>
+                          <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Desc.%</th>
+                          <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Importe total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
+                            <React.Fragment key={categoria}>
+                                <tr style={{ backgroundColor: '#c8e6c9' }}>
+                                  <td colSpan={6} className="border border-gray-400 px-2 py-1 font-bold text-gray-700 text-xs print:text-[7.5pt] uppercase tracking-wide">
+                                    {categoria}
+                                  </td>
+                                </tr>
+                                {items.map((item: ItemPresupuestado) => {
+                                    const effectiveQty = getEffectiveQty(item);
+                                    return (
+                                        <tr key={item.idServicioCatalogo} style={{ backgroundColor: '#e8f5e9' }}>
+                                            <td className="border border-gray-300 px-2 py-1.5 align-top text-[11px] sm:text-xs">
+                                                {item.esRegalo ? (
+                                                  <div>
+                                                    <span className="text-emerald-700 font-semibold flex items-center gap-1 print:text-green-800">
+                                                      <Gift className="w-3 h-3 print:hidden"/> {item.nombreServicio}
+                                                    </span>
+                                                    <span className="text-[10px] text-emerald-600 italic block print:text-[7pt]">Regalo exclusivo</span>
+                                                  </div>
+                                                ) : item.nombreServicio}
+                                            </td>
+                                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top">{effectiveQty}</td>
+                                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top">Serv.</td>
+                                            <td className="border border-gray-300 px-2 py-1.5 text-right align-top">
+                                                {formatCurrency(item.precioUnitarioPresupuesto || item.precioUnitario)}
+                                            </td>
+                                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top">
+                                                {item.esRegalo ? '100%' : '—'}
+                                            </td>
+                                            <td className="border border-gray-300 px-2 py-1.5 text-right align-top font-semibold">
+                                                {item.esRegalo
+                                                  ? <span className="text-emerald-700 print:text-green-800 font-bold">$ 0,00</span>
+                                                  : formatCurrency(item.costoTotalItem)}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </React.Fragment>
+                        ))}
+                        {/* Total row */}
+                        <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
+                          <td colSpan={5} className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
+                            Importe total
+                          </td>
+                          <td className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
+                            {formatCurrency(calculatedValues.totalFinal)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                 </section>
                     
-                <section className="flex justify-end mb-8">
-                    <div className="w-full max-w-sm space-y-2 py-6 sm:py-8 px-6 sm:px-10 bg-slate-50 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 print:bg-white print:border-slate-300">
-                        <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                {/* Totals breakdown */}
+                <section className="flex justify-end mb-4 print:mb-3">
+                    <div className="w-full max-w-sm space-y-2 py-4 px-6 border border-gray-300 rounded print:border-gray-400"
+                         style={{ backgroundColor: '#f1f8e9' }}>
+                        <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">
                             <span>Valor Real Servicios:</span>
                             <span>{formatCurrency(calculatedValues.subtotalBruto)}</span>
                         </div>
@@ -712,7 +858,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         )}
                         {calculatedValues.ajusteAnual > 0 && (
                             <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-amber-600 tracking-widest">
-                                <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. 15%):</span>
+                                <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. {presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15}%):</span>
                                 <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
                             </div>
                         )}
@@ -723,8 +869,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             if (precioLista <= 0) return null;
                             return (
                                 <>
-                                    <Separator className="bg-slate-200" />
-                                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest line-through">
+                                    <Separator className="bg-gray-300" />
+                                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-gray-400 tracking-widest line-through">
                                         <span>Precio de Lista (+{markupPct}%):</span>
                                         <span>{formatCurrency(precioLista)}</span>
                                     </div>
@@ -735,48 +881,128 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 </>
                             );
                         })()}
-                        <Separator className="bg-slate-200" />
-                        <div className="flex justify-between items-center text-xl sm:text-2xl font-black text-primary pt-1">
+                        <div className="border-t-2 border-gray-700 pt-2" />
+                        <div className="flex justify-between items-center text-xl sm:text-2xl font-black text-gray-900 pt-1">
                             <span className="tracking-tighter">TOTAL FINAL:</span>
                             <span>{formatCurrency(calculatedValues.totalFinal)}</span>
                         </div>
+
+                        {/* Total with annual projection inline */}
+                        {(() => {
+                          const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15;
+                          const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
+                          const currentYear = new Date().getFullYear();
+                          const totalSinAjuste = calculatedValues.totalFinal - calculatedValues.ajusteAnual;
+                          const projRows = adjustmentPct > 0 && eventYear > currentYear
+                            ? generateProjectionRows(totalSinAjuste, adjustmentPct, currentYear, eventYear)
+                            : [];
+                          if (projRows.length === 0) return null;
+                          return (
+                            <div className="mt-2 pt-2 border-t border-gray-300 space-y-0.5 text-[10px] print:text-[7pt]">
+                              <p className="font-semibold text-gray-700">Precio con ajuste anual ({adjustmentPct}%):</p>
+                              {projRows.map((row) => (
+                                <div key={row.year} className="flex justify-between text-gray-600">
+                                  <span>{row.year === currentYear ? `Precio hoy` : `Precio al 1/1/${row.year}`}:</span>
+                                  <span className="font-semibold">{formatCurrency(row.total)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
                     </div>
                 </section>
+
+                {/* Annual Projection Table */}
+                {(() => {
+                  const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15;
+                  const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
+                  const currentYear = new Date().getFullYear();
+                  const totalSinAjuste = calculatedValues.totalFinal - calculatedValues.ajusteAnual;
+                  const projRows = adjustmentPct > 0 && eventYear > currentYear
+                    ? generateProjectionRows(totalSinAjuste, adjustmentPct, currentYear, eventYear)
+                    : [];
+                  if (projRows.length === 0) return null;
+                  return (
+                    <section className="mb-4 print:mb-3">
+                      <h3 className="text-xs font-bold text-gray-800 mb-2 print:text-[9pt] text-center uppercase"
+                          style={{ backgroundColor: '#c8e6c9', padding: '4px', borderRadius: '2px' }}>
+                        Proyección de Precios por Año (ajuste del {adjustmentPct}% anual al 1° de enero)
+                      </h3>
+                      <table className="w-full text-xs print:text-[8pt] border-collapse">
+                        <thead>
+                          <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
+                            <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold">Año</th>
+                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Precio Base</th>
+                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Ajuste {adjustmentPct}%</th>
+                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Total Ajustado</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {projRows.map((row) => (
+                            <tr key={row.year} style={{ backgroundColor: '#e8f5e9' }}>
+                              <td className="border border-gray-300 px-2 py-1.5 font-semibold">
+                                {row.year} {row.year === currentYear ? '(actual)' : `(1° de enero)`}
+                              </td>
+                              <td className="border border-gray-300 px-2 py-1.5 text-right">{formatCurrency(row.base)}</td>
+                              <td className="border border-gray-300 px-2 py-1.5 text-right">
+                                {row.adjustment === 0 ? '—' : `+${formatCurrency(row.adjustment)}`}
+                              </td>
+                              <td className="border border-gray-300 px-2 py-1.5 text-right font-bold">{formatCurrency(row.total)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </section>
+                  );
+                })()}
                     
-                <footer className="space-y-6">
-                    <div className="p-4 sm:p-6 bg-blue-50/50 border border-blue-100 rounded-[1.5rem] print:bg-white print:border-slate-300">
-                        <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
-                        <p className="text-[11px] sm:text-xs text-blue-700 leading-relaxed font-medium">{displaySettings.bookingTerms}</p>
+                {/* Footer — booking terms + notes */}
+                <footer className="space-y-4 mt-6">
+                    <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400" style={{ backgroundColor: '#f1f8e9' }}>
+                        <h4 className="text-[10px] font-black uppercase text-gray-700 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
+                        <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed font-medium">{displaySettings.bookingTerms}</p>
                     </div>
                     {presupuesto.notas && (
-                        <div className="p-4 sm:p-6 bg-slate-50 border border-slate-100 rounded-[1.5rem] print:bg-white print:border-slate-300">
-                            <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Notas y Observaciones</h4>
-                            <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">{presupuesto.notas}</p>
+                        <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400" style={{ backgroundColor: '#f1f8e9' }}>
+                            <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Notas y Observaciones</h4>
+                            <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{presupuesto.notas}</p>
                         </div>
                     )}
-                    <div className="mt-16 grid grid-cols-2 gap-8 sm:gap-20 text-center">
-                        <div className="border-t-2 border-slate-300 pt-4 relative mt-16">
+
+                    {/* Note at bottom */}
+                    <p className="text-[10px] text-center text-gray-600 italic print:text-[7pt] font-semibold">
+                      {BUDGET_VALIDITY_NOTE_PDF}
+                    </p>
+
+                    {/* Signature area — visible on screen */}
+                    <div className="mt-12 grid grid-cols-2 gap-8 sm:gap-20 text-center print:hidden">
+                        <div className="border-t-2 border-gray-400 pt-4 relative mt-16">
                             {companyInfo?.signatureUrl ? (
                                 <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-14 pointer-events-none">
                                     <Image src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
                                 </div>
                             ) : (
                                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-36 pointer-events-none">
-                                    <div className="border-b border-dashed border-slate-300 h-6 w-full"></div>
+                                    <div className="border-b border-dashed border-gray-300 h-6 w-full"></div>
                                 </div>
                             )}
-                            <p className="font-black text-sm uppercase tracking-tighter text-slate-900">Tec. Alexander Knuth</p>
-                            <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Por la Empresa</p>
+                            <p className="font-black text-sm uppercase tracking-tighter text-gray-900">Tec. Alexander Knuth</p>
+                            <p className="text-[10px] text-gray-400 font-sans uppercase tracking-widest">Por la Empresa</p>
                         </div>
-                        <div className="border-t-2 border-slate-300 pt-4 relative mt-16">
+                        <div className="border-t-2 border-gray-400 pt-4 relative mt-16">
                             <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-36 pointer-events-none">
-                                <div className="border-b border-dashed border-slate-300 h-6 w-full"></div>
+                                <div className="border-b border-dashed border-gray-300 h-6 w-full"></div>
                             </div>
-                            <p className="font-black text-sm uppercase tracking-tighter text-slate-900 truncate">{cliente?.name || presupuesto.clienteNombre}</p>
-                            <p className="text-[8px] sm:text-[9px] text-slate-400 uppercase font-bold">Firma del Cliente</p>
+                            <p className="font-black text-sm uppercase tracking-tighter text-gray-900 truncate">{cliente?.name || presupuesto.clienteNombre}</p>
+                            <p className="text-[8px] sm:text-[9px] text-gray-400 uppercase font-bold">Firma del Cliente</p>
                         </div>
                     </div>
                 </footer>
+              </div>
+
+                  </td></tr>
+                </tbody>
+              </table>
             </div>
 
             {/* ── HISTORIAL DE PAGOS (admin only, hidden on print) ── */}
@@ -929,12 +1155,31 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
         <style jsx global>{`
             @media print {
+                @page {
+                    size: A4 portrait;
+                    margin: 1.5cm 1cm;
+                }
                 header, footer, button, .sidebar, .no-print, .notifications-hub, .sidebar-inset > header, aside { display: none !important; }
-                body { background: white !important; padding: 0 !important; margin: 0 !important; }
-                .bg-slate-50, .bg-muted\/30, .bg-primary\/5, .bg-blue-50\/50 { background-color: white !important; border: 1px solid #e2e8f0 !important; }
+                body {
+                    background: white !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                .ver-budget-print-document {
+                    background-color: #e8f5e9 !important;
+                }
+                .budget-print-thead-content {
+                    border-bottom: 1px solid #ccc;
+                    margin-bottom: 8px;
+                }
+                .budget-print-tfoot-content {
+                    border-top: 1px solid #ccc;
+                    margin-top: 8px;
+                }
                 .shadow-xl, .shadow-2xl, .shadow-3xl { box-shadow: none !important; }
-                .rounded-\[2rem\], .rounded-\[2\.5rem\] { border-radius: 0 !important; }
-                @page { size: A4 portrait; margin: 1.5cm 1cm; }
+                .rounded-\\[2rem\\], .rounded-\\[2\\.5rem\\] { border-radius: 0 !important; }
             }
         `}</style>
     </div>
