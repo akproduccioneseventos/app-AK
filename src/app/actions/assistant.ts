@@ -16,6 +16,8 @@ import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
 import * as logger from '@/lib/logger';
 
+const DEFAULT_SERVICE_NAME = 'Servicio';
+
 export async function sendAssistantMessage(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -136,7 +138,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             const price = Number(s.precioUnitario) || Number(s.precio) || 0;
             return {
               idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
-              nombreServicio: s.nombre || s.name || 'Servicio',
+              nombreServicio: s.nombre || s.name || DEFAULT_SERVICE_NAME,
               descripcionServicio: s.descripcion,
               cantidad: qty,
               precioUnitario: price,
@@ -193,12 +195,12 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         const validServices = importedServices.filter(s => {
           const name = s.nombre || s.name;
           const price = Number(s.precioUnitario) || Number(s.precio) || 0;
-          return name && name !== 'Servicio' && price > 0;
+          return name && name !== DEFAULT_SERVICE_NAME && price > 0;
         });
 
         if (validServices.length === 0) {
           // NO crear presupuesto si no hay servicios válidos
-          logger.warn('[Asistente AK] import_budget_from_image: no se detectaron servicios válidos. Datos extraídos:', JSON.stringify(d));
+          logger.warn('[Asistente AK] import_budget_from_image: no se detectaron servicios válidos. servicios_count:', importedServices.length);
           actionResult = { success: false, error: 'No se detectaron servicios suficientes para crear el presupuesto.' };
           const extractedInfo: string[] = [];
           if (d.clienteNombre) extractedInfo.push(`Cliente: ${d.clienteNombre}`);
@@ -231,7 +233,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             const price = Number(s.precioUnitario) || Number(s.precio) || 0;
             return {
               idServicioCatalogo: s.id || `importado_${i}_${Date.now()}`,
-              nombreServicio: s.nombre || s.name || 'Servicio',
+              nombreServicio: s.nombre || s.name || DEFAULT_SERVICE_NAME,
               descripcionServicio: s.descripcion,
               cantidad: qty,
               precioUnitario: price,
@@ -349,7 +351,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         const rawItems: Array<{ description?: string; quantity?: number; unitPrice?: number }> = Array.isArray(d.items) ? d.items : [];
         const invoiceItems: InvoiceItem[] = rawItems.map((item, i) => ({
           id: `item_${i}_${Date.now()}`,
-          description: item.description || 'Servicio',
+          description: item.description || DEFAULT_SERVICE_NAME,
           quantity: Number(item.quantity) || 1,
           unitPrice: Number(item.unitPrice) || 0,
           total: (Number(item.quantity) || 1) * (Number(item.unitPrice) || 0),

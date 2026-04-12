@@ -733,7 +733,7 @@ export function AKAssistantWidget() {
   };
 
   // --- Voice Output (Text-to-Speech) ---
-  const speakMessage = (text: string, msgId: string) => {
+  const speakMessage = useCallback((text: string, msgId: string) => {
     if (!window.speechSynthesis) return;
     // Don't read error messages
     if (text.startsWith('⚠️') || text.startsWith('❌')) return;
@@ -745,7 +745,7 @@ export function AKAssistantWidget() {
     utterance.onerror = () => setSpeakingMsgId(null);
     setSpeakingMsgId(msgId);
     window.speechSynthesis.speak(utterance);
-  };
+  }, []);
 
   const stopSpeaking = () => {
     window.speechSynthesis?.cancel();
@@ -759,8 +759,7 @@ export function AKAssistantWidget() {
     if (lastMsg.role === 'assistant' && lastMsg.content && !lastMsg.content.startsWith('⚠️') && !lastMsg.content.startsWith('❌')) {
       speakMessage(lastMsg.content, lastMsg.id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatHistory, ttsEnabled]);
+  }, [chatHistory, ttsEnabled, speakMessage]);
 
   const greeting = getGreeting();
   const highCount = alerts.filter(a => a.severity === 'high').length;
@@ -913,7 +912,7 @@ export function AKAssistantWidget() {
                               className={cn('mt-1 inline-flex items-center gap-0.5 text-[10px]', speakingMsgId === msg.id ? 'text-indigo-600' : 'text-slate-400 hover:text-indigo-500')}
                               title={speakingMsgId === msg.id ? 'Detener' : 'Escuchar'}
                             >
-                              <Volume2 className="h-3 w-3" />{speakingMsgId === msg.id ? 'Hablando...' : '🔊'}
+                              <Volume2 className="h-3 w-3" />{speakingMsgId === msg.id ? 'Hablando...' : 'Escuchar'}
                             </button>
                           )}
                         </div>
