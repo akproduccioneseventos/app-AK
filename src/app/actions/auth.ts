@@ -104,77 +104,12 @@ export async function initializeAdminIfNeeded(): Promise<void> {
       role: 'admin',
       modules: ['all'],
       securityQuestions: {},
-      mustChangePassword: false,
+      mustChangePassword: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
   } catch (err) {
     console.error('[auth] initializeAdminIfNeeded error:', err);
-  }
-}
-
-// ── Emergency reset ────────────────────────────────────────────────────────
-
-/**
- * Ensures the admin user exists with a known password.
- * If the admin email is found but the password doesn't match, it resets it.
- * If no user with the admin email exists, it deletes all orphan users and
- * recreates the admin — guaranteeing the owner can always log in.
- * Does NOT depend on environment variables.
- */
-export async function emergencyResetIfNeeded(): Promise<void> {
-  if (!dbAdmin) return;
-
-  const ADMIN_EMAIL = 'akproduccionessalto@gmail.com';
-  const ADMIN_PASSWORD = 'AKproducciones2024';
-
-  try {
-    const snapshot = await dbAdmin
-      .collection('users')
-      .where('email', '==', ADMIN_EMAIL)
-      .limit(1)
-      .get();
-
-    if (snapshot.empty) {
-      // No admin with this email — check if there are ANY users
-      const allUsers = await dbAdmin.collection('users').get();
-      if (!allUsers.empty) {
-        // There are users but none match the admin email —
-        // delete all and recreate (the user is locked out)
-        const batch = dbAdmin.batch();
-        allUsers.docs.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-        console.log('[auth] emergencyResetIfNeeded: deleted all orphan users.');
-      }
-      // Now create the admin
-      await dbAdmin.collection('users').add({
-        email: ADMIN_EMAIL,
-        passwordHash: hashValue(ADMIN_PASSWORD),
-        role: 'admin',
-        modules: ['all'],
-        securityQuestions: {},
-        mustChangePassword: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-      console.log('[auth] emergencyResetIfNeeded: admin user recreated.');
-      return;
-    }
-
-    const doc = snapshot.docs[0];
-    const data = doc.data();
-
-    // Always reset to known password
-    if (!verifyValue(ADMIN_PASSWORD, data.passwordHash)) {
-      await doc.ref.update({
-        passwordHash: hashValue(ADMIN_PASSWORD),
-        mustChangePassword: false,
-        updatedAt: new Date().toISOString(),
-      });
-      console.log('[auth] emergencyResetIfNeeded: admin password synced.');
-    }
-  } catch (err) {
-    console.error('[auth] emergencyResetIfNeeded error:', err);
   }
 }
 
@@ -190,98 +125,6 @@ export interface LoginResult {
     mustChangePassword?: boolean;
   };
   error?: string;
-}
-
-/**
- * Login with password only — iterates all users and verifies the password
- * against each one.  Returns the first matching user.
- *
- * Includes a hardcoded fallback so the owner can always log in even when
- * Firestore is unavailable or hangs (prevents infinite-loading spinner).
- */
-export async function loginWithPasswordOnly(
-  password: string
-): Promise<LoginResult> {
-  const HARDCODED_PASSWORD = 'AKproducciones2024';
-  const HARDCODED_EMAIL = 'akproduccionessalto@gmail.com';
-
-  // Fallback admin user when Firestore is unavailable
-  const fallbackAdmin: LoginResult = {
-    success: true,
-    user: {
-      id: 'admin-fallback',
-      email: HARDCODED_EMAIL,
-      role: 'admin' as const,
-      modules: ['all'],
-      mustChangePassword: false,
-    },
-  };
-
-  // If no database, use hardcoded password directly
-  if (!dbAdmin) {
-    if (password === HARDCODED_PASSWORD) {
-      return fallbackAdmin;
-    }
-    return { success: false, error: 'Contraseña incorrecta.' };
-  }
-
-  // Try Firestore with a 5-second timeout
-  try {
-    const timeoutPromise = new Promise<LoginResult>((resolve) => {
-      setTimeout(() => {
-        // Timeout — fall back to hardcoded
-        if (password === HARDCODED_PASSWORD) {
-          resolve(fallbackAdmin);
-        } else {
-          resolve({ success: false, error: 'Contraseña incorrecta.' });
-        }
-      }, 5000);
-    });
-
-    const firestorePromise = (async (): Promise<LoginResult> => {
-      // Try emergency reset and bootstrap
-      try {
-        await emergencyResetIfNeeded();
-        await initializeAdminIfNeeded();
-      } catch (e) {
-        console.error('[auth] bootstrap error:', e);
-      }
-
-      const snapshot = await dbAdmin!.collection('users').get();
-
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        if (verifyValue(password, data.passwordHash)) {
-          return {
-            success: true,
-            user: {
-              id: doc.id,
-              email: data.email,
-              role: data.role ?? 'admin',
-              modules: data.modules ?? ['all'],
-              mustChangePassword: data.mustChangePassword ?? false,
-            },
-          };
-        }
-      }
-
-      // No user matched in Firestore — try hardcoded as last resort
-      if (password === HARDCODED_PASSWORD) {
-        return fallbackAdmin;
-      }
-
-      return { success: false, error: 'Contraseña incorrecta.' };
-    })();
-
-    return await Promise.race([firestorePromise, timeoutPromise]);
-  } catch (err) {
-    console.error('[auth] loginWithPasswordOnly error:', err);
-    // On any error, try hardcoded password
-    if (password === HARDCODED_PASSWORD) {
-      return fallbackAdmin;
-    }
-    return { success: false, error: 'Error al iniciar sesión.' };
-  }
 }
 
 export async function loginUser(
@@ -365,7 +208,8 @@ export async function getSecurityQuestions(
         noQuestionsConfigured: true,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Contactá al administrador para que restablezca tu contraseña.',
+          'Iniciá sesión con la contraseña por defecto: AKproducciones2024 ' +
+          'y luego configurá tus preguntas de seguridad desde tu perfil.',
       };
     }
 
@@ -413,7 +257,7 @@ export async function resetPasswordWithQuestions(
         success: false,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Contactá al administrador para que restablezca tu contraseña.',
+          'Usá la contraseña por defecto: AKproducciones2024',
       };
     }
 

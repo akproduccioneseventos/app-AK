@@ -1,5 +1,6 @@
 // src/lib/firebase/storage.ts
 // Server-side Firebase Storage utilities using the Admin SDK.
+'use server';
 
 import admin from 'firebase-admin';
 import path from 'path';
