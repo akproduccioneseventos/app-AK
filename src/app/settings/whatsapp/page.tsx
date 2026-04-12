@@ -100,12 +100,19 @@ export default function WhatsAppSettingsPage() {
           <MessageCircle className="w-8 h-8 text-green-500" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Integración WhatsApp</h1>
         </div>
-        <Link href="/settings">
-          <Button variant="outline" disabled={isSaving}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Configuración
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/settings/whatsapp-templates">
+            <Button variant="outline" size="sm" disabled={isSaving}>
+              Plantillas de mensajes
+            </Button>
+          </Link>
+          <Link href="/settings">
+            <Button variant="outline" disabled={isSaving}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver a Configuración
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
