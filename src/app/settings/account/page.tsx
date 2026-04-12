@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { changeAppPassword } from '@/app/actions/simple-auth';
 
 export default function AccountSettingsPage() {
   const { toast } = useToast();
@@ -43,17 +44,24 @@ export default function AccountSettingsPage() {
       toast({ title: "Error", description: "Las nuevas contraseñas no coinciden.", variant: "destructive" });
       return;
     }
-    if (newPassword.length < 8) {
-      toast({ title: "Contraseña Débil", description: "La nueva contraseña debe tener al menos 8 caracteres.", variant: "destructive" });
+    if (newPassword.length < 4) {
+      toast({ title: "Contraseña Débil", description: "La nueva contraseña debe tener al menos 4 caracteres.", variant: "destructive" });
       return;
     }
     setIsSavingPassword(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    toast({ title: "Contraseña Actualizada (Simulado)", description: "Tu contraseña ha sido actualizada con éxito." });
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmNewPassword('');
+    try {
+      const result = await changeAppPassword(currentPassword, newPassword);
+      if (result.success) {
+        toast({ title: "Contraseña Actualizada", description: "Tu contraseña ha sido actualizada con éxito." });
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+      } else {
+        toast({ title: "Error", description: result.error || "No se pudo cambiar la contraseña.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Error al cambiar la contraseña.", variant: "destructive" });
+    }
     setIsSavingPassword(false);
   };
   
@@ -119,8 +127,8 @@ export default function AccountSettingsPage() {
                   type={showNewPassword ? "text" : "password"} 
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 8 caracteres"
-                  minLength={8}
+                  placeholder="Mínimo 4 caracteres"
+                  minLength={4}
                   required
                   disabled={isSavingPassword}
                 />
@@ -138,7 +146,7 @@ export default function AccountSettingsPage() {
                   value={confirmNewPassword}
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
                   placeholder="Repite tu nueva contraseña"
-                  minLength={8}
+                  minLength={4}
                   required
                   disabled={isSavingPassword}
                 />

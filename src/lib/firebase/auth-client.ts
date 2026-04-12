@@ -5,7 +5,6 @@ export {
   getSession,
   setSession,
   clearSession,
-  SESSION_KEY,
 } from '@/lib/auth';
 
 /**
