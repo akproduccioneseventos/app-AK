@@ -7,16 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, Loader2, Sparkles } from "lucide-react";
+import { LogIn, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSession, setSession } from '@/lib/auth';
-import { loginUser } from '@/app/actions/auth';
+
+const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD;
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,26 +39,18 @@ export default function LoginPage() {
     fetchLogo();
   }, [router]);
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
-    const result = await loginUser(email, password);
-
-    if (!result.success || !result.user) {
-      setError(result.error ?? 'Correo o contraseña incorrectos.');
+    if (!APP_PASSWORD || password !== APP_PASSWORD) {
+      setError('Contraseña incorrecta.');
       setIsSubmitting(false);
       return;
     }
 
-    setSession({
-      userId: result.user.id,
-      email: result.user.email,
-      role: result.user.role,
-      modules: result.user.modules,
-      mustChangePassword: result.user.mustChangePassword,
-    });
+    setSession();
     router.push('/');
   };
 
@@ -80,32 +72,14 @@ export default function LoginPage() {
                 data-ai-hint="company logo"
               />
             ) : (
-              <div className="flex flex-col items-center gap-1">
-                <Sparkles className="h-10 w-10 text-primary" />
-                <span className="text-2xl font-bold text-primary font-headline leading-tight">AK Producciones</span>
-                <span className="text-sm font-medium text-muted-foreground">Eventos</span>
-              </div>
+              <span className="text-xl font-bold text-muted-foreground">AK Producciones</span>
             )}
           </div>
           <CardTitle className="text-3xl font-bold font-headline">Acceso Protegido</CardTitle>
-          <CardDescription>Ingresá tu correo y contraseña para acceder.</CardDescription>
+          <CardDescription>Ingresá la contraseña para acceder.</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="login-email">Correo electrónico</Label>
-              <Input
-                id="login-email"
-                data-testid="login-email"
-                type="email"
-                placeholder="admin@ejemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                disabled={isSubmitting}
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="login-password">Contraseña</Label>
               <Input
