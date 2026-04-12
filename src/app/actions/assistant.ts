@@ -15,7 +15,6 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
 import * as logger from '@/lib/logger';
-import { requireSession } from '@/lib/auth/session-server';
 
 export async function sendAssistantMessage(
   message: string,
@@ -27,7 +26,6 @@ export async function sendAssistantMessage(
   action?: { type: string; data?: any; result?: any };
   error?: string;
 }> {
-  try { await requireSession(); } catch { return { success: false, error: 'No autorizado.' }; }
   try {
     // 1. Armar contexto rico con datos reales del negocio
     const [kpiResult, companyInfo, presupuestos, customers, servicios] = await Promise.all([

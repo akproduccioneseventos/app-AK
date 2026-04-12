@@ -3,7 +3,6 @@
 
 import { useState, type FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +11,7 @@ import { LogIn, Loader2, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getSession, setSession } from '@/lib/auth';
 import { loginUser } from '@/app/actions/auth';
 
 export default function LoginPage() {
@@ -21,28 +21,13 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
-  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    // Check if already authenticated via server cookie (with 5s timeout)
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    if (getSession()) {
+      router.push('/');
+      return;
+    }
 
-    fetch('/api/auth/session', { signal: controller.signal })
-      .then(res => {
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          window.location.href = '/';
-        } else {
-          setCheckingSession(false);
-        }
-      })
-      .catch(() => {
-        clearTimeout(timeoutId);
-        setCheckingSession(false);
-      });
-
-    // Fetch logo in parallel (non-blocking)
     async function fetchLogo() {
       try {
         const settings = await getInvoiceTemplateSettings();
@@ -52,11 +37,6 @@ export default function LoginPage() {
       }
     }
     fetchLogo();
-
-    return () => {
-      clearTimeout(timeoutId);
-      controller.abort();
-    };
   }, [router]);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
@@ -72,24 +52,15 @@ export default function LoginPage() {
       return;
     }
 
-    // Use full page reload so the browser sends the newly set cookie.
-    // router.push() does a soft navigation that can race with Set-Cookie.
-    window.location.href = '/';
-
-    // Fallback: if navigation didn't happen in 5s, unlock the form
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setError('No se pudo redirigir. Intentá recargar la página.');
-    }, 5000);
+    setSession({
+      userId: result.user.id,
+      email: result.user.email,
+      role: result.user.role,
+      modules: result.user.modules,
+      mustChangePassword: result.user.mustChangePassword,
+    });
+    router.push('/');
   };
-
-  if (checkingSession) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-background p-4">
@@ -151,7 +122,7 @@ export default function LoginPage() {
             </div>
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
           </CardContent>
-          <CardFooter className="flex flex-col gap-3">
+          <CardFooter>
             <Button
               className="w-full"
               type="submit"
@@ -165,12 +136,6 @@ export default function LoginPage() {
               )}
               {isSubmitting ? 'Ingresando...' : 'Ingresar'}
             </Button>
-            <Link
-              href="/recuperar-contrasena"
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
           </CardFooter>
         </form>
       </Card>
