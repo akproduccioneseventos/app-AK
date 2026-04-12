@@ -12,10 +12,11 @@ import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSession, setSession } from '@/lib/auth';
-import { loginWithPasswordOnly } from '@/app/actions/auth';
+import { loginUser } from '@/app/actions/auth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,10 +44,10 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setError('');
 
-    const result = await loginWithPasswordOnly(password);
+    const result = await loginUser(email, password);
 
     if (!result.success || !result.user) {
-      setError(result.error ?? 'Contraseña incorrecta.');
+      setError(result.error ?? 'Correo o contraseña incorrectos.');
       setIsSubmitting(false);
       return;
     }
@@ -87,10 +88,24 @@ export default function LoginPage() {
             )}
           </div>
           <CardTitle className="text-3xl font-bold font-headline">Acceso Protegido</CardTitle>
-          <CardDescription>Ingresá tu contraseña para acceder.</CardDescription>
+          <CardDescription>Ingresá tu correo y contraseña para acceder.</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="login-email">Correo electrónico</Label>
+              <Input
+                id="login-email"
+                data-testid="login-email"
+                type="email"
+                placeholder="admin@ejemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                disabled={isSubmitting}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="login-password">Contraseña</Label>
               <Input
