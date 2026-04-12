@@ -9,12 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink, ShieldCheck, ShieldAlert, Upload, ImageIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
-import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto } from '@/app/actions/presupuestos';
+import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
@@ -81,6 +81,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [newPagoMonto, setNewPagoMonto] = useState('');
   const [newPagoMetodo, setNewPagoMetodo] = useState<MetodoPago>('Efectivo');
   const [newPagoReferencia, setNewPagoReferencia] = useState('');
+
+  // Client payment notification state
+  const [isInformingPago, setIsInformingPago] = useState(false);
+  const [isSavingClientPago, setIsSavingClientPago] = useState(false);
+  const [clientPagoMonto, setClientPagoMonto] = useState('');
+  const [clientPagoMetodo, setClientPagoMetodo] = useState<MetodoPago>('Transferencia Bancaria');
+  const [clientPagoReferencia, setClientPagoReferencia] = useState('');
+  const [clientPagoComprobante, setClientPagoComprobante] = useState<string | undefined>(undefined);
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) return;
@@ -251,6 +259,49 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     } finally {
       setIsDeletingPagoId(null);
     }
+  };
+
+  const handleClientPagoSubmit = async () => {
+    const monto = parseFloat(clientPagoMonto);
+    if (!presupuesto || isNaN(monto) || monto <= 0) {
+      toast({ title: 'Error', description: 'Ingresá un monto válido mayor a 0.', variant: 'destructive' });
+      return;
+    }
+    setIsSavingClientPago(true);
+    try {
+      const result = await addPagoClienteFromPortal(presupuesto.id, {
+        fecha: new Date().toISOString(),
+        monto,
+        metodoPago: clientPagoMetodo,
+        referencia: clientPagoReferencia.trim() || undefined,
+        comprobanteUrl: clientPagoComprobante,
+      });
+      if (!result.success) throw new Error(result.error);
+      setPresupuesto(result.presupuesto!);
+      setClientPagoMonto('');
+      setClientPagoReferencia('');
+      setClientPagoComprobante(undefined);
+      setIsInformingPago(false);
+      toast({ title: '✅ Pago informado', description: 'Tu pago fue enviado para confirmación. Te notificaremos cuando sea aprobado.' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSavingClientPago(false);
+    }
+  };
+
+  const handleComprobanteUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'Archivo muy grande', description: 'El comprobante no debe pesar más de 2MB.', variant: 'destructive' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setClientPagoComprobante(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleCrearFiesta = async () => {
@@ -450,6 +501,121 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                               );
                             })()}
                         </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
+
+            {/* ── INFORMAR PAGO — Client-facing payment notification ── */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="print:hidden">
+                <Card className="border-none shadow-xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
+                    <CardContent className="p-6 sm:p-10">
+                        {!isInformingPago ? (
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="p-3 bg-emerald-50 rounded-full">
+                                    <Upload className="w-8 h-8 text-emerald-600" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">¿Ya realizaste un pago?</h3>
+                                    <p className="text-xs text-slate-500 font-medium">Informalo para que quede registrado y te enviemos el recibo.</p>
+                                </div>
+                                <Button
+                                    onClick={() => setIsInformingPago(true)}
+                                    className="h-14 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-emerald-600/20"
+                                >
+                                    <Upload className="w-5 h-5 mr-2" /> Informar Pago / Subir Comprobante
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Upload className="w-5 h-5 text-emerald-600" />
+                                    <h3 className="text-base font-black text-slate-800 uppercase tracking-tight">Informar Pago</h3>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Monto pagado *</Label>
+                                        <Input
+                                            type="number"
+                                            placeholder="0"
+                                            value={clientPagoMonto}
+                                            onChange={(e) => setClientPagoMonto(e.target.value)}
+                                            className="h-12 rounded-xl text-lg font-black text-center"
+                                            min="0"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Método de pago *</Label>
+                                        <Select value={clientPagoMetodo} onValueChange={(v) => setClientPagoMetodo(v as MetodoPago)}>
+                                            <SelectTrigger className="h-12 rounded-xl">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {ALL_METODOS_PAGO.map(m => (
+                                                    <SelectItem key={m} value={m}>{m}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Referencia / Nota (opcional)</Label>
+                                    <Input
+                                        placeholder="N° de transferencia, nota..."
+                                        value={clientPagoReferencia}
+                                        onChange={(e) => setClientPagoReferencia(e.target.value)}
+                                        className="h-10 rounded-xl text-sm"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Comprobante (opcional)</Label>
+                                    <div className="flex items-center gap-3">
+                                        <label className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-emerald-300 transition-all">
+                                            <ImageIcon className="w-5 h-5 text-slate-400" />
+                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                                {clientPagoComprobante ? '✅ Imagen cargada' : 'Subir foto del comprobante'}
+                                            </span>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleComprobanteUpload}
+                                            />
+                                        </label>
+                                        {clientPagoComprobante && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setClientPagoComprobante(undefined)}
+                                                className="text-red-500 hover:text-red-700 text-xs"
+                                            >
+                                                Quitar
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 pt-2">
+                                    <Button
+                                        variant="outline"
+                                        className="flex-1 rounded-xl"
+                                        onClick={() => { setIsInformingPago(false); setClientPagoMonto(''); setClientPagoReferencia(''); setClientPagoComprobante(undefined); }}
+                                        disabled={isSavingClientPago}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                    <Button
+                                        onClick={handleClientPagoSubmit}
+                                        disabled={isSavingClientPago || !clientPagoMonto}
+                                        className="flex-1 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-xs"
+                                    >
+                                        {isSavingClientPago ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                                        Enviar Pago
+                                    </Button>
+                                </div>
+                                <p className="text-[10px] text-center text-slate-400">
+                                    Tu pago quedará pendiente de confirmación por el administrador.
+                                </p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </motion.div>
@@ -654,6 +820,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                             <TableHead className="text-[9px] font-black uppercase tracking-widest py-3 pl-4">Fecha</TableHead>
                                             <TableHead className="text-[9px] font-black uppercase tracking-widest py-3">Método</TableHead>
                                             <TableHead className="text-[9px] font-black uppercase tracking-widest py-3">Referencia</TableHead>
+                                            <TableHead className="text-[9px] font-black uppercase tracking-widest py-3">Estado</TableHead>
                                             <TableHead className="text-[9px] font-black uppercase tracking-widest py-3 text-right pr-4">Monto</TableHead>
                                             <TableHead className="w-10"/>
                                         </TableRow>
@@ -668,6 +835,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                                     <Badge variant="secondary" className="text-[9px] font-bold uppercase">{pago.metodoPago}</Badge>
                                                 </TableCell>
                                                 <TableCell className="py-3 text-muted-foreground text-xs max-w-[150px] truncate">{pago.referencia || '—'}</TableCell>
+                                                <TableCell className="py-3">
+                                                    {pago.estadoPago === 'pendiente_confirmacion' ? (
+                                                        <Badge className="bg-amber-100 text-amber-700 text-[8px] font-bold"><Clock className="w-2.5 h-2.5 mr-1"/>Pendiente</Badge>
+                                                    ) : (
+                                                        <Badge className="bg-emerald-100 text-emerald-700 text-[8px] font-bold"><CheckCircle2 className="w-2.5 h-2.5 mr-1"/>Confirmado</Badge>
+                                                    )}
+                                                </TableCell>
                                                 <TableCell className="pr-4 py-3 text-right font-bold text-emerald-700">{formatCurrency(pago.monto)}</TableCell>
                                                 <TableCell className="py-3 text-right pr-2">
                                                     <Button
