@@ -56,8 +56,35 @@ npm run typecheck
 npm run lint
 ```
 
+## 🧪 Testing
+
+```bash
+# Ejecutar todos los tests
+npm test
+
+# Tests en modo watch
+npm test -- --watch
+
+# Test específico
+npm test -- --testPathPattern=assistant
+```
+
+Los tests cubren:
+- Acciones del asistente (importación, errores, validaciones)
+- Funciones de cálculo (costos, invitados, cantidades)
+- Progreso de fiestas
+
+## 🔄 CI/CD
+
+El proyecto incluye un workflow de GitHub Actions (`.github/workflows/ci.yml`) que ejecuta en cada push/PR:
+- Lint (`npm run lint`)
+- Typecheck (`npx tsc --noEmit`)
+- Tests (`npm test`)
+- Build (`npm run build`)
+
 ## 📖 Documentación
 
 - **Variables de entorno:** `.env.example`
 - **Estructura Firestore:** `docs/firestore-collections.md`
-- **Historial de cambios:** Ver `/home/ubuntu/CAMBIOS_COMPLETOS.md`
+- **Asistente AK:** `docs/ASSISTANT.md`
+- **Guía de operación:** `docs/OPERATIONS.md`

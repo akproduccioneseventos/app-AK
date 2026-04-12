@@ -183,25 +183,8 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     } else if (result.action?.type === 'import_budget_from_image' && result.action.data) {
       const d = result.action.data;
       try {
-        // 1. Crear cliente si viene nombre
-        let clienteId: string | undefined;
-        if (d.clienteNombre) {
-          const existingCustomer = customers.find(
-            c => c.name.toLowerCase().includes(d.clienteNombre.toLowerCase())
-          );
-          if (existingCustomer) {
-            clienteId = existingCustomer.id;
-          } else {
-            const newCustomer = await saveCustomer({
-              name: d.clienteNombre,
-              partyType: d.eventoTipo || '',
-              partyDate: d.eventoFecha || '',
-              guestCount: d.invitados || 0,
-            });
-            clienteId = newCustomer.id;
-          }
-        }
-        // 2. Crear presupuesto
+        // --- PASO 1: Extraer y validar servicios ANTES de crear nada ---
+        logger.info('[Asistente AK] Import: extracting services from AI data');
         const importedServices: Array<{
           id?: string; nombre?: string; name?: string; descripcion?: string;
           cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
@@ -220,56 +203,95 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             categoriaServicio: s.categoria || s.category || 'Servicios',
           };
         });
-        const budgetResult = await savePresupuesto({
-          clienteNombre: d.clienteNombre || 'Cliente importado',
-          eventoTipo: d.eventoTipo || '',
-          eventoFecha: d.eventoFecha || '',
-          invitadosCantidad: d.invitados || 0,
-          invitadosAdultos: d.invitados || 0,
-          invitadosNinos: 0,
-          invitadosAdolescentes: 0,
-          itemsPresupuestados: importedItems,
-          notas: d.notas || 'Importado desde imagen/PDF vía Asistente AK',
-          estado: 'Borrador',
-        } as unknown as Omit<Presupuesto, 'id'>);
-        // 3. Crear fiesta si tenemos clienteId
-        let fiestaResult: any = null;
-        if (clienteId) {
-          const customerForFiesta = customers.find(c => c.id === clienteId) || {
-            id: clienteId,
-            name: d.clienteNombre,
-            partyDate: d.eventoFecha,
-            partyType: d.eventoTipo,
-            guestCount: d.invitados,
-          };
-          fiestaResult = await createNewFiestaForCustomer({
-            id: clienteId,
-            name: customerForFiesta.name || d.clienteNombre,
-            partyDate: d.eventoFecha,
-            partyType: d.eventoTipo,
-            guestCount: d.invitados,
-          });
-        }
 
-        if (budgetResult.success && budgetResult.presupuesto) {
-          const pres = budgetResult.presupuesto;
-          const itemCount = pres.itemsPresupuestados?.length ?? 0;
-          const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
-          const href = `/presupuestos/${pres.id}/ver`;
-          const eventoExtra = fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '';
-          actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
-          finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra);
+        // Validar datos mínimos: debe haber clienteNombre Y al menos 1 servicio con nombre y precio > 0
+        const validItems = importedItems.filter(item => item.nombreServicio && item.precioUnitario > 0);
+        if (validItems.length === 0) {
+          logger.warn('[Asistente AK] Import failed - no valid services extracted from file');
+          actionResult = { success: false, error: 'No se detectaron servicios válidos en el archivo.' };
+          finalResponse = `⚠️ No se detectaron servicios suficientes para crear el presupuesto. Probá con una imagen más clara o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
         } else {
-          actionResult = { success: false, error: budgetResult.error };
-          finalResponse = `❌ No se pudo importar el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o subí el archivo nuevamente.`;
+          // --- PASO 2: Crear cliente si viene nombre ---
+          let clienteId: string | undefined;
+          if (d.clienteNombre) {
+            const existingCustomer = customers.find(
+              c => c.name.toLowerCase().includes(d.clienteNombre.toLowerCase())
+            );
+            if (existingCustomer) {
+              clienteId = existingCustomer.id;
+            } else {
+              const newCustomer = await saveCustomer({
+                name: d.clienteNombre,
+                partyType: d.eventoTipo || '',
+                partyDate: d.eventoFecha || '',
+                guestCount: d.invitados || 0,
+              });
+              clienteId = newCustomer.id;
+            }
+          }
+
+          // --- PASO 3: Crear presupuesto solo con datos validados ---
+          logger.info('[Asistente AK] Import: creating budget with', validItems.length, 'valid services');
+          const budgetResult = await savePresupuesto({
+            clienteNombre: d.clienteNombre || 'Cliente importado',
+            eventoTipo: d.eventoTipo || '',
+            eventoFecha: d.eventoFecha || '',
+            invitadosCantidad: d.invitados || 0,
+            invitadosAdultos: d.invitados || 0,
+            invitadosNinos: 0,
+            invitadosAdolescentes: 0,
+            itemsPresupuestados: validItems,
+            notas: d.notas || 'Importado desde imagen/PDF vía Asistente AK',
+            estado: 'Borrador',
+          } as unknown as Omit<Presupuesto, 'id'>);
+
+          // Crear fiesta si tenemos clienteId
+          let fiestaResult: any = null;
+          if (clienteId) {
+            const customerForFiesta = customers.find(c => c.id === clienteId) || {
+              id: clienteId,
+              name: d.clienteNombre,
+              partyDate: d.eventoFecha,
+              partyType: d.eventoTipo,
+              guestCount: d.invitados,
+            };
+            fiestaResult = await createNewFiestaForCustomer({
+              id: clienteId,
+              name: customerForFiesta.name || d.clienteNombre,
+              partyDate: d.eventoFecha,
+              partyType: d.eventoTipo,
+              guestCount: d.invitados,
+            });
+          }
+
+          if (budgetResult.success && budgetResult.presupuesto) {
+            const pres = budgetResult.presupuesto;
+            const itemCount = pres.itemsPresupuestados?.length ?? 0;
+            const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
+            const href = `/presupuestos/${pres.id}/ver`;
+            const eventoExtra = fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '';
+            actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
+            // If some services were invalid, note it as a partial import
+            if (validItems.length < importedServices.length) {
+              finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra) +
+                `\n\n⚠️ Se creó un borrador incompleto (${validItems.length} de ${importedServices.length} servicios tenían datos válidos). Revisalo y completá los servicios faltantes antes de compartirlo.`;
+            } else {
+              finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra);
+            }
+          } else {
+            actionResult = { success: false, error: budgetResult.error };
+            finalResponse = `❌ No se pudo importar el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o subí el archivo nuevamente.`;
+          }
         }
       } catch (e: any) {
+        logger.error('[Asistente AK] Import error:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ Error al importar el presupuesto: ${e.message}. Intentá de nuevo.`;
+        finalResponse = `❌ No se pudo importar el presupuesto. Intentá de nuevo o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'import_budget_from_image') {
+      logger.warn('[Asistente AK] Import failed - action data is missing');
       actionResult = { success: false, error: 'No se pudieron extraer datos del archivo.' };
-      finalResponse = `⚠️ No se pudieron extraer datos del archivo subido. Intentá subir una imagen más clara o con mejor resolución, o ingresá los datos manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+      finalResponse = `⚠️ No pude leer el archivo automáticamente. Probá con una imagen más clara o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
     } else if (result.action?.type === 'register_payment' && result.action.data) {
       const d = result.action.data;
       try {
@@ -619,12 +641,21 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     } else if (result.action?.type === 'generate_social_post' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
+    } else if (result.action?.type === 'generate_social_post') {
+      actionResult = { success: false, error: 'Falta contenido para generar el post.' };
+      finalResponse = `⚠️ Falta contenido para generar el post. Indicá para qué plataforma y qué querés publicar.`;
     } else if (result.action?.type === 'generate_whatsapp_message' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
+    } else if (result.action?.type === 'generate_whatsapp_message') {
+      actionResult = { success: false, error: 'Falta contenido para generar el mensaje.' };
+      finalResponse = `⚠️ Falta contenido para generar el mensaje de WhatsApp. Indicá el tipo de mensaje y el cliente.`;
     } else if (result.action?.type === 'generate_promo' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
+    } else if (result.action?.type === 'generate_promo') {
+      actionResult = { success: false, error: 'Falta contenido para generar la promo.' };
+      finalResponse = `⚠️ Falta contenido para generar la promo. Indicá qué tipo de promoción querés crear.`;
     } else if (result.action?.type === 'update_marketing_content') {
       actionResult = { success: true, href: '/marketing' };
     } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual' && result.action.type !== 'query_data') {
@@ -652,12 +683,13 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       errorMessage.includes('Forbidden') ||
       errorMessage.includes('denied access') ||
       errorMessage.includes('API key not valid') ||
-      errorMessage.includes('not configured');
+      errorMessage.includes('not configured') ||
+      errorMessage.includes('permission');
 
     if (isApiKeyError) {
       return {
         success: false,
-        error: 'El asistente no está disponible: la clave de API de Gemini no está configurada o no es válida. Por favor, configurá la variable de entorno GOOGLE_API_KEY o GEMINI_API_KEY en el panel de despliegue.',
+        error: 'No pude procesar tu mensaje en este momento. Intentá de nuevo en unos minutos.',
       };
     }
 
@@ -669,7 +701,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     ) {
       return {
         success: false,
-        error: 'El asistente superó su cuota de uso. Intentá de nuevo en unos minutos o contactanos por WhatsApp al +59898355530.',
+        error: 'El asistente está temporalmente ocupado. Intentá de nuevo en unos minutos.',
       };
     }
 
@@ -682,7 +714,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     ) {
       return {
         success: false,
-        error: 'El modelo de IA no está disponible en este momento. Intentá de nuevo en unos minutos.',
+        error: 'El asistente no está disponible en este momento. Intentá de nuevo en unos minutos.',
       };
     }
 
@@ -690,7 +722,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     logger.error('[Asistente AK] Unhandled error type:', errorMessage);
     return {
       success: false,
-      error: 'El asistente encontró un error inesperado. Por favor, intentá de nuevo o contactanos por WhatsApp al +59898355530.',
+      error: 'No pude procesar tu mensaje. Intentá de nuevo o hacelo manualmente desde la sección correspondiente.',
     };
   }
 }
