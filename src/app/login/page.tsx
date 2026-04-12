@@ -12,8 +12,7 @@ import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSession, setSession } from '@/lib/auth';
-
-const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD;
+import { verifyPassword } from '@/app/actions/simple-auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,19 +38,25 @@ export default function LoginPage() {
     fetchLogo();
   }, [router]);
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
-    if (!APP_PASSWORD || password !== APP_PASSWORD) {
-      setError('Contraseña incorrecta.');
-      setIsSubmitting(false);
-      return;
-    }
+    try {
+      const result = await verifyPassword(password);
+      if (!result.success) {
+        setError('Contraseña incorrecta.');
+        setIsSubmitting(false);
+        return;
+      }
 
-    setSession();
-    router.push('/');
+      setSession();
+      router.push('/');
+    } catch {
+      setError('Error al verificar la contraseña.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
