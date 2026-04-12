@@ -72,6 +72,8 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       imageDataUri,
     });
 
+    logger.info('[Asistente AK] AI action received:', JSON.stringify(result.action));
+
     // 3. Ejecutar acciones si la IA las pidió
     let actionResult: any = null;
     // finalResponse starts as the AI response; budget/import actions will replace it with verified data
@@ -114,6 +116,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo guardar el cliente: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'create_customer') {
+      actionResult = { success: false, error: 'Falta información del cliente.' };
+      finalResponse = `⚠️ Falta información del cliente. Proporcioná al menos el nombre, o ingresalo manualmente desde [/customers/new](/customers/new).`;
     } else if (result.action?.type === 'create_budget' && result.action.data) {
       const d = result.action.data;
       try {
@@ -172,6 +177,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo crear el presupuesto: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'create_budget') {
+      actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
+      finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Proporcioná nombre del cliente, tipo de evento y servicios, o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
     } else if (result.action?.type === 'import_budget_from_image' && result.action.data) {
       const d = result.action.data;
       try {
@@ -259,6 +267,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ Error al importar el presupuesto: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'import_budget_from_image') {
+      actionResult = { success: false, error: 'No se pudieron extraer datos del archivo.' };
+      finalResponse = `⚠️ No se pudieron extraer datos del archivo subido. Intentá subir una imagen más clara o con mejor resolución, o ingresá los datos manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
     } else if (result.action?.type === 'register_payment' && result.action.data) {
       const d = result.action.data;
       try {
@@ -291,6 +302,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el pago: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'register_payment') {
+      actionResult = { success: false, error: 'Falta información del pago.' };
+      finalResponse = `⚠️ Falta información del pago. Indicá el monto y el cliente, o registralo manualmente desde [/presupuestos](/presupuestos).`;
     } else if (result.action?.type === 'create_invoice' && result.action.data) {
       const d = result.action.data;
       try {
@@ -340,6 +354,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo crear la factura: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'create_invoice') {
+      actionResult = { success: false, error: 'Falta información de la factura.' };
+      finalResponse = `⚠️ Falta información de la factura. Proporcioná el cliente y los items, o creala manualmente desde [/invoices/new](/invoices/new).`;
     } else if (result.action?.type === 'update_service_price' && result.action.data) {
       const d = result.action.data;
       try {
@@ -362,6 +379,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo actualizar el precio: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'update_service_price') {
+      actionResult = { success: false, error: 'Falta información para actualizar el precio.' };
+      finalResponse = `⚠️ Falta información para actualizar el precio. Indicá el servicio y el nuevo precio, o actualizalo manualmente desde [/empresa/servicios](/empresa/servicios).`;
     } else if (result.action?.type === 'create_employee' && result.action.data) {
       const d = result.action.data;
       try {
@@ -380,6 +400,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el empleado: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'create_employee') {
+      actionResult = { success: false, error: 'Falta información del empleado.' };
+      finalResponse = `⚠️ Falta información del empleado. Proporcioná al menos el nombre, o ingresalo manualmente desde [/empresa/empleados](/empresa/empleados).`;
     } else if (result.action?.type === 'create_supplier' && result.action.data) {
       const d = result.action.data;
       try {
@@ -403,6 +426,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el proveedor: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'create_supplier') {
+      actionResult = { success: false, error: 'Falta información del proveedor.' };
+      finalResponse = `⚠️ Falta información del proveedor. Proporcioná al menos el nombre, o ingresalo manualmente desde [/proveedores](/proveedores).`;
     } else if (result.action?.type === 'create_lead' && result.action.data) {
       const d = result.action.data;
       try {
@@ -435,6 +461,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el prospecto: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'create_lead') {
+      actionResult = { success: false, error: 'Falta información del prospecto.' };
+      finalResponse = `⚠️ Falta información del prospecto. Proporcioná al menos el nombre, o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
     } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;
       try {
@@ -474,6 +503,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo crear el evento: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'create_event') {
+      actionResult = { success: false, error: 'Falta información del evento.' };
+      finalResponse = `⚠️ Falta información del evento. Proporcioná el cliente y tipo de evento, o crealo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
     } else if (result.action?.type === 'update_event' && result.action.data) {
       const d = result.action.data;
       try {
@@ -511,6 +543,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo actualizar el evento: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'update_event') {
+      actionResult = { success: false, error: 'Falta información para actualizar el evento.' };
+      finalResponse = `⚠️ Falta información para actualizar el evento. Indicá qué cambios querés hacer, o editalo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
     } else if (result.action?.type === 'generate_contract' && result.action.data) {
       const d = result.action.data;
       try {
@@ -547,6 +582,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo generar el contrato: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'generate_contract') {
+      actionResult = { success: false, error: 'Falta información para generar el contrato.' };
+      finalResponse = `⚠️ Falta información para generar el contrato. Proporcioná el cliente o evento, o generalo manualmente desde [/fiestas/nueva/gestion-documental/contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital).`;
     } else if (result.action?.type === 'check_availability' && result.action.data) {
       const d = result.action.data;
       try {
@@ -575,6 +613,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo verificar la disponibilidad: ${e.message}. Intentá de nuevo.`;
       }
+    } else if (result.action?.type === 'check_availability') {
+      actionResult = { success: false, error: 'Falta la fecha para consultar disponibilidad.' };
+      finalResponse = `⚠️ Falta la fecha para consultar disponibilidad. Indicá la fecha que querés consultar, o revisá el calendario en [/fiestas/nueva](/fiestas/nueva).`;
     } else if (result.action?.type === 'generate_social_post' && result.action.data) {
       // Content is already generated by the AI in action.data.content — just confirm success
       actionResult = { success: true, content: result.action.data.content };
@@ -588,6 +629,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       actionResult = { success: true, href: '/marketing' };
     } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual' && result.action.type !== 'query_data') {
       // CATCH-ALL: acción de backend no reconocida — evitar respuesta falsa.
+      logger.warn('[Asistente AK] Unrecognized action type:', result.action.type, 'data:', JSON.stringify(result.action.data));
       actionResult = { success: false, error: 'Acción no reconocida o no ejecutable.' };
       finalResponse = `⚠️ No se pudo ejecutar la acción "${result.action.type}". Intentá de nuevo o hacelo manualmente desde la sección correspondiente.`;
     }
