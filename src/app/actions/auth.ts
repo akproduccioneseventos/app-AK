@@ -94,21 +94,13 @@ export interface PublicUserRecord {
 export async function initializeAdminIfNeeded(): Promise<void> {
   if (!dbAdmin) return;
 
-  const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-  const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
-
-  if (!bootstrapEmail || !bootstrapPassword) {
-    console.error('[auth] ADMIN_BOOTSTRAP_EMAIL y/o ADMIN_BOOTSTRAP_PASSWORD no están configuradas.');
-    return;
-  }
-
   try {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
 
     await dbAdmin.collection('users').add({
-      email: bootstrapEmail,
-      passwordHash: hashValue(bootstrapPassword),
+      email: 'akproduccionessalto@gmail.com',
+      passwordHash: hashValue('AKproducciones2024'),
       role: 'admin',
       modules: ['all'],
       securityQuestions: {},
@@ -216,7 +208,8 @@ export async function getSecurityQuestions(
         noQuestionsConfigured: true,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Contactá al administrador para que restablezca tu contraseña.',
+          'Iniciá sesión con la contraseña por defecto: AKproducciones2024 ' +
+          'y luego configurá tus preguntas de seguridad desde tu perfil.',
       };
     }
 
@@ -264,7 +257,7 @@ export async function resetPasswordWithQuestions(
         success: false,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Contactá al administrador para que restablezca tu contraseña.',
+          'Usá la contraseña por defecto: AKproducciones2024',
       };
     }
 
