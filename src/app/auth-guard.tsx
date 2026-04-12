@@ -31,6 +31,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const pathname = usePathname();
   const [isVerified, setIsVerified] = useState(false);
   const sessionChecked = useRef(false);
+  const lastVerifiedAt = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -104,31 +105,47 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
 
-    // Already verified once in this session — trust the result.
-    // The middleware already checks cookie existence on every navigation,
-    // and server actions validate the cookie signature on every call.
-    if (sessionChecked.current) {
+    // Re-verify if more than 60 seconds since last successful check
+    const now = Date.now();
+    if (sessionChecked.current && lastVerifiedAt.current && (now - lastVerifiedAt.current < 60_000)) {
       setIsVerified(true);
       return;
     }
 
-    // Verify session against the server (validates the httpOnly cookie signature).
+    // Verify session against the server with a real 5-second timeout
     const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     fetch('/api/auth/session', { signal: controller.signal })
-      .then(res => {
+      .then(async (res) => {
+        clearTimeout(timeoutId);
         if (!res.ok) {
-          router.push('/login');
+          // Session invalid — clean up cookie before redirecting
+          try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+          window.location.href = '/login';
           return;
         }
         sessionChecked.current = true;
+        lastVerifiedAt.current = Date.now();
         setIsVerified(true);
       })
-      .catch((err) => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        router.push('/login');
+      .catch(async (err) => {
+        clearTimeout(timeoutId);
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          // Timeout — clean up and redirect
+          try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+          window.location.href = '/login';
+          return;
+        }
+        // Network error — clean up and redirect
+        try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+        window.location.href = '/login';
       });
 
-    return () => { controller.abort(); };
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [pathname, router]);
 
   if (!isVerified) {

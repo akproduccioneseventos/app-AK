@@ -209,7 +209,7 @@ export async function loginUser(
       console.error('[auth] Could not set session cookie:', cookieError);
       return {
         success: false,
-        error: 'Error de configuración del servidor. Contactá al administrador (SESSION_SECRET no configurada).',
+        error: 'Error del servidor. Contactá al administrador.',
       };
     }
 
