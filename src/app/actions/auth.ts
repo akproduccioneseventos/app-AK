@@ -124,15 +124,13 @@ export async function initializeAdminIfNeeded(): Promise<void> {
 // ── Emergency reset ────────────────────────────────────────────────────────
 
 /**
- * If the ADMIN_FORCE_RESET env var is "true" or "1", resets the admin user's
- * password to the value of ADMIN_BOOTSTRAP_PASSWORD.  This lets the owner
- * regain access by updating the secret and redeploying.
+ * Always syncs the admin user's password to the value of
+ * ADMIN_BOOTSTRAP_PASSWORD when they don't match.  This runs on every login
+ * attempt so the owner can regain access simply by updating the secret and
+ * redeploying — no extra env vars required.
  */
 export async function emergencyResetIfNeeded(): Promise<void> {
   if (!dbAdmin) return;
-
-  const forceReset = process.env.ADMIN_FORCE_RESET;
-  if (forceReset !== 'true' && forceReset !== '1') return;
 
   const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
   const bootstrapPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD;
@@ -150,18 +148,23 @@ export async function emergencyResetIfNeeded(): Promise<void> {
       .get();
 
     if (snapshot.empty) {
-      console.warn('[auth] emergencyResetIfNeeded: admin user not found, skipping reset.');
+      // No admin user exists, initializeAdminIfNeeded will handle creation
       return;
     }
 
     const doc = snapshot.docs[0];
-    await doc.ref.update({
-      passwordHash: hashValue(bootstrapPassword),
-      mustChangePassword: true,
-      updatedAt: new Date().toISOString(),
-    });
+    const data = doc.data();
 
-    console.log('[auth] emergencyResetIfNeeded: admin password was reset successfully.');
+    // Only reset if the current password does NOT match the bootstrap password
+    // This avoids unnecessary writes on every login attempt
+    if (!verifyValue(bootstrapPassword, data.passwordHash)) {
+      await doc.ref.update({
+        passwordHash: hashValue(bootstrapPassword),
+        mustChangePassword: false,
+        updatedAt: new Date().toISOString(),
+      });
+      console.log('[auth] emergencyResetIfNeeded: admin password was synced to bootstrap password.');
+    }
   } catch (err) {
     console.error('[auth] emergencyResetIfNeeded error:', err);
   }

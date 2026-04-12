@@ -40,34 +40,26 @@ automáticamente el usuario administrador:
 | `FIREBASE_PRIVATE_KEY` | Clave privada de la cuenta de servicio | ❌ (GCP auto-detecta) |
 | `ADMIN_BOOTSTRAP_EMAIL` | Email del usuario admin (secreto de Firebase) | ✅ |
 | `ADMIN_BOOTSTRAP_PASSWORD` | Contraseña del admin (secreto de Firebase) | ✅ |
-| `ADMIN_FORCE_RESET` | Si es `"true"` o `"1"`, resetea la contraseña del admin al hacer login | ❌ |
 
 ---
 
-## Reset de emergencia
+## Reset de emergencia (automático)
 
-Si te quedás bloqueado (olvidaste la contraseña), podés recuperar el acceso sin tocar código:
+El sistema sincroniza automáticamente la contraseña del admin con el secreto `ADMIN_BOOTSTRAP_PASSWORD` en cada intento de login. Si la contraseña almacenada en Firestore no coincide con el secreto, se actualiza automáticamente.
 
-### Pasos
+### Pasos para recuperar acceso
 
 1. Ir a la [consola de Firebase](https://console.firebase.google.com/) → **App Hosting → Secrets**
 2. Actualizar el secreto `admin-bootstrap-password` con la nueva contraseña deseada.
-3. En `apphosting.yaml`, cambiar `ADMIN_FORCE_RESET` a `"true"`:
-   ```yaml
-   - variable: ADMIN_FORCE_RESET
-     value: "true"
-     availability:
-       - RUNTIME
-   ```
-4. Hacer **redeploy** (push al repositorio o redeploy manual desde Firebase Console).
-5. Intentar hacer login con la nueva contraseña. El sistema detectará `ADMIN_FORCE_RESET=true` y reseteará la contraseña del admin al valor del secreto `admin-bootstrap-password`.
-6. **Importante:** Después del reset exitoso, volver a cambiar `ADMIN_FORCE_RESET` a `"false"` en `apphosting.yaml` y hacer redeploy para que no se resetee en cada login.
+3. Hacer **redeploy** (push al repositorio o redeploy manual desde Firebase Console).
+4. Intentar hacer login con la nueva contraseña. El sistema detectará que no coincide con la almacenada y la actualizará automáticamente.
 
 ### Notas
 
 - La contraseña **nunca** está en el código — siempre se lee del secreto de Firebase.
-- El reset marca `mustChangePassword: true`, por lo que el sistema pedirá cambiar la contraseña después del primer login.
-- Si el usuario admin no existe, el reset se ignora silenciosamente.
+- No se necesita ninguna variable de entorno extra — el reset es automático.
+- Solo se escribe en Firestore si la contraseña realmente cambió (para evitar escrituras innecesarias).
+- Si el usuario admin no existe, `initializeAdminIfNeeded` lo crea automáticamente.
 
 ---
 
