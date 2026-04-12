@@ -32,7 +32,7 @@ export default function LoginPage() {
       .then(res => {
         clearTimeout(timeoutId);
         if (res.ok) {
-          router.push('/');
+          window.location.href = '/';
         } else {
           setCheckingSession(false);
         }
@@ -42,11 +42,7 @@ export default function LoginPage() {
         setCheckingSession(false);
       });
 
-    return () => {
-      clearTimeout(timeoutId);
-      controller.abort();
-    };
-
+    // Fetch logo in parallel (non-blocking)
     async function fetchLogo() {
       try {
         const settings = await getInvoiceTemplateSettings();
@@ -56,6 +52,11 @@ export default function LoginPage() {
       }
     }
     fetchLogo();
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [router]);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
@@ -71,8 +72,15 @@ export default function LoginPage() {
       return;
     }
 
-    // Server cookie is already set by loginUser(). Just redirect.
-    router.push('/');
+    // Use full page reload so the browser sends the newly set cookie.
+    // router.push() does a soft navigation that can race with Set-Cookie.
+    window.location.href = '/';
+
+    // Fallback: if navigation didn't happen in 5s, unlock the form
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setError('No se pudo redirigir. Intentá recargar la página.');
+    }, 5000);
   };
 
   if (checkingSession) {
