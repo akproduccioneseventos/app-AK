@@ -224,3 +224,24 @@ export async function readFromFirestore(filePath: string): Promise<any> {
     return null;
   }
 }
+
+/**
+ * List all documents from a Firestore collection and return them as an array.
+ * Omits the internal `_syncedAt` property from each document.
+ */
+export async function listCollectionFromFirestore(collectionName: string): Promise<any[]> {
+  try {
+    const { dbAdmin } = await import('./firebase/server');
+    if (!dbAdmin) return [];
+    const snapshot = await dbAdmin.collection(collectionName).get();
+    if (snapshot.empty) return [];
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      delete data._syncedAt;
+      return data;
+    });
+  } catch (error) {
+    logger.warn(`⚠️ Firestore listCollection failed for "${collectionName}":`, error);
+    return [];
+  }
+}
