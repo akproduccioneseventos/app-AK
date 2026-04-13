@@ -2,7 +2,7 @@
 
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
 import { getDashboardKpiData, type GlobalAlert } from './dashboard';
-import { getCompanyInfo } from './settings';
+import { getCompanyInfo, getAIAssistantSettings } from './settings';
 import { getPresupuestos, savePresupuesto, addPagoToPresupuesto } from './presupuestos';
 import { getCustomers, saveCustomer } from './customers';
 import { saveInvoice } from './invoices';
@@ -30,15 +30,20 @@ export async function sendAssistantMessage(
 }> {
   try {
     // 1. Armar contexto rico con datos reales del negocio
-    const [kpiResult, companyInfo, presupuestos, customers, servicios] = await Promise.all([
+    const [kpiResult, companyInfo, presupuestos, customers, servicios, aiSettings] = await Promise.all([
       getDashboardKpiData(),
       getCompanyInfo(),
       getPresupuestos(),
       getCustomers(),
       getServiciosEmpresa(),
+      getAIAssistantSettings(),
     ]);
 
     const kpi = kpiResult.success ? kpiResult.data : null;
+
+    const customInstructionsSection = aiSettings.customInstructions?.trim()
+      ? `\n\n## INSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\n${aiSettings.customInstructions.trim()}`
+      : '';
 
     const context = `
 FECHA Y HORA ACTUAL: ${new Date().toLocaleString('es-UY', { timeZone: 'America/Montevideo' })}
@@ -63,7 +68,7 @@ CLIENTES (últimos 10):
 ${customers.slice(-10).map(c => `- ID:${c.id} ${c.name} | ${c.partyType ?? 'Sin tipo'} | ${c.partyDate ?? 'Sin fecha'} | Tel: ${c.phone || 'Sin tel'}`).join('\n') || 'Sin clientes'}
 
 SERVICIOS DE EMPRESA (primeros 15):
-${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | Precio venta: $${s.precioVenta ?? s.valorUnitarioEstimado}`).join('\n') || 'Sin servicios configurados'}
+${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | Precio venta: $${s.precioVenta ?? s.valorUnitarioEstimado}`).join('\n') || 'Sin servicios configurados'}${customInstructionsSection}
 `;
 
     // 2. Llamar al flow
@@ -319,7 +324,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         let presupuestoId = d.presupuestoId;
         if (!presupuestoId && d.clienteNombre) {
           const found = presupuestos
-            .filter(p => p.clienteNombre.toLowerCase().includes(d.clienteNombre.toLowerCase()))
+            .filter(p => (p.estado === 'Aceptado' || p.estado === 'Facturado') && p.clienteNombre.toLowerCase().includes(d.clienteNombre.toLowerCase()))
             .sort((a, b) => new Date(b.eventoFecha || 0).getTime() - new Date(a.eventoFecha || 0).getTime());
           presupuestoId = found[0]?.id;
         }
