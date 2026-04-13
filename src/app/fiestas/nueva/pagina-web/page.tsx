@@ -4,16 +4,19 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle, Settings2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, InvitacionDigitalConfig, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
+import { defaultInvitacionConfig, buildInvitacionConfigFromFiesta } from '@/lib/invitacion-config-defaults';
 import { merge, cloneDeep } from 'lodash';
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GraziaTemplate } from '@/components/invitacion/templates/GraziaTemplate';
 import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemplate';
+import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
+import { InvitacionConfigPanel } from '@/components/invitacion/InvitacionConfigPanel';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates } from '@/app/actions/invitacion-digital-templates';
@@ -28,6 +31,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
+type EditorMode = 'simple' | 'avanzado';
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -39,11 +43,13 @@ function PaginaWebPageContent() {
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitacionData, setInvitacionData] = useState<InvitacionDigitalData>(defaultInvitacionDigitalData);
+  const [invitacionConfig, setInvitacionConfig] = useState<InvitacionDigitalConfig>(defaultInvitacionConfig);
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('mobile');
+  const [editorMode, setEditorMode] = useState<EditorMode>('simple');
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
@@ -107,6 +113,12 @@ function PaginaWebPageContent() {
       setInvitacionData(mergedData);
       setSocialConnections(socialData);
 
+      // Load simplified config
+      if (fiestaId && data && (data as any).configuracion) {
+        const builtConfig = buildInvitacionConfigFromFiesta(data as FiestaEnPlanificacion, (data as any).invitacionConfig);
+        setInvitacionConfig(builtConfig);
+      }
+
     } catch (e: any) {
       toast({ title: "Error", description: `No se pudieron cargar los datos: ${e.message}`, variant: "destructive"});
     } finally {
@@ -140,7 +152,7 @@ function PaginaWebPageContent() {
     };
     setIsSaving(true);
     try {
-      const result = await saveFiesta({ ...fiesta, invitacionDigital: invitacionData });
+      const result = await saveFiesta({ ...fiesta, invitacionDigital: invitacionData, invitacionConfig });
       if (result.success) {
         toast({ title: "¡Guardado!", description: "Los cambios en la página del evento han sido guardados." });
       } else {
@@ -267,6 +279,28 @@ function PaginaWebPageContent() {
 
       <main className="flex-grow flex flex-col md:flex-row min-h-0 overflow-hidden">
         <div className="w-full md:w-[320px] lg:w-[400px] flex-shrink-0 border-b md:border-b-0 md:border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40 max-h-[45vh] md:max-h-none">
+            {/* Editor mode toggle */}
+            {fiestaId && !selectedSectionId && (
+              <div className="p-3 border-b bg-slate-50/80 flex items-center gap-1">
+                <Button
+                  variant={editorMode === 'simple' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setEditorMode('simple')}
+                  className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'simple' && "shadow-sm")}
+                >
+                  <Wand2 className="w-3.5 h-3.5" />Config Rápida
+                </Button>
+                <Button
+                  variant={editorMode === 'avanzado' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setEditorMode('avanzado')}
+                  className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'avanzado' && "shadow-sm")}
+                >
+                  <Settings2 className="w-3.5 h-3.5" />Avanzado
+                </Button>
+              </div>
+            )}
+            
             {selectedSectionId ? (
                 <SectionEditorPanel
                     data={invitacionData}
@@ -277,6 +311,24 @@ function PaginaWebPageContent() {
                     fiestaId={fiestaId}
                     onClose={() => setSelectedSectionId(null)}
                 />
+            ) : editorMode === 'simple' && fiestaId ? (
+                <>
+                <InvitacionConfigPanel
+                  config={invitacionConfig}
+                  onChange={setInvitacionConfig}
+                />
+                {fiesta && (
+                  <div className="p-4 border-t">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-bold text-muted-foreground">Enlace de Invitación</Label>
+                      <div className="flex items-center gap-2">
+                        <Input value={getFullLink('/invitacion/[fiestaId]')} readOnly className="h-9 text-xs bg-slate-50 rounded-xl" />
+                        <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/invitacion/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                </>
             ) : (
                 <>
                 <ControlPanel
@@ -332,11 +384,15 @@ function PaginaWebPageContent() {
               <div className="flex items-center justify-center h-full"><Loader2 className="w-12 h-12 animate-spin text-primary opacity-20"/></div>
             ) : fiesta ? (
               <div className={cn("h-full", previewMode !== 'desktop' && "overflow-y-auto custom-scrollbar")}>
-                <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-                    <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                        {renderTemplate()}
-                    </SortableContext>
-                </DndContext>
+                {editorMode === 'simple' && fiestaId ? (
+                  <InvitacionPublicaClient config={invitacionConfig} fiestaId={fiestaId} />
+                ) : (
+                  <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+                      <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                          {renderTemplate()}
+                      </SortableContext>
+                  </DndContext>
+                )}
               </div>
             ) : (
                <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
