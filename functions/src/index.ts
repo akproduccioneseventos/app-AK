@@ -30,5 +30,16 @@ export const nextjsServer = functions
   })
   .https.onRequest(async (req, res) => {
     await ensureNextReady();
+
+    // Capture response status for logging
+    const originalEnd = res.end;
+    res.end = function (...args: any[]) {
+      const status = res.statusCode;
+      if (status >= 400) {
+        console.warn(`[AK] HTTP ${status} ${req.method} ${req.url}`);
+      }
+      return originalEnd.apply(res, args);
+    };
+
     return handle(req, res);
   });

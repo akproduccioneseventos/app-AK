@@ -1,14 +1,15 @@
 /**
  * @fileOverview Central logger wrapper for AK Producciones.
  * All output is prefixed with [AK] for easy filtering.
- * - info(): development only
+ * - info(): always on server (Firebase Cloud Functions logs), dev-only on client
  * - warn(), error(): always
  */
 
 const PREFIX = '[AK]';
 
 export function info(message: string, ...args: unknown[]): void {
-  if (process.env.NODE_ENV === 'development') {
+  // Always log on server (for Firebase Cloud Functions logs), dev-only on client
+  if (typeof window === 'undefined' || process.env.NODE_ENV === 'development') {
     console.log(PREFIX, message, ...args);
   }
 }
