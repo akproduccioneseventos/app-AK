@@ -202,8 +202,10 @@ export function InvitacionPublicaClient({ config, fiestaId }: Props) {
 
   const formatDate = (dateStr: string) => {
     try {
-      return new Date(dateStr).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    } catch { return dateStr; }
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'Fecha por confirmar';
+      return date.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    } catch { return 'Fecha por confirmar'; }
   };
 
   const hasLocation = !!(config.nombreSalon || config.direccionSalon || config.linkMaps);

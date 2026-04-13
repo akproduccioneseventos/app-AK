@@ -114,9 +114,12 @@ function PaginaWebPageContent() {
       setSocialConnections(socialData);
 
       // Load simplified config
-      if (fiestaId && data && (data as any).configuracion) {
-        const builtConfig = buildInvitacionConfigFromFiesta(data as FiestaEnPlanificacion, (data as any).invitacionConfig);
-        setInvitacionConfig(builtConfig);
+      if (fiestaId && data) {
+        const fiestaData = data as FiestaEnPlanificacion;
+        if (fiestaData.configuracion) {
+          const builtConfig = buildInvitacionConfigFromFiesta(fiestaData, fiestaData.invitacionConfig);
+          setInvitacionConfig(builtConfig);
+        }
       }
 
     } catch (e: any) {

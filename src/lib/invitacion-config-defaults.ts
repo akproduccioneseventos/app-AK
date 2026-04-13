@@ -1,4 +1,4 @@
-import type { InvitacionDigitalConfig } from '@/types/fiesta';
+import type { InvitacionDigitalConfig, FiestaEnPlanificacion } from '@/types/fiesta';
 
 export const defaultInvitacionConfig: InvitacionDigitalConfig = {
   nombreHomenajeada: '',
@@ -28,7 +28,7 @@ export const defaultInvitacionConfig: InvitacionDigitalConfig = {
 };
 
 export function buildInvitacionConfigFromFiesta(
-  fiesta: { configuracion: { nombreEvento?: string; tipoCelebracion?: string; fechaEvento?: string; horaInicio?: string; nombreLugar?: string; direccionLugar?: string; googleMapsUrl?: string; protagonista1Nombre?: string; primaryColor?: string } },
+  fiesta: Pick<FiestaEnPlanificacion, 'configuracion'> & { invitacionConfig?: Partial<InvitacionDigitalConfig> },
   existing?: Partial<InvitacionDigitalConfig>
 ): InvitacionDigitalConfig {
   const config = fiesta.configuracion;

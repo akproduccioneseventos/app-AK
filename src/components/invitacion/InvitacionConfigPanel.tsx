@@ -54,7 +54,7 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
                 >
                   <div className="text-2xl">{info.preview}</div>
                   <div className="text-xs font-bold">{info.nombre}</div>
-                  <div className="text-[10px] text-muted-foreground leading-tight">{info.descripcion.slice(0, 60)}...</div>
+                  <div className="text-[10px] text-muted-foreground leading-tight">{info.descripcion.length > 60 ? info.descripcion.slice(0, 60) + '...' : info.descripcion}</div>
                   {config.plantillaId === id && (
                     <div className="flex items-center gap-1 text-[10px] text-primary font-semibold">
                       <Check className="w-3 h-3" /> Activa
