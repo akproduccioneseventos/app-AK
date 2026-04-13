@@ -372,6 +372,87 @@ export interface SeccionInvitacion {
   data: any; 
 }
 
+// --- INVITACIÓN DIGITAL CONFIG (Simplified central configuration) ---
+
+export interface InvitacionDigitalDressCode {
+  tipo: 'formal' | 'semi-formal' | 'casual' | 'personalizado';
+  textoPersonalizado?: string;
+  colorSugerido?: string;
+  restricciones?: string;
+}
+
+export interface InvitacionDigitalRegalos {
+  tipo: 'regalos' | 'dinero' | 'ambos' | 'ninguno';
+  textoPersonalizado?: string;
+  aliasCBU?: string;
+  banco?: string;
+  titular?: string;
+  cuentaNumero?: string;
+  instruccionesRegalos?: string;
+  linkListaRegalos?: string;
+}
+
+export interface InvitacionDigitalCronograma {
+  hora: string;
+  actividad: string;
+  icono?: string;
+}
+
+export type InvitacionPlantillaId = 'EleganteDorado' | 'ModernoMinimalista' | 'RomanticoFloral' | 'FiestaVibrante' | 'Grazia' | 'Allegria';
+
+export interface InvitacionDigitalConfig {
+  // Basic data
+  nombreHomenajeada: string;
+  tipoEvento: '15' | '18' | 'boda' | 'cumpleanos' | 'bautismo' | 'otro';
+  estiloEvento: 'formal' | 'semi-formal' | 'casual';
+
+  // Colors (global change)
+  colorPrincipal: string;
+  colorSecundario: string;
+  colorAcento: string;
+
+  // Location
+  nombreSalon: string;
+  direccionSalon: string;
+  linkMaps: string;
+
+  // Date and time
+  fechaEvento: string;
+  horaEvento: string;
+
+  // Visual
+  fotoPortada: string;
+  galeriaFotos: string[];
+  textoBienvenida: string;
+
+  // Dress code
+  dressCode: InvitacionDigitalDressCode;
+
+  // Gifts
+  regalos: InvitacionDigitalRegalos;
+
+  // Template
+  plantillaId: InvitacionPlantillaId;
+
+  // RSVP
+  rsvpActivo: boolean;
+  rsvpTexto?: string;
+
+  // WhatsApp
+  whatsappNumero?: string;
+  whatsappMensaje?: string;
+
+  // Timeline
+  cronograma?: InvitacionDigitalCronograma[];
+
+  // Countdown
+  contadorActivo: boolean;
+
+  // Social portal
+  portalSocialActivo: boolean;
+  hashtagEvento?: string;
+}
+
 export interface InvitacionDigitalData {
   name?: string; 
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
@@ -840,6 +921,7 @@ export interface FiestaEnPlanificacion {
   clientChecklist?: ClientTarea[];
   clientNotes?: string; 
   invitacionDigital?: InvitacionDigitalData;
+  invitacionConfig?: InvitacionDigitalConfig;
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
   contratoServicioTexto?: string;
