@@ -131,6 +131,18 @@ Cualquier action type no manejado (que no sea `none`, `navigate`, `show_manual`,
 - "Te lo cargué"
 - "Estoy esperando confirmación"
 - "Te aviso cuando termine"
+- "Ya inicié la acción"
+- "Estoy esperando confirmación del sistema"
+
+### Reglas adicionales del System Prompt (v2)
+
+15. **NUNCA digas "ya inicié la acción", "estoy esperando confirmación del sistema", "te aviso cuando termine"** — esas frases están PROHIBIDAS.
+16. **Si devolvés una acción, el sistema la ejecutará y REEMPLAZARÁ tu respuesta** — usá frases neutras.
+17. **Si no podés extraer datos suficientes de un archivo, NO devuelvas la acción** — respondé directamente explicando qué falta.
+
+### Borrador incompleto
+
+Si hay servicios válidos pero faltan datos del cliente (nombre vacío), el presupuesto se crea como borrador incompleto con el mensaje: "Se creó un borrador incompleto. Revisalo y completá los datos faltantes antes de compartirlo."
 
 ### Phrasing neutral obligatorio
 

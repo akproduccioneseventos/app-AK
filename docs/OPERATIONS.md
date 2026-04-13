@@ -136,7 +136,8 @@ npm test -- --coverage
 src/
 ├── __tests__/
 │   ├── assistant-actions.test.ts   # Tests del handler de acciones del asistente
-│   └── calculations.test.ts        # Tests del motor de cálculos
+│   ├── calculations.test.ts        # Tests del motor de cálculos
+│   └── invitacion-config.test.ts   # Tests de configuración de invitación digital
 └── lib/
     └── __tests__/
         └── fiesta-progress.test.ts # Tests del progreso de planificación de fiestas
@@ -147,8 +148,9 @@ src/
 | Suite | Tests | Cobertura |
 |---|---|---|
 | `calculations.test.ts` | 32 | Motor de cálculos: guest count, costos por método (fijo, porPersona, ratio, tramos), cantidad sugerida |
-| `assistant-actions.test.ts` | 32 | Handler de acciones: 16 action types con data faltante, validación de importación (servicios vacíos/precio cero), manejo de errores de Gemini (403, 429, 404), catch-all para acciones desconocidas |
+| `assistant-actions.test.ts` | 34 | Handler de acciones: 16 action types con data faltante, validación de importación (servicios vacíos/precio cero/borrador incompleto), manejo de errores de Gemini (403, 429, 404), catch-all para acciones desconocidas |
 | `fiesta-progress.test.ts` | 39 | Progreso de planificación: cálculos de porcentaje, estados por área, alertas automáticas |
+| `invitacion-config.test.ts` | 10 | Config de invitación: defaults, builder desde fiesta, mapeo de tipos, plantillas, labels |
 
 ### Escribir nuevos tests
 
@@ -225,3 +227,97 @@ npm run typecheck
 # Verificar lint
 npm run lint
 ```
+
+---
+
+## Backup / Restore
+
+### Exportar datos
+
+- **Endpoint:** `GET /api/backup/download`
+- **En producción:** Lee directamente de Firestore (colecciones: clientes, presupuestos, servicios, empleados, proveedores, prospectos, facturas, fiestas, configuración, etc.)
+- **En desarrollo:** Lee del directorio local `src/data/`
+- **Formato:** ZIP con archivos JSON + metadata (`_backup-metadata.json` con fecha, fuente, entorno)
+- **Fallback:** Si Firestore no está disponible en producción, intenta leer de archivos locales con advertencia
+
+### Restaurar datos
+
+- **Endpoint:** `POST /api/backup/upload` (FormData con campo `backupFile`)
+- **En producción:** Escribe directamente a Firestore (batch writes de 450 docs)
+- **En desarrollo:** Restaura al directorio local `src/data/`
+- **Validación:** Verifica que el archivo sea ZIP, detecta entries maliciosas (path traversal)
+
+### Qué hacer si falla
+
+1. Verificar logs del servidor por errores `[AK] Backup`
+2. En producción, verificar permisos de la cuenta de servicio Firebase
+3. Si Firestore falla, el backup local sigue disponible como fallback
+
+---
+
+## WhatsApp Automation
+
+### Flujo
+
+1. **Templates** — Definidos en settings (`/settings/whatsapp`)
+2. **Reglas** — Cada regla tiene: trigger, template, delay, target
+3. **Disparadores** — Se ejecutan automáticamente al:
+   - Crear un presupuesto (`presupuesto_generado`)
+   - Enviar un presupuesto (`presupuesto_enviado`)
+   - Crear un lead/prospecto en CRM (`lead_creado`)
+   - Cambiar estado de un lead (`lead_cambio_etapa`)
+   - Crear un cliente (`cliente_creado`)
+4. **Mensajes** — Se programan como `ScheduledMessage` para envío diferido
+
+### Motor (`src/lib/whatsapp-automation-engine.ts`)
+
+- `triggerWhatsAppAutomation(trigger, context)` — Evalúa reglas habilitadas para el trigger y crea mensajes programados
+- Se llama fire-and-forget (no bloquea la acción principal)
+- Si WhatsApp no está habilitado en settings, no hace nada
+
+### Qué hacer si no se envían mensajes
+
+1. Verificar que WhatsApp esté habilitado en Settings → WhatsApp
+2. Verificar que haya reglas activas para el trigger correspondiente
+3. Verificar que el lead/cliente tenga teléfono cargado
+4. Revisar logs `[AK] WhatsApp automation failed`
+
+---
+
+## Invitación Digital / Página del Evento
+
+### Configuración
+
+- **Panel:** `/fiestas/nueva/pagina-web?fiestaId=...`
+- **Tipo:** `InvitacionDigitalConfig` (definido en `src/types/fiesta.ts`)
+- **Config panel:** `src/components/invitacion/InvitacionConfigPanel.tsx`
+- **Vista pública:** `/invitacion/[fiestaId]`
+
+### Plantillas disponibles
+
+| Plantilla | Estilo | Ideal para |
+|---|---|---|
+| Elegante Dorado | Serif, ornamental, tonos dorados | Quinceañeras, bodas |
+| Moderno Minimalista | Sans-serif, limpio, fotos grandes | 18 años, cumpleaños |
+| Romántico Floral | Bordes florales, script fonts | Bodas, quinceañeras |
+| Fiesta Vibrante | Colores vivos, gradientes | 18 años, cumpleaños |
+
+### Cambio global de color
+
+Los colores se setean como CSS custom properties (`--inv-primary`, `--inv-secondary`, `--inv-accent`). UN cambio de color → toda la página cambia coherente.
+
+### Secciones automáticas
+
+Las secciones se muestran u ocultan automáticamente según la configuración:
+- **Ubicación** — Solo si hay salón/dirección/maps
+- **Dress code** — Siempre visible con tipo configurado
+- **Regalos** — Solo si tipo ≠ "ninguno"
+- **Contador regresivo** — Toggle on/off
+- **RSVP** — Toggle on/off
+- **Portal social** — Toggle on/off con hashtag
+- **WhatsApp** — Botón flotante si hay número configurado
+- **Cronograma** — Solo si hay items
+
+### Meta tags para compartir
+
+La página pública genera meta tags automáticos (og:title, og:description, og:image) para que al compartir el link en WhatsApp/redes se vea con título e imagen del evento.

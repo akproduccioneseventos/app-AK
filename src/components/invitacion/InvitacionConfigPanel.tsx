@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check } from 'lucide-react';
+import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -137,6 +137,13 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
                 </div>
               </div>
             ))}
+            <div className="flex items-center gap-2">
+              <Input type="color" value={config.colorSugeridoInvitados || '#000000'} onChange={e => update('colorSugeridoInvitados', e.target.value)} className="w-10 h-10 p-0.5 rounded-lg cursor-pointer" />
+              <div className="flex-1">
+                <Label className="text-xs">Color Sugerido para Invitados (opcional)</Label>
+                <Input value={config.colorSugeridoInvitados || ''} onChange={e => update('colorSugeridoInvitados', e.target.value)} className="h-7 text-xs" placeholder="#RRGGBB" />
+              </div>
+            </div>
           </AccordionContent>
         </AccordionItem>
 
@@ -273,6 +280,36 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
                 <Input value={config.hashtagEvento || ''} onChange={e => update('hashtagEvento', e.target.value)} placeholder="#MisXV" />
               </div>
             )}
+            <div className="border-t pt-3 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" />Cronograma</p>
+              <p className="text-[10px] text-muted-foreground">Armá el programa del evento paso a paso.</p>
+              {(config.cronograma ?? []).map((item, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <Input value={item.hora} onChange={e => {
+                    const updated = [...(config.cronograma ?? [])];
+                    updated[index] = { ...updated[index], hora: e.target.value };
+                    onChange({ ...config, cronograma: updated });
+                  }} placeholder="20:00" className="w-20 h-7 text-xs" />
+                  <Input value={item.actividad} onChange={e => {
+                    const updated = [...(config.cronograma ?? [])];
+                    updated[index] = { ...updated[index], actividad: e.target.value };
+                    onChange({ ...config, cronograma: updated });
+                  }} placeholder="Recepción de invitados" className="flex-1 h-7 text-xs" />
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => {
+                    const updated = (config.cronograma ?? []).filter((_, i) => i !== index);
+                    onChange({ ...config, cronograma: updated });
+                  }}>
+                    <Trash2 className="w-3 h-3 text-muted-foreground" />
+                  </Button>
+                </div>
+              ))}
+              <Button variant="outline" size="sm" className="w-full text-xs h-7" onClick={() => {
+                const updated = [...(config.cronograma ?? []), { hora: '', actividad: '' }];
+                onChange({ ...config, cronograma: updated });
+              }}>
+                <Plus className="w-3 h-3 mr-1" /> Agregar Momento
+              </Button>
+            </div>
             <div className="border-t pt-3 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><MessageCircle className="w-3.5 h-3.5" />WhatsApp</p>
               <Input value={config.whatsappNumero || ''} onChange={e => update('whatsappNumero', e.target.value)} placeholder="N° con código de país: 5491112345678" />

@@ -216,6 +216,36 @@ describe('sendAssistantMessage — import_budget_from_image validation', () => {
     expect(res.response).toContain('María');
     expect(res.response).toContain('XV años');
   });
+
+  it('creates borrador incompleto when valid services exist but client name is missing', async () => {
+    const mockSave = savePresupuesto as jest.MockedFunction<typeof savePresupuesto>;
+    mockSave.mockResolvedValueOnce({
+      success: true,
+      presupuesto: {
+        id: 'pres_import_1',
+        numero: 99,
+        clienteNombre: 'Cliente importado',
+        itemsPresupuestados: [{ nombreServicio: 'DJ', precioUnitario: 5000, costoTotalItem: 5000 }],
+        totalConDescuento: 5000,
+      } as any,
+    });
+
+    mockChat.mockResolvedValueOnce(
+      aiResult('import_budget_from_image', {
+        clienteNombre: '',
+        eventoTipo: 'XV años',
+        servicios: [
+          { nombre: 'DJ', precioUnitario: 5000 },
+        ],
+      }) as any,
+    );
+
+    const res = await sendAssistantMessage('importá', []);
+
+    expect(res.success).toBe(true);
+    expect(res.response).toContain('borrador incompleto');
+    expect(res.response).toContain('completá los datos faltantes');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

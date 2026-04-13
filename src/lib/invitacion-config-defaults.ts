@@ -7,6 +7,7 @@ export const defaultInvitacionConfig: InvitacionDigitalConfig = {
   colorPrincipal: '#d4a574',
   colorSecundario: '#f5e6d3',
   colorAcento: '#8b6f47',
+  colorSugeridoInvitados: '',
   nombreSalon: '',
   direccionSalon: '',
   linkMaps: '',
