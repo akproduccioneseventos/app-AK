@@ -67,3 +67,4 @@ src/data/last-auto-backup.txt
 /playwright-report/
 /test-results/
 /playwright/.auth/
+functions/package-lock.json

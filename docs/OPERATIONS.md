@@ -106,7 +106,7 @@ Funciones puras del motor de cálculo unificado:
 ### Logger (`src/lib/logger.ts`)
 
 Logger centralizado con prefijo `[AK]`:
-- `logger.info()` — solo en desarrollo
+- `logger.info()` — siempre en servidor (Firebase Cloud Functions logs), solo en desarrollo en cliente
 - `logger.warn()` — siempre
 - `logger.error()` — siempre
 
