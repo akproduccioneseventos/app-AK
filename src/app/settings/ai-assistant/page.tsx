@@ -123,7 +123,7 @@ export default function AIAssistantSettingsPage() {
             <Textarea
               value={customInstructions}
               onChange={(e) => setCustomInstructions(e.target.value)}
-              placeholder={`Ejemplos de instrucciones:\n- Siempre ofrecer un 5% de descuento si el cliente paga al contado.\n- Hablar de manera formal con los clientes.\n- Para eventos en Salón Diamante, mencionar que tiene capacidad máxima de 150 personas.`}
+              placeholder={`Escribí tus instrucciones personalizadas, por ejemplo:\nSiempre ofrecer un 5% de descuento si el cliente paga al contado.\nHablar de manera formal con los clientes.\nPara eventos en Salón Diamante, mencionar capacidad máxima de 150 personas.`}
               className="min-h-[200px] font-mono text-sm resize-y"
               disabled={isSaving}
             />
@@ -153,8 +153,8 @@ export default function AIAssistantSettingsPage() {
                   type="button"
                   className="text-sm text-left text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => {
-                    const prefix = customInstructions.trim() ? customInstructions.trim() + '\n- ' : '- ';
-                    setCustomInstructions(prefix + example);
+                    const current = customInstructions.trim();
+                    setCustomInstructions(current ? `${current}\n${example}` : example);
                   }}
                 >
                   {example}
