@@ -42,7 +42,9 @@ export default async function LandingPage() {
   ]);
 
   // Merge catalog photos into galería, deduplicating by URL
-  const galeriaUrls = new Set(galeriaData.fotos.map(f => f.url));
+  const fotos = galeriaData?.fotos ?? [];
+  const videos = galeriaData?.videos ?? [];
+  const galeriaUrls = new Set(fotos.map(f => f.url));
   const catalogoComoGaleria: GaleriaFoto[] = catalogoFotos
     .filter(f => !galeriaUrls.has(f.url))
     .map((f) => ({
@@ -53,10 +55,10 @@ export default async function LandingPage() {
       descripcion: f.descripcion,
       categoria: f.categoriaServicio,
       destacada: f.destacada,
-      orden: galeriaData.fotos.length + f.orden,
+      orden: fotos.length + f.orden,
       createdAt: f.createdAt,
     }));
-  const fotosCombinadas = [...galeriaData.fotos, ...catalogoComoGaleria];
+  const fotosCombinadas = [...fotos, ...catalogoComoGaleria];
 
   const whatsapp = landingSettings.whatsappNumber || '59898355530';
 
@@ -75,7 +77,7 @@ export default async function LandingPage() {
       <ServicesSection whatsappNumber={whatsapp} />
       <ProcessSection />
       <GallerySection galeriaFotos={fotosCombinadas} />
-      <VideoSection galeriaVideos={galeriaData.videos} />
+      <VideoSection galeriaVideos={videos} />
       <TestimonialsSection />
       <FAQSection />
       <CTASection
