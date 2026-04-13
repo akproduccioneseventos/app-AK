@@ -45,37 +45,63 @@ const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
-  try {
-    const archiveFiles = await fs.readdir(dataDir);
-    const historialesPromises = archiveFiles
-        .filter(file => file.endsWith('.json'))
-        .map(file => readData<FiestaEnPlanificacion>(path.join(ARCHIVE_DIR, file), null as any));
-    
-    const historiales = await Promise.all(historialesPromises);
-    return historiales.filter((f): f is FiestaEnPlanificacion => f !== null)
-      .sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
-  } catch (error) {
-    return [];
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  let historiales: FiestaEnPlanificacion[] = [];
+
+  if (isProduction) {
+    try {
+      const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+      historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
+    } catch (e) {
+      // fall through to filesystem fallback
+    }
   }
+
+  if (!isProduction || historiales.length === 0) {
+    const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
+    try {
+      const archiveFiles = await fs.readdir(dataDir);
+      const historialesPromises = archiveFiles
+          .filter(file => file.endsWith('.json'))
+          .map(file => readData<FiestaEnPlanificacion>(path.join(ARCHIVE_DIR, file), null as any));
+      historiales = (await Promise.all(historialesPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
+    } catch (error) {
+      historiales = [];
+    }
+  }
+
+  return historiales.sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
-    const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-    try {
-        const activeFiles = await fs.readdir(dataDir);
-        const activasPromises = activeFiles
-            .filter(file => file.endsWith('.json'))
-            .map(file => readData<FiestaEnPlanificacion>(path.join(FIESTAS_DIR, file), null as any));
-        
-        const activas = (await Promise.all(activasPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
-        const archivadas = includeArchived ? await getHistorialFiestas() : [];
-        
-        const allFiestas = [...activas, ...archivadas];
-        return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
-    } catch (error) {
-        return [];
+    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    let activas: FiestaEnPlanificacion[] = [];
+
+    if (isProduction) {
+        try {
+            const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+            activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
+        } catch (e) {
+            // fall through to filesystem fallback
+        }
     }
+
+    if (!isProduction || activas.length === 0) {
+        const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
+        try {
+            const activeFiles = await fs.readdir(dataDir);
+            const activasPromises = activeFiles
+                .filter(file => file.endsWith('.json'))
+                .map(file => readData<FiestaEnPlanificacion>(path.join(FIESTAS_DIR, file), null as any));
+            activas = (await Promise.all(activasPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
+        } catch (error) {
+            activas = [];
+        }
+    }
+
+    const archivadas = includeArchived ? await getHistorialFiestas() : [];
+    const allFiestas = [...activas, ...archivadas];
+    return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
 }
 
 export async function getAllFiestas() {
