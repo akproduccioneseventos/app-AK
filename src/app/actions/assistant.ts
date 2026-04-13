@@ -210,7 +210,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           finalResponse = `⚠️ No se detectaron servicios con precio válido en el archivo. Probá con una imagen más clara o cargá el presupuesto manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).${extractedSummary}`;
         } else {
           // Determine if this is a draft (missing client data)
-          const hasClienteData = !!(d.clienteNombre && d.clienteNombre.trim());
+          const hasClienteData = d.clienteNombre && d.clienteNombre.trim() !== '';
           const isDraft = !hasClienteData;
           const clienteNombreFinal = hasClienteData ? d.clienteNombre : 'Cliente importado (revisar)';
 
@@ -700,7 +700,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       action: result.action ? { ...result.action, result: actionResult } as any : undefined,
     };
   } catch (error: any) {
-    const errorMessage: string = error?.message || String(error) || '';
+    const errorMessage: string = error?.message || String(error);
     logger.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
 
     // Error 403 de Gemini / API key issues
