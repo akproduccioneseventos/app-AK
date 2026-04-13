@@ -47,17 +47,19 @@ const ARCHIVE_DIR = 'archive';
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   let historiales: FiestaEnPlanificacion[] = [];
+  let firestoreSucceeded = false;
 
   if (isProduction) {
     try {
       const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
       historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
+      firestoreSucceeded = true;
     } catch (e) {
       // fall through to filesystem fallback
     }
   }
 
-  if (!isProduction || historiales.length === 0) {
+  if (!firestoreSucceeded) {
     const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
     try {
       const archiveFiles = await fs.readdir(dataDir);
@@ -76,17 +78,19 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
     const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
     let activas: FiestaEnPlanificacion[] = [];
+    let firestoreSucceeded = false;
 
     if (isProduction) {
         try {
             const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
             activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
+            firestoreSucceeded = true;
         } catch (e) {
             // fall through to filesystem fallback
         }
     }
 
-    if (!isProduction || activas.length === 0) {
+    if (!firestoreSucceeded) {
         const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
         try {
             const activeFiles = await fs.readdir(dataDir);
