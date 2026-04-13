@@ -190,7 +190,7 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Restricciones (opcional)</Label>
-              <Input value={config.dressCode.restricciones || ''} onChange={e => updateDressCode('restricciones', e.target.value)} placeholder='Ej: No usar blanco' />
+              <Input value={config.dressCode.restricciones || ''} onChange={e => updateDressCode('restricciones', e.target.value)} placeholder="Ej: No usar blanco" />
             </div>
           </AccordionContent>
         </AccordionItem>

@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { InvitacionDigitalConfig, InvitacionDigitalCronograma } from '@/types/fiesta';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
+import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
 import { motion } from 'framer-motion';
-import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt } from 'lucide-react';
+import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -55,11 +56,31 @@ function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) 
   const [personas, setPersonas] = useState('1');
   const [mensaje, setMensaje] = useState('');
   const [sent, setSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would call a server action
-    setSent(true);
+    if (!nombre.trim()) return;
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const result = await submitPublicRsvp(fiestaId, {
+        nombre: nombre.trim(),
+        asistencia: 'Confirmado',
+        dietaryRestriction: 'Ninguna',
+        cancionesDJ: [],
+      });
+      if (result.success) {
+        setSent(true);
+      } else {
+        setError(result.error || 'No se pudo confirmar. Intentá de nuevo.');
+      }
+    } catch {
+      setError('Error de conexión. Intentá de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (sent) {
@@ -96,12 +117,14 @@ function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) 
           placeholder="Deja un mensaje para los anfitriones..."
         />
       </div>
+      {error && <p className="text-sm text-red-500 text-center">{error}</p>}
       <Button
         type="submit"
+        disabled={isSubmitting}
         className="w-full rounded-xl h-12 text-base font-semibold text-white shadow-lg"
         style={{ backgroundColor: 'var(--inv-primary)' }}
       >
-        Confirmar Asistencia
+        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirmar Asistencia'}
       </Button>
     </form>
   );
