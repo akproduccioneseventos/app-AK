@@ -1,67 +1,60 @@
 
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
 import JSZip from 'jszip';
+import { readData } from '@/lib/data-service';
+import * as logger from '@/lib/logger';
 
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-
-async function addFilesToZip(zip: JSZip, directoryPath: string, parentPath: string) {
-  try {
-    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = path.join(directoryPath, entry.name);
-      if (entry.isDirectory()) {
-        const folder = zip.folder(entry.name);
-        if (folder) {
-          await addFilesToZip(folder, fullPath, path.join(parentPath, entry.name));
-        }
-      } else {
-        const fileContent = await fs.readFile(fullPath);
-        zip.file(entry.name, fileContent);
-      }
-    }
-  } catch (error) {
-    // If a directory doesn't exist, we can just skip it.
-    // This can happen if a feature is enabled but no data has been created yet.
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      console.error(`Error processing directory ${directoryPath}:`, error);
-      throw error; // Re-throw other errors
-    }
-  }
-}
+// Data collections to export
+const DATA_COLLECTIONS = [
+  { file: 'presupuestos.json', defaultValue: [] },
+  { file: 'customers.json', defaultValue: [] },
+  { file: 'servicios-empresa.json', defaultValue: [] },
+  { file: 'fiestas.json', defaultValue: [] },
+  { file: 'invoices.json', defaultValue: [] },
+  { file: 'empleados.json', defaultValue: [] },
+  { file: 'proveedores.json', defaultValue: [] },
+  { file: 'crm-leads.json', defaultValue: [] },
+  { file: 'crm-stages.json', defaultValue: [] },
+  { file: 'crm-meetings.json', defaultValue: [] },
+  { file: 'notifications.json', defaultValue: [] },
+  { file: 'scheduled-messages.json', defaultValue: [] },
+  { file: 'app-settings.json', defaultValue: {} },
+  { file: 'company-info.json', defaultValue: {} },
+  { file: 'contract-settings.json', defaultValue: {} },
+  { file: 'whatsapp-settings.json', defaultValue: {} },
+  { file: 'whatsapp-templates.json', defaultValue: {} },
+  { file: 'feature-flags.json', defaultValue: [] },
+  { file: 'galeria-publica.json', defaultValue: [] },
+  { file: 'menus.json', defaultValue: [] },
+  { file: 'coupons.json', defaultValue: [] },
+];
 
 export async function GET() {
   try {
     const zip = new JSZip();
-    
-    // Check if the main data directory exists
-    try {
-      await fs.access(dataDirectory);
-    } catch (e) {
-      return new NextResponse(JSON.stringify({ error: 'Data directory not found.' }), { status: 404 });
-    }
 
-    const entries = await fs.readdir(dataDirectory, { withFileTypes: true });
+    // Add metadata
+    const metadata = {
+      exportedAt: new Date().toISOString(),
+      source: 'firestore',
+      version: '1.0',
+      app: 'AK Producciones',
+    };
+    zip.file('_metadata.json', JSON.stringify(metadata, null, 2));
 
-    for (const entry of entries) {
-       // Exclude the 'backups' directory from the root of the zip
-      if (entry.name === 'backups') {
-        continue;
-      }
-      
-      const fullPath = path.join(dataDirectory, entry.name);
-      if (entry.isDirectory()) {
-        const folder = zip.folder(entry.name);
-        if(folder) {
-            await addFilesToZip(folder, fullPath, entry.name);
-        }
-      } else {
-        const fileContent = await fs.readFile(fullPath);
-        zip.file(entry.name, fileContent);
+    // Read each collection from the data layer (Firestore in production, local in dev)
+    let exportedCount = 0;
+    for (const collection of DATA_COLLECTIONS) {
+      try {
+        const data = await readData(collection.file, collection.defaultValue);
+        zip.file(collection.file, JSON.stringify(data, null, 2));
+        exportedCount++;
+      } catch (err) {
+        logger.warn(`[Backup] Could not export ${collection.file}:`, err);
       }
     }
+
+    logger.info(`[Backup] Export completed: ${exportedCount} collections exported at ${metadata.exportedAt}`);
 
     const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
     
@@ -75,7 +68,7 @@ export async function GET() {
     return new NextResponse(zipContent as BodyInit, { status: 200, headers });
 
   } catch (error: any) {
-    console.error('Error creating backup:', error);
-    return new NextResponse(JSON.stringify({ error: 'Failed to create backup.', details: error.message }), { status: 500 });
+    logger.error('[Backup] Error creating backup:', error.message || error);
+    return new NextResponse(JSON.stringify({ error: 'Failed to create backup.' }), { status: 500 });
   }
 }

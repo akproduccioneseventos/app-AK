@@ -6,6 +6,8 @@ import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 import { createNotification } from './notifications';
+import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import * as logger from '@/lib/logger';
 
 const CUSTOMERS_FILE = 'customers.json';
 
@@ -158,7 +160,13 @@ export async function saveCustomer(
   const finalIndex = customers.findIndex(c => c.id === customerId);
   if (finalIndex !== -1) customers[finalIndex] = customerToSave as Customer;
   
-  await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
+  try {
+    await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
+    logger.info('[Cliente] Guardado exitoso:', customerId, (customerToSave as Customer).name);
+  } catch (writeError: any) {
+    logger.error('[Cliente] Error al guardar:', writeError.message || writeError);
+    return { success: false, error: 'No se pudo guardar el cliente. Intentá de nuevo.' };
+  }
 
   if (isNewCustomer && !options?.skipFiestaCreation) {
     try {
@@ -178,7 +186,19 @@ export async function saveCustomer(
       tipo: 'info',
       entidadRelacionadaId: customerId,
       rolDestino: 'admin',
-    }).catch(err => console.warn('Error creating customer notification:', err));
+    }).catch(err => logger.warn('[Cliente] Error creating customer notification:', err));
+
+    // WhatsApp automation: fire-and-forget for new customers
+    triggerWhatsAppAutomation('cliente_nuevo', {
+      targetId: customerId,
+      targetName: (customerToSave as Customer).name,
+      targetType: 'cliente',
+      targetPhone: (customerToSave as Customer).phone,
+      nombre: (customerToSave as Customer).name,
+      fechaEvento: (customerToSave as Customer).partyDate,
+    }).catch(err =>
+      logger.warn('[WhatsApp] Automation trigger failed for cliente_nuevo:', err.message)
+    );
   }
   
   return { success: true, id: customerId, customer: customerToSave as Customer };

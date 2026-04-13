@@ -7,6 +7,8 @@ export type AutomationTrigger =
   | 'pago_vencido'
   | 'pago_por_vencer'
   | 'fiesta_creada'
+  | 'cliente_nuevo'
+  | 'lead_estado_cambiado'
   | 'manual';
 
 export type MessageTemplateType =
@@ -18,6 +20,8 @@ export type MessageTemplateType =
   | 'pago_por_vencer'
   | 'bienvenida'
   | 'contrato_firmado'
+  | 'cliente_nuevo'
+  | 'lead_estado_cambiado'
   | 'personalizado';
 
 export interface WhatsAppAutomationRule {

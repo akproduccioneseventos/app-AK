@@ -199,19 +199,24 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
         });
 
         if (validServices.length === 0) {
-          // NO crear presupuesto si no hay servicios válidos
-          logger.warn('[Asistente AK] import_budget_from_image: no se detectaron servicios válidos. servicios_count:', importedServices.length);
-          actionResult = { success: false, error: 'No se detectaron servicios suficientes para crear el presupuesto.' };
+          // NO crear presupuesto, NO crear cliente, NO crear fiesta
+          logger.warn('[Asistente AK] Import rejected — no valid services extracted. raw_count:', importedServices.length);
+          actionResult = { success: false, error: 'Sin servicios válidos para importar' };
           const extractedInfo: string[] = [];
           if (d.clienteNombre) extractedInfo.push(`Cliente: ${d.clienteNombre}`);
           if (d.eventoTipo) extractedInfo.push(`Tipo: ${d.eventoTipo}`);
           if (d.eventoFecha) extractedInfo.push(`Fecha: ${d.eventoFecha}`);
           const extractedSummary = extractedInfo.length > 0 ? `\n\nDatos parciales detectados: ${extractedInfo.join(', ')}.` : '';
-          finalResponse = `⚠️ No se detectaron servicios suficientes para crear el presupuesto. Probá con una imagen más clara o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).${extractedSummary}`;
+          finalResponse = `⚠️ No se detectaron servicios con precio válido en el archivo. Probá con una imagen más clara o cargá el presupuesto manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).${extractedSummary}`;
         } else {
-          // Paso 2: Crear cliente si viene nombre
+          // Determine if this is a draft (missing client data)
+          const hasClienteData = d.clienteNombre && d.clienteNombre.trim() !== '';
+          const isDraft = !hasClienteData;
+          const clienteNombreFinal = hasClienteData ? d.clienteNombre : 'Cliente importado (revisar)';
+
+          // Paso 2: Crear cliente solo si hay datos suficientes
           let clienteId: string | undefined;
-          if (d.clienteNombre) {
+          if (hasClienteData) {
             const existingCustomer = customers.find(
               c => c.name.toLowerCase().includes(d.clienteNombre.toLowerCase())
             );
@@ -243,7 +248,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             };
           });
           const budgetResult = await savePresupuesto({
-            clienteNombre: d.clienteNombre || 'Cliente importado',
+            clienteNombre: clienteNombreFinal,
             eventoTipo: d.eventoTipo || '',
             eventoFecha: d.eventoFecha || '',
             invitadosCantidad: d.invitados || 0,
@@ -251,12 +256,15 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             invitadosNinos: 0,
             invitadosAdolescentes: 0,
             itemsPresupuestados: importedItems,
-            notas: d.notas || 'Importado desde imagen/PDF vía Asistente AK',
+            notas: isDraft
+              ? 'Importado automáticamente — revisar datos'
+              : (d.notas || 'Importado desde imagen/PDF vía Asistente AK'),
             estado: 'Borrador',
           } as unknown as Omit<Presupuesto, 'id'>);
-          // Paso 4: Crear fiesta si tenemos clienteId
+
+          // Paso 4: Crear fiesta SOLO si NO es borrador incompleto y tenemos clienteId
           let fiestaResult: any = null;
-          if (clienteId) {
+          if (clienteId && !isDraft) {
             const customerForFiesta = customers.find(c => c.id === clienteId) || {
               id: clienteId,
               name: d.clienteNombre,
@@ -280,8 +288,13 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             const href = `/presupuestos/${pres.id}/ver`;
             const eventoExtra = fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '';
             actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
-            if (itemCount < importedServices.length) {
-              finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador incompleto de', `/presupuestos/${pres.id}/editar`, eventoExtra) + ' Revisalo y completá los servicios faltantes antes de usarlo.';
+
+            if (isDraft) {
+              // Draft with missing client data — never say "importación exitosa"
+              logger.info(`[Asistente AK] Import created as draft: ${pres.id} (${itemCount} services, missing client data)`);
+              finalResponse = `⚠️ Se creó un **borrador** con **${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}** y total **$${total.toLocaleString('es-UY')}**. Revisalo y completá los datos del cliente antes de compartirlo: [Editar presupuesto](/presupuestos/${pres.id}/editar)`;
+            } else if (itemCount < importedServices.length) {
+              finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador de', `/presupuestos/${pres.id}/editar`, eventoExtra) + ' Algunos servicios no pudieron importarse — revisalo y completá los faltantes.';
             } else {
               finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra);
             }
@@ -687,10 +700,11 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       action: result.action ? { ...result.action, result: actionResult } as any : undefined,
     };
   } catch (error: any) {
-    const errorMessage: string = error.message || String(error) || '';
+    const errorMessage: string = error?.message || String(error);
     logger.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
 
-    const isApiKeyError =
+    // Error 403 de Gemini / API key issues
+    if (
       (errorMessage.includes('FAILED_PRECONDITION') && errorMessage.includes('API key')) ||
       errorMessage.includes('GEMINI_API_KEY') ||
       errorMessage.includes('GOOGLE_API_KEY') ||
@@ -699,12 +713,14 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
       errorMessage.includes('Forbidden') ||
       errorMessage.includes('denied access') ||
       errorMessage.includes('API key not valid') ||
-      errorMessage.includes('not configured');
-
-    if (isApiKeyError) {
+      errorMessage.includes('not configured') ||
+      errorMessage.includes('permission')
+    ) {
+      logger.error('[Asistente AK] Gemini 403/permission error:', errorMessage);
       return {
         success: false,
-        error: 'No pude procesar tu mensaje en este momento. Intentá de nuevo en unos minutos.',
+        response: 'No pude procesar tu mensaje en este momento. Intentá de nuevo en unos minutos.',
+        error: 'Servicio temporalmente no disponible',
       };
     }
 
@@ -716,6 +732,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     ) {
       return {
         success: false,
+        response: 'El asistente está temporalmente saturado. Intentá de nuevo en unos minutos.',
         error: 'El asistente está temporalmente saturado. Intentá de nuevo en unos minutos.',
       };
     }
@@ -729,15 +746,31 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
     ) {
       return {
         success: false,
+        response: 'El modelo de IA no está disponible en este momento. Intentá de nuevo en unos minutos.',
         error: 'El modelo de IA no está disponible en este momento. Intentá de nuevo en unos minutos.',
       };
     }
 
-    // Generic fallback - log error server-side, show generic message to user
-    logger.error('[Asistente AK] Unhandled error type:', errorMessage);
+    // Error de red/timeout
+    if (
+      errorMessage.includes('ECONNREFUSED') ||
+      errorMessage.includes('timeout') ||
+      errorMessage.includes('network')
+    ) {
+      logger.error('[Asistente AK] Network error:', errorMessage);
+      return {
+        success: false,
+        response: 'No se pudo conectar al servicio. Verificá tu conexión e intentá de nuevo.',
+        error: 'Error de conexión',
+      };
+    }
+
+    // Error genérico — NUNCA exponer detalles técnicos
+    logger.error('[Asistente AK] Unexpected error:', errorMessage);
     return {
       success: false,
-      error: 'No se pudo conectar al servicio. Verificá tu conexión e intentá de nuevo.',
+      response: 'Ocurrió un error inesperado. Intentá de nuevo o hacelo manualmente.',
+      error: 'Error interno',
     };
   }
 }

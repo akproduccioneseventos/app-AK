@@ -17,6 +17,7 @@ import { parseBudgetText } from '@/lib/parse-budget-text';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import * as logger from '@/lib/logger';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -111,9 +112,10 @@ export async function savePresupuesto(
   presupuestos.push(nuevoPresupuesto);
   try {
     await writeData(PRESUPUESTOS_FILE, presupuestos);
+    logger.info('[Presupuesto] Guardado exitoso:', presupuestoId, `#${nuevoNumero}`, nuevoPresupuesto.clienteNombre);
   } catch (writeError: any) {
-    console.error("Error saving presupuesto:", writeError);
-    return { success: false, error: writeError.message || "Error al guardar el presupuesto." };
+    logger.error('[Presupuesto] Error al guardar:', writeError.message || writeError);
+    return { success: false, error: 'No se pudo guardar el presupuesto. Intentá de nuevo.' };
   }
   
   await syncLinkedFiesta(nuevoPresupuesto);
