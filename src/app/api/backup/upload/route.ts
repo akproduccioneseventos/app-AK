@@ -51,6 +51,9 @@ const CONFIG_FILES: Record<string, string> = {
   'meeting-checklist-template.json': 'meeting-checklist-template',
 };
 
+// Firestore batch limit is 500 operations; use 450 to leave margin for safety
+const FIRESTORE_BATCH_SIZE = 450;
+
 async function restoreToFirestore(zip: JSZip): Promise<{ restored: number; errors: string[] }> {
   let restored = 0;
   const errors: string[] = [];
@@ -67,10 +70,9 @@ async function restoreToFirestore(zip: JSZip): Promise<{ restored: number; error
         const content = await zipFile.async('text');
         const data = JSON.parse(content);
         if (!Array.isArray(data)) continue;
-        const batchSize = 450;
-        for (let i = 0; i < data.length; i += batchSize) {
+        for (let i = 0; i < data.length; i += FIRESTORE_BATCH_SIZE) {
           const batch = dbAdmin.batch();
-          const chunk = data.slice(i, i + batchSize);
+          const chunk = data.slice(i, i + FIRESTORE_BATCH_SIZE);
           for (const item of chunk) {
             if (item && item.id) {
               const ref = dbAdmin.collection(collectionName).doc(String(item.id));

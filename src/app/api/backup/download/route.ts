@@ -142,10 +142,11 @@ export async function GET() {
     const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 
     // Add metadata
+    const pkgVersion = require('../../../../package.json').version || '0.1.0';
     zip.file('_backup-metadata.json', JSON.stringify({
       createdAt: new Date().toISOString(),
       source: isProduction ? 'firestore' : 'local',
-      appVersion: '0.1.0',
+      appVersion: pkgVersion,
       environment: isProduction ? 'production' : 'development',
     }, null, 2));
 
