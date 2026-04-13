@@ -422,7 +422,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
   // Fallback: if there's a backend action with a failed result but no specific card above, show generic error.
   // NOTE: This list must stay in sync with the backend action types handled in assistant.ts.
   // Any new backend action type added there should also appear here.
-  const backendActionTypes = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract'];
+  const backendActionTypes = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract', 'check_availability', 'generate_social_post', 'generate_whatsapp_message', 'generate_promo'];
   if (backendActionTypes.includes(action.type) && action.result && !action.result.success) {
     return errorCard(action.result.error || 'No se pudo completar la acción. Intentá de nuevo o hacelo manualmente.');
   }

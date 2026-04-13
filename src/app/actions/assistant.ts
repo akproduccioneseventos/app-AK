@@ -209,8 +209,10 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           const extractedSummary = extractedInfo.length > 0 ? `\n\nDatos parciales detectados: ${extractedInfo.join(', ')}.` : '';
           finalResponse = `⚠️ No se detectaron servicios con precio válido en el archivo. Probá con una imagen más clara o cargá el presupuesto manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).${extractedSummary}`;
         } else {
-          // Determine if this is a draft (missing client data)
-          const hasClienteData = d.clienteNombre && d.clienteNombre.trim() !== '';
+          // Determine if this is a draft (missing or generic client data)
+          const clienteNombreTrimmed = (d.clienteNombre || '').trim();
+          const isGenericName = !clienteNombreTrimmed || clienteNombreTrimmed.toLowerCase().startsWith('cliente importado');
+          const hasClienteData = !isGenericName;
           const isDraft = !hasClienteData;
           const clienteNombreFinal = hasClienteData ? d.clienteNombre : 'Cliente importado (revisar)';
 
@@ -291,8 +293,8 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
 
             if (isDraft) {
               // Draft with missing client data — never say "importación exitosa"
-              logger.info(`[Asistente AK] Import created as draft: ${pres.id} (${itemCount} services, missing client data)`);
-              finalResponse = `⚠️ Se creó un **borrador** con **${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}** y total **$${total.toLocaleString('es-UY')}**. Revisalo y completá los datos del cliente antes de compartirlo: [Editar presupuesto](/presupuestos/${pres.id}/editar)`;
+              logger.info(`[Asistente AK] Import: ${itemCount} valid services, borrador incompleto — missing client name`);
+              finalResponse = `📋 Se creó un borrador con ${itemCount} ${itemCount === 1 ? 'servicio' : 'servicios'}, pero faltan datos del cliente. Revisalo en [/presupuestos/${pres.id}/editar](/presupuestos/${pres.id}/editar) antes de compartirlo.`;
             } else if (itemCount < importedServices.length) {
               finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador de', `/presupuestos/${pres.id}/editar`, eventoExtra) + ' Algunos servicios no pudieron importarse — revisalo y completá los faltantes.';
             } else {

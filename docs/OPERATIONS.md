@@ -139,6 +139,7 @@ src/
 │   ├── backup.test.ts              # Tests del sistema de backup/restore
 │   ├── calculations.test.ts        # Tests del motor de cálculos
 │   ├── data-service.test.ts        # Tests de writeData (validación, errores Firestore)
+│   ├── invitacion-config.test.ts   # Tests de configuración de invitación digital
 │   └── whatsapp-automation.test.ts # Tests del motor de automatización WhatsApp
 └── lib/
     └── __tests__/
@@ -154,6 +155,7 @@ src/
 | `fiesta-progress.test.ts` | 39 | Progreso de planificación: cálculos de porcentaje, estados por área, alertas automáticas |
 | `backup.test.ts` | 2 | Backup: exportación con metadata, validación de ZIP |
 | `data-service.test.ts` | 3 | Data service: validación de paths, propagación de errores Firestore |
+| `invitacion-config.test.ts` | 12 | Invitación: defaults, colorSugeridoInvitados, plantillas, cronograma, builder |
 | `whatsapp-automation.test.ts` | 5 | WhatsApp: triggers con settings desactivados, reglas matching, errores no bloqueantes |
 
 ### Escribir nuevos tests
@@ -187,6 +189,118 @@ npm run typecheck
 npm test
 npm run build
 ```
+
+---
+
+## Backup / Restore
+
+### Cómo funciona
+
+El sistema de backup exporta e importa todas las colecciones de datos como un archivo `.zip`.
+
+- **En producción:** El backup intenta leer/escribir directamente desde Firestore via Firebase Admin SDK. Si Firestore no está disponible, recurre a `readData`/`writeData`.
+- **En desarrollo:** Lee/escribe desde archivos JSON locales en `src/data/`.
+
+### Exportar backup
+
+```
+GET /api/backup/download
+```
+
+Genera un `.zip` con:
+- Todas las colecciones de datos (clientes, presupuestos, servicios, empleados, etc.)
+- `_backup-metadata.json` con timestamp, source (`firestore` o `local`), y versión de la app
+
+### Restaurar backup
+
+```
+POST /api/backup/upload
+Content-Type: multipart/form-data
+Body: backupFile=<archivo.zip>
+```
+
+- Solo restaura archivos JSON conocidos (lista blanca de colecciones)
+- En producción utiliza escritura con batches de 450 docs via `syncToFirestore`
+- ⚠️ **Los datos actuales son reemplazados** por los del backup
+
+### Archivos clave
+
+- `src/app/api/backup/download/route.ts` — Ruta de exportación
+- `src/app/api/backup/upload/route.ts` — Ruta de restauración
+- `src/lib/firebase-sync.ts` — Sync bidireccional con Firestore (batches de 450)
+- `src/lib/data-service.ts` — Capa de datos unificada
+
+---
+
+## WhatsApp Automation
+
+### Triggers disponibles
+
+| Trigger | Cuándo se dispara | Descripción |
+|---|---|---|
+| `cliente_nuevo` / `lead_creado` | Al crear un lead/prospecto en el CRM | Envía mensaje de bienvenida |
+| `lead_estado_cambiado` / `lead_cambio_etapa` | Al mover un lead de etapa | Envía follow-up automático |
+| `cliente_creado` | Al registrar un nuevo cliente | Notificación de onboarding |
+| `manual` | Enviado por el operador | Template personalizado |
+
+### Configuración
+
+1. Ir a **Configuración → WhatsApp** y activar la integración
+2. Configurar las **reglas de automatización** con el trigger deseado
+3. Los mensajes se guardan como `ScheduledMessage` para envío posterior
+4. Los triggers son fire-and-forget: un fallo no bloquea el flujo principal
+
+### Archivos clave
+
+- `src/types/whatsapp-automation.ts` — Tipos (AutomationTrigger, WhatsAppAutomationRule, ScheduledMessage)
+- `src/lib/whatsapp-automation-engine.ts` — Motor de automatización
+- `src/app/actions/whatsapp.ts` — Config y acciones de WhatsApp
+- `src/app/actions/scheduled-messages.ts` — CRUD de mensajes programados
+
+---
+
+## Invitación Digital
+
+### Campos disponibles
+
+La configuración de invitación (`InvitacionDigitalConfig`) incluye:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `nombreHomenajeada` | string | Nombre de la homenajeada |
+| `tipoEvento` | enum | 15, 18, boda, cumpleaños, bautismo, otro |
+| `estiloEvento` | enum | formal, semi-formal, casual |
+| `colorPrincipal/Secundario/Acento` | string | Colores globales (cambian toda la invitación) |
+| `colorSugeridoInvitados` | string | Color sugerido para los invitados |
+| `nombreSalon/direccionSalon/linkMaps` | string | Ubicación del evento |
+| `dressCode` | objeto | Tipo, color sugerido, restricciones |
+| `regalos` | objeto | Tipo (regalos/dinero/ambos/ninguno), datos bancarios |
+| `cronograma` | array | Items con hora, actividad, icono |
+| `plantillaId` | enum | Plantilla visual seleccionada |
+
+### Plantillas
+
+| ID | Nombre | Estilo |
+|---|---|---|
+| `EleganteDorado` | Elegante Dorado | Tonos dorados, serif, ornamental |
+| `ModernoMinimalista` | Moderno Minimalista | Limpio, sans-serif, fotos grandes |
+| `RomanticoFloral` | Romántico Floral | Bordes florales, colores suaves |
+| `FiestaVibrante` | Fiesta Vibrante | Colores vivos, gradientes, juvenil |
+
+### Cronograma
+
+El cronograma se configura inline desde el panel de configuración. Cada item tiene:
+- `hora` — Horario de la actividad
+- `actividad` — Descripción de la actividad
+- `icono` — Emoji o ícono opcional
+
+### Archivos clave
+
+- `src/types/evento-invitacion.ts` — Tipos centrales de config de invitación
+- `src/types/fiesta.ts` — `InvitacionDigitalConfig` integrada con la fiesta
+- `src/lib/invitacion-config-defaults.ts` — Defaults, builder, plantilla info
+- `src/components/invitacion/InvitacionConfigPanel.tsx` — Panel de configuración
+- `src/app/invitacion/[fiestaId]/` — Página pública de invitación
 
 ---
 

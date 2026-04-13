@@ -410,6 +410,7 @@ export interface InvitacionDigitalConfig {
   colorPrincipal: string;
   colorSecundario: string;
   colorAcento: string;
+  colorSugeridoInvitados?: string;
 
   // Location
   nombreSalon: string;

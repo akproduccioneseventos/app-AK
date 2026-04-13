@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check } from 'lucide-react';
+import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -137,6 +137,13 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
                 </div>
               </div>
             ))}
+            <div className="flex items-center gap-2">
+              <Input type="color" value={config.colorSugeridoInvitados || '#000000'} onChange={e => update('colorSugeridoInvitados', e.target.value)} className="w-10 h-10 p-0.5 rounded-lg cursor-pointer" />
+              <div className="flex-1">
+                <Label className="text-xs">Color sugerido para invitados</Label>
+                <Input value={config.colorSugeridoInvitados || ''} onChange={e => update('colorSugeridoInvitados', e.target.value)} className="h-7 text-xs" placeholder="#RRGGBB (opcional)" />
+              </div>
+            </div>
           </AccordionContent>
         </AccordionItem>
 
@@ -278,6 +285,64 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
               <Input value={config.whatsappNumero || ''} onChange={e => update('whatsappNumero', e.target.value)} placeholder="N° con código de país: 5491112345678" />
               <Input value={config.whatsappMensaje || ''} onChange={e => update('whatsappMensaje', e.target.value)} placeholder="Mensaje pre-armado (opcional)" />
             </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ===== CRONOGRAMA ===== */}
+        <AccordionItem value="cronograma">
+          <AccordionTrigger className="text-sm font-bold"><CalendarDays className="w-4 h-4 mr-2" />Cronograma</AccordionTrigger>
+          <AccordionContent className="space-y-3 pt-2">
+            <p className="text-[10px] text-muted-foreground">Agregá las actividades del evento con su horario.</p>
+            {(config.cronograma || []).map((item, index) => (
+              <div key={index} className="flex items-start gap-2 border rounded-lg p-2">
+                <div className="space-y-1 flex-shrink-0">
+                  <Input
+                    type="time"
+                    value={item.hora}
+                    onChange={e => {
+                      const updated = [...(config.cronograma || [])];
+                      updated[index] = { ...updated[index], hora: e.target.value };
+                      update('cronograma', updated);
+                    }}
+                    className="h-8 w-24 text-xs"
+                  />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <Input
+                    value={item.actividad}
+                    onChange={e => {
+                      const updated = [...(config.cronograma || [])];
+                      updated[index] = { ...updated[index], actividad: e.target.value };
+                      update('cronograma', updated);
+                    }}
+                    placeholder="Actividad"
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                  onClick={() => {
+                    const updated = (config.cronograma || []).filter((_, i) => i !== index);
+                    update('cronograma', updated);
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => {
+                const updated = [...(config.cronograma || []), { hora: '', actividad: '', icono: '' }];
+                update('cronograma', updated);
+              }}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" /> Agregar actividad
+            </Button>
           </AccordionContent>
         </AccordionItem>
 

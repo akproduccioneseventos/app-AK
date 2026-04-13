@@ -29,24 +29,43 @@ const DATA_COLLECTIONS = [
   { file: 'coupons.json', defaultValue: [] },
 ];
 
+/** Try to read a collection directly from Firestore via Admin SDK. Returns null on failure. */
+async function readFromFirestoreDirect(filePath: string): Promise<any | null> {
+  try {
+    const { readFromFirestore } = await import('@/lib/firebase-sync');
+    return await readFromFirestore(filePath);
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
   try {
     const zip = new JSZip();
 
-    // Add metadata
-    const metadata = {
-      exportedAt: new Date().toISOString(),
-      source: 'firestore',
-      version: '1.0',
-      app: 'AK Producciones',
-    };
-    zip.file('_metadata.json', JSON.stringify(metadata, null, 2));
+    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    let source: 'firestore' | 'local' = 'local';
 
-    // Read each collection from the data layer (Firestore in production, local in dev)
+    // Read package.json version (best-effort)
+    let appVersion = '0.1.0';
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pkg = require('../../../../package.json') as { version?: string };
+      appVersion = pkg.version || appVersion;
+    } catch { /* ignore */ }
+
+    // Read each collection — in production, try Firestore directly first
     let exportedCount = 0;
     for (const collection of DATA_COLLECTIONS) {
       try {
-        const data = await readData(collection.file, collection.defaultValue);
+        let data: any = null;
+        if (isProduction) {
+          data = await readFromFirestoreDirect(collection.file);
+          if (data !== null) source = 'firestore';
+        }
+        if (data === null) {
+          data = await readData(collection.file, collection.defaultValue);
+        }
         zip.file(collection.file, JSON.stringify(data, null, 2));
         exportedCount++;
       } catch (err) {
@@ -54,7 +73,16 @@ export async function GET() {
       }
     }
 
-    logger.info(`[Backup] Export completed: ${exportedCount} collections exported at ${metadata.exportedAt}`);
+    // Add metadata
+    const metadata = {
+      exportedAt: new Date().toISOString(),
+      source,
+      version: appVersion,
+      app: 'AK Producciones',
+    };
+    zip.file('_backup-metadata.json', JSON.stringify(metadata, null, 2));
+
+    logger.info(`[Backup] Export completed: ${exportedCount} collections exported (source: ${source}) at ${metadata.exportedAt}`);
 
     const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
     
