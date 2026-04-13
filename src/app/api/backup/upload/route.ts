@@ -28,6 +28,17 @@ const RESTORABLE_COLLECTIONS = new Set([
   'coupons.json',
 ]);
 
+/** Try to write a collection directly to Firestore via sync module. Returns true on success. */
+async function writeToFirestoreDirect(filePath: string, data: any): Promise<boolean> {
+  try {
+    const { syncToFirestore } = await import('@/lib/firebase-sync');
+    await syncToFirestore(filePath, data);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -46,12 +57,13 @@ export async function POST(request: Request) {
 
     // Validate basic structure
     const fileNames = Object.keys(zip.files).filter(name => !zip.files[name].dir);
-    const jsonFiles = fileNames.filter(name => name.endsWith('.json') && name !== '_metadata.json');
+    const jsonFiles = fileNames.filter(name => name.endsWith('.json') && name !== '_metadata.json' && name !== '_backup-metadata.json');
     
     if (jsonFiles.length === 0) {
       return NextResponse.json({ error: 'El archivo ZIP no contiene datos válidos para restaurar.' }, { status: 400 });
     }
 
+    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
     const summary: Record<string, number> = {};
     const errors: string[] = [];
 
@@ -66,7 +78,14 @@ export async function POST(request: Request) {
         const content = await zip.files[fileName].async('string');
         const data = JSON.parse(content);
 
-        await writeData(fileName, data);
+        // In production, try direct Firestore write first (uses batched writes internally)
+        let written = false;
+        if (isProduction) {
+          written = await writeToFirestoreDirect(fileName, data);
+        }
+        if (!written) {
+          await writeData(fileName, data);
+        }
         
         const count = Array.isArray(data) ? data.length : 1;
         const label = fileName.replace('.json', '');
