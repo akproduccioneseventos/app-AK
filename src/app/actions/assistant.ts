@@ -197,6 +197,7 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
           const price = Number(s.precioUnitario) || Number(s.precio) || 0;
           return name && name !== DEFAULT_SERVICE_NAME && price > 0;
         });
+        logger.info(`[Asistente AK] Import: ${validServices.length} valid services extracted from file (${importedServices.length} total detected)`);
 
         if (validServices.length === 0) {
           // NO crear presupuesto si no hay servicios válidos
@@ -280,8 +281,9 @@ ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | P
             const href = `/presupuestos/${pres.id}/ver`;
             const eventoExtra = fiestaResult?.fiestaId ? ` | [Ver evento](/fiestas/nueva?fiestaId=${fiestaResult.fiestaId})` : '';
             actionResult = { success: true, id: pres.id, fiestaId: fiestaResult?.fiestaId, itemCount, total, href };
-            if (itemCount < importedServices.length) {
-              finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador incompleto de', `/presupuestos/${pres.id}/editar`, eventoExtra) + ' Revisalo y completá los servicios faltantes antes de usarlo.';
+            const isBorrador = !d.clienteNombre || itemCount < importedServices.length;
+            if (isBorrador) {
+              finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador incompleto de', `/presupuestos/${pres.id}/editar`, eventoExtra) + ' Revisalo y completá los datos faltantes antes de compartirlo.';
             } else {
               finalResponse = buildBudgetResponseMessage(pres, 'Se importó', `/presupuestos/${pres.id}/editar`, eventoExtra);
             }

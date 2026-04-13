@@ -9,6 +9,8 @@ import { saveFiesta, syncFiestaFromBudget } from '@/app/actions/fiesta/fiesta.ac
 import { createNotification } from './notifications';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
+import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import * as logger from '@/lib/logger';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -81,6 +83,17 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
     rolDestino: 'admin',
   }).catch(err => console.warn('Error creating lead notification:', err));
 
+  // Fire-and-forget WhatsApp automation for new lead
+  triggerWhatsAppAutomation('lead_creado', {
+    targetId: newLead.id,
+    targetName: newLead.name,
+    targetType: 'prospecto',
+    targetPhone: newLead.phone,
+    leadId: newLead.id,
+    nombre: newLead.name,
+    fechaEvento: newLead.followUpDate,
+  }).catch(e => logger.warn('[AK] WhatsApp automation failed for new lead:', e instanceof Error ? e.message : e));
+
   return { success: true, lead: newLead };
 }
 
@@ -94,6 +107,17 @@ export async function moveCrmLead(leadId: string, newStageId: string, meetingDat
   if (meetingDate) leads[index].followUpDate = meetingDate;
 
   await writeData(LEADS_FILE, leads);
+
+  // Fire-and-forget WhatsApp automation for stage change
+  triggerWhatsAppAutomation('lead_cambio_etapa', {
+    targetId: leads[index].id,
+    targetName: leads[index].name,
+    targetType: 'prospecto',
+    targetPhone: leads[index].phone,
+    leadId: leads[index].id,
+    nombre: leads[index].name,
+  }).catch(e => logger.warn('[AK] WhatsApp automation failed for lead stage change:', e instanceof Error ? e.message : e));
+
   return { success: true, lead: leads[index] };
 }
 

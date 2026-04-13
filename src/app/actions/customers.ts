@@ -6,6 +6,8 @@ import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 import { createNotification } from './notifications';
+import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import * as logger from '@/lib/logger';
 
 const CUSTOMERS_FILE = 'customers.json';
 
@@ -179,6 +181,16 @@ export async function saveCustomer(
       entidadRelacionadaId: customerId,
       rolDestino: 'admin',
     }).catch(err => console.warn('Error creating customer notification:', err));
+
+    // Fire-and-forget WhatsApp automation for new customer
+    triggerWhatsAppAutomation('cliente_creado', {
+      targetId: customerId,
+      targetName: customerToSave.name || '',
+      targetType: 'cliente',
+      targetPhone: customerToSave.phone,
+      nombre: customerToSave.name || '',
+      fechaEvento: customerToSave.partyDate,
+    }).catch(e => logger.warn('[AK] WhatsApp automation failed for new customer:', e instanceof Error ? e.message : e));
   }
   
   return { success: true, id: customerId, customer: customerToSave as Customer };

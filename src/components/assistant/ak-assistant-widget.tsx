@@ -422,7 +422,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
   // Fallback: if there's a backend action with a failed result but no specific card above, show generic error.
   // NOTE: This list must stay in sync with the backend action types handled in assistant.ts.
   // Any new backend action type added there should also appear here.
-  const backendActionTypes = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract'];
+  const backendActionTypes = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract', 'check_availability', 'generate_social_post', 'generate_whatsapp_message', 'generate_promo'];
   if (backendActionTypes.includes(action.type) && action.result && !action.result.success) {
     return errorCard(action.result.error || 'No se pudo completar la acción. Intentá de nuevo o hacelo manualmente.');
   }
@@ -656,7 +656,7 @@ export function AKAssistantWidget() {
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: result.error || 'Ocurrió un error.' }]);
       }
     } catch {
-      setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: 'No se pudo conectar al servicio. Verificá tu conexión e intentá de nuevo.' }]);
+      setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: 'No se pudo conectar al asistente. Verificá tu conexión a internet e intentá de nuevo. Si el problema persiste, usá las opciones del menú para acceder a las funciones directamente.' }]);
     } finally {
       setIsSending(false);
     }

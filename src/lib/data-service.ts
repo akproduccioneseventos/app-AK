@@ -109,6 +109,7 @@ export async function writeData<T>(
   }
 
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  logger.info(`[AK] writeData: guardando "${filePath}"...`);
 
   let dataToWrite: T = data;
   if (Array.isArray(data) && sortFn) {

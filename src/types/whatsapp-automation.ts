@@ -7,6 +7,9 @@ export type AutomationTrigger =
   | 'pago_vencido'
   | 'pago_por_vencer'
   | 'fiesta_creada'
+  | 'lead_creado'
+  | 'lead_cambio_etapa'
+  | 'cliente_creado'
   | 'manual';
 
 export type MessageTemplateType =
