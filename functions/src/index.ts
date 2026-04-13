@@ -33,7 +33,7 @@ export const nextjsServer = functions
 
     // Capture response status for logging
     const originalEnd = res.end;
-    res.end = function (...args: any[]) {
+    res.end = function (...args: unknown[]) {
       const status = res.statusCode;
       if (status >= 400) {
         console.warn(`[AK] HTTP ${status} ${req.method} ${req.url}`);
