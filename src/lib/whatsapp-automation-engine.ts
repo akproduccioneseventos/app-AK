@@ -87,6 +87,8 @@ export async function triggerWhatsAppAutomation(
             messageText = renderTemplate(settings.paymentReminderTemplate, ctx);
             break;
           case 'bienvenida':
+          case 'cliente_nuevo':
+          case 'lead_estado_cambiado':
             messageText = renderTemplate(templates.welcomeTemplate, ctx);
             break;
           case 'contrato_firmado':

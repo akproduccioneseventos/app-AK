@@ -656,7 +656,11 @@ export function AKAssistantWidget() {
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: result.error || 'Ocurrió un error.' }]);
       }
     } catch {
-      setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: 'No se pudo conectar al servicio. Verificá tu conexión e intentá de nuevo.' }]);
+      setChatHistory(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'No se pudo conectar al servicio. Verificá tu conexión e intentá de nuevo. Si el problema persiste, podés hacer la operación manualmente desde el menú.'
+      }]);
     } finally {
       setIsSending(false);
     }

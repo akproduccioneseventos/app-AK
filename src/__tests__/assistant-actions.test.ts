@@ -160,7 +160,7 @@ describe('sendAssistantMessage — import_budget_from_image validation', () => {
     const res = await sendAssistantMessage('importá este presupuesto', []);
 
     expect(res.success).toBe(true);
-    expect(res.response).toContain('No se detectaron servicios suficientes');
+    expect(res.response).toContain('No se detectaron servicios con precio válido');
     // savePresupuesto should NOT have been called
     expect(savePresupuesto).not.toHaveBeenCalled();
   });
@@ -179,7 +179,7 @@ describe('sendAssistantMessage — import_budget_from_image validation', () => {
     const res = await sendAssistantMessage('importá', []);
 
     expect(res.success).toBe(true);
-    expect(res.response).toContain('No se detectaron servicios suficientes');
+    expect(res.response).toContain('No se detectaron servicios con precio válido');
     expect(savePresupuesto).not.toHaveBeenCalled();
   });
 
@@ -197,7 +197,7 @@ describe('sendAssistantMessage — import_budget_from_image validation', () => {
 
     // 'Servicio' as name is considered invalid by the filter (matches DEFAULT_SERVICE_NAME)
     expect(res.success).toBe(true);
-    expect(res.response).toContain('No se detectaron servicios suficientes');
+    expect(res.response).toContain('No se detectaron servicios con precio válido');
     expect(savePresupuesto).not.toHaveBeenCalled();
   });
 
@@ -284,7 +284,7 @@ describe('sendAssistantMessage — Gemini API error handling', () => {
     expect(res.error).toBeDefined();
     expect(res.error).not.toContain('ECONNREFUSED');
     // Should contain a user-friendly connectivity message
-    expect(res.error).toContain('conectar');
+    expect(res.error).toBe('Error de conexión');
   });
 });
 

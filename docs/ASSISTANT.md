@@ -95,14 +95,21 @@ Cada handler incluye una ruta manual de escape para el usuario.
 
 ### Presupuestos vacíos (import_budget_from_image)
 
-El flujo de importación de presupuestos sigue una secuencia estricta:
+El flujo de importación de presupuestos sigue una secuencia estricta de 3 pasos:
 
-1. **Lectura:** La IA analiza la imagen/PDF
-2. **Validación:** Se filtran servicios con nombre válido (≠ "Servicio") y precio > 0
-3. **Decisión:** Si no hay servicios válidos → **NO se crea el presupuesto**
-4. **Creación:** Solo si hay al menos 1 servicio válido
+1. **Paso 1 — Extracción:** La IA analiza la imagen/PDF y extrae datos del `result.action.data`
+2. **Paso 2 — Validación:** Se filtran servicios con `nombreServicio` no vacío (≠ "Servicio") y `precioUnitario > 0`
+3. **Paso 3 — Creación condicional:**
+   - Si NO hay servicios válidos → **NO se crea presupuesto, NO se crea cliente, NO se crea fiesta**
+   - Si hay servicios pero faltan datos del cliente → se crea presupuesto como `estado: 'Borrador'` con `clienteNombre: 'Cliente importado (revisar)'` y notas `'Importado automáticamente — revisar datos'`
+   - Si hay servicios y datos del cliente → se crea presupuesto, cliente y fiesta normalmente
 
-Si los servicios extraídos son menos que los detectados originalmente, el mensaje indica que es un "borrador incompleto" y sugiere revisión manual.
+**Reglas de borradores:**
+- Si el presupuesto queda como borrador incompleto, **NO se crea fiesta automáticamente**
+- El mensaje al usuario indica claramente que es un borrador y enlaza a la página de edición
+- **NUNCA** se dice "importación exitosa" si hay datos faltantes
+
+Si los servicios extraídos son menos que los detectados originalmente, el mensaje indica que algunos servicios no pudieron importarse y sugiere revisión manual.
 
 ### Acciones no reconocidas
 
@@ -114,6 +121,15 @@ Cualquier action type no manejado (que no sea `none`, `navigate`, `show_manual`,
 ---
 
 ## Reglas del System Prompt
+
+### Reglas estrictas de respuesta (System Prompt)
+
+Estas reglas están inyectadas en el system prompt de la IA:
+
+1. **NUNCA** decir "ya inicié la acción", "estoy esperando confirmación del sistema", "te aviso cuando termine" — están **PROHIBIDAS**
+2. Si se devuelve una acción, el sistema la ejecutará y **REEMPLAZARÁ** la respuesta con el resultado real
+3. Si no se pueden extraer datos suficientes de un archivo, **NO devolver la acción** — responder directamente qué se pudo y qué no se pudo leer
+4. **NUNCA** inventar que algo fue creado o procesado sin confirmación del sistema
 
 ### Reglas de honestidad
 

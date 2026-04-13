@@ -136,7 +136,10 @@ npm test -- --coverage
 src/
 ├── __tests__/
 │   ├── assistant-actions.test.ts   # Tests del handler de acciones del asistente
-│   └── calculations.test.ts        # Tests del motor de cálculos
+│   ├── backup.test.ts              # Tests del sistema de backup/restore
+│   ├── calculations.test.ts        # Tests del motor de cálculos
+│   ├── data-service.test.ts        # Tests de writeData (validación, errores Firestore)
+│   └── whatsapp-automation.test.ts # Tests del motor de automatización WhatsApp
 └── lib/
     └── __tests__/
         └── fiesta-progress.test.ts # Tests del progreso de planificación de fiestas
@@ -149,6 +152,9 @@ src/
 | `calculations.test.ts` | 32 | Motor de cálculos: guest count, costos por método (fijo, porPersona, ratio, tramos), cantidad sugerida |
 | `assistant-actions.test.ts` | 32 | Handler de acciones: 16 action types con data faltante, validación de importación (servicios vacíos/precio cero), manejo de errores de Gemini (403, 429, 404), catch-all para acciones desconocidas |
 | `fiesta-progress.test.ts` | 39 | Progreso de planificación: cálculos de porcentaje, estados por área, alertas automáticas |
+| `backup.test.ts` | 2 | Backup: exportación con metadata, validación de ZIP |
+| `data-service.test.ts` | 3 | Data service: validación de paths, propagación de errores Firestore |
+| `whatsapp-automation.test.ts` | 5 | WhatsApp: triggers con settings desactivados, reglas matching, errores no bloqueantes |
 
 ### Escribir nuevos tests
 
@@ -204,7 +210,24 @@ npm run build
 - La extracción de servicios de la imagen/PDF no fue exitosa
 - Verificar que la imagen sea legible y tenga precios claros
 - El sistema NO crea presupuestos si no detecta servicios válidos (nombre ≠ "Servicio" y precio > 0)
+- Si faltan datos del cliente, el presupuesto se crea como borrador con `clienteNombre: 'Cliente importado (revisar)'`
+- No se crea fiesta automáticamente si el presupuesto queda como borrador incompleto
 - El usuario es guiado a cargar manualmente desde `/presupuestos/nuevo`
+
+### Cómo restaurar un backup
+
+1. Ir a **Configuración → Backup** o directamente a `POST /api/backup/upload`
+2. Subir el archivo `.zip` generado previamente por el sistema
+3. El sistema restaura los datos a Firestore (producción) o archivos locales (desarrollo)
+4. **⚠️ Los datos actuales son reemplazados por los del backup**
+5. Verificar en los logs del servidor que la restauración fue exitosa: `[Backup] Restore completed`
+
+### WhatsApp automations no se envían
+
+1. Verificar que WhatsApp está **activado** en Configuración → WhatsApp
+2. Verificar que existen **reglas de automatización** habilitadas con el trigger correcto
+3. Los mensajes programados se guardan como `ScheduledMessage` — verificar en la tabla de mensajes
+4. Los triggers son fire-and-forget: un fallo no bloquea el flujo principal pero se loguea como warning
 
 ### Tests fallan localmente
 
