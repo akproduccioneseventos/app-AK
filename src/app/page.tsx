@@ -421,7 +421,7 @@ export default function MainDashboardPage() {
 
       <Separator className="opacity-30" />
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
         <AnimatePresence>
           {mainHubItems.map((item, idx) => (
             <motion.div
