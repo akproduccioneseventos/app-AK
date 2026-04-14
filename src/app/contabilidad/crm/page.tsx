@@ -381,7 +381,7 @@ export default function CrmPage() {
             </Accordion>
         ) : (
           <ScrollArea className="w-full whitespace-nowrap pb-4" style={{ height: 'calc(100vh - 22rem)', minHeight: '480px' }}>
-              <div className="flex gap-4" style={{ minHeight: 'calc(100vh - 24rem)' }}>
+              <div className="flex gap-4">
               {stages.map(stage => (
                   <CrmStageColumn key={stage.id} stage={stage} leads={filteredLeadsByStage[stage.id] || []} onDeleteLead={deleteLead} deletingLeadId={deletingLeadId} onHire={handleHireClick} />
               ))}

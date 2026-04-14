@@ -31,7 +31,7 @@ export const CrmStageColumn = memo(function CrmStageColumn({
   const leadIds = leads.map(l => l.id);
 
   return (
-    <Card ref={setNodeRef} className={`w-full md:w-[320px] flex-shrink-0 border-t-4 flex flex-col ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors`} style={{ height: 'calc(100vh - 24rem)', minHeight: '400px' }}>
+    <Card ref={setNodeRef} className={`w-full md:w-[320px] flex-shrink-0 border-t-4 flex flex-col ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors`} style={{ height: 'calc(100vh - 22rem)', minHeight: '400px' }}>
       <CardHeader className={`p-3 ${stage.headerBgColor} ${stage.headerTextColor} rounded-t-md flex-shrink-0`}>
         <CardTitle className="text-base font-semibold flex justify-between items-center">
           <span>{stage.name}</span>
