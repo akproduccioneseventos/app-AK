@@ -4,7 +4,7 @@
 import type { Presupuesto } from '@/types/presupuesto';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Eye, Edit, Link as LinkIcon, Link2Off, Loader2, FileSignature, Percent, FileText as FileTextIcon, Trash2, CheckCircle, Clock, AlertTriangle, Archive } from 'lucide-react';
 import Link from 'next/link';
 import { PresupuestoStatusBadge } from './presupuesto-status-badge';
 import {
@@ -18,12 +18,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deletePresupuesto } from '@/app/actions/presupuestos';
+import { deletePresupuesto, archivePresupuesto } from '@/app/actions/presupuestos';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { isBefore, addDays } from 'date-fns';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface PresupuestoCardProps {
   presupuesto: Presupuesto;
@@ -57,6 +64,8 @@ export default function PresupuestoCard({
 }: PresupuestoCardProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [showHardDeleteDialog, setShowHardDeleteDialog] = useState(false);
 
   const totalFinal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
   const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,5)}`;
@@ -75,18 +84,34 @@ export default function PresupuestoCard({
     return isBefore(expiryDate, new Date());
   }, [presupuesto]);
 
+  const handleArchive = async () => {
+    setIsArchiving(true);
+    try {
+      const result = await archivePresupuesto(presupuesto.id);
+      if (result.success) {
+        toast({ title: "Presupuesto Archivado", description: "No aparecerá en el listado activo." });
+        if (onDeleteSuccess) onDeleteSuccess();
+      } else throw new Error(result.error);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsArchiving(false);
+    }
+  };
+
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       const result = await deletePresupuesto(presupuesto.id);
       if (result.success) {
-        toast({ title: "Presupuesto Eliminado", variant: "destructive" });
+        toast({ title: "Presupuesto Eliminado Definitivamente", variant: "destructive" });
         if (onDeleteSuccess) onDeleteSuccess();
       } else throw new Error(result.error);
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
       setIsDeleting(false);
+      setShowHardDeleteDialog(false);
     }
   };
 
@@ -168,20 +193,60 @@ export default function PresupuestoCard({
           <Link href={`/presupuestos/${presupuesto.id}/editar`} className="flex-grow">
             <Button variant="outline" size="sm" className="w-full h-8 text-xs">EDITAR</Button>
           </Link>
-           <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" disabled={isDeleting}>
-                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader><AlertDialogTitle>¿Eliminar Presupuesto?</AlertDialogTitle><AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+
+          {/* Archive / Delete dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" disabled={isDeleting || isArchiving}>
+                {(isDeleting || isArchiving) ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem
+                className="gap-2 cursor-pointer"
+                onClick={handleArchive}
+                disabled={isArchiving}
+              >
+                <Archive className="w-4 h-4 text-amber-500" />
+                <div>
+                  <div className="font-medium">Archivar</div>
+                  <div className="text-[10px] text-muted-foreground">Se oculta del listado activo</div>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="gap-2 cursor-pointer text-destructive focus:text-destructive"
+                onClick={() => setShowHardDeleteDialog(true)}
+              >
+                <Trash2 className="w-4 h-4" />
+                <div>
+                  <div className="font-medium">Eliminar definitivamente</div>
+                  <div className="text-[10px] text-muted-foreground">No se puede deshacer</div>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Hard-delete confirmation dialog */}
+          <AlertDialog open={showHardDeleteDialog} onOpenChange={setShowHardDeleteDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Eliminar definitivamente?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Se eliminará el presupuesto de <strong>{presupuesto.clienteNombre}</strong> de forma permanente y se limpiará el vínculo en el CRM. Esta acción <strong>no se puede deshacer</strong>.
+                  <br /><br />
+                  Si querés conservar el historial, usá <strong>Archivar</strong> en su lugar.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90" disabled={isDeleting}>
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Eliminar definitivamente
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardFooter>
     </Card>

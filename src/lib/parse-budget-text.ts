@@ -1,6 +1,7 @@
 /**
  * Utility to parse a pasted AK Producciones budget text into structured data.
- * Supports the format used in the Vana Rodríguez case and similar exports.
+ * Supports the format used in the Vana Rodríguez case and similar exports,
+ * plus free-form lines like "Hielo — 2.000 UYU", "5 x 400 UYU", "100k", etc.
  */
 
 import type { ItemPresupuestado } from '@/types/presupuesto';
@@ -19,14 +20,41 @@ export interface ParsedBudget {
   warnings: string[];
 }
 
+/**
+ * Parse a numeric string that may include:
+ * - "$" currency prefix
+ * - "." or " " as thousand separators
+ * - "," as decimal separator
+ * - "UYU" / "USD" / "$U" / "U$S" currency suffixes
+ * - "k" / "K" suffix meaning × 1000
+ */
 function cleanNumber(raw: string): number {
-  // Remove currency symbols, dots used as thousand separators, replace comma with dot
-  const cleaned = raw
+  let s = raw
     .replace(/\$/g, '')
-    .replace(/\./g, '')
-    .replace(/,/g, '.')
+    .replace(/UYU/gi, '')
+    .replace(/USD/gi, '')
+    .replace(/\$U/gi, '')
+    .replace(/U\$S/gi, '')
     .trim();
-  return parseFloat(cleaned) || 0;
+
+  // Handle "100k" / "2.5k"
+  const kMatch = s.match(/^([\d.,\s]+)[kK]$/);
+  if (kMatch) {
+    const base = kMatch[1].replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+    return (parseFloat(base) || 0) * 1000;
+  }
+
+  // Remove spaces used as thousand separators ("2 000" → "2000")
+  s = s.replace(/\s/g, '');
+  // Remove dots used as thousand separators only when followed by 3 digits and no comma
+  // Rule: if there's no comma and a dot followed by exactly 3 digits at end → thousand separator
+  if (!s.includes(',') && /\.\d{3}$/.test(s)) {
+    s = s.replace(/\./g, '');
+  } else {
+    // Otherwise: dots are thousand separators, comma is decimal
+    s = s.replace(/\./g, '').replace(',', '.');
+  }
+  return parseFloat(s) || 0;
 }
 
 /**
@@ -65,6 +93,49 @@ function parseEventDate(raw: string): string {
 }
 
 /**
+ * Try to parse a free-form line into an item.
+ * Supports patterns like:
+ *   "Hielo — 2.000 UYU"                → name + price
+ *   "5 x 400 UYU"                      → qty × unitPrice (inferred name from next context)
+ *   "Mozos (6) — $17.400"              → name with qty in parentheses
+ *   "Servicio de DJ: $8.000"           → name: price
+ *   "15% de descuento en Decoración"   → discount hint (not an item, just noted)
+ * Returns null if the line doesn't look like an item.
+ */
+function parseFreeFormLine(
+  line: string,
+): { nombre: string; cantidad: number; precioUnitario: number; descuento: number; total: number } | null {
+  // Separators: em dash (—), en dash (–), colon, or " - "
+  const sepMatch = line.match(/^(.+?)(?:\s*[—–]\s*|\s*:\s*|\s+-\s+)(\$?[\d.,\s]+[kK]?\s*(?:UYU|USD|\$U|U\$S)?)$/i);
+  if (sepMatch) {
+    const namePart = sepMatch[1].trim();
+    const pricePart = sepMatch[2].trim();
+    const price = cleanNumber(pricePart);
+    if (price > 0 && namePart.length > 0) {
+      // Check if name contains qty in parens: "Mozos (6)"
+      const qtyInName = namePart.match(/^(.+?)\s*\((\d+)\)$/);
+      if (qtyInName) {
+        const qty = parseInt(qtyInName[2], 10);
+        return { nombre: qtyInName[1].trim(), cantidad: qty, precioUnitario: price / qty, descuento: 0, total: price };
+      }
+      return { nombre: namePart, cantidad: 1, precioUnitario: price, descuento: 0, total: price };
+    }
+  }
+
+  // "5 x 400 UYU" or "5x400"
+  const qtyTimesPrice = line.match(/^(\d+)\s*[xX]\s*([\d.,\s]+[kK]?\s*(?:UYU|USD|\$U|U\$S)?)$/i);
+  if (qtyTimesPrice) {
+    const qty = parseInt(qtyTimesPrice[1], 10);
+    const unitPrice = cleanNumber(qtyTimesPrice[2]);
+    if (qty > 0 && unitPrice > 0) {
+      return { nombre: '', cantidad: qty, precioUnitario: unitPrice, descuento: 0, total: qty * unitPrice };
+    }
+  }
+
+  return null;
+}
+
+/**
  * Main parser. Accepts the full pasted text and returns a ParsedBudget.
  */
 export function parseBudgetText(text: string): ParsedBudget {
@@ -92,7 +163,6 @@ export function parseBudgetText(text: string): ParsedBudget {
     if (!currentItemName) return;
     const esRegalo = currentDiscount >= 100;
     const precioUnitario = currentUnitPrice;
-    // Use importe as the declared total; store as costoTotalItem placeholder
     items.push({
       idServicioCatalogo: `imported_${items.length}`,
       nombreServicio: currentItemName,
@@ -103,7 +173,7 @@ export function parseBudgetText(text: string): ParsedBudget {
       calculationMethod: 'fijo',
     } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
     // Ensure the stored unit price produces the declared importe when multiplied by qty.
-    // recalcularCostoItem for 'fijo' = precioUnitario * cantidad, so we set precioUnitario = importe/qty.
+    // recalcularCostoItem for 'fijo' = precioUnitario * cantidad.
     if (currentImporte > 0 && !esRegalo && currentQty > 0) {
       items[items.length - 1].precioUnitario = currentImporte / currentQty;
       items[items.length - 1].precioUnitarioPresupuesto = currentImporte / currentQty;
@@ -128,8 +198,17 @@ export function parseBudgetText(text: string): ParsedBudget {
         clienteNombre = line.replace(/^cliente:\s*/i, '').trim();
         continue;
       }
+      if (lower.startsWith('nombre:') && !clienteNombre) {
+        clienteNombre = line.replace(/^nombre:\s*/i, '').trim();
+        continue;
+      }
       if (lower.startsWith('fecha del evento:')) {
         eventoFechaRaw = line.replace(/^fecha del evento:\s*/i, '').trim();
+        eventoFecha = parseEventDate(eventoFechaRaw);
+        continue;
+      }
+      if (lower.startsWith('fecha:') && !eventoFechaRaw) {
+        eventoFechaRaw = line.replace(/^fecha:\s*/i, '').trim();
         eventoFecha = parseEventDate(eventoFechaRaw);
         continue;
       }
@@ -156,26 +235,41 @@ export function parseBudgetText(text: string): ParsedBudget {
         lower.includes('detalle de artículos') ||
         lower.includes('detalle de articulos') ||
         lower.startsWith('artículos') ||
-        lower.startsWith('articulos')
+        lower.startsWith('articulos') ||
+        lower.includes('servicios incluidos') ||
+        lower.includes('ítems') ||
+        lower.startsWith('items')
       ) {
         inItems = true;
         continue;
       }
+
+      // Free-form item line before formal section header — try to parse
+      const freeLine = parseFreeFormLine(line);
+      if (freeLine && freeLine.total > 0 && freeLine.nombre) {
+        items.push({
+          idServicioCatalogo: `imported_${items.length}`,
+          nombreServicio: freeLine.nombre,
+          cantidad: freeLine.cantidad,
+          precioUnitario: freeLine.precioUnitario,
+          precioUnitarioPresupuesto: freeLine.precioUnitario,
+          esRegalo: false,
+          calculationMethod: 'fijo',
+        } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
+      }
     }
 
-    // Parse items
+    // Parse items (structured format with field labels)
     if (inItems) {
       // Total line
       if (lower.includes('importe total') || lower.includes('total general') || lower.match(/^total\s*:/)) {
-        const totalMatch = line.match(/\$?\s*([\d.,]+)/);
+        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
         if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
         inItems = false;
         continue;
       }
 
       if (lower.startsWith('cantidad:')) {
-        // Start of a new item: flush previous
-        // (item name is the previous non-field line)
         const val = line.replace(/^cantidad:\s*/i, '');
         currentQty = parseFloat(val.replace(/\./g, '').replace(',', '.')) || 1;
         continue;
@@ -208,23 +302,39 @@ export function parseBudgetText(text: string): ParsedBudget {
         continue;
       }
 
+      // Free-form item lines inside the items section
+      const freeLine = parseFreeFormLine(line);
+      if (freeLine && (freeLine.total > 0 || freeLine.precioUnitario > 0)) {
+        flushItem(); // flush any pending structured item
+        const nombre = freeLine.nombre || currentItemName || `Ítem ${items.length + 1}`;
+        items.push({
+          idServicioCatalogo: `imported_${items.length}`,
+          nombreServicio: nombre,
+          cantidad: freeLine.cantidad,
+          precioUnitario: freeLine.precioUnitario,
+          precioUnitarioPresupuesto: freeLine.precioUnitario,
+          esRegalo: false,
+          calculationMethod: 'fijo',
+        } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
+        currentItemName = '';
+        continue;
+      }
+
+      // Inline discount note: "15% de descuento" — note as warning and skip
+      const discountNote = line.match(/(\d+)%\s+de\s+descuento/i);
+      if (discountNote && !currentItemName) {
+        warnings.push(`Nota de descuento detectada: "${line}" — aplicar manualmente.`);
+        continue;
+      }
+
       // Lines that don't match field patterns are item names.
-      // Only treat as item name if we're not currently mid-parsing an item's fields
-      // (i.e., after a previous item's Importe: was processed or at the start).
       if (line && !line.match(/^[-=*]+$/)) {
-        // A new item name begins when we encounter a non-field line without a pending item name,
-        // OR when the current item name is set but we haven't collected any fields yet.
-        // The safest check: if currentItemName is empty, this line is a new item name.
-        // If currentItemName is set but we already have quantity/price data, this is unexpected -
-        // flush what we have (partial item) and start a new one.
         if (!currentItemName) {
           currentItemName = line;
         } else if (currentQty > 0 || currentUnitPrice > 0 || currentImporte > 0) {
-          // Mid-item and we see another non-field line: flush partial item and start new
           flushItem();
           currentItemName = line;
         }
-        // else: currentItemName is set but no fields yet - ignore duplicate name lines
       }
     }
   }
@@ -243,7 +353,7 @@ export function parseBudgetText(text: string): ParsedBudget {
     .map(it => it.cantidad);
   const invitadosCantidad = invCandidates.length > 0 ? Math.max(...invCandidates) : 0;
 
-  if (!clienteNombre) warnings.push('No se encontró el nombre del cliente en el texto.');
+  if (!clienteNombre) warnings.push('No se encontró el nombre del cliente en el texto. Se usará "Cliente" como nombre provisional.');
   if (!eventoFecha) warnings.push(`Fecha del evento "${eventoFechaRaw}" no pudo parsearse automáticamente. Revisá y ajustá manualmente.`);
   if (items.length === 0) warnings.push('No se detectaron ítems en el texto. Verificá el formato.');
 
@@ -253,7 +363,7 @@ export function parseBudgetText(text: string): ParsedBudget {
   ].filter(Boolean).join(' ');
 
   return {
-    clienteNombre,
+    clienteNombre: clienteNombre || 'Cliente',
     eventoFecha,
     eventoFechaRaw,
     eventoTipo,

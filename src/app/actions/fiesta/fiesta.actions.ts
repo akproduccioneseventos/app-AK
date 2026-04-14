@@ -72,7 +72,8 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
     }
   }
 
-  return historiales.sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
+  return Array.from(new Map(historiales.map(f => [f.id, f])).values())
+    .sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {

@@ -16,10 +16,16 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { PublicFooter } from '@/components/public-footer';
 import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getCuponesRegaloActivos } from '@/app/actions/cupones';
+import { getMenus } from '@/app/actions/menus-catering';
+import { getLandingSettings } from '@/app/actions/landing-editor';
 import { CountdownTimer } from '@/components/countdown-timer';
 import type { Coupon } from '@/types/coupon';
 import { esCuponRegalo } from '@/types/coupon';
+import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
+import type { FullMenu } from '@/types/catering';
+import type { LandingFaqItem } from '@/types/landing-editor';
 import { cn } from '@/lib/utils';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -213,6 +219,9 @@ export default function SimuladorAKPage() {
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [savedState, setSavedState] = useState<SimuladorState | null>(null);
   const [cuponRegalo, setCuponRegalo] = useState<Coupon | null>(null);
+  const [dynamicPaquetes, setDynamicPaquetes] = useState<PaqueteArmadoRapido[]>([]);
+  const [availableMenus, setAvailableMenus] = useState<FullMenu[]>([]);
+  const [landingFaqs, setLandingFaqs] = useState<LandingFaqItem[]>([]);
 
   // ── Persistence ──────────────────────────────────────────────────────────
 
@@ -221,6 +230,16 @@ export default function SimuladorAKPage() {
       if (list.length > 0) setCuponRegalo(list[0]);
     }).catch((err) => {
       console.error('Error al cargar cupones regalo:', err);
+    });
+    // Load dynamic config (packages, menus, FAQs) for the assistant
+    Promise.all([
+      getArmadoRapidoConfig().catch(() => null),
+      getMenus().catch(() => [] as FullMenu[]),
+      getLandingSettings().catch(() => null),
+    ]).then(([armadoConfig, menus, landingCfg]) => {
+      if (armadoConfig?.paquetes?.length) setDynamicPaquetes(armadoConfig.paquetes);
+      if (Array.isArray(menus) && menus.length > 0) setAvailableMenus(menus);
+      if (landingCfg?.faqs?.length) setLandingFaqs(landingCfg.faqs);
     });
   }, []);
 
@@ -422,7 +441,7 @@ export default function SimuladorAKPage() {
             </Button>
             <Button
               variant="outline"
-              className="w-full rounded-2xl h-12"
+              className="w-full rounded-2xl h-12 bg-transparent border-white/20 text-white hover:bg-white/10"
               onClick={() => {
                 localStorage.removeItem(STORAGE_KEY);
                 setShowResumeModal(false);
@@ -500,10 +519,10 @@ export default function SimuladorAKPage() {
                   <StepSalon state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
                 )}
                 {state.step === 5 && (
-                  <StepPackage state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                  <StepPackage state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} />
                 )}
                 {state.step === 6 && (
-                  <StepServices state={state} onNext={goNext} onPrev={goPrev} />
+                  <StepServices state={state} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} availableMenus={availableMenus} />
                 )}
                 {state.step === 7 && (
                   <StepGifts prices={prices} onNext={goNext} onPrev={goPrev} />
@@ -593,6 +612,24 @@ export default function SimuladorAKPage() {
 
           {/* Chat footer hint */}
           <div className="p-3 border-t border-white/10">
+            {landingFaqs.length > 0 && (
+              <div className="mb-2 space-y-1">
+                <p className="text-violet-400 text-[10px] uppercase tracking-widest font-bold mb-1">Preguntas frecuentes:</p>
+                {landingFaqs.slice(0, 3).map(faq => (
+                  <button
+                    key={faq.id}
+                    onClick={() => {
+                      const answer: ChatMessage = { role: 'assistant', text: faq.answer, key: `faq_${faq.id}` };
+                      const question: ChatMessage = { role: 'user', text: faq.question, key: `faq_q_${faq.id}` };
+                      setChatHistory(prev => [...prev, question, answer]);
+                    }}
+                    className="w-full text-left text-xs text-violet-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl px-3 py-2 transition-colors leading-tight"
+                  >
+                    {faq.question}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
               <MessageSquare className="w-4 h-4 text-violet-400 flex-shrink-0" />
               <span className="text-violet-300 text-xs">Asistente guiado · Paso a paso</span>
@@ -917,48 +954,74 @@ function StepSalon({
 // ─── Step: Package ────────────────────────────────────────────────────────────
 
 function StepPackage({
-  state, onChange, onNext, onPrev,
+  state, onChange, onNext, onPrev, dynamicPaquetes,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
   onNext: () => void;
   onPrev: () => void;
+  dynamicPaquetes?: PaqueteArmadoRapido[];
 }) {
   const canNext = !!state.paquete;
-  const options: { value: PackageType; emoji: string }[] = [
+  const staticOptions: { value: PackageType; emoji: string }[] = [
     { value: 'basico',     emoji: '⚡' },
     { value: 'intermedio', emoji: '🔥' },
     { value: 'premium',    emoji: '👑' },
   ];
 
+  // Use dynamic packages if available, otherwise fall back to hardcoded PACKAGE_META
+  const hasDynamic = dynamicPaquetes && dynamicPaquetes.length > 0;
+
   return (
     <StepCard title="¿Cómo te imaginás tu fiesta?" icon={<Star className="w-6 h-6" />}>
       <div className="space-y-2.5">
-        {options.map(opt => {
-          const meta = PACKAGE_META[opt.value];
-          return (
+        {hasDynamic ? (
+          dynamicPaquetes.map((pkg) => (
             <button
-              key={opt.value}
-              onClick={() => onChange('paquete', opt.value)}
+              key={pkg.id}
+              onClick={() => onChange('paquete', pkg.id as PackageType)}
               className={cn(
                 'w-full rounded-2xl p-4 text-left transition-all border-2 flex items-center gap-3 relative',
-                state.paquete === opt.value
+                state.paquete === pkg.id
                   ? 'bg-violet-500/40 border-violet-400'
                   : 'bg-white/5 border-white/10 hover:bg-white/10',
               )}
             >
-              <span className="text-2xl">{opt.emoji}</span>
+              <span className="text-2xl">🎉</span>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold">{meta.label}</p>
-                <p className="text-violet-300 text-xs">{meta.description}</p>
+                <p className="text-white font-bold">{pkg.nombre}</p>
+                {pkg.descripcion && <p className="text-violet-300 text-xs">{pkg.descripcion}</p>}
               </div>
-              {meta.recommended && (
-                <Badge className="bg-amber-500 text-white text-xs absolute -top-2 right-3">Más elegido</Badge>
-              )}
-              {state.paquete === opt.value && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
+              {state.paquete === pkg.id && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
             </button>
-          );
-        })}
+          ))
+        ) : (
+          staticOptions.map(opt => {
+            const meta = PACKAGE_META[opt.value];
+            return (
+              <button
+                key={opt.value}
+                onClick={() => onChange('paquete', opt.value)}
+                className={cn(
+                  'w-full rounded-2xl p-4 text-left transition-all border-2 flex items-center gap-3 relative',
+                  state.paquete === opt.value
+                    ? 'bg-violet-500/40 border-violet-400'
+                    : 'bg-white/5 border-white/10 hover:bg-white/10',
+                )}
+              >
+                <span className="text-2xl">{opt.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-bold">{meta.label}</p>
+                  <p className="text-violet-300 text-xs">{meta.description}</p>
+                </div>
+                {meta.recommended && (
+                  <Badge className="bg-amber-500 text-white text-xs absolute -top-2 right-3">Más elegido</Badge>
+                )}
+                {state.paquete === opt.value && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
+              </button>
+            );
+          })
+        )}
       </div>
       <StepNav onPrev={onPrev} onNext={onNext} canNext={canNext} showPrev />
     </StepCard>
@@ -968,21 +1031,32 @@ function StepPackage({
 // ─── Step: Services ───────────────────────────────────────────────────────────
 
 function StepServices({
-  state, onNext, onPrev,
+  state, onNext, onPrev, dynamicPaquetes, availableMenus,
 }: {
   state: SimuladorState;
   onNext: () => void;
   onPrev: () => void;
+  dynamicPaquetes?: PaqueteArmadoRapido[];
+  availableMenus?: FullMenu[];
 }) {
-  const services = state.eventoTipo && state.paquete
-    ? SERVICES_BY_EVENT[state.eventoTipo as EventType][state.paquete as PackageType]
-    : [];
-  const pkgMeta = state.paquete ? PACKAGE_META[state.paquete as PackageType] : null;
+  const hasDynamic = dynamicPaquetes && dynamicPaquetes.length > 0;
+  const dynamicPkg = hasDynamic ? dynamicPaquetes.find(p => p.id === state.paquete) : null;
+
+  const services: string[] = dynamicPkg
+    ? (dynamicPkg.serviciosIncluidos || []).map(s => s.id)
+    : (state.eventoTipo && state.paquete && (SERVICES_BY_EVENT as Record<string, Record<string, string[]>>)[state.eventoTipo]?.[state.paquete])
+      ? (SERVICES_BY_EVENT as Record<string, Record<string, string[]>>)[state.eventoTipo][state.paquete]
+      : [];
+
+  const pkgLabel = dynamicPkg ? dynamicPkg.nombre : (state.paquete ? PACKAGE_META[state.paquete as PackageType]?.label : null);
+
+  // Show menus if available
+  const relevantMenus = (availableMenus || []).slice(0, 3);
 
   return (
     <StepCard title="Servicios incluidos" icon={<Zap className="w-6 h-6" />}>
       <p className="text-violet-300 text-sm mb-4">
-        Basándome en tu evento y paquete <strong className="text-white">{pkgMeta?.label}</strong>, activé automáticamente los servicios más importantes:
+        Basándome en tu evento y paquete <strong className="text-white">{pkgLabel}</strong>, activé automáticamente los servicios más importantes:
       </p>
       <div className="space-y-2">
         {services.map((service, i) => (
@@ -998,6 +1072,20 @@ function StepServices({
           </motion.div>
         ))}
       </div>
+      {relevantMenus.length > 0 && (
+        <div className="mt-4 space-y-2">
+          <p className="text-violet-300 text-xs font-bold uppercase tracking-wide">Menús disponibles:</p>
+          {relevantMenus.map((menu) => (
+            <div key={menu.id} className="bg-white/5 rounded-xl px-4 py-3 flex items-center gap-2">
+              <span className="text-lg">🍽️</span>
+              <div>
+                <p className="text-white text-sm font-medium">{menu.name}</p>
+                {menu.description && <p className="text-violet-300 text-xs">{menu.description}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <p className="text-violet-400 text-xs mt-3">* En la reunión podemos ajustar, agregar o quitar servicios.</p>
       <StepNav onPrev={onPrev} onNext={onNext} canNext showPrev />
     </StepCard>
@@ -1123,7 +1211,7 @@ function StepConversion({
 
         <Button
           variant="outline"
-          className="w-full border-white/20 text-white hover:bg-white/10 rounded-2xl h-12 font-bold"
+          className="w-full border-white/20 text-white hover:bg-white/10 bg-transparent rounded-2xl h-12 font-bold"
           onClick={() => {
             const msg = encodeURIComponent(
               `Hola ${state.nombre}! Quería coordinar una reunión para cerrar los detalles de tu evento. ¿Cuándo te vendría bien?`
