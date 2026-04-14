@@ -219,3 +219,35 @@ export async function saveWhatsAppTemplates(
     return { success: false, error: error.message || "Error desconocido al guardar las plantillas de WhatsApp." };
   }
 }
+
+// ── AI Assistant Settings ──────────────────────────────────────────────────
+
+const AI_ASSISTANT_SETTINGS_FILE = 'ai-assistant-settings.json';
+
+export interface AiAssistantSettings {
+  customInstructions: string;
+  updatedAt: string;
+}
+
+const defaultAiAssistantSettings: AiAssistantSettings = {
+  customInstructions: '',
+  updatedAt: '',
+};
+
+export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
+  const data = await readData<Partial<AiAssistantSettings>>(AI_ASSISTANT_SETTINGS_FILE, {});
+  return { ...defaultAiAssistantSettings, ...data };
+}
+
+export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings, 'customInstructions'>): Promise<{ success: boolean; error?: string }> {
+  try {
+    const toSave: AiAssistantSettings = {
+      customInstructions: settings.customInstructions,
+      updatedAt: new Date().toISOString(),
+    };
+    await writeData(AI_ASSISTANT_SETTINGS_FILE, toSave);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}

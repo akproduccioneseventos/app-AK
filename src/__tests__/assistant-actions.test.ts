@@ -39,6 +39,7 @@ jest.mock('@/app/actions/dashboard', () => ({
 
 jest.mock('@/app/actions/settings', () => ({
   getCompanyInfo: jest.fn().mockResolvedValue({ companyName: 'AK Test' }),
+  getAiAssistantSettings: jest.fn().mockResolvedValue({ customInstructions: '', updatedAt: '' }),
 }));
 
 jest.mock('@/app/actions/presupuestos', () => ({
