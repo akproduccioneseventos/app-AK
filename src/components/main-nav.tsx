@@ -33,6 +33,14 @@ import {
   Bell,
   PlusCircle,
   BookOpen,
+  MessageCircle,
+  ChefHat,
+  Package,
+  Briefcase,
+  BarChart3,
+  DoorOpen,
+  Wrench,
+  Send,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -308,7 +316,274 @@ export function MainNav() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* 5. ADMINISTRACIÓN */}
+        {/* 5. WHATSAPP */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-green-400 mb-3">💬 WhatsApp</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-1.5">
+              <SidebarMenuItem>
+                <Link href="/contabilidad/crm/outbox">
+                  <SidebarMenuButton
+                    isActive={isActive("/contabilidad/crm/outbox")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/contabilidad/crm/outbox")
+                          ? "bg-green-500 text-white shadow-md shadow-green-400/30"
+                          : "bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+                    )}
+                  >
+                    <Send className="w-4 h-4" />
+                    <span className="ml-2">Envíos del Día</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/settings/whatsapp">
+                  <SidebarMenuButton
+                    isActive={isActive("/settings/whatsapp") && !isActive("/settings/whatsapp-templates") && !isActive("/settings/whatsapp-business")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/settings/whatsapp") && !isActive("/settings/whatsapp-templates") && !isActive("/settings/whatsapp-business")
+                          ? "bg-green-50 text-green-700 shadow-sm"
+                          : "text-slate-500 hover:bg-green-50/60 hover:text-green-700"
+                    )}
+                  >
+                    <MessageCircle className={cn("w-4 h-4", isActive("/settings/whatsapp") && !isActive("/settings/whatsapp-templates") && !isActive("/settings/whatsapp-business") ? "text-green-600" : "text-green-400")} />
+                    <span className="ml-2">Configuración WA</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* 6. CONTABILIDAD */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">📊 Contabilidad</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-1.5">
+              <SidebarMenuItem>
+                <Link href="/empresa/contabilidad">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/contabilidad") && !isActive("/empresa/contabilidad/gastos") && !isActive("/empresa/contabilidad/flujo-caja") && !isActive("/empresa/contabilidad/reportes")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/contabilidad") && !isActive("/empresa/contabilidad/gastos") && !isActive("/empresa/contabilidad/flujo-caja") && !isActive("/empresa/contabilidad/reportes")
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                    )}
+                  >
+                    <BarChart3 className={cn("w-4 h-4", isActive("/empresa/contabilidad") ? "text-indigo-600" : "text-indigo-400")} />
+                    <span className="ml-2">Panel Contable</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/invoices">
+                  <SidebarMenuButton
+                    isActive={isActive("/invoices")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/invoices")
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                    )}
+                  >
+                    <FileText className={cn("w-4 h-4", isActive("/invoices") ? "text-indigo-600" : "text-indigo-400")} />
+                    <span className="ml-2">Facturación</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/contabilidad/gastos">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/contabilidad/gastos")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/contabilidad/gastos")
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                    )}
+                  >
+                    <Wallet className={cn("w-4 h-4", isActive("/empresa/contabilidad/gastos") ? "text-indigo-600" : "text-indigo-400")} />
+                    <span className="ml-2">Gastos</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/contabilidad/flujo-caja">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/contabilidad/flujo-caja")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/contabilidad/flujo-caja")
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                    )}
+                  >
+                    <Wallet className={cn("w-4 h-4", isActive("/empresa/contabilidad/flujo-caja") ? "text-indigo-600" : "text-indigo-400")} />
+                    <span className="ml-2">Flujo de Caja</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/analytics">
+                  <SidebarMenuButton
+                    isActive={isActive("/analytics")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/analytics")
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                    )}
+                  >
+                    <BarChart3 className={cn("w-4 h-4", isActive("/analytics") ? "text-indigo-600" : "text-indigo-400")} />
+                    <span className="ml-2">Analytics</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/contabilidad/fiestas-historicas">
+                  <SidebarMenuButton
+                    isActive={isActive("/contabilidad/fiestas-historicas")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/contabilidad/fiestas-historicas")
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                    )}
+                  >
+                    <BookOpen className={cn("w-4 h-4", isActive("/contabilidad/fiestas-historicas") ? "text-indigo-600" : "text-indigo-400")} />
+                    <span className="ml-2">Historial</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* 7. EMPRESA */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-blue-300 mb-3">🏢 Empresa</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-1.5">
+              <SidebarMenuItem>
+                <Link href="/empleados">
+                  <SidebarMenuButton
+                    isActive={isActive("/empleados")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empleados")
+                          ? "bg-blue-50 text-blue-700 shadow-sm"
+                          : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
+                    )}
+                  >
+                    <Briefcase className={cn("w-4 h-4", isActive("/empleados") ? "text-blue-600" : "text-blue-400")} />
+                    <span className="ml-2">Empleados</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/proveedores">
+                  <SidebarMenuButton
+                    isActive={isActive("/proveedores")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/proveedores")
+                          ? "bg-blue-50 text-blue-700 shadow-sm"
+                          : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
+                    )}
+                  >
+                    <Users className={cn("w-4 h-4", isActive("/proveedores") ? "text-blue-600" : "text-blue-400")} />
+                    <span className="ml-2">Proveedores</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/salones">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/salones")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/salones")
+                          ? "bg-blue-50 text-blue-700 shadow-sm"
+                          : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
+                    )}
+                  >
+                    <DoorOpen className={cn("w-4 h-4", isActive("/empresa/salones") ? "text-blue-600" : "text-blue-400")} />
+                    <span className="ml-2">Salones</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/activos-fijos">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/activos-fijos")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/activos-fijos")
+                          ? "bg-blue-50 text-blue-700 shadow-sm"
+                          : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
+                    )}
+                  >
+                    <Wrench className={cn("w-4 h-4", isActive("/empresa/activos-fijos") ? "text-blue-600" : "text-blue-400")} />
+                    <span className="ml-2">Activos Fijos</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/menus">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/menus")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/menus")
+                          ? "bg-blue-50 text-blue-700 shadow-sm"
+                          : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
+                    )}
+                  >
+                    <ChefHat className={cn("w-4 h-4", isActive("/empresa/menus") ? "text-blue-600" : "text-blue-400")} />
+                    <span className="ml-2">Gastronomía / Menús</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/insumos">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/insumos")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/insumos")
+                          ? "bg-blue-50 text-blue-700 shadow-sm"
+                          : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
+                    )}
+                  >
+                    <Package className={cn("w-4 h-4", isActive("/empresa/insumos") ? "text-blue-600" : "text-blue-400")} />
+                    <span className="ml-2">Insumos</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/empresa/servicios">
+                  <SidebarMenuButton
+                    isActive={isActive("/empresa/servicios")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/empresa/servicios")
+                          ? "bg-blue-50 text-blue-700 shadow-sm"
+                          : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
+                    )}
+                  >
+                    <Building2 className={cn("w-4 h-4", isActive("/empresa/servicios") ? "text-blue-600" : "text-blue-400")} />
+                    <span className="ml-2">Catálogo de Servicios</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* 8. ADMINISTRACIÓN (gestión interna) */}
         <SidebarGroup>
           <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">⚙️ Administración</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -325,76 +600,41 @@ export function MainNav() {
                   )}
                 >
                   <Building2 className={cn("w-4 h-4", isAdminActive ? "text-blue-600" : "text-blue-400")} />
-                  <span className="ml-2">Administración</span>
+                  <span className="ml-2">Más opciones</span>
                 </SidebarMenuButton>
                 <SidebarMenuSub className="ml-5 border-l-2 border-blue-100 space-y-1 mt-1.5">
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/servicios">
-                      <SidebarMenuSubButton isActive={isActive("/empresa/servicios")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Catálogo de Servicios
+                    <Link href="/playbooks">
+                      <SidebarMenuSubButton isActive={isActive("/playbooks")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
+                        Playbooks
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/menus">
-                      <SidebarMenuSubButton isActive={isActive("/empresa/menus")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Gastronomía
+                    <Link href="/aprobaciones">
+                      <SidebarMenuSubButton isActive={isActive("/aprobaciones")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
+                        Aprobaciones
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empleados">
-                      <SidebarMenuSubButton isActive={isActive("/empleados")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Empleados
+                    <Link href="/auditoria">
+                      <SidebarMenuSubButton isActive={isActive("/auditoria")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
+                        Auditoría
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/proveedores">
-                      <SidebarMenuSubButton isActive={isActive("/proveedores")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Proveedores
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/invoices">
-                      <SidebarMenuSubButton isActive={isActive("/invoices")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Facturación
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/empresa/contabilidad/gastos">
-                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/gastos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Gastos
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/empresa/contabilidad/flujo-caja">
-                      <SidebarMenuSubButton isActive={isActive("/empresa/contabilidad/flujo-caja")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Flujo de Caja
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/contabilidad/fiestas-historicas">
-                      <SidebarMenuSubButton isActive={isActive("/contabilidad/fiestas-historicas")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Historial
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/analytics">
-                      <SidebarMenuSubButton isActive={isActive("/analytics")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Analytics
+                    <Link href="/incidentes">
+                      <SidebarMenuSubButton isActive={isActive("/incidentes")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
+                        Incidentes
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <Link href="/empresa/redes-sociales">
                       <SidebarMenuSubButton isActive={isActive("/empresa/redes-sociales")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Marketing
+                        Marketing / Redes
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
@@ -427,44 +667,9 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/empresa/activos-fijos">
-                      <SidebarMenuSubButton isActive={isActive("/empresa/activos-fijos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Activos Fijos
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/empresa/insumos">
-                      <SidebarMenuSubButton isActive={isActive("/empresa/insumos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Insumos
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/playbooks">
-                      <SidebarMenuSubButton isActive={isActive("/playbooks")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Playbooks
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/aprobaciones">
-                      <SidebarMenuSubButton isActive={isActive("/aprobaciones")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Aprobaciones
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/auditoria">
-                      <SidebarMenuSubButton isActive={isActive("/auditoria")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Auditoría
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/incidentes">
-                      <SidebarMenuSubButton isActive={isActive("/incidentes")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Incidentes
+                    <Link href="/recursos-multi-evento">
+                      <SidebarMenuSubButton isActive={isActive("/recursos-multi-evento")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
+                        Recursos Multi-Evento
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
@@ -472,13 +677,6 @@ export function MainNav() {
                     <Link href="/settings/feature-flags">
                       <SidebarMenuSubButton isActive={isActive("/settings/feature-flags")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Feature Flags
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/recursos-multi-evento">
-                      <SidebarMenuSubButton isActive={isActive("/recursos-multi-evento")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
-                        Recursos Multi-Evento
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>

@@ -30,6 +30,8 @@ import {
     UserPlus,
     FileText,
     Files,
+    MessageCircle,
+    Send,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -204,6 +206,15 @@ export default function MainDashboardPage() {
           lightColor: "bg-orange-50 text-orange-600",
           featured: false,
         },
+        {
+          title: 'Envíos de WhatsApp',
+          description: 'Mensajes programados y envíos del día vía WhatsApp.',
+          href: '/contabilidad/crm/outbox',
+          icon: MessageCircle,
+          color: "bg-green-500",
+          lightColor: "bg-green-50 text-green-600",
+          featured: false,
+        },
     ]
 
   return (
@@ -292,7 +303,7 @@ export default function MainDashboardPage() {
                 <Card className="border-none shadow-2xl rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-white">
                     <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6 sm:p-8">
                         <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Herramientas rápidas</CardTitle>
-                        <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos y modo presentación.</CardDescription>
+                        <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos, WhatsApp y modo presentación.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-6 sm:p-8">
                         <Link href="/presupuestos/nuevo/crear">
@@ -341,6 +352,18 @@ export default function MainDashboardPage() {
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cobrar y enviar recibo.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                            </div>
+                        </Link>
+                        <Link href="/contabilidad/crm/outbox">
+                            <div className="group p-6 sm:p-8 border-2 border-green-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-green-400 hover:bg-green-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-green-50/20">
+                                <div className="p-4 sm:p-5 bg-green-100 text-green-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-green-500 group-hover:to-emerald-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                                    <Send className="w-6 h-6 sm:w-7 sm:h-7"/>
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Envíos de WhatsApp</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-green-600 mt-1 uppercase tracking-tighter">Mensajes del día pendientes.</p>
+                                </div>
+                                <ArrowRight className="w-5 h-5 ml-auto text-green-300 group-hover:text-green-500 group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
                         <div className="md:col-span-2 lg:col-span-4">
