@@ -20,10 +20,17 @@ import * as logger from '@/lib/logger';
 const DEFAULT_SERVICE_NAME = 'Servicio';
 
 /**
- * Wraps the deterministic budget text parser and assigns a confidence level.
- * confidence 'high'   = clienteNombre + eventoTipo + ≥1 item with price
- * confidence 'medium' = clienteNombre OR eventoTipo + ≥1 item
- * confidence 'low'    = only partial data, not enough to create a useful draft
+ * Runs the deterministic local budget text parser and assigns a confidence level
+ * based on how much structured data was successfully extracted.
+ *
+ * @param text - The raw pasted or spoken text to parse.
+ * @returns The full ParsedBudget result augmented with a `confidence` field:
+ *   - `'high'`   — clienteNombre + a specific eventoTipo + ≥1 item with a price.
+ *     Safe to create a draft automatically.
+ *   - `'medium'` — clienteNombre OR specific eventoTipo, plus ≥1 item (priced or not).
+ *     Create a draft but warn the user to review.
+ *   - `'low'`    — Only partial/unclear data. Do NOT create anything; show detected
+ *     fields and explain what is still missing.
  */
 function parseBudgetFromText(text: string): ReturnType<typeof parseBudgetText> & {
   confidence: 'high' | 'medium' | 'low';

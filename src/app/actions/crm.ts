@@ -24,6 +24,9 @@ function normalizeName(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
+/** Minimum characters a name must have to be used in partial containment matching. */
+const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 4;
+
 /**
  * Simple similarity check: returns true if two names are considered the same
  * (same normalized value, or one contains the other fully, covering common cases).
@@ -33,8 +36,8 @@ function namesAreSimilar(a: string, b: string): boolean {
   const nb = normalizeName(b);
   if (na === nb) return true;
   // One includes the other (handles "Juan" vs "Juan Pérez" partial matches)
-  if (na.length >= 4 && nb.includes(na)) return true;
-  if (nb.length >= 4 && na.includes(nb)) return true;
+  if (na.length >= MIN_NAME_LENGTH_FOR_PARTIAL_MATCH && nb.includes(na)) return true;
+  if (nb.length >= MIN_NAME_LENGTH_FOR_PARTIAL_MATCH && na.includes(nb)) return true;
   return false;
 }
 

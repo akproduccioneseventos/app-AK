@@ -801,6 +801,15 @@ export function AKAssistantWidget() {
     }
   }, [chatHistory, ttsEnabled, speakMessage]);
 
+  /** Toggle handler for the "Hablar y enviar" button. */
+  const handleVoiceAutoSend = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening(true);
+    }
+  };
+
   const greeting = getGreeting();
   const highCount = alerts.filter(a => a.severity === 'high').length;
   const summaryText = alerts.length === 0 ? '¡Todo en orden por ahora! 🎉' : highCount > 0 ? `Tenés ${highCount} ${pluralize(highCount, 'asunto urgente', 'asuntos urgentes')} hoy.` : `Tenés ${alerts.length} ${pluralize(alerts.length, 'recordatorio pendiente', 'recordatorios pendientes')}.`;
@@ -1020,7 +1029,7 @@ export function AKAssistantWidget() {
                     variant="ghost"
                     size="icon"
                     className={cn('h-8 w-8 shrink-0', voiceError ? 'text-slate-300' : 'text-slate-400 hover:text-emerald-600')}
-                    onClick={() => { if (isListening) { stopListening(); } else { startListening(true); } }}
+                    onClick={handleVoiceAutoSend}
                     title="Hablar y enviar automáticamente al terminar"
                     disabled={isSending}
                   >

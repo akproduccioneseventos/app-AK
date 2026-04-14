@@ -30,10 +30,8 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   syncFiestaFromBudget: jest.fn(),
 }));
 
-jest.mock('./notifications', () => ({
-  createNotification: jest.fn().mockResolvedValue(undefined),
-}), { virtual: true });
-
+// crm.ts imports createNotification from './notifications' (relative to app/actions/crm.ts)
+// which resolves to @/app/actions/notifications — mock the absolute path only.
 jest.mock('@/app/actions/notifications', () => ({
   createNotification: jest.fn().mockResolvedValue(undefined),
 }));
