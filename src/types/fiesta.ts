@@ -230,13 +230,20 @@ export interface MoodboardItem {
 
 export interface ElementoDecorativo {
   id: string;
-  tipo: 'globo' | 'flor' | 'arco' | 'lazo' | 'candelabro' | 'mesaTorta' | 'tela' | 'globosMacizos' | 'centroMesa';
+  tipo: 'globo' | 'flor' | 'arco' | 'lazo' | 'candelabro' | 'mesaTorta' | 'tela' | 'globosMacizos' | 'centroMesa'
+    | 'mesa' | 'silla' | 'pista' | 'columna' | 'luz' | 'cartel' | 'inflable' | 'imagen';
   x: number;
   y: number;
   escala: number;
   colores: string[];
   rotacion?: number;
   etiqueta?: string;
+  /** Opacity from 0 (transparent) to 1 (opaque). Defaults to 1. */
+  opacidad?: number;
+  /** When true, the element cannot be moved or modified in the editor. */
+  bloqueado?: boolean;
+  /** URL for 'imagen' tipo elements uploaded by the user. */
+  imageUrl?: string;
 }
 
 // --- CREATOR PARTY EXTENDED TYPES ---

@@ -45,13 +45,13 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
     };
 
     const handleUpload = async () => {
-        if (!fileToUpload || !fiestaId) {
-            toast({title: "Error", description: "Falta el archivo o el ID de la fiesta.", variant: "destructive"});
+        if (!fileToUpload) {
+            toast({title: "Error", description: "Seleccioná un archivo primero.", variant: "destructive"});
             return;
         }
         setIsUploading(true);
         try {
-            const result = await uploadPublicPageAsset(fiestaId, fileToUpload);
+            const result = await uploadPublicPageAsset(fiestaId ?? null, fileToUpload);
 
             if (result.success && result.url) {
                 onUrlChange(result.url);
