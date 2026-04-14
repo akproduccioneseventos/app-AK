@@ -155,7 +155,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                 <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-white/90"></div>
             </motion.div>
 
-            <div className="space-y-8 md:space-y-12 px-6">
+            <div className="space-y-8 md:space-y-12 px-4 sm:px-6 w-full max-w-full overflow-hidden">
                 {data.logoUrl && (
                     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                         <NextImage src={data.logoUrl} alt="Logo" width={100} height={100} className="mx-auto drop-shadow-2xl md:w-[120px] md:h-[120px]" />
@@ -166,11 +166,11 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                     <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-[10px] md:text-sm font-black tracking-[0.6em] uppercase text-primary block" style={{ color: paleta.primary }}>
                         {subtitleText}
                     </motion.span>
-                    <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 1 }} className="text-5xl md:text-[9rem] font-headline font-bold text-slate-900 leading-none tracking-tighter">
+                    <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 1 }} className="text-4xl sm:text-5xl md:text-[9rem] font-headline font-bold text-slate-900 leading-tight md:leading-none tracking-tight md:tracking-tighter break-words">
                         {protagonist1}
                         {protagonist2 && (
                             <>
-                                <span className="block text-3xl md:text-6xl my-2 md:my-4 italic font-dancing text-primary" style={{ color: paleta.primary }}>&</span>
+                                <span className="block text-2xl sm:text-3xl md:text-6xl my-2 md:my-4 italic font-dancing text-primary" style={{ color: paleta.primary }}>&</span>
                                 {protagonist2}
                             </>
                         )}

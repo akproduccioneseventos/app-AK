@@ -388,7 +388,7 @@ function PaginaWebPageContent() {
             ) : fiesta ? (
               <div className={cn("h-full", previewMode !== 'desktop' && "overflow-y-auto custom-scrollbar")}>
                 {editorMode === 'simple' && fiestaId ? (
-                  <InvitacionPublicaClient config={invitacionConfig} fiestaId={fiestaId} />
+                  <InvitacionPublicaClient config={invitacionConfig} fiestaId={fiestaId} socialConnections={socialConnections} />
                 ) : (
                   <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                       <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>

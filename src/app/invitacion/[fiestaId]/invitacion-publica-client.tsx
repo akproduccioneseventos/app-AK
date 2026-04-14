@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import type { InvitacionDigitalConfig, InvitacionDigitalCronograma } from '@/types/fiesta';
+import type { SocialConnection } from '@/types/settings';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
 import { motion } from 'framer-motion';
-import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt, Loader2 } from 'lucide-react';
+import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt, Loader2, Instagram, Facebook } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 interface Props {
   config: InvitacionDigitalConfig;
   fiestaId: string;
+  socialConnections?: SocialConnection[];
 }
 
 // ---------- COUNTDOWN ----------
@@ -154,7 +156,7 @@ const Section: React.FC<{ children: React.ReactNode; className?: string; id?: st
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: '-50px' }}
     transition={{ duration: 0.6, ease: 'easeOut' }}
-    className={cn('px-6 py-12 sm:py-16', className)}
+    className={cn('px-4 sm:px-6 py-10 sm:py-12 md:py-16', className)}
   >
     {children}
   </motion.section>
@@ -219,9 +221,11 @@ function getTemplateStyles(plantillaId: string): {
 }
 
 // ---------- MAIN COMPONENT ----------
-export function InvitacionPublicaClient({ config, fiestaId }: Props) {
+export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [] }: Props) {
   const styles = getTemplateStyles(config.plantillaId);
   const tipoLabel = TIPO_EVENTO_LABELS[config.tipoEvento] || 'Evento Especial';
+  const isBoda = config.tipoEvento === 'boda';
+  const secondName = config.nombreHomenajeado2;
 
   const formatDate = (dateStr: string) => {
     try {
@@ -259,18 +263,24 @@ export function InvitacionPublicaClient({ config, fiestaId }: Props) {
         )}
         <div className={cn('absolute inset-0 bg-gradient-to-t', styles.heroOverlay)} />
 
-        <div className="relative z-10 text-center text-white pb-16 sm:pb-24 px-6 w-full">
+        <div className="relative z-10 text-center text-white pb-16 sm:pb-24 px-4 sm:px-6 w-full max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
           >
             <p className="text-sm sm:text-base tracking-[0.3em] uppercase mb-4 opacity-80">{tipoLabel}</p>
-            <h1 className={cn('text-4xl sm:text-6xl lg:text-7xl mb-6 leading-tight', styles.fontHeading)}>
+            <h1 className={cn('text-3xl sm:text-5xl lg:text-7xl mb-6 leading-tight break-words', styles.fontHeading)}>
               {config.nombreHomenajeada || 'Tu Nombre'}
+              {isBoda && secondName && (
+                <>
+                  <span className="block text-2xl sm:text-4xl lg:text-5xl my-2 sm:my-3 italic opacity-80">&</span>
+                  <span className="block">{secondName}</span>
+                </>
+              )}
             </h1>
             {config.fechaEvento && (
-              <p className="text-lg sm:text-xl opacity-90 capitalize">
+              <p className="text-base sm:text-xl opacity-90 capitalize">
                 {formatDate(config.fechaEvento)}
                 {config.horaEvento && ` · ${config.horaEvento} hs`}
               </p>
@@ -518,8 +528,31 @@ export function InvitacionPublicaClient({ config, fiestaId }: Props) {
         </p>
         <p className="text-sm opacity-70">
           {config.nombreHomenajeada}
+          {isBoda && secondName && ` & ${secondName}`}
           {config.fechaEvento && ` · ${formatDate(config.fechaEvento)}`}
         </p>
+        {(() => {
+          const displayedSocials = socialConnections.filter(c => c.isConnected && c.platform !== 'WhatsApp');
+          if (displayedSocials.length === 0) return null;
+          return (
+            <div className="flex justify-center gap-4 mt-6">
+              {displayedSocials.map(c => (
+                <a
+                  key={c.platform}
+                  href={c.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
+                  aria-label={c.platform}
+                >
+                  {c.platform === 'Instagram' && <Instagram className="w-5 h-5" />}
+                  {c.platform === 'Facebook' && <Facebook className="w-5 h-5" />}
+                  {c.platform === 'TikTok' && <span className="text-xs font-bold">TK</span>}
+                </a>
+              ))}
+            </div>
+          );
+        })()}
       </footer>
 
       {/* ============= WHATSAPP FLOATING BUTTON ============= */}

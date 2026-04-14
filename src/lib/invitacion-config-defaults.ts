@@ -46,6 +46,7 @@ export function buildInvitacionConfigFromFiesta(
     ...defaultInvitacionConfig,
     ...existing,
     nombreHomenajeada: existing?.nombreHomenajeada || config.protagonista1Nombre || config.nombreEvento || '',
+    nombreHomenajeado2: existing?.nombreHomenajeado2 ?? config.protagonista2Nombre ?? '',
     tipoEvento: existing?.tipoEvento || tipoMap[config.tipoCelebracion || ''] || 'otro',
     fechaEvento: existing?.fechaEvento || config.fechaEvento || '',
     horaEvento: existing?.horaEvento || config.horaInicio || '',

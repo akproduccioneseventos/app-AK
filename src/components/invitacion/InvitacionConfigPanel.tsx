@@ -71,9 +71,15 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
           <AccordionTrigger className="text-sm font-bold"><Type className="w-4 h-4 mr-2" />Datos del Evento</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-2">
             <div className="space-y-1">
-              <Label className="text-xs">Nombre de la Homenajeada</Label>
+              <Label className="text-xs">{config.tipoEvento === 'boda' ? 'Nombre Novio/a 1' : 'Nombre de la Homenajeada'}</Label>
               <Input value={config.nombreHomenajeada} onChange={e => update('nombreHomenajeada', e.target.value)} placeholder="Ej: Valentina" />
             </div>
+            {config.tipoEvento === 'boda' && (
+              <div className="space-y-1">
+                <Label className="text-xs">Nombre Novio/a 2</Label>
+                <Input value={config.nombreHomenajeado2 || ''} onChange={e => update('nombreHomenajeado2', e.target.value)} placeholder="Ej: Martín" />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
                 <Label className="text-xs">Tipo de Evento</Label>
