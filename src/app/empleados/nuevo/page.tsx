@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, UserPlus, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, UserPlus, Upload, UserCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveEmpleado } from '@/app/actions/empleados';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import type { NuevoEmpleadoFormData } from '@/types/empleado';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getRoles } from '@/app/actions/roles';
@@ -28,6 +29,8 @@ export default function NuevoEmpleadoPage() {
   const [rolesDisponibles, setRolesDisponibles] = useState<Rol[]>([]);
   const [isLoadingRoles, setIsLoadingRoles] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   useEffect(() => {
     async function loadRoles() {
@@ -44,6 +47,23 @@ export default function NuevoEmpleadoPage() {
     loadRoles();
   }, [toast]);
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingPhoto(true);
+    try {
+      const result = await uploadPublicPageAsset('empleados-fotos', file);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      setPhotoUrl(result.url);
+      toast({ title: '✅ Foto subida', description: 'La foto de perfil fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir foto', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!nombre.trim()) {
@@ -58,6 +78,7 @@ export default function NuevoEmpleadoPage() {
       telefono: telefono.trim() || undefined,
       fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString() : undefined,
       rolIds: rolIds,
+      photoUrl: photoUrl.trim() || undefined,
     };
 
     try {
@@ -101,6 +122,33 @@ export default function NuevoEmpleadoPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-base">Foto de Perfil</Label>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50 shrink-0">
+                  {photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photoUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
+                  ) : (
+                    <UserCircle className="w-10 h-10 text-slate-300" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <label htmlFor="empleado-photo-upload">
+                    <Button asChild variant="outline" size="sm" disabled={isUploadingPhoto || isSaving}>
+                      <span>
+                        {isUploadingPhoto ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                        {isUploadingPhoto ? 'Subiendo...' : 'Subir foto'}
+                      </span>
+                    </Button>
+                    <input id="empleado-photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUploadingPhoto || isSaving} />
+                  </label>
+                  {photoUrl && (
+                    <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="URL de la foto" className="text-xs" disabled={isSaving} />
+                  )}
+                </div>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="empleado-nombre" className="text-base">Nombre Completo *</Label>
               <Input 

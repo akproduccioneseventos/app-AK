@@ -186,6 +186,24 @@ export default function MainDashboardPage() {
           lightColor: "bg-amber-50 text-amber-600",
           featured: false,
         },
+        {
+          title: 'Gestión de Empresa',
+          description: 'Empleados, servicios, galería, landing page y más.',
+          href: '/empresa',
+          icon: Building2,
+          color: "bg-cyan-500",
+          lightColor: "bg-cyan-50 text-cyan-600",
+          featured: false,
+        },
+        {
+          title: 'Contabilidad',
+          description: 'Panel financiero, facturas, flujo de caja y reportes.',
+          href: '/empresa/contabilidad',
+          icon: BarChart3,
+          color: "bg-orange-500",
+          lightColor: "bg-orange-50 text-orange-600",
+          featured: false,
+        },
     ]
 
   return (

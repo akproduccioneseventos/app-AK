@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera, FileText, Users, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -20,6 +20,14 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'crm': { label: 'Gestión de Prospectos (CRM)', href: '/contabilidad/crm', icon: KanbanSquare },
   'reposteria': { label: 'Detalles de Repostería', href: '/fiestas/nueva/catering', icon: Cake },
   'fotografia': { label: 'Seguimiento de Material', href: '/fiestas/nueva/fotografia', icon: Camera },
+  'presupuestos': { label: 'Presupuestos', href: '/presupuestos', icon: FileText },
+  'clientes': { label: 'Base de Clientes', href: '/customers', icon: Users },
+  'facturas': { label: 'Facturación', href: '/invoices', icon: Receipt },
+  'empleados': { label: 'Gestión de Personal', href: '/empleados', icon: UserCog },
+  'proveedores': { label: 'Proveedores', href: '/proveedores', icon: Truck },
+  'empresa': { label: 'Módulo Empresa', href: '/empresa', icon: Building },
+  'contabilidad': { label: 'Contabilidad y Finanzas', href: '/empresa/contabilidad', icon: Calculator },
+  'calendario': { label: 'Calendario de Eventos', href: '/calendario', icon: CalendarCheck },
 };
 
 export default function PortalPersonalPage({ params }: { params: { tokenId: string } }) {

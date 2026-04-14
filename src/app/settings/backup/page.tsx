@@ -32,6 +32,30 @@ export default function BackupPage() {
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
+  const handleRestoreFromZip = async () => {
+    if (!file) {
+      toast({ title: 'Sin archivo', description: 'Seleccioná un archivo .zip antes de restaurar.', variant: 'destructive' });
+      return;
+    }
+    setIsRestoringZip(true);
+    try {
+      const formData = new FormData();
+      formData.append('backupFile', file);
+      const response = await fetch('/api/backup/upload', { method: 'POST', body: formData });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al restaurar el respaldo.');
+      }
+      toast({ title: '✅ Restauración Completa', description: 'Los datos fueron restaurados. La aplicación se recargará.' });
+      setFile(null);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error: any) {
+      toast({ title: 'Error en la Restauración', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsRestoringZip(false);
+    }
+  };
+
   const loadRestorePoints = useCallback(async () => {
     setIsLoadingPoints(true);
     try {
@@ -181,6 +205,51 @@ export default function BackupPage() {
                             Bajar ZIP Físico
                         </Button>
                     </a>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg border-orange-200 bg-orange-50">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-black uppercase tracking-widest text-orange-700 flex items-center gap-2">
+                        <UploadCloud className="w-4 h-4" /> Restaurar desde ZIP
+                    </CardTitle>
+                    <CardDescription className="text-orange-600 text-xs">
+                        Cargá un archivo .zip descargado previamente para restaurar todos tus datos.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    <div className="space-y-1">
+                        <Label htmlFor="zip-restore-input" className="text-xs font-bold text-orange-700">Archivo ZIP de respaldo</Label>
+                        <Input
+                            id="zip-restore-input"
+                            type="file"
+                            accept=".zip"
+                            className="rounded-xl bg-white border-orange-200 text-sm"
+                            onChange={e => setFile(e.target.files?.[0] ?? null)}
+                            disabled={isRestoringZip}
+                        />
+                        {file && <p className="text-[10px] text-orange-700 font-semibold truncate">Archivo: {file.name}</p>}
+                    </div>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="outline" className="w-full h-10 rounded-xl font-bold border-orange-400 text-orange-700 bg-white hover:bg-orange-100" disabled={!file || isRestoringZip}>
+                                {isRestoringZip ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UploadCloud className="w-4 h-4 mr-2"/>}
+                                {isRestoringZip ? 'Restaurando...' : 'Restaurar ZIP'}
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-destructive"/> ¿Restaurar desde ZIP?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Esta acción <strong>sobreescribirá todos tus datos actuales</strong> con los del archivo ZIP seleccionado. Esta acción no se puede deshacer.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleRestoreFromZip} className="bg-destructive hover:bg-destructive/90">Sí, Restaurar Ahora</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </CardContent>
             </Card>
 

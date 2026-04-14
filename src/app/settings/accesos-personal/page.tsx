@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette, Cake, Camera } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, KeyRound, ClipboardCopy, Share2, KanbanSquare, Music2, Clock, PackageSearch, Palette, Cake, Camera, FileText, Users as Users2, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createAccesoPersonal, getAccesosGenerales, deleteAccesoPersonal, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
@@ -26,6 +26,14 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.ElementType, type: 'general' | 'evento' }[] = [
     { id: 'crm', label: 'Gestión de Prospectos (CRM)', icon: KanbanSquare, type: 'general' },
+    { id: 'presupuestos', label: 'Presupuestos', icon: FileText, type: 'general' },
+    { id: 'clientes', label: 'Base de Clientes', icon: Users2, type: 'general' },
+    { id: 'facturas', label: 'Facturación', icon: Receipt, type: 'general' },
+    { id: 'empleados', label: 'Gestión de Personal', icon: UserCog, type: 'general' },
+    { id: 'proveedores', label: 'Proveedores', icon: Truck, type: 'general' },
+    { id: 'empresa', label: 'Módulo Empresa (Galería, Servicios, etc.)', icon: Building, type: 'general' },
+    { id: 'contabilidad', label: 'Contabilidad y Finanzas', icon: Calculator, type: 'general' },
+    { id: 'calendario', label: 'Calendario de Eventos', icon: CalendarCheck, type: 'general' },
     { id: 'musica', label: 'Música de la Fiesta', icon: Music2, type: 'evento' },
     { id: 'itinerario', label: 'Itinerario del Evento', icon: Clock, type: 'evento' },
     { id: 'carga-operativa', label: 'Lista de Carga Operativa', icon: PackageSearch, type: 'evento' },

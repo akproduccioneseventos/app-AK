@@ -241,7 +241,19 @@ export default function EmpleadosPage() {
                 <TableBody>
                   {empleados.map((empleado) => (
                     <TableRow key={empleado.id}>
-                      <TableCell className="font-medium min-w-[180px]">{empleado.nombre}</TableCell>
+                      <TableCell className="font-medium min-w-[180px]">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-100 shrink-0 flex items-center justify-center">
+                            {empleado.photoUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={empleado.photoUrl} alt={empleado.nombre} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-slate-400 text-xs font-bold">{empleado.nombre.charAt(0).toUpperCase()}</span>
+                            )}
+                          </div>
+                          {empleado.nombre}
+                        </div>
+                      </TableCell>
                       <TableCell className="min-w-[120px]">{empleado.cedula || '—'}</TableCell>
                       <TableCell className="min-w-[130px]">
                         {empleado.telefono ? (

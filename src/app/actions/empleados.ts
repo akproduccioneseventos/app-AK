@@ -46,6 +46,7 @@ export async function saveEmpleado(
     empleadoToSave.rolIds = rolIdsStr ? rolIdsStr.split(',') : [];
     contractFile = empleadoData.get('contract') as File | null;
     empleadoToSave.contractFileName = empleadoData.get('existingContract') as string || undefined;
+    empleadoToSave.photoUrl = empleadoData.get('photoUrl') as string | undefined || undefined;
 
   } else {
     empleadoToSave = { ...empleadoData };
