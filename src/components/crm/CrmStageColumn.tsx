@@ -31,8 +31,8 @@ export const CrmStageColumn = memo(function CrmStageColumn({
   const leadIds = leads.map(l => l.id);
 
   return (
-    <Card ref={setNodeRef} className={`w-full md:w-[320px] flex-shrink-0 border-t-4 h-full flex flex-col ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors`}>
-      <CardHeader className={`p-3 ${stage.headerBgColor} ${stage.headerTextColor} rounded-t-md`}>
+    <Card ref={setNodeRef} className={`w-full md:w-[320px] flex-shrink-0 border-t-4 flex flex-col ${stage.borderColor} ${isOver ? 'bg-primary/10' : stage.bgColor} shadow-md transition-colors`} style={{ height: 'calc(100vh - 22rem)', minHeight: '400px' }}>
+      <CardHeader className={`p-3 ${stage.headerBgColor} ${stage.headerTextColor} rounded-t-md flex-shrink-0`}>
         <CardTitle className="text-base font-semibold flex justify-between items-center">
           <span>{stage.name}</span>
           <span className={`text-xs px-2 py-0.5 rounded-full ${stage.bgColor} ${stage.textColor} opacity-80`}>
@@ -40,7 +40,7 @@ export const CrmStageColumn = memo(function CrmStageColumn({
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-2 flex-grow min-h-0">
+      <CardContent className="p-2 flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full pr-2">
             <SortableContext items={leadIds} strategy={verticalListSortingStrategy}>
             {leads.length > 0 ? (

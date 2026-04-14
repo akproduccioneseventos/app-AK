@@ -105,7 +105,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <div className="mx-auto bg-green-100 p-3 rounded-full mb-2">
             <PartyPopper className="w-8 h-8 text-green-600" />

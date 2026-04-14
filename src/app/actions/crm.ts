@@ -184,6 +184,23 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     return { success: true };
 }
 
+/**
+ * Resets the CRM by deleting all leads. Stages are preserved.
+ * This is a destructive admin-only operation and requires explicit confirmation in the UI.
+ */
+export async function resetCrm(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+    try {
+        const leads = await getCrmLeads();
+        const deletedCount = leads.length;
+        await writeData(LEADS_FILE, []);
+        logger.info('[CRM] CRM reiniciado por admin. Prospectos eliminados:', { deletedCount });
+        return { success: true, deletedCount };
+    } catch (error: any) {
+        logger.error('[CRM] Error al reiniciar CRM:', error);
+        return { success: false, error: error.message || 'Error al reiniciar el CRM.' };
+    }
+}
+
 export async function recordWhatsAppContact(leadId: string, message: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
     const leads = await getCrmLeads();
     const index = leads.findIndex(l => l.id === leadId);

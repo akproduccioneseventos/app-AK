@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle } from 'lucide-react';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction } from '@/app/actions/fiesta-actual';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle, RotateCcw } from 'lucide-react';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction, resetAllActiveFiestas } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -52,6 +52,7 @@ export default function GestorFiestasPage() {
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isResettingPlanificador, setIsResettingPlanificador] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -214,6 +215,26 @@ export default function GestorFiestasPage() {
     }
   };
 
+  const handleResetPlanificador = async () => {
+    setIsResettingPlanificador(true);
+    try {
+      const result = await resetAllActiveFiestas();
+      if (result.success) {
+        toast({
+          title: 'Planificador reiniciado',
+          description: `${result.archivedCount ?? 0} evento(s) archivado(s). Podés empezar de cero.`,
+        });
+        await loadData();
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudo reiniciar el planificador.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsResettingPlanificador(false);
+    }
+  };
+
   const handleDuplicate = async (fiestaId: string) => {
     setIsProcessing(fiestaId);
     try {
@@ -259,6 +280,29 @@ export default function GestorFiestasPage() {
                 <AlertDialogCancel>No, cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={handleReset}>
                   Sí, crear nuevo evento
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingPlanificador || fiestasActivas.length === 0}>
+                {isResettingPlanificador ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
+                Reiniciar Planificador
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Reiniciar el Planificador?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción archivará <strong>todos los eventos activos</strong> ({fiestasActivas.length}) para que puedas comenzar de cero. Los eventos se conservan en el historial. Esta operación no se puede deshacer.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleResetPlanificador} className="bg-destructive hover:bg-destructive/90">
+                  Sí, archivar todos y reiniciar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
