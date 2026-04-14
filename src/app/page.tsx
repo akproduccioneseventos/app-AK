@@ -248,7 +248,7 @@ export default function MainDashboardPage() {
                                     <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Nuevo Presupuesto</h3>
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg leading-snug break-words">Nuevo Presupuesto</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cotización manual.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-2 transition-all shrink-0"/>
@@ -260,7 +260,7 @@ export default function MainDashboardPage() {
                                     <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Presupuesto</h3>
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg leading-snug break-words">Simulador Presupuesto</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Captura de leads.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-amber-500 group-hover:translate-x-2 transition-all shrink-0"/>
@@ -272,7 +272,7 @@ export default function MainDashboardPage() {
                                     <Bot className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Asistente AK</h3>
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg leading-snug break-words">Simulador Asistente AK</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Chat inteligente.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-violet-500 group-hover:translate-x-2 transition-all shrink-0"/>
@@ -284,7 +284,7 @@ export default function MainDashboardPage() {
                                     <Wallet className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Registrar Pago Rápido</h3>
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg leading-snug break-words">Registrar Pago Rápido</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cobrar y enviar recibo.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-2 transition-all shrink-0"/>
@@ -400,7 +400,7 @@ export default function MainDashboardPage() {
                       <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] sm:rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500 shrink-0", item.lightColor)}>
                           <item.icon className="w-7 h-7 sm:w-8 sm:h-8" />
                       </div>
-                      <CardTitle className="text-lg sm:text-xl font-black text-slate-800 tracking-tight">{item.title}</CardTitle>
+                      <CardTitle className="text-base sm:text-lg font-black text-slate-800 tracking-tight leading-tight break-words">{item.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-grow px-6 sm:px-8 pb-6 sm:pb-8">
                       <p className="text-[10px] sm:text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter">
