@@ -112,7 +112,9 @@ describe('sendAssistantMessage — missing data handlers', () => {
     /** Substring that MUST appear in the response — NOT the generic catch-all */
     expected: string;
   }> = [
-    { type: 'create_budget', expected: 'No se pudieron extraer los datos del presupuesto' },
+    // create_budget without data now uses the local parser and returns a helpful message
+    // (either partial detection info or a clear guide on what to include)
+    { type: 'create_budget', expected: '/presupuestos/nuevo' },
     { type: 'create_customer', expected: 'Falta información del cliente' },
     { type: 'register_payment', expected: 'Falta información del pago' },
     { type: 'create_invoice', expected: 'Falta información de la factura' },

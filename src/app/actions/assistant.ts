@@ -14,9 +14,37 @@ import { addCrmLead } from './crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
+import { parseBudgetText } from '@/lib/parse-budget-text';
 import * as logger from '@/lib/logger';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
+
+/**
+ * Wraps the deterministic budget text parser and assigns a confidence level.
+ * confidence 'high'   = clienteNombre + eventoTipo + ≥1 item with price
+ * confidence 'medium' = clienteNombre OR eventoTipo + ≥1 item
+ * confidence 'low'    = only partial data, not enough to create a useful draft
+ */
+function parseBudgetFromText(text: string): ReturnType<typeof parseBudgetText> & {
+  confidence: 'high' | 'medium' | 'low';
+} {
+  const parsed = parseBudgetText(text);
+  const hasCliente = !!parsed.clienteNombre;
+  const hasEvento = parsed.eventoTipo && parsed.eventoTipo !== 'Otro';
+  const hasItems = parsed.items.length > 0;
+  const hasPricedItems = parsed.items.some(i => (i.precioUnitarioPresupuesto ?? 0) > 0);
+
+  let confidence: 'high' | 'medium' | 'low';
+  if (hasCliente && hasEvento && hasPricedItems) {
+    confidence = 'high';
+  } else if ((hasCliente || hasEvento) && hasItems) {
+    confidence = 'medium';
+  } else {
+    confidence = 'low';
+  }
+
+  return { ...parsed, confidence };
+}
 
 export async function sendAssistantMessage(
   message: string,
@@ -28,6 +56,7 @@ export async function sendAssistantMessage(
   action?: { type: string; data?: any; result?: any };
   error?: string;
 }> {
+  logger.info('[Asistente AK] Inicio sendAssistantMessage:', { msgLength: message?.length ?? 0, hasImage: !!imageDataUri });
   try {
     // 1. Armar contexto rico con datos reales del negocio
     const [kpiResult, companyInfo, presupuestos, customers, servicios, aiSettings] = await Promise.all([
@@ -135,7 +164,24 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
             id?: string; nombre?: string; name?: string; descripcion?: string;
             cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
           }> = Array.isArray(d.servicios) ? d.servicios : [];
-          const items = serviciosInput.map((s, i) => {
+
+          // Fallback: if Gemini returned no services, try local parser on the original message
+          let itemsFromParser: typeof serviciosInput = [];
+          if (serviciosInput.length === 0 && message) {
+            logger.info('[Asistente AK] Usando parser local como fallback para servicios');
+            const parsed = parseBudgetFromText(message);
+            if (parsed.items.length > 0) {
+              itemsFromParser = parsed.items.map(item => ({
+                nombre: item.nombreServicio,
+                cantidad: item.cantidad,
+                precioUnitario: item.precioUnitarioPresupuesto ?? 0,
+              }));
+              logger.info('[Asistente AK] Parser local encontró servicios:', itemsFromParser.length);
+            }
+          }
+
+          const finalServiciosInput = serviciosInput.length > 0 ? serviciosInput : itemsFromParser;
+          const items = finalServiciosInput.map((s, i) => {
             const qty = Number(s.cantidad) || 1;
             const price = Number(s.precioUnitario) || Number(s.precio) || 0;
             return {
@@ -149,6 +195,7 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
               categoriaServicio: s.categoria || s.category || 'Servicios',
             };
           });
+          logger.info('[Asistente AK] Guardando presupuesto:', { clienteNombre: d.clienteNombre, itemCount: items.length });
           const budgetResult = await savePresupuesto({
             clienteNombre: d.clienteNombre,
             eventoTipo: d.eventoTipo || '',
@@ -172,8 +219,10 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
             const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
             const href = `/presupuestos/${pres.id}/ver`;
             actionResult = { ...budgetResult, itemCount, total, href };
+            logger.info('[Asistente AK] Presupuesto guardado exitosamente:', pres.id, '#' + pres.numero);
             finalResponse = buildBudgetResponseMessage(pres, 'Se creó', `/presupuestos/${pres.id}/editar`);
           } else {
+            logger.error('[Asistente AK] Error guardando presupuesto:', budgetResult.error);
             actionResult = budgetResult;
             finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
           }
@@ -184,8 +233,84 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
         finalResponse = `❌ No se pudo crear el presupuesto. Intentá de nuevo o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'create_budget') {
-      actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
-      finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Proporcioná nombre del cliente, tipo de evento y servicios, o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+      // Gemini detected create_budget intent but couldn't extract structured data.
+      // Try the deterministic local parser as a fallback.
+      logger.info('[Asistente AK] create_budget sin datos de Gemini — activando parser local');
+      try {
+        const parsed = parseBudgetFromText(message);
+        logger.info('[Asistente AK] Parser local resultado:', { confidence: parsed.confidence, cliente: parsed.clienteNombre, items: parsed.items.length });
+
+        if (parsed.confidence === 'high' || parsed.confidence === 'medium') {
+          const items = parsed.items.map((item, i) => {
+            const price = item.precioUnitarioPresupuesto ?? 0;
+            const qty = item.cantidad || 1;
+            return {
+              idServicioCatalogo: `parser_${i}_${Date.now()}`,
+              nombreServicio: item.nombreServicio || DEFAULT_SERVICE_NAME,
+              descripcionServicio: item.descripcionServicio,
+              cantidad: qty,
+              precioUnitario: price,
+              precioUnitarioPresupuesto: price,
+              costoTotalItem: qty * price,
+              categoriaServicio: item.categoriaServicio || 'Servicios',
+            };
+          });
+          logger.info('[Asistente AK] Guardando presupuesto desde parser local:', { clienteNombre: parsed.clienteNombre, itemCount: items.length });
+          const budgetResult = await savePresupuesto({
+            clienteNombre: parsed.clienteNombre || 'Cliente (revisar)',
+            eventoTipo: parsed.eventoTipo || '',
+            eventoFecha: parsed.eventoFecha || '',
+            invitadosCantidad: parsed.invitadosCantidad || 0,
+            invitadosAdultos: parsed.invitadosCantidad || 0,
+            invitadosNinos: 0,
+            invitadosAdolescentes: 0,
+            salonFiestas: parsed.salonFiestas || '',
+            itemsPresupuestados: items,
+            notas: 'Creado desde texto pegado — revisar y completar',
+            estado: 'Borrador',
+          } as unknown as Omit<Presupuesto, 'id'>);
+
+          if (budgetResult.success && budgetResult.presupuesto) {
+            const pres = budgetResult.presupuesto;
+            logger.info('[Asistente AK] Presupuesto borrador creado desde parser:', pres.id);
+            const detectedParts: string[] = [];
+            if (parsed.clienteNombre) detectedParts.push(`Cliente: **${parsed.clienteNombre}**`);
+            if (parsed.eventoTipo && parsed.eventoTipo !== 'Otro') detectedParts.push(`Tipo: **${parsed.eventoTipo}**`);
+            if (parsed.eventoFecha) detectedParts.push(`Fecha: **${new Date(parsed.eventoFecha).toLocaleDateString('es-UY')}**`);
+            if (parsed.invitadosCantidad) detectedParts.push(`Invitados: **${parsed.invitadosCantidad}**`);
+            const detectedSummary = detectedParts.length > 0 ? `\n\nDatos detectados: ${detectedParts.join(', ')}.` : '';
+            actionResult = { success: true, id: pres.id };
+            finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador de', `/presupuestos/${pres.id}/editar`) + `${detectedSummary}\n\n📝 Revisá y completá los datos en [/presupuestos/${pres.id}/editar](/presupuestos/${pres.id}/editar).`;
+          } else {
+            logger.error('[Asistente AK] Error guardando presupuesto desde parser:', budgetResult.error);
+            actionResult = { success: false, error: budgetResult.error };
+            finalResponse = `❌ No se pudo guardar el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá crearlo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+          }
+        } else if (parsed.confidence === 'low') {
+          // Partial data detected — tell user what was found and what's missing
+          const detectedParts: string[] = [];
+          const missingParts: string[] = [];
+          if (parsed.clienteNombre) detectedParts.push(`Cliente: **${parsed.clienteNombre}**`);
+          else missingParts.push('nombre del cliente');
+          if (parsed.eventoTipo && parsed.eventoTipo !== 'Otro') detectedParts.push(`Tipo: **${parsed.eventoTipo}**`);
+          else missingParts.push('tipo de evento');
+          if (parsed.eventoFecha) detectedParts.push(`Fecha: **${new Date(parsed.eventoFecha).toLocaleDateString('es-UY')}**`);
+          if (parsed.items.length > 0) detectedParts.push(`${parsed.items.length} servicio${parsed.items.length !== 1 ? 's' : ''} detectado${parsed.items.length !== 1 ? 's' : ''}`);
+          else missingParts.push('servicios con precio');
+          actionResult = { success: false, error: 'Datos parciales detectados', confidence: 'low' };
+          const detectedLine = detectedParts.length > 0 ? `\n\n**Detecté:** ${detectedParts.join(', ')}.` : '';
+          const missingLine = missingParts.length > 0 ? `\n**Falta:** ${missingParts.join(', ')}.` : '';
+          finalResponse = `⚠️ Pude leer parte del texto, pero no alcanza para crear el presupuesto automáticamente.${detectedLine}${missingLine}\n\nPodés completarlo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo) o volvé a intentarlo con el texto en formato: "Cliente: [nombre], Tipo: [evento], Servicio: [nombre] $[precio]".`;
+        } else {
+          // Nothing useful found
+          actionResult = { success: false, error: 'No se pudo extraer información del texto.' };
+          finalResponse = `⚠️ No encontré datos estructurados de presupuesto en el texto. Para crear un presupuesto desde texto, incluí al menos:\n- **Cliente:** [nombre]\n- **Tipo de evento:** [casamiento/cumpleaños/etc.]\n- **Servicios:** [nombre] $[precio]\n\nO crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+        }
+      } catch (e: any) {
+        logger.error('[Asistente AK] Error en parser local para create_budget:', e.message);
+        actionResult = { success: false, error: e.message };
+        finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Proporcioná nombre del cliente, tipo de evento y servicios, o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+      }
     } else if (result.action?.type === 'import_budget_from_image' && result.action.data) {
       const d = result.action.data;
       try {

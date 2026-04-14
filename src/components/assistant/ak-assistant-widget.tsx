@@ -459,6 +459,7 @@ export function AKAssistantWidget() {
 
   // Voice input (STT) state
   const [isListening, setIsListening] = useState(false);
+  const [voiceSendMode, setVoiceSendMode] = useState(false);
   const [voiceError, setVoiceError] = useState(false);
   const recognitionRef = useRef<any>(null);
 
@@ -681,7 +682,7 @@ export function AKAssistantWidget() {
   };
 
   // --- Voice Input (Speech-to-Text) ---
-  const startListening = () => {
+  const startListening = (autoSend = false) => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({ title: '🎤 Micrófono no disponible', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
@@ -691,28 +692,63 @@ export function AKAssistantWidget() {
     try {
       const recognition = new SpeechRecognition();
       recognition.lang = 'es-UY';
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.onresult = (event: any) => {
-        let transcript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-        setInputText(transcript);
-      };
+
+      if (autoSend) {
+        // Auto-send mode: capture one phrase and send automatically
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        let accumulatedFinal = '';
+
+        recognition.onresult = (event: any) => {
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              accumulatedFinal += event.results[i][0].transcript;
+            }
+          }
+          // Show interim transcript in input while listening
+          let interim = '';
+          for (let i = 0; i < event.results.length; i++) {
+            if (!event.results[i].isFinal) interim += event.results[i][0].transcript;
+          }
+          setInputText(accumulatedFinal + interim);
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+          setVoiceSendMode(false);
+          if (accumulatedFinal.trim()) {
+            handleSend(accumulatedFinal.trim());
+          }
+        };
+      } else {
+        // Regular transcription mode: continuous, just fill the input
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onresult = (event: any) => {
+          let transcript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          setInputText(transcript);
+        };
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+      }
+
       recognition.onerror = (event: any) => {
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
           toast({ title: '🎤 Permiso denegado', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
           setVoiceError(true);
         }
         setIsListening(false);
+        setVoiceSendMode(false);
       };
-      recognition.onend = () => {
-        setIsListening(false);
-      };
+
       recognition.start();
       recognitionRef.current = recognition;
       setIsListening(true);
+      setVoiceSendMode(autoSend);
       setVoiceError(false);
     } catch {
       toast({ title: '🎤 Error', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
@@ -959,7 +995,9 @@ export function AKAssistantWidget() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500" />
                     </span>
-                    <span className="text-xs text-rose-700 flex-1">Escuchando...</span>
+                    <span className="text-xs text-rose-700 flex-1">
+                      {voiceSendMode ? 'Escuchando... (enviará al terminar)' : 'Escuchando...'}
+                    </span>
                     <button onClick={stopListening} className="text-rose-400 hover:text-rose-600"><X className="h-3.5 w-3.5" /></button>
                   </div>
                 )}
@@ -977,6 +1015,16 @@ export function AKAssistantWidget() {
                     disabled={isSending}
                   >
                     {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn('h-8 w-8 shrink-0', voiceError ? 'text-slate-300' : 'text-slate-400 hover:text-emerald-600')}
+                    onClick={() => { if (isListening) { stopListening(); } else { startListening(true); } }}
+                    title="Hablar y enviar automáticamente al terminar"
+                    disabled={isSending}
+                  >
+                    <Send className="h-3 w-3 -ml-0.5" />
                   </Button>
                   <textarea value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Escribí algo, adjuntá un archivo o usá el micrófono..." rows={1} className="flex-1 resize-none text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 bg-slate-50 max-h-20 min-h-[32px]" style={{ lineHeight: '1.4' }} />
                   <Button size="icon" className="h-8 w-8 bg-indigo-600 hover:bg-indigo-700 text-white shrink-0 rounded-xl" onClick={() => handleSend()} disabled={isSending || (!inputText.trim() && !attachedFile)}>
