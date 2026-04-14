@@ -33,6 +33,10 @@ import type { EventCatalogData, ServiceItem } from '@/types/public-landing';
 // ─── Session storage keys (must match presupuesto flow) ──────────────────────
 const PRESUPUESTO_SESSION_KEY = 'presupuestoEnProgreso_v3';
 
+// ─── Default values for budget pre-population ────────────────────────────────
+/** Default guest count to pre-fill in the budget form; user adjusts in Paso 1 */
+const DEFAULT_GUEST_COUNT = 50;
+
 // ─── Slide variants for framer-motion ────────────────────────────────────────
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? '60%' : '-60%', opacity: 0 }),
@@ -616,8 +620,8 @@ export default function CatalogoTipoPage() {
       clienteContacto: '',
       eventoTipo: catalog.name,
       eventoFecha: undefined,
-      invitadosCantidad: 50,
-      invitadosAdultos: 50,
+      invitadosCantidad: DEFAULT_GUEST_COUNT,
+      invitadosAdultos: DEFAULT_GUEST_COUNT,
       invitadosNinos: 0,
       invitadosAdolescentes: 0,
       salonFiestas: '',
@@ -636,7 +640,7 @@ export default function CatalogoTipoPage() {
       vigenciaPromocion: 'Válido por 30 días',
     };
     try {
-      sessionStorage.setItem('presupuestoEnProgreso_v3', JSON.stringify(presupuestoData));
+      sessionStorage.setItem(PRESUPUESTO_SESSION_KEY, JSON.stringify(presupuestoData));
       // Also store catalog selection details for reference
       sessionStorage.setItem('catalogo_seleccion', JSON.stringify({
         slug: catalog.slug,
@@ -645,8 +649,9 @@ export default function CatalogoTipoPage() {
         paqueteNombre: selectedPackage?.title ?? null,
         incluye: selectedPackage?.included ?? [],
       }));
-    } catch {
-      // sessionStorage unavailable — navigate anyway
+    } catch (err) {
+      // sessionStorage unavailable (e.g. private browsing quota) — log and navigate anyway
+      console.warn('[CatalogoWizard] Could not write to sessionStorage:', err);
     }
     router.push('/presupuestos/nuevo/crear');
   }, [catalog, selectedPackage, router]);
