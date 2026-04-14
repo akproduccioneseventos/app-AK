@@ -1,833 +1,591 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { notFound } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import {
   ChevronLeft,
   ChevronRight,
-  Check,
-  ArrowLeft,
   BookOpen,
-  Star,
-  Shield,
-  Clock,
-  Headphones,
-  Zap,
-  Heart,
-  Phone,
+  CheckCircle2,
   MessageCircle,
-  CreditCard,
-  Gift,
-  Users,
-  Award,
-  FileText,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { getCatalogBySlug } from '@/data/event-catalogs';
-import type { EventCatalogData, ServiceItem } from '@/types/public-landing';
+import { EVENT_TYPES, SERVICES } from '@/data/presentacion';
+import { getContenidoPorTipo } from '@/app/presentacion-led/lib/contenido-por-tipo';
+import {
+  sharedServices,
+  sharedWhyUs,
+  sharedProcess,
+  sharedPromotion,
+  sharedPaymentMethods,
+  sharedFAQs,
+} from '@/data/event-catalogs/shared';
 
-// ─── Session storage keys (must match presupuesto flow) ──────────────────────
-const PRESUPUESTO_SESSION_KEY = 'presupuestoEnProgreso_v3';
+const TOTAL_STEPS = 9; // pasos 0-8
 
-// ─── Default values for budget pre-population ────────────────────────────────
-/** Default guest count to pre-fill in the budget form; user adjusts in Paso 1 */
-const DEFAULT_GUEST_COUNT = 50;
+export default function CatalogoPorTipoPage() {
+  const params = useParams();
+  const router = useRouter();
+  const tipoId = typeof params?.tipo === 'string' ? params.tipo : '';
 
-// ─── Slide variants for framer-motion ────────────────────────────────────────
-const slideVariants = {
-  enter: (dir: number) => ({ x: dir > 0 ? '60%' : '-60%', opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? '-60%' : '60%', opacity: 0 }),
-};
-const slideTransition = { duration: 0.35, ease: 'easeInOut' as const };
+  const eventoType = EVENT_TYPES.find((e) => e.id === tipoId);
+  const contenido = getContenidoPorTipo(eventoType?.budgetTipo ?? tipoId);
 
-// ─── Accent color helpers ─────────────────────────────────────────────────────
-const ACCENT_MAP: Record<string, { gradient: string; text: string; bg: string; border: string }> = {
-  rose:    { gradient: 'from-rose-500 to-pink-600',    text: 'text-rose-600',    bg: 'bg-rose-50',    border: 'border-rose-200' },
-  purple:  { gradient: 'from-purple-500 to-fuchsia-600', text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
-  amber:   { gradient: 'from-amber-500 to-orange-500', text: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-200' },
-  sky:     { gradient: 'from-sky-500 to-blue-600',     text: 'text-sky-600',     bg: 'bg-sky-50',     border: 'border-sky-200' },
-  slate:   { gradient: 'from-slate-600 to-gray-700',   text: 'text-slate-700',   bg: 'bg-slate-50',   border: 'border-slate-200' },
-  emerald: { gradient: 'from-emerald-500 to-teal-500', text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-};
-function getAccent(color: string) {
-  return ACCENT_MAP[color] ?? ACCENT_MAP['amber'];
-}
+  const [paso, setPaso] = useState(0);
+  const [serviciosSeleccionados, setServiciosSeleccionados] = useState<Set<string>>(new Set());
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
 
-// ─── Slide IDs ────────────────────────────────────────────────────────────────
-type SlideId =
-  | 'portada'
-  | 'presentacion'
-  | 'por-que-elegirnos'
-  | 'proceso'
-  | 'servicios'
-  | 'regalos'
-  | 'testimonios'
-  | 'formas-de-pago'
-  | 'cierre';
+  // Ordenar servicios: primero los de categoriasDestacadas, luego el resto
+  const serviciosOrdenados = useMemo(() => {
+    const destacadas = contenido.categoriasDestacadas.map((c) => c.toLowerCase());
+    const highlighted: typeof SERVICES = [];
+    const rest: typeof SERVICES = [];
+    SERVICES.forEach((s) => {
+      const isHighlighted = destacadas.some(
+        (d) => s.label.toLowerCase().includes(d) || d.includes(s.label.toLowerCase())
+      );
+      if (isHighlighted) highlighted.push(s);
+      else rest.push(s);
+    });
+    return [...highlighted, ...rest];
+  }, [contenido.categoriasDestacadas]);
 
-const SLIDE_ORDER: SlideId[] = [
-  'portada',
-  'presentacion',
-  'por-que-elegirnos',
-  'proceso',
-  'servicios',
-  'regalos',
-  'testimonios',
-  'formas-de-pago',
-  'cierre',
-];
+  const toggleServicio = (id: string) => {
+    setServiciosSeleccionados((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
-const SLIDE_LABELS: Record<SlideId, string> = {
-  'portada':          'Portada',
-  'presentacion':     'Presentación',
-  'por-que-elegirnos':'Por qué elegirnos',
-  'proceso':          'El proceso',
-  'servicios':        'Servicios',
-  'regalos':          'Regalos incluidos',
-  'testimonios':      'Testimonios',
-  'formas-de-pago':   'Formas de pago',
-  'cierre':           'Resumen',
-};
+  const handleSiguiente = () => {
+    if (paso < TOTAL_STEPS - 1) setPaso((p) => p + 1);
+  };
+  const handleAnterior = () => {
+    if (paso > 0) setPaso((p) => p - 1);
+  };
 
-// ─── Slide Components ─────────────────────────────────────────────────────────
+  const handleCrearPresupuesto = () => {
+    const tipo = eventoType?.budgetTipo ?? tipoId;
+    const serviciosIds = Array.from(serviciosSeleccionados).join(',');
+    const url = `/presupuestos/nuevo/crear?tipo=${encodeURIComponent(tipo)}${serviciosIds ? `&servicios=${encodeURIComponent(serviciosIds)}` : ''}`;
+    router.push(url);
+  };
 
-function PortadaSlide({
-  catalog,
-  onNext,
-}: {
-  catalog: EventCatalogData;
-  onNext: () => void;
-}) {
-  const accent = getAccent(catalog.hero.accentColor);
+  const handleWhatsApp = () => {
+    const msg = encodeURIComponent(
+      `Hola! Me interesa organizar ${eventoType?.label ?? 'un evento'} con AK Producciones. ¿Podemos hablar?`
+    );
+    window.open(`https://wa.me/59898355530?text=${msg}`, '_blank');
+  };
+
+  if (!eventoType) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <p className="text-slate-600 font-semibold">Tipo de fiesta no encontrado.</p>
+        <Link href="/catalogo">
+          <Button variant="outline">← Volver al catálogo</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const progressPercent = Math.round((paso / (TOTAL_STEPS - 1)) * 100);
+
   return (
-    <div className="flex flex-col items-center justify-center text-center py-12 px-4 min-h-[500px]">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1, duration: 0.5 }}
-        className="text-8xl mb-6"
-      >
-        {catalog.hero.emoji}
-      </motion.div>
-
-      <motion.span
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className={`inline-block px-4 py-1.5 rounded-full text-sm font-bold mb-4 bg-gradient-to-r ${accent.gradient} text-white`}
-      >
-        {catalog.name}
-      </motion.span>
-
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="text-3xl md:text-5xl font-black text-slate-800 mb-4 leading-tight max-w-2xl"
-      >
-        {catalog.hero.headline}
-      </motion.h1>
-
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.45, duration: 0.5 }}
-        className="text-slate-500 text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
-      >
-        {catalog.hero.subheadline}
-      </motion.p>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <Button
-          onClick={onNext}
-          size="lg"
-          className={cn(
-            'h-14 px-10 rounded-2xl text-lg font-bold text-white shadow-lg',
-            `bg-gradient-to-r ${accent.gradient} hover:opacity-90 transition-opacity`,
-          )}
-        >
-          {catalog.hero.ctaLabel}
-          <ChevronRight className="h-5 w-5 ml-2" />
-        </Button>
-      </motion.div>
-    </div>
-  );
-}
-
-function PresentacionSlide({ catalog }: { catalog: EventCatalogData }) {
-  const accent = getAccent(catalog.hero.accentColor);
-  const stats = [
-    { icon: Award, label: 'Años de experiencia', value: '+10' },
-    { icon: Heart, label: 'Eventos realizados', value: '+500' },
-    { icon: Users, label: 'Familias felices', value: '+500' },
-  ];
-  return (
-    <div className="max-w-4xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Quiénes somos</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">AK Producciones</h2>
-        <p className="text-slate-500 mt-2">Salto, Uruguay · Producción integral de eventos</p>
+    <div className="space-y-6 pb-10 max-w-2xl mx-auto">
+      {/* Header breadcrumb */}
+      <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <Link href="/catalogo" className="hover:text-indigo-600 transition-colors flex items-center gap-1">
+          <BookOpen className="w-3.5 h-3.5" /> Catálogos
+        </Link>
+        <span>/</span>
+        <span className="text-slate-800 font-bold">
+          {eventoType.emoji} {eventoType.label}
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className={`${accent.bg} ${accent.border} border rounded-2xl p-6`}>
-          <h3 className="font-bold text-slate-800 mb-3 text-lg">Nuestra historia</h3>
-          <p className="text-slate-600 leading-relaxed text-sm">
-            En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos.
-            Nacimos con la pasión de organizar eventos únicos, y hoy somos el equipo de confianza de cientos
-            de familias en Salto y la región.
-          </p>
-          <p className="text-slate-600 leading-relaxed text-sm mt-3">
-            Nos encargamos de <span className="font-semibold text-slate-800">todo</span>: desde la decoración
-            hasta el catering, el sonido, la fotografía y la coordinación general. Un solo equipo, una sola
-            propuesta, cero preocupaciones para vos.
-          </p>
+      {/* Barra de progreso */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <span>
+            Paso {paso + 1} de {TOTAL_STEPS}
+          </span>
+          <span>{progressPercent}%</span>
         </div>
-
-        <div className="grid grid-cols-1 gap-3">
-          {stats.map(({ icon: Icon, label, value }) => (
-            <div key={label} className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
-              <div className={`p-3 rounded-xl ${accent.bg}`}>
-                <Icon className={`h-5 w-5 ${accent.text}`} />
-              </div>
-              <div>
-                <div className="text-2xl font-black text-slate-800">{value}</div>
-                <div className="text-xs text-slate-500">{label}</div>
-              </div>
-            </div>
-          ))}
+        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className={cn('h-full rounded-full transition-all duration-500 bg-gradient-to-r', contenido.colorAcento)}
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
       </div>
-    </div>
-  );
-}
 
-function PorQueElegernosSlide({ catalog }: { catalog: EventCatalogData }) {
-  const accent = getAccent(catalog.hero.accentColor);
-  const whyUsIcons = [Shield, Clock, Headphones, Star, Zap, Heart];
-  return (
-    <div className="max-w-4xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Nuestros diferenciales</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Por qué elegirnos</h2>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {catalog.whyUs.map((item, idx) => {
-          const Icon = whyUsIcons[idx % whyUsIcons.length];
-          return (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.08 }}
-              className="flex flex-col gap-3 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${accent.bg}`}>
-                <span className="text-2xl">{item.icon}</span>
-              </div>
-              <h3 className="font-bold text-slate-800 text-sm">{item.title}</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">{item.description}</p>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function ProcesoSlide({ catalog }: { catalog: EventCatalogData }) {
-  const accent = getAccent(catalog.hero.accentColor);
-  return (
-    <div className="max-w-3xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Paso a paso</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Nuestro proceso</h2>
-      </div>
-      <div className="flex flex-col gap-0">
-        {catalog.process.map((step, idx) => (
-          <motion.div
-            key={step.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="flex gap-4 relative"
-          >
-            {/* Connector line */}
-            {idx < catalog.process.length - 1 && (
-              <div className="absolute left-6 top-14 bottom-0 w-0.5 bg-slate-100" />
-            )}
-            {/* Step number */}
-            <div className={`flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br ${accent.gradient} text-white flex items-center justify-center font-black text-lg shadow-md z-10`}>
-              {step.step}
-            </div>
-            <div className="pb-8 flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xl">{step.icon}</span>
-                <h3 className="font-bold text-slate-800">{step.title}</h3>
-              </div>
-              <p className="text-slate-500 text-sm leading-relaxed">{step.description}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ServiciosSlide({
-  catalog,
-  selectedPackageId,
-  onSelect,
-}: {
-  catalog: EventCatalogData;
-  selectedPackageId: string | null;
-  onSelect: (id: string) => void;
-}) {
-  const accent = getAccent(catalog.hero.accentColor);
-  return (
-    <div className="max-w-5xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Lo que ofrecemos</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Nuestros servicios</h2>
-        <p className="text-slate-500 mt-2 text-sm">Seleccioná el paquete que mejor se adapta a tu evento</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {catalog.services.map((service, idx) => {
-          const isSelected = selectedPackageId === service.id;
-          const isHighlighted = service.highlighted;
-          return (
-            <motion.div
-              key={service.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => onSelect(service.id)}
-              className={cn(
-                'relative rounded-2xl border-2 p-5 cursor-pointer transition-all duration-200 hover:shadow-lg',
-                isSelected
-                  ? `border-transparent bg-gradient-to-br ${accent.gradient} text-white shadow-xl scale-[1.02]`
-                  : isHighlighted
-                  ? `${accent.border} ${accent.bg} border-2`
-                  : 'border-slate-100 bg-white hover:border-slate-200',
-              )}
-            >
-              {isHighlighted && !isSelected && (
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${accent.gradient}`}>
-                  ⭐ Más popular
-                </div>
-              )}
-              {isSelected && (
-                <div className="absolute -top-3 right-4 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md">
-                  <Check className={`h-4 w-4 ${accent.text}`} />
-                </div>
-              )}
-
-              <h3 className={cn('text-xl font-black mb-1', isSelected ? 'text-white' : 'text-slate-800')}>
-                {service.title}
-              </h3>
-              <p className={cn('text-sm mb-4 leading-relaxed', isSelected ? 'text-white/80' : 'text-slate-500')}>
-                {service.description}
-              </p>
-
-              <ul className="flex flex-col gap-2">
-                {service.included.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <Check className={cn('h-4 w-4 mt-0.5 flex-shrink-0', isSelected ? 'text-white' : accent.text)} />
-                    <span className={cn('text-xs', isSelected ? 'text-white/90' : 'text-slate-600')}>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {service.price && service.price !== 'Consultar' && (
-                <div className={cn('mt-4 text-lg font-black', isSelected ? 'text-white' : accent.text)}>
-                  {service.price}
-                </div>
-              )}
-
-              <div className={cn(
-                'mt-4 text-center text-xs font-bold py-2 rounded-xl transition-all',
-                isSelected
-                  ? 'bg-white/20 text-white'
-                  : `${accent.bg} ${accent.text}`,
-              )}>
-                {isSelected ? '✓ Seleccionado' : 'Seleccionar este paquete'}
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function RegalosSlide({ catalog }: { catalog: EventCatalogData }) {
-  const accent = getAccent(catalog.hero.accentColor);
-  return (
-    <div className="max-w-4xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Beneficios exclusivos</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">{catalog.promotion.sectionTitle}</h2>
-        {catalog.promotion.sectionSubtitle && (
-          <p className="text-slate-500 mt-2">{catalog.promotion.sectionSubtitle}</p>
+      {/* Contenido del paso */}
+      <div className="min-h-[400px]">
+        {paso === 0 && (
+          <PasoPortada
+            eventoType={eventoType}
+            contenido={contenido}
+            onNext={handleSiguiente}
+          />
+        )}
+        {paso === 1 && <PasoWhyUs />}
+        {paso === 2 && <PasoProceso />}
+        {paso === 3 && (
+          <PasoServicios
+            servicios={serviciosOrdenados}
+            seleccionados={serviciosSeleccionados}
+            onToggle={toggleServicio}
+            colorAcento={contenido.colorAcento}
+            destacadas={contenido.categoriasDestacadas}
+          />
+        )}
+        {paso === 4 && <PasoPaquetes />}
+        {paso === 5 && <PasoRegalos mensajeRegalos={contenido.mensajeRegalos} />}
+        {paso === 6 && <PasoPagos />}
+        {paso === 7 && <PasoFAQs openFaq={openFaq} onToggleFaq={setOpenFaq} />}
+        {paso === 8 && (
+          <PasoResumen
+            eventoType={eventoType}
+            contenido={contenido}
+            serviciosSeleccionados={serviciosSeleccionados}
+            servicios={SERVICES}
+            onCrearPresupuesto={handleCrearPresupuesto}
+            onWhatsApp={handleWhatsApp}
+          />
         )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {catalog.promotion.gifts.map((gift, idx) => (
-          <motion.div
-            key={gift.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={`flex items-start gap-4 p-5 rounded-2xl ${accent.bg} ${accent.border} border`}
-          >
-            <span className="text-4xl flex-shrink-0">{gift.icon}</span>
-            <div>
-              <h3 className="font-bold text-slate-800 mb-1">{gift.title}</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">{gift.description}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-function TestimoniosSlide({ catalog }: { catalog: EventCatalogData }) {
-  const accent = getAccent(catalog.hero.accentColor);
-  const SOURCE_ICON: Record<string, string> = {
-    instagram: '📸',
-    whatsapp:  '💬',
-    google:    '⭐',
-    text:      '💭',
-  };
-  return (
-    <div className="max-w-4xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Clientes que confían en nosotros</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Lo que dicen</h2>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {catalog.testimonials.map((testimonial, idx) => (
-          <motion.div
-            key={testimonial.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col gap-3"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-slate-800 text-sm">{testimonial.authorName}</span>
-              <span className="text-lg">{SOURCE_ICON[testimonial.source] ?? '💬'}</span>
-            </div>
-            <p className="text-slate-600 text-sm leading-relaxed italic">"{testimonial.text}"</p>
-            {testimonial.date && (
-              <span className="text-xs text-slate-400">{testimonial.date}</span>
+      {/* Navegación */}
+      <Separator />
+      <div className="flex items-center justify-between gap-3">
+        <Button
+          variant="outline"
+          onClick={handleAnterior}
+          disabled={paso === 0}
+          className="flex items-center gap-2 rounded-xl font-bold"
+        >
+          <ChevronLeft className="w-4 h-4" /> Anterior
+        </Button>
+        {paso < TOTAL_STEPS - 1 ? (
+          <Button
+            onClick={handleSiguiente}
+            className={cn(
+              'flex items-center gap-2 rounded-xl font-bold bg-gradient-to-r text-white',
+              contenido.colorAcento
             )}
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FormasDePagoSlide({ catalog }: { catalog: EventCatalogData }) {
-  const accent = getAccent(catalog.hero.accentColor);
-  return (
-    <div className="max-w-3xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Sin complicaciones</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Formas de pago</h2>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        {catalog.paymentMethods.map((method, idx) => (
-          <motion.div
-            key={method.id}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.08 }}
-            className={`flex items-center gap-4 p-4 bg-white border ${accent.border} rounded-2xl shadow-sm`}
           >
-            <span className="text-3xl flex-shrink-0">{method.icon}</span>
-            <div>
-              <div className="font-bold text-slate-800 text-sm">{method.name}</div>
-              {method.description && (
-                <div className="text-xs text-slate-500">{method.description}</div>
-              )}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      <div className={`p-5 rounded-2xl text-center ${accent.bg} ${accent.border} border`}>
-        <p className={`font-bold ${accent.text} mb-1`}>Seña para reservar tu fecha</p>
-        <p className="text-slate-600 text-sm">
-          Se requiere el 30 % del total para confirmar la fecha. El saldo se abona en cuotas según lo acordado.
-        </p>
+            Siguiente <ChevronRight className="w-4 h-4" />
+          </Button>
+        ) : (
+          <Button
+            onClick={handleCrearPresupuesto}
+            className="flex items-center gap-2 rounded-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:opacity-90"
+          >
+            Crear presupuesto <ChevronRight className="w-4 h-4" />
+          </Button>
+        )}
       </div>
     </div>
   );
 }
 
-function CierreSlide({
-  catalog,
-  selectedPackage,
-  onCreateBudget,
+// ─── Paso 0: Portada / Hero ──────────────────────────────────────────────────
+
+function PasoPortada({
+  eventoType,
+  contenido,
+  onNext,
 }: {
-  catalog: EventCatalogData;
-  selectedPackage: ServiceItem | null;
-  onCreateBudget: () => void;
+  eventoType: (typeof EVENT_TYPES)[number];
+  contenido: ReturnType<typeof getContenidoPorTipo>;
+  onNext: () => void;
 }) {
-  const accent = getAccent(catalog.hero.accentColor);
-  const WHATSAPP_NUMBER = catalog.whatsappNumber ?? '59899123456';
-  const waMsg = catalog.whatsappMessage ?? `¡Hola AK Producciones! Quiero cotizar: ${catalog.name}.`;
-  const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+  return (
+    <div
+      className={cn(
+        'rounded-2xl p-8 flex flex-col items-center text-center gap-6 bg-gradient-to-br text-white',
+        contenido.colorAcento
+      )}
+    >
+      <span className="text-7xl">{eventoType.emoji}</span>
+      <div className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight">{eventoType.label}</h1>
+        <p className="text-lg font-bold opacity-90">{contenido.tagline}</p>
+        <p className="text-sm opacity-80 font-medium">{contenido.subtitulo}</p>
+      </div>
+      <Button
+        onClick={onNext}
+        className="bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-xl font-bold px-8 py-3 backdrop-blur-sm transition-all"
+      >
+        Ver catálogo completo →
+      </Button>
+    </div>
+  );
+}
+
+// ─── Paso 1: Por qué elegirnos ───────────────────────────────────────────────
+
+function PasoWhyUs() {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-xl font-black text-slate-900">¿Por qué elegir AK Producciones?</h2>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {sharedWhyUs.map((item) => (
+          <Card key={item.id} className="border border-slate-100 shadow-sm rounded-xl">
+            <CardContent className="p-4 flex items-start gap-3">
+              <span className="text-2xl shrink-0">{item.icon}</span>
+              <div>
+                <p className="font-bold text-slate-900 text-sm">{item.title}</p>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">{item.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Paso 2: Nuestro proceso ─────────────────────────────────────────────────
+
+function PasoProceso() {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black text-slate-900">Cómo trabajamos</h2>
+      <div className="space-y-3">
+        {sharedProcess.map((step) => (
+          <div key={step.id} className="flex items-start gap-4">
+            <div className="shrink-0 w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center font-black text-indigo-700 text-sm">
+              {step.step}
+            </div>
+            <div className="flex-1 pt-1">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{step.icon}</span>
+                <p className="font-bold text-slate-900 text-sm">{step.title}</p>
+              </div>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">{step.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Paso 3: Servicios disponibles ───────────────────────────────────────────
+
+function PasoServicios({
+  servicios,
+  seleccionados,
+  onToggle,
+  colorAcento,
+  destacadas,
+}: {
+  servicios: typeof SERVICES;
+  seleccionados: Set<string>;
+  onToggle: (id: string) => void;
+  colorAcento: string;
+  destacadas: string[];
+}) {
+  const destacadasLower = destacadas.map((d) => d.toLowerCase());
 
   return (
-    <div className="max-w-4xl mx-auto py-6">
-      <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>¡Estamos listos!</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Siguiente paso 🚀</h2>
-        <p className="text-slate-500 mt-2 max-w-lg mx-auto">
-          Revisá tu selección y convertila en un presupuesto real con un solo clic.
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-xl font-black text-slate-900">¿Qué servicios necesitás?</h2>
+        <p className="text-xs text-slate-500 font-medium">
+          Seleccioná los servicios que querés incluir. Al final podés convertirlos en un presupuesto.
         </p>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left: Selection summary */}
-        <div>
-          <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
-            <FileText className={`h-4 w-4 ${accent.text}`} />
-            Tu selección
-          </h3>
-          {selectedPackage ? (
-            <div className={`p-5 rounded-2xl ${accent.bg} ${accent.border} border`}>
+      {seleccionados.size > 0 && (
+        <div className="flex items-center gap-2">
+          <Badge className="bg-indigo-100 text-indigo-700 font-bold border-0">
+            <CheckCircle2 className="w-3 h-3 mr-1" />
+            {seleccionados.size} seleccionado{seleccionados.size !== 1 ? 's' : ''}
+          </Badge>
+        </div>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {servicios.map((servicio) => {
+          const isSelected = seleccionados.has(servicio.id);
+          const isDestacado = destacadasLower.some(
+            (d) =>
+              servicio.label.toLowerCase().includes(d) ||
+              d.includes(servicio.label.toLowerCase())
+          );
+          return (
+            <button
+              key={servicio.id}
+              type="button"
+              onClick={() => onToggle(servicio.id)}
+              className={cn(
+                'text-left rounded-xl border-2 p-4 transition-all duration-200 w-full',
+                isSelected
+                  ? 'border-indigo-500 bg-indigo-50 shadow-md'
+                  : 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm'
+              )}
+            >
               <div className="flex items-start gap-3">
-                <span className="text-3xl">{catalog.hero.emoji}</span>
-                <div className="flex-1">
-                  <div className="font-black text-slate-800 text-lg">{selectedPackage.title}</div>
-                  <div className="text-slate-600 text-sm mb-3">{selectedPackage.description}</div>
-                  <ul className="flex flex-col gap-1">
-                    {selectedPackage.included.map((item, i) => (
-                      <li key={i} className="flex items-center gap-2 text-xs text-slate-700">
-                        <Check className={`h-3.5 w-3.5 flex-shrink-0 ${accent.text}`} />
-                        {item}
+                <span className="text-2xl shrink-0">{servicio.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-bold text-slate-900 text-sm">{servicio.label}</p>
+                    {isDestacado && !isSelected && (
+                      <Badge className="text-[9px] bg-amber-100 text-amber-700 border-0 font-bold px-1.5 py-0">
+                        Destacado
+                      </Badge>
+                    )}
+                    {isSelected && (
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                    {servicio.description}
+                  </p>
+                  <ul className="mt-2 space-y-0.5">
+                    {servicio.specs.slice(0, 3).map((spec) => (
+                      <li key={spec} className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
+                        {spec}
                       </li>
                     ))}
+                    {servicio.specs.length > 3 && (
+                      <li className="text-[10px] text-indigo-400 font-medium">
+                        +{servicio.specs.length - 3} más…
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-              <p className="text-slate-400 text-sm">No seleccionaste un paquete todavía.</p>
-              <p className="text-slate-400 text-xs mt-1">Podés volver al paso anterior para elegir uno.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Actions */}
-        <div className="flex flex-col gap-4">
-          <div>
-            <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
-              <Gift className={`h-4 w-4 ${accent.text}`} />
-              ¿Qué querés hacer?
-            </h3>
-            <div className="flex flex-col gap-3">
-              <Button
-                onClick={onCreateBudget}
-                size="lg"
-                className={cn(
-                  'h-14 rounded-2xl text-base font-bold text-white shadow-lg w-full',
-                  `bg-gradient-to-r ${accent.gradient} hover:opacity-90 transition-opacity`,
-                )}
-              >
-                <FileText className="h-5 w-5 mr-2" />
-                Crear presupuesto manual
-              </Button>
-
-              <a href={waHref} target="_blank" rel="noopener noreferrer">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="h-12 rounded-2xl text-sm font-bold w-full border-2 hover:bg-green-50 hover:border-green-400 hover:text-green-700 transition-colors"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2 text-green-500" />
-                  Consultar por WhatsApp
-                </Button>
-              </a>
-            </div>
-          </div>
-
-          {/* FAQs preview */}
-          {catalog.faqs.length > 0 && (
-            <div className="mt-2">
-              <h3 className="font-bold text-slate-700 mb-2 text-sm">Preguntas frecuentes</h3>
-              <div className="flex flex-col gap-2">
-                {catalog.faqs.slice(0, 2).map((faq) => (
-                  <div key={faq.id} className="p-3 bg-white border border-slate-100 rounded-xl">
-                    <p className="text-xs font-bold text-slate-700 mb-1">{faq.question}</p>
-                    <p className="text-xs text-slate-500 leading-relaxed">{faq.answer}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-// ─── Main Wizard Page ─────────────────────────────────────────────────────────
+// ─── Paso 4: Paquetes ────────────────────────────────────────────────────────
 
-export default function CatalogoTipoPage() {
-  const params = useParams();
-  const router = useRouter();
-  const tipo = Array.isArray(params.tipo) ? params.tipo[0] : params.tipo;
-  const catalog = tipo ? getCatalogBySlug(tipo) : null;
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-
-  const selectedPackage = useMemo(
-    () => (catalog ? catalog.services.find((s) => s.id === selectedPackageId) ?? null : null),
-    [catalog, selectedPackageId],
+function PasoPaquetes() {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black text-slate-900">Nuestros paquetes</h2>
+      <div className="grid grid-cols-1 gap-4">
+        {sharedServices.map((paquete) => (
+          <Card
+            key={paquete.id}
+            className={cn(
+              'border rounded-xl overflow-hidden',
+              paquete.highlighted
+                ? 'border-indigo-400 shadow-lg shadow-indigo-100'
+                : 'border-slate-100 shadow-sm'
+            )}
+          >
+            <CardHeader className={cn('pb-3', paquete.highlighted ? 'bg-indigo-50' : 'bg-slate-50')}>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-black text-slate-900">{paquete.title}</CardTitle>
+                {paquete.highlighted && (
+                  <Badge className="bg-indigo-600 text-white border-0 text-[10px] font-black uppercase tracking-wider">
+                    Más elegido
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 font-medium">{paquete.description}</p>
+            </CardHeader>
+            <CardContent className="pt-3 pb-4">
+              <ul className="space-y-1.5">
+                {paquete.included.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-xs text-slate-700">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-xs font-bold text-indigo-600">{paquete.price}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
+}
 
-  const goToSlide = useCallback((next: number) => {
-    const clamped = Math.max(0, Math.min(next, SLIDE_ORDER.length - 1));
-    setDirection(next > currentSlide ? 1 : -1);
-    setCurrentSlide(clamped);
-  }, [currentSlide]);
+// ─── Paso 5: Regalos incluidos ───────────────────────────────────────────────
 
-  const goNext = useCallback(() => goToSlide(currentSlide + 1), [goToSlide, currentSlide]);
-  const goPrev = useCallback(() => goToSlide(currentSlide - 1), [goToSlide, currentSlide]);
+function PasoRegalos({ mensajeRegalos }: { mensajeRegalos: string }) {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-xl font-black text-slate-900">{sharedPromotion.sectionTitle}</h2>
+        <p className="text-sm text-slate-600 font-medium">{mensajeRegalos}</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {sharedPromotion.gifts.map((gift) => (
+          <Card key={gift.id} className="border border-amber-100 shadow-sm rounded-xl bg-amber-50/40">
+            <CardContent className="p-4 flex items-start gap-3">
+              <span className="text-2xl shrink-0">{gift.icon}</span>
+              <div>
+                <p className="font-bold text-slate-900 text-sm">{gift.title}</p>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">{gift.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  const handleCreateBudget = useCallback(() => {
-    if (!catalog) return;
-    // Pre-populate the presupuesto form via sessionStorage
-    const presupuestoData = {
-      clienteNombre: '',
-      clienteContacto: '',
-      eventoTipo: catalog.name,
-      eventoFecha: undefined,
-      invitadosCantidad: DEFAULT_GUEST_COUNT,
-      invitadosAdultos: DEFAULT_GUEST_COUNT,
-      invitadosNinos: 0,
-      invitadosAdolescentes: 0,
-      salonFiestas: '',
-      protagonista1Nombre: '',
-      protagonista2Nombre: '',
-      nombreEmpresa: '',
-      serviciosSeleccionados: [], // empty Map entries — user configures in budget form
-      selectedMenuId: '',
-      notas: selectedPackage
-        ? `Catálogo digital — ${catalog.name}\nPaquete seleccionado: ${selectedPackage.title}\nIncluye: ${selectedPackage.included.join(', ')}`
-        : `Catálogo digital — ${catalog.name}`,
-      estado: 'Borrador',
-      nombrePromocion: 'Descuento Promocional',
-      descuentoTipo: 'porcentaje',
-      descuentoValor: '10',
-      vigenciaPromocion: 'Válido por 30 días',
-    };
-    try {
-      sessionStorage.setItem(PRESUPUESTO_SESSION_KEY, JSON.stringify(presupuestoData));
-      // Also store catalog selection details for reference
-      sessionStorage.setItem('catalogo_seleccion', JSON.stringify({
-        slug: catalog.slug,
-        nombre: catalog.name,
-        paqueteId: selectedPackage?.id ?? null,
-        paqueteNombre: selectedPackage?.title ?? null,
-        incluye: selectedPackage?.included ?? [],
-      }));
-    } catch (err) {
-      // sessionStorage unavailable (e.g. private browsing quota) — log and navigate anyway
-      console.warn('[CatalogoWizard] Could not write to sessionStorage:', err);
-    }
-    router.push('/presupuestos/nuevo/crear');
-  }, [catalog, selectedPackage, router]);
+// ─── Paso 6: Formas de pago ──────────────────────────────────────────────────
 
-  // Not found
-  if (!catalog) return notFound();
+function PasoPagos() {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black text-slate-900">Formas de pago</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {sharedPaymentMethods.map((method) => (
+          <Card key={method.id} className="border border-slate-100 shadow-sm rounded-xl">
+            <CardContent className="p-4 flex items-center gap-3">
+              <span className="text-2xl shrink-0">{method.icon}</span>
+              <div>
+                <p className="font-bold text-slate-900 text-sm">{method.name}</p>
+                <p className="text-xs text-slate-500">{method.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  const accent = getAccent(catalog.hero.accentColor);
-  const currentSlideId = SLIDE_ORDER[currentSlide];
-  const isLastSlide = currentSlide === SLIDE_ORDER.length - 1;
-  const isFirstSlide = currentSlide === 0;
-  const progress = ((currentSlide) / (SLIDE_ORDER.length - 1)) * 100;
+// ─── Paso 7: Preguntas frecuentes ────────────────────────────────────────────
+
+function PasoFAQs({
+  openFaq,
+  onToggleFaq,
+}: {
+  openFaq: string | null;
+  onToggleFaq: (id: string | null) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-black text-slate-900">Preguntas frecuentes</h2>
+      <div className="space-y-2">
+        {sharedFAQs.map((faq) => {
+          const isOpen = openFaq === faq.id;
+          return (
+            <div key={faq.id} className="border border-slate-100 rounded-xl overflow-hidden">
+              <button
+                type="button"
+                className="w-full text-left px-4 py-3 flex items-center justify-between gap-2 hover:bg-slate-50 transition-colors"
+                onClick={() => onToggleFaq(isOpen ? null : faq.id)}
+              >
+                <p className="font-bold text-slate-900 text-sm">{faq.question}</p>
+                <span className="text-slate-400 shrink-0 text-lg leading-none">
+                  {isOpen ? '−' : '+'}
+                </span>
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4">
+                  <p className="text-sm text-slate-600 leading-relaxed">{faq.answer}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Paso 8: Resumen y cierre ─────────────────────────────────────────────────
+
+function PasoResumen({
+  eventoType,
+  contenido,
+  serviciosSeleccionados,
+  servicios,
+  onCrearPresupuesto,
+  onWhatsApp,
+}: {
+  eventoType: (typeof EVENT_TYPES)[number];
+  contenido: ReturnType<typeof getContenidoPorTipo>;
+  serviciosSeleccionados: Set<string>;
+  servicios: typeof SERVICES;
+  onCrearPresupuesto: () => void;
+  onWhatsApp: () => void;
+}) {
+  const seleccionadosList = servicios.filter((s) => serviciosSeleccionados.has(s.id));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/20 flex flex-col">
-      {/* Top header */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-slate-100 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-4">
-            <Link href="/catalogo">
-              <Button variant="ghost" size="icon" className="rounded-xl flex-shrink-0">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
+    <div className="space-y-6">
+      {/* Mensaje de cierre */}
+      <div
+        className={cn(
+          'rounded-2xl p-6 text-center bg-gradient-to-br text-white space-y-2',
+          contenido.colorAcento
+        )}
+      >
+        <span className="text-4xl">{eventoType.emoji}</span>
+        <p className="text-lg font-black leading-snug">{contenido.mensajeCierre}</p>
+      </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">{catalog.hero.emoji}</span>
-                <span className="font-black text-slate-800 text-sm md:text-base truncate">{catalog.name}</span>
-                <span className="hidden sm:inline text-slate-300">·</span>
-                <span className="hidden sm:inline text-slate-500 text-sm">{SLIDE_LABELS[currentSlideId]}</span>
-              </div>
-              {/* Progress bar */}
-              <div className="mt-2 h-1 bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full bg-gradient-to-r ${accent.gradient} rounded-full transition-all duration-500`}
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="flex-shrink-0 text-xs text-slate-400 font-mono">
-              {currentSlide + 1}/{SLIDE_ORDER.length}
-            </div>
-          </div>
-
-          {/* Slide index tabs (desktop) */}
-          <div className="hidden lg:flex items-center gap-1 mt-3 flex-wrap">
-            {SLIDE_ORDER.map((id, idx) => (
-              <button
-                key={id}
-                onClick={() => goToSlide(idx)}
-                className={cn(
-                  'px-3 py-1 rounded-lg text-xs font-semibold transition-all',
-                  currentSlide === idx
-                    ? `bg-gradient-to-r ${accent.gradient} text-white`
-                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50',
-                )}
+      {/* Resumen de servicios seleccionados */}
+      <div className="space-y-3">
+        <h3 className="font-black text-slate-900 text-base">
+          {seleccionadosList.length > 0
+            ? `Servicios seleccionados (${seleccionadosList.length})`
+            : 'No seleccionaste servicios aún'}
+        </h3>
+        {seleccionadosList.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {seleccionadosList.map((s) => (
+              <Badge
+                key={s.id}
+                className="bg-indigo-100 text-indigo-800 border-0 font-bold text-xs px-3 py-1.5 rounded-lg"
               >
-                {SLIDE_LABELS[id]}
-              </button>
+                {s.emoji} {s.label}
+              </Badge>
             ))}
           </div>
-        </div>
-      </header>
+        ) : (
+          <p className="text-sm text-slate-500">
+            Podés volver al paso de servicios para elegir o continuar igual para armar el presupuesto desde cero.
+          </p>
+        )}
+      </div>
 
-      {/* Slide area */}
-      <main className="flex-1 overflow-hidden relative">
-        <div className="max-w-5xl mx-auto px-4 py-6 h-full overflow-y-auto">
-          <AnimatePresence custom={direction} mode="wait">
-            <motion.div
-              key={currentSlideId}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={slideTransition}
-            >
-              {currentSlideId === 'portada' && (
-                <PortadaSlide catalog={catalog} onNext={goNext} />
-              )}
-              {currentSlideId === 'presentacion' && (
-                <PresentacionSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'por-que-elegirnos' && (
-                <PorQueElegernosSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'proceso' && (
-                <ProcesoSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'servicios' && (
-                <ServiciosSlide
-                  catalog={catalog}
-                  selectedPackageId={selectedPackageId}
-                  onSelect={setSelectedPackageId}
-                />
-              )}
-              {currentSlideId === 'regalos' && (
-                <RegalosSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'testimonios' && (
-                <TestimoniosSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'formas-de-pago' && (
-                <FormasDePagoSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'cierre' && (
-                <CierreSlide
-                  catalog={catalog}
-                  selectedPackage={selectedPackage}
-                  onCreateBudget={handleCreateBudget}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </main>
+      <Separator />
 
-      {/* Bottom navigation */}
-      <footer className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-xl border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <Button
-            onClick={goPrev}
-            disabled={isFirstSlide}
-            variant="outline"
-            size="lg"
-            className="h-12 px-6 rounded-2xl font-semibold disabled:opacity-30"
-          >
-            <ChevronLeft className="h-5 w-5 mr-1" />
-            Anterior
-          </Button>
-
-          {/* Dot indicators */}
-          <div className="flex items-center gap-1.5">
-            {SLIDE_ORDER.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => goToSlide(idx)}
-                className={cn(
-                  'h-2 rounded-full transition-all duration-300',
-                  currentSlide === idx
-                    ? `w-6 bg-gradient-to-r ${accent.gradient}`
-                    : 'w-2 bg-slate-200 hover:bg-slate-300',
-                )}
-              />
-            ))}
-          </div>
-
-          {isLastSlide ? (
-            <Button
-              onClick={handleCreateBudget}
-              size="lg"
-              className={cn(
-                'h-12 px-6 rounded-2xl font-bold text-white shadow-lg',
-                `bg-gradient-to-r ${accent.gradient} hover:opacity-90`,
-              )}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Crear presupuesto
-            </Button>
-          ) : (
-            <Button
-              onClick={goNext}
-              size="lg"
-              className={cn(
-                'h-12 px-6 rounded-2xl font-semibold text-white',
-                `bg-gradient-to-r ${accent.gradient} hover:opacity-90`,
-              )}
-            >
-              Siguiente
-              <ChevronRight className="h-5 w-5 ml-1" />
-            </Button>
-          )}
-        </div>
-      </footer>
+      {/* CTAs */}
+      <div className="space-y-3">
+        <Button
+          onClick={onCrearPresupuesto}
+          className="w-full rounded-xl font-black text-sm h-12 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:opacity-90 transition-opacity"
+        >
+          Crear presupuesto manual →
+        </Button>
+        <Button
+          variant="outline"
+          onClick={onWhatsApp}
+          className="w-full rounded-xl font-bold text-sm h-11 border-emerald-200 text-emerald-700 hover:bg-emerald-50 flex items-center gap-2 justify-center"
+        >
+          <MessageCircle className="w-4 h-4" />
+          Contactar por WhatsApp
+        </Button>
+      </div>
     </div>
   );
 }
