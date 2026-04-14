@@ -9,13 +9,36 @@ import { saveFiesta, syncFiestaFromBudget } from '@/app/actions/fiesta/fiesta.ac
 import { createNotification } from './notifications';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
+import * as logger from '@/lib/logger';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
 
-/** Normalizes a phone number: removes non-digits and keeps the last 9 digits. */
+/** Normalizes a phone number: removes spaces, dashes, parens and keeps the last 9 digits. */
 function normalizePhone(phone: string): string {
-  return phone.replace(/\D/g, '').slice(-9);
+  return phone.replace(/[\s\-().+]/g, '').replace(/\D/g, '').slice(-9);
+}
+
+/** Normalizes a name for comparison: lowercase, trim, collapse spaces. */
+function normalizeName(name: string): string {
+  return name.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 4;
+
+function namesAreSimilar(a: string, b: string): boolean {
+  const na = normalizeName(a);
+  const nb = normalizeName(b);
+  if (na === nb) return true;
+  if (na.length >= MIN_NAME_LENGTH_FOR_PARTIAL_MATCH && nb.includes(na)) return true;
+  if (nb.length >= MIN_NAME_LENGTH_FOR_PARTIAL_MATCH && na.includes(nb)) return true;
+  return false;
+}
+
+function toTitleCase(name: string): string {
+  return name.toLowerCase().split(' ').map(word =>
+    word ? word.charAt(0).toUpperCase() + word.slice(1) : word
+  ).join(' ');
 }
 
 const defaultStages: CrmStage[] = [
@@ -38,26 +61,63 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
 }
 
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
-  if (!leadData.name?.trim()) return { success: false, error: 'Nombre obligatorio' };
+  // Sanitize name input
+  const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
+
+  // Strict name validations
+  if (nameCleaned.length < 2) {
+    return { success: false, error: 'El nombre es demasiado corto.' };
+  }
+  if (/^\d+$/.test(nameCleaned)) {
+    return { success: false, error: 'El nombre no puede ser solo números.' };
+  }
+  if (nameCleaned.replace(/\p{Emoji}/gu, '').trim().length < 2) {
+    return { success: false, error: 'El nombre no es válido.' };
+  }
+
+  // Sanitize other fields
+  const nameNormalized = toTitleCase(nameCleaned);
+  const phoneNormalized = leadData.phone ? leadData.phone.replace(/[\s\-().]/g, '') : leadData.phone;
+  const notesSanitized = leadData.notes ? leadData.notes.slice(0, 1000) : leadData.notes;
+
+  const sanitizedData: NewCrmLeadData = {
+    ...leadData,
+    name: nameNormalized,
+    phone: phoneNormalized,
+    notes: notesSanitized,
+  };
+
   const leads = await getCrmLeads();
   const stages = await getCrmStages();
   const now = new Date().toISOString();
 
   // Duplicate detection by phone
-  if (leadData.phone) {
-    const normalizedPhone = normalizePhone(leadData.phone);
+  if (sanitizedData.phone) {
+    const normalizedPhone = normalizePhone(sanitizedData.phone);
     const duplicate = leads.find(l => l.phone && normalizePhone(l.phone) === normalizedPhone);
     if (duplicate) {
+      logger.warn('[CRM] Duplicado detectado por teléfono:', { existing: duplicate.name, incoming: nameNormalized });
       return { success: false, error: `Ya existe un prospecto con este teléfono: "${duplicate.name}".`, duplicate };
     }
   }
 
+  // Duplicate detection by similar name + same event type
+  const partyType = sanitizedData.partyType;
+  const duplicateByName = leads.find(l => {
+    const sameEventType = !partyType || !l.partyType || l.partyType === partyType;
+    return namesAreSimilar(l.name, nameNormalized) && sameEventType;
+  });
+  if (duplicateByName) {
+    logger.warn('[CRM] Duplicado detectado por nombre:', { existing: duplicateByName.name, incoming: nameNormalized });
+    return { success: false, error: `Ya existe un prospecto con un nombre similar: "${duplicateByName.name}".`, duplicate: duplicateByName };
+  }
+
   const newLead: CrmLead = {
-    ...leadData,
+    ...sanitizedData,
     id: `lead_${Date.now()}`,
     createdAt: now,
     updatedAt: now,
-    currentStageId: leadData.currentStageId || stages[0].id,
+    currentStageId: sanitizedData.currentStageId || stages[0].id,
     timeline: [
       {
         id: `tl_${Date.now()}`,
@@ -80,6 +140,8 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
     entidadRelacionadaId: newLead.id,
     rolDestino: 'admin',
   }).catch(err => console.warn('Error creating lead notification:', err));
+
+  logger.info('[CRM] Nuevo prospecto registrado:', { id: newLead.id, name: newLead.name, partyType: newLead.partyType });
 
   return { success: true, lead: newLead };
 }
