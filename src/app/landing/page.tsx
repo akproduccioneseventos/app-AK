@@ -80,7 +80,7 @@ export default async function LandingPage() {
       <GallerySection galeriaFotos={fotosCombinadas} />
       <VideoSection galeriaVideos={videos} />
       <TestimonialsSection />
-      <FAQSection />
+      <FAQSection faqs={landingSettings.faqs} />
       <CTASection
         whatsappNumber={whatsapp}
         headline={landingSettings.cta.headline}

@@ -21,12 +21,14 @@ import * as logger from '@/lib/logger';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
-export async function getPresupuestos(): Promise<Presupuesto[]> {
-  return readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+/** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
+export async function getPresupuestos(includeArchived = false): Promise<Presupuesto[]> {
+  const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+  return includeArchived ? all : all.filter(p => !p.archived);
 }
 
 export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
-  const presupuestos = await getPresupuestos();
+  const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   return presupuestos.find(p => p.id === id) || null;
 }
 
@@ -206,15 +208,49 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     return { success: true, id: updated.id, presupuesto: updated };
 }
 
-export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
-  let presupuestos = await getPresupuestos();
-  presupuestos = presupuestos.filter(p => p.id !== id);
+/** Soft-delete: marks the presupuesto as archived so it disappears from active lists. */
+export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
+  const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+  const index = all.findIndex(p => p.id === id);
+  if (index === -1) return { success: false, error: 'Presupuesto no encontrado.' };
+  all[index] = { ...all[index], archived: true, archivedAt: new Date().toISOString() };
   try {
-    await writeData(PRESUPUESTOS_FILE, presupuestos);
+    await writeData(PRESUPUESTOS_FILE, all);
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Error al archivar.' };
+  }
+  return { success: true };
+}
+
+/** Hard-delete: permanently removes the presupuesto and cleans up CRM lead references. */
+export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
+  const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+  const target = all.find(p => p.id === id);
+  const remaining = all.filter(p => p.id !== id);
+  try {
+    await writeData(PRESUPUESTOS_FILE, remaining);
   } catch (writeError: any) {
     console.error("Error deleting presupuesto:", writeError);
     return { success: false, error: writeError.message || "Error al eliminar el presupuesto." };
   }
+
+  // Clean up CRM lead reference to avoid dangling pointer
+  if (target?.leadId) {
+    try {
+      type CrmLeadRaw = { id: string; presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
+      const allLeads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
+      const idx = allLeads.findIndex(l => l.id === target.leadId);
+      if (idx !== -1) {
+        const { presupuestoId: _pid, presupuestoEstado: _pe, ...rest } = allLeads[idx];
+        allLeads[idx] = rest;
+        await writeData('crm-leads.json', allLeads);
+      }
+    } catch (e) {
+      // Non-fatal: log and continue
+      console.warn('Could not clean CRM lead presupuestoId after delete:', e);
+    }
+  }
+
   return { success: true };
 }
 
@@ -351,10 +387,12 @@ export async function importarPresupuestoDesdeTexto(
 
   const parsed = parseBudgetText(texto);
 
-  if (!parsed.clienteNombre) {
+  // clienteNombre now defaults to 'Cliente' in the parser, so we always have something.
+  // Only block if we got nothing at all useful.
+  if (!parsed.clienteNombre && parsed.items.length === 0) {
     return {
       success: false,
-      error: 'No se pudo detectar el nombre del cliente. Revisá el formato del texto.',
+      error: 'No se pudo detectar información válida en el texto. Revisá el formato.',
       warnings: parsed.warnings,
     };
   }

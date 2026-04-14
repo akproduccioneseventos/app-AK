@@ -388,7 +388,17 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   };
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
-  if (!presupuesto || !displaySettings) return null;
+  if (!presupuesto) return (
+    <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
+      <p className="text-4xl">🗂️</p>
+      <h2 className="text-2xl font-bold">Presupuesto no encontrado</h2>
+      <p className="text-muted-foreground max-w-sm">
+        Este presupuesto fue eliminado o archivado. Si lo archivaste, podés encontrarlo en el listado con el filtro de archivados.
+      </p>
+      <Link href="/presupuestos/nuevo"><Button variant="outline" className="rounded-xl"><ArrowLeft className="mr-2 h-4 w-4"/>Volver a Presupuestos</Button></Link>
+    </div>
+  );
+  if (!displaySettings) return null;
 
   const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 0;
 

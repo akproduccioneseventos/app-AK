@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getLandingSettings, saveLandingSettings } from '@/app/actions/landing-editor';
-import type { LandingSettings, LandingStatItem } from '@/types/landing-editor';
+import type { LandingSettings, LandingStatItem, LandingFaqItem } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
 
 /**
@@ -175,7 +175,7 @@ export default function LandingEditorPage() {
       </header>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200">
           <TabsTrigger value="hero" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
             <Type className="w-3 h-3" /> Hero
           </TabsTrigger>
@@ -190,6 +190,9 @@ export default function LandingEditorPage() {
           </TabsTrigger>
           <TabsTrigger value="seo" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
             <Globe className="w-3 h-3" /> SEO
+          </TabsTrigger>
+          <TabsTrigger value="faq" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            ❓ FAQ
           </TabsTrigger>
         </TabsList>
 
@@ -535,6 +538,70 @@ export default function LandingEditorPage() {
                 <p className="text-xs text-green-700">akproducciones.uy/landing</p>
                 <p className="text-sm text-slate-600 leading-relaxed">{settings.seo.description || '(sin descripción)'}</p>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── FAQ ── */}
+        <TabsContent value="faq" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                ❓ Preguntas Frecuentes (FAQ)
+              </CardTitle>
+              <CardDescription>Editá las preguntas y respuestas que aparecen en la sección FAQ de tu página web.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {(settings.faqs || []).map((faq, index) => (
+                <div key={faq.id} className="border border-slate-200 rounded-2xl p-4 space-y-3 bg-white">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta {index + 1}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                      onClick={() => setSettings(s => ({ ...s, faqs: (s.faqs || []).filter(f => f.id !== faq.id) }))}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta</Label>
+                    <Input
+                      value={faq.question}
+                      onChange={e => setSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, question: e.target.value } : f) }))}
+                      className="rounded-xl"
+                      placeholder="¿Cuánto cuesta...?"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Respuesta</Label>
+                    <Textarea
+                      value={faq.answer}
+                      onChange={e => setSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, answer: e.target.value } : f) }))}
+                      rows={3}
+                      className="rounded-xl"
+                      placeholder="La respuesta..."
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full rounded-xl border-dashed"
+                onClick={() => {
+                  const newFaq: LandingFaqItem = { id: `faq_${Date.now()}`, question: '', answer: '' };
+                  setSettings(s => ({ ...s, faqs: [...(s.faqs || []), newFaq] }));
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" /> Agregar pregunta
+              </Button>
+
+              {(!settings.faqs || settings.faqs.length === 0) && (
+                <p className="text-center text-slate-400 text-xs py-4">No hay preguntas. Agregá la primera.</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

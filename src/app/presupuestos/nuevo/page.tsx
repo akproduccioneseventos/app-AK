@@ -21,18 +21,19 @@ function PresupuestoDashboardContent() {
     const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showArchived, setShowArchived] = useState(false);
 
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
         try {
-            const guardados = await getPresupuestos();
+            const guardados = await getPresupuestos(showArchived);
             setPresupuestos((Array.isArray(guardados) ? guardados : []).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
         } catch(e) {
             toast({ title: "Error", description: "No se pudieron cargar los presupuestos."});
         } finally {
             setIsLoading(false);
         }
-    }, [toast]);
+    }, [toast, showArchived]);
 
     useEffect(() => { fetchPresupuestos(); }, [fetchPresupuestos]);
 
@@ -81,9 +82,19 @@ function PresupuestoDashboardContent() {
                     <CardTitle className="font-headline text-2xl">Todos los Presupuestos</CardTitle>
                     <CardDescription>Gestiona las cotizaciones generadas manual o automáticamente.</CardDescription>
                 </div>
-                <div className="relative w-full md:w-64">
+                <div className="flex gap-2 items-center flex-wrap">
+                  <Button
+                    variant={showArchived ? 'secondary' : 'outline'}
+                    size="sm"
+                    onClick={() => setShowArchived(v => !v)}
+                    className="rounded-xl text-xs"
+                  >
+                    {showArchived ? '✅ Mostrando archivados' : '🗂️ Ver archivados'}
+                  </Button>
+                  <div className="relative w-full md:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
                     <Input placeholder="Buscar cliente o Nº..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9"/>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>

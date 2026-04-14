@@ -94,6 +94,8 @@ export interface Presupuesto {
   saldo?: number; // Saldo restante a pagar
   ajusteAnualPorcentaje?: number; // Porcentaje de ajuste anual pactado
   fechaFirmaContrato?: string; // ISO date de firma del contrato
+  archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
+  archivedAt?: string; // ISO timestamp of archival
 }
 
 // FormData for the new unified builder.

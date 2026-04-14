@@ -38,12 +38,19 @@ export interface LandingSeoSettings {
   ogImageUrl: string;
 }
 
+export interface LandingFaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
 export interface LandingSettings {
   hero: LandingHeroSettings;
   stats: LandingStatItem[];
   cta: LandingCtaSettings;
   colors: LandingColorSettings;
   seo: LandingSeoSettings;
+  faqs?: LandingFaqItem[];
   whatsappNumber: string;
   updatedAt?: string;
 }
@@ -84,4 +91,26 @@ export const defaultLandingSettings: LandingSettings = {
     ogImageUrl:
       'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=85&auto=format&fit=crop',
   },
+  faqs: [
+    {
+      id: 'faq_1',
+      question: '¿Cuánto cuesta organizar una fiesta?',
+      answer: 'El precio varía según el tipo de evento, la cantidad de invitados y los servicios incluidos. Podés usar nuestro simulador de presupuesto para obtener una cotización personalizada en minutos.',
+    },
+    {
+      id: 'faq_2',
+      question: '¿Con cuánta anticipación debo reservar?',
+      answer: 'Recomendamos reservar con al menos 3 a 6 meses de anticipación, especialmente para fechas de alta demanda (fines de semana en temporada alta). Igual, no dudes en consultarnos aunque sea con menos tiempo.',
+    },
+    {
+      id: 'faq_3',
+      question: '¿Qué incluye el servicio de AK Producciones?',
+      answer: 'Ofrecemos producción integral: catering, ambientación y decoración, discoteca e iluminación, coordinación del evento y mucho más. Cada paquete es personalizable según tus necesidades.',
+    },
+    {
+      id: 'faq_4',
+      question: '¿Puedo ver el salón antes de reservar?',
+      answer: 'Por supuesto. Podés agendar una visita sin costo para conocer el espacio y hablar con nuestro equipo. Escribinos por WhatsApp o usá el simulador para dar el primer paso.',
+    },
+  ],
 };

@@ -18,6 +18,7 @@ export async function getLandingSettings(): Promise<LandingSettings> {
       colors: { ...defaultLandingSettings.colors, ...data.colors },
       seo: { ...defaultLandingSettings.seo, ...data.seo },
       stats: data.stats?.length ? data.stats : defaultLandingSettings.stats,
+      faqs: data.faqs ?? defaultLandingSettings.faqs,
     };
   } catch {
     return defaultLandingSettings;
