@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, Layout, MapPin, MonitorPlay, Camera, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, Layout, MapPin, MonitorPlay, Camera, ExternalLink, BookOpen } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -204,6 +204,23 @@ export default function EmpresaHubPage() {
             </Card>
           ))}
         </div>
+      </div>
+
+      {/* Catálogo Digital Interactivo */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <BookOpen className="w-6 h-6 text-indigo-500" />
+          <h2 className="text-xl font-bold tracking-tight font-headline">Catálogo Digital Interactivo</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Presentaciones paso a paso por tipo de fiesta. Al finalizar, convertís la selección en un presupuesto manual real.
+        </p>
+        <Link href="/catalogo">
+          <Button className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow">
+            <BookOpen className="w-4 h-4" />
+            Abrir catálogo digital
+          </Button>
+        </Link>
       </div>
     </div>
   );

@@ -32,6 +32,7 @@ import {
   MessageSquare,
   Bell,
   PlusCircle,
+  BookOpen,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -284,6 +285,22 @@ export function MainNav() {
                   >
                     <CalendarDays className={cn("w-4 h-4", isActive("/calendario") ? "text-indigo-600" : "text-purple-400")} />
                     <span className="ml-2">Calendario</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/catalogo">
+                  <SidebarMenuButton 
+                    isActive={isActive("/catalogo")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/catalogo")
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm" 
+                          : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                    )}
+                  >
+                    <BookOpen className={cn("w-4 h-4", isActive("/catalogo") ? "text-indigo-600" : "text-purple-400")} />
+                    <span className="ml-2">Catálogo Digital</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
