@@ -11,10 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import {
-  ArrowLeft, Save, Loader2, Eye, Globe, Palette, Layout, Type, BarChart3, Phone, Plus, Trash2, ExternalLink
+  ArrowLeft, Save, Loader2, Eye, Globe, Palette, Layout, Type, BarChart3, Phone, Plus, Trash2, ExternalLink, Upload
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getLandingSettings, saveLandingSettings } from '@/app/actions/landing-editor';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import type { LandingSettings, LandingStatItem, LandingFaqItem } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
 
@@ -60,6 +61,8 @@ export default function LandingEditorPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
+  const [isUploadingOgImage, setIsUploadingOgImage] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -90,6 +93,40 @@ export default function LandingEditorPage() {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleUploadHeroImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingHeroImage(true);
+    try {
+      const result = await uploadPublicPageAsset('landing-editor', file);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      updateHero('backgroundImageUrl', result.url);
+      toast({ title: '✅ Imagen subida', description: 'La imagen de fondo fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingHeroImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUploadOgImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingOgImage(true);
+    try {
+      const result = await uploadPublicPageAsset('landing-editor', file);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      updateSeo('ogImageUrl', result.url);
+      toast({ title: '✅ Imagen subida', description: 'La imagen OG fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingOgImage(false);
+      e.target.value = '';
     }
   };
 
@@ -248,13 +285,23 @@ export default function LandingEditorPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen de Fondo (URL)</Label>
-                <Input
-                  value={settings.hero.backgroundImageUrl}
-                  onChange={e => updateHero('backgroundImageUrl', e.target.value)}
-                  placeholder="https://..."
-                  className="rounded-xl"
-                />
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen de Fondo (URL o subir archivo)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={settings.hero.backgroundImageUrl}
+                    onChange={e => updateHero('backgroundImageUrl', e.target.value)}
+                    placeholder="https://..."
+                    className="rounded-xl"
+                  />
+                  <label htmlFor="hero-image-upload" className="shrink-0">
+                    <Button asChild variant="outline" className="rounded-xl" disabled={isUploadingHeroImage}>
+                      <span>
+                        {isUploadingHeroImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      </span>
+                    </Button>
+                    <input id="hero-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadHeroImage} disabled={isUploadingHeroImage} />
+                  </label>
+                </div>
                 {settings.hero.backgroundImageUrl && sanitizeImageUrl(settings.hero.backgroundImageUrl) && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -514,13 +561,23 @@ export default function LandingEditorPage() {
                 <p className="text-[10px] text-muted-foreground">Máx. 160 caracteres recomendado. Actual: {settings.seo.description.length}</p>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen OG (para redes sociales — URL)</Label>
-                <Input
-                  value={settings.seo.ogImageUrl}
-                  onChange={e => updateSeo('ogImageUrl', e.target.value)}
-                  placeholder="https://..."
-                  className="rounded-xl"
-                />
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen OG (para redes sociales — URL o subir archivo)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={settings.seo.ogImageUrl}
+                    onChange={e => updateSeo('ogImageUrl', e.target.value)}
+                    placeholder="https://..."
+                    className="rounded-xl"
+                  />
+                  <label htmlFor="og-image-upload" className="shrink-0">
+                    <Button asChild variant="outline" className="rounded-xl" disabled={isUploadingOgImage}>
+                      <span>
+                        {isUploadingOgImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      </span>
+                    </Button>
+                    <input id="og-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadOgImage} disabled={isUploadingOgImage} />
+                  </label>
+                </div>
                 {settings.seo.ogImageUrl && sanitizeImageUrl(settings.seo.ogImageUrl) && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

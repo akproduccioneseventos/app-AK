@@ -7,6 +7,7 @@ export interface Empleado {
   telefono?: string;
   rolIds?: string[];
   contractFileName?: string; // Nuevo campo para el contrato
+  photoUrl?: string; // Foto de perfil del empleado
 }
 
 export interface NuevoEmpleadoFormData {
@@ -16,4 +17,5 @@ export interface NuevoEmpleadoFormData {
   telefono?: string;
   rolIds?: string[];
   contractFileName?: string; // Nuevo campo para el contrato
+  photoUrl?: string; // Foto de perfil del empleado
 }

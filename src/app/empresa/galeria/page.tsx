@@ -225,8 +225,8 @@ export default function GaleriaAdminPage() {
       setFotoTipoFiesta('');
       setFotoDestacada(false);
       await fetchData();
-    } catch {
-      toast({ title: 'Error', description: 'No se pudo subir la foto.', variant: 'destructive' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir foto', description: err.message || 'No se pudo subir la foto. Verifica tu conexión y configuración de almacenamiento.', variant: 'destructive' });
     } finally {
       setIsUploadingFoto(false);
       e.target.value = '';

@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, FileText, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Edit3, AlertTriangle, Trash2, FileText, Eye, Upload, UserCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getEmpleadoById, saveEmpleado, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
@@ -43,6 +44,8 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
   const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
   const [rolIds, setRolIds] = useState<string[]>([]);
   const [contractFile, setContractFile] = useState<File | null>(null);
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,6 +70,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
         setTelefono(loadedEmpleado.telefono || '');
         setFechaNacimiento(loadedEmpleado.fechaNacimiento ? new Date(loadedEmpleado.fechaNacimiento) : undefined);
         setRolIds(loadedEmpleado.rolIds || []);
+        setPhotoUrl(loadedEmpleado.photoUrl || '');
       } else {
         setNotFound(true);
         toast({ title: 'Error', description: `No se encontró el empleado con ID ${params.id}.`, variant: 'destructive' });
@@ -85,6 +89,23 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
       loadData();
     }
   }, [params.id, loadData]);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingPhoto(true);
+    try {
+      const result = await uploadPublicPageAsset('empleados-fotos', file);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      setPhotoUrl(result.url);
+      toast({ title: '✅ Foto subida', description: 'La foto de perfil fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir foto', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -109,7 +130,9 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
     } else if (empleado.contractFileName) {
         formData.append('existingContract', empleado.contractFileName);
     }
-
+    if (photoUrl.trim()) {
+      formData.append('photoUrl', photoUrl.trim());
+    }
 
     try {
       const result = await saveEmpleado(formData);
@@ -171,6 +194,33 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-base">Foto de Perfil</Label>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50 shrink-0">
+                  {photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photoUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
+                  ) : (
+                    <UserCircle className="w-10 h-10 text-slate-300" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <label htmlFor="empleado-photo-upload">
+                    <Button asChild variant="outline" size="sm" disabled={isUploadingPhoto || isSaving || isDeleting}>
+                      <span>
+                        {isUploadingPhoto ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                        {isUploadingPhoto ? 'Subiendo...' : 'Cambiar foto'}
+                      </span>
+                    </Button>
+                    <input id="empleado-photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUploadingPhoto || isSaving || isDeleting} />
+                  </label>
+                  {photoUrl && (
+                    <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="URL de la foto" className="text-xs" disabled={isSaving || isDeleting} />
+                  )}
+                </div>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="empleado-nombre" className="text-base">Nombre Completo *</Label>
               <Input id="empleado-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className="text-base p-3" disabled={isSaving || isDeleting} required/>
