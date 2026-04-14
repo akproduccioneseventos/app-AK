@@ -460,6 +460,7 @@ export function AKAssistantWidget() {
   // Voice input (STT) state
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState(false);
+  const [voiceSendMode, setVoiceSendMode] = useState(false);
   const recognitionRef = useRef<any>(null);
 
   // Voice output (TTS) state
@@ -681,7 +682,7 @@ export function AKAssistantWidget() {
   };
 
   // --- Voice Input (Speech-to-Text) ---
-  const startListening = () => {
+  const startListening = (autoSend?: boolean) => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({ title: '🎤 Micrófono no disponible', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
@@ -691,14 +692,24 @@ export function AKAssistantWidget() {
     try {
       const recognition = new SpeechRecognition();
       recognition.lang = 'es-UY';
-      recognition.continuous = true;
+      recognition.continuous = autoSend ? false : true;
       recognition.interimResults = true;
       recognition.onresult = (event: any) => {
-        let transcript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+        if (autoSend) {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              transcript += event.results[i][0].transcript;
+            }
+          }
+          if (transcript) setInputText(prev => prev + transcript);
+        } else {
+          let transcript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          setInputText(transcript);
         }
-        setInputText(transcript);
       };
       recognition.onerror = (event: any) => {
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
@@ -706,13 +717,23 @@ export function AKAssistantWidget() {
           setVoiceError(true);
         }
         setIsListening(false);
+        setVoiceSendMode(false);
       };
       recognition.onend = () => {
         setIsListening(false);
+        setVoiceSendMode(false);
+        if (autoSend) {
+          recognitionRef.current = null;
+          // Use a timeout so inputText state has settled before sending
+          setTimeout(() => {
+            handleSend();
+          }, 100);
+        }
       };
       recognition.start();
       recognitionRef.current = recognition;
       setIsListening(true);
+      setVoiceSendMode(autoSend ?? false);
       setVoiceError(false);
     } catch {
       toast({ title: '🎤 Error', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
@@ -726,6 +747,7 @@ export function AKAssistantWidget() {
       recognitionRef.current = null;
     }
     setIsListening(false);
+    setVoiceSendMode(false);
   };
 
   const toggleListening = () => {
@@ -959,7 +981,7 @@ export function AKAssistantWidget() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500" />
                     </span>
-                    <span className="text-xs text-rose-700 flex-1">Escuchando...</span>
+                    <span className="text-xs text-rose-700 flex-1">{voiceSendMode ? 'Escuchando... (enviará al terminar)' : 'Escuchando...'}</span>
                     <button onClick={stopListening} className="text-rose-400 hover:text-rose-600"><X className="h-3.5 w-3.5" /></button>
                   </div>
                 )}
@@ -977,6 +999,16 @@ export function AKAssistantWidget() {
                     disabled={isSending}
                   >
                     {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn('h-8 w-8 shrink-0', isListening && voiceSendMode ? 'text-emerald-500 animate-pulse' : voiceError ? 'text-slate-300' : 'text-slate-400 hover:text-emerald-600')}
+                    onClick={() => { if (isListening) { stopListening(); } else { startListening(true); } }}
+                    title={isListening && voiceSendMode ? 'Detener y cancelar envío' : voiceError ? 'Micrófono no disponible' : 'Hablar y enviar automáticamente al terminar'}
+                    disabled={isSending}
+                  >
+                    {isListening && voiceSendMode ? <MicOff className="h-4 w-4" /> : <span className="flex items-center"><Mic className="h-3.5 w-3.5" /><Send className="h-2.5 w-2.5 -ml-0.5" /></span>}
                   </Button>
                   <textarea value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Escribí algo, adjuntá un archivo o usá el micrófono..." rows={1} className="flex-1 resize-none text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 bg-slate-50 max-h-20 min-h-[32px]" style={{ lineHeight: '1.4' }} />
                   <Button size="icon" className="h-8 w-8 bg-indigo-600 hover:bg-indigo-700 text-white shrink-0 rounded-xl" onClick={() => handleSend()} disabled={isSending || (!inputText.trim() && !attachedFile)}>

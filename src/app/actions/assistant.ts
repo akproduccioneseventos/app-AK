@@ -18,6 +18,196 @@ import * as logger from '@/lib/logger';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
 
+// ── Parser local determinista de presupuestos en texto libre ─────────────────
+
+interface ParsedBudgetLocal {
+  clienteNombre?: string;
+  eventoTipo?: string;
+  eventoFecha?: string;
+  invitados?: number;
+  servicios: Array<{ nombre: string; cantidad: number; precioUnitario: number }>;
+  descuento?: number;
+  total?: number;
+  confidence: 'high' | 'medium' | 'low';
+}
+
+function parseBudgetFromText(text: string): ParsedBudgetLocal {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const full = text.toLowerCase();
+
+  // --- clienteNombre ---
+  let clienteNombre: string | undefined;
+  const clientePatterns = [
+    /cliente[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑa-záéíóúñ][A-ZÁÉÍÓÚÑa-záéíóúñ]+)*)/i,
+    /para[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
+    /se[ñn]or[a]?[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
+    /nombre[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
+  ];
+  for (const pat of clientePatterns) {
+    const m = text.match(pat);
+    if (m) { clienteNombre = m[1].trim(); break; }
+  }
+  // Fallback: first line with two capitalized words (looks like a name)
+  if (!clienteNombre) {
+    for (const line of lines.slice(0, 5)) {
+      const m = line.match(/^([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)+)$/);
+      if (m && !/(presupuesto|factura|cotizaci[oó]n|empresa|servicio)/i.test(m[1])) {
+        clienteNombre = m[1]; break;
+      }
+    }
+  }
+
+  // --- eventoTipo ---
+  let eventoTipo: string | undefined;
+  const tipoMap: Array<[RegExp, string]> = [
+    [/casamiento|boda/i, 'Casamiento'],
+    [/cumplea[ñn]os/i, 'Cumpleaños'],
+    [/quincea[ñn]os|15\s*a[ñn]os/i, 'Quinceaños'],
+    [/egreso/i, 'Egreso'],
+    [/corporativo|empresarial/i, 'Corporativo'],
+    [/aniversario/i, 'Aniversario'],
+    [/fiesta/i, 'Fiesta'],
+  ];
+  for (const [pat, label] of tipoMap) {
+    if (pat.test(full)) { eventoTipo = label; break; }
+  }
+
+  // --- eventoFecha ---
+  let eventoFecha: string | undefined;
+  const fechaPatterns = [
+    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/,
+    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})(?!\d)/,
+    /(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s+(?:de\s+)?(\d{4})/i,
+    /(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
+  ];
+  const meses: Record<string, string> = {
+    enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',
+    julio:'07',agosto:'08',septiembre:'09',octubre:'10',noviembre:'11',diciembre:'12',
+  };
+  for (const pat of fechaPatterns) {
+    const m = text.match(pat);
+    if (m) {
+      if (pat.source.includes('enero')) {
+        const mes = meses[m[2].toLowerCase()] ?? '01';
+        const anio = m[3] ? m[3] : new Date().getFullYear().toString();
+        eventoFecha = `${anio}-${mes}-${m[1].padStart(2,'0')}`;
+      } else {
+        const dd = m[1].padStart(2,'0');
+        const mm = m[2].padStart(2,'0');
+        const yy = m[3].length === 2 ? `20${m[3]}` : m[3];
+        eventoFecha = `${yy}-${mm}-${dd}`;
+      }
+      break;
+    }
+  }
+
+  // --- invitados ---
+  let invitados: number | undefined;
+  const invPatterns = [
+    /(\d+)\s*invitados/i,
+    /(\d+)\s*personas/i,
+    /(\d+)\s*pax/i,
+    /invitados[:\s]+(\d+)/i,
+  ];
+  for (const pat of invPatterns) {
+    const m = text.match(pat);
+    if (m) { invitados = parseInt(m[1], 10); break; }
+  }
+
+  // --- servicios ---
+  const servicios: Array<{ nombre: string; cantidad: number; precioUnitario: number }> = [];
+
+  function cleanNum(s: string): number {
+    return parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
+  }
+
+  for (const line of lines) {
+    // Skip header/total/summary lines
+    if (/^(total|subtotal|descuento|dto|saldo|se[ñn]a|iva|nota|observ|cliente|fecha|evento|para\s|presupuesto|cotizaci[oó]n)/i.test(line)) continue;
+
+    // Table row: | nombre | precio | or | nombre | cantidad | precio |
+    const tableMatch = line.match(/\|([^|]+)\|([^|]+)\|([^|]*)\|?/);
+    if (tableMatch) {
+      const col1 = tableMatch[1].trim();
+      const col2 = tableMatch[2].trim();
+      const col3 = tableMatch[3]?.trim();
+      const price = col3 ? cleanNum(col3) : cleanNum(col2);
+      const qty = col3 ? cleanNum(col2) || 1 : 1;
+      if (col1 && price > 0 && !/^(servicio|descripci[oó]n|item|detalle|precio|cantidad|total)/i.test(col1)) {
+        servicios.push({ nombre: col1, cantidad: qty, precioUnitario: price / qty });
+        continue;
+      }
+    }
+
+    // Bullet / dash: - Nombre  $12.000 or • Nombre 12.000
+    const bulletMatch = line.match(/^[-•*]\s*(.+?)\s+\$?([\d.,]+)$/);
+    if (bulletMatch) {
+      const nombre = bulletMatch[1].trim();
+      const price = cleanNum(bulletMatch[2]);
+      if (price > 0 && nombre.length > 2) {
+        servicios.push({ nombre, cantidad: 1, precioUnitario: price });
+        continue;
+      }
+    }
+
+    // "Nombre cantidad x precio" or "Nombre    precio"
+    const priceInLine = line.match(/\$\s*([\d.,]+)/);
+    if (priceInLine) {
+      const price = cleanNum(priceInLine[1]);
+      if (price > 0) {
+        // nombre is everything before the first $ sign
+        const nombre = line.split('$')[0].replace(/^\s*[-•*]\s*/, '').trim();
+        // quantity pattern: "2 x" or "x2" or "2u"
+        const qtyM = nombre.match(/(\d+)\s*[xu×]/i) || nombre.match(/[xu×]\s*(\d+)/i);
+        const qty = qtyM ? parseInt(qtyM[1], 10) : 1;
+        const nombreClean = nombre.replace(/\d+\s*[xu×]/i, '').replace(/[xu×]\s*\d+/i, '').trim();
+        if (nombreClean.length > 2 && !/^(total|descuento|iva|sena|se[ñn]a|saldo)/i.test(nombreClean)) {
+          servicios.push({ nombre: nombreClean || 'Servicio', cantidad: qty, precioUnitario: price / qty });
+          continue;
+        }
+      }
+    }
+
+    // Line with no $ but ends with a number that looks like a price (≥100)
+    const numAtEnd = line.match(/^(.+?)\s+([\d]{1,3}(?:[.,]\d{3})*)$/);
+    if (numAtEnd) {
+      const nombre = numAtEnd[1].replace(/^\s*[-•*]\s*/, '').trim();
+      const price = cleanNum(numAtEnd[2]);
+      if (price >= 100 && nombre.length > 2 && !/^(total|descuento|iva|sena|se[ñn]a|saldo|fecha|evento|cliente)/i.test(nombre)) {
+        servicios.push({ nombre, cantidad: 1, precioUnitario: price });
+      }
+    }
+  }
+
+  // --- descuento ---
+  let descuento: number | undefined;
+  const dtoM = text.match(/descuento[:\s]+(\d+(?:[.,]\d+)?)\s*%/i)
+    || text.match(/dto[:\s]+(\d+(?:[.,]\d+)?)\s*%/i)
+    || text.match(/descuento[:\s]+\$\s*([\d.,]+)/i);
+  if (dtoM) descuento = cleanNum(dtoM[1]);
+
+  // --- total ---
+  let total: number | undefined;
+  const totalM = text.match(/total[:\s]+\$?\s*([\d.,]+)/i);
+  if (totalM) total = cleanNum(totalM[1]);
+
+  // --- confidence ---
+  const hasCliente = Boolean(clienteNombre);
+  const hasTipo = Boolean(eventoTipo);
+  const hasServices = servicios.length > 0;
+
+  let confidence: 'high' | 'medium' | 'low';
+  if (hasCliente && hasTipo && hasServices) {
+    confidence = 'high';
+  } else if ((hasCliente || hasTipo) && hasServices) {
+    confidence = 'medium';
+  } else {
+    confidence = 'low';
+  }
+
+  return { clienteNombre, eventoTipo, eventoFecha, invitados, servicios, descuento, total, confidence };
+}
+
 export async function sendAssistantMessage(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -131,10 +321,24 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
           actionResult = { success: false, error: 'Falta el nombre del cliente.' };
           finalResponse = `❌ No se pudo crear el presupuesto: falta el nombre del cliente. Intentá de nuevo.`;
         } else {
-          const serviciosInput: Array<{
+          let serviciosInput: Array<{
             id?: string; nombre?: string; name?: string; descripcion?: string;
             cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
           }> = Array.isArray(d.servicios) ? d.servicios : [];
+
+          // Fallback: if Gemini returned no services but the message has structured text, use local parser
+          if (serviciosInput.length === 0) {
+            const localParsed = parseBudgetFromText(message);
+            if (localParsed.servicios.length > 0) {
+              logger.info('[Asistente AK] Usando parser local como fallback para servicios');
+              serviciosInput = localParsed.servicios.map(s => ({
+                nombre: s.nombre,
+                cantidad: s.cantidad,
+                precioUnitario: s.precioUnitario,
+              }));
+            }
+          }
+
           const items = serviciosInput.map((s, i) => {
             const qty = Number(s.cantidad) || 1;
             const price = Number(s.precioUnitario) || Number(s.precio) || 0;
@@ -184,8 +388,69 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
         finalResponse = `❌ No se pudo crear el presupuesto. Intentá de nuevo o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'create_budget') {
-      actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
-      finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Proporcioná nombre del cliente, tipo de evento y servicios, o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+      // Gemini triggered create_budget but returned no action.data — try local parser
+      try {
+        const localParsed = parseBudgetFromText(message);
+        const { clienteNombre: lCliente, eventoTipo: lTipo, eventoFecha: lFecha, invitados: lInv, servicios: lServicios, confidence } = localParsed;
+
+        if (confidence === 'low' && lServicios.length === 0) {
+          // Nothing useful detected
+          actionResult = { success: false, error: 'No se pudo leer la estructura del texto.' };
+          finalResponse = `⚠️ Pegaste algo pero no pude leer la estructura. Asegurate de incluir: nombre del cliente, tipo de evento y al menos un servicio con precio. O crealo desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+        } else if (confidence === 'high' || confidence === 'medium') {
+          // Enough data to create a draft budget
+          const items = lServicios.map((s, i) => ({
+            idServicioCatalogo: `parser_${i}_${Date.now()}`,
+            nombreServicio: s.nombre,
+            cantidad: s.cantidad,
+            precioUnitario: s.precioUnitario,
+            precioUnitarioPresupuesto: s.precioUnitario,
+            costoTotalItem: s.cantidad * s.precioUnitario,
+            categoriaServicio: 'Servicios',
+          }));
+          const budgetResult = await savePresupuesto({
+            clienteNombre: lCliente || 'Cliente (revisar)',
+            eventoTipo: lTipo || '',
+            eventoFecha: lFecha || '',
+            invitadosCantidad: lInv || 0,
+            invitadosAdultos: lInv || 0,
+            invitadosNinos: 0,
+            invitadosAdolescentes: 0,
+            itemsPresupuestados: items,
+            notas: 'Creado desde texto pegado — revisar y completar',
+            estado: 'Borrador',
+          } as unknown as Omit<Presupuesto, 'id'>);
+
+          if (budgetResult.success && budgetResult.presupuesto) {
+            const pres = budgetResult.presupuesto;
+            actionResult = { success: true, id: pres.id };
+            finalResponse = buildBudgetResponseMessage(pres, 'Se creó un borrador de', `/presupuestos/${pres.id}/editar`, ' — revisá y completá los datos antes de enviarlo.');
+          } else {
+            actionResult = { success: false, error: budgetResult.error };
+            finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+          }
+        } else {
+          // Low confidence but some fields detected — show what was found and what's missing
+          const detectados: string[] = [];
+          const faltantes: string[] = [];
+          if (lCliente) detectados.push(`Cliente: ${lCliente}`); else faltantes.push('nombre del cliente');
+          if (lTipo) detectados.push(`Tipo de evento: ${lTipo}`); else faltantes.push('tipo de evento');
+          if (lFecha) detectados.push(`Fecha: ${lFecha}`); else faltantes.push('fecha del evento');
+          if (lServicios.length > 0) detectados.push(`${lServicios.length} servicio(s) con precio`); else faltantes.push('servicios con precio');
+
+          actionResult = { success: false, error: 'Datos insuficientes para crear presupuesto.' };
+          finalResponse = [
+            `⚠️ Pude leer parte del presupuesto, pero me faltó información para crearlo automáticamente.`,
+            detectados.length > 0 ? `\n✅ Detecté: ${detectados.join(', ')}` : '',
+            faltantes.length > 0 ? `❌ Faltó: ${faltantes.join(', ')}` : '',
+            `\nPodés completarlo manualmente en [/presupuestos/nuevo](/presupuestos/nuevo) o volver a pegarlo con esos datos incluidos.`,
+          ].filter(Boolean).join('\n');
+        }
+      } catch (e: any) {
+        logger.error('[Asistente AK] Error en parser local create_budget:', e.message);
+        actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
+        finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Proporcioná nombre del cliente, tipo de evento y servicios, o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+      }
     } else if (result.action?.type === 'import_budget_from_image' && result.action.data) {
       const d = result.action.data;
       try {
