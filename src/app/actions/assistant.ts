@@ -219,6 +219,7 @@ export async function sendAssistantMessage(
   error?: string;
 }> {
   try {
+    logger.info('[Asistente AK] Inicio sendAssistantMessage:', { msgLength: message?.length ?? 0, hasImage: !!imageDataUri });
     // 1. Armar contexto rico con datos reales del negocio
     const [kpiResult, companyInfo, presupuestos, customers, servicios, aiSettings] = await Promise.all([
       getDashboardKpiData(),
@@ -353,6 +354,7 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
               categoriaServicio: s.categoria || s.category || 'Servicios',
             };
           });
+          logger.info('[Asistente AK] Guardando presupuesto:', { clienteNombre: d.clienteNombre, itemCount: items.length });
           const budgetResult = await savePresupuesto({
             clienteNombre: d.clienteNombre,
             eventoTipo: d.eventoTipo || '',
@@ -372,12 +374,14 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
 
           if (budgetResult.success && budgetResult.presupuesto) {
             const pres = budgetResult.presupuesto;
+            logger.info('[Asistente AK] Presupuesto guardado exitosamente:', pres.id);
             const itemCount = pres.itemsPresupuestados?.length ?? 0;
             const total = pres.totalConDescuento ?? pres.costoTotalEstimado ?? 0;
             const href = `/presupuestos/${pres.id}/ver`;
             actionResult = { ...budgetResult, itemCount, total, href };
             finalResponse = buildBudgetResponseMessage(pres, 'Se creó', `/presupuestos/${pres.id}/editar`);
           } else {
+            logger.error('[Asistente AK] Error guardando presupuesto:', budgetResult.error);
             actionResult = budgetResult;
             finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
           }
