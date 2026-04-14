@@ -30,6 +30,7 @@ import {
     UserPlus,
     FileText,
     Files,
+    BookOpen,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -184,6 +185,15 @@ export default function MainDashboardPage() {
           icon: Users,
           color: "bg-amber-500",
           lightColor: "bg-amber-50 text-amber-600",
+          featured: false,
+        },
+        {
+          title: 'Catálogo de Servicios',
+          description: 'Presentación digital del catálogo por tipo de fiesta.',
+          href: '/catalogo',
+          icon: BookOpen,
+          color: "bg-sky-500",
+          lightColor: "bg-sky-50 text-sky-600",
           featured: false,
         },
     ]

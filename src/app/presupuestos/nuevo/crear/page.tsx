@@ -25,6 +25,17 @@ import { getGuestCountForItem, recalcularCostoItem, calculateSuggestedQuantity }
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
+const CATALOG_CATEGORY_MAP: Record<string, string[]> = {
+    catering: ['catering'],
+    decoracion: ['decoraci'],
+    discoteca: ['discoteca'],
+    'foto-video': ['fotograf', 'filmaci'],
+    barra: ['bebidas'],
+    shows: ['entretenimiento'],
+    coordinacion: ['coordinaci'],
+    mobiliario: ['mobiliario'],
+};
+
 const initialFormData: PresupuestoFormData = {
   clienteNombre: '',
   clienteContacto: '',
@@ -173,8 +184,53 @@ function CrearPresupuestoContent() {
                     }
                 } else {
                     const leadName = searchParams.get('leadName');
-                    if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
-                        setFormData(prev => ({ ...prev, clienteNombre: leadName }));
+                    const tipoParam = searchParams.get('tipo');
+                    const serviciosParam = searchParams.get('servicios');
+                    const hasStoredSession = sessionStorage.getItem(SESSION_STORAGE_KEY);
+
+                    if (!hasStoredSession) {
+                        const updates: Partial<typeof initialFormData> = {};
+
+                        if (leadName) updates.clienteNombre = leadName;
+                        if (tipoParam) updates.eventoTipo = tipoParam;
+
+                        if (serviciosParam) {
+                            const catalogIds = serviciosParam.split(',').map(s => s.trim()).filter(Boolean);
+                            const matchedMap = new Map<string, any>();
+                            const allServices = services.filter(s => s.tipoItem === 'Servicio');
+                            catalogIds.forEach(catalogId => {
+                                const keywords = CATALOG_CATEGORY_MAP[catalogId];
+                                if (!keywords) return;
+                                const matched = allServices.find(s => {
+                                    const searchableText = ((s.categoria ?? '') + ' ' + (s.nombre ?? '')).toLowerCase();
+                                    return keywords.some(kw => searchableText.includes(kw));
+                                });
+                                if (matched) {
+                                    matchedMap.set(matched.id, {
+                                        cantidad: matched.cantidad ?? 1,
+                                        precioUnitarioOriginal: matched.precioVenta ?? matched.valorUnitarioEstimado ?? 0,
+                                        precioUnitarioPresupuesto: matched.precioVenta ?? matched.valorUnitarioEstimado ?? 0,
+                                        nombreServicio: matched.nombre,
+                                        unidad: matched.unidad ?? 'Unidad',
+                                        categoriaServicio: matched.categoria ?? '',
+                                        subcategoria: matched.subcategoria,
+                                        esRegalo: false,
+                                        calculationMethod: matched.calculationMethod,
+                                        precioBase: matched.precioBase,
+                                        precioPorPersona: matched.precioPorPersona,
+                                        invitadosPorUnidad: matched.invitadosPorUnidad,
+                                        tramosDePrecio: matched.tramosDePrecio,
+                                    });
+                                }
+                            });
+                            if (matchedMap.size > 0) {
+                                updates.serviciosSeleccionados = matchedMap;
+                            }
+                        }
+
+                        if (Object.keys(updates).length > 0) {
+                            setFormData(prev => ({ ...prev, ...updates }));
+                        }
                     }
                 }
             } catch (error) {

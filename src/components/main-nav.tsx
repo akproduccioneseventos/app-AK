@@ -32,6 +32,7 @@ import {
   MessageSquare,
   Bell,
   PlusCircle,
+  BookOpen,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -243,6 +244,22 @@ export function MainNav() {
                   >
                     <Wallet className={cn("w-4 h-4", isActive("/pagos-rapidos") ? "text-emerald-600" : "text-emerald-400")} />
                     <span className="ml-2">Pagos Rápidos</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/catalogo">
+                  <SidebarMenuButton 
+                    isActive={isActive("/catalogo")}
+                    className={cn(
+                        "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
+                        isActive("/catalogo")
+                          ? "bg-sky-50 text-sky-700 shadow-sm" 
+                          : "text-slate-500 hover:bg-sky-50/60 hover:text-sky-600"
+                    )}
+                  >
+                    <BookOpen className={cn("w-4 h-4", isActive("/catalogo") ? "text-sky-600" : "text-sky-400")} />
+                    <span className="ml-2">Catálogo de Servicios</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
