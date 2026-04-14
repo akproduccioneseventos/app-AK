@@ -27,6 +27,9 @@ import {
     Check,
     Wallet,
     Bot,
+    UserPlus,
+    FileText,
+    Files,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -112,44 +115,76 @@ export default function MainDashboardPage() {
     
     const mainHubItems = [
         {
-          title: 'Planificador de Eventos',
-          description: 'Gestión integral de tus fiestas activas y archivos históricos.',
+          title: 'Nuevo Lead / Contacto',
+          description: 'Registrar un nuevo prospecto en el CRM.',
+          href: '/contabilidad/crm',
+          icon: UserPlus,
+          color: "bg-violet-500",
+          lightColor: "bg-violet-50 text-violet-600",
+          featured: false,
+        },
+        {
+          title: 'CRM / Seguimiento',
+          description: 'Ver y gestionar todos los prospectos activos.',
+          href: '/contabilidad/crm',
+          icon: ListChecks,
+          color: "bg-blue-500",
+          lightColor: "bg-blue-50 text-blue-600",
+          featured: false,
+        },
+        {
+          title: 'Nuevo Presupuesto',
+          description: 'Crear una nueva cotización para un cliente.',
+          href: '/presupuestos/nuevo/crear',
+          icon: FileText,
+          color: "bg-indigo-500",
+          lightColor: "bg-indigo-50 text-indigo-600",
+          featured: true,
+        },
+        {
+          title: 'Ver Presupuestos',
+          description: 'Consultar todos los presupuestos generados.',
+          href: '/presupuestos',
+          icon: Files,
+          color: "bg-slate-600",
+          lightColor: "bg-slate-50 text-slate-600",
+          featured: false,
+        },
+        {
+          title: 'Eventos Activos',
+          description: 'Planificación y seguimiento de eventos en curso.',
           href: '/eventos',
           icon: CalendarClock,
           color: "bg-rose-500",
-          lightColor: "bg-rose-50 text-rose-600"
+          lightColor: "bg-rose-50 text-rose-600",
+          featured: false,
         },
         {
-          title: 'Gestión de la Empresa',
-          description: 'Control de servicios, personal, proveedores e inventario físico.',
-          href: '/empresa',
-          icon: Building2,
-          color: "bg-amber-500",
-          lightColor: "bg-amber-50 text-amber-600"
-        },
-        {
-          title: 'Panel Contable',
-          description: 'CRM de prospectos, presupuestos, facturación y salud financiera.',
-          href: '/empresa/contabilidad',
-          icon: BarChart3,
-          color: "bg-emerald-500",
-          lightColor: "bg-emerald-50 text-emerald-600"
-        },
-         {
-          title: "Agenda de Reuniones",
-          description: "Seguimiento de citas coordinadas con clientes potenciales.",
-          href: "/contabilidad/crm/agenda",
+          title: 'Calendario',
+          description: 'Vista de agenda y próximas fechas importantes.',
+          href: '/calendario',
           icon: CalendarDays,
-          color: "bg-blue-500",
-          lightColor: "bg-blue-50 text-blue-600"
+          color: "bg-teal-500",
+          lightColor: "bg-teal-50 text-teal-600",
+          featured: false,
         },
         {
-          title: 'Configuración',
-          description: 'Ajustes del sistema, plantillas maestras y detalles de cuenta.',
-          href: '/settings',
-          icon: SettingsIcon,
-          color: "bg-slate-600",
-          lightColor: "bg-slate-50 text-slate-600"
+          title: 'Cobros / Pagos Rápidos',
+          description: 'Registrar cobros y enviar recibos al instante.',
+          href: '/pagos-rapidos',
+          icon: Wallet,
+          color: "bg-emerald-500",
+          lightColor: "bg-emerald-50 text-emerald-600",
+          featured: false,
+        },
+        {
+          title: 'Base de Clientes',
+          description: 'Directorio completo de clientes y contactos.',
+          href: '/customers',
+          icon: Users,
+          color: "bg-amber-500",
+          lightColor: "bg-amber-50 text-amber-600",
+          featured: false,
         },
     ]
 
@@ -167,7 +202,7 @@ export default function MainDashboardPage() {
               </p>
             )}
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter text-slate-900">
-                Panel de <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent italic inline-block pb-1">Control</span>
+                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent italic inline-block pb-1">Inicio</span>
             </h1>
             <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0 inline-block"></span>
@@ -238,8 +273,8 @@ export default function MainDashboardPage() {
                 
                 <Card className="border-none shadow-2xl rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-white">
                     <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6 sm:p-8">
-                        <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Acceso Directo</CardTitle>
-                        <CardDescription className="text-indigo-200 font-medium">Herramientas de conversión y venta.</CardDescription>
+                        <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Herramientas rápidas</CardTitle>
+                        <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos y modo presentación.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-6 sm:p-8">
                         <Link href="/presupuestos/nuevo/crear">
@@ -386,21 +421,22 @@ export default function MainDashboardPage() {
 
       <Separator className="opacity-30" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 sm:gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
         <AnimatePresence>
           {mainHubItems.map((item, idx) => (
             <motion.div
               key={item.title}
+              className={cn(item.featured ? "md:col-span-2" : "")}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 + 0.3 }}
             >
-              <Card className="group flex flex-col h-full border-none shadow-xl hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500 bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
+              <Card className={cn("group flex flex-col h-full border-none shadow-xl hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500 bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden", item.featured && "ring-2 ring-indigo-500 ring-offset-2")}>
                   <CardHeader className="pb-4 space-y-4 sm:space-y-5 p-6 sm:p-8">
-                      <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] sm:rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500 shrink-0", item.lightColor)}>
+                      <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] sm:rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500 shrink-0", item.featured ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white" : item.lightColor)}>
                           <item.icon className="w-7 h-7 sm:w-8 sm:h-8" />
                       </div>
-                      <CardTitle className="text-lg sm:text-xl font-black text-slate-800 tracking-tight">{item.title}</CardTitle>
+                      <CardTitle className={cn("text-lg sm:text-xl font-black tracking-tight", item.featured ? "text-indigo-700" : "text-slate-800")}>{item.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-grow px-6 sm:px-8 pb-6 sm:pb-8">
                       <p className="text-[10px] sm:text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter">
@@ -409,7 +445,7 @@ export default function MainDashboardPage() {
                   </CardContent>
                   <CardFooter className="pt-0 pb-6 sm:pb-8 px-6 sm:px-8">
                       <Link href={item.href} className="w-full">
-                          <Button variant="secondary" className="w-full justify-between group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm">
+                          <Button variant={item.featured ? "default" : "secondary"} className={cn("w-full justify-between rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm", item.featured ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" : "group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white")}>
                               Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
                           </Button>
                       </Link>
