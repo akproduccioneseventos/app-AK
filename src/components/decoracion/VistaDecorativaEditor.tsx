@@ -345,14 +345,17 @@ function ElementoSvg({ tipo, colores, imageUrl }: { tipo: TipoElemento; colores:
     case 'luz':           return <LuzSvg colores={colores} />;
     case 'cartel':        return <CartelSvg colores={colores} />;
     case 'inflable':      return <InflableSvg colores={colores} />;
-    case 'imagen':
-      return imageUrl ? (
+    case 'imagen': {
+      // Only allow https:// URLs (from our storage) to prevent XSS via javascript: or data: URIs
+      const safeSrc = imageUrl && imageUrl.startsWith('https://') ? imageUrl : '';
+      return safeSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt="elemento" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block' }} />
+        <img src={safeSrc} alt="elemento" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block' }} />
       ) : (
         <div style={{ width: 80, height: 80, background: '#eee', display: 'flex', alignItems: 'center',
           justifyContent: 'center', fontSize: 11, color: '#999', borderRadius: 4 }}>sin imagen</div>
       );
+    }
     default: return null;
   }
 }
@@ -486,8 +489,7 @@ export default function VistaDecorativaEditor({
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [undo, redo, selectedId]);
+  }, [undo, redo, selectedId, duplicarElemento, eliminarElemento]);
 
   // Element operations
   const agregarElemento = useCallback((tipo: TipoElemento, imageUrl?: string) => {
@@ -534,11 +536,11 @@ export default function VistaDecorativaEditor({
     modifyElementos(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e), skipHistory);
   }, [modifyElementos]);
 
-  const updateColor = useCallback((idx: number, color: string) => {
+  const updateColor = useCallback((idx: number, color: string, skipHistory = false) => {
     if (!selectedEl) return;
     const nc = [...selectedEl.colores];
     nc[idx] = color;
-    updateElemento(selectedEl.id, 'colores', nc, true);
+    updateElemento(selectedEl.id, 'colores', nc, skipHistory);
   }, [selectedEl, updateElemento]);
 
   // Layering
@@ -973,11 +975,13 @@ export default function VistaDecorativaEditor({
                             ))}
                             <input type="color"
                               value={selectedEl.colores[idx] ?? paletaColores.primary}
-                              onChange={e => updateColor(idx, e.target.value)}
+                              onChange={e => updateColor(idx, e.target.value, true)}
+                              onBlur={e => updateColor(idx, e.target.value, false)}
                               className="w-7 h-7 cursor-pointer rounded border p-0.5 shrink-0"
                               title="Color libre" />
                             <Input value={selectedEl.colores[idx] ?? ''}
-                              onChange={e => { if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) updateColor(idx, e.target.value); }}
+                              onChange={e => { if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) updateColor(idx, e.target.value, true); }}
+                              onBlur={e => { if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) updateColor(idx, e.target.value, false); }}
                               className="h-7 text-[10px] font-mono flex-1 min-w-0"
                               placeholder="#RRGGBB" maxLength={7} />
                           </div>
