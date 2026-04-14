@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getSocialConnections } from '@/app/actions/social-connections';
 import { buildInvitacionConfigFromFiesta, TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { InvitacionPublicaClient } from './invitacion-publica-client';
 
@@ -40,7 +41,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function InvitacionPublicaPage({ params }: PageProps) {
-  const fiesta = await getFiestaById(params.fiestaId);
+  const [fiesta, socialConnections] = await Promise.all([
+    getFiestaById(params.fiestaId),
+    getSocialConnections().catch((err) => {
+      console.error('[InvitacionPublicaPage] Failed to fetch social connections:', err);
+      return [] as import('@/types/settings').SocialConnection[];
+    }),
+  ]);
 
   if (!fiesta) {
     return (
@@ -55,5 +62,5 @@ export default async function InvitacionPublicaPage({ params }: PageProps) {
 
   const config = buildInvitacionConfigFromFiesta(fiesta, fiesta.invitacionConfig);
 
-  return <InvitacionPublicaClient config={config} fiestaId={params.fiestaId} />;
+  return <InvitacionPublicaClient config={config} fiestaId={params.fiestaId} socialConnections={socialConnections} />;
 }

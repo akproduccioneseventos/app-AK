@@ -403,6 +403,7 @@ export type InvitacionPlantillaId = 'EleganteDorado' | 'ModernoMinimalista' | 'R
 export interface InvitacionDigitalConfig {
   // Basic data
   nombreHomenajeada: string;
+  nombreHomenajeado2?: string;
   tipoEvento: '15' | '18' | 'boda' | 'cumpleanos' | 'bautismo' | 'otro';
   estiloEvento: 'formal' | 'semi-formal' | 'casual';
 

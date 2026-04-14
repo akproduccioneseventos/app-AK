@@ -190,25 +190,25 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90"></div>
                 </motion.div>
 
-                <div className="text-center text-white space-y-8 px-6 relative z-10">
+                <div className="text-center text-white space-y-6 md:space-y-8 px-4 sm:px-6 relative z-10 w-full max-w-full overflow-hidden">
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
                         <span className="text-sm font-black tracking-[0.8em] uppercase opacity-70">
                             {subtitleText}
                         </span>
                     </motion.div>
-                    <motion.h1 initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, duration: 1.2, type: "spring" }} className="text-7xl md:text-[10rem] font-headline font-bold leading-none tracking-tighter">
+                    <motion.h1 initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, duration: 1.2, type: "spring" }} className="text-4xl sm:text-6xl md:text-[10rem] font-headline font-bold leading-tight md:leading-none tracking-tight md:tracking-tighter break-words">
                         {protagonist1}
                         {protagonist2 && (
-                            <div className="flex items-center justify-center gap-4">
-                                <span className="text-4xl md:text-6xl italic font-dancing" style={{ color: primaryColor }}>&</span>
+                            <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+                                <span className="text-2xl sm:text-4xl md:text-6xl italic font-dancing" style={{ color: primaryColor }}>&</span>
                                 <span>{protagonist2}</span>
                             </div>
                         )}
                     </motion.h1>
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 1 }} className="flex items-center justify-center gap-8 text-2xl font-bold tracking-[0.4em]">
-                        <div className="h-px w-16 bg-white/30"></div>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 1 }} className="flex items-center justify-center gap-4 md:gap-8 text-base sm:text-xl md:text-2xl font-bold tracking-[0.2em] sm:tracking-[0.4em]">
+                        <div className="h-px w-8 sm:w-16 bg-white/30"></div>
                         <span>{eventDate}</span>
-                        <div className="h-px w-16 bg-white/30"></div>
+                        <div className="h-px w-8 sm:w-16 bg-white/30"></div>
                     </motion.div>
                 </div>
                 
