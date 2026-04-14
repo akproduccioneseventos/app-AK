@@ -96,21 +96,21 @@ export function MainNav() {
                 isActive={isExactly("/")} 
                 tooltip="Dashboard Principal"
                 className={cn(
-                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
+                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.1em]",
                     isExactly("/") 
                       ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30" 
                       : "hover:bg-indigo-50 text-slate-400 hover:text-indigo-600"
                 )}
               >
                 <LayoutDashboard className={cn("w-4 h-4", isExactly("/") ? "text-white" : "text-indigo-400")} />
-                <span className="ml-2">Dashboard</span>
+                <span className="ml-2 truncate">Dashboard</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Planificación</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.15em] text-indigo-300 mb-3">Planificación</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               <SidebarMenuItem>
@@ -148,7 +148,7 @@ export function MainNav() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Gestión Empresa</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.15em] text-indigo-300 mb-3">Gestión Empresa</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               <SidebarMenuItem>
@@ -312,7 +312,7 @@ export function MainNav() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Inteligencia &amp; Control</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.15em] text-indigo-300 mb-3">Inteligencia &amp; Control</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               <SidebarMenuItem>
@@ -368,7 +368,7 @@ export function MainNav() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">Herramientas</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.15em] text-indigo-300 mb-3">Herramientas</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               <SidebarMenuItem>
@@ -439,12 +439,12 @@ export function MainNav() {
               <SidebarMenuButton
                 isActive={isActive("/alertas")}
                 className={cn(
-                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em] relative",
+                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.1em] relative",
                     isActive("/alertas") ? "bg-red-600 text-white shadow-lg" : "text-slate-400 hover:bg-red-50 hover:text-red-600"
                 )}
               >
                 <Bell className="w-4 h-4" />
-                <span className="ml-2">Alertas</span>
+                <span className="ml-2 truncate">Alertas</span>
                 {alertCount > 0 && (
                   <span className="absolute right-3 top-2 min-w-[18px] h-[18px] bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1 shadow">
                     {alertCount > 99 ? '99+' : alertCount}
@@ -458,12 +458,12 @@ export function MainNav() {
               <SidebarMenuButton 
                 isActive={isActive("/settings")}
                 className={cn(
-                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
+                    "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.1em]",
                     isActive("/settings") ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:bg-slate-100 hover:text-slate-900"
                 )}
               >
                 <Settings className="w-4 h-4" />
-                <span className="ml-2">Ajustes</span>
+                <span className="ml-2 truncate">Ajustes</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
