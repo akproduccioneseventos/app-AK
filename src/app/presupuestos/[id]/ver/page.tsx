@@ -432,7 +432,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </Button>
               </Link>
               {(cliente?.phone || whatsappNumber) && (() => {
-                const phone = (cliente?.phone || '').replace(/\D/g, '') || whatsappNumber;
+                const phone = cliente?.phone?.replace(/\D/g, '') || whatsappNumber;
                 const text = `Hola ${presupuesto.clienteNombre}, te contactamos sobre el presupuesto #${presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase()}.`;
                 return (
                   <a href={`https://wa.me/${phone}?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
