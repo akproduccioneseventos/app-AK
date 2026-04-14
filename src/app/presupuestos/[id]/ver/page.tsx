@@ -404,31 +404,91 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-sans">
-        <div className="flex justify-between items-center mb-6 print:hidden max-w-3xl mx-auto px-4">
-          <Link href="/presupuestos/nuevo"><Button variant="outline" size="sm" className="rounded-xl"><ArrowLeft className="mr-2 h-4 w-4"/>Volver</Button></Link>
-          <div className="flex gap-2 flex-wrap justify-end">
-            <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}><Button variant="outline" size="sm" className="rounded-xl"><Receipt className="mr-2 h-4 w-4"/>Estado de Cuenta</Button></Link>
-            <Link href={`/presupuestos/${presupuestoId}/recibo-contrato`}><Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 text-white"><FileSignature className="mr-2 h-4 w-4"/>Recibo y Contrato</Button></Link>
-            <Button onClick={handlePrint} size="sm" className="rounded-xl"><Printer className="mr-2 h-4 w-4"/>Imprimir/PDF</Button>
-            <Link href={`/presupuestos/${presupuestoId}/edit`}><Button variant="outline" size="sm" className="rounded-xl"><Edit className="mr-2 h-4 w-4"/>Editar</Button></Link>
-            {linkedFiestaId ? (
-              <Link href={`/fiestas/nueva?fiestaId=${linkedFiestaId}`}>
-                <Button size="sm" variant="outline" className="rounded-xl border-violet-200 text-violet-700 hover:bg-violet-50" data-testid="btn-ver-fiesta">
-                  <PartyPopper className="mr-2 h-4 w-4"/>Ver Fiesta/Evento
+        {/* ── QUICK ACTION BAR ────────────────────────────────── */}
+        <div className="print:hidden max-w-3xl mx-auto px-4 mb-4">
+          <div className="bg-white rounded-2xl shadow-md px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Link href="/presupuestos/nuevo">
+                <Button variant="ghost" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
+                  <ArrowLeft className="mr-1.5 h-3.5 w-3.5"/>Volver
                 </Button>
               </Link>
-            ) : (
-              <Button
-                size="sm"
-                onClick={handleCrearFiesta}
-                disabled={isCreatingFiesta}
-                className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white"
-                data-testid="btn-crear-fiesta-from-budget"
-              >
-                {isCreatingFiesta ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PartyPopper className="mr-2 h-4 w-4"/>}
-                Crear Fiesta/Evento
+              <PresupuestoStatusBadge status={presupuesto.estado} className="text-sm px-3 py-1.5 font-bold" />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/presupuestos/${presupuestoId}/edit`}>
+                <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
+                  <Edit className="mr-1.5 h-3.5 w-3.5"/>Editar
+                </Button>
+              </Link>
+              <Link href="/pagos-rapidos">
+                <Button size="sm" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-widest">
+                  <CreditCard className="mr-1.5 h-3.5 w-3.5"/>Registrar Pago
+                </Button>
+              </Link>
+              <Link href={`/presupuestos/${presupuestoId}/recibo-contrato`}>
+                <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
+                  <FileSignature className="mr-1.5 h-3.5 w-3.5"/>Ver Contrato
+                </Button>
+              </Link>
+              {(cliente?.phone || whatsappNumber) && (() => {
+                const phone = (cliente?.phone || '').replace(/\D/g, '') || whatsappNumber;
+                const text = `Hola ${presupuesto.clienteNombre}, te contactamos sobre el presupuesto #${presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase()}.`;
+                return (
+                  <a href={`https://wa.me/${phone}?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest text-[#25D366] border-[#25D366]/30 hover:bg-[#25D366]/5">
+                      <MessageSquare className="mr-1.5 h-3.5 w-3.5"/>WhatsApp
+                    </Button>
+                  </a>
+                );
+              })()}
+              <Button onClick={handlePrint} size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest" variant="secondary">
+                <Printer className="mr-1.5 h-3.5 w-3.5"/>Imprimir
               </Button>
-            )}
+              <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}>
+                <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
+                  <Receipt className="mr-1.5 h-3.5 w-3.5"/>Estado de Cuenta
+                </Button>
+              </Link>
+              {linkedFiestaId ? (
+                <Link href={`/fiestas/nueva?fiestaId=${linkedFiestaId}`}>
+                  <Button size="sm" variant="outline" className="rounded-xl text-xs border-violet-200 text-violet-700 hover:bg-violet-50 font-bold uppercase tracking-widest" data-testid="btn-ver-fiesta">
+                    <PartyPopper className="mr-1.5 h-3.5 w-3.5"/>Ver Fiesta
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={handleCrearFiesta}
+                  disabled={isCreatingFiesta}
+                  className="rounded-xl text-xs bg-violet-600 hover:bg-violet-700 text-white font-bold uppercase tracking-widest"
+                  data-testid="btn-crear-fiesta-from-budget"
+                >
+                  {isCreatingFiesta ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin"/> : <PartyPopper className="mr-1.5 h-3.5 w-3.5"/>}
+                  Crear Fiesta
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── FINANCIAL KPI SUMMARY ──────────────────────────── */}
+        <div className="print:hidden max-w-3xl mx-auto px-4 mb-4">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white rounded-2xl shadow-sm px-4 py-3 flex flex-col items-center text-center">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Total presupuesto</p>
+              <p className="text-lg font-black text-slate-900">{formatCurrency(pagosSummary.totalCosto)}</p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm px-4 py-3 flex flex-col items-center text-center">
+              <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500 mb-1">Monto pagado</p>
+              <p className="text-lg font-black text-emerald-700">{formatCurrency(pagosSummary.totalPagado)}</p>
+            </div>
+            <div className={`rounded-2xl shadow-sm px-4 py-3 flex flex-col items-center text-center ${pagosSummary.saldoPendiente > 0 ? 'bg-amber-50' : 'bg-white'}`}>
+              <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${pagosSummary.saldoPendiente > 0 ? 'text-amber-500' : 'text-slate-400'}`}>Saldo pendiente</p>
+              <p className={`text-lg font-black ${pagosSummary.saldoPendiente > 0 ? 'text-amber-700' : 'text-slate-500'}`}>
+                {formatCurrency(Math.max(0, pagosSummary.saldoPendiente))}
+              </p>
+            </div>
           </div>
         </div>
 

@@ -4,20 +4,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, UserCircle, CalendarDays, DollarSign, FileText, CreditCard, UploadCloud, Info, Eye, Briefcase, Phone, Mail, Printer, Star, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, UserCircle, FileText, Info, Eye, Briefcase, Phone, Printer, Star, MessageCircle, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Customer } from '@/types/customer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
-import type { Invoice, Payment } from '@/types/invoice';
+import type { Invoice } from '@/types/invoice';
 import { getCustomerById } from '@/app/actions/customers';
 import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge as InvoiceStatusBadge } from '@/components/status-badge';
 
@@ -149,8 +148,45 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
     return <div className="text-center text-destructive p-6"><AlertTriangle className="mx-auto w-12 h-12 mb-3"/>{error || "No se pudo cargar la información del cliente."}</div>;
   }
 
+  // ── Derived state for status badge and next step ──────────────────────────
+  const latestEvent = eventPaymentHistory[0] ?? null;
+  const hasEvents = eventPaymentHistory.length > 0;
+  const hasPendingBalance = eventPaymentHistory.some(e => e.saldoFiesta > 0);
+
+  let statusBadge: React.ReactNode;
+  if (!hasEvents) {
+    statusBadge = <Badge className="bg-slate-200 text-slate-600 text-xs font-semibold">📋 Sin eventos</Badge>;
+  } else if (hasPendingBalance) {
+    statusBadge = <Badge className="bg-red-100 text-red-700 border border-red-200 text-xs font-semibold">💳 Saldo pendiente</Badge>;
+  } else {
+    statusBadge = <Badge className="bg-green-100 text-green-700 border border-green-200 text-xs font-semibold">✅ Al día</Badge>;
+  }
+
+  let nextStepLabel: string;
+  let nextStepHref: string | null = null;
+
+  if (!hasEvents || !latestEvent?.presupuestoFiesta) {
+    nextStepLabel = 'Crear presupuesto';
+    nextStepHref = '/presupuestos/nuevo/crear';
+  } else if (latestEvent.presupuestoFiesta.estado !== 'Aceptado' && latestEvent.presupuestoFiesta.estado !== 'Facturado') {
+    nextStepLabel = 'Confirmar presupuesto';
+    nextStepHref = `/presupuestos/${latestEvent.presupuestoFiesta.id}/ver`;
+  } else if (hasPendingBalance) {
+    nextStepLabel = 'Registrar pago pendiente';
+    nextStepHref = '/pagos-rapidos';
+  } else {
+    nextStepLabel = 'Todo en orden ✅';
+    nextStepHref = null;
+  }
+
+  const whatsappPhone = customer.phone ? customer.phone.replace(/\D/g, '') : null;
+  const whatsappUrl = whatsappPhone
+    ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(`Hola ${customer.name || ''}, te contactamos de AK Producciones.`)}`
+    : null;
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {/* ── HEADER ──────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <UserCircle className="w-12 h-12 text-primary flex-shrink-0" />
@@ -158,21 +194,55 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
             <h1 className="text-3xl font-bold tracking-tight font-headline">
               {customer.companyName || customer.name}
             </h1>
-            <p className="text-sm text-muted-foreground">Centro de Control del Cliente</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-sm text-muted-foreground">Centro de Control del Cliente</p>
+              {statusBadge}
+            </div>
           </div>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto flex-wrap">
             <Link href="/customers" className="flex-1 sm:flex-none">
                 <Button variant="outline" className="w-full"><ArrowLeft className="w-4 h-4 mr-2"/>Clientes</Button>
             </Link>
+            {whatsappUrl && (
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none">
+                <Button variant="outline" className="w-full text-[#25D366] border-[#25D366]/30 hover:bg-[#25D366]/5">
+                  <MessageCircle className="w-4 h-4 mr-2"/>WhatsApp
+                </Button>
+              </a>
+            )}
              <Link href={`/customers/${customerId}/edit`} className="flex-1 sm:flex-none">
                 <Button variant="default" className="w-full">Editar Cliente</Button>
              </Link>
              <Button onClick={handlePrint} variant="secondary" className="flex-1 sm:flex-none">
-                <Printer className="w-4 h-4 mr-2"/>Imprimir Resumen
+                <Printer className="w-4 h-4 mr-2"/>Imprimir
              </Button>
         </div>
       </div>
+
+      {/* ── PRÓXIMO PASO ────────────────────────────────────── */}
+      <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-violet-50 shadow-md">
+        <CardContent className="py-4 px-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 rounded-full">
+                <ArrowRight className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Próximo paso</p>
+                <p className="font-bold text-indigo-900">{nextStepLabel}</p>
+              </div>
+            </div>
+            {nextStepHref && (
+              <Link href={nextStepHref}>
+                <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold uppercase tracking-widest text-xs">
+                  Ir ahora <ArrowRight className="w-3.5 h-3.5 ml-1.5"/>
+                </Button>
+              </Link>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="shadow-lg">
         <CardHeader>
@@ -228,19 +298,43 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
         <h2 className="text-2xl font-semibold font-headline mb-4 text-primary">Historial de Eventos</h2>
         {eventPaymentHistory.length > 0 ? (
           <div className="space-y-6">
-              {eventPaymentHistory.map(eventDetail => (
-                <Card key={eventDetail.fiesta.id} className="shadow-md border-l-4 border-primary/70">
-                  <CardHeader className="bg-muted/20 pb-3">
+              {eventPaymentHistory.map((eventDetail, index) => (
+                <Card key={eventDetail.fiesta.id} className={`shadow-md border-l-4 ${index === 0 ? 'border-indigo-500' : 'border-primary/70'}`}>
+                  <CardHeader className={`pb-3 ${index === 0 ? 'bg-indigo-50/60' : 'bg-muted/20'}`}>
                     <div className="flex justify-between items-start">
                         <div>
-                            <CardTitle className="font-headline text-lg">{eventDetail.fiesta.configuracion.nombreEvento}</CardTitle>
+                            <div className="flex items-center gap-2">
+                              <CardTitle className="font-headline text-lg">{eventDetail.fiesta.configuracion.nombreEvento}</CardTitle>
+                              {index === 0 && <Badge className="bg-indigo-100 text-indigo-700 text-[9px] font-black uppercase tracking-widest">Más reciente</Badge>}
+                            </div>
                             <CardDescription className="text-xs">
-                              {eventDetail.fiesta.configuracion.tipoCelebracion} - {formatDate(eventDetail.fiesta.configuracion.fechaEvento)}
+                              {eventDetail.fiesta.configuracion.tipoCelebracion} — {formatDate(eventDetail.fiesta.configuracion.fechaEvento)}
                             </CardDescription>
+                            {/* Payment status summary for the most recent event */}
+                            {index === 0 && (
+                              <div className="flex items-center gap-2 mt-1.5">
+                                {eventDetail.saldoFiesta > 0 ? (
+                                  <Badge className="bg-red-100 text-red-700 border border-red-200 text-[9px]">💳 Saldo: {formatCurrency(eventDetail.saldoFiesta)}</Badge>
+                                ) : eventDetail.totalPagadoFiesta > 0 ? (
+                                  <Badge className="bg-green-100 text-green-700 border border-green-200 text-[9px]">✅ Pagado</Badge>
+                                ) : (
+                                  <Badge className="bg-slate-100 text-slate-600 text-[9px]">Sin pagos registrados</Badge>
+                                )}
+                              </div>
+                            )}
                         </div>
-                         <Button asChild size="sm">
-                            <Link href={`/fiestas/nueva?fiestaId=${eventDetail.fiesta.id}`}>Planificar Evento</Link>
-                         </Button>
+                        <div className="flex gap-2 flex-wrap justify-end">
+                          {eventDetail.presupuestoFiesta && (
+                            <Link href={`/presupuestos/${eventDetail.presupuestoFiesta.id}/ver`}>
+                              <Button variant="outline" size="sm" className="text-xs"><FileText className="w-3 h-3 mr-1.5"/>Ver Presupuesto</Button>
+                            </Link>
+                          )}
+                          <Button asChild size="sm" variant={index === 0 ? 'default' : 'outline'}>
+                             <Link href={`/fiestas/nueva?fiestaId=${eventDetail.fiesta.id}`}>
+                               {index === 0 ? 'Planificar Evento' : 'Ver Evento'}
+                             </Link>
+                          </Button>
+                        </div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-4 space-y-4">
@@ -251,13 +345,6 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
                     </div>
 
                      <div className="flex flex-wrap gap-2">
-                        {eventDetail.presupuestoFiesta && (
-                          <Link href={`/presupuestos/${eventDetail.presupuestoFiesta.id}/ver`}>
-                            <Button variant="outline" size="sm" className="text-xs">
-                              <FileText className="w-3 h-3 mr-1.5"/>Ver Presupuesto
-                            </Button>
-                          </Link>
-                        )}
                         {eventDetail.facturasFiesta.map(factura => (
                              <Link href={`/invoices/${factura.id}`} key={factura.id}>
                                 <Button variant="secondary" size="sm" className="text-xs">
