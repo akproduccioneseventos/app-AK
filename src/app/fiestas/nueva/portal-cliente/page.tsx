@@ -18,6 +18,14 @@ import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq } from '@/lib/fiesta-defaults';
 
+/** Generate a cryptographically secure random password using alphanumeric characters. */
+function generateSecurePassword(length = 12): string {
+  const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const values = new Uint32Array(length);
+  crypto.getRandomValues(values);
+  return Array.from(values, v => charset[v % charset.length]).join('');
+}
+
 const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, label: string }[] = [
     { id: 'checklist', label: 'Checklist de Tareas del Cliente' },
     { id: 'itinerario', label: 'Cronograma del Evento' },
@@ -287,7 +295,7 @@ function ClientPortalConfigContent() {
                 <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => setPortalSettings(p => {
                   const current = p || defaultClientPortalSettings;
                   const accessKey = val && !current.accessKey
-                    ? crypto.randomUUID().replace(/-/g, '').substring(0, 12)
+                    ? generateSecurePassword()
                     : current.accessKey;
                   return { ...current, enabled: val, accessKey };
                 })} />
@@ -318,7 +326,7 @@ function ClientPortalConfigContent() {
                     size="icon"
                     variant="outline"
                     title="Generar contraseña aleatoria"
-                    onClick={() => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: crypto.randomUUID().replace(/-/g, '').substring(0, 12)}))}
+                    onClick={() => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: generateSecurePassword()}))}
                   >
                     <RefreshCw className="w-4 h-4"/>
                   </Button>
