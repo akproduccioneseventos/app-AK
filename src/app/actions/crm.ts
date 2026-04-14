@@ -38,7 +38,10 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
 }
 
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
-  if (!leadData.name?.trim()) return { success: false, error: 'Nombre obligatorio' };
+  const trimmedName = leadData.name?.trim() ?? '';
+  if (trimmedName.length < 2) return { success: false, error: 'El nombre es demasiado corto.' };
+  if (/^\d+$/.test(trimmedName)) return { success: false, error: 'El nombre no puede ser solo números.' };
+  leadData = { ...leadData, name: trimmedName };
   const leads = await getCrmLeads();
   const stages = await getCrmStages();
   const now = new Date().toISOString();
