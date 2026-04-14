@@ -85,6 +85,10 @@ export interface NumerosMesaData {
   colorPrincipal: string;
   colorSecundario: string;
   labels?: Record<string, string>; // Etiquetas para mesas (ej: {"1": "Familia", "2": "Trabajo"})
+  // Styling controls
+  fontSize?: 'small' | 'medium' | 'large' | 'xlarge'; // Size of the table number
+  numberColor?: string; // Color of the table number text
+  cardBgColor?: string; // Background color of the card
 }
 
 // --- LIVE EVENT ---

@@ -58,7 +58,6 @@ import { Input } from '@/components/ui/input';
 import { updateClientChecklist, updateClientNotes, submitClientPayment } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
-import { MarketingBanner } from '@/components/marketing-banner';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -406,6 +405,10 @@ export default function PublicPortalView({
       description: 'Gestiona tu lista de deseos.',
     },
   ].filter(s => s.visible);
+
+  // Sections that have real rendered content above and don't need the "visibleSections" list
+  const sectionsWithContent = new Set(['fotografiaYFilmacion', 'listaRegalos']);
+  const remainingVisibleSections = visibleSections.filter(s => !sectionsWithContent.has(s.id));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5">
@@ -1404,14 +1407,100 @@ export default function PublicPortalView({
           </Card>
         )}
 
+        {/* Fotografía y Filmación */}
+        {settings?.fotografiaYFilmacion?.visible && fiesta.fotografiaYFilmacion && fiesta.fotografiaYFilmacion.servicios.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Camera className="w-5 h-5 text-primary" />
+                Fotografía y Filmación
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">Estado de entrega de los materiales.</p>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              {fiesta.fotografiaYFilmacion.servicios.map(servicio => (
+                <div key={servicio.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="p-2 rounded-xl bg-primary/10 shrink-0 mt-0.5">
+                    <Camera className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-slate-800">{servicio.nombre}</p>
+                    {servicio.fechaEntregaEstimada && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Entrega estimada: {formatDate(servicio.fechaEntregaEstimada)}
+                      </p>
+                    )}
+                    {servicio.notas && (
+                      <p className="text-xs text-slate-500 mt-1">{servicio.notas}</p>
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    {servicio.estado === 'Entregado completo' || servicio.estado === 'Entregado parcial' ? (
+                      <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs">✓ Entregado</Badge>
+                    ) : servicio.linkEntrega ? (
+                      <a href={servicio.linkEntrega} target="_blank" rel="noopener noreferrer">
+                        <Badge className="bg-primary/10 text-primary border-0 text-xs flex items-center gap-1 cursor-pointer hover:bg-primary/20">
+                          <ExternalLink className="w-3 h-3" /> Ver
+                        </Badge>
+                      </a>
+                    ) : (
+                      <Badge variant="outline" className="text-xs text-slate-400">Pendiente</Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {fiesta.fotografiaYFilmacion.notasGenerales && (
+                <p className="text-xs text-slate-500 italic px-1">{fiesta.fotografiaYFilmacion.notasGenerales}</p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Lista de Regalos */}
+        {settings?.listaRegalos?.visible && fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Gift className="w-5 h-5 text-primary" />
+                Lista de Regalos
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {fiesta.invitacionDigital.regalos.items.filter(i => i.isClaimed).length} de {fiesta.invitacionDigital.regalos.items.length} regalos elegidos
+              </p>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-2">
+              {fiesta.invitacionDigital.regalos.items.map(item => (
+                <div key={item.id} className={`flex items-center gap-3 p-3 rounded-2xl border ${item.isClaimed ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-sm ${item.isClaimed ? 'text-emerald-700 line-through opacity-70' : 'text-slate-800'}`}>
+                      {item.name}
+                    </p>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+                    )}
+                    {item.isClaimed && item.claimedBy && (
+                      <p className="text-xs text-emerald-600 mt-0.5">Por: {item.claimedBy}</p>
+                    )}
+                  </div>
+                  {item.isClaimed ? (
+                    <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs shrink-0">✓ Elegido</Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-xs text-slate-400 shrink-0">Disponible</Badge>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Other Sections */}
-        {visibleSections.length > 0 && (
+        {remainingVisibleSections.length > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold">Secciones de tu Evento</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-1">
-              {visibleSections.map((section, idx) => {
+              {remainingVisibleSections.map((section, idx) => {
                 const Icon = section.icon;
                 return (
                   <div key={section.id}>
@@ -1452,12 +1541,6 @@ export default function PublicPortalView({
           </CardContent>
         </Card>
 
-        {/* Marketing / Powered by AK Producciones */}
-        <MarketingBanner
-          variant="compact"
-          showCTA={false}
-          className="mt-2"
-        />
       </div>
 
       {/* Floating WhatsApp button */}

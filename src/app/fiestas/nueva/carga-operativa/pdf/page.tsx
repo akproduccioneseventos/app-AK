@@ -245,11 +245,18 @@ function CargaOperativaPdfContent() {
             </div>
 
             <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
-            <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2 text-primary">
-                <PackageSearch className="w-6 h-6 print:w-5 print:h-5" /> Lista de Carga Operativa
-            </h1>
+            <div className="flex items-center justify-center gap-3 mb-1">
+                <PackageSearch className="w-6 h-6 print:w-5 print:h-5 text-primary" />
+                <h1 className="text-xl font-bold text-primary print:text-lg">
+                    Planilla de Carga Operativa
+                </h1>
+            </div>
             <p className="text-md text-gray-700 print:text-sm mt-1 font-semibold">{fiesta.configuracion.nombreEvento}</p>
-            <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
+            <div className="flex items-center justify-center gap-4 mt-1">
+                <p className="text-xs text-gray-500 print:text-[8pt]">Evento: {formatDate(fiesta.configuracion.fechaEvento)}</p>
+                <span className="text-gray-300 print:text-gray-300">|</span>
+                <p className="text-xs text-gray-500 print:text-[8pt]">Impresión: {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
             </header>
             
             {(listaDeCarga.categorias || []).length === 0 ? (

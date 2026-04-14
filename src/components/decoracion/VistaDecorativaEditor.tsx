@@ -247,6 +247,9 @@ export default function VistaDecorativaEditor({
   const [fondoImagenUrl, setFondoImagenUrl] = useState(vistaDecorativa.fondoImagenUrl ?? '');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100); // percentage: 50-200
+
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef<{ id: string; startX: number; startY: number; elemX: number; elemY: number } | null>(null);
@@ -360,6 +363,12 @@ export default function VistaDecorativaEditor({
     }
   }, [fondoColor, fiestaId]);
 
+  // ──── Zoom ─────────────────────────────────────────────────────────────────
+
+  const zoomIn = useCallback(() => setZoomLevel(z => Math.min(200, z + 10)), []);
+  const zoomOut = useCallback(() => setZoomLevel(z => Math.max(50, z - 10)), []);
+  const fitToScreen = useCallback(() => setZoomLevel(100), []);
+
   // ──── Render ───────────────────────────────────────────────────────────────
 
   return (
@@ -383,62 +392,90 @@ export default function VistaDecorativaEditor({
 
       {/* Main area */}
       <div className="flex flex-col xl:flex-row gap-4">
-        {/* Canvas */}
-        <div className="flex-1 overflow-x-auto">
-          <div
-            id="vista-decorativa-canvas"
-            ref={canvasRef}
-            className="relative rounded-xl border-2 border-dashed border-muted-foreground/30 overflow-hidden select-none"
-            style={{
-              width: 800,
-              height: 500,
-              minWidth: 800,
-              backgroundColor: fondoColor,
-              backgroundImage: fondoImagenUrl ? `url(${fondoImagenUrl})` : undefined,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              cursor: draggingRef.current ? 'grabbing' : 'default',
-            }}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onDoubleClick={() => setSelectedId(null)}
-          >
-            {elementos.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <p className="text-muted-foreground/50 text-sm text-center">
-                  Hacé clic en un elemento de la barra para agregarlo al diseño.<br />
-                  Arrastrá los elementos para posicionarlos.
-                </p>
-              </div>
-            )}
-            {elementos.map(el => (
+        {/* Canvas with zoom */}
+        <div className="flex-1 space-y-2">
+          {/* Zoom Controls */}
+          <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-xl border">
+            <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={zoomOut} disabled={zoomLevel <= 50} title="Reducir zoom">
+              <span className="text-base font-bold">−</span>
+            </Button>
+            <input
+              type="range"
+              min={50}
+              max={200}
+              step={10}
+              value={zoomLevel}
+              onChange={e => setZoomLevel(Number(e.target.value))}
+              className="flex-1 h-2 accent-primary cursor-pointer"
+            />
+            <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={zoomIn} disabled={zoomLevel >= 200} title="Aumentar zoom">
+              <span className="text-base font-bold">+</span>
+            </Button>
+            <span className="text-xs font-bold text-muted-foreground w-12 text-center shrink-0">{zoomLevel}%</span>
+            <Button type="button" variant="ghost" size="sm" className="text-xs h-8 shrink-0" onClick={fitToScreen}>
+              Ajustar
+            </Button>
+          </div>
+
+          {/* Canvas container */}
+          <div ref={canvasContainerRef} className="overflow-auto rounded-xl border border-muted/40 bg-muted/10" style={{ maxHeight: 600 }}>
+            <div style={{ transformOrigin: 'top left', transform: `scale(${zoomLevel / 100})`, width: 800, height: 500 }}>
               <div
-                key={el.id}
-                className="absolute"
+                id="vista-decorativa-canvas"
+                ref={canvasRef}
+                className="relative rounded-xl border-2 border-dashed border-muted-foreground/30 overflow-hidden select-none"
                 style={{
-                  left: `${el.x}%`,
-                  top: `${el.y}%`,
-                  transform: `translate(-50%, -50%) rotate(${el.rotacion ?? 0}deg) scale(${el.escala})`,
-                  cursor: 'grab',
-                  outline: selectedId === el.id ? '2px dashed #3B82F6' : undefined,
-                  outlineOffset: 4,
-                  borderRadius: 4,
-                  zIndex: selectedId === el.id ? 10 : 1,
+                  width: 800,
+                  height: 500,
+                  minWidth: 800,
+                  backgroundColor: fondoColor,
+                  backgroundImage: fondoImagenUrl ? `url(${fondoImagenUrl})` : undefined,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  cursor: draggingRef.current ? 'grabbing' : 'default',
                 }}
-                onMouseDown={e => handleMouseDownOnElement(e, el.id)}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onDoubleClick={() => setSelectedId(null)}
               >
-                <ElementoSvg tipo={el.tipo} colores={el.colores} />
-                {el.etiqueta && (
-                  <div
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full text-[10px] font-medium bg-white/80 px-1 rounded shadow"
-                    style={{ whiteSpace: 'nowrap' }}
-                  >
-                    {el.etiqueta}
+                {elementos.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <p className="text-muted-foreground/50 text-sm text-center">
+                      Hacé clic en un elemento de la barra para agregarlo al diseño.<br />
+                      Arrastrá los elementos para posicionarlos.
+                    </p>
                   </div>
                 )}
+                {elementos.map(el => (
+                  <div
+                    key={el.id}
+                    className="absolute"
+                    style={{
+                      left: `${el.x}%`,
+                      top: `${el.y}%`,
+                      transform: `translate(-50%, -50%) rotate(${el.rotacion ?? 0}deg) scale(${el.escala})`,
+                      cursor: 'grab',
+                      outline: selectedId === el.id ? '2px dashed #3B82F6' : undefined,
+                      outlineOffset: 4,
+                      borderRadius: 4,
+                      zIndex: selectedId === el.id ? 10 : 1,
+                    }}
+                    onMouseDown={e => handleMouseDownOnElement(e, el.id)}
+                  >
+                    <ElementoSvg tipo={el.tipo} colores={el.colores} />
+                    {el.etiqueta && (
+                      <div
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full text-[10px] font-medium bg-white/80 px-1 rounded shadow"
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
+                        {el.etiqueta}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
