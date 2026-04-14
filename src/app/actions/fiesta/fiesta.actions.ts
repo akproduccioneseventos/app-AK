@@ -40,6 +40,7 @@ import { getPresupuestoById } from '../presupuestos';
 import { getRoles } from '../roles';
 import { syncLaundryCosts } from './costos.actions';
 import { getActivosFijos } from '../activos-fijos';
+import * as logger from '@/lib/logger';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -105,7 +106,9 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
     }
 
     const archivadas = includeArchived ? await getHistorialFiestas() : [];
-    const allFiestas = [...activas, ...archivadas];
+    // Filter out any 'Archivado' entries that may have ended up in the active collection
+    const activasFiltradas = activas.filter(f => f.estado !== 'Archivado');
+    const allFiestas = [...activasFiltradas, ...archivadas];
     return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
 }
 
@@ -672,6 +675,35 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
     return { success: false, error: "Archivo archivado no encontrado." };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Resets the planificador by archiving all currently active fiestas.
+ * This is a destructive admin-only operation; the UI must require explicit confirmation.
+ * In production (Firestore), each active fiesta is archived; in local dev the files are moved.
+ */
+export async function resetAllActiveFiestas(): Promise<{ success: boolean; archivedCount?: number; errors?: string[]; error?: string }> {
+  try {
+    const activas = await getFiestas(false);
+    const errors: string[] = [];
+    let archivedCount = 0;
+
+    for (const fiesta of activas) {
+      const result = await archiveFiesta(fiesta.id);
+      if (result.success) {
+        archivedCount++;
+      } else {
+        errors.push(`${fiesta.id}: ${result.error}`);
+      }
+    }
+
+    logger.info('[Planificador] Reinicio del planificador completado.', { archivedCount, errors });
+
+    return { success: true, archivedCount, errors: errors.length ? errors : undefined };
+  } catch (error: any) {
+    logger.error('[Planificador] Error al reiniciar el planificador:', error);
+    return { success: false, error: error.message || 'Error al reiniciar el planificador.' };
   }
 }
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User } from 'lucide-react';
+import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -28,6 +28,18 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useCrmBoard } from '@/hooks/useCrmBoard';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { resetCrm } from '@/app/actions/crm';
 
 const INACTIVITY_DAYS = 7;
 
@@ -64,6 +76,7 @@ export default function CrmPage() {
   const [bookingPresupuestoInfo, setBookingPresupuestoInfo] = useState<any>(null);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [newFiestaId, setNewFiestaId] = useState<string | null>(null);
+  const [isResettingCrm, setIsResettingCrm] = useState(false);
 
   // Search + Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -200,6 +213,23 @@ export default function CrmPage() {
     }
   }, [leads, stages, moveLead, handleHireClick]);
 
+  const handleResetCrm = useCallback(async () => {
+    setIsResettingCrm(true);
+    try {
+      const result = await resetCrm();
+      if (result.success) {
+        toast({ title: 'CRM reiniciado', description: 'Todos los prospectos han sido eliminados.' });
+        fetchData(true);
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudo reiniciar el CRM.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsResettingCrm(false);
+    }
+  }, [toast, fetchData]);
+
   if (isLoading && !isBookingModalOpen) return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin w-12 h-12 text-primary" /></div>;
 
   const quickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
@@ -224,6 +254,28 @@ export default function CrmPage() {
               <Button variant="outline" className="w-full h-11"><Clock className="w-4 h-4 mr-2"/>Agenda</Button>
             </Link>
             {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={() => fetchData(true)} defaultStageId={stages[0].id} />}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="flex-1 sm:flex-none h-11 text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingCrm}>
+                  {isResettingCrm ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
+                  Reiniciar CRM
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Reiniciar el CRM?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción eliminará <strong>todos los prospectos</strong> del CRM de forma permanente. Las etapas se conservarán. Esta operación no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleResetCrm} className="bg-destructive hover:bg-destructive/90">
+                    Sí, reiniciar CRM
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <Link href="/empresa/contabilidad" className="flex-1 sm:flex-none">
               <Button variant="outline" className="w-full h-11"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
             </Link>
@@ -328,8 +380,8 @@ export default function CrmPage() {
               ))}
             </Accordion>
         ) : (
-          <ScrollArea className="w-full h-full whitespace-nowrap pb-4">
-              <div className="flex gap-4 h-full">
+          <ScrollArea className="w-full whitespace-nowrap pb-4" style={{ height: 'calc(100vh - 22rem)', minHeight: '480px' }}>
+              <div className="flex gap-4" style={{ minHeight: 'calc(100vh - 24rem)' }}>
               {stages.map(stage => (
                   <CrmStageColumn key={stage.id} stage={stage} leads={filteredLeadsByStage[stage.id] || []} onDeleteLead={deleteLead} deletingLeadId={deletingLeadId} onHire={handleHireClick} />
               ))}
