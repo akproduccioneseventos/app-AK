@@ -28,6 +28,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Progress } from '@/components/ui/progress';
 
 function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDelete }: {
     item: CargaOperativaItem;
@@ -430,6 +431,14 @@ function ListaDeCargaOperativaContent() {
       return listaDeCarga.categorias.reduce((sum, cat) => sum + cat.items.filter(i => i.hasConflict).length, 0);
   }, [listaDeCarga]);
 
+  const { totalItems, completedItems, progressPercentage } = useMemo(() => {
+      const allItems = listaDeCarga.categorias.flatMap(cat => cat.items);
+      const total = allItems.length;
+      const completed = allItems.filter(i => i.cargado).length;
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      return { totalItems: total, completedItems: completed, progressPercentage: pct };
+  }, [listaDeCarga]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
@@ -472,6 +481,23 @@ function ListaDeCargaOperativaContent() {
         </div>
       </div>
       
+      {/* Progress Bar */}
+      {totalItems > 0 && (
+        <Card className="rounded-2xl shadow-sm border-slate-100">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-black uppercase tracking-wider text-slate-600">Progreso de Carga</span>
+              <span className="text-2xl font-black text-primary">{progressPercentage}%</span>
+            </div>
+            <Progress value={progressPercentage} className="h-3 rounded-full" />
+            <p className="text-xs text-slate-400 mt-2 font-medium">
+              {completedItems} de {totalItems} ítems cargados
+              {progressPercentage === 100 ? ' · ¡Todo listo!' : ''}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {totalConflicts > 0 && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
             <Alert variant="destructive" className="border-rose-200 bg-rose-50 text-rose-800 rounded-[1.5rem] shadow-xl shadow-rose-100 p-6">

@@ -197,7 +197,7 @@ function InvitadosEventoContent() {
               <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-amber-600">{stats.celiacs}</span></CardContent>
           </Card>
           <Card className="border-yellow-200 bg-yellow-50/30">
-              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-yellow-800">VIPs</CardTitle></CardHeader>
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-yellow-800">Cliente VIP</CardTitle></CardHeader>
               <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-yellow-600">{stats.vips}</span></CardContent>
           </Card>
       </div>

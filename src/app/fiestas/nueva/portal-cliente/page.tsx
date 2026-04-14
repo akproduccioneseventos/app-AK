@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
@@ -51,6 +51,7 @@ function ClientPortalConfigContent() {
   const [portalSettings, setPortalSettings] = useState<ClientPortalSettings>(defaultClientPortalSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // FAQ editor state
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
@@ -294,9 +295,36 @@ function ClientPortalConfigContent() {
               <div className="space-y-2">
                 <Label htmlFor="portal-password">Contraseña de Acceso del Cliente</Label>
                 <div className="flex items-center gap-2">
-                  <Input id="portal-password" value={portalSettings.accessKey || ''} onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))} placeholder="Crear una contraseña segura..." />
+                  <div className="relative flex-1">
+                    <Input
+                      id="portal-password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={portalSettings.accessKey || ''}
+                      onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))}
+                      placeholder="Crear una contraseña segura..."
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                    </button>
+                  </div>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    title="Generar contraseña aleatoria"
+                    onClick={() => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: crypto.randomUUID().replace(/-/g, '').substring(0, 12)}))}
+                  >
+                    <RefreshCw className="w-4 h-4"/>
+                  </Button>
                   <Button type="button" size="icon" variant="outline" onClick={handleCopyPassword} disabled={!portalSettings.accessKey}><ClipboardCopy className="w-4 h-4"/></Button>
                 </div>
+                <p className="text-xs text-muted-foreground">Podés escribir tu propia contraseña o generar una aleatoria con el botón 🔄.</p>
                 {portalSettings.enabled && (
                   <p className="text-xs text-muted-foreground">Comparte esta contraseña con tu cliente para que pueda acceder a su portal en: <a href={portalLink} target="_blank" rel="noopener noreferrer" className="underline">{portalLink}</a></p>
                 )}
