@@ -26,6 +26,7 @@ import {
     Copy,
     Check,
     Wallet,
+    Bot,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -240,7 +241,7 @@ export default function MainDashboardPage() {
                         <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Acceso Directo</CardTitle>
                         <CardDescription className="text-indigo-200 font-medium">Herramientas de conversión y venta.</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 p-6 sm:p-8">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-6 sm:p-8">
                         <Link href="/presupuestos/nuevo/crear">
                             <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-indigo-200 hover:bg-indigo-50/50 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
@@ -259,10 +260,22 @@ export default function MainDashboardPage() {
                                     <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Público</h3>
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Presupuesto</h3>
                                     <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Captura de leads.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-amber-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                            </div>
+                        </Link>
+                        <Link href="/simulador-ak">
+                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-violet-200 hover:bg-violet-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                                <div className="p-4 sm:p-5 bg-violet-50 text-violet-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-violet-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                                    <Bot className="w-6 h-6 sm:w-7 sm:h-7"/>
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Asistente AK</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Chat inteligente.</p>
+                                </div>
+                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-violet-500 group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
                         <Link href="/pagos-rapidos">
@@ -277,7 +290,7 @@ export default function MainDashboardPage() {
                                 <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
-                        <div className="md:col-span-3">
+                        <div className="md:col-span-2 lg:col-span-4">
                             <div className="group p-5 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] bg-slate-950 hover:bg-slate-900 transition-all cursor-pointer flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-white/10 text-white rounded-2xl shrink-0">
                                     <Monitor className="w-6 h-6 sm:w-7 sm:h-7"/>

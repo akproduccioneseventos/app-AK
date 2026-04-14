@@ -27,6 +27,7 @@ const DATA_COLLECTIONS = [
   { file: 'galeria-publica.json', defaultValue: [] },
   { file: 'menus.json', defaultValue: [] },
   { file: 'coupons.json', defaultValue: [] },
+  { file: 'ai-assistant-settings.json', defaultValue: {} },
 ];
 
 /** Try to read a collection directly from Firestore via Admin SDK. Returns null on failure. */

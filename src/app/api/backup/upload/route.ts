@@ -26,6 +26,7 @@ const RESTORABLE_COLLECTIONS = new Set([
   'galeria-publica.json',
   'menus.json',
   'coupons.json',
+  'ai-assistant-settings.json',
 ]);
 
 /** Try to write a collection directly to Firestore via sync module. Returns true on success. */

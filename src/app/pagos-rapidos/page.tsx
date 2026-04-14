@@ -213,7 +213,7 @@ function PagosRapidosContent() {
         getPresupuestosWithPendingPayments(),
       ]);
 
-      const activeStates = ['Enviado', 'Aceptado', 'Facturado'];
+      const activeStates = ['Aceptado', 'Facturado'];
       setPresupuestos(
         allPresupuestos
           .filter(p => activeStates.includes(p.estado))
@@ -399,7 +399,7 @@ function PagosRapidosContent() {
             <div className="text-center py-12 text-muted-foreground">
               <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p className="text-sm font-bold">No hay presupuestos activos</p>
-              <p className="text-xs mt-1">Los presupuestos con estado Enviado, Aceptado o Facturado aparecerán aquí.</p>
+              <p className="text-xs mt-1">Los presupuestos con estado Aceptado o Facturado aparecerán aquí.</p>
             </div>
           ) : (
             <div className="space-y-3">
