@@ -46,7 +46,7 @@ export const CrmStageColumn = memo(function CrmStageColumn({
           <span>{stage.name}</span>
           <div className="flex items-center gap-1">
             {inactiveCount > 0 && (
-              <Badge variant="outline" className="text-[9px] h-5 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`${inactiveCount} sin actividad hace +${INACTIVITY_DAYS} días`}>
+              <Badge variant="outline" className="text-[9px] h-5 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`${inactiveCount} sin actividad hacen +${INACTIVITY_DAYS} días`}>
                 <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />{inactiveCount}
               </Badge>
             )}

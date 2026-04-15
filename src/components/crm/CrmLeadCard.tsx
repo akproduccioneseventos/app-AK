@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { memo, useMemo, useState, useCallback } from 'react';
+import { memo, useMemo, useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { recordWhatsAppContact, updateCrmLeadField } from '@/app/actions/crm';
 import { Textarea } from '@/components/ui/textarea';
@@ -52,6 +52,13 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   const [notesValue, setNotesValue] = useState(lead.notes || '');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const { toast } = useToast();
+
+  // Sync notesValue when lead.notes changes externally (e.g. from timeline dialog)
+  useEffect(() => {
+    if (!isEditingNotes) {
+      setNotesValue(lead.notes || '');
+    }
+  }, [lead.notes, isEditingNotes]);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -274,7 +281,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:bg-muted/50"
-              onClick={() => { setNotesValue(lead.notes || ''); setIsEditingNotes(v => !v); }}
+              onClick={() => { setNotesValue(lead.notes || ''); setIsEditingNotes(true); }}
               title="Editar notas"
             >
               <Edit3 className="w-3.5 h-3.5" />

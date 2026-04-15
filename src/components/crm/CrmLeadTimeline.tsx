@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback, useEffect } from 'react';
 import type { CrmLead, CrmTimelineItem } from '@/types/crm';
 import {
   Dialog,
@@ -127,6 +127,13 @@ export const CrmLeadTimeline = memo(function CrmLeadTimeline({ lead, isOpen, onO
   const [notesValue, setNotesValue] = useState(lead.notes || '');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const { toast } = useToast();
+
+  // Sync notesValue when lead.notes changes externally and editor is not active
+  useEffect(() => {
+    if (!isEditingNotes) {
+      setNotesValue(lead.notes || '');
+    }
+  }, [lead.notes, isEditingNotes]);
 
   const handleSaveNotes = useCallback(async () => {
     setIsSavingNotes(true);
