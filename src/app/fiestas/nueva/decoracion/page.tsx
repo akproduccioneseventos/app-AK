@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -11,10 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
-import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno } from '@/types/fiesta';
+import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno, ElementoDecorativo } from '@/types/fiesta';
 import { defaultDecoracion, defaultZonasContratadas } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -27,6 +27,11 @@ import VistaDecorativaEditor from '@/components/decoracion/VistaDecorativaEditor
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import DecoCanvas from '@/components/decoracion/DecoCanvas';
+import DecoElementLibrary from '@/components/decoracion/DecoElementLibrary';
+import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
+import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
+import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -124,6 +129,22 @@ function DecoracionYDisenoEventoContent() {
   const [newDecoItemZona, setNewDecoItemZona] = useState('');
   const [newDecoItemImageUrl, setNewDecoItemImageUrl] = useState<string | undefined>(undefined);
 
+  // ── New canvas state ──────────────────────────────────────────────────────
+  const [canvasElementos, setCanvasElementos] = useState<ElementoDecorativo[]>([]);
+  const [selectedCanvasId, setSelectedCanvasId] = useState<string | null>(null);
+  const [canvasHiddenZones, setCanvasHiddenZones] = useState<string[]>([]);
+  const [showGrid, setShowGrid] = useState(false);
+  const [canvasFondoColor, setCanvasFondoColor] = useState('#F8F9FA');
+  const [canvasFondoImagenUrl, setCanvasFondoImagenUrl] = useState('');
+  const [canvasHasChanges, setCanvasHasChanges] = useState(false);
+  const [isSavingCanvas, setIsSavingCanvas] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [plantillaNombre, setPlantillaNombre] = useState('');
+  const [isPlantillaModalOpen, setIsPlantillaModalOpen] = useState(false);
+  const [isLoadPlantillaModalOpen, setIsLoadPlantillaModalOpen] = useState(false);
+  const [isMuestrarioOpen, setIsMuestrarioOpen] = useState(false);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 
   const loadDecoracionData = useCallback(async (showLoading = true) => {
     if (!fiestaId) {
@@ -170,6 +191,12 @@ function DecoracionYDisenoEventoContent() {
         setZonasDiseno(defaultZonas);
         setSelectedZonaId('zona_principal');
       }
+
+      // Load global canvas elements
+      const globalElementos = loadedDecoracion.vistaDecorativa?.elementos ?? [];
+      setCanvasElementos(globalElementos);
+      setCanvasFondoColor(loadedDecoracion.vistaDecorativa?.fondoColor ?? '#F8F9FA');
+      setCanvasFondoImagenUrl(loadedDecoracion.vistaDecorativa?.fondoImagenUrl ?? '');
 
     } catch (err: any) {
       console.error("Error loading decoration data:", err);
@@ -378,6 +405,174 @@ function DecoracionYDisenoEventoContent() {
     ...ZONAS_DEFAULT_IDS.filter(z => !zonasDiseno.find(zd => zd.id === z.id)),
   ];
 
+  const selectedCanvasEl = canvasElementos.find(el => el.id === selectedCanvasId) ?? null;
+  const paletaColoresArray = decoracionData.paletaColores
+    ? [decoracionData.paletaColores.primary, decoracionData.paletaColores.secondary, decoracionData.paletaColores.accent]
+    : [];
+
+  const handleCanvasElementsChange = useCallback((els: ElementoDecorativo[]) => {
+    setCanvasElementos(els);
+    setCanvasHasChanges(true);
+  }, []);
+
+  const handleAddLibraryElement = useCallback((libEl: LibraryElement) => {
+    const newEl: ElementoDecorativo = {
+      id: `el_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      tipo: libEl.tipo,
+      x: 450,
+      y: 275,
+      escala: 1,
+      colores: paletaColoresArray.slice(0, libEl.maxColores || 1),
+      rotacion: 0,
+      zIndex: canvasElementos.length + 1,
+      ...(libEl.imageDataUri ? { imageDataUri: libEl.imageDataUri, isCustom: true } : {}),
+    };
+    handleCanvasElementsChange([...canvasElementos, newEl]);
+    setSelectedCanvasId(newEl.id);
+  }, [canvasElementos, paletaColoresArray, handleCanvasElementsChange]);
+
+  const handleUploadCustomElement = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUri = e.target?.result as string;
+      const nombre = file.name.replace(/\.[^/.]+$/, '');
+      const newCustomEl = { id: `custom_${Date.now()}`, nombre, imageDataUri: dataUri };
+      const updatedCustomElements = [...(decoracionData.customElements ?? []), newCustomEl];
+      setDecoracionData(prev => ({ ...prev, customElements: updatedCustomElements }));
+      const newEl: ElementoDecorativo = {
+        id: `el_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        tipo: newCustomEl.id,
+        x: 450, y: 275, escala: 1, colores: [], rotacion: 0,
+        imageDataUri: dataUri, isCustom: true,
+        zIndex: canvasElementos.length + 1,
+      };
+      handleCanvasElementsChange([...canvasElementos, newEl]);
+      setSelectedCanvasId(newEl.id);
+    };
+    reader.readAsDataURL(file);
+  }, [decoracionData, canvasElementos, handleCanvasElementsChange]);
+
+  const handleUpdateSelectedElColor = useCallback((colorIndex: number, color: string) => {
+    if (!selectedCanvasId) return;
+    setCanvasElementos(prev => prev.map(el => {
+      if (el.id !== selectedCanvasId) return el;
+      const newColores = [...el.colores];
+      newColores[colorIndex] = color;
+      return { ...el, colores: newColores };
+    }));
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId]);
+
+  const handleUpdateSelectedElZona = useCallback((zona: string) => {
+    if (!selectedCanvasId) return;
+    setCanvasElementos(prev => prev.map(el => el.id === selectedCanvasId ? { ...el, zona } : el));
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId]);
+
+  const handleUpdateSelectedElProp = useCallback(<K extends keyof ElementoDecorativo>(key: K, value: ElementoDecorativo[K]) => {
+    if (!selectedCanvasId) return;
+    setCanvasElementos(prev => prev.map(el => el.id === selectedCanvasId ? { ...el, [key]: value } : el));
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId]);
+
+  const handleDeleteSelected = useCallback(() => {
+    if (!selectedCanvasId) return;
+    setCanvasElementos(prev => prev.filter(el => el.id !== selectedCanvasId));
+    setSelectedCanvasId(null);
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId]);
+
+  const handleZoneToggle = useCallback((zonaId: string) => {
+    setCanvasHiddenZones(prev => prev.includes(zonaId) ? prev.filter(z => z !== zonaId) : [...prev, zonaId]);
+  }, []);
+
+  const handleBringToFront = useCallback(() => {
+    if (!selectedCanvasId) return;
+    const maxZ = Math.max(...canvasElementos.map(el => el.zIndex ?? 1), 0);
+    setCanvasElementos(prev => prev.map(el => el.id === selectedCanvasId ? { ...el, zIndex: maxZ + 1 } : el));
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId, canvasElementos]);
+
+  const handleSendToBack = useCallback(() => {
+    if (!selectedCanvasId) return;
+    const minZ = Math.min(...canvasElementos.map(el => el.zIndex ?? 1), 2);
+    setCanvasElementos(prev => prev.map(el => el.id === selectedCanvasId ? { ...el, zIndex: Math.max(0, minZ - 1) } : el));
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId, canvasElementos]);
+
+  const saveCanvas = useCallback(async (silent = false) => {
+    if (!fiestaId) return;
+    if (!silent) setIsSavingCanvas(true);
+    else setIsAutoSaving(true);
+    try {
+      const updatedDecoracion = {
+        ...decoracionData,
+        zonasDiseno,
+        vistaDecorativa: {
+          elementos: canvasElementos,
+          fondoColor: canvasFondoColor,
+          fondoImagenUrl: canvasFondoImagenUrl,
+        },
+      };
+      const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
+      if (result.success) {
+        setCanvasHasChanges(false);
+        if (!silent) toast({ title: '¡Canvas guardado! ✓' });
+      } else throw new Error(result.error);
+    } catch (err: any) {
+      if (!silent) toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+    } finally {
+      if (!silent) setIsSavingCanvas(false);
+      else setIsAutoSaving(false);
+    }
+  }, [fiestaId, decoracionData, zonasDiseno, canvasElementos, canvasFondoColor, canvasFondoImagenUrl, toast]);
+
+  const handleGuardarPlantilla = useCallback(async () => {
+    if (!plantillaNombre.trim()) return;
+    const nuevaPlantilla = {
+      id: `plantilla_${Date.now()}`,
+      nombre: plantillaNombre.trim(),
+      elementos: canvasElementos,
+      creadaEn: new Date().toISOString(),
+    };
+    const updatedDecoracion = {
+      ...decoracionData,
+      zonasDiseno,
+      plantillasGuardadas: [...(decoracionData.plantillasGuardadas ?? []), nuevaPlantilla],
+    };
+    if (fiestaId) {
+      await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
+      setDecoracionData(updatedDecoracion);
+      toast({ title: `Plantilla "${plantillaNombre}" guardada ✓` });
+    }
+    setPlantillaNombre('');
+    setIsPlantillaModalOpen(false);
+  }, [plantillaNombre, canvasElementos, decoracionData, zonasDiseno, fiestaId, toast]);
+
+  const handleLoadPlantilla = useCallback((elementos: ElementoDecorativo[]) => {
+    setCanvasElementos(elementos);
+    setCanvasHasChanges(true);
+    setIsLoadPlantillaModalOpen(false);
+    toast({ title: 'Plantilla cargada ✓' });
+  }, [toast]);
+
+  const handleLoadMuestrario = useCallback((elementos: ElementoDecorativo[]) => {
+    setCanvasElementos(elementos);
+    setCanvasHasChanges(true);
+    setIsMuestrarioOpen(false);
+    toast({ title: 'Decoración cargada ✓', description: 'Podés cambiar los colores y posiciones.' });
+  }, [toast]);
+
+  // Auto-save every 30 seconds if there are changes
+  useEffect(() => {
+    if (!canvasHasChanges) return;
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveCanvas(true);
+    }, 30000);
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+  }, [canvasHasChanges, saveCanvas]);
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
   }
@@ -508,6 +703,9 @@ function DecoracionYDisenoEventoContent() {
           </TabsTrigger>
           <TabsTrigger value="inspiracion" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
             <ImageIconLucide className="w-4 h-4" /> Inspiración
+          </TabsTrigger>
+          <TabsTrigger value="canvas" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <LayoutDashboard className="w-4 h-4" /> Canvas
           </TabsTrigger>
         </TabsList>
 
@@ -1003,6 +1201,263 @@ function DecoracionYDisenoEventoContent() {
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
+
+        {/* TAB: CANVAS INTERACTIVO */}
+        <TabsContent value="canvas">
+          {/* Guardar Plantilla Modal */}
+          <Dialog open={isPlantillaModalOpen} onOpenChange={setIsPlantillaModalOpen}>
+            <DialogContent className="sm:max-w-sm rounded-3xl border-none shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="font-headline text-2xl">Guardar como Plantilla</DialogTitle>
+                <DialogDescription>Dale un nombre a esta configuración del canvas para reutilizarla.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <Input
+                  value={plantillaNombre}
+                  onChange={e => setPlantillaNombre(e.target.value)}
+                  placeholder="Ej: Decoración Romántica, Mesa Principal..."
+                  className="rounded-xl h-12 bg-slate-50 border-none"
+                  onKeyDown={e => { if (e.key === 'Enter') handleGuardarPlantilla(); }}
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setIsPlantillaModalOpen(false)} className="flex-1 rounded-xl h-12">Cancelar</Button>
+                <Button onClick={handleGuardarPlantilla} className="flex-1 rounded-xl h-12 shadow-lg shadow-primary/20" disabled={!plantillaNombre.trim()}>
+                  <Save className="w-4 h-4 mr-2" /> Guardar
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Cargar Plantilla Modal */}
+          <Dialog open={isLoadPlantillaModalOpen} onOpenChange={setIsLoadPlantillaModalOpen}>
+            <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="font-headline text-2xl">Cargar Plantilla</DialogTitle>
+                <DialogDescription>Seleccioná una plantilla guardada para cargarla en el canvas.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 py-4 max-h-80 overflow-y-auto">
+                {(decoracionData.plantillasGuardadas ?? []).length === 0 ? (
+                  <p className="text-center text-sm text-slate-400 py-8">No hay plantillas guardadas todavía.</p>
+                ) : (
+                  (decoracionData.plantillasGuardadas ?? []).map(pt => (
+                    <button
+                      key={pt.id}
+                      type="button"
+                      onClick={() => handleLoadPlantilla(pt.elementos)}
+                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-primary/5 border border-transparent hover:border-primary/20 text-left transition-all"
+                    >
+                      <div>
+                        <p className="font-semibold text-sm text-slate-700">{pt.nombre}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{pt.elementos.length} elementos · {new Date(pt.creadaEn).toLocaleDateString('es-AR')}</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-300" />
+                    </button>
+                  ))
+                )}
+              </div>
+              <Button variant="outline" onClick={() => setIsLoadPlantillaModalOpen(false)} className="w-full rounded-xl h-11">Cerrar</Button>
+            </DialogContent>
+          </Dialog>
+
+          {/* Muestrario Modal */}
+          <Dialog open={isMuestrarioOpen} onOpenChange={setIsMuestrarioOpen}>
+            <DialogContent className="sm:max-w-lg rounded-3xl border-none shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="font-headline text-2xl">Muestrario de Decoraciones</DialogTitle>
+                <DialogDescription>Decoraciones de eventos anteriores para usar como base.</DialogDescription>
+              </DialogHeader>
+              <DecoMuestrario onLoadDecoracion={handleLoadMuestrario} />
+            </DialogContent>
+          </Dialog>
+
+          <div className="flex gap-4 items-start min-h-[600px]">
+            {/* LEFT: Library panel */}
+            <div className="w-64 flex-shrink-0">
+              <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md sticky top-4 h-[700px] flex flex-col">
+                <CardHeader className="bg-gradient-to-r from-violet-500/10 to-violet-500/5 p-4 rounded-t-[2rem] flex-shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-violet-500 rounded-xl shadow-lg text-white"><Package className="w-4 h-4" /></div>
+                    <CardTitle className="font-headline text-sm">Biblioteca</CardTitle>
+                  </div>
+                  <div className="flex gap-1.5 mt-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setIsMuestrarioOpen(true)} className="flex-1 rounded-xl text-xs h-8 gap-1">
+                      <LayoutDashboard className="w-3 h-3" /> Muestrario
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1 p-3 overflow-hidden flex flex-col">
+                  <DecoElementLibrary
+                    fiestaId={fiestaId ?? ''}
+                    onAddElement={handleAddLibraryElement}
+                    customElements={decoracionData.customElements}
+                    onUploadCustom={handleUploadCustomElement}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* CENTER: Canvas + properties */}
+            <div className="flex-1 min-w-0 space-y-4">
+              {/* Toolbar */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    id="showGridCheck"
+                    checked={showGrid}
+                    onChange={e => setShowGrid(e.target.checked)}
+                    className="accent-primary"
+                  />
+                  <label htmlFor="showGridCheck" className="text-xs font-medium text-slate-600 cursor-pointer select-none flex items-center gap-1">
+                    <Grid className="w-3.5 h-3.5" /> Cuadrícula
+                  </label>
+                </div>
+                <div className="flex items-center gap-1.5 ml-2">
+                  <label className="text-xs font-medium text-slate-600">Fondo:</label>
+                  <input
+                    type="color"
+                    value={canvasFondoColor}
+                    onChange={e => { setCanvasFondoColor(e.target.value); setCanvasHasChanges(true); }}
+                    className="w-7 h-7 rounded border border-slate-200 cursor-pointer p-0.5"
+                    title="Color de fondo"
+                  />
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
+                  {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                  <Button type="button" variant="outline" size="sm" onClick={() => setIsPlantillaModalOpen(true)} className="rounded-xl h-8 text-xs gap-1">
+                    <Save className="w-3 h-3" /> Guardar plantilla
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setIsLoadPlantillaModalOpen(true)} className="rounded-xl h-8 text-xs gap-1">
+                    <RefreshCcw className="w-3 h-3" /> Cargar plantilla
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => saveCanvas(false)}
+                    disabled={isSavingCanvas}
+                    className="rounded-xl h-8 shadow-lg shadow-primary/20 text-xs gap-1"
+                  >
+                    {isSavingCanvas ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                    Guardar
+                  </Button>
+                </div>
+              </div>
+
+              {/* Canvas */}
+              <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden">
+                <CardContent className="p-4">
+                  <DecoCanvas
+                    elementos={canvasElementos}
+                    onChange={handleCanvasElementsChange}
+                    selectedId={selectedCanvasId}
+                    onSelectId={setSelectedCanvasId}
+                    hiddenZones={canvasHiddenZones}
+                    fondoColor={canvasFondoColor}
+                    fondoImagenUrl={canvasFondoImagenUrl || undefined}
+                    showGrid={showGrid}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Properties bar for selected element */}
+              {selectedCanvasEl && (
+                <Card className="border-none shadow-sm rounded-2xl bg-white/90">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-xs font-black uppercase tracking-widest text-slate-500">Elemento seleccionado:</span>
+                      <Badge variant="secondary" className="rounded-full capitalize">{selectedCanvasEl.tipo}</Badge>
+
+                      {/* Color pickers */}
+                      {Array.from({ length: Math.max(1, selectedCanvasEl.colores.length || 1) }).map((_, idx) => (
+                        <div key={idx} className="relative">
+                          <input
+                            type="color"
+                            value={selectedCanvasEl.colores[idx] ?? '#888888'}
+                            onChange={e => handleUpdateSelectedElColor(idx, e.target.value)}
+                            className="w-8 h-8 cursor-pointer rounded-lg border-2 border-slate-200 p-0.5"
+                            title={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : 'Color 3'}
+                          />
+                          <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-slate-400 whitespace-nowrap">{idx === 0 ? 'C1' : idx === 1 ? 'C2' : 'C3'}</span>
+                        </div>
+                      ))}
+
+                      {/* Scale */}
+                      <div className="flex items-center gap-1">
+                        <label className="text-xs text-slate-500">Escala</label>
+                        <input
+                          type="range" min={0.2} max={5} step={0.1}
+                          value={selectedCanvasEl.escala}
+                          onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
+                          className="w-24 h-2 accent-primary"
+                        />
+                        <span className="text-xs font-mono text-slate-600 w-10">{selectedCanvasEl.escala.toFixed(1)}x</span>
+                      </div>
+
+                      {/* Rotation */}
+                      <div className="flex items-center gap-1">
+                        <label className="text-xs text-slate-500">Rotación</label>
+                        <input
+                          type="range" min={0} max={360} step={1}
+                          value={selectedCanvasEl.rotacion ?? 0}
+                          onChange={e => handleUpdateSelectedElProp('rotacion', Number(e.target.value))}
+                          className="w-24 h-2 accent-primary"
+                        />
+                        <span className="text-xs font-mono text-slate-600 w-10">{Math.round(selectedCanvasEl.rotacion ?? 0)}°</span>
+                      </div>
+
+                      {/* Opacity */}
+                      <div className="flex items-center gap-1">
+                        <label className="text-xs text-slate-500">Opacidad</label>
+                        <input
+                          type="range" min={0.1} max={1} step={0.05}
+                          value={selectedCanvasEl.opacity ?? 1}
+                          onChange={e => handleUpdateSelectedElProp('opacity', Number(e.target.value))}
+                          className="w-20 h-2 accent-primary"
+                        />
+                        <span className="text-xs font-mono text-slate-600 w-10">{Math.round((selectedCanvasEl.opacity ?? 1) * 100)}%</span>
+                      </div>
+
+                      {/* Z-index */}
+                      <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-xl h-7 text-xs gap-1" title="Traer al frente">
+                        <ChevronsUp className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-xl h-7 text-xs gap-1" title="Enviar atrás">
+                        <ChevronsDown className="w-3.5 h-3.5" />
+                      </Button>
+
+                      {/* Delete */}
+                      <Button type="button" variant="destructive" size="sm" onClick={handleDeleteSelected} className="rounded-xl h-7 text-xs gap-1 ml-auto">
+                        <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* RIGHT: Zone panel */}
+            <div className="w-52 flex-shrink-0">
+              <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md sticky top-4">
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="font-headline text-sm flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" /> Zonas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <DecoZonaPanel
+                    selectedElement={selectedCanvasEl}
+                    onChangeZona={handleUpdateSelectedElZona}
+                    hiddenZones={canvasHiddenZones}
+                    onToggleZoneVisibility={handleZoneToggle}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
