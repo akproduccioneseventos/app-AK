@@ -90,7 +90,8 @@ export async function createRestorePoint(isAuto: boolean = false): Promise<{ suc
     for (const collection of ALL_COLLECTIONS) {
       try {
         data[collection.file] = await readData(collection.file, collection.defaultValue);
-      } catch {
+      } catch (error) {
+        console.warn(`[Backup] No se pudo leer ${collection.file} para snapshot`, error);
         continue;
       }
     }
