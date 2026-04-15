@@ -502,17 +502,8 @@ function DecoracionYDisenoEventoContent() {
     setCanvasHasChanges(true);
   }, [selectedCanvasId, canvasElementos]);
 
-  const handleExportPng = useCallback(async () => {
-    try {
-      const canvasEl = document.querySelector('[data-deco-canvas]') as HTMLElement;
-      if (!canvasEl) {
-        toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
-        return;
-      }
-      toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
-    } catch {
-      toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
-    }
+  const handleExportPng = useCallback(() => {
+    toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
   }, [toast]);
 
   const saveCanvas = useCallback(async (silent = false) => {
