@@ -23,6 +23,8 @@ import { getSalones } from '@/app/actions/salones';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> {
   fechaEvento?: Date;
@@ -43,7 +45,6 @@ function ConfiguracionEventoContent() {
   const [allSalones, setAllSalones] = useState<Salon[]>([]);
   const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
   const loadInitialData = useCallback(async () => {
@@ -107,6 +108,26 @@ function ConfiguracionEventoContent() {
     loadInitialData();
   }, [loadInitialData]);
 
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: config,
+    onSave: async (cfg) => {
+      if (!cfg || !fiestaId) return { success: false, error: 'Sin datos' };
+      const configToSave: ConfigEventoDataStorage = {
+        ...cfg,
+        fechaEvento: cfg.fechaEvento ? cfg.fechaEvento.toISOString() : undefined,
+        clienteId: cfg.clienteId || undefined,
+        invitadosEstimados: Number(cfg.invitadosEstimados) || 0,
+        presupuestoEstimado: Number(cfg.presupuestoEstimado) || 0,
+      };
+      const result = await updateConfiguracionFiestaActual(fiestaId, configToSave);
+      if (result.success && cfg.clienteId) {
+        await syncCustomerFromFiestaConfig(cfg.clienteId, configToSave).catch(() => {});
+      }
+      return result;
+    },
+    debounceMs: 2000,
+    enabled: !!fiestaId && !isLoading && !!config,
+  });
 
   const handleChange = (field: keyof ConfigFormState, value: any) => {
     setConfig(prev => prev ? ({ ...prev, [field]: value }) : null);
@@ -186,37 +207,11 @@ function ConfiguracionEventoContent() {
       }
     }
 
-    setIsSaving(true);
-    const configToSave: ConfigEventoDataStorage = {
-      ...config,
-      fechaEvento: config.fechaEvento ? config.fechaEvento.toISOString() : undefined,
-      clienteId: config.clienteId || undefined,
-      invitadosEstimados: Number(config.invitadosEstimados) || 0,
-      presupuestoEstimado: Number(config.presupuestoEstimado) || 0,
-    };
-    
-    try {
-      const result = await updateConfiguracionFiestaActual(fiestaId, configToSave);
-      
-      if (result.success && result.updatedData) {
-        toast({
-          title: "¡Configuración Guardada!",
-          description: "Los detalles generales del evento se han actualizado.",
-        });
-
-        if (config.clienteId) {
-          await syncCustomerFromFiestaConfig(config.clienteId, configToSave);
-        }
-        
-        await loadInitialData(); // Recargar todo para asegurar consistencia
-      } else {
-        throw new Error(result.error || "Error desconocido al guardar la configuración.");
-      }
-    } catch (error: any) {
-      toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
+    saveNow();
+    toast({
+      title: "¡Configuración Guardada!",
+      description: "Los detalles generales del evento se han actualizado.",
+    });
   };
   
   if (isLoading) {
@@ -245,12 +240,15 @@ function ConfiguracionEventoContent() {
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Configuración General del Evento
         </h1>
-        <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
-          <Button variant="outline" disabled={isSaving}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Planificador
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
+            <Button variant="outline" disabled={isSaving}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver al Planificador
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
