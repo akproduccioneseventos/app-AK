@@ -115,7 +115,7 @@ export default function AdminDatosPage() {
           `Notificaciones: ${r.notificaciones}`,
           `Historial: ${r.fiestas_historicas}`,
         ].join(' · ');
-        toast({ title: '✅ Reset completo ejecutado', description: summary, variant: 'destructive' });
+        toast({ title: '✅ Reset completo ejecutado', description: summary });
       } else {
         toast({ title: 'Error en reset completo', description: result.error || 'Error desconocido.', variant: 'destructive' });
       }
@@ -126,6 +126,11 @@ export default function AdminDatosPage() {
       setResetConfirmText('');
     }
   }, [toast]);
+
+  const handleResetDialogOpenChange = useCallback((open: boolean) => {
+    setResetDialogOpen(open);
+    if (!open) setResetConfirmText('');
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 p-4">
@@ -282,7 +287,7 @@ export default function AdminDatosPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <AlertDialog open={resetDialogOpen} onOpenChange={(open) => { setResetDialogOpen(open); if (!open) setResetConfirmText(''); }}>
+          <AlertDialog open={resetDialogOpen} onOpenChange={handleResetDialogOpenChange}>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" disabled={isResettingAll} className="font-bold text-base px-6 py-5">
                 {isResettingAll ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <AlertTriangle className="w-5 h-5 mr-2" />}

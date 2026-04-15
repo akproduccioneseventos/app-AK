@@ -189,12 +189,11 @@ export async function deleteInvoice(id: string): Promise<{ success: boolean; err
  */
 export async function resetAllInvoices(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
-    const all = await getInvoices();
-    const deletedCount = all.length;
-
     const { dbAdmin } = await import('@/lib/firebase/server');
+    let deletedCount = 0;
     if (dbAdmin) {
       const snapshot = await dbAdmin.collection('facturas').get();
+      deletedCount = snapshot.size;
       const batchSize = 450;
       const docs = snapshot.docs;
       for (let i = 0; i < docs.length; i += batchSize) {
