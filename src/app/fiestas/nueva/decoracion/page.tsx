@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -33,6 +33,18 @@ import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
 import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 
 const ALL_DECORATION_ITEM_CATEGORIES = [
@@ -78,6 +90,8 @@ const DEFAULT_ZONA_DISENO: ZonaDiseno = {
   nombre: 'Zona Principal',
   vistaDecorativa: { elementos: [] },
 };
+
+const MOBILE_LIBRARY_SHEET_HEIGHT = '85vh';
 
 // ─── Helper functions ─────────────────────────────────────────────────────────
 
@@ -144,6 +158,8 @@ function DecoracionYDisenoEventoContent() {
   const [isPlantillaModalOpen, setIsPlantillaModalOpen] = useState(false);
   const [isLoadPlantillaModalOpen, setIsLoadPlantillaModalOpen] = useState(false);
   const [isMuestrarioOpen, setIsMuestrarioOpen] = useState(false);
+  const [isMobileLibraryOpen, setIsMobileLibraryOpen] = useState(false);
+  const [isMobilePropertiesOpen, setIsMobilePropertiesOpen] = useState(false);
   const [pickerOpenIdx, setPickerOpenIdx] = useState<number | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -195,10 +211,19 @@ function DecoracionYDisenoEventoContent() {
       }
 
       // Load global canvas elements
-      const globalElementos = loadedDecoracion.vistaDecorativa?.elementos ?? [];
-      setCanvasElementos(globalElementos);
-      setCanvasFondoColor(loadedDecoracion.vistaDecorativa?.fondoColor ?? '#F8F9FA');
-      setCanvasFondoImagenUrl(loadedDecoracion.vistaDecorativa?.fondoImagenUrl ?? '');
+      const vistaDecorativa = fiestaData.decoracion?.vistaDecorativa ?? loadedDecoracion.vistaDecorativa;
+      if (vistaDecorativa?.elementos) {
+        setCanvasElementos(vistaDecorativa.elementos);
+      } else {
+        setCanvasElementos([]);
+      }
+      if (vistaDecorativa?.fondoColor) {
+        setCanvasFondoColor(vistaDecorativa.fondoColor);
+      } else {
+        setCanvasFondoColor('#F8F9FA');
+      }
+      setCanvasFondoImagenUrl(vistaDecorativa?.fondoImagenUrl ?? '');
+      setSelectedCanvasId(null);
 
     } catch (err: any) {
       console.error("Error loading decoration data:", err);
@@ -408,9 +433,17 @@ function DecoracionYDisenoEventoContent() {
   ];
 
   const selectedCanvasEl = canvasElementos.find(el => el.id === selectedCanvasId) ?? null;
-  const paletaColoresArray = decoracionData.paletaColores
-    ? [decoracionData.paletaColores.primary, decoracionData.paletaColores.secondary, decoracionData.paletaColores.accent]
-    : [];
+  const selectedCanvasColores = selectedCanvasEl?.colores || [];
+  const selectedCanvasColoresLength = Math.max(1, selectedCanvasColores.length);
+  const getSelectedCanvasColor = (idx: number) => (selectedCanvasEl?.colores || [])[idx] ?? '#888888';
+  const paletaColoresArray = useMemo(
+    () => (
+      decoracionData.paletaColores
+        ? [decoracionData.paletaColores.primary, decoracionData.paletaColores.secondary, decoracionData.paletaColores.accent]
+        : []
+    ),
+    [decoracionData.paletaColores]
+  );
 
   const handleCanvasElementsChange = useCallback((els: ElementoDecorativo[]) => {
     setCanvasElementos(els);
@@ -491,6 +524,14 @@ function DecoracionYDisenoEventoContent() {
     setCanvasHasChanges(true);
   }, [selectedCanvasId]);
 
+  const handleClearCanvasAll = useCallback(() => {
+    setCanvasElementos([]);
+    setSelectedCanvasId(null);
+    setPickerOpenIdx(null);
+    setCanvasHasChanges(true);
+    toast({ title: 'Canvas limpio' });
+  }, [toast]);
+
   const handleZoneToggle = useCallback((zonaId: string) => {
     setCanvasHiddenZones(prev => prev.includes(zonaId) ? prev.filter(z => z !== zonaId) : [...prev, zonaId]);
   }, []);
@@ -565,16 +606,26 @@ function DecoracionYDisenoEventoContent() {
   const handleLoadPlantilla = useCallback((elementos: ElementoDecorativo[]) => {
     setCanvasElementos(elementos);
     setCanvasHasChanges(true);
+    setSelectedCanvasId(null);
     setIsLoadPlantillaModalOpen(false);
+    setIsMobilePropertiesOpen(false);
     toast({ title: 'Plantilla cargada ✓' });
   }, [toast]);
 
   const handleLoadMuestrario = useCallback((elementos: ElementoDecorativo[]) => {
     setCanvasElementos(elementos);
     setCanvasHasChanges(true);
+    setSelectedCanvasId(null);
     setIsMuestrarioOpen(false);
+    setIsMobileLibraryOpen(false);
+    setIsMobilePropertiesOpen(false);
     toast({ title: 'Decoración cargada ✓', description: 'Podés cambiar los colores y posiciones.' });
   }, [toast]);
+
+  const handleOpenMuestrarioFromMobile = useCallback(() => {
+    setIsMuestrarioOpen(true);
+    setIsMobileLibraryOpen(false);
+  }, []);
 
   // Auto-save 2 seconds after the last canvas change
   useEffect(() => {
@@ -1286,9 +1337,123 @@ function DecoracionYDisenoEventoContent() {
             </DialogContent>
           </Dialog>
 
-          <div className="flex gap-4 items-start min-h-[600px]">
+          <Sheet open={isMobileLibraryOpen} onOpenChange={setIsMobileLibraryOpen}>
+            <SheetContent side="bottom" className="rounded-t-[2rem] p-0 md:hidden" style={{ height: MOBILE_LIBRARY_SHEET_HEIGHT }}>
+              <SheetHeader className="p-4 pb-2 border-b border-slate-100">
+                <SheetTitle className="text-base flex items-center gap-2">
+                  <Package className="w-4 h-4 text-violet-500" /> Biblioteca
+                </SheetTitle>
+                <SheetDescription>Agregá elementos al canvas o cargá un muestrario.</SheetDescription>
+              </SheetHeader>
+              <div className="p-4 overflow-hidden flex flex-col" style={{ height: `calc(${MOBILE_LIBRARY_SHEET_HEIGHT} - 88px)` }}>
+                <div className="mb-3">
+                  <Button type="button" variant="outline" size="sm" onClick={handleOpenMuestrarioFromMobile} className="w-full rounded-xl text-xs h-9 gap-1">
+                    <LayoutDashboard className="w-3.5 h-3.5" /> Muestrario
+                  </Button>
+                </div>
+                {fiestaId ? (
+                  <DecoElementLibrary
+                    fiestaId={fiestaId}
+                    onAddElement={(libEl) => {
+                      handleAddLibraryElement(libEl);
+                      setIsMobileLibraryOpen(false);
+                    }}
+                    customElements={decoracionData.customElements}
+                    onUploadCustom={handleUploadCustomElement}
+                  />
+                ) : (
+                  <div className="text-center text-slate-400 text-xs py-8">Cargando...</div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <Sheet open={isMobilePropertiesOpen} onOpenChange={setIsMobilePropertiesOpen}>
+            <SheetContent side="right" className="w-[92vw] p-0 md:hidden">
+              <div className="h-full overflow-y-auto">
+                <Card className="border-none shadow-none rounded-none">
+                  {selectedCanvasEl ? (
+                    <>
+                      <CardHeader className="p-4 pb-2">
+                        <CardTitle className="font-headline text-sm flex items-center gap-2">
+                          <Palette className="w-4 h-4 text-primary" /> Propiedades
+                        </CardTitle>
+                        <Badge variant="secondary" className="rounded-full capitalize w-fit text-xs">{selectedCanvasEl.tipo}</Badge>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-2 space-y-4">
+                        {Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
+                          <DecoColorPicker
+                            key={idx}
+                            label={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}
+                            value={getSelectedCanvasColor(idx)}
+                            onChange={(color) => handleUpdateSelectedElColor(idx, color)}
+                            paletteColors={paletaColoresArray.filter(Boolean)}
+                          />
+                        ))}
+                        <div className="border-t border-slate-100 pt-3">
+                          <DecoZonaPanel
+                            selectedElement={selectedCanvasEl}
+                            onChangeZona={handleUpdateSelectedElZona}
+                            hiddenZones={canvasHiddenZones}
+                            onToggleZoneVisibility={handleZoneToggle}
+                          />
+                        </div>
+                        <div className="border-t border-slate-100 pt-3 space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-500">Escala ({selectedCanvasEl.escala.toFixed(1)}x)</label>
+                            <input
+                              type="range" min={0.2} max={5} step={0.1}
+                              value={selectedCanvasEl.escala}
+                              onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
+                              className="w-full h-2 accent-primary"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-500">Rotación ({Math.round(selectedCanvasEl.rotacion ?? 0)}°)</label>
+                            <input
+                              type="range" min={0} max={360} step={1}
+                              value={selectedCanvasEl.rotacion ?? 0}
+                              onChange={e => handleUpdateSelectedElProp('rotacion', Number(e.target.value))}
+                              className="w-full h-2 accent-primary"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-500">Opacidad ({Math.round((selectedCanvasEl.opacity ?? 1) * 100)}%)</label>
+                            <input
+                              type="range" min={0.1} max={1} step={0.05}
+                              value={selectedCanvasEl.opacity ?? 1}
+                              onChange={e => handleUpdateSelectedElProp('opacity', Number(e.target.value))}
+                              className="w-full h-2 accent-primary"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </>
+                  ) : (
+                    <>
+                      <CardHeader className="p-4 pb-2">
+                        <CardTitle className="font-headline text-sm flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-primary" /> Zonas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-0">
+                        <DecoZonaPanel
+                          selectedElement={null}
+                          onChangeZona={handleUpdateSelectedElZona}
+                          hiddenZones={canvasHiddenZones}
+                          onToggleZoneVisibility={handleZoneToggle}
+                        />
+                      </CardContent>
+                    </>
+                  )}
+                </Card>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <div className="flex flex-col md:flex-row gap-4 items-start min-h-[600px]">
             {/* LEFT: Library panel */}
-            <div className="w-64 flex-shrink-0">
+            <div className="w-full md:w-64 flex-shrink-0 hidden md:block">
               <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md sticky top-4 h-[700px] flex flex-col">
                 <CardHeader className="bg-gradient-to-r from-violet-500/10 to-violet-500/5 p-4 rounded-t-[2rem] flex-shrink-0">
                   <div className="flex items-center gap-2">
@@ -1320,6 +1485,14 @@ function DecoracionYDisenoEventoContent() {
             <div className="flex-1 min-w-0 space-y-4">
               {/* Toolbar */}
               <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-2 md:hidden">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setIsMobileLibraryOpen(true)} className="rounded-xl h-8 text-xs gap-1">
+                    <Package className="w-3.5 h-3.5" /> Biblioteca
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setIsMobilePropertiesOpen(true)} className="rounded-xl h-8 text-xs gap-1">
+                    <Palette className="w-3.5 h-3.5" /> Propiedades
+                  </Button>
+                </div>
                 <div className="flex items-center gap-1">
                   <input
                     type="checkbox"
@@ -1386,9 +1559,33 @@ function DecoracionYDisenoEventoContent() {
                 <div className="ml-auto flex items-center gap-2">
                   {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
                   {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                  <Badge variant="secondary" className="rounded-full h-6 text-[10px] px-2.5">
+                    {canvasElementos.length} elementos
+                  </Badge>
                   <Button type="button" variant="outline" size="sm" onClick={handleExportPng} className="rounded-xl h-8 text-xs gap-1">
                     <Download className="w-3 h-3" /> Exportar PNG
                   </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button type="button" variant="outline" size="sm" className="rounded-xl h-8 text-xs gap-1 text-red-600 border-red-200 hover:bg-red-50" disabled={canvasElementos.length === 0}>
+                        <Trash2 className="w-3 h-3" /> Limpiar todo
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Limpiar todo el canvas?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Se eliminarán todos los elementos del lienzo actual. Esta acción no se puede deshacer.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleClearCanvasAll} className="bg-red-600 hover:bg-red-700">
+                          Sí, limpiar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Button type="button" variant="outline" size="sm" onClick={() => setIsPlantillaModalOpen(true)} className="rounded-xl h-8 text-xs gap-1">
                     <Save className="w-3 h-3" /> Guardar plantilla
                   </Button>
@@ -1433,12 +1630,14 @@ function DecoracionYDisenoEventoContent() {
                       <Badge variant="secondary" className="rounded-full capitalize">{selectedCanvasEl.tipo}</Badge>
 
                       {/* Color pickers using DecoColorPicker */}
-                      {Array.from({ length: Math.max(1, (selectedCanvasEl.colores || []).length || 1) }).map((_, idx) => (
+                      {Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => {
+                        const colorValue = getSelectedCanvasColor(idx);
+                        return (
                         <div key={idx} className="relative">
                           <button
                             type="button"
                             className="w-9 h-9 rounded-xl border-2 border-slate-200 shadow cursor-pointer transition-transform hover:scale-110"
-                            style={{ background: selectedCanvasEl.colores[idx] ?? '#888888' }}
+                            style={{ background: colorValue }}
                             onClick={() => setPickerOpenIdx(pickerOpenIdx === idx ? null : idx)}
                             title={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : 'Color 3'}
                           />
@@ -1458,7 +1657,7 @@ function DecoracionYDisenoEventoContent() {
                                 </button>
                               </div>
                               <DecoColorPicker
-                                value={selectedCanvasEl.colores[idx] ?? '#888888'}
+                                value={colorValue}
                                 onChange={(color) => {
                                   handleUpdateSelectedElColor(idx, color);
                                 }}
@@ -1467,7 +1666,7 @@ function DecoracionYDisenoEventoContent() {
                             </div>
                           )}
                         </div>
-                      ))}
+                      )})}
 
                       {/* Scale */}
                       <div className="flex items-center gap-1">
@@ -1524,7 +1723,7 @@ function DecoracionYDisenoEventoContent() {
             </div>
 
             {/* RIGHT: Properties / Zone panel */}
-            <div className="w-52 flex-shrink-0">
+            <div className="w-52 flex-shrink-0 hidden md:block">
               <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md sticky top-4">
                 {selectedCanvasEl ? (
                   <>
@@ -1536,11 +1735,11 @@ function DecoracionYDisenoEventoContent() {
                     </CardHeader>
                     <CardContent className="p-4 pt-2 space-y-4 overflow-y-auto max-h-[620px]">
                       {/* Color pickers */}
-                      {Array.from({ length: Math.max(1, (selectedCanvasEl.colores || []).length || 1) }).map((_, idx) => (
+                      {Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
                         <DecoColorPicker
                           key={idx}
                           label={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}
-                          value={(selectedCanvasEl.colores || [])[idx] ?? '#888888'}
+                          value={getSelectedCanvasColor(idx)}
                           onChange={(color) => handleUpdateSelectedElColor(idx, color)}
                           paletteColors={paletaColoresArray.filter(Boolean)}
                         />
@@ -1553,6 +1752,35 @@ function DecoracionYDisenoEventoContent() {
                           hiddenZones={canvasHiddenZones}
                           onToggleZoneVisibility={handleZoneToggle}
                         />
+                      </div>
+                      <div className="border-t border-slate-100 pt-3 space-y-3">
+                        <div className="space-y-1">
+                          <label className="text-xs text-slate-500">Escala ({selectedCanvasEl.escala.toFixed(1)}x)</label>
+                          <input
+                            type="range" min={0.2} max={5} step={0.1}
+                            value={selectedCanvasEl.escala}
+                            onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
+                            className="w-full h-2 accent-primary"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-slate-500">Rotación ({Math.round(selectedCanvasEl.rotacion ?? 0)}°)</label>
+                          <input
+                            type="range" min={0} max={360} step={1}
+                            value={selectedCanvasEl.rotacion ?? 0}
+                            onChange={e => handleUpdateSelectedElProp('rotacion', Number(e.target.value))}
+                            className="w-full h-2 accent-primary"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-slate-500">Opacidad ({Math.round((selectedCanvasEl.opacity ?? 1) * 100)}%)</label>
+                          <input
+                            type="range" min={0.1} max={1} step={0.05}
+                            value={selectedCanvasEl.opacity ?? 1}
+                            onChange={e => handleUpdateSelectedElProp('opacity', Number(e.target.value))}
+                            className="w-full h-2 accent-primary"
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </>
