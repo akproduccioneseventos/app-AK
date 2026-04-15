@@ -28,6 +28,14 @@ const DATA_COLLECTIONS = [
   { file: 'menus.json', defaultValue: [] },
   { file: 'coupons.json', defaultValue: [] },
   { file: 'ai-assistant-settings.json', defaultValue: {} },
+  { file: 'armado-rapido-config.json', defaultValue: {} },
+  { file: 'budget-display-settings.json', defaultValue: {} },
+  { file: 'social-connections.json', defaultValue: [] },
+  { file: 'accesos-personal.json', defaultValue: [] },
+  { file: 'invoice-template-settings.json', defaultValue: {} },
+  { file: 'ai-assistant-config.json', defaultValue: {} },
+  { file: 'compras.json', defaultValue: [] },
+  { file: 'cupones.json', defaultValue: [] },
 ];
 
 /** Try to read a collection directly from Firestore via Admin SDK. Returns null on failure. */

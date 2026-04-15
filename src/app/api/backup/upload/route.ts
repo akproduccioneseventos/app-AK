@@ -27,6 +27,14 @@ const RESTORABLE_COLLECTIONS = new Set([
   'menus.json',
   'coupons.json',
   'ai-assistant-settings.json',
+  'armado-rapido-config.json',
+  'budget-display-settings.json',
+  'social-connections.json',
+  'accesos-personal.json',
+  'invoice-template-settings.json',
+  'ai-assistant-config.json',
+  'compras.json',
+  'cupones.json',
 ]);
 
 /** Try to write a collection directly to Firestore via sync module. Returns true on success. */
