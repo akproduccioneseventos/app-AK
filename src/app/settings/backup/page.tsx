@@ -104,16 +104,24 @@ export default function BackupPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'No se pudo restaurar desde el repositorio.');
+        throw new Error(result.message || result.error || 'No se pudo restaurar desde el repositorio.');
       }
 
-      const details = Array.isArray(result.results)
-        ? result.results.map((entry: any) => `${entry.file} (${entry.count})`).join(', ')
-        : '';
+      const entries = Array.isArray(result.results) ? result.results : [];
+      const restored = entries.filter((entry: any) => entry.status === 'success');
+      const failed = entries.filter((entry: any) => entry.status === 'error');
+      const failedDetails = failed.map((entry: any) => entry.file);
+      const restoredLabel = `${restored.length} ${restored.length === 1 ? 'archivo' : 'archivos'}`;
+      const failedPreview = failedDetails.slice(0, 3).join(', ');
+      const failedSuffix = failedDetails.length > 3 ? ` y ${failedDetails.length - 3} más` : '';
 
       toast({
-        title: 'Datos restaurados',
-        description: details ? `Se sincronizó: ${details}` : 'Se restauraron los datos desde el repositorio.',
+        title: failed.length > 0 ? 'Restauración completada con errores' : 'Datos restaurados',
+        description:
+          failed.length > 0
+            ? `Se restauraron ${restoredLabel}. Fallaron: ${failedPreview}${failedSuffix}.`
+            : `Se restauraron ${restoredLabel}.`,
+        variant: failed.length > 0 ? 'destructive' : 'default',
       });
     } catch (error: any) {
       toast({ title: 'Error al restaurar', description: error.message, variant: 'destructive' });

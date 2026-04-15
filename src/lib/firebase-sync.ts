@@ -22,6 +22,7 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'notifications.json': 'notificaciones',
   'insumos.json': 'insumos',
   'crm-stages.json': 'crm_stages',
+  'playbooks.json': 'playbooks',
   'fiestas-historicas.json': 'fiestas_historicas',
   'menus-catering.json': 'menus_catering',
   'price-adjustments-history.json': 'price_adjustments',
