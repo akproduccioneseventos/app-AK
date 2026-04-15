@@ -260,11 +260,50 @@ export default function MainDashboardPage() {
       </header>
 
        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} />
-        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} />
-        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} />
-        <KpiCard title="Prospectos Activos" value={isLoading ? '...' : (kpiData?.prospectosActivos ?? 0)} icon={Users} isLoading={isLoading} />
+        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados" />
+        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} description="Cobrado hasta hoy" />
+        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Por cobrar" />
+        <KpiCard title="Prospectos Activos" value={isLoading ? '...' : (kpiData?.prospectosActivos ?? 0)} icon={Users} isLoading={isLoading} description="En pipeline CRM" />
       </div>
+
+      {/* ── Próximo Evento Widget ─────────────────────────────────── */}
+      {!isLoading && kpiData?.proximoEvento && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Card className="bg-white rounded-2xl shadow border border-indigo-100 overflow-hidden">
+            <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="p-3 bg-indigo-50 rounded-xl shrink-0">
+                <CalendarClock className="w-6 h-6 text-indigo-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Próximo Evento</p>
+                <p className="font-black text-slate-800 text-base truncate">{kpiData.proximoEvento.nombre}</p>
+                <p className="text-xs text-slate-500 capitalize mt-0.5">
+                  {new Date(kpiData.proximoEvento.fecha).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                {(() => {
+                  const dias = Math.ceil((new Date(kpiData.proximoEvento.fecha).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                  return (
+                    <Badge className={dias === 0 ? 'bg-red-100 text-red-700 border-red-200' : 'bg-indigo-100 text-indigo-700 border-indigo-200'}>
+                      {dias === 0 ? '¡Hoy!' : `en ${dias} día${dias !== 1 ? 's' : ''}`}
+                    </Badge>
+                  );
+                })()}
+                <Link href="/eventos">
+                  <Button size="sm" variant="outline" className="text-xs border-indigo-200 text-indigo-600 hover:bg-indigo-50">
+                    Ver evento <ArrowRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* ── Alertas Automáticas Widget ─────────────────────────── */}
       {!isLoading && alertasUrgentes.length > 0 && (
