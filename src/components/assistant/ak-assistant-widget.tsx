@@ -466,6 +466,9 @@ export function AKAssistantWidget() {
   // Voice output (TTS) state
   const [ttsEnabled, setTtsEnabled] = useState(false);
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceName, setSelectedVoiceName] = useState<string>('');
+  const lastSpokenMsgIdRef = useRef<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -767,22 +770,47 @@ export function AKAssistantWidget() {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'es-ES';
+    if (selectedVoiceName) {
+      const voice = window.speechSynthesis.getVoices().find(v => v.name === selectedVoiceName);
+      if (voice) utterance.voice = voice;
+    }
     utterance.onend = () => setSpeakingMsgId(null);
     utterance.onerror = () => setSpeakingMsgId(null);
     setSpeakingMsgId(msgId);
     window.speechSynthesis.speak(utterance);
-  }, []);
+  }, [selectedVoiceName]);
 
   const stopSpeaking = () => {
     window.speechSynthesis?.cancel();
     setSpeakingMsgId(null);
   };
 
+  // Load available Spanish voices when TTS is enabled
+  useEffect(() => {
+    if (!ttsEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+      setAvailableVoices(voices);
+      if (voices.length > 0 && !selectedVoiceName) {
+        setSelectedVoiceName(voices[0].name);
+      }
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, [ttsEnabled, selectedVoiceName]);
+
   // Auto-speak new assistant messages when TTS is enabled
   useEffect(() => {
     if (!ttsEnabled || chatHistory.length === 0) return;
     const lastMsg = chatHistory[chatHistory.length - 1];
-    if (lastMsg.role === 'assistant' && lastMsg.content && !lastMsg.content.startsWith('⚠️') && !lastMsg.content.startsWith('❌')) {
+    if (
+      lastMsg.role === 'assistant' &&
+      lastMsg.content &&
+      !lastMsg.content.startsWith('⚠️') &&
+      !lastMsg.content.startsWith('❌') &&
+      lastMsg.id !== lastSpokenMsgIdRef.current
+    ) {
+      lastSpokenMsgIdRef.current = lastMsg.id;
       speakMessage(lastMsg.content, lastMsg.id);
     }
   }, [chatHistory, ttsEnabled, speakMessage]);
@@ -933,13 +961,24 @@ export function AKAssistantWidget() {
                         <div className={cn('px-3 py-2 rounded-2xl text-xs leading-relaxed', msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-white text-slate-800 rounded-tl-sm shadow-sm border border-slate-100')}>
                           <p className="whitespace-pre-wrap">{msg.content}</p>
                           {msg.role === 'assistant' && !msg.content.startsWith('⚠️') && !msg.content.startsWith('❌') && (
-                            <button
-                              onClick={() => speakingMsgId === msg.id ? stopSpeaking() : speakMessage(msg.content, msg.id)}
-                              className={cn('mt-1 inline-flex items-center gap-0.5 text-[10px]', speakingMsgId === msg.id ? 'text-indigo-600' : 'text-slate-400 hover:text-indigo-500')}
-                              title={speakingMsgId === msg.id ? 'Detener' : 'Escuchar'}
-                            >
-                              <Volume2 className="h-3 w-3" />{speakingMsgId === msg.id ? 'Hablando...' : 'Escuchar'}
-                            </button>
+                            <div className="mt-1 flex items-center gap-1">
+                              <button
+                                onClick={() => speakingMsgId === msg.id ? stopSpeaking() : speakMessage(msg.content, msg.id)}
+                                className={cn('inline-flex items-center gap-0.5 text-[10px]', speakingMsgId === msg.id ? 'text-indigo-600' : 'text-slate-400 hover:text-indigo-500')}
+                                title={speakingMsgId === msg.id ? 'Detener' : 'Escuchar'}
+                              >
+                                <Volume2 className="h-3 w-3" />{speakingMsgId === msg.id ? 'Hablando...' : 'Escuchar'}
+                              </button>
+                              {speakingMsgId === msg.id && (
+                                <button
+                                  onClick={stopSpeaking}
+                                  className="ml-1 p-0.5 text-indigo-400 hover:text-red-500 transition-colors"
+                                  title="Detener"
+                                >
+                                  <VolumeX className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
@@ -1029,6 +1068,18 @@ export function AKAssistantWidget() {
                     {ttsEnabled ? <Volume2 className="h-3 w-3" /> : <VolumeX className="h-3 w-3" />}
                     {ttsEnabled ? 'Voz activada' : 'Voz'}
                   </button>
+                  {ttsEnabled && availableVoices.length > 1 && (
+                    <select
+                      value={selectedVoiceName}
+                      onChange={e => setSelectedVoiceName(e.target.value)}
+                      className="text-[10px] text-slate-600 bg-slate-100 border border-slate-200 rounded px-1 py-0.5 max-w-[120px] truncate"
+                      title="Seleccionar voz"
+                    >
+                      {availableVoices.map(v => (
+                        <option key={v.name} value={v.name}>{v.name}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
             </TabsContent>
