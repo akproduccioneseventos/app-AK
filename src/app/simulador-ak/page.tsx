@@ -110,6 +110,14 @@ const GIFTS = [
 
 const DISCOUNT_RATE = 0.15;   // 15% as a decimal (0.15 = 15%)
 const INFLATION_RATE = 0.25;  // how much we inflate the "original" displayed price
+const MAX_PACKAGE_SERVICES_PREVIEW = 4;
+const DEFAULT_FAQS = [
+  { id: 'default-1', q: '¿Cuándo debo reservar mi fecha?', a: 'Lo antes posible. Los fines de semana se llenan con 3-6 meses de anticipación.' },
+  { id: 'default-2', q: '¿Qué incluye el catering?', a: 'Depende del paquete: desde platos fríos y calientes hasta menú gourmet con servicio de mozos.' },
+  { id: 'default-3', q: '¿Puedo personalizar los servicios?', a: 'Sí, en la reunión ajustamos todo según tu presupuesto y necesidades.' },
+  { id: 'default-4', q: '¿Cómo funciona el pago?', a: 'Se abona una seña para reservar la fecha y el resto en cuotas acordadas.' },
+  { id: 'default-5', q: '¿Trabajan fuera de Salto?', a: 'Principalmente en Salto y zona, consultanos para eventos en otros departamentos.' },
+];
 
 // ─── Pricing Helpers ──────────────────────────────────────────────────────────
 
@@ -471,176 +479,134 @@ export default function SimuladorAKPage() {
         <PrintSummary state={state} prices={prices} />
       </div>
 
-      <div className="print:hidden flex flex-col lg:flex-row flex-1 gap-0">
-
-        {/* ── Left: Wizard ────────────────────────────────────────────────── */}
-        <div className="flex-1 flex flex-col items-center justify-start px-4 pt-8 pb-4 lg:pt-12 lg:pb-8 min-h-screen lg:min-h-0">
-
-          {/* Brand */}
-          <div className="flex items-center gap-2 mb-6 lg:mb-8">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-400 to-pink-400 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-white font-black text-lg tracking-tight">AK Producciones</span>
-          </div>
-
-          {/* Progress */}
-          {state.step > 0 && (
-            <div className="w-full max-w-lg mb-6">
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-violet-300 text-xs font-semibold uppercase tracking-wider">
-                  Paso {state.step} de {TOTAL_STEPS}
-                </span>
-                <span className="text-violet-300 text-xs font-semibold">{STEP_LABELS[state.step]}</span>
-              </div>
-              <Progress value={progress} className="h-1.5 bg-violet-800 [&>div]:bg-gradient-to-r [&>div]:from-violet-400 [&>div]:to-pink-400" />
-            </div>
-          )}
-
-          {/* Step card */}
-          <div className="w-full max-w-lg">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={state.step}
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.25 }}
-              >
-                {state.step === 0 && (
-                  <StepWelcome onStart={goNext} cuponRegalo={cuponRegalo} />
-                )}
-                {state.step === 1 && (
-                  <StepClientInfo state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} checkDuplicate={checkDuplicate} />
-                )}
-                {state.step === 2 && (
-                  <StepEventBasics state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
-                )}
-                {state.step === 3 && (
-                  <StepGuests state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
-                )}
-                {state.step === 4 && (
-                  <StepSalon state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
-                )}
-                {state.step === 5 && (
-                  <StepPackage state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} />
-                )}
-                {state.step === 6 && (
-                  <StepServices state={state} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} availableMenus={availableMenus} />
-                )}
-                {state.step === 7 && (
-                  <StepGifts prices={prices} onNext={goNext} onPrev={goPrev} />
-                )}
-                {state.step === 8 && (
-                  <StepConversion
-                    state={state}
-                    prices={prices}
-                    generatedId={generatedId}
-                    isSubmitting={isSubmitting}
-                    onSubmit={handleSubmit}
-                    onPrev={goPrev}
-                    waUrl={`https://wa.me/${empresaPhone}?text=${buildWAMessage()}`}
-                    onPrint={handlePrint}
-                    rawWAMessage={decodeURIComponent(buildWAMessage())}
-                    empresaPhone={empresaPhone}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Mini price ticker (steps 6-8) */}
-          {state.step >= 6 && prices && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-5 flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-5 py-2.5 border border-white/20"
-            >
-              <TrendingDown className="w-4 h-4 text-green-400" />
-              <span className="text-white/60 text-xs line-through">{formatCurrency(prices.inflated)}</span>
-              <Badge className="bg-green-500 text-white text-xs px-2">-{Math.round(DISCOUNT_RATE * 100)}%</Badge>
-              <span className="text-white font-black text-sm">{formatCurrency(prices.final)}</span>
-            </motion.div>
-          )}
-        </div>
-
-        {/* ── Right: Chat Panel ────────────────────────────────────────────── */}
-        <div className="lg:w-80 xl:w-96 bg-black/30 backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-white/10 flex flex-col">
-          {/* Chat header */}
-          <div className="flex items-center gap-3 p-4 border-b border-white/10">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-5 h-5 text-white" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-white font-bold text-sm leading-none">Asistente AK</p>
-              <p className="text-violet-300 text-xs mt-0.5">Organizador experto · En línea</p>
-            </div>
-            <div className="ml-auto flex-shrink-0">
-              <span className="flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
-              </span>
-            </div>
-          </div>
-
-          {/* Chat messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-64 lg:max-h-none">
-            {chatHistory.map((msg, idx) => (
-              <motion.div
-                key={msg.key}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={cn(
-                  'flex',
-                  msg.role === 'assistant' ? 'justify-start' : 'justify-end',
-                )}
-              >
-                {msg.role === 'assistant' && (
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
-                    <Bot className="w-3.5 h-3.5 text-white" />
-                  </div>
-                )}
-                <div
-                  className={cn(
-                    'rounded-2xl px-3.5 py-2 text-sm max-w-[80%] leading-relaxed',
-                    msg.role === 'assistant'
-                      ? 'bg-white/10 text-white rounded-tl-none'
-                      : 'bg-violet-500 text-white rounded-tr-none',
-                  )}
-                >
-                  {msg.text}
+      <div className="print:hidden flex-1 flex flex-col min-h-0">
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-black/25 backdrop-blur-xl">
+          <div className="max-w-2xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-400 to-pink-400 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
                 </div>
-              </motion.div>
-            ))}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Chat footer hint */}
-          <div className="p-3 border-t border-white/10">
-            {landingFaqs.length > 0 && (
-              <div className="mb-2 space-y-1">
-                <p className="text-violet-400 text-[10px] uppercase tracking-widest font-bold mb-1">Preguntas frecuentes:</p>
-                {landingFaqs.slice(0, 3).map(faq => (
-                  <button
-                    key={faq.id}
-                    onClick={() => {
-                      const answer: ChatMessage = { role: 'assistant', text: faq.answer, key: `faq_${faq.id}` };
-                      const question: ChatMessage = { role: 'user', text: faq.question, key: `faq_q_${faq.id}` };
-                      setChatHistory(prev => [...prev, question, answer]);
-                    }}
-                    className="w-full text-left text-xs text-violet-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl px-3 py-2 transition-colors leading-tight"
-                  >
-                    {faq.question}
-                  </button>
-                ))}
+                <div>
+                  <p className="text-white font-black text-lg tracking-tight leading-none">AK Producciones</p>
+                  <p className="text-violet-300 text-xs mt-1">Asistente conversacional</p>
+                </div>
               </div>
-            )}
-            <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
-              <MessageSquare className="w-4 h-4 text-violet-400 flex-shrink-0" />
-              <span className="text-violet-300 text-xs">Asistente guiado · Paso a paso</span>
+              {state.step > 0 && (
+                <div className="text-right">
+                  <p className="text-violet-300 text-xs font-semibold uppercase tracking-wider">Paso {state.step}/{TOTAL_STEPS}</p>
+                  <p className="text-white text-xs font-semibold">{STEP_LABELS[state.step]}</p>
+                </div>
+              )}
             </div>
+            {state.step > 0 && (
+              <Progress value={progress} className="mt-3 h-1.5 bg-violet-800 [&>div]:bg-gradient-to-r [&>div]:from-violet-400 [&>div]:to-pink-400" />
+            )}
           </div>
+        </header>
+
+        <div className="flex-1 min-h-0 w-full max-w-2xl mx-auto px-4 flex flex-col">
+          {state.step === 0 ? (
+            <div className="py-8">
+              <StepWelcome onStart={goNext} cuponRegalo={cuponRegalo} />
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 min-h-0 overflow-y-auto py-6 space-y-3">
+                {chatHistory.map((msg, idx) => (
+                  <motion.div
+                    key={msg.key}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className={cn(
+                      'flex',
+                      msg.role === 'assistant' ? 'justify-start' : 'justify-end',
+                    )}
+                  >
+                    {msg.role === 'assistant' && (
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
+                        <Bot className="w-3.5 h-3.5 text-white" />
+                      </div>
+                    )}
+                    <div
+                      className={cn(
+                        'rounded-2xl px-3.5 py-2 text-sm max-w-[85%] leading-relaxed',
+                        msg.role === 'assistant'
+                          ? 'bg-white/10 text-white rounded-tl-none'
+                          : 'bg-violet-500 text-white rounded-tr-none',
+                      )}
+                    >
+                      {msg.text}
+                    </div>
+                  </motion.div>
+                ))}
+                <div ref={chatEndRef} />
+              </div>
+
+              <div className="border-t border-white/10 pt-4 pb-3">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={state.step}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {state.step === 1 && (
+                      <StepClientInfo state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} checkDuplicate={checkDuplicate} />
+                    )}
+                    {state.step === 2 && (
+                      <StepEventBasics state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                    )}
+                    {state.step === 3 && (
+                      <StepGuests state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                    )}
+                    {state.step === 4 && (
+                      <StepSalon state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                    )}
+                    {state.step === 5 && (
+                      <StepPackage state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                    )}
+                    {state.step === 6 && (
+                      <StepServices state={state} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} availableMenus={availableMenus} />
+                    )}
+                    {state.step === 7 && (
+                      <StepGifts prices={prices} onNext={goNext} onPrev={goPrev} />
+                    )}
+                    {state.step === 8 && (
+                      <StepConversion
+                        state={state}
+                        prices={prices}
+                        generatedId={generatedId}
+                        isSubmitting={isSubmitting}
+                        onSubmit={handleSubmit}
+                        onPrev={goPrev}
+                        waUrl={`https://wa.me/${empresaPhone}?text=${buildWAMessage()}`}
+                        onPrint={handlePrint}
+                        rawWAMessage={decodeURIComponent(buildWAMessage())}
+                        empresaPhone={empresaPhone}
+                        landingFaqs={landingFaqs}
+                      />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+
+                {state.step >= 6 && prices && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 flex items-center justify-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-5 py-2.5 border border-white/20"
+                  >
+                    <TrendingDown className="w-4 h-4 text-green-400" />
+                    <span className="text-white/60 text-xs line-through">{formatCurrency(prices.inflated)}</span>
+                    <Badge className="bg-green-500 text-white text-xs px-2">-{Math.round(DISCOUNT_RATE * 100)}%</Badge>
+                    <span className="text-white font-black text-sm">{formatCurrency(prices.final)}</span>
+                  </motion.div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -960,13 +926,12 @@ function StepSalon({
 // ─── Step: Package ────────────────────────────────────────────────────────────
 
 function StepPackage({
-  state, onChange, onNext, onPrev, dynamicPaquetes,
+  state, onChange, onNext, onPrev,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
   onNext: () => void;
   onPrev: () => void;
-  dynamicPaquetes?: PaqueteArmadoRapido[];
 }) {
   const canNext = !!state.paquete;
   const staticOptions: { value: PackageType; emoji: string }[] = [
@@ -974,60 +939,66 @@ function StepPackage({
     { value: 'intermedio', emoji: '🔥' },
     { value: 'premium',    emoji: '👑' },
   ];
+  const priceForPkg = (pkg: PackageType) => {
+    if (!state.eventoTipo) return null;
+    return calcPrices({ ...state, paquete: pkg });
+  };
 
-  // Use dynamic packages if available, otherwise fall back to hardcoded PACKAGE_META
-  const hasDynamic = dynamicPaquetes && dynamicPaquetes.length > 0;
+  const handleSelectPackage = (pkg: PackageType) => {
+    onChange('paquete', pkg);
+    onNext();
+  };
 
   return (
     <StepCard title="¿Cómo te imaginás tu fiesta?" icon={<Star className="w-6 h-6" />}>
       <div className="space-y-2.5">
-        {hasDynamic ? (
-          dynamicPaquetes.map((pkg) => (
+        {staticOptions.map(opt => {
+          const meta = PACKAGE_META[opt.value];
+          const services = state.eventoTipo
+            ? SERVICES_BY_EVENT[state.eventoTipo]?.[opt.value]?.slice(0, MAX_PACKAGE_SERVICES_PREVIEW) ?? []
+            : [];
+          const prices = priceForPkg(opt.value);
+          return (
             <button
-              key={pkg.id}
-              onClick={() => onChange('paquete', pkg.id as PackageType)}
+              key={opt.value}
+              onClick={() => handleSelectPackage(opt.value)}
               className={cn(
-                'w-full rounded-2xl p-4 text-left transition-all border-2 flex items-center gap-3 relative',
-                state.paquete === pkg.id
+                'w-full rounded-2xl p-4 text-left transition-all border-2 relative',
+                state.paquete === opt.value
                   ? 'bg-violet-500/40 border-violet-400'
                   : 'bg-white/5 border-white/10 hover:bg-white/10',
               )}
             >
-              <span className="text-2xl">🎉</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-bold">{pkg.nombre}</p>
-                {pkg.descripcion && <p className="text-violet-300 text-xs">{pkg.descripcion}</p>}
-              </div>
-              {state.paquete === pkg.id && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
-            </button>
-          ))
-        ) : (
-          staticOptions.map(opt => {
-            const meta = PACKAGE_META[opt.value];
-            return (
-              <button
-                key={opt.value}
-                onClick={() => onChange('paquete', opt.value)}
-                className={cn(
-                  'w-full rounded-2xl p-4 text-left transition-all border-2 flex items-center gap-3 relative',
-                  state.paquete === opt.value
-                    ? 'bg-violet-500/40 border-violet-400'
-                    : 'bg-white/5 border-white/10 hover:bg-white/10',
-                )}
-              >
+              {meta.recommended && (
+                <Badge className="bg-amber-500 text-white text-xs absolute -top-2 right-3">Más elegido</Badge>
+              )}
+              <div className="flex items-start gap-3">
                 <span className="text-2xl">{opt.emoji}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-bold">{meta.label}</p>
                   <p className="text-violet-300 text-xs">{meta.description}</p>
                 </div>
-                {meta.recommended && (
-                  <Badge className="bg-amber-500 text-white text-xs absolute -top-2 right-3">Más elegido</Badge>
-                )}
                 {state.paquete === opt.value && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
-              </button>
-            );
-          })
-        )}
+              </div>
+              {prices && (
+                <div className="mt-3 space-y-1">
+                  <p className="text-violet-300 text-xs line-through">{formatCurrency(prices.inflated)}</p>
+                  <p className="text-white font-black text-2xl">{formatCurrency(prices.final)}</p>
+                </div>
+              )}
+              {services.length > 0 && (
+                <ul className="mt-3 space-y-1">
+                  {services.map(service => (
+                    <li key={service} className="text-violet-200 text-xs flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                      <span>{service}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </button>
+          );
+        })}
       </div>
       <StepNav onPrev={onPrev} onNext={onNext} canNext={canNext} showPrev />
     </StepCard>
@@ -1142,7 +1113,7 @@ function StepGifts({
 // ─── Step: Conversion ────────────────────────────────────────────────────────
 
 function StepConversion({
-  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone,
+  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone, landingFaqs,
 }: {
   state: SimuladorState;
   prices: ReturnType<typeof calcPrices>;
@@ -1154,9 +1125,13 @@ function StepConversion({
   onPrint: () => void;
   rawWAMessage: string;
   empresaPhone: string;
+  landingFaqs: LandingFaqItem[];
 }) {
   const { toast } = useToast();
   const submitted = !!generatedId;
+  const faqs = landingFaqs.length > 0
+    ? landingFaqs.slice(0, 5).map(faq => ({ id: faq.id, q: faq.question, a: faq.answer }))
+    : DEFAULT_FAQS;
 
   return (
     <StepCard title="Tu presupuesto está listo" icon={<PartyPopper className="w-6 h-6" />}>
@@ -1260,6 +1235,19 @@ function StepConversion({
         <p className="text-violet-400 text-xs">
           En una sola reunión ves todo y resolvés la fiesta completa 👍
         </p>
+      </div>
+
+      <div className="mt-5 space-y-2">
+        <p className="text-violet-300 text-xs font-bold uppercase tracking-wide">Preguntas frecuentes</p>
+        {faqs.map((faq) => (
+          <details key={faq.id} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 group">
+            <summary className="text-white text-sm cursor-pointer list-none flex items-center justify-between">
+              <span>{faq.q}</span>
+              <ChevronRight className="w-4 h-4 text-violet-300 transition-transform group-open:rotate-90" />
+            </summary>
+            <p className="text-violet-200 text-xs mt-2 leading-relaxed">{faq.a}</p>
+          </details>
+        ))}
       </div>
 
       <div className="mt-4">
