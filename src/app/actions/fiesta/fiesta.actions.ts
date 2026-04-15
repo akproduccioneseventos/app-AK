@@ -635,13 +635,22 @@ export async function syncFiestaFromBudget(fiestaId: string) {
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
+    if (isProduction) {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        await dbAdmin.collection(FIESTAS_DIR).doc(fiestaId).delete();
+        return { success: true };
+      }
+    }
+    // Development: filesystem fallback
+    const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
     const files = await fs.readdir(dataDir);
     const fileToDelete = files.find(f => f === `${fiestaId}.json`);
     if (fileToDelete) {
-        await fs.unlink(path.join(dataDir, fileToDelete));
-        return { success: true };
+      await fs.unlink(path.join(dataDir, fileToDelete));
+      return { success: true };
     }
     return { success: false, error: "Archivo no encontrado." };
   } catch (error: any) {
@@ -664,13 +673,30 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
 }
 
 export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
+    if (isProduction) {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        // In Firestore the archive doc ID is fiesta_archivada_{date}_{fiestaId}
+        // Query by the fiesta's 'id' field to find and delete it
+        const snapshot = await dbAdmin.collection(ARCHIVE_DIR).where('id', '==', fiestaId).get();
+        if (!snapshot.empty) {
+          const batch = dbAdmin.batch();
+          snapshot.docs.forEach((doc: { ref: any }) => batch.delete(doc.ref));
+          await batch.commit();
+          return { success: true };
+        }
+        return { success: false, error: "Archivo archivado no encontrado." };
+      }
+    }
+    // Development: filesystem fallback
+    const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
     const files = await fs.readdir(dataDir);
     const fileToDelete = files.find(f => f.endsWith(`_${fiestaId}.json`));
     if (fileToDelete) {
-        await fs.unlink(path.join(dataDir, fileToDelete));
-        return { success: true };
+      await fs.unlink(path.join(dataDir, fileToDelete));
+      return { success: true };
     }
     return { success: false, error: "Archivo archivado no encontrado." };
   } catch (error: any) {
@@ -755,6 +781,17 @@ export async function createFiestaVacia(): Promise<{ success: boolean; newFiesta
         }
 
         return { success: true, newFiestaId: newFiesta.id };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId: string | null): Promise<{ success: boolean; error?: string }> {
+    try {
+        const fiesta = await getFiestaById(fiestaId);
+        if (!fiesta) throw new Error("Evento no encontrado.");
+        const updatedFiesta: FiestaEnPlanificacion = { ...fiesta, presupuestoId: presupuestoId || undefined };
+        return await saveFiesta(updatedFiesta);
     } catch (e: any) {
         return { success: false, error: e.message };
     }

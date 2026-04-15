@@ -16,13 +16,14 @@ import type { TipoEvento } from '@/types/presupuesto';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Salon } from '@/types/salon';
-import { getFiestaById, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
+import type { Presupuesto } from '@/types/presupuesto';
+import { getFiestaById, updateConfiguracionFiestaActual, syncFiestaFromBudget, updateFiestaPresupuestoId } from '@/app/actions/fiesta-actual';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults'; 
 import { getCustomers, getCustomerById, syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import { getSalones } from '@/app/actions/salones';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { getPresupuestos, getPresupuestoById } from '@/app/actions/presupuestos';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
@@ -44,6 +45,9 @@ function ConfiguracionEventoContent() {
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
   const [allSalones, setAllSalones] = useState<Salon[]>([]);
   const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null);
+  const [allPresupuestos, setAllPresupuestos] = useState<Presupuesto[]>([]);
+  const [linkedPresupuestoId, setLinkedPresupuestoId] = useState<string | undefined>(undefined);
+  const [isSyncingPresupuesto, setIsSyncingPresupuesto] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
@@ -57,16 +61,19 @@ function ConfiguracionEventoContent() {
     setIsLoadingCustomers(true);
     setLinkedCustomer(null);
     try {
-      const [fiesta, fetchedCustomers, fetchedSalones] = await Promise.all([
+      const [fiesta, fetchedCustomers, fetchedSalones, fetchedPresupuestos] = await Promise.all([
         getFiestaById(fiestaId),
         getCustomers(),
         getSalones(),
+        getPresupuestos(),
       ]);
 
       if (!fiesta) throw new Error("Evento no encontrado.");
       
       setAllCustomers(fetchedCustomers);
       setAllSalones(fetchedSalones);
+      setAllPresupuestos(fetchedPresupuestos);
+      setLinkedPresupuestoId(fiesta.presupuestoId || undefined);
 
       let tempConfig: ConfigFormState = {
         ...(fiesta.configuracion || defaultEventConfigFromFiesta),
@@ -188,6 +195,36 @@ function ConfiguracionEventoContent() {
     });
   };
 
+  const handlePresupuestoChange = async (newPresupuestoIdValue: string) => {
+    if (!fiestaId) return;
+    const newPresupuestoId = newPresupuestoIdValue === 'ninguno' || newPresupuestoIdValue === '' ? null : newPresupuestoIdValue;
+    setLinkedPresupuestoId(newPresupuestoId || undefined);
+    const result = await updateFiestaPresupuestoId(fiestaId, newPresupuestoId);
+    if (!result.success) {
+      toast({ title: 'Error', description: result.error || 'No se pudo asociar el presupuesto.', variant: 'destructive' });
+    } else {
+      toast({ title: '✅ Presupuesto asociado', description: newPresupuestoId ? 'El presupuesto fue asociado al evento.' : 'Presupuesto desvinculado del evento.' });
+    }
+  };
+
+  const handleSyncPresupuesto = async () => {
+    if (!fiestaId || !linkedPresupuestoId) return;
+    setIsSyncingPresupuesto(true);
+    try {
+      const result = await syncFiestaFromBudget(fiestaId);
+      if (result.success) {
+        toast({ title: '✅ Sincronizado', description: 'El evento fue sincronizado con el presupuesto.' });
+        await loadInitialData();
+      } else {
+        toast({ title: 'Error al sincronizar', description: result.error || 'No se pudo sincronizar.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSyncingPresupuesto(false);
+    }
+  };
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -279,10 +316,51 @@ function ConfiguracionEventoContent() {
                         ))}
                         </SelectContent>
                     </Select>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => loadInitialData()} title="Sincronizar con presupuesto">
+                    <Button type="button" variant="ghost" size="sm" onClick={() => loadInitialData()} title="Recargar datos">
                         <RefreshCw className="w-4 h-4" />
                     </Button>
                 </div>
+              </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="presupuesto-vinculado" className="text-base flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-primary" />
+                  Presupuesto Vinculado
+                </Label>
+                <div className="flex items-center gap-2">
+                    <Select
+                        value={linkedPresupuestoId || "ninguno"}
+                        onValueChange={handlePresupuestoChange}
+                        disabled={isSaving || isSyncingPresupuesto}
+                    >
+                        <SelectTrigger id="presupuesto-vinculado" className="text-base p-3 h-auto flex-grow">
+                          <SelectValue placeholder="Sin presupuesto asociado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ninguno" className="text-base text-muted-foreground">Sin presupuesto asociado</SelectItem>
+                          {allPresupuestos.map(p => (
+                            <SelectItem key={p.id} value={p.id} className="text-base">
+                              {p.clienteNombre} — {p.eventoTipo} ({new Date(p.eventoFecha).toLocaleDateString('es-UY')})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                    </Select>
+                    {linkedPresupuestoId && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSyncPresupuesto}
+                        disabled={isSaving || isSyncingPresupuesto}
+                        title="Sincronizar evento desde este presupuesto"
+                      >
+                        {isSyncingPresupuesto ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                      </Button>
+                    )}
+                </div>
+                {linkedPresupuestoId && (
+                  <p className="text-xs text-muted-foreground">Usá el botón de sincronizar para actualizar automáticamente los datos del evento desde el presupuesto.</p>
+                )}
               </div>
 
             <Separator />
