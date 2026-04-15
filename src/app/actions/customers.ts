@@ -310,6 +310,35 @@ export async function syncCustomerFromFiestaConfig(
   return { success: true };
 }
 
+/**
+ * Deletes ALL customers permanently from Firestore.
+ * This is a destructive admin-only operation and requires explicit confirmation in the UI.
+ */
+export async function resetAllCustomers(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  try {
+    const all = await getCustomers();
+    const deletedCount = all.length;
+
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      const snapshot = await dbAdmin.collection('clientes').get();
+      const batchSize = 450;
+      const docs = snapshot.docs;
+      for (let i = 0; i < docs.length; i += batchSize) {
+        const batch = dbAdmin.batch();
+        docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
+        await batch.commit();
+      }
+    }
+
+    logger.info('[Clientes] Todos los clientes eliminados por admin.', { deletedCount });
+    return { success: true, deletedCount };
+  } catch (error: any) {
+    logger.error('[Clientes] Error al reiniciar clientes:', error);
+    return { success: false, error: error.message || 'Error al reiniciar los clientes.' };
+  }
+}
+
 export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget' | 'salonContract', filename: string): Promise<{ success: boolean, error?: string}> {
     const customers = await getCustomers();
     const customerIndex = customers.findIndex(c => c.id === customerId);

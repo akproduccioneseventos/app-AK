@@ -140,3 +140,31 @@ export async function generarDesdeHistorico(
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Deletes ALL fiestas historicas permanently from Firestore.
+ * This is a destructive admin-only operation and requires explicit confirmation in the UI.
+ */
+export async function resetAllFiestasHistoricas(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  try {
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    let deletedCount = 0;
+    if (dbAdmin) {
+      const snapshot = await dbAdmin.collection('fiestas_historicas').get();
+      deletedCount = snapshot.size;
+      const batchSize = 450;
+      const docs = snapshot.docs;
+      for (let i = 0; i < docs.length; i += batchSize) {
+        const batch = dbAdmin.batch();
+        docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
+        await batch.commit();
+      }
+    }
+
+    console.info('[FiestasHistoricas] Todas las fiestas históricas eliminadas por admin.', { deletedCount });
+    return { success: true, deletedCount };
+  } catch (error: any) {
+    console.error('[FiestasHistoricas] Error al reiniciar fiestas históricas:', error);
+    return { success: false, error: error.message || 'Error al reiniciar las fiestas históricas.' };
+  }
+}

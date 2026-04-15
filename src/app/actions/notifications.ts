@@ -422,3 +422,32 @@ export async function generateAllSmartNotifications(): Promise<{ success: boolea
         return { success: false, totalCreated: 0 };
     }
 }
+
+
+/**
+ * Deletes ALL notifications permanently from Firestore.
+ * This is a destructive admin-only operation and requires explicit confirmation in the UI.
+ */
+export async function resetAllNotifications(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  try {
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    let deletedCount = 0;
+    if (dbAdmin) {
+      const snapshot = await dbAdmin.collection('notificaciones').get();
+      deletedCount = snapshot.size;
+      const batchSize = 450;
+      const docs = snapshot.docs;
+      for (let i = 0; i < docs.length; i += batchSize) {
+        const batch = dbAdmin.batch();
+        docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
+        await batch.commit();
+      }
+    }
+
+    console.info('[Notificaciones] Todas las notificaciones eliminadas por admin.', { deletedCount });
+    return { success: true, deletedCount };
+  } catch (error: any) {
+    console.error('[Notificaciones] Error al reiniciar notificaciones:', error);
+    return { success: false, error: error.message || 'Error al reiniciar las notificaciones.' };
+  }
+}
