@@ -384,8 +384,7 @@ export default function DecoCanvas({
   const resetZoom = () => setZoom(100);
 
   const isElementHidden = (el: ElementoDecorativo) => {
-    if (!el.zona) return false;
-    return hiddenZones.includes(el.zona);
+    return hiddenZones.includes(el.zona ?? '');
   };
 
   return (
