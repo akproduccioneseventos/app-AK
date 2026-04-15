@@ -340,7 +340,7 @@ function ConfiguracionEventoContent() {
                           <SelectItem value="ninguno" className="text-base text-muted-foreground">Sin presupuesto asociado</SelectItem>
                           {allPresupuestos.map(p => (
                             <SelectItem key={p.id} value={p.id} className="text-base">
-                              {p.clienteNombre} — {p.eventoTipo} ({new Date(p.eventoFecha).toLocaleDateString('es-UY')})
+                              {p.clienteNombre} — {p.eventoTipo} ({p.eventoFecha?.substring(0, 10) ?? ''})
                             </SelectItem>
                           ))}
                         </SelectContent>

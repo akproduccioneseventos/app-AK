@@ -790,7 +790,7 @@ export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId:
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado.");
-        const updatedFiesta: FiestaEnPlanificacion = { ...fiesta, presupuestoId: presupuestoId || undefined };
+        const updatedFiesta: FiestaEnPlanificacion = { ...fiesta, presupuestoId: presupuestoId ?? undefined };
         return await saveFiesta(updatedFiesta);
     } catch (e: any) {
         return { success: false, error: e.message };
