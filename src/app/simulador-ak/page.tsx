@@ -11,7 +11,7 @@ import {
   Loader2, MessageSquare, ArrowRight, ArrowLeft, Check, Gift,
   Users, CalendarDays, Home, Sparkles, Star, Phone, User,
   ChevronRight, Download, CalendarCheck, Zap, Clock, PartyPopper,
-  X, Bot, Send, CheckCircle2, TrendingDown,
+  X, Bot, Send, CheckCircle2, TrendingDown, Copy,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PublicFooter } from '@/components/public-footer';
@@ -20,6 +20,7 @@ import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getCuponesRegaloActivos } from '@/app/actions/cupones';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getLandingSettings } from '@/app/actions/landing-editor';
+import { getWhatsAppConfig } from '@/app/actions/whatsapp';
 import { CountdownTimer } from '@/components/countdown-timer';
 import type { Coupon } from '@/types/coupon';
 import { esCuponRegalo } from '@/types/coupon';
@@ -222,6 +223,7 @@ export default function SimuladorAKPage() {
   const [dynamicPaquetes, setDynamicPaquetes] = useState<PaqueteArmadoRapido[]>([]);
   const [availableMenus, setAvailableMenus] = useState<FullMenu[]>([]);
   const [landingFaqs, setLandingFaqs] = useState<LandingFaqItem[]>([]);
+  const [empresaPhone, setEmpresaPhone] = useState<string>(WHATSAPP_NUMBER);
 
   // ── Persistence ──────────────────────────────────────────────────────────
 
@@ -236,10 +238,12 @@ export default function SimuladorAKPage() {
       getArmadoRapidoConfig().catch(() => null),
       getMenus().catch(() => [] as FullMenu[]),
       getLandingSettings().catch(() => null),
-    ]).then(([armadoConfig, menus, landingCfg]) => {
+      getWhatsAppConfig().catch(() => null),
+    ]).then(([armadoConfig, menus, landingCfg, waConfig]) => {
       if (armadoConfig?.paquetes?.length) setDynamicPaquetes(armadoConfig.paquetes);
       if (Array.isArray(menus) && menus.length > 0) setAvailableMenus(menus);
       if (landingCfg?.faqs?.length) setLandingFaqs(landingCfg.faqs);
+      if (waConfig?.phoneNumber) setEmpresaPhone(waConfig.phoneNumber);
     });
   }, []);
 
@@ -535,8 +539,10 @@ export default function SimuladorAKPage() {
                     isSubmitting={isSubmitting}
                     onSubmit={handleSubmit}
                     onPrev={goPrev}
-                    waUrl={`https://wa.me/${WHATSAPP_NUMBER}?text=${buildWAMessage()}`}
+                    waUrl={`https://wa.me/${empresaPhone}?text=${buildWAMessage()}`}
                     onPrint={handlePrint}
+                    rawWAMessage={decodeURIComponent(buildWAMessage())}
+                    empresaPhone={empresaPhone}
                   />
                 )}
               </motion.div>
@@ -1136,7 +1142,7 @@ function StepGifts({
 // ─── Step: Conversion ────────────────────────────────────────────────────────
 
 function StepConversion({
-  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint,
+  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone,
 }: {
   state: SimuladorState;
   prices: ReturnType<typeof calcPrices>;
@@ -1146,7 +1152,10 @@ function StepConversion({
   onPrev: () => void;
   waUrl: string;
   onPrint: () => void;
+  rawWAMessage: string;
+  empresaPhone: string;
 }) {
+  const { toast } = useToast();
   const submitted = !!generatedId;
 
   return (
@@ -1187,7 +1196,7 @@ function StepConversion({
             className="w-full bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white font-black rounded-2xl h-12"
           >
             {isSubmitting ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando…</>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando tu presupuesto...</>
             ) : (
               <><CheckCircle2 className="w-4 h-4 mr-2" /> Guardar mi presupuesto</>
             )}
@@ -1206,8 +1215,22 @@ function StepConversion({
           className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1eb955] text-white font-black rounded-2xl h-12 transition-colors text-sm"
         >
           <MessageSquare className="w-5 h-5" />
-          Enviar por WhatsApp · 098 355 530
+          Enviar por WhatsApp
         </a>
+
+        <Button
+          variant="outline"
+          className="w-full border-white/20 text-white hover:bg-white/10 bg-transparent rounded-2xl h-10 font-bold text-sm"
+          onClick={() => {
+            navigator.clipboard.writeText(rawWAMessage).then(() => {
+              toast({ description: 'Mensaje copiado al portapapeles' });
+            }).catch(() => {
+              toast({ description: 'No se pudo copiar el mensaje', variant: 'destructive' });
+            });
+          }}
+        >
+          <Copy className="w-4 h-4 mr-2" /> Copiar mensaje
+        </Button>
 
         <Button
           variant="outline"
@@ -1216,7 +1239,7 @@ function StepConversion({
             const msg = encodeURIComponent(
               `Hola ${state.nombre}! Quería coordinar una reunión para cerrar los detalles de tu evento. ¿Cuándo te vendría bien?`
             );
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+            window.open(`https://wa.me/${empresaPhone}?text=${msg}`, '_blank');
           }}
         >
           <CalendarCheck className="w-5 h-5 mr-2" />
