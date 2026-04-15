@@ -256,6 +256,11 @@ export default function MainDashboardPage() {
             <Badge variant="outline" className="bg-white text-indigo-600 border-indigo-200 py-2 px-4 shadow-sm rounded-full font-black text-[10px] tracking-widest uppercase">
                 <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-400 animate-spin-slow"/> Sistema Optimizado
             </Badge>
+            <Link href="/settings">
+              <Button variant="outline" className="rounded-full border-indigo-200 text-indigo-600 hover:bg-indigo-50 font-black text-xs gap-2">
+                <SettingsIcon className="w-4 h-4" /> Centro de Control
+              </Button>
+            </Link>
         </motion.div>
       </header>
 
