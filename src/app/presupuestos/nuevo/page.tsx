@@ -7,14 +7,25 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getPresupuestos } from '@/app/actions/presupuestos';
+import { getPresupuestos, resetAllPresupuestos } from '@/app/actions/presupuestos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function PresupuestoDashboardContent() {
     const { toast } = useToast();
@@ -22,6 +33,7 @@ function PresupuestoDashboardContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [showArchived, setShowArchived] = useState(false);
+    const [isResettingPresupuestos, setIsResettingPresupuestos] = useState(false);
 
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
@@ -36,6 +48,23 @@ function PresupuestoDashboardContent() {
     }, [toast, showArchived]);
 
     useEffect(() => { fetchPresupuestos(); }, [fetchPresupuestos]);
+
+    const handleResetAllPresupuestos = async () => {
+        setIsResettingPresupuestos(true);
+        try {
+            const result = await resetAllPresupuestos();
+            if (result.success) {
+                toast({ title: '🗑️ Presupuestos eliminados', description: `${result.deletedCount ?? 0} presupuesto(s) eliminado(s) permanentemente.`, variant: 'destructive' });
+                await fetchPresupuestos();
+            } else {
+                toast({ title: 'Error', description: result.error || 'No se pudieron eliminar los presupuestos.', variant: 'destructive' });
+            }
+        } catch (e: any) {
+            toast({ title: 'Error', description: e.message, variant: 'destructive' });
+        } finally {
+            setIsResettingPresupuestos(false);
+        }
+    };
 
     const filteredPresupuestos = useMemo(() => {
         const lower = searchTerm.toLowerCase();
@@ -64,6 +93,28 @@ function PresupuestoDashboardContent() {
                   <Link href="/presupuestos/reporte"><Button variant="secondary">Reporte</Button></Link>
                   <Link href="/presupuestos/importar"><Button variant="outline" data-testid="btn-importar-presupuesto"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Button></Link>
                   <Link href="/presupuestos/nuevo/crear"><Button><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Button></Link>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || presupuestos.length === 0}>
+                        {isResettingPresupuestos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                        🗑️ Borrar todos
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>⚠️ ¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta acción eliminará <strong>de forma irreversible</strong> todos los presupuestos ({presupuestos.length}), incluyendo los archivados. Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleResetAllPresupuestos} className="bg-destructive hover:bg-destructive/90">
+                          Sí, borrar todos permanentemente
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Link href="/empresa/contabilidad"><Button variant="outline">Volver</Button></Link>
                 </div>
             </div>

@@ -6,7 +6,7 @@ import {
   Building, Bell, ShieldCheck, Settings as SettingsIcon, Link as LinkIcon,
   HardDriveDownload, Wand2, UserCog, Palette, TrendingUp, Ticket,
   FileSignature, MessageCircle, Bot, ToggleRight, Globe, Image as ImageIcon,
-  ChevronRight,
+  ChevronRight, Database,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -204,6 +204,12 @@ const SECTIONS: SettingSection[] = [
         description: 'Gestioná tu contraseña y opciones de seguridad.',
         href: '/settings/account',
         icon: ShieldCheck,
+      },
+      {
+        title: 'Administración de Datos',
+        description: 'Reiniciá o eliminá permanentemente los datos de CRM, Presupuestos y Planificador directamente desde Firestore.',
+        href: '/settings/datos',
+        icon: Database,
       },
     ],
   },

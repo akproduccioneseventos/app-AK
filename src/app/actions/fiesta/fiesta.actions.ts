@@ -707,6 +707,35 @@ export async function resetAllActiveFiestas(): Promise<{ success: boolean; archi
   }
 }
 
+/**
+ * Permanently deletes ALL fiestas (active and archived) from Firestore.
+ * This is a destructive admin-only operation; the UI must require explicit confirmation.
+ */
+export async function deleteAllFiestas(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  try {
+    const activas = await getFiestas(false);
+    const deletedCount = activas.length;
+
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      const snapshot = await dbAdmin.collection('fiestas').get();
+      const batchSize = 450;
+      const docs = snapshot.docs;
+      for (let i = 0; i < docs.length; i += batchSize) {
+        const batch = dbAdmin.batch();
+        docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
+        await batch.commit();
+      }
+    }
+
+    logger.info('[Planificador] Todas las fiestas eliminadas permanentemente por admin.', { deletedCount });
+    return { success: true, deletedCount };
+  } catch (error: any) {
+    logger.error('[Planificador] Error al eliminar todas las fiestas:', error);
+    return { success: false, error: error.message || 'Error al eliminar todas las fiestas.' };
+  }
+}
+
 export async function createFiestaVacia(): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
     try {
         const newFiesta = {

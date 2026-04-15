@@ -185,14 +185,29 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
 }
 
 /**
- * Resets the CRM by deleting all leads. Stages are preserved.
+ * Resets the CRM by deleting all leads from Firestore. Stages are preserved.
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetCrm(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
     try {
         const leads = await getCrmLeads();
         const deletedCount = leads.length;
+
+        const { dbAdmin } = await import('@/lib/firebase/server');
+        if (dbAdmin) {
+            const snapshot = await dbAdmin.collection('prospectos').get();
+            const batchSize = 450;
+            const docs = snapshot.docs;
+            for (let i = 0; i < docs.length; i += batchSize) {
+                const batch = dbAdmin.batch();
+                docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
+                await batch.commit();
+            }
+        }
+
+        // Sync the empty array to Firestore (updates the root document used by readData)
         await writeData(LEADS_FILE, []);
+
         logger.info('[CRM] CRM reiniciado por admin. Prospectos eliminados:', { deletedCount });
         return { success: true, deletedCount };
     } catch (error: any) {

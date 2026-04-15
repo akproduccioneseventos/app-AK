@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle, RotateCcw } from 'lucide-react';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction, resetAllActiveFiestas } from '@/app/actions/fiesta-actual';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction, resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
@@ -53,6 +53,7 @@ export default function GestorFiestasPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isResettingPlanificador, setIsResettingPlanificador] = useState(false);
+  const [isDeletingAllFiestas, setIsDeletingAllFiestas] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -235,6 +236,27 @@ export default function GestorFiestasPage() {
     }
   };
 
+  const handleDeleteAllFiestas = async () => {
+    setIsDeletingAllFiestas(true);
+    try {
+      const result = await deleteAllFiestas();
+      if (result.success) {
+        toast({
+          title: '🗑️ Eventos eliminados permanentemente',
+          description: `${result.deletedCount ?? 0} evento(s) eliminado(s) de forma irreversible.`,
+          variant: 'destructive',
+        });
+        await loadData();
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudieron eliminar los eventos.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsDeletingAllFiestas(false);
+    }
+  };
+
   const handleDuplicate = async (fiestaId: string) => {
     setIsProcessing(fiestaId);
     try {
@@ -303,6 +325,29 @@ export default function GestorFiestasPage() {
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={handleResetPlanificador} className="bg-destructive hover:bg-destructive/90">
                   Sí, archivar todos y reiniciar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isDeletingAllFiestas || fiestasActivas.length === 0}>
+                {isDeletingAllFiestas ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                🗑️ Eliminar todo permanentemente
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>⚠️ ¿Eliminar TODOS los eventos permanentemente?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos activos ({fiestasActivas.length}). Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteAllFiestas} className="bg-destructive hover:bg-destructive/90">
+                  Sí, eliminar todo permanentemente
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
