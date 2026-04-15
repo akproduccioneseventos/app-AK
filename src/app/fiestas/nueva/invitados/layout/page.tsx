@@ -311,7 +311,7 @@ function SalonLayoutContent() {
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: decoracion,
     onSave: async (d) => {
-      if (!fiestaId || !d) return { success: false, error: 'Sin datos' };
+      if (!fiestaId || !d) return { success: false, error: 'No hay datos de distribución para guardar' };
       await updateDecoracionFiestaActual(fiestaId, d);
       return { success: true };
     },
@@ -383,7 +383,6 @@ function SalonLayoutContent() {
   
   const handleSaveAll = () => {
     saveNow();
-    toast({ title: "¡Diseño Guardado!", description: "La distribución del salón ha sido actualizada." });
   };
   
   const handleLoadTemplate = async () => {

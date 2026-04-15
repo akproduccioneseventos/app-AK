@@ -58,7 +58,7 @@ function PaginaWebPageContent() {
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: { invitacionData, invitacionConfig },
     onSave: async ({ invitacionData: d, invitacionConfig: c }) => {
-      if (!fiesta || !fiestaId || fiestaId === 'template_preview') return { success: false, error: 'No disponible' };
+      if (!fiesta || !fiestaId || fiestaId === 'template_preview') return { success: false, error: 'Guardado no disponible en modo de vista previa' };
       return saveFiesta({ ...fiesta, invitacionDigital: d, invitacionConfig: c });
     },
     debounceMs: 2000,
@@ -165,7 +165,6 @@ function PaginaWebPageContent() {
       return;
     };
     saveNow();
-    toast({ title: "¡Guardado!", description: "Los cambios en la página del evento han sido guardados." });
   };
 
   const addSection = (tipo: SeccionInvitacion['tipo']) => {

@@ -111,7 +111,7 @@ function ConfiguracionEventoContent() {
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: config,
     onSave: async (cfg) => {
-      if (!cfg || !fiestaId) return { success: false, error: 'Sin datos' };
+      if (!cfg || !fiestaId) return { success: false, error: 'No hay datos de configuración para guardar' };
       const configToSave: ConfigEventoDataStorage = {
         ...cfg,
         fechaEvento: cfg.fechaEvento ? cfg.fechaEvento.toISOString() : undefined,
@@ -208,10 +208,6 @@ function ConfiguracionEventoContent() {
     }
 
     saveNow();
-    toast({
-      title: "¡Configuración Guardada!",
-      description: "Los detalles generales del evento se han actualizado.",
-    });
   };
   
   if (isLoading) {

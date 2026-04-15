@@ -49,7 +49,7 @@ export function useAutoSave<T>({
         setSaveError(result.error ?? 'Error al guardar');
       }
     } catch (e: any) {
-      setSaveError(e.message ?? 'Error al guardar');
+      setSaveError(e.message ?? 'No se pudo guardar los cambios');
     } finally {
       setIsSaving(false);
     }

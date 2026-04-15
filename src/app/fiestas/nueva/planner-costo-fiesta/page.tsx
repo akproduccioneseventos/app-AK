@@ -237,7 +237,7 @@ function SalonLayoutContent() {
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: decoracion,
     onSave: async (d) => {
-      if (!fiestaId || !d) return { success: false, error: 'Sin datos' };
+      if (!fiestaId || !d) return { success: false, error: 'No hay datos de diseño para guardar' };
       await updateDecoracionFiestaActual(fiestaId, d);
       return { success: true };
     },
@@ -292,9 +292,8 @@ function SalonLayoutContent() {
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId) });
   };
   
-  const handleSaveAll = async () => {
+  const handleSaveAll = () => {
     saveNow();
-    toast({ title: "¡Guardado!", description: "El diseño del salón ha sido guardado." });
   };
   
   const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {

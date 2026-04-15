@@ -105,7 +105,7 @@ function ItinerarioContent() {
 
   const { isSaving, lastSaved, saveError } = useAutoSave({
     data: programa,
-    onSave: (p) => fiestaId ? updateProgramaFiestaActual(fiestaId, p) : Promise.resolve({ success: false, error: 'Sin ID de evento' }),
+    onSave: (p) => fiestaId ? updateProgramaFiestaActual(fiestaId, p) : Promise.resolve({ success: false, error: 'No se puede guardar: falta el identificador del evento' }),
     debounceMs: 2000,
     enabled: !!fiestaId && !isLoading,
   });
@@ -327,9 +327,7 @@ function ItinerarioContent() {
                 <CardTitle>Eventos Programados</CardTitle>
                 <CardDescription>Organiza cada momento de la fiesta. Los cambios se sincronizan solos.</CardDescription>
             </div>
-            {isSaving && <div className="flex items-center text-xs text-muted-foreground animate-pulse"><Save className="w-3 h-3 mr-1"/> Sincronizando...</div>}
-            {!isSaving && lastSaved && <div className="flex items-center text-xs text-emerald-600"><Save className="w-3 h-3 mr-1"/> Guardado</div>}
-            {!isSaving && saveError && <div className="flex items-center text-xs text-rose-500"><Save className="w-3 h-3 mr-1"/> Error al guardar</div>}
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
