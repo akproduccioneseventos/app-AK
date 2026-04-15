@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState, useCallback, useEffect } from 'react';
 import type { CrmLead, CrmTimelineItem } from '@/types/crm';
 import {
   Dialog,
@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import {
   MessageCircle,
   Calendar,
@@ -20,13 +22,20 @@ import {
   ArrowRightLeft,
   FileSignature,
   StickyNote,
+  Edit3,
+  Save,
+  X,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { updateCrmLeadField } from '@/app/actions/crm';
+import { useToast } from '@/hooks/use-toast';
 
 interface CrmLeadTimelineProps {
   lead: CrmLead;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onLeadUpdate?: (lead: CrmLead) => void;
 }
 
 function getTimelineIcon(type: CrmTimelineItem['type']) {
@@ -112,8 +121,39 @@ function buildTimeline(lead: CrmLead): CrmTimelineItem[] {
   return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
-export const CrmLeadTimeline = memo(function CrmLeadTimeline({ lead, isOpen, onOpenChange }: CrmLeadTimelineProps) {
+export const CrmLeadTimeline = memo(function CrmLeadTimeline({ lead, isOpen, onOpenChange, onLeadUpdate }: CrmLeadTimelineProps) {
   const items = buildTimeline(lead);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState(lead.notes || '');
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const { toast } = useToast();
+
+  // Sync notesValue when lead.notes changes externally and editor is not active
+  useEffect(() => {
+    if (!isEditingNotes) {
+      setNotesValue(lead.notes || '');
+    }
+  }, [lead.notes, isEditingNotes]);
+
+  const handleSaveNotes = useCallback(async () => {
+    setIsSavingNotes(true);
+    try {
+      const result = await updateCrmLeadField(lead.id, { notes: notesValue });
+      if (result.success) {
+        toast({ description: 'Notas actualizadas.' });
+        setIsEditingNotes(false);
+        if (onLeadUpdate && result.lead) {
+          onLeadUpdate(result.lead);
+        }
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudieron guardar las notas.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSavingNotes(false);
+    }
+  }, [lead.id, notesValue, toast, onLeadUpdate]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -154,10 +194,64 @@ export const CrmLeadTimeline = memo(function CrmLeadTimeline({ lead, isOpen, onO
             </ol>
           )}
         </ScrollArea>
-        {lead.notes && (
+        {lead.notes && !isEditingNotes && (
           <div className="border-t pt-3">
-            <p className="text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-wide">Notas</p>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Notas</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => { setNotesValue(lead.notes || ''); setIsEditingNotes(true); }}
+              >
+                <Edit3 className="w-3 h-3 mr-1" />Editar notas
+              </Button>
+            </div>
             <p className="text-sm text-foreground whitespace-pre-wrap break-words">{lead.notes}</p>
+          </div>
+        )}
+        {!lead.notes && !isEditingNotes && (
+          <div className="border-t pt-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => { setNotesValue(''); setIsEditingNotes(true); }}
+            >
+              <Edit3 className="w-3 h-3 mr-1" />Agregar notas
+            </Button>
+          </div>
+        )}
+        {isEditingNotes && (
+          <div className="border-t pt-3 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Notas</p>
+            <Textarea
+              value={notesValue}
+              onChange={e => setNotesValue(e.target.value)}
+              rows={4}
+              className="text-sm"
+              placeholder="Agregar notas..."
+              disabled={isSavingNotes}
+            />
+            <div className="flex gap-1 justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => { setIsEditingNotes(false); setNotesValue(lead.notes || ''); }}
+                disabled={isSavingNotes}
+              >
+                <X className="w-3 h-3 mr-1" />Cancelar
+              </Button>
+              <Button
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleSaveNotes}
+                disabled={isSavingNotes}
+              >
+                {isSavingNotes ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}Guardar
+              </Button>
+            </div>
           </div>
         )}
       </DialogContent>

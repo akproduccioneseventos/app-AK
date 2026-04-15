@@ -19,6 +19,16 @@ const CACHE_KEY_KPIS = 'crm-kpis';
 const sortLeadsByDate = (a: CrmLead, b: CrmLead) =>
   new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 
+function sortLeadsInStage(leads: CrmLead[]): CrmLead[] {
+  const withDate = leads.filter(l => l.followUpDate).sort((a, b) =>
+    new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime()
+  );
+  const withoutDate = leads.filter(l => !l.followUpDate).sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  return [...withDate, ...withoutDate];
+}
+
 export function useCrmBoard() {
   const [stages, setStages] = useState<CrmStage[]>([]);
   const [leads, setLeads] = useState<CrmLead[]>([]);
@@ -162,7 +172,7 @@ export function useCrmBoard() {
   const leadsByStage = useMemo(
     () =>
       stages.reduce((acc, stage) => {
-        acc[stage.id] = leads.filter(lead => lead.currentStageId === stage.id);
+        acc[stage.id] = sortLeadsInStage(leads.filter(lead => lead.currentStageId === stage.id));
         return acc;
       }, {} as Record<string, CrmLead[]>),
     [stages, leads]
