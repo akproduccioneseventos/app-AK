@@ -114,7 +114,25 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName && Array.isArray(data)) {
       const batchSize = 450;
-      
+
+      // Delete orphaned documents (those that no longer exist in the array)
+      const existingSnapshot = await db.collection(collectionName).get();
+      const existingIds = new Set(existingSnapshot.docs.map((d: FirebaseFirestore.QueryDocumentSnapshot) => d.id));
+      const newIds = new Set(data.filter((item: any) => item?.id).map((item: any) => String(item.id)));
+      const toDelete = [...existingIds].filter((id: string) => !newIds.has(id));
+      if (toDelete.length > 0) {
+        for (let i = 0; i < toDelete.length; i += batchSize) {
+          const deleteBatch = db.batch();
+          toDelete.slice(i, i + batchSize).forEach((id: string) => {
+            deleteBatch.delete(db.collection(collectionName).doc(id));
+          });
+          await withRetry(() => deleteBatch.commit(), `delete orphans: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
+        }
+        if (isDev) {
+          logger.info(`🗑️ [Firebase Sync] "${collectionName}" — ${toDelete.length} documento(s) huérfano(s) eliminado(s).`);
+        }
+      }
+
       for (let i = 0; i < data.length; i += batchSize) {
         const batch = db.batch();
         const chunk = data.slice(i, i + batchSize);
