@@ -37,7 +37,7 @@ interface AddLeadDialogProps {
 
 export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUserName }: AddLeadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
+  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', phone: '', email: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
   const [isSaving, setIsSaving] = useState(false);
   const [duplicateLead, setDuplicateLead] = useState<CrmLead | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
@@ -47,7 +47,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
   const firstStageId = stages.length > 0 ? stages[0].id : '';
 
   const resetForm = () => {
-    setFormData({ name: '', phone: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
+    setFormData({ name: '', phone: '', email: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
     setDuplicateLead(null);
   };
 
@@ -165,6 +165,11 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
             </div>
           </div>
            
+          <div className="space-y-1">
+            <Label htmlFor="lead-email">Email (Opcional)</Label>
+            <Input id="lead-email" type="email" value={formData.email || ''} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="ejemplo@correo.com" disabled={isSaving}/>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
                 <Label htmlFor="lead-party-type">Tipo de Fiesta (Opcional)</Label>

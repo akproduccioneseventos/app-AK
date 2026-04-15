@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,8 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { memo, useMemo, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { recordWhatsAppContact } from '@/app/actions/crm';
+import { recordWhatsAppContact, updateCrmLeadField } from '@/app/actions/crm';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { CrmLeadTimeline } from './CrmLeadTimeline';
 
@@ -47,6 +48,9 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   } = useSortable({ id: lead.id, disabled: isMobile });
 
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState(lead.notes || '');
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
   const { toast } = useToast();
 
   const style = {
@@ -67,13 +71,14 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   const isBudgetAceptado = lead.presupuestoEstado === 'Aceptado';
 
   // Reminder badges
-  const { isInactive, isMeetingTomorrow } = useMemo(() => {
+  const { isInactive, isMeetingTomorrow, isMeetingToday } = useMemo(() => {
     const now = new Date();
     const lastActivity = new Date(lead.lastContactedAt || lead.updatedAt || lead.createdAt);
     const diffDays = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
     const inactive = diffDays >= INACTIVITY_DAYS;
 
     let meetingTomorrow = false;
+    let meetingToday = false;
     if (lead.followUpDate) {
       const meeting = new Date(lead.followUpDate);
       const tomorrow = new Date(now);
@@ -82,9 +87,10 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
         meeting.getFullYear() === tomorrow.getFullYear() &&
         meeting.getMonth() === tomorrow.getMonth() &&
         meeting.getDate() === tomorrow.getDate();
+      meetingToday = meeting.toDateString() === now.toDateString();
     }
 
-    return { isInactive: inactive, isMeetingTomorrow: meetingTomorrow };
+    return { isInactive: inactive, isMeetingTomorrow: meetingTomorrow, isMeetingToday: meetingToday };
   }, [lead.lastContactedAt, lead.updatedAt, lead.createdAt, lead.followUpDate]);
 
   // WhatsApp handler: open wa.me link and record contact
@@ -107,6 +113,23 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     toast({ description: `WhatsApp abierto para ${lead.name}. Contacto registrado.` });
   }, [lead.phone, lead.name, lead.id, isMeetingTomorrow, toast]);
 
+  const handleSaveNotes = useCallback(async () => {
+    setIsSavingNotes(true);
+    try {
+      const result = await updateCrmLeadField(lead.id, { notes: notesValue });
+      if (result.success) {
+        toast({ description: 'Notas actualizadas.' });
+        setIsEditingNotes(false);
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudieron guardar las notas.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSavingNotes(false);
+    }
+  }, [lead.id, notesValue, toast]);
+
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none">
       <Card className="shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto overflow-hidden">
@@ -125,7 +148,12 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                           <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />Sin actividad
                         </Badge>
                       )}
-                      {isMeetingTomorrow && (
+                      {isMeetingToday && (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-red-50 text-red-700 border-red-300" title="Reunión hoy">
+                          <Bell className="w-2.5 h-2.5 mr-0.5" />HOY
+                        </Badge>
+                      )}
+                      {isMeetingTomorrow && !isMeetingToday && (
                         <Badge variant="outline" className="text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300" title="Reunión mañana">
                           <Bell className="w-2.5 h-2.5 mr-0.5" />Mañana
                         </Badge>
@@ -148,7 +176,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
               </div>
           )}
           {lead.followUpDate && (
-             <div className={cn("flex items-center gap-2 font-bold p-1 rounded", isMeetingTomorrow ? "text-blue-700 bg-blue-50" : "text-amber-700 bg-amber-50")}>
+             <div className={cn("flex items-center gap-2 font-bold p-1 rounded", isMeetingToday ? "text-red-700 bg-red-50" : isMeetingTomorrow ? "text-blue-700 bg-blue-50" : "text-amber-700 bg-amber-50")}>
                 <Clock className="w-3.5 h-3.5"/>
                 <span className="truncate">Cita: {new Date(lead.followUpDate).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}hs</span>
             </div>
@@ -166,6 +194,37 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
             </div>
           )}
         </CardContent>
+        {isEditingNotes && (
+          <div className="px-3 pb-2 space-y-1 border-t pt-2">
+            <Textarea
+              value={notesValue}
+              onChange={e => setNotesValue(e.target.value)}
+              rows={3}
+              className="text-xs"
+              placeholder="Agregar notas..."
+              disabled={isSavingNotes}
+            />
+            <div className="flex gap-1 justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={() => { setIsEditingNotes(false); setNotesValue(lead.notes || ''); }}
+                disabled={isSavingNotes}
+              >
+                <X className="w-3 h-3 mr-1" />Cancelar
+              </Button>
+              <Button
+                size="sm"
+                className="h-6 text-xs"
+                onClick={handleSaveNotes}
+                disabled={isSavingNotes}
+              >
+                {isSavingNotes ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}Guardar
+              </Button>
+            </div>
+          </div>
+        )}
         <CardFooter className="p-2 border-t flex flex-wrap justify-end gap-1 bg-muted/10">
             {isBudgetFacturado ? (
                  <Link href={`/invoices/${lead.invoiceId}`} className="flex-grow">
@@ -210,6 +269,16 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                 <MessageCircle className="w-3.5 h-3.5" />
               </Button>
             )}
+            {/* Edit notes button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:bg-muted/50"
+              onClick={() => { setNotesValue(lead.notes || ''); setIsEditingNotes(v => !v); }}
+              title="Editar notas"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+            </Button>
             {/* Timeline button */}
             <Button
               variant="ghost"
