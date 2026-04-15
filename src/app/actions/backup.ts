@@ -6,12 +6,22 @@ import path from 'path';
 
 const SNAPSHOTS_FILE = '_backup-snapshots.json';
 const MAX_SNAPSHOTS = 15;
-const CRITICAL_COLLECTIONS = new Set(['servicios-empresa.json', 'armado-rapido-config.json']);
+const CRITICAL_COLLECTIONS = new Set([
+  'servicios-empresa.json',
+  'armado-rapido-config.json',
+  'activos-fijos.json',
+  'proveedores.json',
+  'empleados.json',
+  'menus-catering.json',
+]);
 
 const ALL_COLLECTIONS = [
   { file: 'presupuestos.json', defaultValue: [] },
   { file: 'customers.json', defaultValue: [] },
   { file: 'servicios-empresa.json', defaultValue: [] },
+  { file: 'activos-fijos.json', defaultValue: [] },
+  { file: 'menus-catering.json', defaultValue: [] },
+  { file: 'insumos.json', defaultValue: [] },
   { file: 'fiestas.json', defaultValue: [] },
   { file: 'invoices.json', defaultValue: [] },
   { file: 'empleados.json', defaultValue: [] },

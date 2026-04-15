@@ -104,16 +104,21 @@ export default function BackupPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'No se pudo restaurar desde el repositorio.');
+        throw new Error(result.message || result.error || 'No se pudo restaurar desde el repositorio.');
       }
 
-      const details = Array.isArray(result.results)
-        ? result.results.map((entry: any) => `${entry.file} (${entry.count})`).join(', ')
-        : '';
+      const entries = Array.isArray(result.results) ? result.results : [];
+      const restored = entries.filter((entry: any) => entry.status === 'success');
+      const failed = entries.filter((entry: any) => entry.status === 'error');
+      const failedDetails = failed.map((entry: any) => entry.file);
 
       toast({
-        title: 'Datos restaurados',
-        description: details ? `Se sincronizó: ${details}` : 'Se restauraron los datos desde el repositorio.',
+        title: failed.length > 0 ? 'Restauración completada con errores' : 'Datos restaurados',
+        description:
+          failed.length > 0
+            ? `Se restauraron ${restored.length} archivo(s). Fallaron: ${failedDetails.join(', ')}.`
+            : `Se restauraron ${restored.length} archivo(s).`,
+        variant: failed.length > 0 ? 'destructive' : 'default',
       });
     } catch (error: any) {
       toast({ title: 'Error al restaurar', description: error.message, variant: 'destructive' });
