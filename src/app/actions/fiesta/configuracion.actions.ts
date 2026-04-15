@@ -1,26 +1,18 @@
 
 
 
-
-
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, ConfigEventoDataStorage } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
 import { syncCustomerFromFiestaConfig } from '@/app/actions/customers';
-import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
-
-const FIESTAS_DIR = 'fiestas';
 
 
 async function updateFiestaData(
   fiestaId: string, 
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedData?: FiestaEnPlanificacion; error?: string }> {
-  
-  const FIESTA_FILE_PATH = path.join(FIESTAS_DIR, `${fiestaId}.json`);
 
   try {
     const currentData = await getFiestaById(fiestaId);
@@ -28,7 +20,8 @@ async function updateFiestaData(
       throw new Error(`No se encontró la fiesta con ID ${fiestaId}`);
     }
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_FILE_PATH, updatedData);
+    const result = await saveFiesta(updatedData);
+    if (!result.success) throw new Error(result.error || 'No se pudo guardar la fiesta.');
 
     // Sync changes to the customer file if a customer is linked
     if (updatedData.configuracion.clienteId) {

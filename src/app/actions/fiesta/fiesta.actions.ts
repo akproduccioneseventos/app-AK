@@ -35,7 +35,6 @@ import {
 } from '@/lib/fiesta-defaults';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
-import fs from 'fs/promises';
 import { getPresupuestoById } from '../presupuestos';
 import { getRoles } from '../roles';
 import { syncLaundryCosts } from './costos.actions';
@@ -43,73 +42,31 @@ import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
 
 const FIESTAS_DIR = 'fiestas';
-const ARCHIVE_DIR = 'archive';
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-  let historiales: FiestaEnPlanificacion[] = [];
-  let firestoreSucceeded = false;
-
-  if (isProduction) {
-    try {
-      const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-      historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
-      firestoreSucceeded = true;
-    } catch (e) {
-      // fall through to filesystem fallback
-    }
+  try {
+    const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+    const todas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
+    const historiales = todas.filter(f => f.generadoDesdeHistorico === true || f.estado === 'Archivado');
+    return Array.from(new Map(historiales.map(f => [f.id, f])).values())
+      .sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
+  } catch (e) {
+    return [];
   }
-
-  if (!firestoreSucceeded) {
-    const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
-    try {
-      const archiveFiles = await fs.readdir(dataDir);
-      const historialesPromises = archiveFiles
-          .filter(file => file.endsWith('.json'))
-          .map(file => readData<FiestaEnPlanificacion>(path.join(ARCHIVE_DIR, file), null as any));
-      historiales = (await Promise.all(historialesPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
-    } catch (error) {
-      historiales = [];
-    }
-  }
-
-  return Array.from(new Map(historiales.map(f => [f.id, f])).values())
-    .sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
-    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-    let activas: FiestaEnPlanificacion[] = [];
-    let firestoreSucceeded = false;
-
-    if (isProduction) {
-        try {
-            const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-            activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
-            firestoreSucceeded = true;
-        } catch (e) {
-            // fall through to filesystem fallback
-        }
+    try {
+        const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+        const todas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
+        const activasFiltradas = todas.filter(f => !f.generadoDesdeHistorico && f.estado !== 'Archivado');
+        if (!includeArchived) return activasFiltradas;
+        const archivadas = todas.filter(f => f.generadoDesdeHistorico === true || f.estado === 'Archivado');
+        const allFiestas = [...activasFiltradas, ...archivadas];
+        return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
+    } catch (e) {
+        return [];
     }
-
-    if (!firestoreSucceeded) {
-        const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-        try {
-            const activeFiles = await fs.readdir(dataDir);
-            const activasPromises = activeFiles
-                .filter(file => file.endsWith('.json'))
-                .map(file => readData<FiestaEnPlanificacion>(path.join(FIESTAS_DIR, file), null as any));
-            activas = (await Promise.all(activasPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
-        } catch (error) {
-            activas = [];
-        }
-    }
-
-    const archivadas = includeArchived ? await getHistorialFiestas() : [];
-    // Filter out any 'Archivado' entries that may have ended up in the active collection
-    const activasFiltradas = activas.filter(f => f.estado !== 'Archivado');
-    const allFiestas = [...activasFiltradas, ...archivadas];
-    return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
 }
 
 export async function getAllFiestas() {
@@ -635,16 +592,13 @@ export async function syncFiestaFromBudget(fiestaId: string) {
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
   try {
-    const files = await fs.readdir(dataDir);
-    const fileToDelete = files.find(f => f === `${fiestaId}.json`);
-    if (fileToDelete) {
-        await fs.unlink(path.join(dataDir, fileToDelete));
-        return { success: true };
-    }
-    return { success: false, error: "Archivo no encontrado." };
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (!dbAdmin) return { success: false, error: 'Firestore no disponible.' };
+    await dbAdmin.collection('fiestas').doc(fiestaId).delete();
+    return { success: true };
   } catch (error: any) {
+    logger.error('[deleteFiesta] Error eliminando fiesta:', error);
     return { success: false, error: error.message };
   }
 }
@@ -653,27 +607,23 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Evento no encontrado.");
-    const datePart = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
-    const archiveFilename = `fiesta_archivada_${datePart}_${fiesta.id}.json`;
-    await writeData(path.join(ARCHIVE_DIR, archiveFilename), fiesta);
-    await deleteFiesta(fiestaId);
+    const result = await saveFiesta({ ...fiesta, generadoDesdeHistorico: true });
+    if (!result.success) throw new Error(result.error || 'No se pudo archivar la fiesta.');
     return { success: true };
   } catch (error: any) {
+    logger.error('[archiveFiesta] Error archivando fiesta:', error);
     return { success: false, error: error.message };
   }
 }
 
 export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
   try {
-    const files = await fs.readdir(dataDir);
-    const fileToDelete = files.find(f => f.endsWith(`_${fiestaId}.json`));
-    if (fileToDelete) {
-        await fs.unlink(path.join(dataDir, fileToDelete));
-        return { success: true };
-    }
-    return { success: false, error: "Archivo archivado no encontrado." };
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (!dbAdmin) return { success: false, error: 'Firestore no disponible.' };
+    await dbAdmin.collection('fiestas').doc(fiestaId).delete();
+    return { success: true };
   } catch (error: any) {
+    logger.error('[deleteFiestaArchivada] Error eliminando fiesta archivada:', error);
     return { success: false, error: error.message };
   }
 }
