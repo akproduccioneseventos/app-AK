@@ -61,6 +61,8 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion) { return awa
 export async function addInvoiceIdToFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.addInvoiceId(fiestaId, invoiceId); }
 export async function removeInvoiceIdFromFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.removeInvoiceId(fiestaId, invoiceId); }
 export async function duplicateFiesta(fiestaId: string) { return await FiestaModule.duplicateFiesta(fiestaId); }
+export async function syncFiestaFromBudget(fiestaId: string) { return await FiestaModule.syncFiestaFromBudget(fiestaId); }
+export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId: string | null) { return await FiestaModule.updateFiestaPresupuestoId(fiestaId, presupuestoId); }
 
 // --- CONFIGURACIÓN Y MÓDULOS ---
 export async function updateConfiguracionFiestaActual(fiestaId: string, config: any) { return await ConfigModule.updateConfiguracion(fiestaId, config); }
