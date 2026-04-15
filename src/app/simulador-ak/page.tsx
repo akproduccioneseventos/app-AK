@@ -110,12 +110,13 @@ const GIFTS = [
 
 const DISCOUNT_RATE = 0.15;   // 15% as a decimal (0.15 = 15%)
 const INFLATION_RATE = 0.25;  // how much we inflate the "original" displayed price
+const MAX_PACKAGE_SERVICES_PREVIEW = 4;
 const DEFAULT_FAQS = [
-  { q: '¿Cuándo debo reservar mi fecha?', a: 'Lo antes posible. Los fines de semana se llenan con 3-6 meses de anticipación.' },
-  { q: '¿Qué incluye el catering?', a: 'Depende del paquete: desde platos fríos y calientes hasta menú gourmet con servicio de mozos.' },
-  { q: '¿Puedo personalizar los servicios?', a: 'Sí, en la reunión ajustamos todo según tu presupuesto y necesidades.' },
-  { q: '¿Cómo funciona el pago?', a: 'Se abona una seña para reservar la fecha y el resto en cuotas acordadas.' },
-  { q: '¿Trabajan fuera de Salto?', a: 'Principalmente en Salto y zona, consultanos para eventos en otros departamentos.' },
+  { id: 'default-1', q: '¿Cuándo debo reservar mi fecha?', a: 'Lo antes posible. Los fines de semana se llenan con 3-6 meses de anticipación.' },
+  { id: 'default-2', q: '¿Qué incluye el catering?', a: 'Depende del paquete: desde platos fríos y calientes hasta menú gourmet con servicio de mozos.' },
+  { id: 'default-3', q: '¿Puedo personalizar los servicios?', a: 'Sí, en la reunión ajustamos todo según tu presupuesto y necesidades.' },
+  { id: 'default-4', q: '¿Cómo funciona el pago?', a: 'Se abona una seña para reservar la fecha y el resto en cuotas acordadas.' },
+  { id: 'default-5', q: '¿Trabajan fuera de Salto?', a: 'Principalmente en Salto y zona, consultanos para eventos en otros departamentos.' },
 ];
 
 // ─── Pricing Helpers ──────────────────────────────────────────────────────────
@@ -940,14 +941,7 @@ function StepPackage({
   ];
   const priceForPkg = (pkg: PackageType) => {
     if (!state.eventoTipo) return null;
-    const meta = EVENT_META[state.eventoTipo as EventType];
-    const pkgMeta = PACKAGE_META[pkg];
-    const totalGuests = state.adultos + state.ninos;
-    const base = (meta.basePP * totalGuests + meta.fixed) * pkgMeta.multiplier;
-    const inflated = Math.round(base * (1 + INFLATION_RATE) / 1000) * 1000;
-    const discount = Math.round(inflated * DISCOUNT_RATE / 100) * 100;
-    const final = inflated - discount;
-    return { inflated, final, discount };
+    return calcPrices({ ...state, paquete: pkg });
   };
 
   const handleSelectPackage = (pkg: PackageType) => {
@@ -960,7 +954,9 @@ function StepPackage({
       <div className="space-y-2.5">
         {staticOptions.map(opt => {
           const meta = PACKAGE_META[opt.value];
-          const services = state.eventoTipo ? SERVICES_BY_EVENT[state.eventoTipo][opt.value].slice(0, 4) : [];
+          const services = state.eventoTipo
+            ? SERVICES_BY_EVENT[state.eventoTipo]?.[opt.value]?.slice(0, MAX_PACKAGE_SERVICES_PREVIEW) ?? []
+            : [];
           const prices = priceForPkg(opt.value);
           return (
             <button
@@ -1134,7 +1130,7 @@ function StepConversion({
   const { toast } = useToast();
   const submitted = !!generatedId;
   const faqs = landingFaqs.length > 0
-    ? landingFaqs.slice(0, 5).map(faq => ({ q: faq.question, a: faq.answer }))
+    ? landingFaqs.slice(0, 5).map(faq => ({ id: faq.id, q: faq.question, a: faq.answer }))
     : DEFAULT_FAQS;
 
   return (
@@ -1243,8 +1239,8 @@ function StepConversion({
 
       <div className="mt-5 space-y-2">
         <p className="text-violet-300 text-xs font-bold uppercase tracking-wide">Preguntas frecuentes</p>
-        {faqs.map((faq, idx) => (
-          <details key={`${faq.q}-${idx}`} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 group">
+        {faqs.map((faq) => (
+          <details key={faq.id} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 group">
             <summary className="text-white text-sm cursor-pointer list-none flex items-center justify-between">
               <span>{faq.q}</span>
               <ChevronRight className="w-4 h-4 text-violet-300 transition-transform group-open:rotate-90" />
