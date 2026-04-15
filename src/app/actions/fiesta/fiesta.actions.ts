@@ -650,9 +650,8 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
     const fileToDelete = files.find(f => f === `${fiestaId}.json`);
     if (fileToDelete) {
       await fs.unlink(path.join(dataDir, fileToDelete));
-      return { success: true };
     }
-    return { success: false, error: "Archivo no encontrado." };
+    return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

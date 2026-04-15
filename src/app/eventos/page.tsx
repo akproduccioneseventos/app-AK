@@ -95,7 +95,8 @@ export default function GestorFiestasPage() {
   const filteredFiestasActivas = React.useMemo(() => {
     const now = new Date();
     return fiestasActivas.filter(fiesta => {
-      const matchesSearch = fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase());
+      const nombre = fiesta.configuracion.nombreEvento || '';
+      const matchesSearch = nombre === '' || nombre.toLowerCase().includes(searchTerm.toLowerCase());
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       const isFutureOrNoDate = !eventDate || eventDate >= now;
@@ -142,7 +143,8 @@ export default function GestorFiestasPage() {
     try {
       const result = await deleteFiestaAction(fiestaId);
       if (result.success) {
-        toast({ title: "¡Evento Eliminado!", description: `El evento "${nombreFiesta}" ha sido eliminado.`, variant: "destructive" });
+        const displayName = nombreFiesta || 'Sin nombre';
+        toast({ title: "¡Evento Eliminado!", description: `El evento "${displayName}" ha sido eliminado.`, variant: "destructive" });
         await loadData();
       } else {
         throw new Error(result.error || "No se pudo eliminar el evento.");
@@ -503,7 +505,7 @@ export default function GestorFiestasPage() {
               <Card key={fiesta.id} className="bg-card hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid flex flex-col">
                 <CardHeader className="pb-3 pt-4 px-4 print:pb-1 print:pt-1 print:px-2">
                   <CardTitle className="text-md font-semibold text-primary/90 print:text-sm">
-                    {fiesta.configuracion.nombreEvento}
+                    {fiesta.configuracion.nombreEvento || 'Sin nombre'}
                   </CardTitle>
                   <CardDescription className="text-xs print:text-[10px]">
                     {fiesta.configuracion.tipoCelebracion} - {formatDate(fiesta.configuracion.fechaEvento)}
@@ -555,7 +557,7 @@ export default function GestorFiestasPage() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>¿Eliminar Evento Activo?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            El evento "{fiesta.configuracion.nombreEvento}" se eliminará permanentemente. Esta acción no se puede deshacer.
+                            El evento "{fiesta.configuracion.nombreEvento || 'Sin nombre'}" se eliminará permanentemente. Esta acción no se puede deshacer.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

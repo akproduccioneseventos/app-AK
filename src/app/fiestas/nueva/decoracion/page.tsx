@@ -418,13 +418,19 @@ function DecoracionYDisenoEventoContent() {
   }, []);
 
   const handleAddLibraryElement = useCallback((libEl: LibraryElement) => {
+    const FALLBACK_COLORS = ['#FF6B6B', '#4D96FF', '#FFDD57', '#6BCB77'];
+    const maxColores = libEl.maxColores || 1;
+    const coloresBase = paletaColoresArray.length > 0 ? paletaColoresArray : FALLBACK_COLORS;
+    const colores = Array.from({ length: maxColores }, (_, i) =>
+      coloresBase[i] ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length]
+    );
     const newEl: ElementoDecorativo = {
       id: `el_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       tipo: libEl.tipo,
       x: 450,
       y: 275,
       escala: 1,
-      colores: paletaColoresArray.slice(0, libEl.maxColores || 1),
+      colores,
       rotacion: 0,
       zIndex: canvasElementos.length + 1,
       ...(libEl.imageDataUri ? { imageDataUri: libEl.imageDataUri, isCustom: true } : {}),
@@ -458,7 +464,8 @@ function DecoracionYDisenoEventoContent() {
     if (!selectedCanvasId) return;
     setCanvasElementos(prev => prev.map(el => {
       if (el.id !== selectedCanvasId) return el;
-      const newColores = [...el.colores];
+      const newColores = [...(el.colores || [])];
+      while (newColores.length <= colorIndex) newColores.push('#888888');
       newColores[colorIndex] = color;
       return { ...el, colores: newColores };
     }));
@@ -1426,7 +1433,7 @@ function DecoracionYDisenoEventoContent() {
                       <Badge variant="secondary" className="rounded-full capitalize">{selectedCanvasEl.tipo}</Badge>
 
                       {/* Color pickers using DecoColorPicker */}
-                      {Array.from({ length: Math.max(1, selectedCanvasEl.colores.length || 1) }).map((_, idx) => (
+                      {Array.from({ length: Math.max(1, (selectedCanvasEl.colores || []).length || 1) }).map((_, idx) => (
                         <div key={idx} className="relative">
                           <button
                             type="button"
@@ -1516,22 +1523,59 @@ function DecoracionYDisenoEventoContent() {
               )}
             </div>
 
-            {/* RIGHT: Zone panel */}
+            {/* RIGHT: Properties / Zone panel */}
             <div className="w-52 flex-shrink-0">
               <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md sticky top-4">
-                <CardHeader className="p-4 pb-2">
-                  <CardTitle className="font-headline text-sm flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary" /> Zonas
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <DecoZonaPanel
-                    selectedElement={selectedCanvasEl}
-                    onChangeZona={handleUpdateSelectedElZona}
-                    hiddenZones={canvasHiddenZones}
-                    onToggleZoneVisibility={handleZoneToggle}
-                  />
-                </CardContent>
+                {selectedCanvasEl ? (
+                  <>
+                    <CardHeader className="p-4 pb-2">
+                      <CardTitle className="font-headline text-sm flex items-center gap-2">
+                        <Palette className="w-4 h-4 text-primary" /> Propiedades
+                      </CardTitle>
+                      <Badge variant="secondary" className="rounded-full capitalize w-fit text-xs">{selectedCanvasEl.tipo}</Badge>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-2 space-y-4 overflow-y-auto max-h-[620px]">
+                      {/* Color pickers */}
+                      {Array.from({ length: Math.max(1, (selectedCanvasEl.colores || []).length || 1) }).map((_, idx) => (
+                        <DecoColorPicker
+                          key={idx}
+                          label={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}
+                          value={(selectedCanvasEl.colores || [])[idx] ?? '#888888'}
+                          onChange={(color) => handleUpdateSelectedElColor(idx, color)}
+                          paletteColors={paletaColoresArray.filter(Boolean)}
+                        />
+                      ))}
+                      {/* Zone assignment */}
+                      <div className="border-t border-slate-100 pt-3">
+                        <DecoZonaPanel
+                          selectedElement={selectedCanvasEl}
+                          onChangeZona={handleUpdateSelectedElZona}
+                          hiddenZones={canvasHiddenZones}
+                          onToggleZoneVisibility={handleZoneToggle}
+                        />
+                      </div>
+                    </CardContent>
+                  </>
+                ) : (
+                  <>
+                    <CardHeader className="p-4 pb-2">
+                      <CardTitle className="font-headline text-sm flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-primary" /> Zonas
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0">
+                      <DecoZonaPanel
+                        selectedElement={null}
+                        onChangeZona={handleUpdateSelectedElZona}
+                        hiddenZones={canvasHiddenZones}
+                        onToggleZoneVisibility={handleZoneToggle}
+                      />
+                      <p className="text-xs text-slate-400 text-center mt-4 leading-snug">
+                        Seleccioná un elemento del canvas para ver sus propiedades
+                      </p>
+                    </CardContent>
+                  </>
+                )}
               </Card>
             </div>
           </div>
