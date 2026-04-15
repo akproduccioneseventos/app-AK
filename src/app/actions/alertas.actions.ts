@@ -3,6 +3,9 @@
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { evaluarReglasParaFiesta, evaluarReglasParaTodasLasFiestas } from '@/lib/automatizaciones-engine';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
+import { readData, writeData } from '@/lib/data-service';
+
+const ALERTAS_LEIDAS_FILE = 'alertas-leidas.json';
 
 export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
   try {
@@ -26,16 +29,40 @@ export async function getAlertasPorFiesta(fiestaId: string): Promise<AlertaAutom
   }
 }
 
-// Alertas leídas are stored in-memory per server restart.
-// For persistence, a Firestore collection or JSON file could be used.
-const alertasLeidas = new Set<string>();
-
 export async function marcarAlertaLeida(alertaId: string): Promise<{ success: boolean }> {
-  alertasLeidas.add(alertaId);
-  return { success: true };
+  try {
+    const idsLeidos = await readData<string[]>(ALERTAS_LEIDAS_FILE, []);
+    if (!idsLeidos.includes(alertaId)) {
+      idsLeidos.push(alertaId);
+      await writeData(ALERTAS_LEIDAS_FILE, idsLeidos);
+    }
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}
+
+export async function marcarTodasLeidas(): Promise<{ success: boolean }> {
+  try {
+    const alertas = await getAlertasGlobales();
+    const todosIds = alertas.map(a => a.id);
+    await writeData(ALERTAS_LEIDAS_FILE, todosIds);
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
 }
 
 export async function getAlertasGlobalesConLeidas(): Promise<AlertaAutomatica[]> {
-  const alertas = await getAlertasGlobales();
-  return alertas.map(a => ({ ...a, leida: alertasLeidas.has(a.id) }));
+  const alertasActuales = await getAlertasGlobales();
+  const idsLeidos = await readData<string[]>(ALERTAS_LEIDAS_FILE, []);
+
+  // Auto-purge: remove ids that no longer correspond to active alerts
+  const idsActivos = new Set(alertasActuales.map(a => a.id));
+  const idsLeidosActivos = idsLeidos.filter(id => idsActivos.has(id));
+  if (idsLeidosActivos.length !== idsLeidos.length) {
+    await writeData(ALERTAS_LEIDAS_FILE, idsLeidosActivos);
+  }
+
+  return alertasActuales.map(a => ({ ...a, leida: idsLeidosActivos.includes(a.id) }));
 }

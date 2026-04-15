@@ -17,7 +17,7 @@ import {
   ExternalLink,
   BellOff,
 } from 'lucide-react';
-import { getAlertasGlobalesConLeidas, marcarAlertaLeida } from '@/app/actions/alertas.actions';
+import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas } from '@/app/actions/alertas.actions';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -63,6 +63,7 @@ function formatFecha(iso: string) {
 export default function AlertasPage() {
   const [alertas, setAlertas] = useState<AlertaAutomatica[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState<string>('todas');
   const [filtroFiesta, setFiltroFiesta] = useState<string>('todas');
   const { toast } = useToast();
@@ -93,6 +94,23 @@ export default function AlertasPage() {
       toast({ title: 'Error', description: 'No se pudo marcar como leída.', variant: 'destructive' });
     }
   }, [toast]);
+
+  const handleMarcarTodasLeidas = useCallback(async () => {
+    setIsMarkingAll(true);
+    try {
+      const result = await marcarTodasLeidas();
+      if (result.success) {
+        await fetchAlertas();
+        toast({ title: 'Listo', description: 'Todas las alertas marcadas como leídas.' });
+      } else {
+        toast({ title: 'Error', description: 'No se pudieron marcar todas como leídas.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudieron marcar todas como leídas.', variant: 'destructive' });
+    } finally {
+      setIsMarkingAll(false);
+    }
+  }, [fetchAlertas, toast]);
 
   // Derived
   const urgentes = alertas.filter(a => a.tipo === 'urgente' && !a.leida).length;
@@ -137,6 +155,12 @@ export default function AlertasPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          {alertas.some(a => !a.leida) && (
+            <Button variant="outline" size="sm" onClick={handleMarcarTodasLeidas} disabled={isMarkingAll || isLoading}>
+              {isMarkingAll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+              Marcar todas leídas
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={fetchAlertas} disabled={isLoading}>
             <RefreshCw className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
             Actualizar
