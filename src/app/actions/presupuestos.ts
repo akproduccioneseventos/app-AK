@@ -682,7 +682,6 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
       }
     }
 
-    await writeData(PRESUPUESTOS_FILE, []);
     logger.info('[Presupuestos] Todos los presupuestos eliminados por admin.', { deletedCount });
     return { success: true, deletedCount };
   } catch (error: any) {

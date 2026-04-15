@@ -205,9 +205,6 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
             }
         }
 
-        // Sync the empty array to Firestore (updates the root document used by readData)
-        await writeData(LEADS_FILE, []);
-
         logger.info('[CRM] CRM reiniciado por admin. Prospectos eliminados:', { deletedCount });
         return { success: true, deletedCount };
     } catch (error: any) {
