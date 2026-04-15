@@ -111,13 +111,16 @@ export default function BackupPage() {
       const restored = entries.filter((entry: any) => entry.status === 'success');
       const failed = entries.filter((entry: any) => entry.status === 'error');
       const failedDetails = failed.map((entry: any) => entry.file);
+      const restoredLabel = `${restored.length} ${restored.length === 1 ? 'archivo' : 'archivos'}`;
+      const failedPreview = failedDetails.slice(0, 3).join(', ');
+      const failedSuffix = failedDetails.length > 3 ? ` y ${failedDetails.length - 3} más` : '';
 
       toast({
         title: failed.length > 0 ? 'Restauración completada con errores' : 'Datos restaurados',
         description:
           failed.length > 0
-            ? `Se restauraron ${restored.length} archivo(s). Fallaron: ${failedDetails.join(', ')}.`
-            : `Se restauraron ${restored.length} archivo(s).`,
+            ? `Se restauraron ${restoredLabel}. Fallaron: ${failedPreview}${failedSuffix}.`
+            : `Se restauraron ${restoredLabel}.`,
         variant: failed.length > 0 ? 'destructive' : 'default',
       });
     } catch (error: any) {
