@@ -1,9 +1,12 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
+import fs from 'fs/promises';
+import path from 'path';
 
 const SNAPSHOTS_FILE = '_backup-snapshots.json';
 const MAX_SNAPSHOTS = 15;
+const CRITICAL_COLLECTIONS = new Set(['servicios-empresa.json', 'armado-rapido-config.json']);
 
 const ALL_COLLECTIONS = [
   { file: 'presupuestos.json', defaultValue: [] },
@@ -68,6 +71,28 @@ function getCollectionCount(value: any): number {
   return value == null ? 0 : 1;
 }
 
+function isCollectionEmpty(value: any): boolean {
+  if (Array.isArray(value)) return value.length === 0;
+  if (value && typeof value === 'object') return Object.keys(value).length === 0;
+  return value == null;
+}
+
+async function readDataFromRepoFile<T>(fileName: string, defaultValue: T): Promise<T> {
+  try {
+    const filePath = path.join(process.cwd(), 'src', 'data', fileName);
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const parsed = JSON.parse(fileContent);
+
+    if (Array.isArray(defaultValue) && !Array.isArray(parsed)) return defaultValue;
+    if (!Array.isArray(defaultValue) && (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))) return defaultValue;
+
+    return parsed as T;
+  } catch (error) {
+    console.warn(`[Backup] No se pudo leer fallback local para ${fileName}`, error);
+    return defaultValue;
+  }
+}
+
 export async function getRestorePoints(): Promise<RestorePoint[]> {
   const snapshots = await readData<SnapshotEntry[]>(SNAPSHOTS_FILE, []);
   return snapshots
@@ -89,7 +114,15 @@ export async function createRestorePoint(isAuto: boolean = false): Promise<{ suc
 
     for (const collection of ALL_COLLECTIONS) {
       try {
-        data[collection.file] = await readData(collection.file, collection.defaultValue);
+        const persistedData = await readData(collection.file, collection.defaultValue);
+
+        if (CRITICAL_COLLECTIONS.has(collection.file) && isCollectionEmpty(persistedData)) {
+          const localData = await readDataFromRepoFile(collection.file, collection.defaultValue);
+          data[collection.file] = isCollectionEmpty(localData) ? persistedData : localData;
+          continue;
+        }
+
+        data[collection.file] = persistedData;
       } catch (error) {
         console.warn(`[Backup] No se pudo leer ${collection.file} para snapshot`, error);
         continue;

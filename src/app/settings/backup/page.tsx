@@ -30,6 +30,7 @@ export default function BackupPage() {
   const [restorePoints, setRestorePoints] = useState<RestorePoint[]>([]);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
+  const [isSeedingFromRepo, setIsSeedingFromRepo] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
   const buildRestoreSummary = (summary: RestoreSummaryItem[]) => {
@@ -93,6 +94,31 @@ export default function BackupPage() {
         toast({ title: "Error al Crear", description: error.message, variant: "destructive" });
     } finally {
         setIsCreatingPoint(false);
+    }
+  };
+
+  const handleSeedFromRepo = async () => {
+    setIsSeedingFromRepo(true);
+    try {
+      const response = await fetch('/api/admin/seed-data', { method: 'POST' });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'No se pudo restaurar desde el repositorio.');
+      }
+
+      const details = Array.isArray(result.results)
+        ? result.results.map((entry: any) => `${entry.file} (${entry.count})`).join(', ')
+        : '';
+
+      toast({
+        title: 'Datos restaurados',
+        description: details ? `Se sincronizó: ${details}` : 'Se restauraron los datos desde el repositorio.',
+      });
+    } catch (error: any) {
+      toast({ title: 'Error al restaurar', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsSeedingFromRepo(false);
     }
   };
 
@@ -266,6 +292,15 @@ export default function BackupPage() {
               <Button onClick={handleCreateRestorePoint} disabled={isCreatingPoint} className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">
                 {isCreatingPoint ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
                 🔒 Respaldar Ahora
+              </Button>
+              <Button
+                onClick={handleSeedFromRepo}
+                disabled={isSeedingFromRepo}
+                variant="outline"
+                className="w-full h-12 rounded-xl font-bold border-primary/30 text-primary bg-white hover:bg-primary/5"
+              >
+                {isSeedingFromRepo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
+                Restaurar datos desde repo
               </Button>
               <Separator />
               <a href="/api/backup/download" download className="block w-full">
