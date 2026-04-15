@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowLeft, AlertTriangle, Save, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 function generarTimelineDesdeTemplate(fiesta: FiestaEnPlanificacion): TimelineHito[] {
   const tipoEvento = fiesta.configuracion?.tipoCelebracion ?? '';
@@ -62,7 +64,6 @@ export default function TimelinePage() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [timeline, setTimeline] = useState<TimelineHito[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -81,6 +82,13 @@ export default function TimelinePage() {
       .finally(() => setIsLoading(false));
   }, [fiestaId]);
 
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: timeline,
+    onSave: (t) => saveTimeline(fiestaId, t),
+    debounceMs: 2000,
+    enabled: !!fiestaId && !isLoading,
+  });
+
   const toggleHito = useCallback((id: string) => {
     setTimeline(prev => prev.map(h => {
       if (h.id !== id) return h;
@@ -88,17 +96,6 @@ export default function TimelinePage() {
       return { ...h, completado, fechaCompletado: completado ? new Date().toISOString() : undefined };
     }));
   }, []);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    const result = await saveTimeline(fiestaId, timeline);
-    if (result.success) {
-      toast({ title: '✅ Timeline guardado', description: 'Los hitos han sido actualizados.' });
-    } else {
-      toast({ title: 'Error', description: result.error ?? 'No se pudo guardar.', variant: 'destructive' });
-    }
-    setIsSaving(false);
-  };
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-screen">
@@ -132,10 +129,13 @@ export default function TimelinePage() {
             <p className="text-sm font-black text-slate-900 truncate">{config?.nombreEvento ?? 'Evento'}</p>
             <p className="text-xs text-slate-500">Timeline · {completados}/{timeline.length} completados</p>
           </div>
-          <Button onClick={handleSave} disabled={isSaving} size="sm" className="bg-purple-600 hover:bg-purple-700 shrink-0">
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span className="ml-1.5">Guardar</span>
-          </Button>
+          <div className="flex items-center gap-3">
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+            <Button onClick={saveNow} disabled={isSaving} size="sm" className="bg-purple-600 hover:bg-purple-700 shrink-0">
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <span className="ml-1.5">Guardar</span>
+            </Button>
+          </div>
         </div>
       </header>
 

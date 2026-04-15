@@ -563,13 +563,13 @@ function DecoracionYDisenoEventoContent() {
     toast({ title: 'Decoración cargada ✓', description: 'Podés cambiar los colores y posiciones.' });
   }, [toast]);
 
-  // Auto-save every 30 seconds if there are changes
+  // Auto-save 2 seconds after the last canvas change
   useEffect(() => {
     if (!canvasHasChanges) return;
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
       saveCanvas(true);
-    }, 30000);
+    }, 2000);
     return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
   }, [canvasHasChanges, saveCanvas]);
 

@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 const SalonScene = dynamic(() => import('@/components/salon-3d/SalonScene'), {
   ssr: false,
@@ -250,7 +252,6 @@ function SalonLayoutContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [view3d, setView3d] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -306,6 +307,17 @@ function SalonLayoutContent() {
         loadData();
     }
   }, [fiestaId, loadData, router]);
+
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: decoracion,
+    onSave: async (d) => {
+      if (!fiestaId || !d) return { success: false, error: 'No hay datos de distribución para guardar' };
+      await updateDecoracionFiestaActual(fiestaId, d);
+      return { success: true };
+    },
+    debounceMs: 2000,
+    enabled: !!fiestaId && !isLoading && !!decoracion,
+  });
   
   const handleDragStop = (e: any, data: DraggableData, elementId: string) => {
     if (!decoracion) return;
@@ -369,18 +381,8 @@ function SalonLayoutContent() {
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId) });
   };
   
-  const handleSaveAll = async () => {
-    if (!decoracion || !fiestaId) return;
-    setIsSaving(true);
-    try {
-        await updateDecoracionFiestaActual(fiestaId, decoracion);
-        toast({ title: "¡Diseño Guardado!", description: "La distribución del salón ha sido actualizada." });
-        await loadData(false);
-    } catch(err: any) {
-        toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    } finally {
-        setIsSaving(false);
-    }
+  const handleSaveAll = () => {
+    saveNow();
   };
   
   const handleLoadTemplate = async () => {
@@ -927,7 +929,8 @@ function SalonLayoutContent() {
       </Tabs>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 print:hidden">
-        <div className="max-w-4xl mx-auto flex justify-end">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
             <Button onClick={handleSaveAll} disabled={isSaving} size="lg" className="rounded-2xl px-12 h-14 font-black text-base shadow-2xl shadow-primary/30">
                 {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin"/> : <Save className="w-5 h-5 mr-3"/>} GUARDAR DISTRIBUCIÓN
             </Button>

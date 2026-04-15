@@ -36,6 +36,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 const GUEST_ITEM_TYPE = 'guest';
 const PIXELS_PER_METER_DEFAULT = 40;
@@ -198,7 +200,6 @@ function SalonLayoutContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -232,6 +233,17 @@ function SalonLayoutContent() {
         loadData();
     }
   }, [fiestaId, loadData, router]);
+
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: decoracion,
+    onSave: async (d) => {
+      if (!fiestaId || !d) return { success: false, error: 'No hay datos de diseño para guardar' };
+      await updateDecoracionFiestaActual(fiestaId, d);
+      return { success: true };
+    },
+    debounceMs: 2000,
+    enabled: !!fiestaId && !isLoading && !!decoracion,
+  });
   
   const handleDragStop = (e: any, data: DraggableData, elementId: string) => {
     if (!decoracion) return;
@@ -280,18 +292,8 @@ function SalonLayoutContent() {
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId) });
   };
   
-  const handleSaveAll = async () => {
-    if (!decoracion || !fiestaId) return;
-    setIsSaving(true);
-    try {
-        await updateDecoracionFiestaActual(fiestaId, decoracion);
-        toast({ title: "¡Guardado!", description: "El diseño del salón ha sido guardado." });
-        await loadData(false);
-    } catch(err: any) {
-        toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    } finally {
-        setIsSaving(false);
-    }
+  const handleSaveAll = () => {
+    saveNow();
   };
   
   const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {
@@ -408,7 +410,10 @@ function SalonLayoutContent() {
              <Card><CardContent className="pt-6"><Table><TableHeader><TableRow><TableHead>Invitado</TableHead><TableHead className="text-center">Personas</TableHead><TableHead>Mesa Asignada</TableHead></TableRow></TableHeader><TableBody>{filteredGuests.sinMesa.map(guest => (<TableRow key={guest.id}><TableCell className="font-medium text-xs">{guest.nombre}</TableCell><TableCell className="text-center text-xs">{guest.partySize}</TableCell><TableCell><Select value={guest.tableNumber || ''} onValueChange={(val) => handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue placeholder="Asignar mesa..." /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}</SelectContent></Select></TableCell></TableRow>))}{filteredGuests.conMesa.map(guest => (<TableRow key={guest.id} className="bg-green-50/50"><TableCell className="font-medium text-xs">{guest.nombre}</TableCell><TableCell className="text-center text-xs">{guest.partySize}</TableCell><TableCell><Select value={guest.tableNumber || 'sin-mesa'} onValueChange={(val) => val === 'sin-mesa' ? handleAssignGuestToTable(guest.id, null) : handleAssignGuestToTable(guest.id, val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(decoracion.salonElements || []).filter(el => el.category?.includes("Mesa")).map(t => <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>)}<Separator/><SelectItem value="sin-mesa" className="text-destructive">Quitar de mesa</SelectItem></SelectContent></Select></TableCell></TableRow>))}</TableBody></Table></CardContent></Card>
         </TabsContent>
       </Tabs>
-      <div className="flex justify-end pt-4 border-t"><Button onClick={handleSaveAll} disabled={isSaving} size="lg">{isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>} Guardar Diseño</Button></div>
+      <div className="flex justify-between items-center pt-4 border-t">
+        <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+        <Button onClick={handleSaveAll} disabled={isSaving} size="lg">{isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>} Guardar Diseño</Button>
+      </div>
     </div>
   );
 }

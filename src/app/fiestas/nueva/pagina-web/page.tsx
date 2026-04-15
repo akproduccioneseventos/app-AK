@@ -29,6 +29,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
@@ -47,12 +49,21 @@ function PaginaWebPageContent() {
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('mobile');
   const [editorMode, setEditorMode] = useState<EditorMode>('simple');
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
+
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: { invitacionData, invitacionConfig },
+    onSave: async ({ invitacionData: d, invitacionConfig: c }) => {
+      if (!fiesta || !fiestaId || fiestaId === 'template_preview') return { success: false, error: 'Guardado no disponible en modo de vista previa' };
+      return saveFiesta({ ...fiesta, invitacionDigital: d, invitacionConfig: c });
+    },
+    debounceMs: 2000,
+    enabled: !!fiestaId && fiestaId !== 'template_preview' && !isLoading && !!fiesta,
+  });
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -148,24 +159,12 @@ function PaginaWebPageContent() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!fiesta || fiestaId === 'template_preview') {
       toast({ title: 'Guardado no disponible', description: 'No se puede guardar una vista previa de plantilla. Personaliza el evento directamente.' });
       return;
     };
-    setIsSaving(true);
-    try {
-      const result = await saveFiesta({ ...fiesta, invitacionDigital: invitacionData, invitacionConfig });
-      if (result.success) {
-        toast({ title: "¡Guardado!", description: "Los cambios en la página del evento han sido guardados." });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (e: any) {
-       toast({ title: "Error", description: e.message, variant: "destructive" });
-    } finally {
-        setIsSaving(false);
-    }
+    saveNow();
   };
 
   const addSection = (tipo: SeccionInvitacion['tipo']) => {
@@ -270,6 +269,7 @@ function PaginaWebPageContent() {
         </div>
 
         <div className="flex items-center gap-2">
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} className="hidden sm:flex" />
             <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" className="hidden xs:block">
               <Button variant="outline" className="rounded-xl font-bold h-9"><Eye className="w-4 h-4 mr-2"/>Ver Real</Button>
             </Link>

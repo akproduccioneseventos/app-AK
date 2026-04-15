@@ -41,6 +41,8 @@ import {
 import { defaultPrograma } from '@/lib/fiesta-defaults';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 const iconMap: Record<string, React.ElementType> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
@@ -86,7 +88,7 @@ function ItinerarioContent() {
 
   const [programa, setPrograma] = useState<ProgramaEventoItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -101,20 +103,12 @@ function ItinerarioContent() {
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
-  const handleAutoSave = async (updatedPrograma: ProgramaEventoItem[]) => {
-    if (!fiestaId) return;
-    setIsSaving(true);
-    try {
-      const result = await updateProgramaFiestaActual(fiestaId, updatedPrograma);
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const { isSaving, lastSaved, saveError } = useAutoSave({
+    data: programa,
+    onSave: (p) => fiestaId ? updateProgramaFiestaActual(fiestaId, p) : Promise.resolve({ success: false, error: 'No se puede guardar: falta el identificador del evento' }),
+    debounceMs: 2000,
+    enabled: !!fiestaId && !isLoading,
+  });
 
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
@@ -166,7 +160,7 @@ function ItinerarioContent() {
       toast({title: "Nombre requerido", variant: "destructive"});
       return;
     }
-    setIsSaving(true);
+    setIsSavingTemplate(true);
     try {
         const result = await saveItineraryTemplate(templateName, programa);
         if (result.success) {
@@ -178,14 +172,13 @@ function ItinerarioContent() {
     } catch(e: any) {
         toast({title: "Error al guardar plantilla", description: e.message, variant: "destructive"});
     } finally {
-        setIsSaving(false);
+        setIsSavingTemplate(false);
     }
   };
 
   const handleLoadTemplate = async (template: ItineraryTemplate) => {
     const updatedItems = template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`}));
     setPrograma(updatedItems);
-    await handleAutoSave(updatedItems);
     toast({title: "Plantilla cargada"});
     setIsLoadTemplateModalOpen(false);
   };
@@ -221,22 +214,17 @@ function ItinerarioContent() {
       ...currentItem,
     } as ProgramaEventoItem;
 
-    let updatedPrograma;
     if (currentItem.id) {
-      updatedPrograma = programa.map(p => p.id === newItem.id ? newItem : p);
+      setPrograma(prev => prev.map(p => p.id === newItem.id ? newItem : p));
     } else {
-      updatedPrograma = [...programa, newItem].sort((a,b) => a.hora.localeCompare(b.hora));
+      setPrograma(prev => [...prev, newItem].sort((a,b) => a.hora.localeCompare(b.hora)));
     }
-    setPrograma(updatedPrograma);
-    handleAutoSave(updatedPrograma);
     setIsEditModalOpen(false);
     setCurrentItem(null);
   };
 
   const handleDeleteItem = (id: string) => {
-    const updated = programa.filter(p => p.id !== id);
-    setPrograma(updated);
-    handleAutoSave(updated);
+    setPrograma(prev => prev.filter(p => p.id !== id));
   };
   
   function handleDragEnd(event: DragEndEvent) {
@@ -245,9 +233,7 @@ function ItinerarioContent() {
       setPrograma((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
-        const updated = arrayMove(items, oldIndex, newIndex);
-        handleAutoSave(updated);
-        return updated;
+        return arrayMove(items, oldIndex, newIndex);
       });
     }
   }
@@ -291,8 +277,8 @@ function ItinerarioContent() {
           </div>
           <DialogFooter>
               <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-              <Button onClick={handleSaveTemplate} disabled={isSaving || !templateName.trim()}>
-                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>} Guardar Plantilla
+              <Button onClick={handleSaveTemplate} disabled={isSavingTemplate || !templateName.trim()}>
+                  {isSavingTemplate ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>} Guardar Plantilla
               </Button>
           </DialogFooter>
         </DialogContent>
@@ -341,7 +327,7 @@ function ItinerarioContent() {
                 <CardTitle>Eventos Programados</CardTitle>
                 <CardDescription>Organiza cada momento de la fiesta. Los cambios se sincronizan solos.</CardDescription>
             </div>
-            {isSaving && <div className="flex items-center text-xs text-muted-foreground animate-pulse"><Save className="w-3 h-3 mr-1"/> Sincronizando...</div>}
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
