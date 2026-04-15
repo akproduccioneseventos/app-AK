@@ -1,10 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, ShoppingCart, MessageCircle, Mail, Phone } from 'lucide-react';
+import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
+import { sharedFAQs } from '@/data/event-catalogs/shared';
 import { cn } from '@/lib/utils';
 import type { CompanyInfo } from '@/types/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -184,6 +185,32 @@ export function CierreSlide({
             </div>
           </motion.div>
         </div>
+
+        {/* FAQs */}
+        {sharedFAQs.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-6"
+          >
+            <p className="flex items-center gap-2 text-white/60 text-xs font-bold uppercase tracking-widest mb-3">
+              <HelpCircle className="h-4 w-4" />
+              Preguntas frecuentes
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {sharedFAQs.slice(0, 4).map((faq) => (
+                <div
+                  key={faq.id}
+                  className="p-4 bg-white/5 border border-white/10 rounded-2xl"
+                >
+                  <p className="text-white/90 text-xs font-bold mb-1">{faq.question}</p>
+                  <p className="text-white/50 text-xs leading-relaxed">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
     </SlideLayout>
   );

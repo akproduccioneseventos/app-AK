@@ -5,6 +5,7 @@ import type {
   ServiceItem,
   FAQItem,
   PaymentMethod,
+  Testimonial,
   WhyUsItem,
   ProcessStep,
   PromotionData,
@@ -185,6 +186,51 @@ export const sharedProcess: ProcessStep[] = [
     icon: '🎉',
     title: '¡A disfrutar!',
     description: 'El día del evento llegamos antes que nadie para montar todo. Vos solo tenés que aparecer y disfrutar.',
+  },
+];
+
+export const sharedTestimonials: Testimonial[] = [
+  {
+    id: 'ts1',
+    authorName: 'Familia García',
+    source: 'google',
+    text: 'AK Producciones transformó nuestra fiesta en algo increíble. Cada detalle estuvo cuidado al máximo. El equipo es muy profesional y siempre dispuesto a ayudar.',
+    date: 'Marzo 2025',
+  },
+  {
+    id: 'ts2',
+    authorName: 'Laura M.',
+    source: 'instagram',
+    text: '¡Simplemente perfectos! Desde la primera reunión hasta el último momento de la fiesta, todo fluyó sin estrés. Los recomiendo con los ojos cerrados. 🙌',
+    date: 'Diciembre 2024',
+  },
+  {
+    id: 'ts3',
+    authorName: 'Sebastián R.',
+    source: 'whatsapp',
+    text: 'Contratamos a AK para nuestro evento corporativo y superaron todas las expectativas. Puntualidad, calidad y atención al cliente de primer nivel.',
+    date: 'Octubre 2024',
+  },
+  {
+    id: 'ts4',
+    authorName: 'Valeria y Matías',
+    source: 'google',
+    text: 'Organizaron nuestra boda y fue un sueño. Cada invitado nos preguntaba quién era la organización. ¡Gracias por hacer nuestro día tan especial! 💍',
+    date: 'Agosto 2024',
+  },
+  {
+    id: 'ts5',
+    authorName: 'Claudia P.',
+    source: 'instagram',
+    text: 'La fiesta de 15 de mi hija quedó espectacular. Todo el salón hermoso, el servicio excelente y los chicos re contentos. ¡Mejor no podría haber sido!',
+    date: 'Junio 2024',
+  },
+  {
+    id: 'ts6',
+    authorName: 'Roberto A.',
+    source: 'whatsapp',
+    text: 'Muy buena relación calidad-precio. Cumplieron con todo lo prometido y más. Sin dudas volveríamos a contratarlos para nuestra próxima celebración.',
+    date: 'Febrero 2024',
   },
 ];
 
