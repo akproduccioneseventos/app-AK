@@ -51,12 +51,14 @@ interface CanvasElementProps {
   onResizeMouseDown: (e: React.MouseEvent, id: string, handle: 'nw' | 'ne' | 'se' | 'sw') => void;
   onRotateMouseDown: (e: React.MouseEvent, id: string) => void;
   onTouchStart: (e: React.TouchEvent, id: string) => void;
+  onResizeTouchStart: (e: React.TouchEvent, id: string, handle: 'nw' | 'ne' | 'se' | 'sw') => void;
+  onRotateTouchStart: (e: React.TouchEvent, id: string) => void;
 }
 
-const HANDLE_SIZE = 10;
+const HANDLE_SIZE = 20;
 
 const CanvasElement = memo(function CanvasElement({
-  el, isSelected, isHidden, onMouseDown, onResizeMouseDown, onRotateMouseDown, onTouchStart
+  el, isSelected, isHidden, onMouseDown, onResizeMouseDown, onRotateMouseDown, onTouchStart, onResizeTouchStart, onRotateTouchStart
 }: CanvasElementProps) {
   if (isHidden) return null;
 
@@ -113,6 +115,7 @@ const CanvasElement = memo(function CanvasElement({
           <div
             className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-blue-500 border-2 border-white shadow-lg cursor-crosshair flex items-center justify-center"
             onMouseDown={e => { e.stopPropagation(); onRotateMouseDown(e, el.id); }}
+            onTouchStart={e => { e.stopPropagation(); onRotateTouchStart(e, el.id); }}
           >
             <RotateCcw className="w-3 h-3 text-white" />
           </div>
@@ -134,6 +137,7 @@ const CanvasElement = memo(function CanvasElement({
                 cursor: handle === 'nw' || handle === 'se' ? 'nwse-resize' : 'nesw-resize',
               }}
               onMouseDown={e => { e.stopPropagation(); onResizeMouseDown(e, el.id, handle); }}
+              onTouchStart={e => { e.stopPropagation(); onResizeTouchStart(e, el.id, handle); }}
             />
           ))}
         </>
@@ -290,19 +294,70 @@ export default function DecoCanvas({
     };
   }, [onSelectId]);
 
+  const handleResizeTouchStart = useCallback((e: React.TouchEvent, id: string, handle: 'nw' | 'ne' | 'se' | 'sw') => {
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.touches[0];
+    const el = elementosRef.current.find(el => el.id === id);
+    if (!el) return;
+    interaction.current = {
+      type: 'resize',
+      data: {
+        elementId: id, handle,
+        startMouseX: touch.clientX, startMouseY: touch.clientY,
+        startEscala: el.escala, startX: el.x, startY: el.y,
+      }
+    };
+  }, []);
+
+  const handleRotateTouchStart = useCallback((e: React.TouchEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.touches[0];
+    const el = elementosRef.current.find(el => el.id === id);
+    if (!el) return;
+    const canvas = containerRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scale = zoom / 100;
+    const centerX = rect.left + el.x * scale;
+    const centerY = rect.top + el.y * scale;
+    const startAngle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX) * (180 / Math.PI);
+    interaction.current = {
+      type: 'rotate',
+      data: { elementId: id, centerX, centerY, startAngle, startRotacion: el.rotacion ?? 0 }
+    };
+  }, [zoom]);
+
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     const state = interaction.current;
-    if (state.type !== 'drag') return;
+    if (state.type === 'idle') return;
     e.preventDefault();
     const touch = e.touches[0];
-    const { elementId, startMouseX, startMouseY, startElX, startElY } = state.data;
-    const scale = zoom / 100;
-    const dx = (touch.clientX - startMouseX) / scale;
-    const dy = (touch.clientY - startMouseY) / scale;
-    updateElemento(elementId, {
-      x: Math.max(0, Math.min(CANVAS_W, startElX + dx)),
-      y: Math.max(0, Math.min(CANVAS_H, startElY + dy)),
-    });
+
+    if (state.type === 'drag') {
+      const { elementId, startMouseX, startMouseY, startElX, startElY } = state.data;
+      const scale = zoom / 100;
+      const dx = (touch.clientX - startMouseX) / scale;
+      const dy = (touch.clientY - startMouseY) / scale;
+      updateElemento(elementId, {
+        x: Math.max(0, Math.min(CANVAS_W, startElX + dx)),
+        y: Math.max(0, Math.min(CANVAS_H, startElY + dy)),
+      });
+    } else if (state.type === 'resize') {
+      const { elementId, startMouseX, startMouseY, startEscala } = state.data;
+      const scale = zoom / 100;
+      const dx = (touch.clientX - startMouseX) / scale;
+      const dy = (touch.clientY - startMouseY) / scale;
+      const delta = (Math.abs(dx) > Math.abs(dy) ? dx : dy);
+      const newEscala = Math.max(0.2, Math.min(5, startEscala + delta / 80));
+      updateElemento(elementId, { escala: newEscala });
+    } else if (state.type === 'rotate') {
+      const { elementId, centerX, centerY, startAngle, startRotacion } = state.data;
+      const currentAngle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX) * (180 / Math.PI);
+      const diff = currentAngle - startAngle;
+      updateElemento(elementId, { rotacion: startRotacion + diff });
+    }
   }, [zoom, updateElemento]);
 
   const handleTouchEnd = useCallback(() => {
@@ -367,6 +422,7 @@ export default function DecoCanvas({
         <div style={{ transformOrigin: 'top left', transform: `scale(${zoom / 100})`, width: CANVAS_W, height: CANVAS_H }}>
           <div
             ref={containerRef}
+            data-deco-canvas
             className="relative select-none overflow-hidden"
             style={{
               width: CANVAS_W,
@@ -404,6 +460,8 @@ export default function DecoCanvas({
                 onResizeMouseDown={handleResizeMouseDown}
                 onRotateMouseDown={handleRotateMouseDown}
                 onTouchStart={handleTouchStartOnElement}
+                onResizeTouchStart={handleResizeTouchStart}
+                onRotateTouchStart={handleRotateTouchStart}
               />
             ))}
           </div>

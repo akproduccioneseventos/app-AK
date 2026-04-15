@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno, ElementoDecorativo } from '@/types/fiesta';
@@ -31,6 +31,7 @@ import DecoCanvas from '@/components/decoracion/DecoCanvas';
 import DecoElementLibrary from '@/components/decoracion/DecoElementLibrary';
 import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
+import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 
 
@@ -143,6 +144,7 @@ function DecoracionYDisenoEventoContent() {
   const [isPlantillaModalOpen, setIsPlantillaModalOpen] = useState(false);
   const [isLoadPlantillaModalOpen, setIsLoadPlantillaModalOpen] = useState(false);
   const [isMuestrarioOpen, setIsMuestrarioOpen] = useState(false);
+  const [pickerOpenIdx, setPickerOpenIdx] = useState<number | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 
@@ -499,6 +501,19 @@ function DecoracionYDisenoEventoContent() {
     setCanvasElementos(prev => prev.map(el => el.id === selectedCanvasId ? { ...el, zIndex: Math.max(0, minZ - 1) } : el));
     setCanvasHasChanges(true);
   }, [selectedCanvasId, canvasElementos]);
+
+  const handleExportPng = useCallback(async () => {
+    try {
+      const canvasEl = document.querySelector('[data-deco-canvas]') as HTMLElement;
+      if (!canvasEl) {
+        toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
+        return;
+      }
+      toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
+    } catch {
+      toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
+    }
+  }, [toast]);
 
   const saveCanvas = useCallback(async (silent = false) => {
     if (!fiestaId) return;
@@ -1289,12 +1304,16 @@ function DecoracionYDisenoEventoContent() {
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1 p-3 overflow-hidden flex flex-col">
-                  <DecoElementLibrary
-                    fiestaId={fiestaId ?? ''}
-                    onAddElement={handleAddLibraryElement}
-                    customElements={decoracionData.customElements}
-                    onUploadCustom={handleUploadCustomElement}
-                  />
+                  {fiestaId ? (
+                    <DecoElementLibrary
+                      fiestaId={fiestaId}
+                      onAddElement={handleAddLibraryElement}
+                      customElements={decoracionData.customElements}
+                      onUploadCustom={handleUploadCustomElement}
+                    />
+                  ) : (
+                    <div className="text-center text-slate-400 text-xs py-8">Cargando...</div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -1325,9 +1344,53 @@ function DecoracionYDisenoEventoContent() {
                     title="Color de fondo"
                   />
                 </div>
+                {/* Background image upload */}
+                <div className="flex items-center gap-1.5">
+                  <label className="text-xs font-medium text-slate-600">Fondo foto:</label>
+                  <input
+                    type="file"
+                    id="canvasFondoFileInput"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        setCanvasFondoImagenUrl(ev.target?.result as string);
+                        setCanvasHasChanges(true);
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl h-8 text-xs gap-1"
+                    onClick={() => document.getElementById('canvasFondoFileInput')?.click()}
+                  >
+                    <ImageIconLucide className="w-3 h-3" />
+                    {canvasFondoImagenUrl ? 'Cambiar foto' : 'Subir foto salón'}
+                  </Button>
+                  {canvasFondoImagenUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-xl h-8 text-xs text-red-400 hover:text-red-600"
+                      onClick={() => { setCanvasFondoImagenUrl(''); setCanvasHasChanges(true); }}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
                 <div className="ml-auto flex items-center gap-2">
                   {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
                   {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                  <Button type="button" variant="outline" size="sm" onClick={handleExportPng} className="rounded-xl h-8 text-xs gap-1">
+                    <Download className="w-3 h-3" /> Exportar PNG
+                  </Button>
                   <Button type="button" variant="outline" size="sm" onClick={() => setIsPlantillaModalOpen(true)} className="rounded-xl h-8 text-xs gap-1">
                     <Save className="w-3 h-3" /> Guardar plantilla
                   </Button>
@@ -1367,21 +1430,44 @@ function DecoracionYDisenoEventoContent() {
               {selectedCanvasEl && (
                 <Card className="border-none shadow-sm rounded-2xl bg-white/90">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-3 flex-wrap overflow-x-auto">
                       <span className="text-xs font-black uppercase tracking-widest text-slate-500">Elemento seleccionado:</span>
                       <Badge variant="secondary" className="rounded-full capitalize">{selectedCanvasEl.tipo}</Badge>
 
-                      {/* Color pickers */}
+                      {/* Color pickers using DecoColorPicker */}
                       {Array.from({ length: Math.max(1, selectedCanvasEl.colores.length || 1) }).map((_, idx) => (
                         <div key={idx} className="relative">
-                          <input
-                            type="color"
-                            value={selectedCanvasEl.colores[idx] ?? '#888888'}
-                            onChange={e => handleUpdateSelectedElColor(idx, e.target.value)}
-                            className="w-8 h-8 cursor-pointer rounded-lg border-2 border-slate-200 p-0.5"
+                          <button
+                            type="button"
+                            className="w-9 h-9 rounded-xl border-2 border-slate-200 shadow cursor-pointer transition-transform hover:scale-110"
+                            style={{ background: selectedCanvasEl.colores[idx] ?? '#888888' }}
+                            onClick={() => setPickerOpenIdx(pickerOpenIdx === idx ? null : idx)}
                             title={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : 'Color 3'}
                           />
-                          <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-slate-400 whitespace-nowrap">{idx === 0 ? 'C1' : idx === 1 ? 'C2' : 'C3'}</span>
+                          <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-slate-400 whitespace-nowrap">
+                            {idx === 0 ? 'C1' : idx === 1 ? 'C2' : 'C3'}
+                          </span>
+                          {pickerOpenIdx === idx && (
+                            <div className="absolute top-10 left-0 z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 w-72">
+                              <div className="flex justify-between items-center mb-3">
+                                <span className="text-xs font-bold text-slate-500">Color {idx + 1}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setPickerOpenIdx(null)}
+                                  className="text-slate-400 hover:text-slate-600"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                              <DecoColorPicker
+                                value={selectedCanvasEl.colores[idx] ?? '#888888'}
+                                onChange={(color) => {
+                                  handleUpdateSelectedElColor(idx, color);
+                                }}
+                                paletteColors={paletaColoresArray.filter(Boolean)}
+                              />
+                            </div>
+                          )}
                         </div>
                       ))}
 
@@ -1423,10 +1509,10 @@ function DecoracionYDisenoEventoContent() {
 
                       {/* Z-index */}
                       <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-xl h-7 text-xs gap-1" title="Traer al frente">
-                        <ChevronsUp className="w-3.5 h-3.5" />
+                        <ChevronsUp className="w-3.5 h-3.5" /> Al frente
                       </Button>
                       <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-xl h-7 text-xs gap-1" title="Enviar atrás">
-                        <ChevronsDown className="w-3.5 h-3.5" />
+                        <ChevronsDown className="w-3.5 h-3.5" /> Atrás
                       </Button>
 
                       {/* Delete */}
