@@ -9,6 +9,13 @@ type SeedTarget = {
   documentId?: string;
 };
 
+type SeedResult = {
+  file: string;
+  collection: string;
+  documentId?: string;
+  count: number;
+};
+
 const SEED_TARGETS: SeedTarget[] = [
   { fileName: 'servicios-empresa.json', collection: 'servicios' },
   { fileName: 'armado-rapido-config.json', collection: 'configuracion', documentId: 'armado-rapido-config' },
@@ -16,7 +23,7 @@ const SEED_TARGETS: SeedTarget[] = [
 
 function getCount(value: unknown): number {
   if (Array.isArray(value)) return value.length;
-  if (value && typeof value === 'object') return Object.keys(value as Record<string, unknown>).length || 1;
+  if (value && typeof value === 'object') return Object.keys(value as Record<string, unknown>).length;
   return value == null ? 0 : 1;
 }
 
@@ -28,15 +35,15 @@ async function readRepoJson(fileName: SeedTarget['fileName']) {
 
 export async function POST(request: Request) {
   try {
-    const configuredSecret = process.env.ADMIN_SEED_SECRET;
-    if (configuredSecret) {
-      const providedSecret = request.headers.get('x-admin-seed-secret');
-      if (providedSecret !== configuredSecret) {
-        return NextResponse.json({ success: false, error: 'No autorizado.' }, { status: 401 });
+    if (process.env.NODE_ENV === 'production') {
+      const host = request.headers.get('host');
+      const origin = request.headers.get('origin');
+      if (host && origin && new URL(origin).host !== host) {
+        return NextResponse.json({ success: false, error: 'Origen no permitido.' }, { status: 403 });
       }
     }
 
-    const results: Array<{ file: string; collection: string; documentId?: string; count: number }> = [];
+    const results: SeedResult[] = [];
 
     for (const target of SEED_TARGETS) {
       const data = await readRepoJson(target.fileName);

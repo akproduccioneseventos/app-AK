@@ -118,6 +118,10 @@ export async function createRestorePoint(isAuto: boolean = false): Promise<{ suc
 
         if (CRITICAL_COLLECTIONS.has(collection.file) && isCollectionEmpty(persistedData)) {
           const localData = await readDataFromRepoFile(collection.file, collection.defaultValue);
+          if (isCollectionEmpty(localData)) {
+            console.warn(`[Backup] Colección crítica vacía en Firestore y también vacía en fallback local: ${collection.file}`);
+            // Mantener persistedData preserva el comportamiento actual del snapshot aun sin fallback disponible.
+          }
           data[collection.file] = isCollectionEmpty(localData) ? persistedData : localData;
           continue;
         }
