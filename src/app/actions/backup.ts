@@ -1,147 +1,166 @@
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
-import type { RestorePoint } from '@/types/fiesta';
+import { readData, writeData } from '@/lib/data-service';
 
-export type { RestorePoint };
+const SNAPSHOTS_FILE = '_backup-snapshots.json';
+const MAX_SNAPSHOTS = 15;
 
-const DATA_DIR = path.resolve(process.cwd(), 'src', 'data');
-const BACKUPS_DIR_NAME = 'backups';
-const BACKUPS_DIR = path.join(DATA_DIR, BACKUPS_DIR_NAME);
-const LAST_AUTO_BACKUP_FILE = path.join(DATA_DIR, 'last-auto-backup.txt');
+const ALL_COLLECTIONS = [
+  { file: 'presupuestos.json', defaultValue: [] },
+  { file: 'customers.json', defaultValue: [] },
+  { file: 'servicios-empresa.json', defaultValue: [] },
+  { file: 'fiestas.json', defaultValue: [] },
+  { file: 'invoices.json', defaultValue: [] },
+  { file: 'empleados.json', defaultValue: [] },
+  { file: 'proveedores.json', defaultValue: [] },
+  { file: 'crm-leads.json', defaultValue: [] },
+  { file: 'crm-stages.json', defaultValue: [] },
+  { file: 'crm-meetings.json', defaultValue: [] },
+  { file: 'notifications.json', defaultValue: [] },
+  { file: 'scheduled-messages.json', defaultValue: [] },
+  { file: 'app-settings.json', defaultValue: {} },
+  { file: 'company-info.json', defaultValue: {} },
+  { file: 'contract-settings.json', defaultValue: {} },
+  { file: 'whatsapp-settings.json', defaultValue: {} },
+  { file: 'whatsapp-templates.json', defaultValue: {} },
+  { file: 'feature-flags.json', defaultValue: [] },
+  { file: 'galeria-publica.json', defaultValue: [] },
+  { file: 'menus.json', defaultValue: [] },
+  { file: 'coupons.json', defaultValue: [] },
+  { file: 'ai-assistant-settings.json', defaultValue: {} },
+  { file: 'armado-rapido-config.json', defaultValue: {} },
+  { file: 'budget-display-settings.json', defaultValue: {} },
+  { file: 'social-connections.json', defaultValue: [] },
+  { file: 'accesos-personal.json', defaultValue: [] },
+  { file: 'invoice-template-settings.json', defaultValue: {} },
+  { file: 'automatizaciones-alertas.json', defaultValue: [] },
+  { file: 'playbooks.json', defaultValue: [] },
+  { file: 'recursos-multi-evento.json', defaultValue: [] },
+];
 
-async function ensureBackupsDirectoryExists() {
-  try {
-    await fs.access(BACKUPS_DIR);
-  } catch {
-    await fs.mkdir(BACKUPS_DIR, { recursive: true });
-  }
+interface SnapshotEntry {
+  name: string;
+  timestamp: string;
+  isAuto: boolean;
+  data: Record<string, any>;
+}
+
+export interface RestorePoint {
+  name: string;
+  timestamp: string;
+  displayDate: string;
+  isAuto: boolean;
+  collections: number;
+}
+
+export interface RestoreSummaryItem {
+  file: string;
+  count: number;
+}
+
+function getDisplayDate(timestamp: string, isAuto: boolean) {
+  return `${isAuto ? '🤖 AUTO: ' : '👤 MANUAL: '}${new Date(timestamp).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'medium' })}`;
+}
+
+function getCollectionCount(value: any): number {
+  if (Array.isArray(value)) return value.length;
+  if (value && typeof value === 'object') return Object.keys(value).length || 1;
+  return value == null ? 0 : 1;
 }
 
 export async function getRestorePoints(): Promise<RestorePoint[]> {
-  await ensureBackupsDirectoryExists();
-  try {
-    const entries = await fs.readdir(BACKUPS_DIR, { withFileTypes: true });
-    const backupFolders = entries
-      .filter(entry => entry.isDirectory() && entry.name.startsWith('backup-'))
-      .map(entry => {
-        const isAuto = entry.name.includes('-AUTO-');
-        const timestampIso = entry.name
-            .replace('backup-', '')
-            .replace('AUTO-', '')
-            .replace(/[_\.]/g, ':');
-            
-        let date = new Date(timestampIso);
-        
-        if (isNaN(date.getTime())) return null;
-
-        return {
-          name: entry.name,
-          timestamp: date.toISOString(),
-          displayDate: (isAuto ? '🤖 AUTO: ' : '👤 MAN: ') + date.toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'medium' }),
-        };
-      })
-      .filter((p): p is RestorePoint => p !== null);
-
-    return backupFolders.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  } catch (error) {
-    console.error("Error getting restore points:", error);
-    return [];
-  }
+  const snapshots = await readData<SnapshotEntry[]>(SNAPSHOTS_FILE, []);
+  return snapshots
+    .map((snapshot) => ({
+      name: snapshot.name,
+      timestamp: snapshot.timestamp,
+      isAuto: Boolean(snapshot.isAuto),
+      collections: Object.keys(snapshot.data || {}).length,
+      displayDate: getDisplayDate(snapshot.timestamp, Boolean(snapshot.isAuto)),
+    }))
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 export async function createRestorePoint(isAuto: boolean = false): Promise<{ success: boolean; error?: string; point?: RestorePoint }> {
-  await ensureBackupsDirectoryExists();
-  const timestamp = new Date().toISOString().replace(/:/g, '_').replace(/\..+/, '');
-  const prefix = isAuto ? 'AUTO-' : '';
-  const backupFolderName = `backup-${prefix}${timestamp}`;
-  const backupFolderPath = path.join(BACKUPS_DIR, backupFolderName);
-
   try {
-    await fs.mkdir(backupFolderPath, { recursive: true });
-    const entries = await fs.readdir(DATA_DIR, { withFileTypes: true });
+    const timestamp = new Date().toISOString();
+    const name = `backup-${isAuto ? 'AUTO-' : ''}${timestamp.replace(/[:.]/g, '_').replace(/\..+/, '')}`;
+    const data: Record<string, any> = {};
 
-    for (const entry of entries) {
-      if (entry.name === BACKUPS_DIR_NAME || entry.name.endsWith('.txt')) continue;
-
-      const sourcePath = path.join(DATA_DIR, entry.name);
-      const destPath = path.join(backupFolderPath, entry.name);
-      await fs.cp(sourcePath, destPath, { recursive: true });
-    }
-    
-    if (isAuto) {
-        await fs.writeFile(LAST_AUTO_BACKUP_FILE, new Date().toISOString());
-    }
-
-    const allPoints = await getRestorePoints();
-    const newPoint = allPoints.find(p => p.name === backupFolderName);
-
-    return { success: true, point: newPoint };
-  } catch (error: any) {
-    await fs.rm(backupFolderPath, { recursive: true, force: true }).catch(() => {});
-    return { success: false, error: error.message || "Error creating restore point." };
-  }
-}
-
-/**
- * Logic to decide if an automatic backup should be performed.
- * Prevents spamming backups on every keystroke.
- */
-export async function triggerAutoBackup() {
-    try {
-        let lastBackupDate = new Date(0);
-        try {
-            const lastDateStr = await fs.readFile(LAST_AUTO_BACKUP_FILE, 'utf-8');
-            lastBackupDate = new Date(lastDateStr);
-        } catch {
-            // File doesn't exist, first time
-        }
-
-        const now = new Date();
-        const diffMinutes = (now.getTime() - lastBackupDate.getTime()) / (1000 * 60);
-
-        // Auto backup only if at least 30 minutes have passed since the last one
-        if (diffMinutes >= 30) {
-            console.log(`[AutoBackup] Triggering scheduled internal backup...`);
-            await createRestorePoint(true);
-        }
-    } catch (e) {
-        console.error("AutoBackup check failed", e);
-    }
-}
-
-export async function restoreFromPoint(backupFolderName: string): Promise<{ success: boolean; error?: string }> {
-  const safeFolderName = path.basename(backupFolderName);
-  const backupFolderPath = path.resolve(BACKUPS_DIR, safeFolderName);
-
-  try {
-    const dataEntries = await fs.readdir(DATA_DIR, { withFileTypes: true });
-    for (const entry of dataEntries) {
-      if (entry.name !== BACKUPS_DIR_NAME) {
-        await fs.rm(path.join(DATA_DIR, entry.name), { recursive: true, force: true });
+    for (const collection of ALL_COLLECTIONS) {
+      try {
+        data[collection.file] = await readData(collection.file, collection.defaultValue);
+      } catch {
+        continue;
       }
     }
 
-    const backupEntries = await fs.readdir(backupFolderPath, { withFileTypes: true });
-    for (const entry of backupEntries) {
-      const sourcePath = path.join(backupFolderPath, entry.name);
-      const destPath = path.join(DATA_DIR, entry.name);
-      await fs.cp(sourcePath, destPath, { recursive: true });
-    }
+    const existing = await readData<SnapshotEntry[]>(SNAPSHOTS_FILE, []);
+    const updated: SnapshotEntry[] = [{ name, timestamp, isAuto, data }, ...existing].slice(0, MAX_SNAPSHOTS);
 
-    return { success: true };
+    await writeData(SNAPSHOTS_FILE, updated);
+
+    return {
+      success: true,
+      point: {
+        name,
+        timestamp,
+        isAuto,
+        collections: Object.keys(data).length,
+        displayDate: getDisplayDate(timestamp, isAuto),
+      },
+    };
   } catch (error: any) {
-    return { success: false, error: error.message || `Failed to restore from ${backupFolderName}` };
+    return { success: false, error: error?.message || 'Error al crear el punto de restauración.' };
   }
 }
 
-export async function deleteRestorePoint(backupFolderName: string): Promise<{ success: boolean; error?: string }> {
-  const backupFolderPath = path.resolve(BACKUPS_DIR, backupFolderName);
+export async function restoreFromPoint(pointName: string): Promise<{ success: boolean; error?: string; summary?: RestoreSummaryItem[] }> {
   try {
-    await fs.rm(backupFolderPath, { recursive: true, force: true });
+    const snapshots = await readData<SnapshotEntry[]>(SNAPSHOTS_FILE, []);
+    const snapshot = snapshots.find((entry) => entry.name === pointName);
+    if (!snapshot) {
+      return { success: false, error: 'Punto de restauración no encontrado.' };
+    }
+
+    const summary: RestoreSummaryItem[] = [];
+    for (const [file, value] of Object.entries(snapshot.data || {})) {
+      await writeData(file, value);
+      summary.push({
+        file: file.replace('.json', ''),
+        count: getCollectionCount(value),
+      });
+    }
+
+    return { success: true, summary };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al restaurar.' };
+  }
+}
+
+export async function deleteRestorePoint(pointName: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const snapshots = await readData<SnapshotEntry[]>(SNAPSHOTS_FILE, []);
+    const updated = snapshots.filter((entry) => entry.name !== pointName);
+    await writeData(SNAPSHOTS_FILE, updated);
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message || `Failed to delete ${backupFolderName}` };
+    return { success: false, error: error?.message || 'Error al eliminar.' };
+  }
+}
+
+export async function triggerAutoBackup(): Promise<void> {
+  try {
+    const snapshots = await readData<SnapshotEntry[]>(SNAPSHOTS_FILE, []);
+    const lastAuto = snapshots.find((entry) => entry.isAuto);
+
+    if (lastAuto) {
+      const diffMinutes = (Date.now() - new Date(lastAuto.timestamp).getTime()) / (1000 * 60);
+      if (diffMinutes < 30) return;
+    }
+
+    await createRestorePoint(true);
+  } catch (error) {
+    console.error('AutoBackup failed', error);
   }
 }
