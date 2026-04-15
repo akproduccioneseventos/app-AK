@@ -25,6 +25,8 @@ import { QuienesSomosSlide } from './slides/quienes-somos-slide';
 import { BeneficiosSlide } from './slides/beneficios-slide';
 import { DatosEventoSlide } from './slides/datos-evento-slide';
 import { CategoriaServiciosSlide } from './slides/categoria-servicios-slide';
+import { TestimoniosSlide } from './slides/testimonios-slide';
+import { FormasDePagoSlide } from './slides/formas-de-pago-slide';
 import { MenuSlide } from './slides/menu-slide';
 import { RegalosSlide } from './slides/regalos-slide';
 import { CierreSlide } from './slides/cierre-slide';
@@ -79,7 +81,7 @@ function groupServicesByCategory(servicios: PageData['servicios']): CategoriaSer
 
 // ---- Slide index constants ----
 const FIXED_SLIDES_START = 4; // portada, quienes somos, beneficios, datos evento
-const FIXED_SLIDES_END = 3;   // menu, regalos, cierre
+const FIXED_SLIDES_END = 5;   // testimonios, formas de pago, menu, regalos, cierre
 
 // ---- Main Component ----
 
@@ -135,7 +137,9 @@ export default function PresentacionLedPage() {
   const totalSlides = data ? FIXED_SLIDES_START + categorias.length + FIXED_SLIDES_END : 0;
 
   // Slide index helpers
-  const menuSlideIndex = FIXED_SLIDES_START + categorias.length;
+  const testimoniosSlideIndex = FIXED_SLIDES_START + categorias.length;
+  const formasDePagoSlideIndex = testimoniosSlideIndex + 1;
+  const menuSlideIndex = formasDePagoSlideIndex + 1;
   const regalosSlideIndex = menuSlideIndex + 1;
   const cierreSlideIndex = regalosSlideIndex + 1;
 
@@ -143,7 +147,9 @@ export default function PresentacionLedPage() {
   const isQuienesSomosSlide = currentSlide === 1;
   const isBeneficiosSlide = currentSlide === 2;
   const isDatosEventoSlide = currentSlide === 3;
-  const isCategoriaSlide = currentSlide >= FIXED_SLIDES_START && currentSlide < menuSlideIndex;
+  const isCategoriaSlide = currentSlide >= FIXED_SLIDES_START && currentSlide < testimoniosSlideIndex;
+  const isTestimoniosSlide = currentSlide === testimoniosSlideIndex;
+  const isFormasDePagoSlide = currentSlide === formasDePagoSlideIndex;
   const isMenuSlide = currentSlide === menuSlideIndex;
   const isRegalosSlide = currentSlide === regalosSlideIndex;
   const isCierreSlide = currentSlide === cierreSlideIndex;
@@ -157,6 +163,8 @@ export default function PresentacionLedPage() {
     if (isBeneficiosSlide) return '¿Por qué elegirnos?';
     if (isDatosEventoSlide) return 'Datos del Evento';
     if (isCategoriaSlide) return currentCategoria?.nombre ?? 'Servicios';
+    if (isTestimoniosSlide) return 'Testimonios';
+    if (isFormasDePagoSlide) return 'Formas de Pago';
     if (isMenuSlide) return 'Menú';
     if (isRegalosSlide) return 'Regalos & Extras';
     if (isCierreSlide) return 'Presupuesto';
@@ -330,6 +338,12 @@ export default function PresentacionLedPage() {
               totalCategorias={categorias.length}
               catalogoFotos={catalogoFotos}
             />
+          )}
+          {isTestimoniosSlide && (
+            <TestimoniosSlide tipoFiesta={clientData.tipoFiesta} />
+          )}
+          {isFormasDePagoSlide && (
+            <FormasDePagoSlide tipoFiesta={clientData.tipoFiesta} />
           )}
           {isMenuSlide && (
             <MenuSlide
