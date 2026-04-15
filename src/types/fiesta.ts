@@ -230,13 +230,20 @@ export interface MoodboardItem {
 
 export interface ElementoDecorativo {
   id: string;
-  tipo: 'globo' | 'flor' | 'arco' | 'lazo' | 'candelabro' | 'mesaTorta' | 'tela' | 'globosMacizos' | 'centroMesa';
+  tipo: 'globo' | 'flor' | 'arco' | 'lazo' | 'candelabro' | 'mesaTorta' | 'tela' | 'globosMacizos' | 'centroMesa' | 'corazon' | 'estrella' | 'mariposa' | 'corona' | string;
   x: number;
   y: number;
   escala: number;
   colores: string[];
   rotacion?: number;
   etiqueta?: string;
+  width?: number;
+  height?: number;
+  zona?: string;
+  imageDataUri?: string;
+  isCustom?: boolean;
+  zIndex?: number;
+  opacity?: number;
 }
 
 // --- CREATOR PARTY EXTENDED TYPES ---
@@ -327,6 +334,8 @@ export interface DecoracionData {
   checklistDecoracion?: DecoChecklistItem[];
   documentacionImageUrl?: string;
   salonPreview3dUrl?: string;
+  plantillasGuardadas?: Array<{ id: string; nombre: string; elementos: ElementoDecorativo[]; creadaEn: string }>;
+  customElements?: Array<{ id: string; nombre: string; imageDataUri: string }>;
 }
 
 export interface GiftItem {
