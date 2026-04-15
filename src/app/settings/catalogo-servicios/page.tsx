@@ -16,6 +16,14 @@ import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { ArrowLeft, Layers, Loader2, Package, PackagePlus, Search, TrendingUp, X } from 'lucide-react';
 
 const GUESTS_FOR_ESTIMATE = 100;
+type PackageServiceDetail = {
+  id: string;
+  nombre: string;
+  esRegalo: boolean;
+  qty: number;
+  unitPrice: number;
+  total: number;
+};
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || Number.isNaN(amount)) return 'N/A';
@@ -90,8 +98,8 @@ export default function CatalogoServiciosSettingsPage() {
       try {
         const [servicesData, configData] = await Promise.all([getServiciosEmpresa(), getArmadoRapidoConfig()]);
         if (!mounted) return;
-        const onlyServices = (Array.isArray(servicesData) ? servicesData : []).filter((item) => item.tipoItem === 'Servicio');
-        setServicios(onlyServices);
+        const filteredServices = (Array.isArray(servicesData) ? servicesData : []).filter((item) => item.tipoItem === 'Servicio');
+        setServicios(filteredServices);
         setConfig(configData);
       } finally {
         if (mounted) {
@@ -214,14 +222,7 @@ export default function CatalogoServiciosSettingsPage() {
                       total: included.esRegalo ? 0 : calc.total,
                     };
                   })
-                  .filter(Boolean) as Array<{
-                  id: string;
-                  nombre: string;
-                  esRegalo: boolean;
-                  qty: number;
-                  unitPrice: number;
-                  total: number;
-                }>;
+                  .filter(Boolean) as PackageServiceDetail[];
 
                 const packageTotal = detailedServices.reduce((sum, service) => sum + service.total, 0);
 
