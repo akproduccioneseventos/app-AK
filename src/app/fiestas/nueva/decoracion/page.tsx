@@ -91,6 +91,8 @@ const DEFAULT_ZONA_DISENO: ZonaDiseno = {
   vistaDecorativa: { elementos: [] },
 };
 
+const MOBILE_LIBRARY_SHEET_HEIGHT = '85vh';
+
 // ─── Helper functions ─────────────────────────────────────────────────────────
 
 /** Returns the internal cost of a DecoItem, preferring costoUnitario over the legacy precioUnitario */
@@ -432,7 +434,8 @@ function DecoracionYDisenoEventoContent() {
 
   const selectedCanvasEl = canvasElementos.find(el => el.id === selectedCanvasId) ?? null;
   const selectedCanvasColores = selectedCanvasEl?.colores || [];
-  const selectedCanvasColoresLength = Math.max(1, selectedCanvasColores.length || 0);
+  const selectedCanvasColoresLength = Math.max(1, selectedCanvasColores.length);
+  const getSelectedCanvasColor = (idx: number) => (selectedCanvasEl?.colores || [])[idx] ?? '#888888';
   const paletaColoresArray = useMemo(
     () => (
       decoracionData.paletaColores
@@ -618,6 +621,11 @@ function DecoracionYDisenoEventoContent() {
     setIsMobilePropertiesOpen(false);
     toast({ title: 'Decoración cargada ✓', description: 'Podés cambiar los colores y posiciones.' });
   }, [toast]);
+
+  const handleOpenMuestrarioFromMobile = useCallback(() => {
+    setIsMuestrarioOpen(true);
+    setIsMobileLibraryOpen(false);
+  }, []);
 
   // Auto-save 2 seconds after the last canvas change
   useEffect(() => {
@@ -1330,16 +1338,16 @@ function DecoracionYDisenoEventoContent() {
           </Dialog>
 
           <Sheet open={isMobileLibraryOpen} onOpenChange={setIsMobileLibraryOpen}>
-            <SheetContent side="bottom" className="h-[85vh] rounded-t-[2rem] p-0 md:hidden">
+            <SheetContent side="bottom" className="rounded-t-[2rem] p-0 md:hidden" style={{ height: MOBILE_LIBRARY_SHEET_HEIGHT }}>
               <SheetHeader className="p-4 pb-2 border-b border-slate-100">
                 <SheetTitle className="text-base flex items-center gap-2">
                   <Package className="w-4 h-4 text-violet-500" /> Biblioteca
                 </SheetTitle>
                 <SheetDescription>Agregá elementos al canvas o cargá un muestrario.</SheetDescription>
               </SheetHeader>
-              <div className="p-4 h-[calc(85vh-88px)] overflow-hidden flex flex-col">
+              <div className="p-4 overflow-hidden flex flex-col" style={{ height: `calc(${MOBILE_LIBRARY_SHEET_HEIGHT} - 88px)` }}>
                 <div className="mb-3">
-                  <Button type="button" variant="outline" size="sm" onClick={() => { setIsMuestrarioOpen(true); setIsMobileLibraryOpen(false); }} className="w-full rounded-xl text-xs h-9 gap-1">
+                  <Button type="button" variant="outline" size="sm" onClick={handleOpenMuestrarioFromMobile} className="w-full rounded-xl text-xs h-9 gap-1">
                     <LayoutDashboard className="w-3.5 h-3.5" /> Muestrario
                   </Button>
                 </div>
@@ -1377,7 +1385,7 @@ function DecoracionYDisenoEventoContent() {
                           <DecoColorPicker
                             key={idx}
                             label={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}
-                            value={(selectedCanvasEl.colores || [])[idx] ?? '#888888'}
+                            value={getSelectedCanvasColor(idx)}
                             onChange={(color) => handleUpdateSelectedElColor(idx, color)}
                             paletteColors={paletaColoresArray.filter(Boolean)}
                           />
@@ -1623,7 +1631,7 @@ function DecoracionYDisenoEventoContent() {
 
                       {/* Color pickers using DecoColorPicker */}
                       {Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => {
-                        const colorValue = (selectedCanvasEl.colores || [])[idx] ?? '#888888';
+                        const colorValue = getSelectedCanvasColor(idx);
                         return (
                         <div key={idx} className="relative">
                           <button
@@ -1731,7 +1739,7 @@ function DecoracionYDisenoEventoContent() {
                         <DecoColorPicker
                           key={idx}
                           label={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}
-                          value={(selectedCanvasEl.colores || [])[idx] ?? '#888888'}
+                          value={getSelectedCanvasColor(idx)}
                           onChange={(color) => handleUpdateSelectedElColor(idx, color)}
                           paletteColors={paletaColoresArray.filter(Boolean)}
                         />
