@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils';
 
 const WHATSAPP_NUMBER = '59898355530';
 const STORAGE_KEY = 'ak_simulador_ak_v1';
-const TOTAL_STEPS = 8; // steps 1-8 (step 0 = welcome)
+const TOTAL_STEPS = 8; // wizard steps 1-8 (welcome is step 0)
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -101,7 +101,7 @@ const PACKAGE_META: Record<PackageType, { label: string; description: string; mu
   premium:    { label: 'Premium',    description: 'Nivel alto, todo incluido',           multiplier: 1.80 },
 };
 
-const DISCOUNT_RATE = 0.10;
+const DISCOUNT_RATE = 0.10; // 10% as a decimal (0.10 = 10%)
 
 // ─── Pricing Helpers ──────────────────────────────────────────────────────────
 
@@ -140,6 +140,7 @@ function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, n
 }
 
 function menuItemToServicioEmpresa(item: MenuItem & { precioVenta: number }): ServicioEmpresa {
+  // `precioVenta` is computed before conversion from menu items in the enhanced dish list.
   return {
     id: item.id,
     nombre: item.name,
@@ -1092,7 +1093,7 @@ function StepPackage({
               key={pkg.id}
               onClick={() => onChange('paquete', pkg.id as PackageType)}
               className={cn(
-                'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-start gap-3 relative',
+                'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-stretch gap-3 relative',
                 state.paquete === pkg.id
                   ? 'bg-violet-500/40 border-violet-400'
                   : 'bg-white/5 border-white/10 hover:bg-white/10',
@@ -1117,7 +1118,7 @@ function StepPackage({
                 key={opt.value}
                 onClick={() => onChange('paquete', opt.value)}
                 className={cn(
-                  'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-start gap-3 relative',
+                  'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-stretch gap-3 relative',
                   state.paquete === opt.value
                     ? 'bg-violet-500/40 border-violet-400'
                     : 'bg-white/5 border-white/10 hover:bg-white/10',
@@ -1259,7 +1260,7 @@ function StepHours({
           className="w-full accent-violet-400 h-2 rounded-full cursor-pointer"
         />
         <p className="text-violet-300 text-xs">
-          Más de 4 horas habilita 2 entradas, igual que en el simulador normal.
+          Más de 4 horas habilitan 2 entradas, igual que en el simulador normal.
         </p>
       </div>
       <StepNav onPrev={onPrev} onNext={onNext} canNext showPrev />
