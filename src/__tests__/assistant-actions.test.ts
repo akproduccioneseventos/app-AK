@@ -145,6 +145,81 @@ describe('sendAssistantMessage — missing data handlers', () => {
   );
 });
 
+describe('sendAssistantMessage — create_budget uses history on short confirmations', () => {
+  const historyWithBudgetData = [
+    { role: 'user' as const, content: 'Cliente: María Pérez' },
+    { role: 'user' as const, content: 'Evento: cumpleaños para 80 invitados' },
+    { role: 'user' as const, content: '- Sonido $15000\n- Catering $35000' },
+  ];
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('creates draft budget from history when action has no data and message is short confirmation', async () => {
+    mockChat.mockResolvedValueOnce(aiResult('create_budget', undefined) as any);
+    (savePresupuesto as jest.Mock).mockResolvedValueOnce({
+      success: true,
+      presupuesto: {
+        id: 'pres_1',
+        numero: 101,
+        clienteNombre: 'María Pérez',
+        itemsPresupuestados: [{ nombreServicio: 'Sonido' }, { nombreServicio: 'Catering' }],
+        totalConDescuento: 50000,
+      },
+    });
+
+    const res = await sendAssistantMessage('crealo ahora', historyWithBudgetData);
+
+    expect(res.success).toBe(true);
+    expect(savePresupuesto).toHaveBeenCalledTimes(1);
+    expect(savePresupuesto).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clienteNombre: 'María Pérez',
+        itemsPresupuestados: expect.arrayContaining([
+          expect.objectContaining({ nombreServicio: 'Sonido' }),
+          expect.objectContaining({ nombreServicio: 'Catering' }),
+        ]),
+      }),
+    );
+    expect(res.response).toContain('Se creó un borrador de');
+  });
+
+  it('uses history parser as services fallback when Gemini returns create_budget with data but no services', async () => {
+    mockChat.mockResolvedValueOnce(
+      aiResult('create_budget', {
+        clienteNombre: 'María Pérez',
+        eventoTipo: 'Cumpleaños',
+        servicios: [],
+      }) as any,
+    );
+    (savePresupuesto as jest.Mock).mockResolvedValueOnce({
+      success: true,
+      presupuesto: {
+        id: 'pres_2',
+        numero: 102,
+        clienteNombre: 'María Pérez',
+        itemsPresupuestados: [{ nombreServicio: 'Sonido' }, { nombreServicio: 'Catering' }],
+        totalConDescuento: 50000,
+      },
+    });
+
+    const res = await sendAssistantMessage('crealo ahora', historyWithBudgetData);
+
+    expect(res.success).toBe(true);
+    expect(savePresupuesto).toHaveBeenCalledTimes(1);
+    expect(savePresupuesto).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clienteNombre: 'María Pérez',
+        itemsPresupuestados: expect.arrayContaining([
+          expect.objectContaining({ nombreServicio: 'Sonido', precioUnitario: 15000 }),
+          expect.objectContaining({ nombreServicio: 'Catering', precioUnitario: 35000 }),
+        ]),
+      }),
+    );
+  });
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. import_budget_from_image — empty services / zero prices
 // ─────────────────────────────────────────────────────────────────────────────
