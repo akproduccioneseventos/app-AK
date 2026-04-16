@@ -226,6 +226,33 @@ export default function MainDashboardPage() {
           lightColor: "bg-sky-50 text-sky-600",
           featured: false,
         },
+        {
+          title: 'Planificador Gastronómico',
+          description: 'Menús, recetas, bebidas y repostería maestra.',
+          href: '/empresa/menus',
+          icon: ChefHat,
+          color: "bg-amber-500",
+          lightColor: "bg-amber-50 text-amber-600",
+          featured: false,
+        },
+        {
+          title: 'Marketing',
+          description: 'Generador de contenido para redes sociales.',
+          href: '/marketing',
+          icon: Wand2,
+          color: "bg-pink-500",
+          lightColor: "bg-pink-50 text-pink-600",
+          featured: false,
+        },
+        {
+          title: 'Facturas',
+          description: 'Gestión completa de facturación.',
+          href: '/invoices',
+          icon: FileText,
+          color: "bg-slate-500",
+          lightColor: "bg-slate-50 text-slate-600",
+          featured: false,
+        },
     ]
 
   return (
@@ -234,7 +261,7 @@ export default function MainDashboardPage() {
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="space-y-2"
+          className="space-y-2 min-w-0"
         >
             {greeting && (
               <p className="text-sm font-semibold text-indigo-400 flex items-center gap-1.5">
@@ -244,15 +271,15 @@ export default function MainDashboardPage() {
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter text-slate-900">
                 <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent italic inline-block pb-1">Inicio</span>
             </h1>
-            <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base">
+            <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base min-w-0">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0 inline-block"></span>
-                Gestión operativa y financiera de AK Producciones.
+                <span className="truncate">Gestión operativa y financiera de AK Producciones.</span>
             </p>
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex items-center gap-3 hidden sm:flex"
+          className="hidden sm:flex items-center gap-3"
         >
             <Badge variant="outline" className="bg-white text-indigo-600 border-indigo-200 py-2 px-4 shadow-sm rounded-full font-black text-[10px] tracking-widest uppercase">
                 <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-400 animate-spin-slow"/> Sistema Optimizado
@@ -360,9 +387,9 @@ export default function MainDashboardPage() {
                         <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Herramientas rápidas</CardTitle>
                         <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos, WhatsApp y modo presentación.</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-6 sm:p-8">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-6 sm:p-8">
                         <Link href="/presupuestos/nuevo/crear">
-                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-indigo-200 hover:bg-indigo-50/50 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-indigo-200 hover:bg-indigo-50/50 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
@@ -374,7 +401,7 @@ export default function MainDashboardPage() {
                             </div>
                         </Link>
                         <Link href="/simulador-de-presupuesto">
-                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-amber-200 hover:bg-amber-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-amber-200 hover:bg-amber-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-amber-50 text-amber-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
@@ -386,7 +413,7 @@ export default function MainDashboardPage() {
                             </div>
                         </Link>
                         <Link href="/simulador-ak">
-                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-violet-200 hover:bg-violet-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-violet-200 hover:bg-violet-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-violet-50 text-violet-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-violet-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <Bot className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
@@ -398,7 +425,7 @@ export default function MainDashboardPage() {
                             </div>
                         </Link>
                         <Link href="/pagos-rapidos">
-                            <div className="group p-6 sm:p-8 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
+                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-emerald-600 group-hover:to-teal-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <Wallet className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
@@ -410,7 +437,7 @@ export default function MainDashboardPage() {
                             </div>
                         </Link>
                         <Link href="/contabilidad/crm/outbox">
-                            <div className="group p-6 sm:p-8 border-2 border-green-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-green-400 hover:bg-green-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-green-50/20">
+                            <div className="group p-4 sm:p-6 border-2 border-green-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-green-400 hover:bg-green-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-green-50/20">
                                 <div className="p-4 sm:p-5 bg-green-100 text-green-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-green-500 group-hover:to-emerald-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <Send className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
@@ -422,7 +449,7 @@ export default function MainDashboardPage() {
                             </div>
                         </Link>
                         <Link href="/empresa/menus">
-                            <div className="group p-6 sm:p-8 border border-amber-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-orange-300 hover:bg-amber-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-amber-50/20">
+                            <div className="group p-4 sm:p-6 border border-amber-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-orange-300 hover:bg-amber-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-amber-50/20">
                                 <div className="p-4 sm:p-5 bg-amber-100 text-amber-700 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
                                     <ChefHat className="w-6 h-6 sm:w-7 sm:h-7"/>
                                 </div>
@@ -433,7 +460,7 @@ export default function MainDashboardPage() {
                                 <ArrowRight className="w-5 h-5 ml-auto text-amber-300 group-hover:text-amber-500 group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
-                        <div className="md:col-span-2 lg:col-span-4">
+                        <div className="md:col-span-2 lg:col-span-3">
                             <div className="group p-5 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] bg-slate-950 hover:bg-slate-900 transition-all cursor-pointer flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-white/10 text-white rounded-2xl shrink-0">
                                     <Monitor className="w-6 h-6 sm:w-7 sm:h-7"/>
