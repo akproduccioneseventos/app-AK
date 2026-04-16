@@ -195,7 +195,15 @@ export default function InventarioActivosPage() {
                       <Card key={item.id} className="bg-muted/30 hover:shadow-sm transition-shadow print:shadow-none print:border-gray-200">
                         <CardHeader className="pb-2 pt-3 px-3">
                           <div className="flex justify-between items-start">
-                            <CardTitle className="text-base font-semibold print:text-sm">{item.nombre}</CardTitle>
+                            <div className="flex items-start gap-3">
+                              {item.imageUrl && (
+                                <div className="relative w-14 h-14 rounded-md overflow-hidden border border-border bg-background flex-shrink-0">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={item.imageUrl} alt={`Foto de ${item.nombre}`} className="w-full h-full object-cover" />
+                                </div>
+                              )}
+                              <CardTitle className="text-base font-semibold print:text-sm">{item.nombre}</CardTitle>
+                            </div>
                             <div className="flex gap-1 print:hidden">
                                 <Link href={`/empresa/activos-fijos/${item.id}/editar`}><Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5" /></Button></Link>
                                 <AlertDialog>

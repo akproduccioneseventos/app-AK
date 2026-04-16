@@ -34,6 +34,7 @@ import {
     Send,
     BookOpen,
     ChefHat,
+    Package,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -197,6 +198,15 @@ export default function MainDashboardPage() {
           icon: Building2,
           color: "bg-cyan-500",
           lightColor: "bg-cyan-50 text-cyan-600",
+          featured: false,
+        },
+        {
+          title: 'Activos Fijos',
+          description: 'Inventario de equipos y bienes. Control de disponibilidad y capital.',
+          href: '/empresa/activos-fijos',
+          icon: Package,
+          color: "bg-slate-500",
+          lightColor: "bg-slate-50 text-slate-600",
           featured: false,
         },
         {

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getActivoFijoById, saveActivoFijo, deleteActivoFijo } from '@/app/actions/activos-fijos';
 import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 
 export default function EditarActivoFijoPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function EditarActivoFijoPage({ params }: { params: { id: string 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [notFound, setNotFound] = useState(false);
   
   const itemIdFromParams = params.id;
@@ -97,6 +99,23 @@ export default function EditarActivoFijoPage({ params }: { params: { id: string 
 
   const removeTramo = (index: number) => {
     setFormData(prev => ({...prev, tramosDePrecio: (prev.tramosDePrecio || []).filter((_, i) => i !== index)}));
+  };
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const result = await uploadPublicPageAsset('activos-fijos', file);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      handleFormChange('imageUrl', result.url);
+      toast({ title: '✅ Imagen subida', description: 'La foto del activo fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = '';
+    }
   };
 
 
@@ -183,6 +202,27 @@ export default function EditarActivoFijoPage({ params }: { params: { id: string 
             <div className="space-y-2">
               <Label htmlFor="item-nombre" className="text-base">Nombre del Ítem *</Label>
               <Input id="item-nombre" value={formData.nombre || ''} onChange={(e) => handleFormChange('nombre', e.target.value)} required disabled={isSaving}/>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="item-image-url" className="text-base">Foto del Activo (URL o subir archivo)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="item-image-url"
+                  value={formData.imageUrl || ''}
+                  onChange={(e) => handleFormChange('imageUrl', e.target.value)}
+                  placeholder="https://..."
+                  disabled={isSaving || isUploadingImage}
+                />
+                <label htmlFor="item-image-upload" className="shrink-0">
+                  <Button asChild variant="outline" disabled={isSaving || isUploadingImage}>
+                    <span>
+                      {isUploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                      Subir desde dispositivo
+                    </span>
+                  </Button>
+                  <input id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} />
+                </label>
+              </div>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
