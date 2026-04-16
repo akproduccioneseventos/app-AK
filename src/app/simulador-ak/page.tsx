@@ -46,6 +46,7 @@ interface SimuladorState {
   apellido: string;
   telefono: string;
   eventoFecha: string;
+  eventoHoraInicio: string;
   eventoTipo: EventType | '';
   adultos: number;
   ninos: number;
@@ -207,6 +208,7 @@ export default function SimuladorAKPage() {
     apellido: '',
     telefono: '',
     eventoFecha: '',
+    eventoHoraInicio: '',
     eventoTipo: '',
     adultos: 80,
     ninos: 10,
@@ -353,6 +355,7 @@ export default function SimuladorAKPage() {
         clienteNombre:   `${state.nombre} ${state.apellido}`.trim(),
         clienteContacto: state.telefono,
         eventoFecha:     state.eventoFecha || new Date().toISOString(),
+        eventoHoraInicio: state.eventoHoraInicio || undefined,
         adultos:         state.adultos,
         ninos:           state.ninos,
         subtotal:        prices?.inflated ?? 0,
@@ -395,6 +398,7 @@ export default function SimuladorAKPage() {
       `Hola! Usé el simulador de AK Producciones.`,
       `Nombre: ${state.nombre} ${state.apellido}`,
       state.eventoFecha ? `Fecha evento: ${state.eventoFecha.split('T')[0]}` : '',
+      state.eventoHoraInicio ? `Hora inicio: ${state.eventoHoraInicio}` : '',
       eventMeta ? `Tipo: ${eventMeta.label}` : '',
       `Invitados: ${state.adultos + state.ninos} personas`,
       pkgMeta ? `Paquete: ${pkgMeta.label}` : '',
@@ -806,6 +810,13 @@ function StepEventBasics({
           type="date"
           value={state.eventoFecha ? state.eventoFecha.split('T')[0] : ''}
           onChange={e => onChange('eventoFecha', e.target.value ? `${e.target.value}T00:00:00` : '')}
+          className="bg-white/10 border-white/20 text-white rounded-xl h-12 mb-4 focus:border-violet-400 [color-scheme:dark]"
+        />
+        <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-2 block">Hora de inicio</Label>
+        <Input
+          type="time"
+          value={state.eventoHoraInicio || ''}
+          onChange={e => onChange('eventoHoraInicio', e.target.value)}
           className="bg-white/10 border-white/20 text-white rounded-xl h-12 mb-4 focus:border-violet-400 [color-scheme:dark]"
         />
       </div>
@@ -1331,6 +1342,7 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: Return
       </div>
       {eventMeta && <p>Tipo de evento: {eventMeta.emoji} {eventMeta.label}</p>}
       {state.eventoFecha && <p>Fecha: {state.eventoFecha.split('T')[0]}</p>}
+      {state.eventoHoraInicio && <p>Hora de inicio: {state.eventoHoraInicio}</p>}
       <p>Invitados: {state.adultos} adultos + {state.ninos} niños = {state.adultos + state.ninos} total</p>
       {pkgMeta && <p>Paquete: {pkgMeta.label}</p>}
       {services.length > 0 && (

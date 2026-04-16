@@ -47,6 +47,7 @@ export interface LeadFromQuickBudget {
   clienteNombre: string;
   clienteContacto?: string;
   eventoFecha?: string; // ISO string
+  eventoHoraInicio?: string; // HH:mm
   adultos: number;
   ninos: number;
   subtotal: number;

@@ -67,6 +67,7 @@ export async function generateBudgetAndLeadFromSimulator(
       clienteContacto: data.clienteContacto,
       eventoTipo: 'Evento (desde Simulador)',
       eventoFecha: data.eventoFecha || new Date().toISOString(),
+      eventoHoraInicio: data.eventoHoraInicio,
       invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
       invitadosAdultos: data.adultos,
       invitadosAdolescentes: 0,
