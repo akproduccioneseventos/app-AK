@@ -987,7 +987,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             </div>
                         )}
                         {calculatedValues.ajusteAnual > 0 && (
-                            <div className="hidden print:flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-amber-600 tracking-widest">
+                            <div className="hidden print:flex justify-between items-center text-[9px] font-black uppercase text-amber-600 tracking-widest">
                                 <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. {presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15}%):</span>
                                 <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
                             </div>

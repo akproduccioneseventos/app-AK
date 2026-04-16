@@ -33,7 +33,7 @@ const formatDate = (dateString?: string) => {
 };
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-const MAX_PREVIEW_SERVICES_COUNT = 3;
+const MAX_SERVICES_IN_CANCELLATION_TEXT = 3;
 const PARTIAL_CANCELLATION_PENALTY_RATE = 0.1;
 
 const buildCancelacionParcialText = (params: {
@@ -89,10 +89,10 @@ function CancelacionParcialContent({ fiestaId }: { fiestaId: string | null }) {
         getPresupuestoById(fiestaData.presupuestoId),
       ]);
       const servicios = (presupuestoData?.itemsPresupuestados || [])
-        .slice(0, MAX_PREVIEW_SERVICES_COUNT)
-        .map((i) => `- ${i.nombreServicio}`)
+        .slice(0, MAX_SERVICES_IN_CANCELLATION_TEXT)
+        .map((item) => `- ${item.nombreServicio}`)
         .join('\n') || '- ________________________';
-      const ajuste = Math.round((presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0) * PARTIAL_CANCELLATION_PENALTY_RATE);
+      const ajusteTotal = Math.round((presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0) * PARTIAL_CANCELLATION_PENALTY_RATE);
       setFiesta(fiestaData);
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
@@ -104,7 +104,7 @@ function CancelacionParcialContent({ fiestaId }: { fiestaId: string | null }) {
         fechaEvento: fiestaData.configuracion.fechaEvento,
         fechaContrato: presupuestoData?.timestamp,
         servicios,
-        ajusteTotal: ajuste,
+        ajusteTotal,
       }));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'No se pudieron cargar los datos.';

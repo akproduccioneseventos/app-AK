@@ -85,16 +85,16 @@ interface PageData {
 }
 
 const CLUB_URUGUAY_PATTERNS = ['club uruguay', 'cluburuguay', 'club_uruguay', 'club-uruguay'];
+const CLUB_URUGUAY_NORMALIZED_PATTERNS = CLUB_URUGUAY_PATTERNS.map((pattern) => pattern.replace(/[_-]/g, ' ').toLowerCase());
 const isClubUruguaySalon = (salon?: string) => {
-  const value = (salon || '').toLowerCase().trim().replace(/\s+/g, ' ');
-  if (!value) return false;
-  const normalizedPatterns = CLUB_URUGUAY_PATTERNS.map((pattern) => pattern.replace(/[_-]/g, ' ').toLowerCase());
-  return normalizedPatterns.some((pattern) => value === pattern);
+  const normalizedSalon = (salon || '').toLowerCase().trim().replace(/\s+/g, ' ');
+  if (!normalizedSalon) return false;
+  return CLUB_URUGUAY_NORMALIZED_PATTERNS.some((pattern) => normalizedSalon === pattern);
 };
 
-const buildClubUruguaySalonContract = (params: { today: string; clienteNombre: string; fechaEvento: string; }) => `CONTRATO DE ARRENDAMIENTO DE SALÓN
+const buildClubUruguaySalonContract = (params: { todayFormatted: string; clienteNombre: string; fechaEvento: string; }) => `CONTRATO DE ARRENDAMIENTO DE SALÓN
 
-En la ciudad de Salto, a los ${params.today}, entre Club Uruguay (en adelante “EL SALÓN”) y ${params.clienteNombre} (en adelante “EL CLIENTE”), se acuerda el uso del salón para la realización del evento del día ${params.fechaEvento}.
+En la ciudad de Salto, a los ${params.todayFormatted}, entre Club Uruguay (en adelante “EL SALÓN”) y ${params.clienteNombre} (en adelante “EL CLIENTE”), se acuerda el uso del salón para la realización del evento del día ${params.fechaEvento}.
 
 PRIMERA: OBJETO
 EL SALÓN otorga a EL CLIENTE el uso del salón Club Uruguay para el evento pactado.
@@ -189,7 +189,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
         if (isClubUruguaySalon(fiestaData.configuracion.nombreLugar || presupuestoData?.salonFiestas)) {
           const todayShort = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
           salonContractText = buildClubUruguaySalonContract({
-            today: todayShort,
+            todayFormatted: todayShort,
             clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
             fechaEvento: formatDate(fiestaData.configuracion.fechaEvento),
           });

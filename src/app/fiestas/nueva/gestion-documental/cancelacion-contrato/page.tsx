@@ -121,7 +121,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
       const presupuestoTotalDraft = presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0;
-      const multaDraft = presupuestoTotalDraft * 0.30;
+      const multaDraft = presupuestoTotalDraft * CANCELLATION_PENALTY_RATE;
       setContractText(buildCancelacionText({
         companyName: companyData.companyName,
         clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
