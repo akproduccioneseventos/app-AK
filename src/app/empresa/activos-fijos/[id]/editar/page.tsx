@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -39,6 +39,7 @@ export default function EditarActivoFijoPage({ params }: { params: { id: string 
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [notFound, setNotFound] = useState(false);
   
   const itemIdFromParams = params.id;
@@ -213,15 +214,16 @@ export default function EditarActivoFijoPage({ params }: { params: { id: string 
                   placeholder="https://..."
                   disabled={isSaving || isUploadingImage}
                 />
-                <label htmlFor="item-image-upload" className="shrink-0">
-                  <Button asChild variant="outline" disabled={isSaving || isUploadingImage}>
-                    <span>
-                      {isUploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                      Subir desde dispositivo
-                    </span>
-                  </Button>
-                  <input id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} />
-                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isSaving || isUploadingImage}
+                  onClick={() => imageInputRef.current?.click()}
+                >
+                  {isUploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                  Subir desde dispositivo
+                </Button>
+                <input ref={imageInputRef} id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} />
               </div>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

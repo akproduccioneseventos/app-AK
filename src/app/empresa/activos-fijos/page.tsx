@@ -199,7 +199,7 @@ export default function InventarioActivosPage() {
                               {item.imageUrl && (
                                 <div className="relative w-14 h-14 rounded-md overflow-hidden border border-border bg-background flex-shrink-0">
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={item.imageUrl} alt={`Foto de ${item.nombre}`} className="w-full h-full object-cover" />
+                                  <img src={item.imageUrl} alt={`Foto de ${item.nombre}`} className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                                 </div>
                               )}
                               <CardTitle className="text-base font-semibold print:text-sm">{item.nombre}</CardTitle>

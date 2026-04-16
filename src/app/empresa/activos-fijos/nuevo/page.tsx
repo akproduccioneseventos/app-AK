@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, type FormEvent, Suspense, useMemo } from 'react';
+import React, { useState, type FormEvent, Suspense, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -23,6 +23,7 @@ function NuevoActivoFijoContent() {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Unified state object
   const [formData, setFormData] = useState<Partial<ServicioEmpresa>>({
@@ -174,15 +175,16 @@ function NuevoActivoFijoContent() {
                   className="text-base p-3"
                   disabled={isSaving || isUploadingImage}
                 />
-                <label htmlFor="item-image-upload" className="shrink-0">
-                  <Button asChild variant="outline" disabled={isSaving || isUploadingImage}>
-                    <span>
-                      {isUploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                      Subir desde dispositivo
-                    </span>
-                  </Button>
-                  <input id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} />
-                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isSaving || isUploadingImage}
+                  onClick={() => imageInputRef.current?.click()}
+                >
+                  {isUploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                  Subir desde dispositivo
+                </Button>
+                <input ref={imageInputRef} id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} />
               </div>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
