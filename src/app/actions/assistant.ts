@@ -17,6 +17,7 @@ import type { Customer } from '@/types/customer';
 import * as logger from '@/lib/logger';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
+const SHORT_CONFIRMATION_REGEX = /^(sí|si|dale|crealo|crealo ahora|confirmá|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
 
 // ── Parser local determinista de presupuestos en texto libre ─────────────────
 
@@ -208,6 +209,20 @@ function parseBudgetFromText(text: string): ParsedBudgetLocal {
   return { clienteNombre, eventoTipo, eventoFecha, invitados, servicios, descuento, total, confidence };
 }
 
+function getBudgetParserText(
+  message: string,
+  history: Array<{ role: 'user' | 'assistant'; content: string }>,
+  forceUseHistory = false
+): string {
+  const trimmedMessage = message.trim();
+  const isConfirmationMessage = SHORT_CONFIRMATION_REGEX.test(trimmedMessage);
+  const fullConversationText = [...history.map(h => h.content), message].join('\n');
+
+  return (forceUseHistory || (isConfirmationMessage && history.length > 0))
+    ? fullConversationText
+    : message;
+}
+
 export async function sendAssistantMessage(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -329,7 +344,8 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
 
           // Fallback: if Gemini returned no services but the message has structured text, use local parser
           if (serviciosInput.length === 0) {
-            const localParsed = parseBudgetFromText(message);
+            const textToParse = getBudgetParserText(message, history, true);
+            const localParsed = parseBudgetFromText(textToParse);
             if (localParsed.servicios.length > 0) {
               logger.info('[Asistente AK] Usando parser local como fallback para servicios');
               serviciosInput = localParsed.servicios.map(s => ({
@@ -394,7 +410,8 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
     } else if (result.action?.type === 'create_budget') {
       // Gemini triggered create_budget but returned no action.data — try local parser
       try {
-        const localParsed = parseBudgetFromText(message);
+        const textToParse = getBudgetParserText(message, history, true);
+        const localParsed = parseBudgetFromText(textToParse);
         const { clienteNombre: lCliente, eventoTipo: lTipo, eventoFecha: lFecha, invitados: lInv, servicios: lServicios, confidence } = localParsed;
 
         if (confidence === 'low' && lServicios.length === 0) {

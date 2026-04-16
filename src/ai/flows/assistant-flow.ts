@@ -63,6 +63,7 @@ Si el usuario te dice "creame un presupuesto" o te pasa datos de un evento:
 - Respondé con action.type = "create_budget"
 - Extraé los datos: nombre del cliente, tipo de evento, fecha, cantidad de invitados, servicios
 - **IMPORTANTE**: Incluí los servicios reales en action.data.servicios como array de objetos
+- **IMPORTANTE**: Si el usuario dice "crealo", "dale", "sí", "confirmá", "crealo ahora" — buscá los datos del presupuesto en el HISTORIAL DE CONVERSACIÓN y crealo con esos datos. SIEMPRE incluí action.data con todos los campos que hayas podido extraer del historial.
 - En action.data poné: { clienteNombre, eventoTipo, eventoFecha, invitados, servicios: [{ nombre, cantidad, precioUnitario, categoria }], notas, senia, saldo, ajusteAnualPorcentaje }
 - Si el usuario menciona seña/saldo/ajuste anual, incluílos en los datos
 
