@@ -257,7 +257,10 @@ function CarteleriaContent() {
     if (!file || !fiestaId) return;
     setIsUploading(true);
     try {
-      const result = await uploadPublicPageAsset(fiestaId, file);
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
       if (result.success && result.url) {
         setProtagonistFotoUrl(result.url);
         toast({ title: 'Foto actualizada' });

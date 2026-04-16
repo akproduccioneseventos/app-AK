@@ -51,7 +51,10 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
         }
         setIsUploading(true);
         try {
-            const result = await uploadPublicPageAsset(fiestaId, fileToUpload);
+            const formData = new FormData();
+            formData.append('fiestaId', fiestaId);
+            formData.append('file', fileToUpload);
+            const result = await uploadPublicPageAsset(formData);
 
             if (result.success && result.url) {
                 onUrlChange(result.url);

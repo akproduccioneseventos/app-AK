@@ -448,7 +448,10 @@ function SalonLayoutContent() {
     if (!file || !fiestaId || !decoracion) return;
     setIsUploading(true);
     try {
-      const result = await uploadPublicPageAsset(fiestaId, file);
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
       if(result.success && result.url) {
         setDecoracion({ ...decoracion, salonPlanBackgroundImageUrl: result.url });
         toast({ title: "Plano cargado correctamente" });

@@ -52,7 +52,10 @@ export default function NuevoEmpleadoPage() {
     if (!file) return;
     setIsUploadingPhoto(true);
     try {
-      const result = await uploadPublicPageAsset('empleados-fotos', file);
+      const formData = new FormData();
+      formData.append('fiestaId', 'empleados-fotos');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
       setPhotoUrl(result.url);
       toast({ title: '✅ Foto subida', description: 'La foto de perfil fue cargada correctamente.' });
