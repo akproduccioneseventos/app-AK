@@ -84,11 +84,30 @@ interface PageData {
   salonContractText: string | null;
 }
 
-const CLUB_URUGUAY_KEYWORDS = ['club uruguay', 'cluburuguay', 'club_uruguay', 'club-uruguay'];
-const isClubUruguay = (salon?: string) => {
-  const value = (salon || '').toLowerCase().trim();
-  return CLUB_URUGUAY_KEYWORDS.some((k) => value.includes(k));
+const CLUB_URUGUAY_PATTERNS = ['club uruguay', 'cluburuguay', 'club_uruguay', 'club-uruguay'];
+const isClubUruguaySalon = (salon?: string) => {
+  const value = (salon || '').toLowerCase().trim().replace(/\s+/g, ' ');
+  if (!value) return false;
+  const normalizedPatterns = CLUB_URUGUAY_PATTERNS.map((pattern) => pattern.replace(/[_-]/g, ' ').toLowerCase());
+  return normalizedPatterns.some((pattern) => value === pattern);
 };
+
+/** Automatic annex used only when the event salon is exactly Club Uruguay. */
+const buildClubUruguaySalonContract = (params: { today: string; clienteNombre: string; fechaEvento: string; }) => `CONTRATO DE ARRENDAMIENTO DE SALÓN
+
+En la ciudad de Salto, a los ${params.today}, entre Club Uruguay (en adelante “EL SALÓN”) y ${params.clienteNombre} (en adelante “EL CLIENTE”), se acuerda el uso del salón para la realización del evento del día ${params.fechaEvento}.
+
+PRIMERA: OBJETO
+EL SALÓN otorga a EL CLIENTE el uso del salón Club Uruguay para el evento pactado.
+
+SEGUNDA: CONDICIONES
+EL CLIENTE se compromete a respetar las normas internas del salón y toda reglamentación vigente.
+
+TERCERA: PAGO Y RESPONSABILIDAD
+Las condiciones económicas y de responsabilidad se rigen por el presupuesto y contrato principal vinculados al evento.
+
+CUARTA: VIGENCIA
+Este anexo forma parte de la documentación contractual del evento y se firma en conformidad por ambas partes.`;
 
 function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
@@ -168,23 +187,13 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
           });
         }
         contractText = text;
-        if (isClubUruguay(fiestaData.configuracion.nombreLugar || presupuestoData?.salonFiestas)) {
+        if (isClubUruguaySalon(fiestaData.configuracion.nombreLugar || presupuestoData?.salonFiestas)) {
           const todayShort = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-          salonContractText = `CONTRATO DE ARRENDAMIENTO DE SALÓN
-
-En la ciudad de Salto, a los ${todayShort}, entre Club Uruguay (en adelante “EL SALÓN”) y ${clienteData?.name || clienteData?.companyName || '________________________'} (en adelante “EL CLIENTE”), se acuerda el uso del salón para la realización del evento del día ${formatDate(fiestaData.configuracion.fechaEvento)}.
-
-PRIMERA: OBJETO
-EL SALÓN otorga a EL CLIENTE el uso del salón Club Uruguay para el evento pactado.
-
-SEGUNDA: CONDICIONES
-EL CLIENTE se compromete a respetar las normas internas del salón y toda reglamentación vigente.
-
-TERCERA: PAGO Y RESPONSABILIDAD
-Las condiciones económicas y de responsabilidad se rigen por el presupuesto y contrato principal vinculados al evento.
-
-CUARTA: VIGENCIA
-Este anexo forma parte de la documentación contractual del evento y se firma en conformidad por ambas partes.`;
+          salonContractText = buildClubUruguaySalonContract({
+            today: todayShort,
+            clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
+            fechaEvento: formatDate(fiestaData.configuracion.fechaEvento),
+          });
         }
       }
 

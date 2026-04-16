@@ -33,6 +33,10 @@ const formatDate = (dateString?: string) => {
 };
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+// Se listan solo los primeros servicios para dejar el modelo editable y compacto; el operador puede completar el resto manualmente.
+const MAX_PREVIEW_SERVICES_COUNT = 3;
+// Penalización base para cancelaciones parciales (distinta de la cancelación total, que mantiene 30%).
+const PARTIAL_CANCELLATION_PENALTY_RATE = 0.1;
 
 const buildCancelacionParcialText = (params: {
   companyName: string;
@@ -86,8 +90,11 @@ function CancelacionParcialContent({ fiestaId }: { fiestaId: string | null }) {
         getCustomerById(fiestaData.configuracion.clienteId),
         getPresupuestoById(fiestaData.presupuestoId),
       ]);
-      const servicios = (presupuestoData?.itemsPresupuestados || []).slice(0, 3).map((i) => `- ${i.nombreServicio}`).join('\n') || '- ________________________';
-      const ajuste = Math.round((presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0) * 0.1);
+      const servicios = (presupuestoData?.itemsPresupuestados || [])
+        .slice(0, MAX_PREVIEW_SERVICES_COUNT)
+        .map((i) => `- ${i.nombreServicio}`)
+        .join('\n') || '- ________________________';
+      const ajuste = Math.round((presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0) * PARTIAL_CANCELLATION_PENALTY_RATE);
       setFiesta(fiestaData);
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
@@ -101,8 +108,9 @@ function CancelacionParcialContent({ fiestaId }: { fiestaId: string | null }) {
         servicios,
         ajusteTotal: ajuste,
       }));
-    } catch (err: any) {
-      setError(err.message || 'No se pudieron cargar los datos.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'No se pudieron cargar los datos.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }

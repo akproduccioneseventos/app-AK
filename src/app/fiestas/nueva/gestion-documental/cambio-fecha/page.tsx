@@ -111,9 +111,10 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
         salon: fiestaData.configuracion.nombreLugar,
       }));
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error desconocido";
       setError("No se pudieron cargar todos los datos para generar el documento.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -138,8 +139,9 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
       const result = await uploadDocumentoFiesta(formData);
       if (!result.success) throw new Error(result.error);
       toast({ title: 'Documento guardado', description: 'Se guardó en el historial de documentos.' });
-    } catch (err: any) {
-      toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error desconocido';
+      toast({ title: 'Error al guardar', description: message, variant: 'destructive' });
     } finally {
       setIsSavingHistory(false);
     }

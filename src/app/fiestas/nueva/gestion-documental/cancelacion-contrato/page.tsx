@@ -53,6 +53,8 @@ const formatDate = (dateString?: string) => {
 };
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+const CANCELLATION_PENALTY_RATE = 0.3;
+const CANCELLATION_PENALTY_PERCENT_LABEL = `${Math.round(CANCELLATION_PENALTY_RATE * 100)}%`;
 
 const buildCancelacionText = (params: {
   companyName: string;
@@ -65,7 +67,7 @@ const buildCancelacionText = (params: {
   totalPagado: number;
 }) => `En la ciudad de Salto, a los ${today}, se deja constancia que, a solicitud del/la Sr./Sra. ${params.clienteNombre}, cédula de identidad N° ${params.clienteCi || '_______________________'}, quien contratara los servicios de ${params.companyName} para la organización de un evento previsto para el día ${formatDate(params.fechaEvento)}, según contrato firmado con fecha ${formatDate(params.fechaContrato)}, se procede a la cancelación del mencionado contrato por parte del cliente.
 
-De acuerdo con la cláusula cuarta del contrato suscrito, en caso de cancelación por parte del cliente, se establece una multa del 30% del presupuesto total como penalización. El presupuesto acordado fue de ${formatCurrency(params.presupuestoTotal)}, por lo tanto, la multa correspondiente asciende a ${formatCurrency(params.multa)}.
+De acuerdo con la cláusula cuarta del contrato suscrito, en caso de cancelación por parte del cliente, se establece una multa del ${CANCELLATION_PENALTY_PERCENT_LABEL} del presupuesto total como penalización. El presupuesto acordado fue de ${formatCurrency(params.presupuestoTotal)}, por lo tanto, la multa correspondiente asciende a ${formatCurrency(params.multa)}.
 
 No obstante lo anterior, ${params.companyName}, en un gesto comercial de común acuerdo entre las partes, acepta reducir el costo de la multa, estableciendo como monto total y definitivo de la penalización la suma ya abonada por el cliente, correspondiente a ${formatCurrency(params.totalPagado)}.
 
@@ -149,9 +151,10 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
         }));
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error desconocido";
       setError("No se pudieron cargar todos los datos para generar el documento.");
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -176,8 +179,9 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       const result = await uploadDocumentoFiesta(formData);
       if (!result.success) throw new Error(result.error);
       toast({ title: 'Documento guardado', description: 'Se guardó en el historial de documentos.' });
-    } catch (err: any) {
-      toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error desconocido';
+      toast({ title: 'Error al guardar', description: message, variant: 'destructive' });
     } finally {
       setIsSavingHistory(false);
     }
@@ -199,7 +203,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   };
 
   const presupuestoTotal = presupuesto?.totalConDescuento ?? presupuesto?.costoTotalEstimado ?? 0;
-  const multa = presupuestoTotal * 0.30;
+  const multa = presupuestoTotal * CANCELLATION_PENALTY_RATE;
 
   if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
@@ -316,7 +320,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
                 <p className="font-black text-slate-900 text-sm print:text-xs">{formatCurrency(presupuestoTotal)}</p>
               </div>
               <div className="bg-amber-50 print:bg-yellow-50 rounded-2xl print:rounded-lg p-3 text-center">
-                <p className="text-[8px] font-black uppercase tracking-widest text-amber-500 mb-1">Multa 30% (Contractual)</p>
+                <p className="text-[8px] font-black uppercase tracking-widest text-amber-500 mb-1">Multa {CANCELLATION_PENALTY_PERCENT_LABEL} (Contractual)</p>
                 <p className="font-black text-amber-700 text-sm print:text-xs">{formatCurrency(multa)}</p>
               </div>
               <div className="bg-emerald-50 print:bg-green-50 rounded-2xl print:rounded-lg p-3 text-center">
