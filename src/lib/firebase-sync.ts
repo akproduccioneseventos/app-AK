@@ -35,13 +35,28 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'task-templates.json': 'task_templates',
   'testimonials.json': 'testimonials',
   'accesos-personal.json': 'accesos_personal',
+  'menus.json': 'menus',
+  'feature-flags.json': 'feature_flags',
+  'galeria-publica.json': 'galeria_publica',
+  'coupons.json': 'coupons',
+  'crm-meetings.json': 'crm_meetings',
+  'scheduled-messages.json': 'scheduled_messages',
+  'automatizaciones-alertas.json': 'automatizaciones_alertas',
+  'playbooks.json': 'playbooks',
+  'recursos-multi-evento.json': 'recursos_multi_evento',
+  '_backup-snapshots.json': 'backup_snapshots',
   'cupones.json': 'cupones',
   'cupones-usage.json': 'cupones_usage',
   'catalogo-fotos.json': 'catalogo_fotos',
 };
 
 const CONFIG_FILES: Record<string, string> = {
+  'app-settings.json': 'app-settings',
   'company-info.json': 'company-info',
+  'contract-settings.json': 'contract-settings',
+  'whatsapp-settings.json': 'whatsapp-settings',
+  'whatsapp-templates.json': 'whatsapp-templates',
+  'ai-assistant-settings.json': 'ai-assistant-settings',
   'budget-display-settings.json': 'budget-display-settings',
   'invoice-template-settings.json': 'invoice-template-settings',
   'armado-rapido-config.json': 'armado-rapido-config',
@@ -114,11 +129,17 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName && Array.isArray(data)) {
       const batchSize = 450;
+      const getItemDocId = (item: any): string | null => {
+        if (!item || typeof item !== 'object') return null;
+        if (item.id !== undefined && item.id !== null && String(item.id).trim() !== '') return String(item.id);
+        if (item.name !== undefined && item.name !== null && String(item.name).trim() !== '') return String(item.name);
+        return null;
+      };
 
       // Delete orphaned documents (those that no longer exist in the array)
       const existingSnapshot = await db.collection(collectionName).get();
       const existingIds = new Set(existingSnapshot.docs.map((d: FirebaseFirestore.QueryDocumentSnapshot) => d.id));
-      const newIds = new Set(data.filter((item: any) => item?.id).map((item: any) => String(item.id)));
+      const newIds = new Set(data.map(getItemDocId).filter((id): id is string => Boolean(id)));
       const toDelete = [...existingIds].filter((id: string) => !newIds.has(id));
       if (toDelete.length > 0) {
         for (let i = 0; i < toDelete.length; i += batchSize) {
@@ -138,14 +159,14 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
         const chunk = data.slice(i, i + batchSize);
         
         for (const item of chunk) {
-          if (item && item.id) {
-            const ref = db.collection(collectionName).doc(String(item.id));
-            const cleanData = { ...item };
-            Object.keys(cleanData).forEach(key => {
-              if (cleanData[key] === undefined) delete cleanData[key];
-            });
-            batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
-          }
+          const docId = getItemDocId(item);
+          if (!docId) continue;
+          const ref = db.collection(collectionName).doc(docId);
+          const cleanData = { ...item };
+          Object.keys(cleanData).forEach(key => {
+            if (cleanData[key] === undefined) delete cleanData[key];
+          });
+          batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
         }
         
         await withRetry(() => batch.commit(), `collection: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
