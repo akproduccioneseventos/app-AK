@@ -25,6 +25,9 @@ const RESTORABLE_COLLECTIONS = new Set([
   'feature-flags.json',
   'galeria-publica.json',
   'menus.json',
+  'reposteria-template.json',
+  'bebidas-template.json',
+  'insumos.json',
   'coupons.json',
   'ai-assistant-settings.json',
   'armado-rapido-config.json',
@@ -35,6 +38,14 @@ const RESTORABLE_COLLECTIONS = new Set([
   'automatizaciones-alertas.json',
   'playbooks.json',
   'recursos-multi-evento.json',
+]);
+
+const VALID_ZIP_TYPES = new Set([
+  'application/zip',
+  'application/x-zip',
+  'application/x-zip-compressed',
+  'application/octet-stream',
+  'application/x-compressed',
 ]);
 
 /** Try to write a collection directly to Firestore via sync module. Returns true on success. */
@@ -57,7 +68,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No se ha subido ningún archivo.' }, { status: 400 });
     }
 
-    if (file.type !== 'application/zip') {
+    if (!VALID_ZIP_TYPES.has(file.type) && !file.name.toLowerCase().endsWith('.zip')) {
       return NextResponse.json({ error: 'El archivo debe ser de tipo .zip.' }, { status: 400 });
     }
 
