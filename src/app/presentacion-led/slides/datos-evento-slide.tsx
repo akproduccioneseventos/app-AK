@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, User, CalendarDays, PartyPopper, Users } from 'lucide-react';
+import { ChevronRight, User, CalendarDays, PartyPopper, Users, Building2, MapPin } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { SlideLayout } from '../components/slide-layout';
 import { TIPOS_FIESTA } from '../lib/contenido-por-tipo';
@@ -13,7 +14,48 @@ interface DatosEventoSlideProps {
   onNext: () => void;
 }
 
+function addDays(dateString: string, days: number): string | null {
+  const [year, month, day] = dateString.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function formatDate(dateString: string): string {
+  const [year, month, day] = dateString.split('-').map(Number);
+  if (!year || !month || !day) return dateString;
+  return new Date(year, month - 1, day).toLocaleDateString('es-UY', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
 export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: DatosEventoSlideProps) {
+  const [fechasBloqueadas, setFechasBloqueadas] = useState<string[]>([]);
+  const fechaOcupada = !!clientData.fechaEvento && fechasBloqueadas.includes(clientData.fechaEvento);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('presentacion_fechas_bloqueadas');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setFechasBloqueadas(parsed.filter((fecha): fecha is string => typeof fecha === 'string'));
+      }
+    } catch {
+      setFechasBloqueadas([]);
+    }
+  }, []);
+
+  const sugerencias = useMemo(
+    () => (fechaOcupada ? [7, 14, -7]
+      .map(days => addDays(clientData.fechaEvento, days))
+      .filter((fecha): fecha is string => !!fecha && !fechasBloqueadas.includes(fecha)) : []),
+    [clientData.fechaEvento, fechaOcupada, fechasBloqueadas],
+  );
+
   return (
     <SlideLayout overflowScroll>
       <motion.div
@@ -49,28 +91,58 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
 
           <div className="space-y-2">
             <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" /> Fecha del evento
-            </Label>
-            <input
-              type="date"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
-              value={clientData.fechaEvento}
-              onChange={e => onClientDataChange({ ...clientData, fechaEvento: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
               <PartyPopper className="w-4 h-4" /> Tipo de fiesta
             </Label>
             <select
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
               value={clientData.tipoFiesta}
               onChange={e => onClientDataChange({ ...clientData, tipoFiesta: e.target.value })}
             >
               <option value="">Seleccioná el tipo de evento...</option>
               {TIPOS_FIESTA.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <CalendarDays className="w-4 h-4" /> Fecha del evento
+            </Label>
+            <input
+              type="date"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
+              value={clientData.fechaEvento}
+              onChange={e => onClientDataChange({ ...clientData, fechaEvento: e.target.value })}
+            />
+            {clientData.fechaEvento && (
+              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                {fechaOcupada ? (
+                  <div className="space-y-2">
+                    <p className="text-amber-300 text-sm font-semibold">
+                      ⚠️ Esa fecha podría estar ocupada. Te sugerimos estas fechas cercanas:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {sugerencias.map(fecha => (
+                        <button
+                          key={fecha}
+                          type="button"
+                          onClick={() => onClientDataChange({ ...clientData, fechaEvento: fecha })}
+                          className="px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-indigo-200 text-sm hover:bg-indigo-500/30 transition-colors"
+                        >
+                          {formatDate(fecha)}
+                        </button>
+                      ))}
+                    </div>
+                    {sugerencias.length === 0 && (
+                      <p className="text-white/60 text-xs">
+                        No encontramos fechas cercanas en este momento, consultanos para más opciones.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-emerald-300 text-sm font-medium">✅ Fecha disponible para cotizar.</p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -84,6 +156,32 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
               placeholder="Ej: 150"
               value={clientData.cantidadInvitados}
               onChange={e => onClientDataChange({ ...clientData, cantidadInvitados: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <Building2 className="w-4 h-4" /> Salón o lugar (si ya lo sabe)
+            </Label>
+            <input
+              type="text"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
+              placeholder="Ej: Salón La Toscana"
+              value={clientData.salon}
+              onChange={e => onClientDataChange({ ...clientData, salon: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <MapPin className="w-4 h-4" /> Ciudad
+            </Label>
+            <input
+              type="text"
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
+              placeholder="Ej: Salto"
+              value={clientData.ciudad}
+              onChange={e => onClientDataChange({ ...clientData, ciudad: e.target.value })}
             />
           </div>
         </div>

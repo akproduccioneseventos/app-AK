@@ -7,6 +7,8 @@ export interface ClientData {
   fechaEvento: string;
   tipoFiesta: string;
   cantidadInvitados: string;
+  salon: string;
+  ciudad: string;
 }
 
 export interface PageData {

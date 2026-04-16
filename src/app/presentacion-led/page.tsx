@@ -24,6 +24,7 @@ import { PortadaSlide } from './slides/portada-slide';
 import { QuienesSomosSlide } from './slides/quienes-somos-slide';
 import { BeneficiosSlide } from './slides/beneficios-slide';
 import { DatosEventoSlide } from './slides/datos-evento-slide';
+import { SalonSlide } from './slides/salon-slide';
 import { CategoriaServiciosSlide } from './slides/categoria-servicios-slide';
 import { TestimoniosSlide } from './slides/testimonios-slide';
 import { FormasDePagoSlide } from './slides/formas-de-pago-slide';
@@ -80,7 +81,7 @@ function groupServicesByCategory(servicios: PageData['servicios']): CategoriaSer
 }
 
 // ---- Slide index constants ----
-const FIXED_SLIDES_START = 4; // portada, quienes somos, beneficios, datos evento
+const FIXED_SLIDES_START = 5; // portada, quienes somos, beneficios, datos evento, salon
 const FIXED_SLIDES_END = 5;   // testimonios, formas de pago, menu, regalos, cierre
 
 // ---- Main Component ----
@@ -95,7 +96,7 @@ export default function PresentacionLedPage() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
   const [clientData, setClientData] = useState<ClientData>({
-    nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '',
+    nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '', salon: '', ciudad: '',
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -147,6 +148,7 @@ export default function PresentacionLedPage() {
   const isQuienesSomosSlide = currentSlide === 1;
   const isBeneficiosSlide = currentSlide === 2;
   const isDatosEventoSlide = currentSlide === 3;
+  const isSalonSlide = currentSlide === 4;
   const isCategoriaSlide = currentSlide >= FIXED_SLIDES_START && currentSlide < testimoniosSlideIndex;
   const isTestimoniosSlide = currentSlide === testimoniosSlideIndex;
   const isFormasDePagoSlide = currentSlide === formasDePagoSlideIndex;
@@ -162,6 +164,7 @@ export default function PresentacionLedPage() {
     if (isQuienesSomosSlide) return 'Quiénes Somos';
     if (isBeneficiosSlide) return '¿Por qué elegirnos?';
     if (isDatosEventoSlide) return 'Datos del Evento';
+    if (isSalonSlide) return 'Nuestro Salón';
     if (isCategoriaSlide) return currentCategoria?.nombre ?? 'Servicios';
     if (isTestimoniosSlide) return 'Testimonios';
     if (isFormasDePagoSlide) return 'Formas de Pago';
@@ -199,6 +202,8 @@ export default function PresentacionLedPage() {
         fechaEvento: clientData.fechaEvento,
         tipoFiesta: clientData.tipoFiesta.slice(0, 100),
         cantidadInvitados: clientData.cantidadInvitados,
+        salon: clientData.salon.slice(0, 200),
+        ciudad: clientData.ciudad.slice(0, 120),
       };
       sessionStorage.setItem('presentacion_cliente_data', JSON.stringify(safeClientData));
     }
@@ -207,6 +212,22 @@ export default function PresentacionLedPage() {
     }
     router.push('/presupuestos/nuevo/crear');
   }, [selectedServices, clientData, selectedMenuId, router]);
+
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
+
+  const handlePlanPagos = useCallback(() => {
+    const params = new URLSearchParams();
+    if (clientData.nombre) params.set('cliente', clientData.nombre.slice(0, 200));
+    if (clientData.fechaEvento) params.set('fecha', clientData.fechaEvento);
+    const query = params.toString();
+    router.push(query ? `/presupuestos/nuevo/crear?${query}` : '/presupuestos/nuevo/crear');
+  }, [clientData, router]);
+
+  const handleContrato = useCallback(() => {
+    router.push('/presupuestos/nuevo/crear');
+  }, [router]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -327,6 +348,13 @@ export default function PresentacionLedPage() {
               onNext={goNext}
             />
           )}
+          {isSalonSlide && (
+            <SalonSlide
+              catalogoFotos={catalogoFotos}
+              companyInfo={data.companyInfo}
+              tipoFiesta={clientData.tipoFiesta}
+            />
+          )}
           {isCategoriaSlide && currentCategoria && (
             <CategoriaServiciosSlide
               categoria={currentCategoria.nombre}
@@ -337,6 +365,7 @@ export default function PresentacionLedPage() {
               categoriaIndex={categoriaIndex}
               totalCategorias={categorias.length}
               catalogoFotos={catalogoFotos}
+              tipoFiesta={clientData.tipoFiesta}
             />
           )}
           {isTestimoniosSlide && (
@@ -369,6 +398,10 @@ export default function PresentacionLedPage() {
               tipoFiesta={clientData.tipoFiesta}
               clientData={clientData}
               onGenerateBudget={handleGenerateBudget}
+              onPrint={handlePrint}
+              onPlanPagos={handlePlanPagos}
+              onContrato={handleContrato}
+              mostrarPrecios={data.mostrarPrecios}
             />
           )}
         </motion.div>
