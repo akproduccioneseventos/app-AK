@@ -30,6 +30,7 @@ interface CategoriaServiciosSlideProps {
   categoriaIndex: number;
   totalCategorias: number;
   catalogoFotos?: CatalogoFoto[];
+  tipoFiesta?: string;
 }
 
 function getServiceIcon(categoria?: string) {
@@ -167,6 +168,7 @@ export function CategoriaServiciosSlide({
   categoriaIndex,
   totalCategorias,
   catalogoFotos = [],
+  tipoFiesta = '',
 }: CategoriaServiciosSlideProps) {
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
@@ -175,12 +177,25 @@ export function CategoriaServiciosSlide({
   const categorySlug = slugify(categoria);
 
   // Memoize filtered catalog photos to avoid recalculating on every render
-  const fotosCategoria = useMemo(
-    () => catalogoFotos
-      .filter(f => isSafeHttpsUrl(f.url) && f.categoriaServicio.toLowerCase() === categoria.toLowerCase())
-      .slice(0, 4),
-    [catalogoFotos, categoria],
-  );
+  const fotosCategoria = useMemo(() => {
+    const byCategoria = catalogoFotos.filter(
+      f => isSafeHttpsUrl(f.url)
+        && f.categoriaServicio.toLowerCase() === categoria.toLowerCase(),
+    );
+
+    if (tipoFiesta) {
+      const byTipo = byCategoria.filter(
+        f => f.tipoFiesta
+          && f.tipoFiesta.toLowerCase() === tipoFiesta.toLowerCase(),
+      );
+      if (byTipo.length > 0) return byTipo.slice(0, 4);
+    }
+
+    const genericas = byCategoria.filter(f => !f.tipoFiesta);
+    if (genericas.length > 0) return genericas.slice(0, 4);
+
+    return byCategoria.slice(0, 4);
+  }, [catalogoFotos, categoria, tipoFiesta]);
 
   const visibleFotos = useMemo(
     () => fotosCategoria.filter(f => !failedIds.has(f.id)),

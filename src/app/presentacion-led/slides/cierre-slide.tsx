@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle } from 'lucide-react';
+import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle, Printer, CalendarDays, FileText } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
@@ -24,8 +24,19 @@ interface CierreSlideProps {
   selectedMenuId: string | null;
   menus: { id: string; name: string }[];
   tipoFiesta: string;
-  clientData: { nombre: string; fechaEvento: string };
+  clientData: {
+    nombre: string;
+    fechaEvento: string;
+    tipoFiesta: string;
+    cantidadInvitados: string;
+    salon: string;
+    ciudad: string;
+  };
   onGenerateBudget: () => void;
+  onPrint?: () => void;
+  onPlanPagos?: () => void;
+  onContrato?: () => void;
+  mostrarPrecios?: boolean;
 }
 
 export function CierreSlide({
@@ -37,6 +48,10 @@ export function CierreSlide({
   tipoFiesta,
   clientData,
   onGenerateBudget,
+  onPrint = () => {},
+  onPlanPagos = () => {},
+  onContrato = () => {},
+  mostrarPrecios = true,
 }: CierreSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
   const safeEmail = isSafeEmail(companyInfo.companyContact) ? companyInfo.companyContact : null;
@@ -47,10 +62,11 @@ export function CierreSlide({
 
   const selectedServiciosData = selectedServices.map(id => servicios.find(s => s.id === id)).filter(Boolean) as ServicioEmpresa[];
   const selectedMenu = menus.find(m => m.id === selectedMenuId);
+  const totalEstimado = selectedServiciosData.reduce((acc, servicio) => acc + (servicio.precioVenta || 0), 0);
 
   return (
     <SlideLayout overflowScroll>
-      <div className="w-full max-w-5xl mx-auto">
+      <div className="w-full max-w-5xl mx-auto presentacion-cierre-print-root">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -77,21 +93,46 @@ export function CierreSlide({
             transition={{ delay: 0.2 }}
             className="flex flex-col gap-4"
           >
-            {/* Selected services summary */}
-            {selectedServiciosData.length > 0 && (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Datos del evento</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <p className="text-white/80"><span className="text-white/50">Nombre:</span> {clientData.nombre || '—'}</p>
+                <p className="text-white/80"><span className="text-white/50">Tipo:</span> {clientData.tipoFiesta || tipoFiesta || '—'}</p>
+                <p className="text-white/80"><span className="text-white/50">Fecha:</span> {clientData.fechaEvento || '—'}</p>
+                <p className="text-white/80"><span className="text-white/50">Invitados:</span> {clientData.cantidadInvitados || '—'}</p>
+                <p className="text-white/80"><span className="text-white/50">Salón:</span> {clientData.salon || '—'}</p>
+                <p className="text-white/80"><span className="text-white/50">Ciudad:</span> {clientData.ciudad || '—'}</p>
+              </div>
+            </div>
+
+            {selectedServiciosData.length > 0 ? (
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
                 <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Servicios seleccionados</p>
-                <div className="flex flex-wrap gap-2">
+                <ul className="space-y-2">
                   {selectedServiciosData.map(s => (
-                    <span
-                      key={s.id}
-                      className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-sm border border-emerald-400/30 flex items-center gap-1"
-                    >
-                      <Check className="h-3 w-3" />
-                      {s.nombre}
-                    </span>
+                    <li key={s.id} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="text-emerald-200 flex items-center gap-2">
+                        <Check className="h-3.5 w-3.5" />
+                        {s.nombre}
+                      </span>
+                      {mostrarPrecios && (
+                        <span className="text-white/70 font-semibold">
+                          {s.precioVenta ? `$${s.precioVenta.toLocaleString('es-UY')}` : 'A coordinar'}
+                        </span>
+                      )}
+                    </li>
                   ))}
+                </ul>
+                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+                  <p className="text-white/70 font-semibold">Total estimado</p>
+                  <p className="text-emerald-300 text-lg font-black">${totalEstimado.toLocaleString('es-UY')}</p>
                 </div>
+              </div>
+            ) : (
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-white/50 text-sm text-center">
+                  Podés generar el presupuesto y completar los detalles después.
+                </p>
               </div>
             )}
 
@@ -103,20 +144,12 @@ export function CierreSlide({
               </div>
             )}
 
-            {/* No selection */}
-            {selectedServiciosData.length === 0 && !selectedMenu && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-white/50 text-sm text-center">
-                  Podés generar el presupuesto y completar los detalles después.
-                </p>
-              </div>
-            )}
-
             {/* Image placeholder */}
             <ImagePlaceholder
               id="cierre-foto"
               label="Foto emocional de un evento exitoso"
               aspectRatio="16/9"
+              className="presentacion-cierre-print-hide"
             />
           </motion.div>
 
@@ -138,12 +171,39 @@ export function CierreSlide({
               )}
             >
               <ShoppingCart className="h-6 w-6" />
-              Generar Presupuesto Personalizado
+              Generar Presupuesto Manual
             </motion.button>
 
             <p className="text-white/40 text-xs text-center">
               Se va a pre-llenar con los servicios que seleccionaste.
             </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 presentacion-cierre-print-actions">
+              <button
+                type="button"
+                onClick={onPrint}
+                className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
+              >
+                <Printer className="h-4 w-4" />
+                🖨️ Imprimir Resumen
+              </button>
+              <button
+                type="button"
+                onClick={onPlanPagos}
+                className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
+              >
+                <CalendarDays className="h-4 w-4" />
+                📅 Ver Plan de Pagos
+              </button>
+              <button
+                type="button"
+                onClick={onContrato}
+                className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
+              >
+                <FileText className="h-4 w-4" />
+                📄 Preparar Contrato
+              </button>
+            </div>
 
             {/* Contact options */}
             <div className="grid grid-cols-2 gap-3">
@@ -211,6 +271,18 @@ export function CierreSlide({
             </div>
           </motion.div>
         )}
+
+        <style jsx>{`
+          @media print {
+            .presentacion-cierre-print-actions,
+            .presentacion-cierre-print-hide {
+              display: none !important;
+            }
+            .presentacion-cierre-print-root {
+              max-width: 100% !important;
+            }
+          }
+        `}</style>
       </div>
     </SlideLayout>
   );
