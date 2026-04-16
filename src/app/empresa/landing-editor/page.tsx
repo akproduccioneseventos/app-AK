@@ -709,6 +709,7 @@ export default function LandingEditorPage() {
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subir desde dispositivo</Label>
+                <p className="text-[10px] text-muted-foreground">En celular se habilita elegir entre cámara o galería del dispositivo.</p>
                 <label htmlFor="gallery-image-upload">
                   <Button asChild variant="outline" className="rounded-xl" disabled={isUploadingGalleryImage}>
                     <span>

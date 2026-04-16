@@ -20,7 +20,7 @@ export async function uploadPublicPageAsset(
     file = fileArg ?? null;
   }
 
-  if (!fiestaId?.trim()) {
+  if (!fiestaId || !fiestaId.trim()) {
     return { success: false, error: 'Falta el identificador de carpeta.' };
   }
 

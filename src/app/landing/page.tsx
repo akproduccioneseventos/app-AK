@@ -25,6 +25,7 @@ const DEFAULT_DYNAMIC_SERVICE_FEATURES = [
   'Producción integral',
   'Soporte dedicado',
 ];
+const DEFAULT_DYNAMIC_SERVICE_IMAGE = 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1000&q=80&auto=format&fit=crop';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
@@ -72,13 +73,13 @@ export default async function LandingPage() {
 
   const whatsapp = landingSettings.whatsappNumber || '59898355530';
   const servicesForLanding: ServiceItem[] | undefined = landingSettings.services?.length
-    ? landingSettings.services.map((service, index) => ({
+    ? landingSettings.services.map((service) => ({
       id: service.id,
       title: service.title,
       subtitle: DEFAULT_DYNAMIC_SERVICE_SUBTITLE,
       description: service.description,
       features: DEFAULT_DYNAMIC_SERVICE_FEATURES,
-      imageUrl: service.imageUrl || `https://picsum.photos/seed/landing-service-${index}/1000/750`,
+      imageUrl: service.imageUrl || DEFAULT_DYNAMIC_SERVICE_IMAGE,
       imageHint: 'event service',
       accentColor: 'bg-primary',
       emoji: service.icon || '✨',
