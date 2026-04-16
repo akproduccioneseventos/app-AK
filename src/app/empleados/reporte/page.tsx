@@ -39,9 +39,24 @@ type EmpleadoResumen = {
 const formatCurrency = (value: number) =>
   value.toLocaleString('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 });
 
+const parseDateParts = (date?: string) => {
+  if (!date) return null;
+  const [year, month, day] = date.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return { year, month, day };
+};
+
+const getDateTimestamp = (date?: string) => {
+  const parsed = parseDateParts(date);
+  if (!parsed) return 0;
+  return Date.UTC(parsed.year, parsed.month - 1, parsed.day);
+};
+
 const formatDate = (date?: string) => {
   if (!date) return '—';
-  return new Date(`${date}T00:00:00`).toLocaleDateString('es-UY');
+  const timestamp = getDateTimestamp(date);
+  if (!timestamp) return '—';
+  return new Intl.DateTimeFormat('es-UY', { timeZone: 'UTC' }).format(new Date(timestamp));
 };
 
 const sanitizePhone = (raw?: string) => (raw || '').replace(/\D/g, '');
@@ -113,7 +128,7 @@ export default function ReporteEmpleadosPage() {
             montoCobrado,
             aportesPatronales,
             totalConAportes: montoCobrado + aportesPatronales,
-            timestamp: fecha ? new Date(`${fecha}T00:00:00`).getTime() : 0,
+            timestamp: getDateTimestamp(fecha),
           };
         });
       }).sort((a, b) => b.timestamp - a.timestamp);
@@ -136,11 +151,6 @@ export default function ReporteEmpleadosPage() {
     () => resumenes.find((item) => item.empleado.id === selectedEmpleadoId) || null,
     [resumenes, selectedEmpleadoId]
   );
-
-  const getEmployeeEmail = (empleado: Empleado) => {
-    const empleadoRecord = empleado as Empleado & { email?: string; correo?: string; mail?: string };
-    return empleadoRecord.email || empleadoRecord.correo || empleadoRecord.mail || '';
-  };
 
   const handleDownloadPDF = (resumen: EmpleadoResumen) => {
     const printWindow = window.open('', '_blank');
@@ -207,7 +217,11 @@ export default function ReporteEmpleadosPage() {
   };
 
   const handleSendEmail = (resumen: EmpleadoResumen) => {
-    const email = getEmployeeEmail(resumen.empleado);
+    const email = (resumen.empleado.email || '').trim();
+    if (email.length === 0) {
+      toast({ title: 'Email requerido', description: 'El empleado no tiene email cargado.', variant: 'destructive' });
+      return;
+    }
     const subject = `Historial de trabajo - ${resumen.empleado.nombre}`;
     const bodyLines = [
       `Empleado: ${resumen.empleado.nombre}`,
