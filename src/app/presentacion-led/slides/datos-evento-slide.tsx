@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, User, CalendarDays, PartyPopper, Users, Building2, MapPin } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -33,8 +33,21 @@ function formatDate(dateString: string): string {
 }
 
 export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: DatosEventoSlideProps) {
-  const [fechasBloqueadas] = useState<string[]>([]);
+  const [fechasBloqueadas, setFechasBloqueadas] = useState<string[]>([]);
   const fechaOcupada = !!clientData.fechaEvento && fechasBloqueadas.includes(clientData.fechaEvento);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('presentacion_fechas_bloqueadas');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setFechasBloqueadas(parsed.filter((fecha): fecha is string => typeof fecha === 'string'));
+      }
+    } catch {
+      setFechasBloqueadas([]);
+    }
+  }, []);
 
   const sugerencias = useMemo(
     () => (fechaOcupada ? [7, 14, -7]

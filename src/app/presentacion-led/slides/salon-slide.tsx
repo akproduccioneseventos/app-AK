@@ -15,12 +15,14 @@ interface SalonSlideProps {
   tipoFiesta: string;
 }
 
-function isSafeHttpsUrl(url: string): boolean {
+function toSafeImageUrl(url: string): string | null {
   try {
-    const { protocol } = new URL(url);
-    return protocol === 'https:' || protocol === 'http:';
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
+    if (/[<>"'`]/.test(url)) return null;
+    return parsed.toString();
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -35,11 +37,11 @@ export function SalonSlide({ catalogoFotos, companyInfo, tipoFiesta }: SalonSlid
   const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
 
   const fotosSalon = useMemo(
-    () => catalogoFotos.filter((foto) => {
-      if (!isSafeHttpsUrl(foto.url)) return false;
+    () => catalogoFotos.map((foto) => {
+      const safeUrl = toSafeImageUrl(foto.url);
       const categoria = normalizeText(foto.categoriaServicio || '');
-      return categoria.includes('salon');
-    }).slice(0, 4),
+      return safeUrl && categoria.includes('salon') ? { ...foto, safeUrl } : null;
+    }).filter((foto): foto is CatalogoFoto & { safeUrl: string } => !!foto).slice(0, 4),
     [catalogoFotos],
   );
 
@@ -85,7 +87,7 @@ export function SalonSlide({ catalogoFotos, companyInfo, tipoFiesta }: SalonSlid
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     key={foto.id}
-                    src={foto.url}
+                    src={foto.safeUrl}
                     alt={foto.titulo ?? 'Salón AK'}
                     className={cn(
                       'w-full object-cover rounded-xl',
