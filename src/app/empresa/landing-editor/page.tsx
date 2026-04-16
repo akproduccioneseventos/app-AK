@@ -101,7 +101,10 @@ export default function LandingEditorPage() {
     if (!file) return;
     setIsUploadingHeroImage(true);
     try {
-      const result = await uploadPublicPageAsset('landing-editor', file);
+      const formData = new FormData();
+      formData.append('fiestaId', 'landing-editor');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
       updateHero('backgroundImageUrl', result.url);
       toast({ title: '✅ Imagen subida', description: 'La imagen de fondo fue cargada correctamente.' });
@@ -118,7 +121,10 @@ export default function LandingEditorPage() {
     if (!file) return;
     setIsUploadingOgImage(true);
     try {
-      const result = await uploadPublicPageAsset('landing-editor', file);
+      const formData = new FormData();
+      formData.append('fiestaId', 'landing-editor');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
       updateSeo('ogImageUrl', result.url);
       toast({ title: '✅ Imagen subida', description: 'La imagen OG fue cargada correctamente.' });

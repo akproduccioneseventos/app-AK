@@ -188,7 +188,10 @@ export default function GaleriaAdminPage() {
     }
     setIsUploadingFoto(true);
     try {
-      const result = await uploadPublicPageAsset('galeria-empresa', file);
+      const formData = new FormData();
+      formData.append('fiestaId', 'galeria-empresa');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) {
         throw new Error(result.error || 'Error al subir');
       }

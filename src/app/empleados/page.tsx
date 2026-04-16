@@ -188,8 +188,8 @@ export default function EmpleadosPage() {
             </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-            <Link href="/empleados/reporte">
-                <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Ver Reporte</Button>
+            <Link href="/empresa/empleados/reporte">
+                <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Ver Reporte de Personal</Button>
             </Link>
             <Link href="/empleados/roles">
                 <Button variant="outline">

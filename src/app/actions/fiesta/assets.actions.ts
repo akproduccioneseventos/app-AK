@@ -4,9 +4,15 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import path from 'path';
 
 export async function uploadPublicPageAsset(
-  fiestaId: string,
-  file: File
+  formData: FormData
 ): Promise<{ success: boolean; url?: string; error?: string }> {
+  const fiestaId = formData.get('fiestaId') as string;
+  const file = formData.get('file') as File | null;
+
+  if (!fiestaId) {
+    return { success: false, error: 'No se proporcionó el ID del recurso.' };
+  }
+
   if (!file) {
     return { success: false, error: 'No se proporcionó ningún archivo.' };
   }
