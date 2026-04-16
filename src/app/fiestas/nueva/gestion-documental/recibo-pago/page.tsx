@@ -81,7 +81,32 @@ interface PageData {
   companyInfo: CompanyInfo;
   logoUrl: string | null;
   contractText: string | null;
+  salonContractText: string | null;
 }
+
+const CLUB_URUGUAY_PATTERNS = ['club uruguay', 'cluburuguay', 'club_uruguay', 'club-uruguay'];
+const CLUB_URUGUAY_NORMALIZED_PATTERNS = CLUB_URUGUAY_PATTERNS.map((pattern) => pattern.replace(/[_-]/g, ' ').toLowerCase());
+const isClubUruguaySalon = (salon?: string) => {
+  const normalizedSalon = (salon || '').toLowerCase().trim().replace(/\s+/g, ' ');
+  if (!normalizedSalon) return false;
+  return CLUB_URUGUAY_NORMALIZED_PATTERNS.some((pattern) => normalizedSalon === pattern);
+};
+
+const buildClubUruguaySalonContract = (params: { todayFormatted: string; clienteNombre: string; fechaEvento: string; }) => `CONTRATO DE ARRENDAMIENTO DE SALÓN
+
+En la ciudad de Salto, a los ${params.todayFormatted}, entre Club Uruguay (en adelante “EL SALÓN”) y ${params.clienteNombre} (en adelante “EL CLIENTE”), se acuerda el uso del salón para la realización del evento del día ${params.fechaEvento}.
+
+PRIMERA: OBJETO
+EL SALÓN otorga a EL CLIENTE el uso del salón Club Uruguay para el evento pactado.
+
+SEGUNDA: CONDICIONES
+EL CLIENTE se compromete a respetar las normas internas del salón y toda reglamentación vigente.
+
+TERCERA: PAGO Y RESPONSABILIDAD
+Las condiciones económicas y de responsabilidad se rigen por el presupuesto y contrato principal vinculados al evento.
+
+CUARTA: VIGENCIA
+Este anexo forma parte de la documentación contractual del evento y se firma en conformidad por ambas partes.`;
 
 function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
@@ -128,6 +153,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
       }
 
       let contractText: string | null = null;
+      let salonContractText: string | null = null;
       if (includeContrato) {
         const masterTemplate = await getContractTemplate();
         let text = fiestaData.contratoServicioTexto || masterTemplate;
@@ -160,6 +186,14 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
           });
         }
         contractText = text;
+        if (isClubUruguaySalon(fiestaData.configuracion.nombreLugar || presupuestoData?.salonFiestas)) {
+          const todayShort = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          salonContractText = buildClubUruguaySalonContract({
+            todayFormatted: todayShort,
+            clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
+            fechaEvento: formatDate(fiestaData.configuracion.fechaEvento),
+          });
+        }
       }
 
       setData({
@@ -170,6 +204,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
         companyInfo: companyData,
         logoUrl: settingsData.logoUrl || null,
         contractText,
+        salonContractText,
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error desconocido';
@@ -233,7 +268,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
     );
   }
 
-  const { fiesta, cliente, presupuesto, invoices, companyInfo, logoUrl: rawLogoUrl, contractText } = data;
+  const { fiesta, cliente, presupuesto, invoices, companyInfo, logoUrl: rawLogoUrl, contractText, salonContractText } = data;
   const logoUrl = sanitizeImageUrl(rawLogoUrl);
 
   // Aggregate all payments from all invoices, sorted by date
@@ -593,6 +628,28 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
               </div>
 
               <div className="h-1.5 bg-gradient-to-r from-[#0f172a] to-[#ef4444]" />
+            </div>
+          </>
+        )}
+
+        {includeContrato && salonContractText && (
+          <>
+            <div className="print:break-before-page" />
+            <div className="mt-8 print:mt-0 bg-white shadow-2xl print:shadow-none rounded-3xl print:rounded-none overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-[#0f172a] to-[#ef4444]" />
+              <div className="px-8 pt-8 pb-6 print:px-6 print:pt-6 print:pb-4 text-center">
+                <h2 className="text-xl print:text-base font-black font-headline uppercase tracking-tight text-slate-900">
+                  Contrato del Salón Club Uruguay
+                </h2>
+                <p className="text-[10px] text-slate-400 font-sans tracking-widest uppercase mt-1">
+                  Documento adicional automático
+                </p>
+              </div>
+              <div className="mx-8 print:mx-6 border-t border-slate-100" />
+              <div className="px-10 print:px-8 py-6 print:py-4 prose prose-sm print:prose-xs max-w-none text-justify whitespace-pre-wrap font-serif text-slate-800 print:text-black leading-relaxed">
+                {salonContractText}
+              </div>
+              <div className="h-1.5 bg-gradient-to-r from-[#ef4444] to-[#0f172a]" />
             </div>
           </>
         )}

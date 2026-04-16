@@ -130,20 +130,19 @@ export default function PortalClientePage() {
   const fechaEvento = fiesta?.configuracion?.fechaEvento ?? null;
 
   useEffect(() => {
-    if (!fiestaId || !fechaEvento) return;
+    if (!fiestaId || !isAuthenticated) return;
     const today = new Date();
-    const eventDate = new Date(fechaEvento);
-    const isToday = eventDate.toDateString() === today.toDateString();
-    if (!isToday) return;
-    // Poll every 12 seconds on event day
+    const eventDate = fechaEvento ? new Date(fechaEvento) : null;
+    const isToday = !!eventDate && eventDate.toDateString() === today.toDateString();
+    const intervalMs = isToday ? 12000 : 20000;
     const pollInterval = setInterval(async () => {
       try {
         const data = await getFiestaById(fiestaId);
         if (data) setFiesta(data);
       } catch { /* ignore */ }
-    }, 12000);
+    }, intervalMs);
     return () => clearInterval(pollInterval);
-  }, [fiestaId, fechaEvento]);
+  }, [fiestaId, fechaEvento, isAuthenticated]);
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
