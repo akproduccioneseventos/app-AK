@@ -79,3 +79,22 @@ export async function toggleDestacada(id: string): Promise<void> {
   }
   await writeData(GALERIA_FILE, data);
 }
+
+export async function updateGaleriaFoto(
+  id: string,
+  updates: Partial<GaleriaFoto>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const data = await getGaleriaItems();
+    const fotoIdx = data.fotos.findIndex((f) => f.id === id);
+    if (fotoIdx === -1) {
+      return { success: false, error: 'Foto no encontrada.' };
+    }
+
+    data.fotos[fotoIdx] = { ...data.fotos[fotoIdx], ...updates };
+    await writeData(GALERIA_FILE, data);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'No se pudo actualizar la foto.' };
+  }
+}

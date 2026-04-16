@@ -5,6 +5,8 @@ export interface GaleriaFoto {
   titulo?: string;
   descripcion?: string;
   categoria: string;
+  tipoFiesta?: string;
+  subCategoria?: string;
   servicio?: string;
   eventoId?: string;
   destacada: boolean;
@@ -59,3 +61,31 @@ export const GALERIA_CATEGORIAS = [
 ] as const;
 
 export type GaleriaCategoria = (typeof GALERIA_CATEGORIAS)[number];
+
+export const TIPOS_FIESTA_GALERIA = [
+  '15 Años',
+  'Bodas',
+  'Cumpleaños',
+  'Empresariales',
+  'Infantiles',
+] as const;
+
+export const SERVICIOS_GALERIA = [
+  'Discoteca',
+  'Fotografía',
+  'Catering',
+  'Decoración',
+  'DJ/Sonido',
+  'Iluminación',
+  'Candy Bar',
+  'Photobooth',
+  'Filmación',
+  'Salón',
+] as const;
+
+export const SUBCATEGORIAS_POR_SERVICIO: Record<string, string[]> = {
+  Fotografía: ['Exteriores', 'Civil', 'Iglesia', 'Pintada', 'Disco'],
+  Filmación: ['Exteriores', 'Civil', 'Iglesia', 'Evento completo'],
+  Discoteca: ['Pista de baile', 'Efectos especiales', 'Karaoke'],
+  Catering: ['Platos principales', 'Postres', 'Barra de tragos', 'Candy bar'],
+};
