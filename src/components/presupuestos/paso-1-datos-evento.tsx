@@ -202,6 +202,16 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
           )}
         </div>
         <div className="space-y-2">
+          <Label htmlFor="eventoHoraInicio" className="text-base">Hora de Inicio</Label>
+          <Input
+            id="eventoHoraInicio"
+            type="time"
+            value={formData.eventoHoraInicio || ''}
+            onChange={(e) => handleChange('eventoHoraInicio', e.target.value)}
+            className="text-base p-3"
+          />
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="invitadosAdultos" className="text-base">Nº Adultos</Label>
           <Input
             id="invitadosAdultos"

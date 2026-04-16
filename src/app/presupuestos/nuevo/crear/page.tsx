@@ -30,6 +30,7 @@ const initialFormData: PresupuestoFormData = {
   clienteContacto: '',
   eventoTipo: '',
   eventoFecha: undefined,
+  eventoHoraInicio: '',
   invitadosCantidad: 50,
   invitadosAdultos: 50,
   invitadosNinos: 0,
@@ -167,6 +168,7 @@ function CrearPresupuestoContent() {
                         setFormData({
                             ...presupuestoToEdit,
                             eventoFecha: new Date(presupuestoToEdit.eventoFecha),
+                            eventoHoraInicio: presupuestoToEdit.eventoHoraInicio || '',
                             serviciosSeleccionados: serviciosMap,
                             descuentoValor: presupuestoToEdit.descuentoValor?.toString() || '10'
                         } as PresupuestoFormData);
@@ -221,6 +223,7 @@ function CrearPresupuestoContent() {
             clienteContacto: formData.clienteContacto,
             eventoTipo: formData.eventoTipo,
             eventoFecha: formData.eventoFecha?.toISOString() || '',
+            eventoHoraInicio: formData.eventoHoraInicio?.trim() || undefined,
             invitadosCantidad: totalInvitados,
             invitadosAdultos: formData.invitadosAdultos || 0,
             invitadosNinos: formData.invitadosNinos || 0,

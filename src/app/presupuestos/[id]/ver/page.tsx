@@ -56,6 +56,14 @@ const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
 const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_VALIDITY_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
+const CONTRACT_MISSING_EVENT_DATA_ERROR = "No se puede generar el contrato sin la fecha y hora del evento";
+
+const extractTimeFromDate = (dateString?: string) => {
+  if (!dateString || !dateString.includes('T')) return '';
+  const [_datePart, timePart = ''] = dateString.split('T');
+  const hhmm = timePart.slice(0, 5);
+  return /^\d{2}:\d{2}$/.test(hhmm) && hhmm !== '00:00' ? hhmm : '';
+};
 
 const formatDateShort = (dateString?: string) => {
   if (!dateString) return "—";
@@ -226,6 +234,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const handlePrint = () => window.print();
 
+  const eventStartTime = useMemo(() => {
+    if (!presupuesto) return '';
+    return (presupuesto.eventoHoraInicio || extractTimeFromDate(presupuesto.eventoFecha)).trim();
+  }, [presupuesto]);
+  const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
+
+  const handleOpenContrato = useCallback(() => {
+    if (!presupuestoId) return;
+    if (!canGenerateContract) {
+      toast({ title: 'Datos incompletos', description: CONTRACT_MISSING_EVENT_DATA_ERROR, variant: 'destructive' });
+      return;
+    }
+    router.push(`/presupuestos/${presupuestoId}/recibo-contrato?doc=contrato`);
+  }, [canGenerateContract, presupuestoId, router, toast]);
+
   const handleWhatsAppMeetingRequest = () => {
     if (!whatsappNumber || !presupuesto || !displaySettings) return;
     const template = displaySettings.whatsappMessageTemplate || "Hola, ya revisé el presupuesto y me gustaría coordinar una reunión.";
@@ -251,6 +274,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const totalPagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
     return { totalCosto, totalPagado, saldoPendiente: totalCosto - totalPagado };
   }, [presupuesto]);
+  const hasDepositPayment = useMemo(
+    () => (presupuesto?.pagosCliente || []).some((p) => p.estadoPago !== 'pendiente_confirmacion' && p.monto > 0),
+    [presupuesto]
+  );
 
   const handleAddPago = async () => {
     const monto = parseFloat(newPagoMonto);
@@ -426,11 +453,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   <CreditCard className="mr-1.5 h-3.5 w-3.5"/>Registrar Pago
                 </Button>
               </Link>
-              <Link href={`/presupuestos/${presupuestoId}/recibo-contrato`}>
-                <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
-                  <FileSignature className="mr-1.5 h-3.5 w-3.5"/>Ver Contrato
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl text-xs font-bold uppercase tracking-widest"
+                disabled={!canGenerateContract}
+                onClick={handleOpenContrato}
+              >
+                <FileSignature className="mr-1.5 h-3.5 w-3.5"/>Ver Contrato
+              </Button>
+              {hasDepositPayment && (
+                <Link href={`/presupuestos/${presupuestoId}/recibo-contrato?doc=recibo`}>
+                  <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
+                    <Receipt className="mr-1.5 h-3.5 w-3.5"/>Recibo de Seña
+                  </Button>
+                </Link>
+              )}
               {(cliente?.phone || whatsappNumber) && (() => {
                 const phone = cliente?.phone?.replace(/\D/g, '') || whatsappNumber;
                 const text = `Hola ${presupuesto.clienteNombre}, te contactamos sobre el presupuesto #${presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase()}.`;
@@ -469,6 +507,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </Button>
               )}
             </div>
+            {!canGenerateContract && (
+              <p className="w-full text-[11px] text-rose-600 font-semibold">
+                {CONTRACT_MISSING_EVENT_DATA_ERROR}
+              </p>
+            )}
           </div>
         </div>
 
@@ -725,7 +768,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             </motion.div>
 
             {/* ═══ PRINTABLE DOCUMENT — Classic Invoice Format ═══ */}
-            <div className="ver-budget-print-document bg-white print:bg-[#e8f5e9]">
+            <div className="ver-budget-print-document bg-white print:bg-white">
               {/* Wrapping table for repeating thead/tfoot on each print page */}
               <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
                 <thead>
@@ -760,7 +803,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
                 {/* HEADER — Title + company info + logo */}
                 <h1 className="text-center text-base sm:text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[12pt] mb-3 print:mb-2"
-                    style={{ borderBottom: '2px solid #2e7d32', paddingBottom: '4px' }}>
+                    style={{ borderBottom: '2px solid #0f172a', paddingBottom: '4px' }}>
                   {COMPANY_MAIN_TITLE}
                 </h1>
 
@@ -784,13 +827,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
                 {/* Centered "Presupuesto" label */}
                 <p className="text-center font-bold text-sm uppercase tracking-widest text-gray-700 mb-4 print:text-[10pt]"
-                   style={{ backgroundColor: '#c8e6c9', padding: '4px 0', borderRadius: '2px' }}>
+                   style={{ backgroundColor: '#f8fafc', padding: '4px 0', borderRadius: '2px' }}>
                   Presupuesto
                 </p>
 
                 {/* Note at top */}
                 <p className="text-[10px] text-center text-gray-600 italic print:text-[7pt] border border-gray-300 rounded px-2 py-1 mb-4 print:border-gray-400"
-                   style={{ backgroundColor: '#f1f8e9' }}>
+                   style={{ backgroundColor: '#ffffff' }}>
                   {BUDGET_VALIDITY_NOTE_PDF}
                 </p>
 
@@ -803,7 +846,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     <section className="mb-4 print:mb-3">
                       <table className="w-full text-xs print:text-[8pt] border-collapse">
                         <thead>
-                          <tr style={{ backgroundColor: '#a5d6a7' }}>
+                          <tr style={{ backgroundColor: '#f8fafc' }}>
                             <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de cliente</th>
                             <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de Documento</th>
                             <th className="border border-gray-400 px-2 py-1.5 text-center font-semibold">Página</th>
@@ -812,7 +855,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr style={{ backgroundColor: '#e8f5e9' }}>
+                          <tr style={{ backgroundColor: '#ffffff' }}>
                             <td className="border border-gray-300 px-2 py-1.5 font-mono">{presupuesto.clienteNombre.substring(0, 3).toUpperCase()}-{presupuesto.id.substring(0, 4).toUpperCase()}</td>
                             <td className="border border-gray-300 px-2 py-1.5 font-mono font-semibold">#{budgetNumber}</td>
                             <td className="border border-gray-300 px-2 py-1.5 text-center">1/1</td>
@@ -826,11 +869,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 })()}
 
                 {/* Client + event info */}
-                <section className="mb-4 print:mb-3 border border-gray-300 rounded px-3 py-2 print:border-gray-400"
-                         style={{ backgroundColor: '#f1f8e9' }}>
+                <section className="mb-4 print:mb-3 border border-gray-300 rounded px-3 py-2 print:border-gray-400 bg-white">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-[11px] sm:text-sm">
                         <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Cliente</p><p className="font-bold truncate">{presupuesto.clienteNombre}</p></div>
                         <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Fecha Evento</p><p className="font-bold">{formatDate(presupuesto.eventoFecha)}</p></div>
+                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Hora Inicio</p><p className="font-bold">{eventStartTime || '—'}</p></div>
                         <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Invitados</p><p className="font-bold">{totalInvitados}</p></div>
                         <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Tipo Evento</p><p className="font-bold">{presupuesto.eventoTipo}</p></div>
                         <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Salón</p><p className="font-bold truncate">{presupuesto.salonFiestas || '—'}</p></div>
@@ -844,19 +887,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <section className="mb-4 print:mb-3">
                     <table className="w-full text-xs print:text-[8pt] border-collapse">
                       <thead>
-                        <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
-                          <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold" style={{ width: '35%' }}>Artículo</th>
-                          <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Cantidad</th>
-                          <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Unidad</th>
-                          <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Precio</th>
-                          <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Desc.%</th>
-                          <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Importe total</th>
+                        <tr style={{ backgroundColor: '#0f172a', color: 'white' }}>
+                          <th className="border border-gray-300 px-2 py-1.5 text-left font-semibold" style={{ width: '35%' }}>Artículo</th>
+                          <th className="border border-gray-300 px-2 py-1.5 text-center font-semibold">Cantidad</th>
+                          <th className="border border-gray-300 px-2 py-1.5 text-center font-semibold">Unidad</th>
+                          <th className="border border-gray-300 px-2 py-1.5 text-right font-semibold">Precio</th>
+                          <th className="border border-gray-300 px-2 py-1.5 text-center font-semibold">Desc.%</th>
+                          <th className="border border-gray-300 px-2 py-1.5 text-right font-semibold">Importe total</th>
                         </tr>
                       </thead>
                       <tbody>
                         {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
                             <React.Fragment key={categoria}>
-                                <tr style={{ backgroundColor: '#c8e6c9' }}>
+                                <tr style={{ backgroundColor: '#f8fafc' }}>
                                   <td colSpan={6} className="border border-gray-400 px-2 py-1 font-bold text-gray-700 text-xs print:text-[7.5pt] uppercase tracking-wide">
                                     {categoria}
                                   </td>
@@ -864,14 +907,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 {items.map((item: ItemPresupuestado) => {
                                     const effectiveQty = getEffectiveQty(item);
                                     return (
-                                        <tr key={item.idServicioCatalogo} style={{ backgroundColor: '#e8f5e9' }}>
+                                        <tr key={item.idServicioCatalogo} style={{ backgroundColor: '#ffffff' }}>
                                             <td className="border border-gray-300 px-2 py-1.5 align-top text-[11px] sm:text-xs">
                                                 {item.esRegalo ? (
                                                   <div>
-                                                    <span className="text-emerald-700 font-semibold flex items-center gap-1 print:text-green-800">
+                                                    <span className="text-slate-700 font-semibold flex items-center gap-1">
                                                       <Gift className="w-3 h-3 print:hidden"/> {item.nombreServicio}
                                                     </span>
-                                                    <span className="text-[10px] text-emerald-600 italic block print:text-[7pt]">Regalo exclusivo</span>
+                                                    <span className="text-[10px] text-slate-500 italic block print:text-[7pt]">Regalo exclusivo</span>
                                                   </div>
                                                 ) : item.nombreServicio}
                                             </td>
@@ -885,7 +928,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                             </td>
                                             <td className="border border-gray-300 px-2 py-1.5 text-right align-top font-semibold">
                                                 {item.esRegalo
-                                                  ? <span className="text-emerald-700 print:text-green-800 font-bold">$ 0,00</span>
+                                                  ? <span className="text-slate-700 font-bold">$ 0,00</span>
                                                   : formatCurrency(item.costoTotalItem)}
                                             </td>
                                         </tr>
@@ -893,12 +936,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 })}
                             </React.Fragment>
                         ))}
+                        {calculatedValues.ajusteAnual > 0 && (
+                          <tr style={{ backgroundColor: '#f8fafc' }}>
+                            <td colSpan={5} className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
+                              Ajuste anual ({presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15}%):
+                            </td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
+                              {formatCurrency(calculatedValues.ajusteAnual)}
+                            </td>
+                          </tr>
+                        )}
                         {/* Total row */}
-                        <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
-                          <td colSpan={5} className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
+                        <tr style={{ backgroundColor: '#f8fafc', color: '#111827' }}>
+                          <td colSpan={5} className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
                             Importe total
                           </td>
-                          <td className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
+                          <td className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
                             {formatCurrency(calculatedValues.totalFinal)}
                           </td>
                         </tr>
@@ -908,14 +961,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     
                 {/* Totals breakdown */}
                 <section className="flex justify-end mb-4 print:mb-3">
-                    <div className="w-full max-w-sm space-y-2 py-4 px-6 border border-gray-300 rounded print:border-gray-400"
-                         style={{ backgroundColor: '#f1f8e9' }}>
+                    <div className="w-full max-w-sm space-y-2 py-4 px-6 border border-gray-300 rounded print:border-gray-400 bg-white">
                         <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">
                             <span>Valor Real Servicios:</span>
                             <span>{formatCurrency(calculatedValues.subtotalBruto)}</span>
                         </div>
                         {calculatedValues.ahorroRegalos > 0 && (
-                            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black text-green-600 tracking-widest">
+                            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black text-slate-700 tracking-widest">
                                 <span>Ahorro Regalos:</span>
                                 <span>-{formatCurrency(calculatedValues.ahorroRegalos)}</span>
                             </div>
@@ -927,7 +979,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             </div>
                         )}
                         {calculatedValues.ajusteAnual > 0 && (
-                            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-amber-600 tracking-widest">
+                            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-slate-700 tracking-widest">
                                 <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. {presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15}%):</span>
                                 <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
                             </div>
@@ -995,21 +1047,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   return (
                     <section className="mb-4 print:mb-3">
                       <h3 className="text-xs font-bold text-gray-800 mb-2 print:text-[9pt] text-center uppercase"
-                          style={{ backgroundColor: '#c8e6c9', padding: '4px', borderRadius: '2px' }}>
+                          style={{ backgroundColor: '#f8fafc', padding: '4px', borderRadius: '2px' }}>
                         Proyección de Precios por Año (ajuste del {adjustmentPct}% anual al 1° de enero)
                       </h3>
                       <table className="w-full text-xs print:text-[8pt] border-collapse">
                         <thead>
-                          <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
-                            <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold">Año</th>
-                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Precio Base</th>
-                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Ajuste {adjustmentPct}%</th>
-                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Total Ajustado</th>
+                          <tr style={{ backgroundColor: '#0f172a', color: 'white' }}>
+                            <th className="border border-gray-300 px-2 py-1.5 text-left font-semibold">Año</th>
+                            <th className="border border-gray-300 px-2 py-1.5 text-right font-semibold">Precio Base</th>
+                            <th className="border border-gray-300 px-2 py-1.5 text-right font-semibold">Ajuste {adjustmentPct}%</th>
+                            <th className="border border-gray-300 px-2 py-1.5 text-right font-semibold">Total Ajustado</th>
                           </tr>
                         </thead>
                         <tbody>
                           {projRows.map((row) => (
-                            <tr key={row.year} style={{ backgroundColor: '#e8f5e9' }}>
+                            <tr key={row.year} style={{ backgroundColor: '#ffffff' }}>
                               <td className="border border-gray-300 px-2 py-1.5 font-semibold">
                                 {row.year} {row.year === currentYear ? '(actual)' : `(1° de enero)`}
                               </td>
@@ -1028,12 +1080,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     
                 {/* Footer — booking terms + notes */}
                 <footer className="space-y-4 mt-6">
-                    <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400" style={{ backgroundColor: '#f1f8e9' }}>
+                    <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400 bg-white">
                         <h4 className="text-[10px] font-black uppercase text-gray-700 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
                         <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed font-medium">{displaySettings.bookingTerms}</p>
                     </div>
                     {presupuesto.notas && (
-                        <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400" style={{ backgroundColor: '#f1f8e9' }}>
+                        <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400 bg-white">
                             <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Notas y Observaciones</h4>
                             <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{presupuesto.notas}</p>
                         </div>
@@ -1238,7 +1290,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     print-color-adjust: exact !important;
                 }
                 .ver-budget-print-document {
-                    background-color: #e8f5e9 !important;
+                    background-color: #ffffff !important;
                 }
                 .budget-print-thead-content {
                     border-bottom: 1px solid #ccc;

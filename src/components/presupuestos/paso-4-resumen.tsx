@@ -150,10 +150,13 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
       const fechaEvento = presupuesto.eventoFecha
         ? new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
         : '';
-      return template
+      const baseText = template
         .replace(/\{\{NOMBRE\}\}/g, presupuesto.clienteNombre || '')
         .replace(/\{\{FECHA_EVENTO\}\}/g, fechaEvento)
         .replace(/\{\{LINK\}\}/g, pageUrl);
+      return annualAdjustmentAmount > 0
+        ? `${baseText}\nAjuste anual (${adjustmentPct}%): ${formatCurrency(annualAdjustmentAmount, true)}\nTotal final: ${formatCurrency(adjustedTotal, true)}`
+        : baseText;
     }
 
     // Fallback
@@ -162,6 +165,10 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     texto += ` Hemos preparado un presupuesto para tu *${presupuesto.eventoTipo}*.\n\n`;
     texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
     texto += pageUrl;
+    if (annualAdjustmentAmount > 0) {
+      texto += `\n\nAjuste anual (${adjustmentPct}%): ${formatCurrency(annualAdjustmentAmount, true)}`;
+      texto += `\nTotal final: ${formatCurrency(adjustedTotal, true)}`;
+    }
     texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
   };
@@ -207,13 +214,15 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const projectionRows = showAnnualAdjustmentLegend
     ? generateProjectionRows(totalFinal, adjustmentPct, currentYear, eventYear)
     : [];
+  const adjustedTotal = projectionRows.length > 0 ? projectionRows[projectionRows.length - 1].total : totalFinal;
+  const annualAdjustmentAmount = Math.max(0, adjustedTotal - totalFinal);
     
   const budgetNumber = presupuesto.numero || (presupuesto.id.split('_').pop() || presupuesto.id).substring(0,6).toUpperCase();
 
   return (
     <div className="space-y-6">
       {/* ── Printable Budget Document ── */}
-      <div className="budget-print-document bg-white print:bg-[#e8f5e9]" id="budget-summary-printable">
+      <div className="budget-print-document bg-white print:bg-[#ffffff]" id="budget-summary-printable">
         {/* Wrapping table for repeating thead/tfoot in print */}
         <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
           <thead>
@@ -253,7 +262,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
           <CardHeader className="p-4 md:p-6 print:p-0 print:pb-2">
             {/* Main title centered */}
             <h1 className="text-center text-base md:text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[12pt] mb-3 print:mb-2"
-                style={{ borderBottom: '2px solid #2e7d32' }}>
+                style={{ borderBottom: '2px solid #0f172a' }}>
               Presupuesto para fiestas o eventos - {COMPANY_NAME_BRAND}
             </h1>
 
@@ -281,7 +290,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
 
             {/* Centered "Presupuesto" label */}
             <p className="text-center font-bold text-sm uppercase tracking-widest text-gray-700 mt-3 print:text-[10pt] print:mt-2"
-               style={{ backgroundColor: '#c8e6c9', padding: '4px 0', borderRadius: '2px' }}>
+               style={{ backgroundColor: '#f8fafc', padding: '4px 0', borderRadius: '2px' }}>
               Presupuesto
             </p>
           </CardHeader>
@@ -290,7 +299,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
 
             {/* Note at top */}
             <p className="text-[10px] text-center text-gray-600 italic print:text-[7pt] border border-gray-300 rounded px-2 py-1 print:border-gray-400"
-               style={{ backgroundColor: '#f1f8e9' }}>
+               style={{ backgroundColor: '#ffffff' }}>
               {BUDGET_VALIDITY_NOTE_PDF}
             </p>
 
@@ -298,7 +307,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
             <section className="mb-3 print:mb-2">
               <table className="w-full text-xs print:text-[8pt] border-collapse">
                 <thead>
-                  <tr style={{ backgroundColor: '#a5d6a7' }}>
+                  <tr style={{ backgroundColor: '#f1f5f9' }}>
                     <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de cliente</th>
                     <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de Documento</th>
                     <th className="border border-gray-400 px-2 py-1.5 text-center font-semibold">Página</th>
@@ -307,7 +316,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{ backgroundColor: '#e8f5e9' }}>
+                  <tr style={{ backgroundColor: '#ffffff' }}>
                     <td className="border border-gray-300 px-2 py-1.5 font-mono">{presupuesto.clienteNombre.substring(0, 3).toUpperCase()}-{presupuesto.id.substring(0, 4).toUpperCase()}</td>
                     <td className="border border-gray-300 px-2 py-1.5 font-mono font-semibold">#{budgetNumber}</td>
                     <td className="border border-gray-300 px-2 py-1.5 text-center">1/1</td>
@@ -320,7 +329,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
 
             {/* Client + event data */}
             <section className="mb-3 print:mb-2 border border-gray-300 rounded px-3 py-2 print:border-gray-400"
-                     style={{ backgroundColor: '#f1f8e9' }}>
+                     style={{ backgroundColor: '#ffffff' }}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm print:text-[8.5pt]">
                 {displaySettings.showClientData && (
                   <>
@@ -342,7 +351,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
               <section className="mb-3 print:mb-2">
                 <table className="w-full text-xs print:text-[8pt] border-collapse">
                   <thead>
-                    <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
+                    <tr style={{ backgroundColor: '#0f172a', color: 'white' }}>
                       <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold" style={{ width: '40%' }}>Artículo</th>
                       <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Cantidad</th>
                       <th className="border border-gray-600 px-2 py-1.5 text-center font-semibold">Unidad</th>
@@ -354,20 +363,20 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                   <tbody>
                     {Object.entries(itemsAgrupados).map(([categoria, items]) => (
                       <React.Fragment key={categoria}>
-                        <tr style={{ backgroundColor: '#c8e6c9' }}>
+                        <tr style={{ backgroundColor: '#f8fafc' }}>
                           <td colSpan={6} className="border border-gray-400 px-2 py-1 font-bold text-gray-700 text-xs print:text-[7.5pt] uppercase tracking-wide">
                             {categoria}
                           </td>
                         </tr>
                         {items.map((item) => (
-                          <tr key={item.idServicioCatalogo} style={{ backgroundColor: '#e8f5e9' }}>
+                          <tr key={item.idServicioCatalogo} style={{ backgroundColor: '#ffffff' }}>
                             <td className="border border-gray-300 px-2 py-1.5 align-top">
                               {item.esRegalo ? (
                                 <div>
-                                  <span className="text-emerald-700 font-semibold flex items-center gap-1 print:text-green-800">
+                                  <span className="text-slate-700 font-semibold flex items-center gap-1">
                                     <Gift className="w-3 h-3 print:hidden" /> {item.nombreServicio}
                                   </span>
-                                  <span className="text-[10px] text-emerald-600 italic block print:text-[7pt]">Regalo exclusivo</span>
+                                  <span className="text-[10px] text-slate-500 italic block print:text-[7pt]">Regalo exclusivo</span>
                                 </div>
                               ) : item.nombreServicio}
                             </td>
@@ -381,20 +390,30 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                             </td>
                             <td className="border border-gray-300 px-2 py-1.5 text-right align-top font-semibold">
                               {item.esRegalo
-                                ? <span className="text-emerald-700 print:text-green-800 font-bold">$ 0,00</span>
+                                ? <span className="text-slate-700 font-bold">$ 0,00</span>
                                 : formatCurrency(item.costoTotalItem, true)}
                             </td>
                           </tr>
                         ))}
                       </React.Fragment>
                     ))}
+                    {annualAdjustmentAmount > 0 && (
+                      <tr style={{ backgroundColor: '#f8fafc' }}>
+                        <td colSpan={5} className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
+                          Ajuste anual ({adjustmentPct}%):
+                        </td>
+                        <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
+                          {formatCurrency(annualAdjustmentAmount, true)}
+                        </td>
+                      </tr>
+                    )}
                     {/* Total row */}
-                    <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
-                      <td colSpan={5} className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
+                    <tr style={{ backgroundColor: '#f8fafc', color: '#111827' }}>
+                      <td colSpan={5} className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
                         Importe total
                       </td>
-                      <td className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
-                        {formatCurrency(totalFinal, true)}
+                      <td className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
+                        {formatCurrency(adjustedTotal, true)}
                       </td>
                     </tr>
                   </tbody>
@@ -405,19 +424,19 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
             {/* Totals breakdown */}
             <section className="flex justify-end mb-3 print:mb-2">
               <div className="w-full max-w-xs print:max-w-[240px] border border-gray-300 print:border-gray-400 rounded p-3 print:p-2 space-y-1 text-sm print:text-[9pt]"
-                   style={{ backgroundColor: '#f1f8e9' }}>
+                   style={{ backgroundColor: '#ffffff' }}>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
                   <span>{formatCurrency(subtotalBruto, true)}</span>
                 </div>
                 {descuentoPromocional > 0 && (
-                  <div className="flex justify-between text-red-600">
+                  <div className="flex justify-between text-slate-700">
                     <span>Descuento{presupuesto.nombrePromocion ? ` (${presupuesto.nombrePromocion})` : ''}:</span>
                     <span>−{formatCurrency(descuentoPromocional, true)}</span>
                   </div>
                 )}
                 {costoTotalRegalos > 0 && (
-                  <div className="flex justify-between text-emerald-700">
+                  <div className="flex justify-between text-slate-700">
                     <span>Ahorro en Regalos:</span>
                     <span>−{formatCurrency(costoTotalRegalos, true)}</span>
                   </div>
@@ -433,7 +452,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                           <span>Precio de Lista (+{markupPct}%):</span>
                           <span>{formatCurrency(precioLista, true)}</span>
                         </div>
-                        <div className="flex justify-between text-violet-700 font-semibold">
+                        <div className="flex justify-between text-slate-700 font-semibold">
                           <span>Ahorro:</span>
                           <span>−{formatCurrency(ahorroMkt, true)}</span>
                         </div>
@@ -442,9 +461,15 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                   }
                   return null;
                 })()}
+                {annualAdjustmentAmount > 0 && (
+                  <div className="flex justify-between text-slate-700 font-semibold">
+                    <span>Ajuste anual ({adjustmentPct}%):</span>
+                    <span>+{formatCurrency(annualAdjustmentAmount, true)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-bold border-t-2 border-gray-700 pt-1.5 mt-1">
                   <span className="text-base print:text-[11pt]">TOTAL</span>
-                  <span className="text-base print:text-[11pt]">{formatCurrency(totalFinal, true)}</span>
+                  <span className="text-base print:text-[11pt]">{formatCurrency(adjustedTotal, true)}</span>
                 </div>
 
                 {/* Total with annual projection inline */}
@@ -466,12 +491,12 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
             {projectionRows.length > 0 && (
               <section className="mb-3 print:mb-2">
                 <h3 className="text-xs font-bold text-gray-800 mb-2 print:text-[9pt] text-center uppercase"
-                    style={{ backgroundColor: '#c8e6c9', padding: '4px', borderRadius: '2px' }}>
+                    style={{ backgroundColor: '#f8fafc', padding: '4px', borderRadius: '2px' }}>
                   Proyección de Precios por Año (ajuste del {adjustmentPct}% anual al 1° de enero)
                 </h3>
                 <table className="w-full text-xs print:text-[8pt] border-collapse">
                   <thead>
-                    <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
+                    <tr style={{ backgroundColor: '#0f172a', color: 'white' }}>
                       <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold">Año</th>
                       <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Precio Base</th>
                       <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Ajuste {adjustmentPct}%</th>
@@ -480,7 +505,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                   </thead>
                   <tbody>
                     {projectionRows.map((row) => (
-                      <tr key={row.year} style={{ backgroundColor: '#e8f5e9' }}>
+                      <tr key={row.year} style={{ backgroundColor: '#ffffff' }}>
                         <td className="border border-gray-300 px-2 py-1.5 font-semibold">
                           {row.year} {row.year === currentYear ? '(actual)' : `(1° de enero)`}
                         </td>
@@ -559,7 +584,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
             print-color-adjust: exact !important;
           }
           .budget-print-document {
-            background-color: #e8f5e9 !important;
+            background-color: #ffffff !important;
           }
           .budget-print-thead-content {
             border-bottom: 1px solid #ccc;

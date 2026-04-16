@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   Printer,
@@ -51,6 +52,15 @@ const formatDate = (dateString?: string) => {
   }
 };
 
+const CONTRACT_MISSING_EVENT_DATA_ERROR = 'No se puede generar el contrato sin la fecha y hora del evento';
+
+const extractTimeFromDate = (dateString?: string) => {
+  if (!dateString || !dateString.includes('T')) return '';
+  const [_datePart, timePart = ''] = dateString.split('T');
+  const hhmm = timePart.slice(0, 5);
+  return /^\d{2}:\d{2}$/.test(hhmm) && hhmm !== '00:00' ? hhmm : '';
+};
+
 /** Convert a number to its Spanish words (simplified for common UY amounts). */
 function numberToSpanishWords(amount: number): string {
   const ones = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
@@ -94,6 +104,7 @@ const MetodoPagoIcon = ({ metodo }: { metodo: string }) => {
 
 function ReciboContratoContent({ params }: { params: { id: string } }) {
   const presupuestoId = params.id;
+  const searchParams = useSearchParams();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -144,14 +155,20 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   }, [presupuesto]);
 
   /** Build the first seña amount from the first recorded payment, or default to 0. */
-  const primerPago = pagos[0]?.monto ?? 0;
+  const montoSenia = pagos.find((p) => p.estadoPago !== 'pendiente_confirmacion')?.monto ?? 0;
+  const hasDeposit = montoSenia > 0;
+  const eventStartTime = (presupuesto?.eventoHoraInicio || extractTimeFromDate(presupuesto?.eventoFecha)).trim();
+  const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
+  const requestedDoc = searchParams.get('doc');
+  const showRecibo = requestedDoc !== 'contrato' && hasDeposit;
+  const showContrato = requestedDoc !== 'recibo' && canGenerateContract;
 
   const contractText = useMemo(() => {
     if (!presupuesto) return '';
     const today = new Date();
     const ciudadFecha = `Salto, a los ${today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-    const montoSenaNum = primerPago;
+    const montoSenaNum = montoSenia;
     const montoSenaWords = numberToSpanishWords(montoSenaNum);
     const montoSenaStr = `$ ${montoSenaNum.toLocaleString('es-UY')} (pesos uruguayos ${montoSenaWords})`;
 
@@ -162,19 +179,19 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: '___________________',
       clienteTelefono: presupuesto.clienteContacto || '___________________',
       fechaEvento: presupuesto.eventoFecha
-        ? new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        ? `${new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
       salon: presupuesto.salonFiestas || '___________________',
       montoSena: montoSenaStr,
     });
-  }, [presupuesto, primerPago]);
+  }, [presupuesto, montoSenia, eventStartTime]);
 
   const { contractIntro, contractClauses } = useMemo(() => {
     if (!presupuesto || !contractSettings) return { contractIntro: '', contractClauses: [] as { title: string; content: string }[] };
     const today = new Date();
     const ciudadFecha = `Salto, a los ${today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-    const montoSenaNum = primerPago;
+    const montoSenaNum = montoSenia;
     const montoSenaWords = numberToSpanishWords(montoSenaNum);
     const montoSenaStr = `$ ${montoSenaNum.toLocaleString('es-UY')} (pesos uruguayos ${montoSenaWords})`;
 
@@ -186,7 +203,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: (presupuesto as any).clienteCi || '___________________',
       clienteTelefono: presupuesto.clienteContacto || '___________________',
       fechaEvento: presupuesto.eventoFecha
-        ? new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        ? `${new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
       salon: presupuesto.salonFiestas || '___________________',
       montoSena: montoSenaStr,
@@ -196,7 +213,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       contractIntro: result.intro,
       contractClauses: result.clauses,
     };
-  }, [presupuesto, contractSettings, primerPago]);
+  }, [presupuesto, contractSettings, montoSenia, eventStartTime]);
 
   const handlePrint = () => window.print();
 
@@ -232,7 +249,11 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
         </Link>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground hidden sm:block">
-            El PDF incluirá el recibo (pág. 1) y el contrato (págs. 2–3)
+            {requestedDoc === 'recibo'
+              ? 'El PDF incluirá el recibo de seña'
+              : requestedDoc === 'contrato'
+                ? 'El PDF incluirá solo el contrato'
+                : 'El PDF incluirá únicamente los documentos válidos (recibo con seña y/o contrato con fecha/hora)'}
           </span>
           <Button onClick={handlePrint} size="sm" className="rounded-xl bg-primary hover:bg-primary/90 text-white">
             <Download className="mr-2 h-4 w-4" />
@@ -241,9 +262,25 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
         </div>
       </div>
 
+      {!showRecibo && requestedDoc === 'recibo' && (
+        <div className="max-w-2xl mx-auto mt-6 px-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-700">
+            No se puede generar recibo de seña porque no hay pagos registrados como seña.
+          </div>
+        </div>
+      )}
+      {!showContrato && requestedDoc === 'contrato' && (
+        <div className="max-w-2xl mx-auto mt-6 px-4">
+          <div className="bg-white border border-rose-200 rounded-xl p-4 text-sm text-rose-700">
+            {CONTRACT_MISSING_EVENT_DATA_ERROR}
+          </div>
+        </div>
+      )}
+
       {/* ══════════════════════════════════════════════════════════════
-          PAGE 1 — PREMIUM RECEIPT
+          PAGE 1 — RECIBO DE SEÑA
       ══════════════════════════════════════════════════════════════ */}
+      {showRecibo && (
       <div className="print:break-after-page">
         <div className="max-w-2xl mx-auto py-8 px-4 print:p-0 print:py-0">
           <div className="bg-white rounded-3xl print:rounded-none shadow-2xl print:shadow-none overflow-hidden">
@@ -293,6 +330,10 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                   <p className="font-bold text-slate-900">{formatDate(presupuesto.eventoFecha)}</p>
                 </div>
                 <div className="space-y-0.5">
+                  <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Hora de Inicio</p>
+                  <p className="font-bold text-slate-900">{eventStartTime || '—'}</p>
+                </div>
+                <div className="space-y-0.5">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Salón</p>
                   <p className="font-bold text-slate-900">{presupuesto.salonFiestas || '—'}</p>
                 </div>
@@ -322,27 +363,27 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Presupuesto Total</p>
                     <p className="text-lg font-black text-slate-900 leading-tight">{formatCurrency(totalCosto)}</p>
                   </div>
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl print:rounded-lg p-4 text-center space-y-1">
-                    <p className="text-[9px] font-black uppercase text-emerald-500 tracking-widest">Total Abonado</p>
-                    <p className="text-lg font-black text-emerald-700 leading-tight">{formatCurrency(totalPagado)}</p>
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl print:rounded-lg p-4 text-center space-y-1">
+                    <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Total Abonado</p>
+                    <p className="text-lg font-black text-slate-900 leading-tight">{formatCurrency(totalPagado)}</p>
                   </div>
-                  <div className={`rounded-2xl print:rounded-lg p-4 text-center space-y-1 border ${isPaid ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
-                    <p className={`text-[9px] font-black uppercase tracking-widest ${isPaid ? 'text-emerald-500' : 'text-amber-500'}`}>
+                  <div className="rounded-2xl print:rounded-lg p-4 text-center space-y-1 border bg-slate-50 border-slate-200">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">
                       {isPaid ? 'Cuenta Saldada' : 'Saldo Pendiente'}
                     </p>
-                    <p className={`text-lg font-black leading-tight ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    <p className="text-lg font-black leading-tight text-slate-900">
                       {isPaid ? formatCurrency(0) : formatCurrency(saldoPendiente)}
                     </p>
                   </div>
                 </div>
 
                 {/* Balance row */}
-                <div className={`flex justify-between items-center rounded-xl px-4 py-3 ${isPaid ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'}`}>
-                  <span className={`font-black uppercase text-sm tracking-tight flex items-center gap-2 ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                <div className="flex justify-between items-center rounded-xl px-4 py-3 bg-slate-50 border border-slate-200">
+                  <span className="font-black uppercase text-sm tracking-tight flex items-center gap-2 text-slate-700">
                     {isPaid ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                     {isPaid ? 'EVENTO 100% CANCELADO' : 'SALDO PENDIENTE DE PAGO'}
                   </span>
-                  <span className={`font-black text-2xl ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  <span className="font-black text-2xl text-slate-900">
                     {isPaid ? '✓' : formatCurrency(saldoPendiente)}
                   </span>
                 </div>
@@ -383,12 +424,12 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                               </Badge>
                             </TableCell>
                             <TableCell className="py-3 text-slate-400 text-xs max-w-[100px] truncate">{pago.referencia || '—'}</TableCell>
-                            <TableCell className="pr-4 py-3 text-right font-black text-emerald-700">{formatCurrency(pago.monto)}</TableCell>
+                            <TableCell className="pr-4 py-3 text-right font-black text-slate-900">{formatCurrency(pago.monto)}</TableCell>
                           </TableRow>
                         ))}
                         <TableRow className="bg-slate-50 border-t-2 border-slate-200">
                           <TableCell colSpan={4} className="pl-4 py-3 text-xs font-black uppercase text-slate-500 tracking-wide">Total Abonado</TableCell>
-                          <TableCell className="pr-4 py-3 text-right font-black text-emerald-700 text-base">{formatCurrency(totalPagado)}</TableCell>
+                          <TableCell className="pr-4 py-3 text-right font-black text-slate-900 text-base">{formatCurrency(totalPagado)}</TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
@@ -411,10 +452,12 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════
           PAGES 2–3 — LEGAL CONTRACT
       ══════════════════════════════════════════════════════════════ */}
+      {showContrato && (
       <div className="print:break-before-page">
         <div className="max-w-2xl mx-auto py-8 px-4 print:p-0 print:py-0 print:max-w-none">
           <div className="bg-white rounded-3xl print:rounded-none shadow-2xl print:shadow-none overflow-hidden">
@@ -454,6 +497,9 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
               <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-3 text-justify">
                 {contractIntro}
               </p>
+              <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-3 text-justify">
+                Fecha y hora del evento: <strong>{formatDate(presupuesto.eventoFecha)}{eventStartTime ? ` a las ${eventStartTime}` : ''}</strong>.
+              </p>
 
               {/* Clauses */}
               <div className="space-y-0">
@@ -490,6 +536,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+      )}
 
       {/* ── Print styles ─────────────────────────────────────────────── */}
       <style jsx global>{`
