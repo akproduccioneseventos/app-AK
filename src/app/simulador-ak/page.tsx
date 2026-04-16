@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PublicFooter } from '@/components/public-footer';
 import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCuponesRegaloActivos } from '@/app/actions/cupones';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getLandingSettings } from '@/app/actions/landing-editor';
@@ -24,21 +25,25 @@ import { getWhatsAppConfig } from '@/app/actions/whatsapp';
 import { CountdownTimer } from '@/components/countdown-timer';
 import type { Coupon } from '@/types/coupon';
 import { esCuponRegalo } from '@/types/coupon';
-import type { PaqueteArmadoRapido } from '@/types/armado-rapido';
+import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import type { FullMenu } from '@/types/catering';
+import type { MenuItem } from '@/types/catering';
+import type { ServicioEmpresa } from '@/types/empresa';
+import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { LandingFaqItem } from '@/types/landing-editor';
+import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const WHATSAPP_NUMBER = '59898355530';
 const STORAGE_KEY = 'ak_simulador_ak_v1';
-const TOTAL_STEPS = 9; // steps 1-9 (step 0 = welcome)
+const TOTAL_STEPS = 8; // steps 1-8 (step 0 = welcome)
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type EventType = 'cumpleanos' | 'quince' | 'boda' | 'empresarial';
-type PackageType = 'basico' | 'intermedio' | 'premium';
+type PackageType = string;
 
 interface SimuladorState {
   step: number;
@@ -49,8 +54,12 @@ interface SimuladorState {
   eventoTipo: EventType | '';
   adultos: number;
   ninos: number;
+  duracionHoras: number;
   tieneSalon: boolean | null;
   paquete: PackageType | '';
+  selectedEntradas: string[];
+  selectedPrincipal: string;
+  selectedInfantil: string;
   generatedId: string | null;
   savedAt: string;
 }
@@ -60,6 +69,22 @@ interface ChatMessage {
   text: string;
   key: string;
 }
+
+type ServicioDetallado = {
+  id: string;
+  nombre: string;
+  esRegalo: boolean;
+  cantidad: number;
+  precioUnitario: number;
+  costoTotal: number;
+};
+
+type PriceStats = {
+  subtotalVenta: number;
+  totalFinal: number;
+  descPromo: number;
+  detallados: ServicioDetallado[];
+};
 
 // ─── Pricing Data ─────────────────────────────────────────────────────────────
 
@@ -76,40 +101,7 @@ const PACKAGE_META: Record<PackageType, { label: string; description: string; mu
   premium:    { label: 'Premium',    description: 'Nivel alto, todo incluido',           multiplier: 1.80 },
 };
 
-const SERVICES_BY_EVENT: Record<EventType, Record<PackageType, string[]>> = {
-  cumpleanos: {
-    basico:     ['Catering básico', 'Discoteca', 'Mobiliario esencial'],
-    intermedio: ['Catering completo', 'Discoteca + iluminación', 'Mobiliario premium', 'Barra de tragos', 'Decoración temática'],
-    premium:    ['Catering gourmet', 'Discoteca + iluminación LED', 'Mobiliario exclusivo', 'Barra premium', 'Decoración personalizada', 'Fotografía + video', 'Coordinador de evento'],
-  },
-  quince: {
-    basico:     ['Catering básico', 'Discoteca', 'Mobiliario esencial', 'Decoración simple'],
-    intermedio: ['Catering completo', 'Discoteca + iluminación', 'Mobiliario premium', 'Decoración especial', 'Fotografía', 'Glitter bar'],
-    premium:    ['Catering gourmet', 'Discoteca + iluminación LED', 'Mobiliario exclusivo', 'Decoración de lujo', 'Fotografía + video profesional', 'Glitter bar', 'Entrada especial', 'Coordinación completa'],
-  },
-  boda: {
-    basico:     ['Catering formal', 'Discoteca', 'Mobiliario', 'Decoración clásica'],
-    intermedio: ['Catering formal completo', 'Discoteca + iluminación', 'Vajilla completa', 'Decoración elegante', 'Fotografía'],
-    premium:    ['Catering gourmet', 'Discoteca + iluminación premium', 'Vajilla de lujo', 'Decoración personalizada', 'Fotografía + video', 'Coordinación completa', 'Barra de tragos premium'],
-  },
-  empresarial: {
-    basico:     ['Catering práctico', 'Coffee break', 'Mobiliario básico'],
-    intermedio: ['Catering completo', 'Coffee break premium', 'Mobiliario', 'Proyector + sonido'],
-    premium:    ['Catering gourmet', 'Coffee break ejecutivo', 'Mobiliario premium', 'Proyector + sonido HD', 'Fotografía', 'Coordinación'],
-  },
-};
-
-const GIFTS = [
-  { id: 'invitacion', label: 'Invitación digital',     value: 1800,  emoji: '📱' },
-  { id: 'fuegos',     label: 'Fuegos fríos',           value: 3500,  emoji: '✨' },
-  { id: 'burbujas',   label: 'Lluvia de burbujas',     value: 2000,  emoji: '🫧' },
-  { id: 'coffee',     label: 'Coffee break',           value: 2500,  emoji: '☕' },
-  { id: 'pantalla',   label: 'Pantalla + proyector',   value: 4500,  emoji: '📽️' },
-  { id: 'video',      label: 'Video de vida',          value: 5000,  emoji: '🎬' },
-];
-
-const DISCOUNT_RATE = 0.15;   // 15% as a decimal (0.15 = 15%)
-const INFLATION_RATE = 0.25;  // how much we inflate the "original" displayed price
+const DISCOUNT_RATE = 0.10;
 
 // ─── Pricing Helpers ──────────────────────────────────────────────────────────
 
@@ -119,25 +111,54 @@ function formatCurrency(n: number) {
   }).format(n);
 }
 
-function calcPrices(state: SimuladorState) {
-  if (!state.eventoTipo || !state.paquete) return null;
-  const meta = EVENT_META[state.eventoTipo as EventType];
-  const pkg  = PACKAGE_META[state.paquete as PackageType];
-  const totalGuests = state.adultos + state.ninos;
-  const base = (meta.basePP * totalGuests + meta.fixed) * pkg.multiplier;
-  const inflated = Math.round(base * (1 + INFLATION_RATE) / 1000) * 1000;
-  const discount  = Math.round(inflated * DISCOUNT_RATE / 100) * 100;
-  const final     = inflated - discount;
-  const giftsValue = GIFTS.reduce((acc, g) => acc + g.value, 0);
-  return { inflated, discount, final, giftsValue };
+function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninos: number): { qty: number; unitPrice: number; total: number } {
+  const itemDataForCalc: ItemPresupuestado = {
+    idServicioCatalogo: servicio.id,
+    nombreServicio: servicio.nombre,
+    cantidad: 1,
+    precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+    precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+    costoTotalItem: 0,
+    categoriaServicio: servicio.categoria,
+    subcategoria: servicio.subcategoria,
+    calculationMethod: servicio.calculationMethod,
+    precioBase: servicio.precioBase,
+    precioPorPersona: servicio.precioPorPersona,
+    invitadosPorUnidad: servicio.invitadosPorUnidad,
+    tramosDePrecio: servicio.tramosDePrecio,
+  };
+
+  const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninos);
+  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, 0, ninos);
+  if (servicio.calculationMethod === 'porPersona') return { qty: qtyTarget, unitPrice: servicio.precioPorPersona || 0, total };
+  if (servicio.calculationMethod === 'ratio') {
+    const ratio = Number(servicio.invitadosPorUnidad) || 1;
+    return { qty: Math.ceil(qtyTarget / ratio), unitPrice: servicio.precioBase || 0, total };
+  }
+  if (servicio.calculationMethod === 'tramos') return { qty: 1, unitPrice: total, total };
+  return { qty: 1, unitPrice: servicio.precioVenta || 0, total };
+}
+
+function menuItemToServicioEmpresa(item: MenuItem & { precioVenta: number }): ServicioEmpresa {
+  return {
+    id: item.id,
+    nombre: item.name,
+    tipoItem: 'Servicio',
+    categoria: 'Servicio de catering',
+    subcategoria: item.type,
+    calculationMethod: 'porPersona',
+    precioPorPersona: item.precioVenta,
+    precioVenta: item.precioVenta,
+    precioBase: item.precioVenta,
+    valorUnitarioEstimado: item.totalDishCost,
+  };
 }
 
 // ─── Assistant Script ─────────────────────────────────────────────────────────
 
-function getAssistantMessages(step: number, state: SimuladorState): ChatMessage[] {
-  const prices = state.paquete && state.eventoTipo ? calcPrices(state) : null;
+function getAssistantMessages(step: number, state: SimuladorState, priceStats: PriceStats | null): ChatMessage[] {
   const eventMeta = state.eventoTipo ? EVENT_META[state.eventoTipo as EventType] : null;
-  const pkgMeta   = state.paquete   ? PACKAGE_META[state.paquete as PackageType] : null;
+  const pkgMeta   = state.paquete ? PACKAGE_META[state.paquete as PackageType] : null;
   const nombre    = state.nombre || 'vos';
 
   const msgs: Record<number, ChatMessage[]> = {
@@ -166,20 +187,19 @@ function getAssistantMessages(step: number, state: SimuladorState): ChatMessage[
     ],
     5: [
       { role: 'assistant', text: '¿Cómo te imaginás tu fiesta?', key: 's5_1' },
-      { role: 'assistant', text: 'No hay respuesta incorrecta, cada opción está armada para que el resultado sea increíble 🔥', key: 's5_2' },
+      { role: 'assistant', text: 'Elegí un paquete y te muestro el precio real según la configuración actual del simulador.', key: 's5_2' },
     ],
     6: [
       ...(pkgMeta ? [{ role: 'assistant' as const, text: `¡Excelente elección! El paquete ${pkgMeta.label} es perfecto para lo que necesitás 💪`, key: 's6_0' }] : []),
-      { role: 'assistant', text: 'Basándome en tu tipo de evento activé los servicios más importantes automáticamente. Chequeá que todo esté bien 👇', key: 's6_1' },
+      { role: 'assistant', text: 'Ahora elegí los menús disponibles tal como en el simulador normal 👇', key: 's6_1' },
     ],
     7: [
-      { role: 'assistant', text: '¡Mirá todo lo que te regalamos incluido en el precio! 🎁', key: 's7_1' },
-      { role: 'assistant', text: 'Estos beneficios no los sumamos al total, son un regalo de nuestra parte por confiar en AK Producciones.', key: 's7_2' },
-      ...(prices ? [{ role: 'assistant' as const, text: `El valor de esos regalos es ${formatCurrency(prices.giftsValue)}. ¡Y son tuyos sin costo extra! 🎉`, key: 's7_3' }] : []),
+      { role: 'assistant', text: 'Perfecto. Ahora elegí la duración del evento en horas.', key: 's7_1' },
+      { role: 'assistant', text: 'La duración impacta directamente en la cantidad de entradas disponibles.', key: 's7_2' },
     ],
     8: [
       { role: 'assistant', text: '⚡ Las fechas de fin de semana se reservan rápido, especialmente en temporada alta.', key: 's8_1' },
-      ...(prices ? [{ role: 'assistant' as const, text: `Tu total final es ${formatCurrency(prices.final)}, con un descuento de ${formatCurrency(prices.discount)} aplicado por contratar en este momento.`, key: 's8_2' }] : []),
+      ...(priceStats ? [{ role: 'assistant' as const, text: `Tu total final es ${formatCurrency(priceStats.totalFinal)}, con bonificación aplicada exactamente como en el simulador normal.`, key: 's8_2' }] : []),
       { role: 'assistant', text: '¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀', key: 's8_3' },
     ],
   };
@@ -190,7 +210,7 @@ function getAssistantMessages(step: number, state: SimuladorState): ChatMessage[
 
 const STEP_LABELS = [
   'Bienvenida', 'Tus datos', 'El evento', 'Invitados',
-  'Salón', 'Tu estilo', 'Servicios', 'Regalos', 'Resumen',
+  'Salón', 'Paquete', 'Menús', 'Horas', 'Resumen',
 ];
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
@@ -200,6 +220,8 @@ export default function SimuladorAKPage() {
   const chatEndRef  = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
+  const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
 
   const [state, setState] = useState<SimuladorState>({
     step: 0,
@@ -210,8 +232,12 @@ export default function SimuladorAKPage() {
     eventoTipo: '',
     adultos: 80,
     ninos: 10,
+    duracionHoras: 5,
     tieneSalon: null,
     paquete: '',
+    selectedEntradas: [],
+    selectedPrincipal: '',
+    selectedInfantil: '',
     generatedId: null,
     savedAt: '',
   });
@@ -236,11 +262,14 @@ export default function SimuladorAKPage() {
     // Load dynamic config (packages, menus, FAQs) for the assistant
     Promise.all([
       getArmadoRapidoConfig().catch(() => null),
+      getServiciosEmpresa().catch(() => [] as ServicioEmpresa[]),
       getMenus().catch(() => [] as FullMenu[]),
       getLandingSettings().catch(() => null),
       getWhatsAppConfig().catch(() => null),
-    ]).then(([armadoConfig, menus, landingCfg, waConfig]) => {
+    ]).then(([armadoConfig, servicios, menus, landingCfg, waConfig]) => {
+      if (armadoConfig) setConfig(armadoConfig);
       if (armadoConfig?.paquetes?.length) setDynamicPaquetes(armadoConfig.paquetes);
+      if (Array.isArray(servicios)) setServiciosCatalogo(servicios.filter(s => s.tipoItem === 'Servicio'));
       if (Array.isArray(menus) && menus.length > 0) setAvailableMenus(menus);
       if (landingCfg?.faqs?.length) setLandingFaqs(landingCfg.faqs);
       if (waConfig?.phoneNumber) setEmpresaPhone(waConfig.phoneNumber);
@@ -270,19 +299,92 @@ export default function SimuladorAKPage() {
     }
   }, []);
 
+  const maxEntradas = useMemo(() => (state.duracionHoras > 4 ? 2 : 1), [state.duracionHoras]);
+
+  const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
+    if (!config || !availableMenus.length) {
+      return { entradasDisponibles: [] as ServicioEmpresa[], principalesDisponibles: [] as ServicioEmpresa[], menusNinoDisponibles: [] as ServicioEmpresa[] };
+    }
+    const getPlatoSettings = (platoId: string) => config.platosVisibles?.find(p => p.id === platoId) || { id: platoId, visible: true, recommended: false };
+    const allDishes = Array.from(
+      availableMenus.flatMap(m => m.items).reduce((map, dish) => {
+        if (!map.has(dish.id)) map.set(dish.id, dish);
+        return map;
+      }, new Map<string, MenuItem>()).values(),
+    );
+    const enhancedDishes = allDishes
+      .filter(d => getPlatoSettings(d.id).visible)
+      .map(item => ({ ...item, precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)) }));
+    return {
+      entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa),
+      principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa),
+      menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil').map(menuItemToServicioEmpresa),
+    };
+  }, [config, availableMenus]);
+
+  const allSimuladorServices = useMemo(
+    () => [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo],
+    [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo],
+  );
+
+  useEffect(() => {
+    if (state.selectedEntradas.length > maxEntradas) {
+      setState(prev => {
+        const next = { ...prev, selectedEntradas: prev.selectedEntradas.slice(0, maxEntradas) };
+        saveProgress(next);
+        return next;
+      });
+    }
+  }, [maxEntradas, state.selectedEntradas, saveProgress]);
+
+  const priceStats = useMemo<PriceStats | null>(() => {
+    if (!config || !state.paquete) return null;
+    const paqueteSeleccionado = config.paquetes.find(p => p.id === state.paquete);
+    if (!paqueteSeleccionado) return null;
+    const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa; esRegalo: boolean }>();
+    paqueteSeleccionado.serviciosIncluidos.forEach(s => {
+      const serv = allSimuladorServices.find(os => os.id === s.id);
+      if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
+    });
+    [...state.selectedEntradas, state.selectedPrincipal, state.selectedInfantil].filter(Boolean).forEach((id) => {
+      const serv = allSimuladorServices.find(os => os.id === id);
+      if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: false });
+    });
+    config.serviceDependencies?.forEach(dep => {
+      if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
+        const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
+        if (servicioRequerido) allSelectedServicesMap.set(servicioRequerido.id, { servicio: servicioRequerido, esRegalo: false });
+      }
+    });
+    let totalRegular = 0;
+    const detallados: ServicioDetallado[] = [];
+    allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
+      const { qty, unitPrice, total } = getServicioCalculatedData(servicio, state.adultos, state.ninos);
+      if (!esRegalo) totalRegular += total;
+      detallados.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, cantidad: qty, precioUnitario: unitPrice, costoTotal: total });
+    });
+    const descPromo = Math.round(totalRegular * DISCOUNT_RATE);
+    const totalSinAjuste = totalRegular - descPromo;
+    const eventYear = state.eventoFecha ? new Date(state.eventoFecha).getFullYear() : new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
+    const aniosDif = Math.max(0, eventYear - currentYear);
+    const totalFinal = Math.round(totalSinAjuste * Math.pow(1.15, aniosDif));
+    return { subtotalVenta: Math.round(totalRegular), totalFinal, descPromo, detallados };
+  }, [config, state, allSimuladorServices]);
+
   // ── Chat history management ───────────────────────────────────────────────
 
   useEffect(() => {
-    const msgs = getAssistantMessages(state.step, state);
+    const msgs = getAssistantMessages(state.step, state, priceStats);
     if (msgs.length === 0) return;
-    const existingKeys = new Set(chatHistory.map(m => m.key));
-    const newMsgs = msgs.filter(m => !existingKeys.has(m.key));
-    if (newMsgs.length > 0) {
-      setChatHistory(prev => [...prev, ...newMsgs]);
-    }
+    setChatHistory(prev => {
+      const existingKeys = new Set(prev.map(m => m.key));
+      const newMsgs = msgs.filter(m => !existingKeys.has(m.key));
+      return newMsgs.length > 0 ? [...prev, ...newMsgs] : prev;
+    });
   // state.nombre triggers a new greeting message; include it so the assistant
   // re-evaluates when the user's name is set (step 1 → step 2 transition).
-  }, [state.step, state.nombre, state.eventoTipo, state.paquete, state.tieneSalon]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.step, state.nombre, state.eventoTipo, state.paquete, state.tieneSalon, state.selectedPrincipal, state.selectedInfantil, state.duracionHoras, priceStats]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
@@ -330,23 +432,18 @@ export default function SimuladorAKPage() {
 
   const handleSubmit = useCallback(async () => {
     setIsSubmitting(true);
-    const prices = calcPrices(state);
-    const totalGuests = state.adultos + state.ninos;
-    const eventMeta = state.eventoTipo ? EVENT_META[state.eventoTipo as EventType] : null;
-    const pkgMeta   = state.paquete   ? PACKAGE_META[state.paquete as PackageType] : null;
-    const services  = state.eventoTipo && state.paquete
-      ? SERVICES_BY_EVENT[state.eventoTipo as EventType][state.paquete as PackageType]
-      : [];
+    const pkgMeta = state.paquete ? (dynamicPaquetes.find(p => p.id === state.paquete)?.nombre || PACKAGE_META[state.paquete as PackageType]?.label || state.paquete) : undefined;
+    const details = priceStats?.detallados || [];
 
     try {
-      const items = services.map((name, idx) => ({
-        idServicioCatalogo: `ak_sim_${idx}`,
-        nombreServicio: name,
-        cantidad: 1,
-        precioUnitario: prices ? Math.round(prices.final / services.length) : 0,
-        precioUnitarioPresupuesto: prices ? Math.round(prices.final / services.length) : 0,
+      const items = details.map((d) => ({
+        idServicioCatalogo: d.id,
+        nombreServicio: d.nombre,
+        cantidad: d.cantidad,
+        precioUnitario: d.precioUnitario,
+        precioUnitarioPresupuesto: d.precioUnitario,
         categoriaServicio: 'Servicio',
-        esRegalo: false,
+        esRegalo: d.esRegalo,
       }));
 
       const result = await generateBudgetAndLeadFromSimulator({
@@ -355,10 +452,10 @@ export default function SimuladorAKPage() {
         eventoFecha:     state.eventoFecha || new Date().toISOString(),
         adultos:         state.adultos,
         ninos:           state.ninos,
-        subtotal:        prices?.inflated ?? 0,
-        costoEstimado:   prices?.final ?? 0,
+        subtotal:        priceStats?.subtotalVenta ?? 0,
+        costoEstimado:   priceStats?.totalFinal ?? 0,
         descuentoGeneral: DISCOUNT_RATE * 100,
-        paqueteNombre:   pkgMeta?.label,
+        paqueteNombre:   pkgMeta,
         serviciosIncluidos: items.map(i => i.idServicioCatalogo),
         items,
       });
@@ -383,27 +480,26 @@ export default function SimuladorAKPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [state, saveProgress, toast]);
+  }, [state, saveProgress, toast, priceStats, dynamicPaquetes]);
 
   // ── WhatsApp message ──────────────────────────────────────────────────────
 
   const buildWAMessage = useCallback(() => {
-    const prices = calcPrices(state);
     const eventMeta = state.eventoTipo ? EVENT_META[state.eventoTipo as EventType] : null;
-    const pkgMeta   = state.paquete   ? PACKAGE_META[state.paquete as PackageType] : null;
+    const pkgMeta = state.paquete ? (dynamicPaquetes.find(p => p.id === state.paquete)?.nombre || PACKAGE_META[state.paquete as PackageType]?.label || state.paquete) : '';
     const parts = [
       `Hola! Usé el simulador de AK Producciones.`,
       `Nombre: ${state.nombre} ${state.apellido}`,
       state.eventoFecha ? `Fecha evento: ${state.eventoFecha.split('T')[0]}` : '',
       eventMeta ? `Tipo: ${eventMeta.label}` : '',
       `Invitados: ${state.adultos + state.ninos} personas`,
-      pkgMeta ? `Paquete: ${pkgMeta.label}` : '',
-      prices ? `Total estimado: ${formatCurrency(prices.final)}` : '',
+      pkgMeta ? `Paquete: ${pkgMeta}` : '',
+      priceStats ? `Total estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
       generatedId ? `Nro presupuesto: ${generatedId}` : '',
       `\nMe gustaría coordinar una reunión para cerrar los detalles 🎉`,
     ].filter(Boolean);
     return encodeURIComponent(parts.join('\n'));
-  }, [state, generatedId]);
+  }, [state, generatedId, dynamicPaquetes, priceStats]);
 
   // ── Print/PDF ─────────────────────────────────────────────────────────────
 
@@ -413,7 +509,6 @@ export default function SimuladorAKPage() {
 
   // ── Prices ────────────────────────────────────────────────────────────────
 
-  const prices = calcPrices(state);
   const progress = state.step === 0 ? 0 : Math.round((state.step / TOTAL_STEPS) * 100);
 
   // ── Resume modal ──────────────────────────────────────────────────────────
@@ -436,20 +531,20 @@ export default function SimuladorAKPage() {
               className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-2xl h-12"
               onClick={() => {
                 setState(savedState);
-                const msgs = getAssistantMessages(savedState.step, savedState);
+                const msgs = getAssistantMessages(savedState.step, savedState, priceStats);
                 setChatHistory(msgs);
                 setShowResumeModal(false);
               }}
             >
               Continuar donde estaba
             </Button>
-            <Button
-              variant="outline"
-              className="w-full rounded-2xl h-12 bg-transparent border-white/20 text-white hover:bg-white/10"
-              onClick={() => {
-                localStorage.removeItem(STORAGE_KEY);
-                setShowResumeModal(false);
-              }}
+              <Button
+                variant="outline"
+                className="w-full rounded-2xl h-12 bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                onClick={() => {
+                  localStorage.removeItem(STORAGE_KEY);
+                  setShowResumeModal(false);
+                }}
             >
               Empezar de cero
             </Button>
@@ -468,7 +563,7 @@ export default function SimuladorAKPage() {
       <div className="hidden print:block p-8">
         <h1 className="text-2xl font-black">AK Producciones · Presupuesto Estimado</h1>
         <p className="text-sm text-slate-500 mt-1">Generado el {new Date().toLocaleDateString('es-UY')}</p>
-        <PrintSummary state={state} prices={prices} />
+        <PrintSummary state={state} prices={priceStats} />
       </div>
 
       <div className="print:hidden flex flex-col lg:flex-row flex-1 gap-0">
@@ -523,18 +618,27 @@ export default function SimuladorAKPage() {
                   <StepSalon state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
                 )}
                 {state.step === 5 && (
-                  <StepPackage state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} />
+                  <StepPackage state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} packagePrices={priceStats} />
                 )}
                 {state.step === 6 && (
-                  <StepServices state={state} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} availableMenus={availableMenus} />
+                  <StepMenus
+                    state={state}
+                    onChange={updateState}
+                    onNext={goNext}
+                    onPrev={goPrev}
+                    entradasDisponibles={entradasDisponibles}
+                    principalesDisponibles={principalesDisponibles}
+                    menusNinoDisponibles={menusNinoDisponibles}
+                    maxEntradas={maxEntradas}
+                  />
                 )}
                 {state.step === 7 && (
-                  <StepGifts prices={prices} onNext={goNext} onPrev={goPrev} />
+                  <StepHours state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
                 )}
                 {state.step === 8 && (
                   <StepConversion
                     state={state}
-                    prices={prices}
+                    prices={priceStats}
                     generatedId={generatedId}
                     isSubmitting={isSubmitting}
                     onSubmit={handleSubmit}
@@ -550,16 +654,16 @@ export default function SimuladorAKPage() {
           </div>
 
           {/* Mini price ticker (steps 6-8) */}
-          {state.step >= 6 && prices && (
+          {state.step >= 5 && priceStats && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mt-5 flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-5 py-2.5 border border-white/20"
             >
               <TrendingDown className="w-4 h-4 text-green-400" />
-              <span className="text-white/60 text-xs line-through">{formatCurrency(prices.inflated)}</span>
+              <span className="text-white/60 text-xs">{formatCurrency(priceStats.subtotalVenta)}</span>
               <Badge className="bg-green-500 text-white text-xs px-2">-{Math.round(DISCOUNT_RATE * 100)}%</Badge>
-              <span className="text-white font-black text-sm">{formatCurrency(prices.final)}</span>
+              <span className="text-white font-black text-sm">{formatCurrency(priceStats.totalFinal)}</span>
             </motion.div>
           )}
         </div>
@@ -960,13 +1064,14 @@ function StepSalon({
 // ─── Step: Package ────────────────────────────────────────────────────────────
 
 function StepPackage({
-  state, onChange, onNext, onPrev, dynamicPaquetes,
+  state, onChange, onNext, onPrev, dynamicPaquetes, packagePrices,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
   onNext: () => void;
   onPrev: () => void;
   dynamicPaquetes?: PaqueteArmadoRapido[];
+  packagePrices: PriceStats | null;
 }) {
   const canNext = !!state.paquete;
   const staticOptions: { value: PackageType; emoji: string }[] = [
@@ -980,23 +1085,26 @@ function StepPackage({
 
   return (
     <StepCard title="¿Cómo te imaginás tu fiesta?" icon={<Star className="w-6 h-6" />}>
-      <div className="space-y-2.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {hasDynamic ? (
           dynamicPaquetes.map((pkg) => (
             <button
               key={pkg.id}
               onClick={() => onChange('paquete', pkg.id as PackageType)}
               className={cn(
-                'w-full rounded-2xl p-4 text-left transition-all border-2 flex items-center gap-3 relative',
+                'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-start gap-3 relative',
                 state.paquete === pkg.id
                   ? 'bg-violet-500/40 border-violet-400'
                   : 'bg-white/5 border-white/10 hover:bg-white/10',
               )}
             >
               <span className="text-2xl">🎉</span>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 space-y-1">
                 <p className="text-white font-bold">{pkg.nombre}</p>
                 {pkg.descripcion && <p className="text-violet-300 text-xs">{pkg.descripcion}</p>}
+                {state.paquete === pkg.id && packagePrices && (
+                  <p className="text-emerald-300 text-xs font-black uppercase tracking-wider">{formatCurrency(packagePrices.totalFinal)}</p>
+                )}
               </div>
               {state.paquete === pkg.id && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
             </button>
@@ -1009,16 +1117,19 @@ function StepPackage({
                 key={opt.value}
                 onClick={() => onChange('paquete', opt.value)}
                 className={cn(
-                  'w-full rounded-2xl p-4 text-left transition-all border-2 flex items-center gap-3 relative',
+                  'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-start gap-3 relative',
                   state.paquete === opt.value
                     ? 'bg-violet-500/40 border-violet-400'
                     : 'bg-white/5 border-white/10 hover:bg-white/10',
                 )}
               >
                 <span className="text-2xl">{opt.emoji}</span>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 space-y-1">
                   <p className="text-white font-bold">{meta.label}</p>
                   <p className="text-violet-300 text-xs">{meta.description}</p>
+                  {state.paquete === opt.value && packagePrices && (
+                    <p className="text-emerald-300 text-xs font-black uppercase tracking-wider">{formatCurrency(packagePrices.totalFinal)}</p>
+                  )}
                 </div>
                 {meta.recommended && (
                   <Badge className="bg-amber-500 text-white text-xs absolute -top-2 right-3">Más elegido</Badge>
@@ -1034,106 +1145,123 @@ function StepPackage({
   );
 }
 
-// ─── Step: Services ───────────────────────────────────────────────────────────
+// ─── Step: Menus ─────────────────────────────────────────────────────────────
 
-function StepServices({
-  state, onNext, onPrev, dynamicPaquetes, availableMenus,
+function StepMenus({
+  state, onChange, onNext, onPrev, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, maxEntradas,
 }: {
   state: SimuladorState;
+  onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
   onNext: () => void;
   onPrev: () => void;
-  dynamicPaquetes?: PaqueteArmadoRapido[];
-  availableMenus?: FullMenu[];
+  entradasDisponibles: ServicioEmpresa[];
+  principalesDisponibles: ServicioEmpresa[];
+  menusNinoDisponibles: ServicioEmpresa[];
+  maxEntradas: number;
 }) {
-  const hasDynamic = dynamicPaquetes && dynamicPaquetes.length > 0;
-  const dynamicPkg = hasDynamic ? dynamicPaquetes.find(p => p.id === state.paquete) : null;
+  const requireEntradas = entradasDisponibles.length > 0;
+  const requirePrincipal = principalesDisponibles.length > 0;
+  const requireInfantil = state.ninos > 0 && menusNinoDisponibles.length > 0;
+  const canNext = (!requirePrincipal || !!state.selectedPrincipal)
+    && (!requireEntradas || state.selectedEntradas.length === Math.min(maxEntradas, entradasDisponibles.length))
+    && (!requireInfantil || !!state.selectedInfantil);
 
-  const services: string[] = dynamicPkg
-    ? (dynamicPkg.serviciosIncluidos || []).map(s => s.id)
-    : (state.eventoTipo && state.paquete && (SERVICES_BY_EVENT as Record<string, Record<string, string[]>>)[state.eventoTipo]?.[state.paquete])
-      ? (SERVICES_BY_EVENT as Record<string, Record<string, string[]>>)[state.eventoTipo][state.paquete]
-      : [];
-
-  const pkgLabel = dynamicPkg ? dynamicPkg.nombre : (state.paquete ? PACKAGE_META[state.paquete as PackageType]?.label : null);
-
-  // Show menus if available
-  const relevantMenus = (availableMenus || []).slice(0, 3);
+  const toggleEntrada = (id: string) => {
+    const selected = state.selectedEntradas.includes(id);
+    if (selected) {
+      onChange('selectedEntradas', state.selectedEntradas.filter(e => e !== id));
+      return;
+    }
+    if (state.selectedEntradas.length >= Math.min(maxEntradas, entradasDisponibles.length)) return;
+    onChange('selectedEntradas', [...state.selectedEntradas, id]);
+  };
 
   return (
-    <StepCard title="Servicios incluidos" icon={<Zap className="w-6 h-6" />}>
-      <p className="text-violet-300 text-sm mb-4">
-        Basándome en tu evento y paquete <strong className="text-white">{pkgLabel}</strong>, activé automáticamente los servicios más importantes:
-      </p>
-      <div className="space-y-2">
-        {services.map((service, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3"
-          >
-            <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
-            <span className="text-white text-sm">{service}</span>
-          </motion.div>
-        ))}
-      </div>
-      {relevantMenus.length > 0 && (
-        <div className="mt-4 space-y-2">
-          <p className="text-violet-300 text-xs font-bold uppercase tracking-wide">Menús disponibles:</p>
-          {relevantMenus.map((menu) => (
-            <div key={menu.id} className="bg-white/5 rounded-xl px-4 py-3 flex items-center gap-2">
-              <span className="text-lg">🍽️</span>
-              <div>
-                <p className="text-white text-sm font-medium">{menu.name}</p>
-                {menu.description && <p className="text-violet-300 text-xs">{menu.description}</p>}
-              </div>
-            </div>
-          ))}
+    <StepCard title="Seleccioná los menús" icon={<Zap className="w-6 h-6" />}>
+      <div className="space-y-5">
+        <div>
+          <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Entradas ({maxEntradas})</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {entradasDisponibles.map(s => (
+              <button
+                key={s.id}
+                onClick={() => toggleEntrada(s.id)}
+                className={cn('rounded-xl p-3 border text-left', state.selectedEntradas.includes(s.id) ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
+              >
+                <p className="text-white text-sm font-bold">{s.nombre}</p>
+                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona || s.precioVenta)}</p>
+              </button>
+            ))}
+          </div>
         </div>
-      )}
-      <p className="text-violet-400 text-xs mt-3">* En la reunión podemos ajustar, agregar o quitar servicios.</p>
-      <StepNav onPrev={onPrev} onNext={onNext} canNext showPrev />
+        <div>
+          <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Plato principal</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {principalesDisponibles.map(s => (
+              <button
+                key={s.id}
+                onClick={() => onChange('selectedPrincipal', s.id)}
+                className={cn('rounded-xl p-3 border text-left', state.selectedPrincipal === s.id ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
+              >
+                <p className="text-white text-sm font-bold">{s.nombre}</p>
+                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona || s.precioVenta)}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+        {state.ninos > 0 && (
+          <div>
+            <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Menú infantil</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {menusNinoDisponibles.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => onChange('selectedInfantil', s.id)}
+                  className={cn('rounded-xl p-3 border text-left', state.selectedInfantil === s.id ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
+                >
+                  <p className="text-white text-sm font-bold">{s.nombre}</p>
+                  <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona || s.precioVenta)}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      <StepNav onPrev={onPrev} onNext={onNext} canNext={canNext} showPrev />
     </StepCard>
   );
 }
 
-// ─── Step: Gifts ──────────────────────────────────────────────────────────────
+// ─── Step: Hours ─────────────────────────────────────────────────────────────
 
-function StepGifts({
-  prices, onNext, onPrev,
+function StepHours({
+  state, onChange, onNext, onPrev,
 }: {
-  prices: ReturnType<typeof calcPrices>;
+  state: SimuladorState;
+  onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
   onNext: () => void;
   onPrev: () => void;
 }) {
   return (
-    <StepCard title="🎁 Beneficios incluidos sin costo extra" icon={<Gift className="w-6 h-6" />}>
-      <p className="text-violet-300 text-sm mb-4">
-        Estos beneficios no los sumamos al total. Son un regalo nuestro por confiar en AK Producciones.
-      </p>
-      <div className="grid grid-cols-2 gap-2">
-        {GIFTS.map((gift, i) => (
-          <motion.div
-            key={gift.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.06 }}
-            className="bg-gradient-to-br from-amber-500/15 to-yellow-500/10 border border-amber-500/25 rounded-xl p-3 flex flex-col gap-1"
-          >
-            <span className="text-xl">{gift.emoji}</span>
-            <p className="text-white text-xs font-semibold leading-tight">{gift.label}</p>
-            <p className="text-amber-300 text-xs font-black">{formatCurrency(gift.value)}</p>
-          </motion.div>
-        ))}
+    <StepCard title="Duración del evento" icon={<Clock className="w-6 h-6" />}>
+      <div className="space-y-4">
+        <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-1.5 flex justify-between">
+          <span>Horas</span>
+          <span className="text-white font-black text-base">{state.duracionHoras}</span>
+        </Label>
+        <input
+          type="range"
+          min={3}
+          max={10}
+          step={1}
+          value={state.duracionHoras}
+          onChange={e => onChange('duracionHoras', +e.target.value)}
+          className="w-full accent-violet-400 h-2 rounded-full cursor-pointer"
+        />
+        <p className="text-violet-300 text-xs">
+          Más de 4 horas habilita 2 entradas, igual que en el simulador normal.
+        </p>
       </div>
-      {prices && (
-        <div className="mt-4 bg-green-500/15 border border-green-500/30 rounded-2xl p-4 text-center">
-          <p className="text-green-300 text-xs mb-1">Valor total de beneficios</p>
-          <p className="text-green-400 font-black text-2xl">{formatCurrency(prices.giftsValue)}</p>
-          <p className="text-green-300/70 text-xs mt-0.5">Incluidos sin costo adicional 🎉</p>
-        </div>
-      )}
       <StepNav onPrev={onPrev} onNext={onNext} canNext showPrev />
     </StepCard>
   );
@@ -1145,7 +1273,7 @@ function StepConversion({
   state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone,
 }: {
   state: SimuladorState;
-  prices: ReturnType<typeof calcPrices>;
+  prices: PriceStats | null;
   generatedId: string | null;
   isSubmitting: boolean;
   onSubmit: () => void;
@@ -1174,15 +1302,15 @@ function StepConversion({
         <div className="bg-white/5 rounded-2xl p-4 space-y-2 mb-5">
           <div className="flex justify-between text-sm">
             <span className="text-violet-300">Valor de referencia</span>
-            <span className="text-white/50 line-through">{formatCurrency(prices.inflated)}</span>
+            <span className="text-white/50">{formatCurrency(prices.subtotalVenta)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-green-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Descuento</span>
-            <span className="text-green-400 font-bold">- {formatCurrency(prices.discount)}</span>
+            <span className="text-green-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
           </div>
           <div className="border-t border-white/10 pt-2 flex justify-between">
             <span className="text-white font-black">TOTAL FINAL</span>
-            <span className="text-white font-black text-xl">{formatCurrency(prices.final)}</span>
+            <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
           </div>
         </div>
       )}
@@ -1315,12 +1443,9 @@ function StepNav({
 
 // ─── Print Summary ────────────────────────────────────────────────────────────
 
-function PrintSummary({ state, prices }: { state: SimuladorState; prices: ReturnType<typeof calcPrices> }) {
+function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceStats | null }) {
   const eventMeta = state.eventoTipo ? EVENT_META[state.eventoTipo as EventType] : null;
-  const pkgMeta   = state.paquete   ? PACKAGE_META[state.paquete as PackageType] : null;
-  const services  = state.eventoTipo && state.paquete
-    ? SERVICES_BY_EVENT[state.eventoTipo as EventType][state.paquete as PackageType]
-    : [];
+  const pkgMeta = state.paquete ? PACKAGE_META[state.paquete as PackageType] : null;
 
   return (
     <div className="mt-6 space-y-4">
@@ -1333,26 +1458,20 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: Return
       {state.eventoFecha && <p>Fecha: {state.eventoFecha.split('T')[0]}</p>}
       <p>Invitados: {state.adultos} adultos + {state.ninos} niños = {state.adultos + state.ninos} total</p>
       {pkgMeta && <p>Paquete: {pkgMeta.label}</p>}
-      {services.length > 0 && (
+      {prices?.detallados?.length ? (
         <div>
           <h2 className="font-bold text-lg mt-4">Servicios incluidos</h2>
           <ul className="list-disc ml-5">
-            {services.map((s, i) => <li key={i}>{s}</li>)}
+            {prices.detallados.map((s) => <li key={s.id}>{s.nombre}</li>)}
           </ul>
         </div>
-      )}
-      <div>
-        <h2 className="font-bold text-lg mt-4">Beneficios incluidos sin costo extra</h2>
-        <ul className="list-disc ml-5">
-          {GIFTS.map(g => <li key={g.id}>{g.emoji} {g.label} (valor: {formatCurrency(g.value)})</li>)}
-        </ul>
-      </div>
+      ) : null}
       {prices && (
         <div className="mt-4">
           <h2 className="font-bold text-lg">Resumen de precios</h2>
-          <p>Valor de referencia: <s>{formatCurrency(prices.inflated)}</s></p>
-          <p>Descuento ({Math.round(DISCOUNT_RATE * 100)}%): -{formatCurrency(prices.discount)}</p>
-          <p className="font-black text-xl">TOTAL FINAL: {formatCurrency(prices.final)}</p>
+          <p>Subtotal servicios: {formatCurrency(prices.subtotalVenta)}</p>
+          <p>Bonificación ({Math.round(DISCOUNT_RATE * 100)}%): -{formatCurrency(prices.descPromo)}</p>
+          <p className="font-black text-xl">TOTAL FINAL: {formatCurrency(prices.totalFinal)}</p>
         </div>
       )}
       <p className="text-xs text-gray-500 mt-6">WhatsApp: 098 355 530 · AK Producciones · Salto, Uruguay</p>
