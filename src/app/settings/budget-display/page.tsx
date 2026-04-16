@@ -59,9 +59,12 @@ export default function BudgetDisplaySettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   // UI States
+  const [dishSearchTerm, setDishSearchTerm] = useState('');
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [activePackageId, setActivePackageId] = useState<string | null>(null);
+  const [newDepTrigger, setNewDepTrigger] = useState('');
+  const [newDepRequired, setNewDepRequired] = useState('');
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -169,6 +172,7 @@ export default function BudgetDisplaySettingsPage() {
             serviciosIncluidos: [...p.serviciosIncluidos, { id: service.id, esRegalo: false }]
         } : p)
     });
+    setCatalogSearchTerm('');
     setIsCatalogModalOpen(false);
   };
 
@@ -183,7 +187,7 @@ export default function BudgetDisplaySettingsPage() {
             updated[index] = { ...updated[index], visible: !updated[index].visible };
             return { ...prev, platosVisibles: updated };
         } else {
-            return { ...prev, platosVisibles: [...currentVisibles, { id: dishId, visible: false }] };
+            return { ...prev, platosVisibles: [...currentVisibles, { id: dishId, visible: false, recommended: false }] };
         }
     });
   };
@@ -203,17 +207,39 @@ export default function BudgetDisplaySettingsPage() {
     });
   };
 
+  const addDependency = () => {
+    if (!newDepTrigger || !newDepRequired) return;
+    const newDep = {
+      id: `dep_${Date.now()}`,
+      triggerServiceId: newDepTrigger,
+      requiredServiceId: newDepRequired,
+    };
+    setConfig(prev => prev ? ({ ...prev, serviceDependencies: [...(prev.serviceDependencies || []), newDep] }) : null);
+    setNewDepTrigger('');
+    setNewDepRequired('');
+  };
+
+  const getDependencyName = (id: string, type: 'trigger' | 'required') => {
+    if (type === 'trigger') return allDishes.find(d => d.id === id)?.name;
+    return servicios.find(s => s.id === id)?.nombre || allDishes.find(d => d.id === id)?.name;
+  };
+
   // --- FILTERS ---
   const filteredServices = useMemo(() => {
     const term = catalogSearchTerm.toLowerCase();
     return servicios.filter(s => s.nombre.toLowerCase().includes(term));
   }, [servicios, catalogSearchTerm]);
 
+  const handleCatalogModalOpenChange = (open: boolean) => {
+    setIsCatalogModalOpen(open);
+    if (!open) setCatalogSearchTerm('');
+  };
+
   if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-primary w-12 h-12"/></div>;
 
   return (
     <div className="space-y-6 md:space-y-8 pb-32">
-      <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
+      <Dialog open={isCatalogModalOpen} onOpenChange={handleCatalogModalOpenChange}>
         <DialogContent className="sm:max-w-md">
             <DialogHeader><DialogTitle>Añadir Servicio al Paquete</DialogTitle></DialogHeader>
             <div className="py-2 space-y-4">
@@ -411,7 +437,7 @@ export default function BudgetDisplaySettingsPage() {
                     </div>
                     <div className="relative w-full md:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
-                        <Input placeholder="Buscar plato..." value={catalogSearchTerm} onChange={e => setCatalogSearchTerm(e.target.value)} className="rounded-xl pl-9 bg-white h-10"/>
+                        <Input placeholder="Buscar plato..." value={dishSearchTerm} onChange={e => setDishSearchTerm(e.target.value)} className="rounded-xl pl-9 bg-white h-10"/>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -426,7 +452,7 @@ export default function BudgetDisplaySettingsPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {allDishes.filter(d => d.name.toLowerCase().includes(catalogSearchTerm.toLowerCase())).map(dish => {
+                                    {allDishes.filter(d => d.name.toLowerCase().includes(dishSearchTerm.toLowerCase())).map(dish => {
                                         const settings = config?.platosVisibles?.find(p => p.id === dish.id) || { id: dish.id, visible: true, recommended: false };
                                         return (
                                             <TableRow key={dish.id} className="border-slate-50 hover:bg-slate-50/50">
@@ -440,7 +466,17 @@ export default function BudgetDisplaySettingsPage() {
                                                     </Button>
                                                 </TableCell>
                                                 <TableCell className="text-center px-2">
-                                                    <Button variant="ghost" size="icon" onClick={() => toggleDishRecommended(dish.id)} className={cn("rounded-xl h-8 w-8", settings.recommended ? "text-amber-500 bg-amber-50" : "text-slate-300")} disabled={!settings.visible}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => toggleDishRecommended(dish.id)}
+                                                        className={cn(
+                                                            "rounded-xl h-8 w-8",
+                                                            settings.recommended ? "text-amber-600 bg-amber-100 hover:bg-amber-200" : "text-slate-400 hover:text-amber-600 hover:bg-amber-50"
+                                                        )}
+                                                        title={settings.recommended ? "Quitar recomendación" : "Marcar como recomendado"}
+                                                        disabled={!settings.visible}
+                                                    >
                                                         <Star className={cn("w-4 h-4", settings.recommended && "fill-current")}/>
                                                     </Button>
                                                 </TableCell>
@@ -470,11 +506,11 @@ export default function BudgetDisplaySettingsPage() {
                             <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Si el cliente elige:</p>
-                                    <p className="font-bold text-xs">{allDishes.find(d => d.id === dep.triggerServiceId)?.name || 'Plato no encontrado'}</p>
+                                    <p className="font-bold text-xs">{getDependencyName(dep.triggerServiceId, 'trigger') || 'Plato no encontrado'}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Añadir automáticamente:</p>
-                                    <p className="font-bold text-xs text-primary">{servicios.find(s => s.id === dep.requiredServiceId)?.nombre || 'Servicio no encontrado'}</p>
+                                    <p className="font-bold text-xs text-primary">{getDependencyName(dep.requiredServiceId, 'required') || 'Servicio no encontrado'}</p>
                                 </div>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => setConfig(prev => prev ? ({...prev, serviceDependencies: prev.serviceDependencies?.filter(d => d.id !== dep.id)}) : null)} className="text-slate-300 hover:text-destructive md:opacity-0 md:group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
@@ -486,10 +522,7 @@ export default function BudgetDisplaySettingsPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                             <div className="space-y-1.5">
                                 <Label className="text-[9px] font-bold">Si elige este plato...</Label>
-                                <Select onValueChange={(v) => {
-                                    const newDep = { id: `dep_${Date.now()}`, triggerServiceId: v, requiredServiceId: '' };
-                                    setConfig(prev => prev ? ({...prev, serviceDependencies: [...(prev.serviceDependencies || []), newDep]}) : null);
-                                }}>
+                                <Select value={newDepTrigger} onValueChange={setNewDepTrigger}>
                                     <SelectTrigger className="rounded-xl h-11"><SelectValue placeholder="Elegir plato..."/></SelectTrigger>
                                     <SelectContent className="max-h-60">
                                         {allDishes.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
@@ -501,8 +534,18 @@ export default function BudgetDisplaySettingsPage() {
                             </div>
                             <div className="space-y-1.5">
                                 <Label className="text-[9px] font-bold">Añadir este servicio...</Label>
-                                <p className="text-xs text-muted-foreground p-3 bg-slate-50 rounded-xl italic">Selecciona el plato primero y luego edita el servicio requerido en la lista de arriba.</p>
+                                <Select value={newDepRequired} onValueChange={setNewDepRequired}>
+                                    <SelectTrigger className="rounded-xl h-11"><SelectValue placeholder="Elegir servicio..."/></SelectTrigger>
+                                    <SelectContent className="max-h-60">
+                                        {servicios.map(s => <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </div>
+                        </div>
+                        <div className="flex justify-end mt-4">
+                            <Button onClick={addDependency} disabled={!newDepTrigger || !newDepRequired} className="rounded-xl font-bold">
+                                Agregar Regla
+                            </Button>
                         </div>
                     </div>
                 </CardContent>
