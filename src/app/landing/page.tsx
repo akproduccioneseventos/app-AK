@@ -19,6 +19,13 @@ import type { GaleriaFoto } from '@/types/galeria';
 import type { GalleryImage } from '@/components/landing/GallerySection';
 import type { ServiceItem } from '@/components/landing/ServicesSection';
 
+const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = 'Servicio AK';
+const DEFAULT_DYNAMIC_SERVICE_FEATURES = [
+  'Atención personalizada',
+  'Producción integral',
+  'Soporte dedicado',
+];
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
   return {
@@ -68,9 +75,9 @@ export default async function LandingPage() {
     ? landingSettings.services.map((service, index) => ({
       id: service.id,
       title: service.title,
-      subtitle: 'Servicio AK',
+      subtitle: DEFAULT_DYNAMIC_SERVICE_SUBTITLE,
       description: service.description,
-      features: ['Atención personalizada', 'Producción integral', 'Soporte dedicado'],
+      features: DEFAULT_DYNAMIC_SERVICE_FEATURES,
       imageUrl: service.imageUrl || `https://picsum.photos/seed/landing-service-${index}/1000/750`,
       imageHint: 'event service',
       accentColor: 'bg-primary',

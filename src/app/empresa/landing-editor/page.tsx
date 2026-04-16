@@ -485,6 +485,7 @@ export default function LandingEditorPage() {
                             key={`${service.id}-${emoji}`}
                             type="button"
                             onClick={() => updateService(service.id, 'icon', emoji)}
+                            aria-label={`Seleccionar emoji ${emoji}`}
                             className={`text-xl p-1 rounded-lg hover:bg-slate-100 transition-colors ${service.icon === emoji ? 'bg-primary/10 ring-1 ring-primary' : ''}`}
                           >
                             {emoji}
@@ -588,6 +589,7 @@ export default function LandingEditorPage() {
                             key={`${index}-${emoji}`}
                             type="button"
                             onClick={() => updateStat(index, 'icon', emoji)}
+                            aria-label={`Seleccionar emoji ${emoji}`}
                             className={`text-xl p-1 rounded-lg hover:bg-slate-100 transition-colors ${stat.icon === emoji ? 'bg-primary/10 ring-1 ring-primary' : ''}`}
                           >
                             {emoji}
