@@ -10,10 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { PlusCircle, Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, History, Phone } from 'lucide-react';
+import { Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, Phone, Mail, Download } from 'lucide-react';
 import { getEmpleados, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -54,6 +55,7 @@ interface PartiesDialogState {
   fiestas: FiestaEnPlanificacion[];
   isLoading: boolean;
   summaryPhone: string;
+  summaryEmail: string;
 }
 
 export default function EmpleadosPage() {
@@ -69,19 +71,22 @@ export default function EmpleadosPage() {
   });
 
   const [partiesDialog, setPartiesDialog] = useState<PartiesDialogState>({
-    open: false, empleado: null, fiestas: [], isLoading: false, summaryPhone: '',
+    open: false, empleado: null, fiestas: [], isLoading: false, summaryPhone: '', summaryEmail: '',
   });
+  const [historyLogoUrl, setHistoryLogoUrl] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [empleadosData, rolesData] = await Promise.all([
+      const [empleadosData, rolesData, settings] = await Promise.all([
         getEmpleados(),
-        getRoles()
+        getRoles(),
+        getInvoiceTemplateSettings(),
       ]);
       setEmpleados(Array.isArray(empleadosData) ? empleadosData : []);
       setRoles(Array.isArray(rolesData) ? rolesData : []);
+      setHistoryLogoUrl(settings.logoUrl ?? null);
     } catch (err: any) {
       setError("No se pudieron cargar los datos de empleados o roles.");
       toast({ title: "Error de Carga", description: (err as Error).message, variant: "destructive" });
@@ -130,7 +135,14 @@ export default function EmpleadosPage() {
   };
 
   const openPartiesReport = async (empleado: Empleado) => {
-    setPartiesDialog({ open: true, empleado, fiestas: [], isLoading: true, summaryPhone: empleado.telefono ? sanitizePhone(empleado.telefono) : '' });
+    setPartiesDialog({
+      open: true,
+      empleado,
+      fiestas: [],
+      isLoading: true,
+      summaryPhone: empleado.telefono ? sanitizePhone(empleado.telefono) : '',
+      summaryEmail: empleado.email?.trim() || '',
+    });
     try {
       const fiestas = await getFiestasByEmpleado(empleado.id);
       setPartiesDialog(prev => ({ ...prev, fiestas, isLoading: false }));
@@ -168,6 +180,151 @@ export default function EmpleadosPage() {
     window.open(url, '_blank');
     setPartiesDialog(prev => ({ ...prev, open: false }));
     toast({ title: '✅ Resumen enviado', description: `Se abrió WhatsApp para enviar el resumen a ${empleado.nombre}.` });
+  };
+
+  const getPartiesRows = (fiestas: FiestaEnPlanificacion[], empleadoId?: string) => {
+    if (!empleadoId) return [];
+    return fiestas.flatMap(fiesta => {
+      const cfg = fiesta.configuracion;
+      const asignaciones = (fiesta.personalAsignado || []).filter(p => p.empleadoId === empleadoId);
+      if (asignaciones.length === 0) {
+        return [{
+          id: `${fiesta.id}-sin-rol`,
+          evento: cfg.nombreEvento || 'Evento sin nombre',
+          fecha: formatEventDate(cfg.fechaEvento),
+          lugar: cfg.nombreLugar || 'Lugar a confirmar',
+          rol: 'Sin rol',
+          monto: 0,
+        }];
+      }
+      return asignaciones.map((asig, index) => {
+        const rol = roles.find(r => r.id === asig.rolId);
+        return {
+          id: `${fiesta.id}-${index}`,
+          evento: cfg.nombreEvento || 'Evento sin nombre',
+          fecha: formatEventDate(cfg.fechaEvento),
+          lugar: cfg.nombreLugar || 'Lugar a confirmar',
+          rol: rol?.nombre || 'Rol desconocido',
+          monto: asig.eventSalary || 0,
+        };
+      });
+    });
+  };
+
+  const buildPartiesSummaryText = () => {
+    const { empleado, fiestas } = partiesDialog;
+    if (!empleado) return '';
+    const rows = getPartiesRows(fiestas, empleado.id);
+    const total = rows.reduce((sum, row) => sum + row.monto, 0);
+    const lines = rows.map((row, i) => `${i + 1}. ${row.fecha} — ${row.evento} (${row.rol}) ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(row.monto)}`);
+    return [
+      `Empleado: ${empleado.nombre}`,
+      `Cédula: ${empleado.cedula || '—'}`,
+      '',
+      ...lines,
+      '',
+      `Total acumulado: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(total)}`,
+    ].join('\n');
+  };
+
+  const sendPartiesByEmail = () => {
+    const { empleado, summaryEmail } = partiesDialog;
+    if (!empleado) return;
+    const email = summaryEmail.trim();
+    if (!email) {
+      toast({ title: 'Email requerido', description: 'Ingresá un email para enviar el historial.', variant: 'destructive' });
+      return;
+    }
+    const subject = `Historial de eventos — ${empleado.nombre}`;
+    const body = buildPartiesSummaryText();
+    window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  const printPartiesHistory = () => {
+    const { empleado, fiestas } = partiesDialog;
+    if (!empleado) return;
+    const rows = getPartiesRows(fiestas, empleado.id);
+    const total = rows.reduce((sum, row) => sum + row.monto, 0);
+
+    const escapeHtml = (value: string) =>
+      value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    if (!printWindow) {
+      toast({ title: 'No se pudo abrir la ventana de impresión', variant: 'destructive' });
+      return;
+    }
+
+    const logoBlock = historyLogoUrl
+      ? `<img src="${historyLogoUrl}" alt="AK Producciones" style="max-height:64px; max-width:180px;" />`
+      : '<h2 style="margin:0;">AK Producciones</h2>';
+
+    const tableRows = rows.map(row => `
+      <tr>
+        <td>${escapeHtml(row.evento)}</td>
+        <td>${escapeHtml(row.fecha)}</td>
+        <td>${escapeHtml(row.lugar)}</td>
+        <td>${escapeHtml(row.rol)}</td>
+        <td style="text-align:right">${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(row.monto)}</td>
+      </tr>
+    `).join('');
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Historial de eventos — ${escapeHtml(empleado.nombre)}</title>
+          <style>
+            body { font-family: Arial, sans-serif; color: #111; padding: 24px; }
+            .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            th, td { border: 1px solid #d1d5db; padding: 8px; font-size: 13px; }
+            th { background: #f3f4f6; text-align: left; }
+            tfoot td { font-weight: 700; background: #f9fafb; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            ${logoBlock}
+            <div style="text-align:right">
+              <h1 style="margin:0;font-size:20px;">Historial de eventos</h1>
+              <p style="margin:2px 0 0;color:#4b5563;">${new Date().toLocaleDateString('es-UY')}</p>
+            </div>
+          </div>
+          <p><strong>Empleado:</strong> ${escapeHtml(empleado.nombre)}</p>
+          <p><strong>Cédula:</strong> ${escapeHtml(empleado.cedula || '—')}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Evento</th>
+                <th>Fecha</th>
+                <th>Lugar</th>
+                <th>Rol</th>
+                <th style="text-align:right">Monto</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4">Total acumulado</td>
+                <td style="text-align:right">${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(total)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 150);
   };
 
   const getRolNames = (rolIds?: string[]): string => {
@@ -402,59 +559,81 @@ export default function EmpleadosPage() {
             ) : partiesDialog.fiestas.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">No hay fiestas asignadas a este empleado.</p>
             ) : (
-              partiesDialog.fiestas.map(fiesta => {
-                const cfg = fiesta.configuracion;
-                const asignaciones = (fiesta.personalAsignado || []).filter(p => p.empleadoId === partiesDialog.empleado?.id);
-                return (
-                  <div key={fiesta.id} className="border rounded-lg p-4 space-y-2">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-semibold text-base">{cfg.nombreEvento || 'Evento sin nombre'}</p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <CalendarDays className="w-3 h-3" />
-                          {formatEventDate(cfg.fechaEvento)}
-                        </p>
-                        {cfg.nombreLugar && (
-                          <p className="text-sm text-muted-foreground">📍 {cfg.nombreLugar}</p>
-                        )}
-                      </div>
-                      <Badge variant={fiesta.estado === 'Confirmada' ? 'default' : 'secondary'}>
-                        {fiesta.estado || 'En planificación'}
-                      </Badge>
-                    </div>
-                    {asignaciones.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {asignaciones.map((asig, i) => {
-                          const rol = roles.find(r => r.id === asig.rolId);
-                          return (
-                            <span key={i} className="text-xs bg-primary/10 text-primary rounded-full px-2 py-0.5">
-                              {rol?.nombre || 'Rol desconocido'} — ${asig.eventSalary?.toLocaleString('es-UY') || '0'}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
+              <div className="overflow-x-auto border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Evento</TableHead>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Lugar</TableHead>
+                      <TableHead>Rol</TableHead>
+                      <TableHead className="text-right">Monto</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {getPartiesRows(partiesDialog.fiestas, partiesDialog.empleado?.id).map(row => (
+                      <TableRow key={row.id}>
+                        <TableCell>{row.evento}</TableCell>
+                        <TableCell>{row.fecha}</TableCell>
+                        <TableCell>{row.lugar}</TableCell>
+                        <TableCell>{row.rol}</TableCell>
+                        <TableCell className="text-right">
+                          {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(row.monto)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </div>
           {!partiesDialog.isLoading && partiesDialog.fiestas.length > 0 && (
             <>
               <Separator />
               <div className="space-y-3 pt-2">
-                <p className="text-sm font-medium">Enviar resumen por WhatsApp</p>
-                <div className="flex gap-2">
+                <div className="flex items-center justify-between text-sm">
+                  <p className="font-medium">Total acumulado</p>
+                  <p className="font-semibold">
+                    {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(
+                      getPartiesRows(partiesDialog.fiestas, partiesDialog.empleado?.id).reduce((sum, row) => sum + row.monto, 0)
+                    )}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="parties-email">Email para enviar historial</Label>
                   <Input
-                    placeholder="Ej: 59899123456 (con código de país)"
-                    value={partiesDialog.summaryPhone}
-                    onChange={e => setPartiesDialog(prev => ({ ...prev, summaryPhone: e.target.value }))}
-                    className="flex-1"
+                    id="parties-email"
+                    type="email"
+                    placeholder="ejemplo@correo.com"
+                    value={partiesDialog.summaryEmail}
+                    onChange={e => setPartiesDialog(prev => ({ ...prev, summaryEmail: e.target.value }))}
                   />
-                  <Button className="bg-green-600 hover:bg-green-700 text-white shrink-0" onClick={sendPartiesSummary}>
-                    <Send className="w-4 h-4 mr-2" />
-                    Enviar
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" onClick={sendPartiesByEmail}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Enviar por Email
                   </Button>
+                  <Button variant="outline" onClick={printPartiesHistory}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Descargar PDF
+                  </Button>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Enviar resumen por WhatsApp</p>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Ej: 59899123456 (con código de país)"
+                      value={partiesDialog.summaryPhone}
+                      onChange={e => setPartiesDialog(prev => ({ ...prev, summaryPhone: e.target.value }))}
+                      className="flex-1"
+                    />
+                    <Button className="bg-green-600 hover:bg-green-700 text-white shrink-0" onClick={sendPartiesSummary}>
+                      <Send className="w-4 h-4 mr-2" />
+                      Enviar
+                    </Button>
+                  </div>
                 </div>
               </div>
             </>

@@ -5,6 +5,7 @@ export interface Empleado {
   cedula: string;
   fechaNacimiento: string;
   telefono?: string;
+  email?: string;
   rolIds?: string[];
   contractFileName?: string; // Nuevo campo para el contrato
   photoUrl?: string; // Foto de perfil del empleado
@@ -15,6 +16,7 @@ export interface NuevoEmpleadoFormData {
   cedula?: string;
   fechaNacimiento?: string;
   telefono?: string;
+  email?: string;
   rolIds?: string[];
   contractFileName?: string; // Nuevo campo para el contrato
   photoUrl?: string; // Foto de perfil del empleado
