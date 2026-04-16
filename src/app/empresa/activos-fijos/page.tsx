@@ -198,8 +198,11 @@ export default function InventarioActivosPage() {
                             <div className="flex items-start gap-3">
                               {item.imageUrl && (
                                 <div className="relative w-14 h-14 rounded-md overflow-hidden border border-border bg-background flex-shrink-0">
+                                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                                    <Package className="w-5 h-5" />
+                                  </div>
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={item.imageUrl} alt={`Foto de ${item.nombre}`} className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                                  <img src={item.imageUrl} alt={`Foto de ${item.nombre}`} className="w-full h-full object-cover relative z-10" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                                 </div>
                               )}
                               <CardTitle className="text-base font-semibold print:text-sm">{item.nombre}</CardTitle>

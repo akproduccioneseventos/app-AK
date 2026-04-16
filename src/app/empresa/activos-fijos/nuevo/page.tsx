@@ -184,7 +184,7 @@ function NuevoActivoFijoContent() {
                   {isUploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
                   Subir desde dispositivo
                 </Button>
-                <input ref={imageInputRef} id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} />
+                <input ref={imageInputRef} id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} aria-label="Subir imagen del activo" />
               </div>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
