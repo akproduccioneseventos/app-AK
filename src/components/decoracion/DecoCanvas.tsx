@@ -82,7 +82,7 @@ const CanvasElement = memo(function CanvasElement({
       {/* Element content */}
       <div
         style={{
-          transform: `scale(${el.escala})`,
+          transform: `scale(${el.escala ?? 1})`,
           transformOrigin: 'center center',
           outline: isSelected ? '2px dashed #3B82F6' : 'none',
           outlineOffset: 4,
@@ -170,6 +170,7 @@ export default function DecoCanvas({
   showGrid = false,
 }: DecoCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
   const interaction = useRef<InteractionState>({ type: 'idle' });
   const [zoom, setZoom] = useState(100);
   const elementosRef = useRef(elementos);
@@ -214,7 +215,7 @@ export default function DecoCanvas({
         handle,
         startMouseX: e.clientX,
         startMouseY: e.clientY,
-        startEscala: el.escala,
+        startEscala: el.escala ?? 1,
         startX: el.x,
         startY: el.y,
       }
@@ -305,7 +306,7 @@ export default function DecoCanvas({
       data: {
         elementId: id, handle,
         startMouseX: touch.clientX, startMouseY: touch.clientY,
-        startEscala: el.escala, startX: el.x, startY: el.y,
+        startEscala: el.escala ?? 1, startX: el.x, startY: el.y,
       }
     };
   }, []);
@@ -329,7 +330,7 @@ export default function DecoCanvas({
     };
   }, [zoom]);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     const state = interaction.current;
     if (state.type === 'idle') return;
     e.preventDefault();
@@ -363,6 +364,19 @@ export default function DecoCanvas({
   const handleTouchEnd = useCallback(() => {
     interaction.current = { type: 'idle' };
   }, []);
+
+  useEffect(() => {
+    const el = outerRef.current;
+    if (!el) return;
+    const onTouchMove = (e: TouchEvent) => handleTouchMove(e);
+    const onTouchEnd = () => handleTouchEnd();
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    return () => {
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [handleTouchMove, handleTouchEnd]);
 
   // ── Keyboard delete ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -410,13 +424,12 @@ export default function DecoCanvas({
 
       {/* Canvas container */}
       <div
+        ref={outerRef}
         className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100"
         style={{ maxHeight: 620 }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
         <div style={{ transformOrigin: 'top left', transform: `scale(${zoom / 100})`, width: CANVAS_W, height: CANVAS_H }}>
           <div

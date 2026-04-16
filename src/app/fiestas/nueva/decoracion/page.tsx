@@ -23,7 +23,6 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { addMoodboardItem, deleteMoodboardItem, syncDecoGastosToModule } from '@/app/actions/fiesta/decoracion.actions';
-import VistaDecorativaEditor from '@/components/decoracion/VistaDecorativaEditor';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -342,14 +341,6 @@ function DecoracionYDisenoEventoContent() {
   const handleSaveClick = useCallback(async () => {
     await saveDecoracion({ ...decoracionData, zonasDiseno });
   }, [decoracionData, zonasDiseno, saveDecoracion]);
-
-  const handleSaveZona = useCallback(async (data: ZonaDiseno['vistaDecorativa']) => {
-    const updatedZonas = zonasDiseno.map(z =>
-      z.id === selectedZonaId ? { ...z, vistaDecorativa: data } : z
-    );
-    setZonasDiseno(updatedZonas);
-    await saveDecoracion({ ...decoracionData, zonasDiseno: updatedZonas, vistaDecorativa: data });
-  }, [decoracionData, zonasDiseno, selectedZonaId, saveDecoracion]);
 
   const handleCreateZona = () => {
     if (!nuevaZonaNombre.trim()) return;
@@ -768,9 +759,6 @@ function DecoracionYDisenoEventoContent() {
           <TabsTrigger value="inspiracion" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
             <ImageIconLucide className="w-4 h-4" /> Inspiración
           </TabsTrigger>
-          <TabsTrigger value="canvas" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
-            <LayoutDashboard className="w-4 h-4" /> Canvas
-          </TabsTrigger>
         </TabsList>
 
         {/* TAB: VISTA DE DISEÑO */}
@@ -833,16 +821,34 @@ function DecoracionYDisenoEventoContent() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-5">
-                  {currentZona && (
-                    <VistaDecorativaEditor
-                      key={selectedZonaId}
-                      vistaDecorativa={currentZona.vistaDecorativa}
-                      paletaColores={decoracionData.paletaColores ?? { primary: '#D9B8FF', secondary: '#E6BFB2', accent: '#DCDCDC' }}
-                      fiestaId={fiestaId ?? ''}
-                      onSave={handleSaveZona}
-                      isSaving={isSaving}
+                  <div className="grid grid-cols-1 xl:grid-cols-[1fr_260px] gap-4 items-start">
+                    <DecoCanvas
+                      elementos={canvasElementos}
+                      onChange={handleCanvasElementsChange}
+                      selectedId={selectedCanvasId}
+                      onSelectId={setSelectedCanvasId}
+                      hiddenZones={canvasHiddenZones}
+                      fondoColor={canvasFondoColor}
+                      fondoImagenUrl={canvasFondoImagenUrl || undefined}
+                      showGrid={showGrid}
                     />
-                  )}
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3 min-h-[220px]">
+                      <div className="flex items-center gap-2 mb-3">
+                        <LayoutDashboard className="w-4 h-4 text-violet-500" />
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-500">Biblioteca Visual</p>
+                      </div>
+                      {fiestaId ? (
+                        <DecoElementLibrary
+                          fiestaId={fiestaId}
+                          onAddElement={handleAddLibraryElement}
+                          customElements={decoracionData.customElements}
+                          onUploadCustom={handleUploadCustomElement}
+                        />
+                      ) : (
+                        <div className="text-center text-slate-400 text-xs py-8">Cargando...</div>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -1400,10 +1406,10 @@ function DecoracionYDisenoEventoContent() {
                         </div>
                         <div className="border-t border-slate-100 pt-3 space-y-3">
                           <div className="space-y-1">
-                            <label className="text-xs text-slate-500">Escala ({selectedCanvasEl.escala.toFixed(1)}x)</label>
+                            <label className="text-xs text-slate-500">Escala ({(selectedCanvasEl.escala ?? 1).toFixed(1)}x)</label>
                             <input
                               type="range" min={0.2} max={5} step={0.1}
-                              value={selectedCanvasEl.escala}
+                              value={selectedCanvasEl.escala ?? 1}
                               onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
                               className="w-full h-2 accent-primary"
                             />
@@ -1673,11 +1679,11 @@ function DecoracionYDisenoEventoContent() {
                         <label className="text-xs text-slate-500">Escala</label>
                         <input
                           type="range" min={0.2} max={5} step={0.1}
-                          value={selectedCanvasEl.escala}
+                          value={selectedCanvasEl.escala ?? 1}
                           onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
                           className="w-24 h-2 accent-primary"
                         />
-                        <span className="text-xs font-mono text-slate-600 w-10">{selectedCanvasEl.escala.toFixed(1)}x</span>
+                        <span className="text-xs font-mono text-slate-600 w-10">{(selectedCanvasEl.escala ?? 1).toFixed(1)}x</span>
                       </div>
 
                       {/* Rotation */}
@@ -1755,10 +1761,10 @@ function DecoracionYDisenoEventoContent() {
                       </div>
                       <div className="border-t border-slate-100 pt-3 space-y-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-slate-500">Escala ({selectedCanvasEl.escala.toFixed(1)}x)</label>
+                          <label className="text-xs text-slate-500">Escala ({(selectedCanvasEl.escala ?? 1).toFixed(1)}x)</label>
                           <input
                             type="range" min={0.2} max={5} step={0.1}
-                            value={selectedCanvasEl.escala}
+                            value={selectedCanvasEl.escala ?? 1}
                             onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
                             className="w-full h-2 accent-primary"
                           />
