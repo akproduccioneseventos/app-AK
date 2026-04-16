@@ -537,6 +537,8 @@ export default function GaleriaAdminPage() {
     </div>
   );
 
+  const fotosSinTipoFiesta = useMemo(() => fotos.filter((f) => !f.tipoFiesta), [fotos]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -772,7 +774,7 @@ export default function GaleriaAdminPage() {
                       const fotosTipo = fotos.filter((f) => f.tipoFiesta === tipo);
                       return (
                         <AccordionItem value={tipo} key={tipo}>
-                          <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline hover:no-underline">
+                          <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline">
                             <span>{tipo} <span className="text-slate-400">({fotosTipo.length} fotos)</span></span>
                           </AccordionTrigger>
                           <AccordionContent>
@@ -788,13 +790,13 @@ export default function GaleriaAdminPage() {
                       );
                     })}
                     <AccordionItem value="sin-clasificar">
-                      <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline hover:no-underline">
-                        <span>Sin clasificar <span className="text-slate-400">({fotos.filter((f) => !f.tipoFiesta).length} fotos)</span></span>
+                      <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline">
+                        <span>Sin clasificar <span className="text-slate-400">({fotosSinTipoFiesta.length} fotos)</span></span>
                       </AccordionTrigger>
                       <AccordionContent>
-                        {fotos.filter((f) => !f.tipoFiesta).length > 0 ? (
+                        {fotosSinTipoFiesta.length > 0 ? (
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {fotos.filter((f) => !f.tipoFiesta).map(renderFotoCard)}
+                            {fotosSinTipoFiesta.map(renderFotoCard)}
                           </div>
                         ) : (
                           <p className="text-xs text-muted-foreground">Sin fotos en esta sección.</p>
@@ -810,6 +812,9 @@ export default function GaleriaAdminPage() {
                       const fotosServicio = fotos.filter((f) => f.categoria === servicio);
                       if (fotosServicio.length === 0) return null;
                       const subcats = SUBCATEGORIAS_POR_SERVICIO[servicio];
+                      const fotosOtras = subcats?.length
+                        ? fotosServicio.filter((f) => !f.subCategoria || !subcats.includes(f.subCategoria))
+                        : [];
                       return (
                         <div key={servicio} className="space-y-3">
                           <h3 className="text-lg font-black uppercase tracking-tight">
@@ -831,15 +836,13 @@ export default function GaleriaAdminPage() {
                                   </div>
                                 );
                               })}
-                              {fotosServicio.filter((f) => !f.subCategoria || !subcats.includes(f.subCategoria)).length > 0 && (
+                              {fotosOtras.length > 0 && (
                                 <div className="space-y-2">
                                   <h4 className="text-sm font-bold text-slate-600">
-                                    Otras <span className="text-slate-400">({fotosServicio.filter((f) => !f.subCategoria || !subcats.includes(f.subCategoria)).length})</span>
+                                    Otras <span className="text-slate-400">({fotosOtras.length})</span>
                                   </h4>
                                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {fotosServicio
-                                      .filter((f) => !f.subCategoria || !subcats.includes(f.subCategoria))
-                                      .map(renderFotoCard)}
+                                    {fotosOtras.map(renderFotoCard)}
                                   </div>
                                 </div>
                               )}
