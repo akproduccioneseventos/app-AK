@@ -27,19 +27,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Camera, ExternalLink, Loader2, Plus, RefreshCw, Star, Trash2, Upload, Video, Eye } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ArrowLeft, Camera, ExternalLink, Loader2, Pencil, Plus, RefreshCw, Star, Trash2, Upload, Video, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
-import { GALERIA_CATEGORIAS } from '@/types/galeria';
+import {
+  GALERIA_CATEGORIAS,
+  SERVICIOS_GALERIA,
+  SUBCATEGORIAS_POR_SERVICIO,
+  TIPOS_FIESTA_GALERIA,
+} from '@/types/galeria';
 import {
   getGaleriaItems,
   addGaleriaFoto,
   addGaleriaVideo,
   deleteGaleriaItem,
   toggleDestacada,
+  updateGaleriaFoto,
 } from '@/app/actions/galeria';
 import { addCatalogoFoto } from '@/app/actions/catalogo-fotos';
-import { TIPOS_FIESTA_CATALOGO } from '@/types/catalogo';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 
@@ -73,6 +87,11 @@ function sanitizeHttpUrl(url: string): string | null {
   return null;
 }
 
+interface EditFotoDialogState {
+  open: boolean;
+  foto: GaleriaFoto | null;
+}
+
 export default function GaleriaAdminPage() {
   const { toast } = useToast();
   const [fotos, setFotos] = useState<GaleriaFoto[]>([]);
@@ -87,10 +106,13 @@ export default function GaleriaAdminPage() {
   const [fotoDescripcion, setFotoDescripcion] = useState('');
   const [fotoCategoria, setFotoCategoria] = useState('');
   const [fotoTipoFiesta, setFotoTipoFiesta] = useState('');
+  const [fotoSubCategoria, setFotoSubCategoria] = useState('');
   const [fotoDestacada, setFotoDestacada] = useState(false);
   const [isSavingFoto, setIsSavingFoto] = useState(false);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
   const [isSyncingCatalog, setIsSyncingCatalog] = useState(false);
+  const [vistaMode, setVistaMode] = useState<'tipoFiesta' | 'servicio' | 'todas'>('tipoFiesta');
+  const [editFotoDialog, setEditFotoDialog] = useState<EditFotoDialogState>({ open: false, foto: null });
 
   // Video form
   const [videoUrl, setVideoUrl] = useState('');
@@ -102,9 +124,23 @@ export default function GaleriaAdminPage() {
 
   // Combined categories (base + service names)
   const allCategories = useMemo(() => {
-    const serviceCategories = servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any));
-    return [...GALERIA_CATEGORIAS, ...serviceCategories];
-  }, [servicioNames]);
+    const options = new Set<string>([
+      ...SERVICIOS_GALERIA,
+      ...servicioNames,
+      ...GALERIA_CATEGORIAS,
+      ...fotos.map((f) => f.categoria).filter(Boolean),
+    ]);
+    return Array.from(options).sort((a, b) => a.localeCompare(b));
+  }, [servicioNames, fotos]);
+
+  const availableServiciosForView = useMemo(() => {
+    const options = new Set<string>([
+      ...SERVICIOS_GALERIA,
+      ...servicioNames,
+      ...fotos.map((f) => f.categoria).filter(Boolean),
+    ]);
+    return Array.from(options).sort((a, b) => a.localeCompare(b));
+  }, [servicioNames, fotos]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -132,6 +168,31 @@ export default function GaleriaAdminPage() {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    const availableSubcats = SUBCATEGORIAS_POR_SERVICIO[fotoCategoria] || [];
+    if (!availableSubcats.includes(fotoSubCategoria)) {
+      setFotoSubCategoria('');
+    }
+  }, [fotoCategoria, fotoSubCategoria]);
+
+  const openEditFotoDialog = (foto: GaleriaFoto) => {
+    setEditFotoDialog({ open: true, foto: { ...foto } });
+  };
+
+  const handleEditFotoField = <K extends keyof GaleriaFoto>(field: K, value: GaleriaFoto[K]) => {
+    setEditFotoDialog((prev) => {
+      if (!prev.foto) return prev;
+      const nextFoto = { ...prev.foto, [field]: value };
+      if (field === 'categoria') {
+        const nextSubcats = SUBCATEGORIAS_POR_SERVICIO[String(value)] || [];
+        if (!nextSubcats.includes(nextFoto.subCategoria || '')) {
+          nextFoto.subCategoria = undefined;
+        }
+      }
+      return { ...prev, foto: nextFoto };
+    });
+  };
+
   const handleAddFoto = async () => {
     if (!fotoUrl.trim() || !fotoCategoria) {
       toast({ title: 'Campos requeridos', description: 'Ingresá la URL y la categoría.', variant: 'destructive' });
@@ -147,6 +208,8 @@ export default function GaleriaAdminPage() {
         titulo: fotoTitulo.trim() || undefined,
         descripcion: fotoDescripcion.trim() || undefined,
         categoria: fotoCategoria,
+        tipoFiesta: fotoTipoFiesta || undefined,
+        subCategoria: fotoSubCategoria || undefined,
         destacada: fotoDestacada,
         orden: fotos.length,
         createdAt: new Date().toISOString(),
@@ -170,6 +233,7 @@ export default function GaleriaAdminPage() {
       setFotoDescripcion('');
       setFotoCategoria('');
       setFotoTipoFiesta('');
+      setFotoSubCategoria('');
       setFotoDestacada(false);
       await fetchData();
     } catch {
@@ -203,6 +267,8 @@ export default function GaleriaAdminPage() {
         titulo: fotoTitulo.trim() || undefined,
         descripcion: fotoDescripcion.trim() || undefined,
         categoria: fotoCategoria,
+        tipoFiesta: fotoTipoFiesta || undefined,
+        subCategoria: fotoSubCategoria || undefined,
         destacada: fotoDestacada,
         orden: fotos.length,
         createdAt: new Date().toISOString(),
@@ -226,6 +292,7 @@ export default function GaleriaAdminPage() {
       setFotoDescripcion('');
       setFotoCategoria('');
       setFotoTipoFiesta('');
+      setFotoSubCategoria('');
       setFotoDestacada(false);
       await fetchData();
     } catch (err: any) {
@@ -391,6 +458,90 @@ export default function GaleriaAdminPage() {
     }
   };
 
+  const handleSaveEditFoto = async () => {
+    if (!editFotoDialog.foto) return;
+    const payload: Partial<GaleriaFoto> = {
+      titulo: editFotoDialog.foto.titulo?.trim() || undefined,
+      descripcion: editFotoDialog.foto.descripcion?.trim() || undefined,
+      categoria: editFotoDialog.foto.categoria,
+      tipoFiesta: editFotoDialog.foto.tipoFiesta || undefined,
+      subCategoria: editFotoDialog.foto.subCategoria || undefined,
+      destacada: editFotoDialog.foto.destacada,
+    };
+
+    const result = await updateGaleriaFoto(editFotoDialog.foto.id, payload);
+    if (!result.success) {
+      toast({ title: 'Error', description: result.error || 'No se pudo actualizar la foto.', variant: 'destructive' });
+      return;
+    }
+    toast({ title: '✅ Foto actualizada', description: 'Los cambios se guardaron correctamente.' });
+    setEditFotoDialog({ open: false, foto: null });
+    await fetchData();
+  };
+
+  const renderFotoCard = (foto: GaleriaFoto) => (
+    <div key={foto.id} className="relative group rounded-xl overflow-hidden border bg-card">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={sanitizeHttpUrl(foto.url) ?? ''}
+        alt={foto.titulo ?? foto.categoria}
+        className="w-full aspect-square object-cover"
+      />
+      <div className="absolute inset-0 bg-black/40 sm:bg-black/0 sm:group-hover:bg-black/50 transition-colors flex items-center justify-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+        <Button
+          size="icon"
+          variant="secondary"
+          className="w-8 h-8"
+          onClick={() => openEditFotoDialog(foto)}
+          title="Editar foto"
+        >
+          <Pencil className="w-4 h-4" />
+        </Button>
+        <Button
+          size="icon"
+          variant={foto.destacada ? 'default' : 'secondary'}
+          className="w-8 h-8"
+          onClick={() => handleToggleDestacada(foto.id)}
+          title={foto.destacada ? 'Quitar destacada' : 'Marcar como destacada'}
+        >
+          <Star className={`w-4 h-4 ${foto.destacada ? 'fill-white' : ''}`} />
+        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button size="icon" variant="destructive" className="w-8 h-8">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Eliminar foto?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={() => handleDelete(foto.id)}>
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+      <div className="p-2">
+        <div className="flex items-center gap-1 flex-wrap">
+          <Badge variant="secondary" className="text-xs">{foto.categoria}</Badge>
+          {foto.subCategoria && <Badge variant="outline" className="text-xs">{foto.subCategoria}</Badge>}
+          {foto.tipoFiesta && <Badge variant="outline" className="text-xs">{foto.tipoFiesta}</Badge>}
+          {foto.destacada && <Badge className="text-xs"><Star className="w-3 h-3 mr-1 fill-white" />Destacada</Badge>}
+        </div>
+        {foto.titulo && <p className="text-xs mt-1 font-medium truncate">{foto.titulo}</p>}
+      </div>
+    </div>
+  );
+
+  const fotosSinTipoFiesta = useMemo(() => fotos.filter((f) => !f.tipoFiesta), [fotos]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -479,24 +630,15 @@ export default function GaleriaAdminPage() {
                   )}
                 </div>
                 <div className="space-y-1">
-                  <Label>Categoría *</Label>
+                  <Label>Categoría / Servicio *</Label>
                   <Select value={fotoCategoria} onValueChange={(v) => { if (v) setFotoCategoria(v); }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar categoría" />
+                      <SelectValue placeholder="Seleccionar servicio" />
                     </SelectTrigger>
                     <SelectContent>
-                      <p className="px-2 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Categorías Base</p>
-                      {GALERIA_CATEGORIAS.map((cat) => (
+                      {allCategories.map((cat) => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
-                      {servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any)).length > 0 && (
-                        <>
-                          <p className="px-2 py-1 mt-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-t border-slate-100 pt-2">Servicios del Catálogo</p>
-                          {servicioNames.filter(n => !GALERIA_CATEGORIAS.includes(n as any)).map((name) => (
-                            <SelectItem key={name} value={name}>{name}</SelectItem>
-                          ))}
-                        </>
-                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -524,12 +666,28 @@ export default function GaleriaAdminPage() {
                       <SelectValue placeholder="Seleccionar tipo de fiesta" />
                     </SelectTrigger>
                     <SelectContent>
-                      {TIPOS_FIESTA_CATALOGO.map((tipo) => (
+                      {TIPOS_FIESTA_GALERIA.map((tipo) => (
                         <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+                {fotoCategoria && (SUBCATEGORIAS_POR_SERVICIO[fotoCategoria]?.length ?? 0) > 0 && (
+                  <div className="space-y-1">
+                    <Label>Sub-categoría (opcional)</Label>
+                    <Select value={fotoSubCategoria || '__none__'} onValueChange={(v) => setFotoSubCategoria(v === '__none__' ? '' : v)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sin sub-categoría" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Sin sub-categoría</SelectItem>
+                        {(SUBCATEGORIAS_POR_SERVICIO[fotoCategoria] || []).map((sub) => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div className="flex items-center gap-3">
                   <Switch
                     id="foto-destacada"
@@ -583,56 +741,125 @@ export default function GaleriaAdminPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {fotos.map((foto) => (
-                  <div key={foto.id} className="relative group rounded-xl overflow-hidden border bg-card">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={sanitizeHttpUrl(foto.url) ?? ''}
-                      alt={foto.titulo ?? foto.categoria}
-                      className="w-full aspect-square object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                      <Button
-                        size="icon"
-                        variant={foto.destacada ? 'default' : 'secondary'}
-                        className="w-8 h-8"
-                        onClick={() => handleToggleDestacada(foto.id)}
-                        title={foto.destacada ? 'Quitar destacada' : 'Marcar como destacada'}
-                      >
-                        <Star className={`w-4 h-4 ${foto.destacada ? 'fill-white' : ''}`} />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="destructive" className="w-8 h-8">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>¿Eliminar foto?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta acción no se puede deshacer.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(foto.id)}>
-                              Eliminar
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                    <div className="p-2">
-                      <div className="flex items-center gap-1 flex-wrap">
-                        <Badge variant="secondary" className="text-xs">{foto.categoria}</Badge>
-                        {foto.destacada && <Badge className="text-xs"><Star className="w-3 h-3 mr-1 fill-white" />Destacada</Badge>}
-                      </div>
-                      {foto.titulo && <p className="text-xs mt-1 font-medium truncate">{foto.titulo}</p>}
-                    </div>
+              <div className="space-y-4">
+                <div className="flex gap-2 flex-wrap">
+                  <div className="flex rounded-xl overflow-hidden border border-slate-200">
+                    <button
+                      onClick={() => setVistaMode('tipoFiesta')}
+                      className={`px-4 py-2 text-xs font-bold uppercase tracking-widest ${vistaMode === 'tipoFiesta' ? 'bg-primary text-white' : 'hover:bg-slate-50'}`}
+                    >
+                      Por Tipo de Fiesta
+                    </button>
+                    <button
+                      onClick={() => setVistaMode('servicio')}
+                      className={`px-4 py-2 text-xs font-bold uppercase tracking-widest ${vistaMode === 'servicio' ? 'bg-primary text-white' : 'hover:bg-slate-50'}`}
+                    >
+                      Por Servicio
+                    </button>
+                    <button
+                      onClick={() => setVistaMode('todas')}
+                      className={`px-4 py-2 text-xs font-bold uppercase tracking-widest ${vistaMode === 'todas' ? 'bg-primary text-white' : 'hover:bg-slate-50'}`}
+                    >
+                      Todas
+                    </button>
                   </div>
-                ))}
+                </div>
+
+                {vistaMode === 'todas' && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {fotos.map(renderFotoCard)}
+                  </div>
+                )}
+
+                {vistaMode === 'tipoFiesta' && (
+                  <Accordion type="multiple" className="w-full">
+                    {TIPOS_FIESTA_GALERIA.map((tipo) => {
+                      const fotosTipo = fotos.filter((f) => f.tipoFiesta === tipo);
+                      return (
+                        <AccordionItem value={tipo} key={tipo}>
+                          <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline">
+                            <span>{tipo} <span className="text-slate-400">({fotosTipo.length} fotos)</span></span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {fotosTipo.length > 0 ? (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                {fotosTipo.map(renderFotoCard)}
+                              </div>
+                            ) : (
+                              <p className="text-xs text-muted-foreground">Sin fotos en esta sección.</p>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                    <AccordionItem value="sin-clasificar">
+                      <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline">
+                        <span>Sin clasificar <span className="text-slate-400">({fotosSinTipoFiesta.length} fotos)</span></span>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {fotosSinTipoFiesta.length > 0 ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {fotosSinTipoFiesta.map(renderFotoCard)}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">Sin fotos en esta sección.</p>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+
+                {vistaMode === 'servicio' && (
+                  <div className="space-y-6">
+                    {availableServiciosForView.map((servicio) => {
+                      const fotosServicio = fotos.filter((f) => f.categoria === servicio);
+                      if (fotosServicio.length === 0) return null;
+                      const subcats = SUBCATEGORIAS_POR_SERVICIO[servicio];
+                      const fotosOtras = subcats?.length
+                        ? fotosServicio.filter((f) => !f.subCategoria || !subcats.includes(f.subCategoria))
+                        : [];
+                      return (
+                        <div key={servicio} className="space-y-3">
+                          <h3 className="text-lg font-black uppercase tracking-tight">
+                            {servicio} <span className="text-slate-400 text-sm">({fotosServicio.length})</span>
+                          </h3>
+                          {subcats?.length ? (
+                            <div className="space-y-4 pl-4 border-l-2 border-primary/20">
+                              {subcats.map((sub) => {
+                                const fotosSub = fotosServicio.filter((f) => f.subCategoria === sub);
+                                if (fotosSub.length === 0) return null;
+                                return (
+                                  <div key={sub} className="space-y-2">
+                                    <h4 className="text-sm font-bold text-slate-600">
+                                      {sub} <span className="text-slate-400">({fotosSub.length})</span>
+                                    </h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                      {fotosSub.map(renderFotoCard)}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {fotosOtras.length > 0 && (
+                                <div className="space-y-2">
+                                  <h4 className="text-sm font-bold text-slate-600">
+                                    Otras <span className="text-slate-400">({fotosOtras.length})</span>
+                                  </h4>
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {fotosOtras.map(renderFotoCard)}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                              {fotosServicio.map(renderFotoCard)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -799,6 +1026,107 @@ export default function GaleriaAdminPage() {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={editFotoDialog.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditFotoDialog({ open: false, foto: null });
+            return;
+          }
+          setEditFotoDialog((prev) => ({ ...prev, open }));
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar foto</DialogTitle>
+            <DialogDescription>Actualizá título, descripción y clasificación de la foto.</DialogDescription>
+          </DialogHeader>
+          {editFotoDialog.foto && (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <Label>Título (opcional)</Label>
+                <Input
+                  value={editFotoDialog.foto.titulo || ''}
+                  onChange={(e) => handleEditFotoField('titulo', e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Descripción (opcional)</Label>
+                <Textarea
+                  rows={2}
+                  value={editFotoDialog.foto.descripcion || ''}
+                  onChange={(e) => handleEditFotoField('descripcion', e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Tipo de Fiesta (opcional)</Label>
+                <Select
+                  value={editFotoDialog.foto.tipoFiesta || '__none__'}
+                  onValueChange={(v) => handleEditFotoField('tipoFiesta', v === '__none__' ? undefined : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sin tipo de fiesta" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Sin tipo de fiesta</SelectItem>
+                    {TIPOS_FIESTA_GALERIA.map((tipo) => (
+                      <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Categoría / Servicio</Label>
+                <Select
+                  value={editFotoDialog.foto.categoria}
+                  onValueChange={(v) => handleEditFotoField('categoria', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allCategories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {editFotoDialog.foto.categoria && (SUBCATEGORIAS_POR_SERVICIO[editFotoDialog.foto.categoria]?.length ?? 0) > 0 && (
+                <div className="space-y-1">
+                  <Label>Sub-categoría (opcional)</Label>
+                  <Select
+                    value={editFotoDialog.foto.subCategoria || '__none__'}
+                    onValueChange={(v) => handleEditFotoField('subCategoria', v === '__none__' ? undefined : v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sin sub-categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Sin sub-categoría</SelectItem>
+                      {(SUBCATEGORIAS_POR_SERVICIO[editFotoDialog.foto.categoria] || []).map((sub) => (
+                        <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="edit-foto-destacada"
+                  checked={!!editFotoDialog.foto.destacada}
+                  onCheckedChange={(checked) => handleEditFotoField('destacada', checked)}
+                />
+                <Label htmlFor="edit-foto-destacada">Destacada</Label>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditFotoDialog({ open: false, foto: null })}>Cancelar</Button>
+            <Button onClick={handleSaveEditFoto}>Guardar cambios</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
