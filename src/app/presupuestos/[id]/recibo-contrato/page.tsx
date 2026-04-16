@@ -56,7 +56,7 @@ const CONTRACT_MISSING_EVENT_DATA_ERROR = 'No se puede generar el contrato sin l
 
 const extractTimeFromDate = (dateString?: string) => {
   if (!dateString || !dateString.includes('T')) return '';
-  const [, timePart = ''] = dateString.split('T');
+  const [_datePart, timePart = ''] = dateString.split('T');
   const hhmm = timePart.slice(0, 5);
   return /^\d{2}:\d{2}$/.test(hhmm) && hhmm !== '00:00' ? hhmm : '';
 };
@@ -155,8 +155,8 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   }, [presupuesto]);
 
   /** Build the first seña amount from the first recorded payment, or default to 0. */
-  const primerPago = pagos.find((p) => p.estadoPago !== 'pendiente_confirmacion')?.monto ?? 0;
-  const hasDeposit = primerPago > 0;
+  const montoSenia = pagos.find((p) => p.estadoPago !== 'pendiente_confirmacion')?.monto ?? 0;
+  const hasDeposit = montoSenia > 0;
   const eventStartTime = (presupuesto?.eventoHoraInicio || extractTimeFromDate(presupuesto?.eventoFecha)).trim();
   const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
   const requestedDoc = searchParams.get('doc');
@@ -168,7 +168,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
     const today = new Date();
     const ciudadFecha = `Salto, a los ${today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-    const montoSenaNum = primerPago;
+    const montoSenaNum = montoSenia;
     const montoSenaWords = numberToSpanishWords(montoSenaNum);
     const montoSenaStr = `$ ${montoSenaNum.toLocaleString('es-UY')} (pesos uruguayos ${montoSenaWords})`;
 
@@ -184,14 +184,14 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       salon: presupuesto.salonFiestas || '___________________',
       montoSena: montoSenaStr,
     });
-  }, [presupuesto, primerPago, eventStartTime]);
+  }, [presupuesto, montoSenia, eventStartTime]);
 
   const { contractIntro, contractClauses } = useMemo(() => {
     if (!presupuesto || !contractSettings) return { contractIntro: '', contractClauses: [] as { title: string; content: string }[] };
     const today = new Date();
     const ciudadFecha = `Salto, a los ${today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-    const montoSenaNum = primerPago;
+    const montoSenaNum = montoSenia;
     const montoSenaWords = numberToSpanishWords(montoSenaNum);
     const montoSenaStr = `$ ${montoSenaNum.toLocaleString('es-UY')} (pesos uruguayos ${montoSenaWords})`;
 
@@ -213,7 +213,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       contractIntro: result.intro,
       contractClauses: result.clauses,
     };
-  }, [presupuesto, contractSettings, primerPago, eventStartTime]);
+  }, [presupuesto, contractSettings, montoSenia, eventStartTime]);
 
   const handlePrint = () => window.print();
 
@@ -286,7 +286,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
           <div className="bg-white rounded-3xl print:rounded-none shadow-2xl print:shadow-none overflow-hidden">
 
             {/* Header bar */}
-            <div className="bg-slate-800 px-8 py-7 print:px-6 print:py-5 flex justify-between items-center gap-4">
+            <div className="bg-primary px-8 py-7 print:px-6 print:py-5 flex justify-between items-center gap-4">
               <div className="flex items-center gap-4">
                 {logoUrl ? (
                   <div className="w-14 h-14 relative shrink-0 bg-white/10 rounded-xl overflow-hidden">

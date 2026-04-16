@@ -60,7 +60,7 @@ const CONTRACT_MISSING_EVENT_DATA_ERROR = "No se puede generar el contrato sin l
 
 const extractTimeFromDate = (dateString?: string) => {
   if (!dateString || !dateString.includes('T')) return '';
-  const [, timePart = ''] = dateString.split('T');
+  const [_datePart, timePart = ''] = dateString.split('T');
   const hhmm = timePart.slice(0, 5);
   return /^\d{2}:\d{2}$/.test(hhmm) && hhmm !== '00:00' ? hhmm : '';
 };
@@ -430,7 +430,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 0;
 
   return (
-    <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-serif">
+    <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-sans">
         {/* ── QUICK ACTION BAR ────────────────────────────────── */}
         <div className="print:hidden max-w-3xl mx-auto px-4 mb-4">
           <div className="bg-white rounded-2xl shadow-md px-4 py-3 flex flex-wrap items-center justify-between gap-3">
