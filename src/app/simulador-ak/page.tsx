@@ -1190,7 +1190,7 @@ function StepMenus({
                 className={cn('rounded-xl p-3 border text-left', state.selectedEntradas.includes(s.id) ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
               >
                 <p className="text-white text-sm font-bold">{s.nombre}</p>
-                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona || s.precioVenta)}</p>
+                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
               </button>
             ))}
           </div>
@@ -1205,7 +1205,7 @@ function StepMenus({
                 className={cn('rounded-xl p-3 border text-left', state.selectedPrincipal === s.id ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
               >
                 <p className="text-white text-sm font-bold">{s.nombre}</p>
-                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona || s.precioVenta)}</p>
+                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
               </button>
             ))}
           </div>
@@ -1221,7 +1221,7 @@ function StepMenus({
                   className={cn('rounded-xl p-3 border text-left', state.selectedInfantil === s.id ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
                 >
                   <p className="text-white text-sm font-bold">{s.nombre}</p>
-                  <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona || s.precioVenta)}</p>
+                  <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
                 </button>
               ))}
             </div>
