@@ -17,7 +17,7 @@ import type { Customer } from '@/types/customer';
 import * as logger from '@/lib/logger';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
-const SHORT_CONFIRMATION_REGEX = /^(sí|si|dale|crealo|crealo ahora|confirmá|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
+const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
 
 // ── Parser local determinista de presupuestos en texto libre ─────────────────
 
@@ -215,7 +215,8 @@ function getBudgetParserText(
   forceUseHistory = false
 ): string {
   const trimmedMessage = message.trim();
-  const isConfirmationMessage = SHORT_CONFIRMATION_REGEX.test(trimmedMessage);
+  const normalizedMessage = trimmedMessage.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const isConfirmationMessage = SHORT_CONFIRMATION_REGEX.test(normalizedMessage);
   const fullConversationText = [...history.map(h => h.content), message].join('\n');
 
   return (forceUseHistory || (isConfirmationMessage && history.length > 0))
