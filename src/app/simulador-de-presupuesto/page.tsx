@@ -363,12 +363,7 @@ function SimuladorContent() {
         const descPromo = totalRegular * 0.10;
         const totalSinAjuste = totalRegular - descPromo;
 
-        const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
-        const currentYear = new Date().getFullYear();
-        const aniosDiferencia = Math.max(0, eventYear - currentYear);
-        const factorAjuste = Math.pow(1.15, aniosDiferencia);
-        const totalFinal = totalSinAjuste * factorAjuste;
-        const ajusteAnual = totalFinal - totalSinAjuste;
+        const totalFinal = totalSinAjuste;
 
         const agrupados = detallados.reduce((acc, item) => {
             const cat = item.categoria;
@@ -394,9 +389,9 @@ function SimuladorContent() {
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,
             totalSinAjuste: Math.round(totalSinAjuste),
-            ajusteAnual: Math.round(ajusteAnual),
+            ajusteAnual: 0,
             totalFinal: Math.round(totalFinal),
-            aniosDiferencia,
+            aniosDiferencia: 0,
             agrupados: sortedAgrupados,
             detallados
         };
@@ -530,10 +525,7 @@ function SimuladorContent() {
 
         const descPromo = totalRegular * 0.10;
         const totalSinAjuste = totalRegular - descPromo;
-        const eventYear = eventoFecha ? eventoFecha.getFullYear() : new Date().getFullYear();
-        const currentYear = new Date().getFullYear();
-        const aniosDif = Math.max(0, eventYear - currentYear);
-        return Math.round(totalSinAjuste * Math.pow(1.15, aniosDif));
+        return Math.round(totalSinAjuste);
     };
 
     const sortedPaquetes = useMemo(() => {

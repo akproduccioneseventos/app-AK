@@ -22,6 +22,7 @@ const ALL_DOC_TYPES: { value: DocumentoTipo; label: string }[] = [
   { value: 'recibo_salon', label: 'Recibo de Salón' },
   { value: 'recibo_agadu', label: 'Recibo de AGADU' },
   { value: 'recibo_personal', label: 'Recibo de Pago de Personal' },
+  { value: 'cancelacion-parcial', label: 'Cancelación Parcial de Servicios' },
   { value: 'otro', label: 'Otro Documento' },
 ];
 
@@ -222,6 +223,9 @@ function GestionDocumentalContent() {
                 </Link>
                 <Link href={`/fiestas/nueva/gestion-documental/cancelacion-contrato?fiestaId=${fiestaId}`}>
                   <Button variant="destructive" size="sm"><FileX className="w-4 h-4 mr-1.5"/>Generar Cancelación</Button>
+                </Link>
+                <Link href={`/fiestas/nueva/gestion-documental/cancelacion-parcial?fiestaId=${fiestaId}`}>
+                  <Button variant="secondary" size="sm"><FileX className="w-4 h-4 mr-1.5"/>Cancelación Parcial</Button>
                 </Link>
                 <Button onClick={handleDownloadAll} variant="outline" size="sm" disabled={isDownloading}>
                     {isDownloading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin"/> : <Download className="w-4 h-4 mr-1.5"/>}

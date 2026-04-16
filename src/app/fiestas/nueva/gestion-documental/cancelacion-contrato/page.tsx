@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Loader2, Edit, CheckCircle2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -18,6 +18,8 @@ import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { uploadDocumentoFiesta } from '@/app/actions/fiesta-actual';
+import { Textarea } from '@/components/ui/textarea';
 
 /** Allow only http/https/relative URLs to prevent javascript: or data: URI injection */
 const sanitizeImageUrl = (url: string | null | undefined): string | null => {
@@ -52,6 +54,23 @@ const formatDate = (dateString?: string) => {
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
+const buildCancelacionText = (params: {
+  companyName: string;
+  clienteNombre: string;
+  clienteCi?: string;
+  fechaEvento?: string;
+  fechaContrato?: string;
+  presupuestoTotal: number;
+  multa: number;
+  totalPagado: number;
+}) => `En la ciudad de Salto, a los ${today}, se deja constancia que, a solicitud del/la Sr./Sra. ${params.clienteNombre}, cédula de identidad N° ${params.clienteCi || '_______________________'}, quien contratara los servicios de ${params.companyName} para la organización de un evento previsto para el día ${formatDate(params.fechaEvento)}, según contrato firmado con fecha ${formatDate(params.fechaContrato)}, se procede a la cancelación del mencionado contrato por parte del cliente.
+
+De acuerdo con la cláusula cuarta del contrato suscrito, en caso de cancelación por parte del cliente, se establece una multa del 30% del presupuesto total como penalización. El presupuesto acordado fue de ${formatCurrency(params.presupuestoTotal)}, por lo tanto, la multa correspondiente asciende a ${formatCurrency(params.multa)}.
+
+No obstante lo anterior, ${params.companyName}, en un gesto comercial de común acuerdo entre las partes, acepta reducir el costo de la multa, estableciendo como monto total y definitivo de la penalización la suma ya abonada por el cliente, correspondiente a ${formatCurrency(params.totalPagado)}.
+
+En consecuencia, no existe saldo pendiente ni importe alguno a devolver entre las partes, dándose por totalmente canceladas y saldadas las obligaciones emergentes del contrato mencionado. Ambas partes manifiestan su conformidad con lo expuesto, firmando la presente constancia en dos ejemplares del mismo tenor, en la ciudad de Salto, en la fecha indicada ut-supra.`;
+
 function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -63,6 +82,9 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [contractText, setContractText] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSavingHistory, setIsSavingHistory] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -96,6 +118,18 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
+      const presupuestoTotalDraft = presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0;
+      const multaDraft = presupuestoTotalDraft * 0.30;
+      setContractText(buildCancelacionText({
+        companyName: companyData.companyName,
+        clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
+        clienteCi: clienteData?.taxId,
+        fechaEvento: fiestaData.configuracion.fechaEvento,
+        fechaContrato: presupuestoData?.timestamp,
+        presupuestoTotal: presupuestoTotalDraft,
+        multa: multaDraft,
+        totalPagado: 0,
+      }));
 
       if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
         const invoices = await Promise.all(fiestaData.invoiceIds.map(id => getInvoiceById(id)));
@@ -103,6 +137,16 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
           return sum + (inv?.payments?.reduce((pSum, p) => pSum + p.amount, 0) || 0);
         }, 0);
         setTotalPagado(total);
+        setContractText(buildCancelacionText({
+          companyName: companyData.companyName,
+          clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
+          clienteCi: clienteData?.taxId,
+          fechaEvento: fiestaData.configuracion.fechaEvento,
+          fechaContrato: presupuestoData?.timestamp,
+          presupuestoTotal: presupuestoTotalDraft,
+          multa: multaDraft,
+          totalPagado: total,
+        }));
       }
 
     } catch (err: any) {
@@ -118,6 +162,26 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   }, [loadData]);
   
   const handlePrint = () => window.print();
+
+  const handleSaveToHistory = async () => {
+    if (!fiestaId) return;
+    setIsSavingHistory(true);
+    try {
+      const file = new File([contractText], `cancelacion_total_${fiestaId}.txt`, { type: 'text/plain' });
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('docType', 'cancelacion');
+      formData.append('customName', `Contrato cancelación total - ${today}`);
+      formData.append('fiestaId', fiestaId);
+      const result = await uploadDocumentoFiesta(formData);
+      if (!result.success) throw new Error(result.error);
+      toast({ title: 'Documento guardado', description: 'Se guardó en el historial de documentos.' });
+    } catch (err: any) {
+      toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsSavingHistory(false);
+    }
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -176,6 +240,13 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={() => setIsEditing(!isEditing)} variant={isEditing ? 'default' : 'outline' } size="sm">
+            {isEditing ? <><CheckCircle2 className="w-4 h-4 mr-1.5" />Finalizar</> : <><Edit className="w-4 h-4 mr-1.5" />Editar</>}
+          </Button>
+          <Button onClick={handleSaveToHistory} variant="outline" size="sm" disabled={isSavingHistory}>
+            {isSavingHistory ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5" />}
+            Guardar
+          </Button>
           <Button onClick={handleShare} variant="outline" size="sm">
             <Share2 className="w-4 h-4 mr-1.5" /> Compartir
           </Button>
@@ -255,40 +326,17 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
             </div>
 
             {/* Legal text */}
-            <div className="prose prose-sm print:prose-xs max-w-none text-justify font-serif text-slate-800 print:text-black leading-relaxed">
-              <p>
-                En la ciudad de Salto, a los <strong>{today}</strong>, se deja constancia que, a solicitud del/la
-                Sr./Sra. <strong>{cliente.name || cliente.companyName}</strong>, cédula de identidad N°{' '}
-                <strong>{cliente.taxId || '_______________________'}</strong>, quien contratara los servicios de{' '}
-                <strong>{companyInfo.companyName}</strong>, representada por su titular el Sr. Alexander Knuth, para la
-                organización de un evento previsto para el día{' '}
-                <strong>{formatDate(fiesta.configuracion.fechaEvento)}</strong>, según contrato firmado con fecha{' '}
-                <strong>{formatDate(presupuesto.timestamp)}</strong>, se procede a la cancelación del mencionado
-                contrato por parte del cliente.
-              </p>
-
-              <p>
-                De acuerdo con la cláusula cuarta del contrato suscrito, en caso de cancelación por parte del cliente,
-                se establece una multa del 30% del presupuesto total como penalización. El presupuesto acordado fue de{' '}
-                <strong>{formatCurrency(presupuestoTotal)}</strong>, por lo tanto, la multa correspondiente asciende a{' '}
-                <strong>{formatCurrency(multa)}</strong>.
-              </p>
-
-              <p>
-                No obstante lo anterior, <strong>{companyInfo.companyName}</strong>, en un gesto comercial de común
-                acuerdo entre las partes, acepta reducir el costo de la multa, estableciendo como monto total y
-                definitivo de la penalización la suma ya abonada por el cliente, correspondiente a{' '}
-                <strong>{formatCurrency(totalPagado)}</strong>, monto que el/la Sr./Sra.{' '}
-                <strong>{cliente.name}</strong> declara haber abonado en su totalidad.
-              </p>
-
-              <p>
-                En consecuencia, no existe saldo pendiente ni importe alguno a devolver entre las partes, dándose por
-                totalmente canceladas y saldadas las obligaciones emergentes del contrato mencionado. Ambas partes
-                manifiestan su conformidad con lo expuesto, firmando la presente constancia en dos ejemplares del mismo
-                tenor, en la ciudad de Salto, en la fecha indicada ut-supra.
-              </p>
-            </div>
+            {isEditing ? (
+              <Textarea
+                value={contractText}
+                onChange={(e) => setContractText(e.target.value)}
+                className="min-h-[520px] font-serif text-sm leading-relaxed p-4"
+              />
+            ) : (
+              <div className="prose prose-sm print:prose-xs max-w-none text-justify whitespace-pre-wrap font-serif text-slate-800 print:text-black leading-relaxed">
+                {contractText}
+              </div>
+            )}
           </div>
 
           {/* SIGNATURE LINES */}

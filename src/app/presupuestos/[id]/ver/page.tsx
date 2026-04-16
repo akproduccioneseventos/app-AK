@@ -65,25 +65,15 @@ const formatDateShort = (dateString?: string) => {
   } catch { return '—'; }
 };
 
-/** Generate annual price projection rows */
-function generateProjectionRows(totalBase: number, adjustmentPct: number, currentYear: number, eventYear: number): { year: number; base: number; adjustment: number; total: number }[] {
-  const rows: { year: number; base: number; adjustment: number; total: number }[] = [];
-  const maxYears = 4;
-  const yearsToShow = Math.min(Math.max(0, eventYear - currentYear), maxYears);
-
-  if (yearsToShow <= 0) return rows;
-
-  rows.push({ year: currentYear, base: totalBase, adjustment: 0, total: totalBase });
-
-  let prevTotal = totalBase;
-  for (let i = 1; i <= yearsToShow; i++) {
-    const adj = Math.round(prevTotal * (adjustmentPct / 100));
-    const newTotal = prevTotal + adj;
-    rows.push({ year: currentYear + i, base: Math.round(prevTotal), adjustment: adj, total: newTotal });
-    prevTotal = newTotal;
+function generateJanuaryAdjustmentLines(totalBase: number, adjustmentPct: number, contractYear: number, eventYear: number): { year: number; total: number }[] {
+  if (adjustmentPct <= 0 || eventYear <= contractYear) return [];
+  const lines: { year: number; total: number }[] = [];
+  let projectedTotal = totalBase;
+  for (let year = contractYear + 1; year <= eventYear; year++) {
+    projectedTotal = Math.round(projectedTotal * (1 + adjustmentPct / 100));
+    lines.push({ year, total: projectedTotal });
   }
-
-  return rows;
+  return lines;
 }
 
 function VerPresupuestoContent({ params }: { params: { id: string } }) {
@@ -893,6 +883,24 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 })}
                             </React.Fragment>
                         ))}
+                        {(() => {
+                          const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15;
+                          const contractYear = new Date(presupuesto.timestamp).getFullYear();
+                          const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : contractYear;
+                          const totalSinAjuste = calculatedValues.totalFinal - calculatedValues.ajusteAnual;
+                          const janLines = generateJanuaryAdjustmentLines(totalSinAjuste, adjustmentPct, contractYear, eventYear);
+                          if (janLines.length === 0) return null;
+                          return janLines.map((line) => (
+                            <tr key={`jan-adjustment-${line.year}`} className="hidden print:table-row" style={{ backgroundColor: '#fffde7' }}>
+                              <td colSpan={5} className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-[10px]">
+                                1° de enero {line.year}:
+                              </td>
+                              <td className="border border-gray-300 px-2 py-1.5 text-right font-bold text-[10px]">
+                                {formatCurrency(line.total)}
+                              </td>
+                            </tr>
+                          ));
+                        })()}
                         {/* Total row */}
                         <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
                           <td colSpan={5} className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
@@ -927,7 +935,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             </div>
                         )}
                         {calculatedValues.ajusteAnual > 0 && (
-                            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-amber-600 tracking-widest">
+                            <div className="hidden print:flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-amber-600 tracking-widest">
                                 <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. {presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15}%):</span>
                                 <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
                             </div>
@@ -957,74 +965,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             <span>{formatCurrency(calculatedValues.totalFinal)}</span>
                         </div>
 
-                        {/* Total with annual projection inline */}
-                        {(() => {
-                          const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15;
-                          const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
-                          const currentYear = new Date().getFullYear();
-                          const totalSinAjuste = calculatedValues.totalFinal - calculatedValues.ajusteAnual;
-                          const projRows = adjustmentPct > 0 && eventYear > currentYear
-                            ? generateProjectionRows(totalSinAjuste, adjustmentPct, currentYear, eventYear)
-                            : [];
-                          if (projRows.length === 0) return null;
-                          return (
-                            <div className="mt-2 pt-2 border-t border-gray-300 space-y-0.5 text-[10px] print:text-[7pt]">
-                              <p className="font-semibold text-gray-700">Precio con ajuste anual ({adjustmentPct}%):</p>
-                              {projRows.map((row) => (
-                                <div key={row.year} className="flex justify-between text-gray-600">
-                                  <span>{row.year === currentYear ? `Precio hoy` : `Precio al 1/1/${row.year}`}:</span>
-                                  <span className="font-semibold">{formatCurrency(row.total)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          );
-                        })()}
                     </div>
                 </section>
-
-                {/* Annual Projection Table */}
-                {(() => {
-                  const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15;
-                  const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
-                  const currentYear = new Date().getFullYear();
-                  const totalSinAjuste = calculatedValues.totalFinal - calculatedValues.ajusteAnual;
-                  const projRows = adjustmentPct > 0 && eventYear > currentYear
-                    ? generateProjectionRows(totalSinAjuste, adjustmentPct, currentYear, eventYear)
-                    : [];
-                  if (projRows.length === 0) return null;
-                  return (
-                    <section className="mb-4 print:mb-3">
-                      <h3 className="text-xs font-bold text-gray-800 mb-2 print:text-[9pt] text-center uppercase"
-                          style={{ backgroundColor: '#c8e6c9', padding: '4px', borderRadius: '2px' }}>
-                        Proyección de Precios por Año (ajuste del {adjustmentPct}% anual al 1° de enero)
-                      </h3>
-                      <table className="w-full text-xs print:text-[8pt] border-collapse">
-                        <thead>
-                          <tr style={{ backgroundColor: '#2e7d32', color: 'white' }}>
-                            <th className="border border-gray-600 px-2 py-1.5 text-left font-semibold">Año</th>
-                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Precio Base</th>
-                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Ajuste {adjustmentPct}%</th>
-                            <th className="border border-gray-600 px-2 py-1.5 text-right font-semibold">Total Ajustado</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {projRows.map((row) => (
-                            <tr key={row.year} style={{ backgroundColor: '#e8f5e9' }}>
-                              <td className="border border-gray-300 px-2 py-1.5 font-semibold">
-                                {row.year} {row.year === currentYear ? '(actual)' : `(1° de enero)`}
-                              </td>
-                              <td className="border border-gray-300 px-2 py-1.5 text-right">{formatCurrency(row.base)}</td>
-                              <td className="border border-gray-300 px-2 py-1.5 text-right">
-                                {row.adjustment === 0 ? '—' : `+${formatCurrency(row.adjustment)}`}
-                              </td>
-                              <td className="border border-gray-300 px-2 py-1.5 text-right font-bold">{formatCurrency(row.total)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </section>
-                  );
-                })()}
                     
                 {/* Footer — booking terms + notes */}
                 <footer className="space-y-4 mt-6">

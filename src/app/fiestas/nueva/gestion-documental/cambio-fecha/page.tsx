@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, FileArchive, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, FileArchive, Loader2, Edit, CheckCircle2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -16,7 +16,9 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { uploadDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { WatermarkedImage } from '@/components/watermarked-image';
+import { Textarea } from '@/components/ui/textarea';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
@@ -31,6 +33,29 @@ const formatDate = (dateString?: string) => {
 
 const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
+const buildCambioFechaText = (params: {
+  companyName: string;
+  clienteNombre: string;
+  clienteCi?: string;
+  fechaContrato?: string;
+  fechaOriginal?: string;
+  salon?: string;
+}) => `En la ciudad de Salto, a los ${today}, comparecen por una parte ${params.companyName}, representada por su titular Sr. Alexander Knuth, y por la otra el/la Sr./Sra. ${params.clienteNombre}, cédula de identidad Nº ${params.clienteCi || '____________________'}, en adelante “EL CLIENTE”, quienes acuerdan lo siguiente:
+
+PRIMERO: Que con fecha ${formatDate(params.fechaContrato)} las partes celebraron un Contrato de Servicios para la organización de un evento previsto originalmente para el día ${formatDate(params.fechaOriginal)}, en el salón ${params.salon || '______________________________'}.
+
+SEGUNDO: Que a solicitud expresa del CLIENTE, y sujeto a disponibilidad de agenda, las partes acuerdan modificar la fecha del evento, fijándose como nueva fecha de realización el día ___ de __________________ de ________.
+
+TERCERO: Que el cambio de fecha genera una penalización equivalente al DIEZ POR CIENTO (10%) del presupuesto total vigente al momento de la solicitud de modificación, entendiéndose como presupuesto vigente aquel que incluya los ajustes anuales del QUINCE POR CIENTO (15%) aplicables por cada año calendario transcurrido desde el mes de enero inmediato posterior a la firma del contrato original.
+
+CUARTO: El importe correspondiente a la penalización deberá ser abonado dentro de los QUINCE (15) días corridos de firmada la presente constancia. En caso de incumplimiento, ${params.companyName} podrá considerar sin efecto el cambio de fecha solicitado, manteniéndose la fecha original o aplicándose las disposiciones de cancelación previstas en el contrato principal.
+
+QUINTO: El presente cambio de fecha no implica novación del contrato original, el cual continúa vigente en todas sus demás cláusulas, condiciones y obligaciones, manteniéndose plenamente válidas las disposiciones relativas a forma de pago, ajustes, cancelación y penalidades.
+
+SEXTO: En caso de que el cambio de fecha implique variaciones de costos por actualización de precios de proveedores o servicios, dichas diferencias deberán ser abonadas por el CLIENTE antes de la realización del evento.
+
+Leída la presente, las partes firman en dos ejemplares de un mismo tenor, en el lugar y fecha arriba indicados.`;
+
 function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
   const { toast } = useToast();
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -41,6 +66,9 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [contractText, setContractText] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSavingHistory, setIsSavingHistory] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -74,6 +102,14 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
       
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
+      setContractText(buildCambioFechaText({
+        companyName: companyData.companyName,
+        clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
+        clienteCi: clienteData?.taxId,
+        fechaContrato: presupuestoData?.timestamp,
+        fechaOriginal: fiestaData.configuracion.fechaEvento,
+        salon: fiestaData.configuracion.nombreLugar,
+      }));
 
     } catch (err: any) {
       setError("No se pudieron cargar todos los datos para generar el documento.");
@@ -88,6 +124,26 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
   }, [loadData]);
   
   const handlePrint = () => window.print();
+
+  const handleSaveToHistory = async () => {
+    if (!fiestaId) return;
+    setIsSavingHistory(true);
+    try {
+      const file = new File([contractText], `cambio_fecha_${fiestaId}.txt`, { type: 'text/plain' });
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('docType', 'cambio-fecha');
+      formData.append('customName', `Contrato cambio de fecha - ${today}`);
+      formData.append('fiestaId', fiestaId);
+      const result = await uploadDocumentoFiesta(formData);
+      if (!result.success) throw new Error(result.error);
+      toast({ title: 'Documento guardado', description: 'Se guardó en el historial de documentos.' });
+    } catch (err: any) {
+      toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsSavingHistory(false);
+    }
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -127,6 +183,13 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href={`/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`}><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-1.5" />Volver</Button></Link>
           <div className="flex gap-2">
+            <Button onClick={() => setIsEditing(!isEditing)} variant={isEditing ? 'default' : 'outline'} size="sm">
+              {isEditing ? <><CheckCircle2 className="w-4 h-4 mr-1.5" />Finalizar</> : <><Edit className="w-4 h-4 mr-1.5" />Editar</>}
+            </Button>
+            <Button onClick={handleSaveToHistory} variant="outline" size="sm" disabled={isSavingHistory}>
+              {isSavingHistory ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5" />}
+              Guardar
+            </Button>
             <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
           </div>
@@ -142,21 +205,15 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
         </header>
         
         <div className="prose prose-sm print:prose-xs max-w-none text-justify">
-          <p>En la ciudad de Salto, a los {today}, comparecen por una parte <strong>{companyInfo.companyName}</strong>, representada por su titular Sr. Alexander Knuth, y por la otra el/la Sr./Sra. <strong>{cliente.name || cliente.companyName}</strong>, cédula de identidad Nº <strong>{cliente.taxId || '____________________'}</strong>, en adelante “EL CLIENTE”, quienes acuerdan lo siguiente:</p>
-
-          <p><strong>PRIMERO:</strong> Que con fecha {formatDate(presupuesto.timestamp)} las partes celebraron un Contrato de Servicios para la organización de un evento previsto originalmente para el día <strong>{formatDate(fiesta.configuracion.fechaEvento)}</strong>, en el salón <strong>{fiesta.configuracion.nombreLugar || '______________________________'}</strong>.</p>
-          
-          <p><strong>SEGUNDO:</strong> Que a solicitud expresa del CLIENTE, y sujeto a disponibilidad de agenda, las partes acuerdan modificar la fecha del evento, fijándose como nueva fecha de realización el día ___ de __________________ de ________.</p>
-          
-          <p><strong>TERCERO:</strong> Que el cambio de fecha genera una penalización equivalente al DIEZ POR CIENTO (10%) del presupuesto total vigente al momento de la solicitud de modificación, entendiéndose como presupuesto vigente aquel que incluya los ajustes anuales del QUINCE POR CIENTO (15%) aplicables por cada año calendario transcurrido desde el mes de enero inmediato posterior a la firma del contrato original.</p>
-          
-          <p><strong>CUARTO: El importe correspondiente a la penalización deberá ser abonado dentro de los QUINCE (15) días corridos de firmada la presente constancia. En caso de incumplimiento, {companyInfo.companyName} podrá considerar sin efecto el cambio de fecha solicitado, manteniéndose la fecha original o aplicándose las disposiciones de cancelación previstas en el contrato principal.</strong></p>
-          
-          <p><strong>QUINTO:</strong> El presente cambio de fecha no implica novación del contrato original, el cual continúa vigente en todas sus demás cláusulas, condiciones y obligaciones, manteniéndose plenamente válidas las disposiciones relativas a forma de pago, ajustes, cancelación y penalidades.</p>
-
-          <p><strong>SEXTO:</strong> En caso de que el cambio de fecha implique variaciones de costos por actualización de precios de proveedores o servicios, dichas diferencias deberán ser abonadas por el CLIENTE antes de la realización del evento.</p>
-          
-          <p>Leída la presente, las partes firman en dos ejemplares de un mismo tenor, en el lugar y fecha arriba indicados.</p>
+          {isEditing ? (
+            <Textarea
+              value={contractText}
+              onChange={(e) => setContractText(e.target.value)}
+              className="min-h-[500px] font-serif text-sm leading-relaxed p-4"
+            />
+          ) : (
+            <p className="whitespace-pre-wrap">{contractText}</p>
+          )}
 
           <div className="mt-16 flex justify-between text-center">
             <div className="w-2/5 border-t border-gray-400 pt-2">
