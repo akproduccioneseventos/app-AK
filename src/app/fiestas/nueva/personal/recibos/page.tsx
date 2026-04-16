@@ -57,12 +57,6 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-const today = new Date().toLocaleDateString('es-ES', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric'
-});
-
 interface FullStaffDetail {
   empleado: Empleado;
   rol?: Rol;
@@ -108,6 +102,11 @@ function RecibosDePagoContent() {
   const [error, setError] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [recibosConfig, setRecibosConfig] = useState<RecibosConfig>(defaultRecibosConfig);
+  const today = useMemo(() => new Date().toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }), []);
 
   useEffect(() => {
     try {
@@ -249,20 +248,20 @@ function RecibosDePagoContent() {
       return;
     }
 
-    const pagesHtml = entries.map((entry, index) => {
-      const breakdown = calculateSalaryBreakdown(entry.detail.eventSalary, entry.detail.rol);
+    const pagesHtml = entries.map((receiptEntry, index) => {
+      const breakdown = calculateSalaryBreakdown(receiptEntry.detail.eventSalary, receiptEntry.detail.rol);
       const concepts = [
         `<tr><td>Sueldo Base Evento</td><td style="text-align:right;">${formatCurrency(breakdown.base)}</td></tr>`,
         recibosConfig.showVacacional
-          ? `<tr><td>Salario Vacacional (${entry.detail.rol?.porcentajeSalarioVacacional || 0}%)</td><td style="text-align:right;">${formatCurrency(breakdown.vacacional)}</td></tr>`
+          ? `<tr><td>Salario Vacacional (${receiptEntry.detail.rol?.porcentajeSalarioVacacional || 0}%)</td><td style="text-align:right;">${formatCurrency(breakdown.vacacional)}</td></tr>`
           : '',
         recibosConfig.showAguinaldo
-          ? `<tr><td>Aguinaldo (${entry.detail.rol?.porcentajeAguinaldo || 0}%)</td><td style="text-align:right;">${formatCurrency(breakdown.aguinaldo)}</td></tr>`
+          ? `<tr><td>Aguinaldo (${receiptEntry.detail.rol?.porcentajeAguinaldo || 0}%)</td><td style="text-align:right;">${formatCurrency(breakdown.aguinaldo)}</td></tr>`
           : '',
       ].join('');
 
       const logoBlock = recibosConfig.showLogo && logoUrl
-        ? `<div style="width:100%;height:70px;margin-bottom:10px;"><img src="${logoUrl}" alt="AK Producciones" style="max-height:70px; max-width:220px; object-fit:contain;" /></div>`
+        ? `<div style="width:100%;height:70px;margin-bottom:10px;"><img src="${escapeHtml(logoUrl)}" alt="AK Producciones" style="max-height:70px; max-width:220px; object-fit:contain;" /></div>`
         : '';
 
       return `
@@ -273,14 +272,14 @@ function RecibosDePagoContent() {
           <hr />
           <div class="grid">
             <div>
-              <p><strong>Empleado:</strong> ${escapeHtml(entry.detail.empleado.nombre)}</p>
-              <p><strong>C.I.:</strong> ${escapeHtml(entry.detail.empleado.cedula || '—')}</p>
-              <p><strong>Rol:</strong> ${escapeHtml(entry.detail.rol?.nombre || 'No especificado')}</p>
+              <p><strong>Empleado:</strong> ${escapeHtml(receiptEntry.detail.empleado.nombre)}</p>
+              <p><strong>C.I.:</strong> ${escapeHtml(receiptEntry.detail.empleado.cedula || '—')}</p>
+              <p><strong>Rol:</strong> ${escapeHtml(receiptEntry.detail.rol?.nombre || 'No especificado')}</p>
             </div>
             <div style="text-align:right;">
-              <p><strong>Evento:</strong> ${escapeHtml(entry.fiesta.configuracion.nombreEvento || 'Evento sin nombre')}</p>
-              <p>${escapeHtml(formatDate(entry.fiesta.configuracion.fechaEvento))}</p>
-              <p><strong>Lugar:</strong> ${escapeHtml(entry.fiesta.configuracion.nombreLugar || 'Lugar a confirmar')}</p>
+              <p><strong>Evento:</strong> ${escapeHtml(receiptEntry.fiesta.configuracion.nombreEvento || 'Evento sin nombre')}</p>
+              <p>${escapeHtml(formatDate(receiptEntry.fiesta.configuracion.fechaEvento))}</p>
+              <p><strong>Lugar:</strong> ${escapeHtml(receiptEntry.fiesta.configuracion.nombreLugar || 'Lugar a confirmar')}</p>
             </div>
           </div>
           <hr />
@@ -290,14 +289,14 @@ function RecibosDePagoContent() {
             <tfoot>
               <tr>
                 <td>PAGO TOTAL</td>
-                <td style="text-align:right;">${formatCurrency(entry.detail.eventSalary)}</td>
+                <td style="text-align:right;">${formatCurrency(receiptEntry.detail.eventSalary)}</td>
               </tr>
             </tfoot>
           </table>
           ${recibosConfig.showAportesPatronales ? `
             <div class="internal">
               <p><strong>Aportes Patronales (Uso Interno)</strong></p>
-              <p>Monto: ${formatCurrency(entry.detail.employerContribution)} (${entry.detail.rol?.porcentajeAportesPatronales || 0}%)</p>
+              <p>Monto: ${formatCurrency(receiptEntry.detail.employerContribution)} (${receiptEntry.detail.rol?.porcentajeAportesPatronales || 0}%)</p>
             </div>
           ` : ''}
           ${recibosConfig.showFirmas ? `

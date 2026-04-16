@@ -231,13 +231,16 @@ export default function EmpleadosPage() {
     const { empleado, summaryEmail } = partiesDialog;
     if (!empleado) return;
     const email = summaryEmail.trim();
-    if (!email) {
-      toast({ title: 'Email requerido', description: 'Ingresá un email para enviar el historial.', variant: 'destructive' });
+    const emailValidator = document.createElement('input');
+    emailValidator.type = 'email';
+    emailValidator.value = email;
+    if (!email || !emailValidator.checkValidity()) {
+      toast({ title: 'Email inválido', description: 'Ingresá un email válido para enviar el historial.', variant: 'destructive' });
       return;
     }
     const subject = `Historial de eventos — ${empleado.nombre}`;
     const body = buildPartiesSummaryText();
-    window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   const printPartiesHistory = () => {
@@ -261,7 +264,7 @@ export default function EmpleadosPage() {
     }
 
     const logoBlock = historyLogoUrl
-      ? `<img src="${historyLogoUrl}" alt="AK Producciones" style="max-height:64px; max-width:180px;" />`
+      ? `<img src="${escapeHtml(historyLogoUrl)}" alt="AK Producciones" style="max-height:64px; max-width:180px;" />`
       : '<h2 style="margin:0;">AK Producciones</h2>';
 
     const tableRows = rows.map(row => `
