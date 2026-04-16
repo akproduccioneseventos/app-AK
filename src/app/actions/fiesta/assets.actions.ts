@@ -4,9 +4,26 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import path from 'path';
 
 export async function uploadPublicPageAsset(
-  fiestaId: string,
-  file: File
+  fiestaIdOrFormData: string | FormData,
+  fileArg?: File
 ): Promise<{ success: boolean; url?: string; error?: string }> {
+  let fiestaId = '';
+  let file: File | null = null;
+
+  if (fiestaIdOrFormData instanceof FormData) {
+    const fiestaIdValue = fiestaIdOrFormData.get('fiestaId');
+    const fileValue = fiestaIdOrFormData.get('file');
+    fiestaId = typeof fiestaIdValue === 'string' ? fiestaIdValue : '';
+    file = fileValue instanceof File ? fileValue : null;
+  } else {
+    fiestaId = fiestaIdOrFormData;
+    file = fileArg ?? null;
+  }
+
+  if (!fiestaId?.trim()) {
+    return { success: false, error: 'Falta el identificador de carpeta.' };
+  }
+
   if (!file) {
     return { success: false, error: 'No se proporcionó ningún archivo.' };
   }

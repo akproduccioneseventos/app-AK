@@ -16,6 +16,8 @@ import { getGaleriaItems } from '@/app/actions/galeria';
 import { getLandingSettings } from '@/app/actions/landing-editor';
 import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
 import type { GaleriaFoto } from '@/types/galeria';
+import type { GalleryImage } from '@/components/landing/GallerySection';
+import type { ServiceItem } from '@/components/landing/ServicesSection';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
@@ -62,6 +64,32 @@ export default async function LandingPage() {
   const fotosCombinadas = [...fotos, ...catalogoComoGaleria];
 
   const whatsapp = landingSettings.whatsappNumber || '59898355530';
+  const servicesForLanding: ServiceItem[] | undefined = landingSettings.services?.length
+    ? landingSettings.services.map((service, index) => ({
+      id: service.id,
+      title: service.title,
+      subtitle: 'Servicio AK',
+      description: service.description,
+      features: ['Atención personalizada', 'Producción integral', 'Soporte dedicado'],
+      imageUrl: service.imageUrl || `https://picsum.photos/seed/landing-service-${index}/1000/750`,
+      imageHint: 'event service',
+      accentColor: 'bg-primary',
+      emoji: service.icon || '✨',
+      whatsappMessage: `¡Hola AK Producciones! Me gustaría cotizar el servicio de ${service.title}.`,
+    }))
+    : undefined;
+  const galleryImagesForLanding: GalleryImage[] | undefined = landingSettings.gallery?.length
+    ? landingSettings.gallery.map((img) => ({
+      id: img.id,
+      src: img.url,
+      alt: img.caption || 'Imagen de galería',
+      hint: 'event gallery',
+      category: 'Landing',
+      titulo: img.caption,
+      descripcion: img.caption,
+      destacada: img.featured,
+    }))
+    : undefined;
 
   return (
     <div className="min-h-screen bg-white">
@@ -75,9 +103,9 @@ export default async function LandingPage() {
         backgroundImageUrl={landingSettings.hero.backgroundImageUrl}
       />
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
-      <ServicesSection whatsappNumber={whatsapp} />
+      <ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />
       <ProcessSection />
-      <GallerySection galeriaFotos={fotosCombinadas} />
+      <GallerySection images={galleryImagesForLanding} galeriaFotos={galleryImagesForLanding?.length ? [] : fotosCombinadas} />
       <VideoSection galeriaVideos={videos} />
       <TestimonialsSection />
       <FAQSection faqs={landingSettings.faqs} />
