@@ -244,10 +244,40 @@ function PlannerDashboardContent() {
                   </div>
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/fiestas/nueva/gestion-documental/cancelacion-parcial?fiestaId=${fiestaId}`} className="flex items-center gap-3 cursor-pointer">
+                  <FileX className="w-4 h-4 text-orange-500 shrink-0" />
+                  <div>
+                    <p className="font-bold text-sm">Cancelación Parcial</p>
+                    <p className="text-[10px] text-slate-400">Baja de uno o más servicios</p>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </motion.div>
+
+      {fiesta.presupuestoId && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-white rounded-2xl premium-shadow border border-slate-100">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-violet-100 rounded-xl shrink-0">
+                <DollarSign className="w-5 h-5 text-violet-700" />
+              </div>
+              <div>
+                <p className="font-black text-slate-800 text-sm sm:text-base tracking-tight">Modificar presupuesto contratado</p>
+                <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-widest">Los cambios se reflejan en el portal del cliente</p>
+              </div>
+            </div>
+            <Link href={`/presupuestos/${fiesta.presupuestoId}/edit`} className="shrink-0">
+              <Button variant="outline" size="sm" className="rounded-xl font-black text-[10px] uppercase tracking-widest">
+                Editar presupuesto
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      )}
 
        <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="settings" className="border-none">
