@@ -542,8 +542,8 @@ export function MainNav() {
                           : "text-slate-500 hover:bg-blue-50/60 hover:text-blue-600"
                     )}
                   >
-                    <ChefHat className={cn("w-4 h-4", isActive("/empresa/menus") ? "text-blue-600" : "text-blue-400")} />
-                    <span className="ml-2">Gastronomía / Menús</span>
+                    <ChefHat className={cn("w-4 h-4", isActive("/empresa/menus") ? "text-amber-600" : "text-orange-400")} />
+                    <span className="ml-2">Planificador Gastronómico</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

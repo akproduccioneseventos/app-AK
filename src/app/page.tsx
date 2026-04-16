@@ -33,6 +33,7 @@ import {
     MessageCircle,
     Send,
     BookOpen,
+    ChefHat,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -418,6 +419,18 @@ export default function MainDashboardPage() {
                                     <p className="text-[10px] sm:text-xs font-semibold text-green-600 mt-1 uppercase tracking-tighter">Mensajes del día pendientes.</p>
                                 </div>
                                 <ArrowRight className="w-5 h-5 ml-auto text-green-300 group-hover:text-green-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                            </div>
+                        </Link>
+                        <Link href="/empresa/menus">
+                            <div className="group p-6 sm:p-8 border border-amber-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-orange-300 hover:bg-amber-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-amber-50/20">
+                                <div className="p-4 sm:p-5 bg-amber-100 text-amber-700 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
+                                    <ChefHat className="w-6 h-6 sm:w-7 sm:h-7"/>
+                                </div>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Planificador Gastronómico Maestro</h3>
+                                    <p className="text-[10px] sm:text-xs font-semibold text-amber-700 mt-1 uppercase tracking-tighter">Menús, recetas, bebidas y repostería maestra.</p>
+                                </div>
+                                <ArrowRight className="w-5 h-5 ml-auto text-amber-300 group-hover:text-amber-500 group-hover:translate-x-2 transition-all shrink-0"/>
                             </div>
                         </Link>
                         <div className="md:col-span-2 lg:col-span-4">
