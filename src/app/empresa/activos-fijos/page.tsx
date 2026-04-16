@@ -29,6 +29,24 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
+function ActivoImageThumb({ imageUrl, nombre }: { imageUrl?: string; nombre: string }) {
+  const [hasError, setHasError] = useState(false);
+  if (!imageUrl || hasError) {
+    return (
+      <div className="relative w-14 h-14 rounded-md overflow-hidden border border-border bg-background flex-shrink-0 flex items-center justify-center text-muted-foreground">
+        <Package className="w-5 h-5" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-14 h-14 rounded-md overflow-hidden border border-border bg-background flex-shrink-0">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={imageUrl} alt={`Foto de ${nombre}`} className="w-full h-full object-cover" onError={() => setHasError(true)} />
+    </div>
+  );
+}
+
 export default function InventarioActivosPage() {
   const { toast } = useToast();
   const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
@@ -196,15 +214,7 @@ export default function InventarioActivosPage() {
                         <CardHeader className="pb-2 pt-3 px-3">
                           <div className="flex justify-between items-start">
                             <div className="flex items-start gap-3">
-                              {item.imageUrl && (
-                                <div className="relative w-14 h-14 rounded-md overflow-hidden border border-border bg-background flex-shrink-0">
-                                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                                    <Package className="w-5 h-5" />
-                                  </div>
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={item.imageUrl} alt={`Foto de ${item.nombre}`} className="w-full h-full object-cover relative z-10" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
-                                </div>
-                              )}
+                              <ActivoImageThumb imageUrl={item.imageUrl} nombre={item.nombre} />
                               <CardTitle className="text-base font-semibold print:text-sm">{item.nombre}</CardTitle>
                             </div>
                             <div className="flex gap-1 print:hidden">
