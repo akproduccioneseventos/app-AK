@@ -13,11 +13,12 @@ import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import type { CompanyInfo } from '@/types/settings';
+import { updateContratoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
-import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplates } from '@/app/actions/settings';
 
 /** Allow only http/https/relative URLs to prevent javascript: or data: URI injection */
 const sanitizeImageUrl = (url: string | null | undefined): string | null => {
@@ -60,6 +61,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   const [totalPagado, setTotalPagado] = useState(0);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [contractText, setContractText] = useState('');
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,10 +75,11 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, companyData, settingsData] = await Promise.all([
+      const [fiestaData, companyData, settingsData, templates] = await Promise.all([
         getFiestaById(fiestaId),
         getCompanyInfo(),
-        getInvoiceTemplateSettings()
+        getInvoiceTemplateSettings(),
+        getContractTemplates(),
       ]);
       
       if (!fiestaData) throw new Error("Evento no encontrado.");
@@ -97,13 +100,42 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
 
+      let total = 0;
       if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
         const invoices = await Promise.all(fiestaData.invoiceIds.map(id => getInvoiceById(id)));
-        const total = invoices.reduce((sum, inv) => {
+        total = invoices.reduce((sum, inv) => {
           return sum + (inv?.payments?.reduce((pSum, p) => pSum + p.amount, 0) || 0);
         }, 0);
         setTotalPagado(total);
       }
+
+      const presupuestoTotal = presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0;
+      const cancelacionTemplate = templates.find(t => t.type === 'cancelacion') || templates[0];
+      let generated = cancelacionTemplate?.template || '';
+      const replacements: Record<string, string> = {
+        '{{FECHA_HOY}}': today,
+        '{{EMPRESA_NOMBRE}}': companyData.companyName,
+        '{{EMPRESA_RUT}}': companyData.companyTaxId,
+        '{{EMPRESA_DIRECCION}}': companyData.companyAddress,
+        '{{EMPRESA_EMAIL}}': companyData.companyContact,
+        '{{CLIENTE_NOMBRE}}': clienteData?.name || clienteData?.companyName || '________________________',
+        '{{CLIENTE_DIRECCION}}': clienteData?.address || '________________________',
+        '{{CLIENTE_CI}}': clienteData?.taxId || '_______________________',
+        '{{CLIENTE_TELEFONO}}': clienteData?.phone || '_______________________',
+        '{{EVENTO_FECHA}}': formatDate(fiestaData.configuracion.fechaEvento),
+        '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
+        '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoTotal),
+        '{{SENIA}}': formatCurrency(total),
+        '{{MOTIVO_CANCELACION}}': 'Cancelación solicitada por el cliente',
+        '{{NUEVA_FECHA}}': '________________________',
+        '{{PENALIZACION_PORCENTAJE}}': '30%',
+        '{{NOMBRE_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
+      };
+      Object.entries(replacements).forEach(([key, val]) => {
+        generated = generated.replaceAll(key, val);
+      });
+      setContractText(generated);
+      await updateContratoFiestaActual(fiestaId, generated, 'cancelacion', cancelacionTemplate?.id || 'default-cancelacion');
 
     } catch (err: any) {
       setError("No se pudieron cargar todos los datos para generar el documento.");
@@ -255,39 +287,8 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
             </div>
 
             {/* Legal text */}
-            <div className="prose prose-sm print:prose-xs max-w-none text-justify font-serif text-slate-800 print:text-black leading-relaxed">
-              <p>
-                En la ciudad de Salto, a los <strong>{today}</strong>, se deja constancia que, a solicitud del/la
-                Sr./Sra. <strong>{cliente.name || cliente.companyName}</strong>, cédula de identidad N°{' '}
-                <strong>{cliente.taxId || '_______________________'}</strong>, quien contratara los servicios de{' '}
-                <strong>{companyInfo.companyName}</strong>, representada por su titular el Sr. Alexander Knuth, para la
-                organización de un evento previsto para el día{' '}
-                <strong>{formatDate(fiesta.configuracion.fechaEvento)}</strong>, según contrato firmado con fecha{' '}
-                <strong>{formatDate(presupuesto.timestamp)}</strong>, se procede a la cancelación del mencionado
-                contrato por parte del cliente.
-              </p>
-
-              <p>
-                De acuerdo con la cláusula cuarta del contrato suscrito, en caso de cancelación por parte del cliente,
-                se establece una multa del 30% del presupuesto total como penalización. El presupuesto acordado fue de{' '}
-                <strong>{formatCurrency(presupuestoTotal)}</strong>, por lo tanto, la multa correspondiente asciende a{' '}
-                <strong>{formatCurrency(multa)}</strong>.
-              </p>
-
-              <p>
-                No obstante lo anterior, <strong>{companyInfo.companyName}</strong>, en un gesto comercial de común
-                acuerdo entre las partes, acepta reducir el costo de la multa, estableciendo como monto total y
-                definitivo de la penalización la suma ya abonada por el cliente, correspondiente a{' '}
-                <strong>{formatCurrency(totalPagado)}</strong>, monto que el/la Sr./Sra.{' '}
-                <strong>{cliente.name}</strong> declara haber abonado en su totalidad.
-              </p>
-
-              <p>
-                En consecuencia, no existe saldo pendiente ni importe alguno a devolver entre las partes, dándose por
-                totalmente canceladas y saldadas las obligaciones emergentes del contrato mencionado. Ambas partes
-                manifiestan su conformidad con lo expuesto, firmando la presente constancia en dos ejemplares del mismo
-                tenor, en la ciudad de Salto, en la fecha indicada ut-supra.
-              </p>
+            <div className="prose prose-sm print:prose-xs max-w-none text-justify font-serif text-slate-800 print:text-black leading-relaxed whitespace-pre-wrap">
+              {contractText}
             </div>
           </div>
 

@@ -2,6 +2,7 @@
 import type { TipoEvento } from './presupuesto';
 import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
+import type { ContractType } from './settings';
 
 // --- NOTIFICACIONES ---
 export type NotificacionTipo = 'info' | 'aviso' | 'urgente' | 'exito';
@@ -940,6 +941,7 @@ export interface FiestaEnPlanificacion {
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
   contratoServicioTexto?: string;
+  contratoGenerado?: ContratoGeneradoInfo;
   contratoFirmaInfo?: ContratoFirmaInfo;
   contratoDatos?: ContratoDatos;
   clientPortalSettings?: ClientPortalSettings;
@@ -990,6 +992,12 @@ export interface ContratoDatos {
   ajusteAnualPorcentaje?: number;
   fechaFirmaContrato?: string;
   clausulas?: string;
+}
+
+export interface ContratoGeneradoInfo {
+  tipo: ContractType;
+  fecha: string;
+  plantillaId: string;
 }
 
 export interface FotoEnVivo {

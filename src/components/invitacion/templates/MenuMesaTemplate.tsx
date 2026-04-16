@@ -87,12 +87,12 @@ export const MenuMesaTemplate: React.FC<MenuMesaTemplateProps> = ({ fiesta, data
                 </div>
 
                 <div className="pl-32">
-                    <h1 className="font-headline text-6xl font-bold" style={{color: paleta.primary, textShadow: '2px 2px 4px rgba(0,0,0,0.2)'}}>
+                    <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold leading-none" style={{color: paleta.primary, textShadow: '2px 2px 4px rgba(0,0,0,0.2)'}}>
                        MENÚ
-                    </h1>
-                     <h2 className="font-['Dancing_Script',_cursive] text-4xl -mt-2" style={{color: paleta.secondary}}>
-                        {isPreview ? <EditableText initialValue={fiesta.configuracion.protagonista1Nombre || 'Luciana'} onSave={(val) => onUpdate?.({ protagonista1Nombre: val } as any)} textarea={false}/> : (fiesta.configuracion.protagonista1Nombre || 'Luciana')}
-                    </h2>
+                     </h1>
+                      <h2 className="font-['Dancing_Script',_cursive] text-2xl sm:text-3xl md:text-4xl -mt-1 sm:-mt-2" style={{color: paleta.secondary}}>
+                         {isPreview ? <EditableText initialValue={fiesta.configuracion.protagonista1Nombre || 'Luciana'} onSave={(val) => onUpdate?.({ protagonista1Nombre: val } as any)} textarea={false}/> : (fiesta.configuracion.protagonista1Nombre || 'Luciana')}
+                     </h2>
                 </div>
             </header>
 

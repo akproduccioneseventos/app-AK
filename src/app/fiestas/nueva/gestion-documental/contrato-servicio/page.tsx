@@ -11,11 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
-import type { CompanyInfo } from '@/types/settings';
+import type { CompanyInfo, ContractTemplateItem, ContractType } from '@/types/settings';
 import { getFiestaById, updateContratoFiestaActual, uploadPhysicalContract } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplate } from '@/app/actions/settings';
+import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplates } from '@/app/actions/settings';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -25,6 +25,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '____________';
@@ -52,6 +53,8 @@ function ContratoServicioContent() {
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<ContractTemplateItem[]>([]);
+  const [selectedType, setSelectedType] = useState<ContractType>('servicios');
   
   const [contractText, setContractText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -69,17 +72,20 @@ function ContratoServicioContent() {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, companyData, settingsData, masterTemplate] = await Promise.all([
+      const [fiestaData, companyData, settingsData, templateList] = await Promise.all([
         getFiestaById(fiestaId),
         getCompanyInfo(),
         getInvoiceTemplateSettings(),
-        getContractTemplate()
+        getContractTemplates()
       ]);
       
       if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
       setCompanyInfo(companyData);
       setLogoUrl(settingsData.logoUrl || null);
+      setTemplates(templateList);
+      const persistedType = fiestaData.contratoGenerado?.tipo || 'servicios';
+      setSelectedType(persistedType);
 
       if (fiestaData.configuracion.clienteId && fiestaData.presupuestoId) {
           const [clienteData, presupuestoData] = await Promise.all([
@@ -89,10 +95,11 @@ function ContratoServicioContent() {
           setCliente(clienteData);
           setPresupuesto(presupuestoData);
 
-          if (fiestaData.contratoServicioTexto) {
+          if (fiestaData.contratoServicioTexto && persistedType === 'servicios') {
               setContractText(fiestaData.contratoServicioTexto);
           } else {
-              let text = masterTemplate;
+              const selectedTemplate = templateList.find(t => t.type === persistedType) || templateList.find(t => t.type === 'servicios');
+              let text = selectedTemplate?.template || '';
 
               // Resolve seña: use first recorded payment on the linked invoice if available
               let seniaValue = '__________________________';
@@ -123,6 +130,10 @@ function ContratoServicioContent() {
                   '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
                   '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado),
                   '{{SENIA}}': seniaValue,
+                  '{{MOTIVO_CANCELACION}}': '________________________',
+                  '{{NUEVA_FECHA}}': '________________________',
+                  '{{PENALIZACION_PORCENTAJE}}': '30%',
+                  '{{NOMBRE_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
               };
 
               Object.entries(replacements).forEach(([key, val]) => {
@@ -142,6 +153,44 @@ function ContratoServicioContent() {
     }
   }, [toast, fiestaId]);
 
+  const generateContractText = useCallback(async (type: ContractType) => {
+    if (!fiesta || !companyInfo) return;
+    const selectedTemplate = templates.find(t => t.type === type) || templates.find(t => t.type === 'servicios');
+    if (!selectedTemplate) return;
+    let seniaValue = '__________________________';
+    if (fiesta.invoiceIds?.length) {
+      try {
+        const invoice = await getInvoiceById(fiesta.invoiceIds[0]);
+        const firstPayment = invoice?.payments?.[0];
+        if (firstPayment?.amount) seniaValue = formatCurrency(firstPayment.amount);
+      } catch {}
+    }
+    let text = selectedTemplate.template;
+    const replacements: Record<string, string> = {
+      '{{FECHA_HOY}}': today,
+      '{{EMPRESA_NOMBRE}}': companyInfo.companyName,
+      '{{EMPRESA_RUT}}': companyInfo.companyTaxId,
+      '{{EMPRESA_DIRECCION}}': companyInfo.companyAddress,
+      '{{EMPRESA_EMAIL}}': companyInfo.companyContact,
+      '{{CLIENTE_NOMBRE}}': cliente?.name || cliente?.companyName || '________________________',
+      '{{CLIENTE_DIRECCION}}': cliente?.address || '________________________',
+      '{{CLIENTE_CI}}': cliente?.taxId || '_______________________',
+      '{{CLIENTE_TELEFONO}}': cliente?.phone || '_______________________',
+      '{{EVENTO_FECHA}}': formatDate(fiesta.configuracion.fechaEvento),
+      '{{EVENTO_SALON}}': fiesta.configuracion.nombreLugar || '____________',
+      '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuesto?.totalConDescuento ?? presupuesto?.costoTotalEstimado),
+      '{{SENIA}}': seniaValue,
+      '{{MOTIVO_CANCELACION}}': '________________________',
+      '{{NUEVA_FECHA}}': '________________________',
+      '{{PENALIZACION_PORCENTAJE}}': '30%',
+      '{{NOMBRE_SALON}}': fiesta.configuracion.nombreLugar || '____________',
+    };
+    Object.entries(replacements).forEach(([key, val]) => {
+      text = text.replaceAll(key, val);
+    });
+    setContractText(text);
+  }, [cliente, companyInfo, fiesta, presupuesto, templates]);
+
   useEffect(() => {
     loadData();
   }, [loadData]);
@@ -152,7 +201,8 @@ function ContratoServicioContent() {
       if (!fiestaId) return;
       setIsSaving(true);
       try {
-          const result = await updateContratoFiestaActual(fiestaId, contractText);
+          const selectedTemplate = templates.find(t => t.type === selectedType) || templates.find(t => t.type === 'servicios');
+          const result = await updateContratoFiestaActual(fiestaId, contractText, selectedType, selectedTemplate?.id || 'default-servicios');
           if (result.success) {
               toast({ title: "¡Borrador Guardado!", description: "El texto base ha sido actualizado para este evento." });
               setIsEditing(false);
@@ -202,6 +252,7 @@ function ContratoServicioContent() {
   }
 
   const firma = fiesta?.contratoFirmaInfo;
+  const selectedTemplate = templates.find(t => t.type === selectedType);
 
   return (
     <div className="bg-gray-100 min-h-screen pb-20 print:bg-white print:pb-0 font-serif">
@@ -215,6 +266,7 @@ function ContratoServicioContent() {
             </Link>
             <div>
                 <h1 className="text-lg font-black font-headline tracking-tighter">Módulo 4: Firma de Contrato</h1>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{selectedTemplate?.name || 'Contrato'}</p>
                 {firma?.isSigned ? (
                     <Badge className={cn("text-[9px] uppercase font-black tracking-widest", 
                         firma.method === 'digital' ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
@@ -257,6 +309,25 @@ function ContratoServicioContent() {
             )}
           </div>
         </div>
+        <div className="print:hidden px-4">
+          <Card className="border-dashed">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Tipo de contrato</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedType} onValueChange={(v) => { const type = v as ContractType; setSelectedType(type); generateContractText(type); }}>
+                <SelectTrigger className="w-full sm:w-[360px]">
+                  <SelectValue placeholder="Selecciona una plantilla" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.type}>{t.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* ALERTA DE FIRMA DIGITAL */}
         {firma?.isSigned && (
@@ -290,7 +361,7 @@ function ContratoServicioContent() {
                         <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>
                     </div>
                 )}
-                <h1 className="text-2xl font-black font-headline uppercase tracking-tight text-slate-900">Contrato de Prestación de Servicios</h1>
+                <h1 className="text-2xl font-black font-headline uppercase tracking-tight text-slate-900">{selectedTemplate?.name || 'Contrato de Prestación de Servicios'}</h1>
                 <p className="text-xs text-slate-400 font-sans tracking-widest uppercase mt-2">Documento de Validez Legal</p>
             </header>
             

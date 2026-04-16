@@ -12,6 +12,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CompanyInfo } from '@/types/settings';
+import { updateContratoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -74,6 +75,12 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
       
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
+      await updateContratoFiestaActual(
+        fiestaId,
+        `Constancia de cambio de fecha generada el ${today} para ${clienteData?.name || clienteData?.companyName || 'cliente'}.`,
+        'cambio-fecha',
+        'default-cambio-fecha'
+      );
 
     } catch (err: any) {
       setError("No se pudieron cargar todos los datos para generar el documento.");
