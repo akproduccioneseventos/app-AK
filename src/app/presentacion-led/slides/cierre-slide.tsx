@@ -9,6 +9,7 @@ import { sharedFAQs } from '@/data/event-catalogs/shared';
 import { cn } from '@/lib/utils';
 import type { CompanyInfo } from '@/types/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
+import type { ResourceSummary } from '../lib/tipos';
 
 const WHATSAPP_NUMBER = '59898355530';
 
@@ -29,9 +30,13 @@ interface CierreSlideProps {
     fechaEvento: string;
     tipoFiesta: string;
     cantidadInvitados: string;
+    invitadosAdolescentes: string;
+    duracionHoras: string;
     salon: string;
     ciudad: string;
   };
+  selectedTeenMenuName?: string | null;
+  resourceSummary?: ResourceSummary;
   onGenerateBudget: () => void;
   onPrint?: () => void;
   onPlanPagos?: () => void;
@@ -51,6 +56,8 @@ export function CierreSlide({
   menus,
   tipoFiesta,
   clientData,
+  selectedTeenMenuName,
+  resourceSummary,
   onGenerateBudget,
   onPrint = () => {},
   onPlanPagos = () => {},
@@ -108,6 +115,8 @@ export function CierreSlide({
                 <p className="text-white/80"><span className="text-white/50">Tipo:</span> {clientData.tipoFiesta || tipoFiesta || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Fecha:</span> {clientData.fechaEvento || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Invitados:</span> {clientData.cantidadInvitados || '—'}</p>
+                <p className="text-white/80"><span className="text-white/50">Adolescentes:</span> {clientData.invitadosAdolescentes || '0'}</p>
+                <p className="text-white/80"><span className="text-white/50">Horas:</span> {clientData.duracionHoras || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Salón:</span> {clientData.salon || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Ciudad:</span> {clientData.ciudad || '—'}</p>
               </div>
@@ -149,6 +158,21 @@ export function CierreSlide({
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
                 <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-1">Menú seleccionado</p>
                 <p className="text-white font-bold">{selectedMenu.name}</p>
+                {selectedTeenMenuName && (
+                  <p className="text-white/70 text-sm mt-1">Menú adolescente: {selectedTeenMenuName}</p>
+                )}
+              </div>
+            )}
+
+            {resourceSummary && (
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2">Recursos calculados</p>
+                <div className="grid grid-cols-2 gap-2 text-sm text-white/80">
+                  <p>Mozos: {resourceSummary.mozos}</p>
+                  <p>Mesas: {resourceSummary.mesas}</p>
+                  <p>Vajilla: {resourceSummary.vajilla}</p>
+                  <p>Mantelería: {resourceSummary.manteleria}</p>
+                </div>
               </div>
             )}
 
@@ -193,7 +217,7 @@ export function CierreSlide({
                 className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
               >
                 <Printer className="h-4 w-4" />
-                🖨️ Imprimir Resumen
+                🖨️ Imprimir presupuesto
               </button>
               <button
                 type="button"
@@ -209,7 +233,7 @@ export function CierreSlide({
                 className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
               >
                 <FileText className="h-4 w-4" />
-                📄 Preparar Contrato
+                📄 Generar contrato
               </button>
             </div>
 

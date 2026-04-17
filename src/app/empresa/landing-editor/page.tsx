@@ -66,17 +66,49 @@ function extractHexColor(value: string, defaultHex: string): string {
 }
 
 const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{1,20}$/;
+const VIMEO_ID_RE = /^\d+$/;
 
-function extractYoutubeId(url: string): string | null {
+type VideoSource = {
+  platform: 'youtube' | 'vimeo';
+  id: string;
+  embedUrl: string;
+  thumbnailUrl: string;
+};
+
+function extractVideoSource(url: string): VideoSource | null {
   try {
     const u = new URL(url);
     if (!['http:', 'https:'].includes(u.protocol)) return null;
-    let id: string | null = null;
-    if (u.hostname === 'youtu.be') id = u.pathname.slice(1).split('?')[0];
-    else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
-      id = u.searchParams.get('v');
+    if (u.hostname === 'youtu.be') {
+      const id = u.pathname.slice(1).split('?')[0];
+      if (!id || !YOUTUBE_ID_RE.test(id)) return null;
+      return {
+        platform: 'youtube',
+        id,
+        embedUrl: `https://www.youtube.com/embed/${id}`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+      };
     }
-    return id && YOUTUBE_ID_RE.test(id) ? id : null;
+    else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
+      const id = u.searchParams.get('v');
+      if (!id || !YOUTUBE_ID_RE.test(id)) return null;
+      return {
+        platform: 'youtube',
+        id,
+        embedUrl: `https://www.youtube.com/embed/${id}`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+      };
+    }
+    if (u.hostname === 'vimeo.com' || u.hostname === 'www.vimeo.com' || u.hostname === 'player.vimeo.com') {
+      const maybeId = (u.pathname.split('/').filter(Boolean).pop() || '').trim();
+      if (!VIMEO_ID_RE.test(maybeId)) return null;
+      return {
+        platform: 'vimeo',
+        id: maybeId,
+        embedUrl: `https://player.vimeo.com/video/${maybeId}`,
+        thumbnailUrl: `https://vumbnail.com/${maybeId}.jpg`,
+      };
+    }
   } catch {
     // invalid url
   }
@@ -258,6 +290,12 @@ export default function LandingEditorPage() {
   const handleUploadFotoGaleria = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast({ title: 'Formato no permitido', description: 'Solo se permiten imágenes JPG, PNG o WebP.', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
     setIsUploadingFotoGaleria(true);
     try {
       const formData = new FormData();
@@ -305,12 +343,12 @@ export default function LandingEditorPage() {
 
   const handleAddVideoGaleria = async () => {
     if (!videoUrl.trim() || !videoTitulo.trim()) {
-      toast({ title: 'Campos requeridos', description: 'Ingresá URL de YouTube y título.', variant: 'destructive' });
+      toast({ title: 'Campos requeridos', description: 'Ingresá URL del video y título.', variant: 'destructive' });
       return;
     }
-    const youtubeId = extractYoutubeId(videoUrl.trim());
-    if (!youtubeId) {
-      toast({ title: 'URL inválida', description: 'Ingresá un link de YouTube válido.', variant: 'destructive' });
+    const source = extractVideoSource(videoUrl.trim());
+    if (!source) {
+      toast({ title: 'URL inválida', description: 'Ingresá un link válido de YouTube o Vimeo.', variant: 'destructive' });
       return;
     }
 
@@ -321,8 +359,10 @@ export default function LandingEditorPage() {
         id: `video_${Date.now()}`,
         tipo: 'video',
         youtubeUrl: videoUrl.trim(),
-        youtubeId,
-        thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+        youtubeId: source.id,
+        plataforma: source.platform,
+        embedUrl: source.embedUrl,
+        thumbnailUrl: source.thumbnailUrl,
         titulo: videoTitulo.trim(),
         descripcion: videoDescripcion.trim() || undefined,
         categoria,
@@ -945,15 +985,15 @@ export default function LandingEditorPage() {
                 <TabsContent value="videos" className="space-y-5 pt-4">
                   <Card className="border border-slate-200">
                     <CardHeader>
-                      <CardTitle className="text-base font-black uppercase tracking-tight">+ Agregar video YouTube</CardTitle>
+                      <CardTitle className="text-base font-black uppercase tracking-tight">+ Agregar video (YouTube/Vimeo)</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-1">
-                        <Label>URL de YouTube</Label>
+                        <Label>URL del video</Label>
                         <Input
                           value={videoUrl}
                           onChange={(e) => setVideoUrl(e.target.value)}
-                          placeholder="https://youtube.com/watch?v=..."
+                          placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
                           className="rounded-xl"
                         />
                       </div>

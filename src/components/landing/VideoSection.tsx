@@ -16,12 +16,17 @@ export interface VideoItem {
 }
 
 function galeriaVideoToVideoItem(video: GaleriaVideo): VideoItem {
+  const isDirectVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(video.youtubeUrl);
+  const embedUrl = video.embedUrl
+    || (video.plataforma === 'vimeo' ? `https://player.vimeo.com/video/${video.youtubeId}` : undefined)
+    || (isDirectVideo ? video.youtubeUrl : undefined);
   return {
     id: video.id,
     title: video.titulo,
     description: video.descripcion ?? '',
     thumbnailUrl: video.thumbnailUrl,
-    youtubeId: video.youtubeId,
+    youtubeId: video.plataforma === 'youtube' || !video.plataforma ? video.youtubeId : undefined,
+    embedUrl,
     categoria: video.categoria,
   };
 }
@@ -105,6 +110,7 @@ export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
   const embedSrc = activeVideo?.youtubeId
     ? `https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`
     : activeVideo?.embedUrl ?? '';
+  const isDirectVideoSrc = !!embedSrc && /\.(mp4|webm|ogg)(\?|$)/i.test(embedSrc);
 
   return (
     <section id="videos" data-testid="video-section" className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">
@@ -164,13 +170,17 @@ export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
             className="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <iframe
-              src={embedSrc}
-              title={activeVideo.title}
-              allow="autoplay; encrypted-media; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
-            />
+            {isDirectVideoSrc ? (
+              <video src={embedSrc} controls autoPlay className="w-full h-full bg-black" />
+            ) : (
+              <iframe
+                src={embedSrc}
+                title={activeVideo.title}
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            )}
           </div>
           <button
             onClick={() => setActiveVideo(null)}

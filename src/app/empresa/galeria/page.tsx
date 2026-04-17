@@ -58,17 +58,49 @@ import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 
 const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{1,20}$/;
+const VIMEO_ID_RE = /^\d+$/;
 
-function extractYoutubeId(url: string): string | null {
+type VideoSource = {
+  platform: 'youtube' | 'vimeo';
+  id: string;
+  embedUrl: string;
+  thumbnailUrl: string;
+};
+
+function extractVideoSource(url: string): VideoSource | null {
   try {
     const u = new URL(url);
     if (!['http:', 'https:'].includes(u.protocol)) return null;
-    let id: string | null = null;
-    if (u.hostname === 'youtu.be') id = u.pathname.slice(1).split('?')[0];
-    else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
-      id = u.searchParams.get('v');
+    if (u.hostname === 'youtu.be') {
+      const id = u.pathname.slice(1).split('?')[0];
+      if (!id || !YOUTUBE_ID_RE.test(id)) return null;
+      return {
+        platform: 'youtube',
+        id,
+        embedUrl: `https://www.youtube.com/embed/${id}`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
+      };
     }
-    return id && YOUTUBE_ID_RE.test(id) ? id : null;
+    else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
+      const id = u.searchParams.get('v');
+      if (!id || !YOUTUBE_ID_RE.test(id)) return null;
+      return {
+        platform: 'youtube',
+        id,
+        embedUrl: `https://www.youtube.com/embed/${id}`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
+      };
+    }
+    if (u.hostname === 'vimeo.com' || u.hostname === 'www.vimeo.com' || u.hostname === 'player.vimeo.com') {
+      const maybeId = (u.pathname.split('/').filter(Boolean).pop() || '').trim();
+      if (!VIMEO_ID_RE.test(maybeId)) return null;
+      return {
+        platform: 'vimeo',
+        id: maybeId,
+        embedUrl: `https://player.vimeo.com/video/${maybeId}`,
+        thumbnailUrl: `https://vumbnail.com/${maybeId}.jpg`,
+      };
+    }
   } catch {
     // invalid url
   }
@@ -121,6 +153,7 @@ export default function GaleriaAdminPage() {
   const [videoCategoria, setVideoCategoria] = useState('');
   const [videoDestacada, setVideoDestacada] = useState(false);
   const [isSavingVideo, setIsSavingVideo] = useState(false);
+  const [isUploadingVideoFile, setIsUploadingVideoFile] = useState(false);
 
   // Combined categories (base + service names)
   const allCategories = useMemo(() => {
@@ -246,6 +279,12 @@ export default function GaleriaAdminPage() {
   const handleUploadFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast({ title: 'Formato no permitido', description: 'Solo se permiten imágenes JPG, PNG o WebP.', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
     if (!fotoCategoria) {
       toast({ title: 'Categoría requerida', description: 'Seleccioná una categoría antes de subir la foto.', variant: 'destructive' });
       return;
@@ -404,9 +443,9 @@ export default function GaleriaAdminPage() {
       toast({ title: 'Campos requeridos', description: 'Ingresá URL, título y categoría.', variant: 'destructive' });
       return;
     }
-    const youtubeId = extractYoutubeId(videoUrl.trim());
-    if (!youtubeId) {
-      toast({ title: 'URL inválida', description: 'Ingresá un link de YouTube válido.', variant: 'destructive' });
+    const source = extractVideoSource(videoUrl.trim());
+    if (!source) {
+      toast({ title: 'URL inválida', description: 'Ingresá un link válido de YouTube o Vimeo.', variant: 'destructive' });
       return;
     }
     setIsSavingVideo(true);
@@ -415,8 +454,10 @@ export default function GaleriaAdminPage() {
         id: `video_${Date.now()}`,
         tipo: 'video',
         youtubeUrl: videoUrl.trim(),
-        youtubeId,
-        thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`,
+        youtubeId: source.id,
+        plataforma: source.platform,
+        embedUrl: source.embedUrl,
+        thumbnailUrl: source.thumbnailUrl,
         titulo: videoTitulo.trim(),
         descripcion: videoDescripcion.trim() || undefined,
         categoria: videoCategoria,
@@ -436,6 +477,57 @@ export default function GaleriaAdminPage() {
       toast({ title: 'Error', description: 'No se pudo guardar el video.', variant: 'destructive' });
     } finally {
       setIsSavingVideo(false);
+    }
+  };
+
+  const handleUploadVideo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!videoCategoria || !videoTitulo.trim()) {
+      toast({ title: 'Campos requeridos', description: 'Completá título y categoría antes de subir un video.', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
+    if (!file.type.startsWith('video/')) {
+      toast({ title: 'Formato inválido', description: 'Seleccioná un archivo de video válido.', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
+    setIsUploadingVideoFile(true);
+    try {
+      const formData = new FormData();
+      formData.append('folder', 'galeria-empresa-videos');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
+      if (!result.success || !result.url) throw new Error(result.error || 'No se pudo subir el video.');
+      const video: GaleriaVideo = {
+        id: `video_${Date.now()}`,
+        tipo: 'video',
+        youtubeUrl: result.url,
+        youtubeId: '',
+        plataforma: 'archivo',
+        embedUrl: result.url,
+        thumbnailUrl: '/logo_ak_producciones.png',
+        titulo: videoTitulo.trim(),
+        descripcion: videoDescripcion.trim() || undefined,
+        categoria: videoCategoria,
+        destacada: videoDestacada,
+        orden: videos.length,
+        createdAt: new Date().toISOString(),
+      };
+      await addGaleriaVideo(video);
+      toast({ title: '✅ Video subido', description: 'El video se cargó y quedó disponible en la galería.' });
+      setVideoUrl('');
+      setVideoTitulo('');
+      setVideoDescripcion('');
+      setVideoCategoria('');
+      setVideoDestacada(false);
+      await fetchData();
+    } catch (error: any) {
+      toast({ title: 'Error al subir video', description: error?.message || 'No se pudo subir el video.', variant: 'destructive' });
+    } finally {
+      setIsUploadingVideoFile(false);
+      e.target.value = '';
     }
   };
 
@@ -876,21 +968,21 @@ export default function GaleriaAdminPage() {
                   <Plus className="w-5 h-5" />
                   Agregar Video
                 </CardTitle>
-                <CardDescription>Pegá un link de YouTube. El thumbnail se extrae automáticamente.</CardDescription>
+                <CardDescription>Podés usar YouTube, Vimeo o subir un archivo propio.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-1">
-                  <Label>Link de YouTube *</Label>
+                  <Label>Link de YouTube / Vimeo</Label>
                   <Input
-                    placeholder="https://youtube.com/watch?v=..."
+                    placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
                   />
-                  {videoUrl && extractYoutubeId(videoUrl) && (
+                  {videoUrl && extractVideoSource(videoUrl) && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={`https://img.youtube.com/vi/${extractYoutubeId(videoUrl)}/mqdefault.jpg`}
-                      alt="Vista previa del video de YouTube"
+                      src={extractVideoSource(videoUrl)?.thumbnailUrl || ''}
+                      alt="Vista previa del video"
                       className="mt-2 rounded-lg w-full aspect-video object-cover"
                     />
                   )}
@@ -935,8 +1027,24 @@ export default function GaleriaAdminPage() {
                 </div>
                 <Button onClick={handleAddVideo} disabled={isSavingVideo} className="w-full">
                   {isSavingVideo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-                  Agregar video
+                  Agregar link de video
                 </Button>
+                <label htmlFor="video-file-upload" className="w-full">
+                  <Button asChild variant="outline" className="w-full" disabled={isUploadingVideoFile}>
+                    <span>
+                      {isUploadingVideoFile ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                      Subir video propio
+                    </span>
+                  </Button>
+                  <input
+                    id="video-file-upload"
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    disabled={isUploadingVideoFile}
+                    onChange={handleUploadVideo}
+                  />
+                </label>
               </CardContent>
             </Card>
           </div>

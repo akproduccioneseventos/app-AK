@@ -19,6 +19,8 @@ export interface GaleriaVideo {
   tipo: 'video';
   youtubeUrl: string;
   youtubeId: string;
+  plataforma?: 'youtube' | 'vimeo' | 'archivo';
+  embedUrl?: string;
   thumbnailUrl: string;
   titulo: string;
   descripcion?: string;
