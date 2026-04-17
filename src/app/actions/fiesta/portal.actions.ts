@@ -7,6 +7,8 @@ import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto } from '../presupuestos';
 import { createNotification } from '../notifications';
 
+const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
+
 async function updateFiestaData(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>
@@ -29,6 +31,28 @@ async function updateFiestaData(
 
 export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
   return updateFiestaData(fiestaId, data => ({ ...data, clientChecklist: checklist }));
+}
+
+export async function updateClientChecklistItem(
+  fiestaId: string,
+  itemId: string,
+  completed: boolean
+): Promise<{ success: boolean; error?: string }> {
+  return updateFiestaData(fiestaId, data => {
+    const currentChecklist = data.clientChecklist ?? [];
+    return {
+      ...data,
+      clientChecklist: currentChecklist.map(item =>
+        item.id === itemId
+          ? {
+              ...item,
+              completada: completed,
+              fechaCompletado: completed ? new Date().toISOString() : undefined,
+            }
+          : item
+      ),
+    };
+  });
 }
 
 export async function updateClientNotes(fiestaId: string, notes: string) {
@@ -200,4 +224,30 @@ export async function saveListaMusica(
       fechaActualizacion: new Date().toISOString(),
     },
   }));
+}
+
+export async function addClientMusicSuggestion(
+  fiestaId: string,
+  listKey: keyof ListaMusicaPortal,
+  suggestion: string
+): Promise<{ success: boolean; error?: string }> {
+  const value = suggestion.trim();
+  if (!value) return { success: false, error: 'Sugerencia vacía' };
+
+  if (!MUSIC_LIST_KEYS.includes(listKey as (typeof MUSIC_LIST_KEYS)[number])) {
+    return { success: false, error: 'Lista inválida' };
+  }
+
+  return updateFiestaData(fiestaId, fiesta => {
+    const current = fiesta.listaMusicaPortal ?? {};
+    const list = current[listKey] ?? [];
+    return {
+      ...fiesta,
+      listaMusicaPortal: {
+        ...current,
+        [listKey]: [...list, value],
+        fechaActualizacion: new Date().toISOString(),
+      },
+    };
+  });
 }
