@@ -24,6 +24,7 @@ import DecoCanvas from '@/components/decoracion/DecoCanvas';
 import { TIPOS_ELEMENTOS, type TipoElemento, getMaxColoresByTipo } from '@/components/decoracion/deco-element-types';
 import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
 import { saveDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
+import { useToast } from '@/hooks/use-toast';
 
 const VISTA_TIPOS_ELEMENTOS = TIPOS_ELEMENTOS.filter(t =>
   ['globo', 'globosMacizos', 'flor', 'centroMesa', 'arco', 'lazo', 'candelabro', 'mesaTorta', 'tela'].includes(t.tipo)
@@ -59,6 +60,7 @@ export default function VistaDecorativaEditor({
   onSave,
   isSaving = false,
 }: Props) {
+  const { toast } = useToast();
   const [elementos, setElementos] = useState<ElementoDecorativo[]>(vistaDecorativa.elementos ?? []);
   const [fondoColor, setFondoColor] = useState(vistaDecorativa.fondoColor ?? '#f0f0f0');
   const [fondoImagenUrl, setFondoImagenUrl] = useState(vistaDecorativa.fondoImagenUrl ?? '');
@@ -150,12 +152,21 @@ export default function VistaDecorativaEditor({
     if (!templateName.trim()) return;
     setIsSavingTemplate(true);
     try {
-      await saveDecoCanvasTemplate(templateName.trim(), elementos, fondoColor, fondoImagenUrl || undefined);
+      const result = await saveDecoCanvasTemplate(templateName.trim(), elementos, fondoColor, fondoImagenUrl || undefined);
+      if (!result.success) {
+        toast({
+          title: 'No se pudo guardar la plantilla',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast({ title: 'Plantilla guardada', description: 'Tu diseño ha sido guardado como plantilla.' });
       setTemplateName('');
     } finally {
       setIsSavingTemplate(false);
     }
-  }, [templateName, elementos, fondoColor, fondoImagenUrl]);
+  }, [templateName, elementos, fondoColor, fondoImagenUrl, toast]);
 
   return (
     <div className="space-y-4">

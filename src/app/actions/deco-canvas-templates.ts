@@ -21,7 +21,7 @@ export async function saveDecoCanvasTemplate(
   try {
     const templates = await getDecoCanvasTemplates();
     const template: DecoCanvasTemplate = {
-      id: `deco_tpl_${Date.now()}`,
+      id: `deco_tpl_${crypto.randomUUID()}`,
       nombre,
       elementos,
       fondoColor,

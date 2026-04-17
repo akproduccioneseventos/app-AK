@@ -81,7 +81,7 @@ export default function DecoTemplateGallery({
     }
 
     setTemplateName('');
-    toast({ title: 'Plantilla guardada' });
+    toast({ title: 'Plantilla guardada', description: 'El diseño actual se guardó como plantilla reutilizable.' });
     await loadTemplates();
   };
 
@@ -99,8 +99,12 @@ export default function DecoTemplateGallery({
       return;
     }
 
+    const deletedTemplate = templates.find(t => t.id === id);
     setTemplates(prev => prev.filter(t => t.id !== id));
-    toast({ title: 'Plantilla eliminada' });
+    toast({
+      title: 'Plantilla eliminada',
+      description: deletedTemplate ? `"${deletedTemplate.nombre}" fue eliminada.` : 'La plantilla fue eliminada.',
+    });
   };
 
   return (
