@@ -16,7 +16,6 @@ import { getGaleriaItems } from '@/app/actions/galeria';
 import { getLandingSettings } from '@/app/actions/landing-editor';
 import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
 import type { GaleriaFoto } from '@/types/galeria';
-import type { GalleryImage } from '@/components/landing/GallerySection';
 import type { ServiceItem } from '@/components/landing/ServicesSection';
 
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = 'Servicio AK';
@@ -86,19 +85,6 @@ export default async function LandingPage() {
       whatsappMessage: `¡Hola AK Producciones! Me gustaría cotizar el servicio de ${service.title}.`,
     }))
     : undefined;
-  const galleryImagesForLanding: GalleryImage[] | undefined = landingSettings.gallery?.length
-    ? landingSettings.gallery.map((img) => ({
-      id: img.id,
-      src: img.url,
-      alt: img.caption || 'Imagen de galería',
-      hint: 'event gallery',
-      category: 'Landing',
-      titulo: img.caption,
-      descripcion: img.caption,
-      destacada: img.featured,
-    }))
-    : undefined;
-
   return (
     <div className="min-h-screen bg-white">
       {promo && <PromoWidget promo={promo} />}
@@ -113,7 +99,7 @@ export default async function LandingPage() {
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
       <ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />
       <ProcessSection />
-      <GallerySection images={galleryImagesForLanding} galeriaFotos={galleryImagesForLanding?.length ? [] : fotosCombinadas} />
+      <GallerySection galeriaFotos={fotosCombinadas} />
       <VideoSection galeriaVideos={videos} />
       <TestimonialsSection />
       <FAQSection faqs={landingSettings.faqs} />

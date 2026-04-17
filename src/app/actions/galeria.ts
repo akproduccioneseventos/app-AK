@@ -80,6 +80,28 @@ export async function toggleDestacada(id: string): Promise<void> {
   await writeData(GALERIA_FILE, data);
 }
 
+export async function getGaleriaFotosByTipoFiesta(tipoFiesta: string): Promise<GaleriaFoto[]> {
+  const data = await getGaleriaItems();
+  if (!tipoFiesta || tipoFiesta === 'Todos') {
+    return data.fotos;
+  }
+  if (tipoFiesta === 'General') {
+    return data.fotos.filter((foto) => !foto.tipoFiesta);
+  }
+  return data.fotos.filter((foto) => foto.tipoFiesta === tipoFiesta);
+}
+
+export async function getGaleriaFotosByServicio(servicio: string): Promise<GaleriaFoto[]> {
+  const data = await getGaleriaItems();
+  if (!servicio || servicio === 'Todos') {
+    return data.fotos;
+  }
+  if (servicio === 'General') {
+    return data.fotos.filter((foto) => !foto.categoria && !foto.servicio);
+  }
+  return data.fotos.filter((foto) => foto.categoria === servicio || foto.servicio === servicio);
+}
+
 export async function updateGaleriaFoto(
   id: string,
   updates: Partial<GaleriaFoto>
