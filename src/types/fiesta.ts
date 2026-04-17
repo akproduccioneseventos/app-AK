@@ -450,6 +450,7 @@ export interface InvitacionDigitalConfig {
 
   // Dress code
   dressCode: InvitacionDigitalDressCode;
+  mostrarDressCode: boolean;
 
   // Gifts
   regalos: InvitacionDigitalRegalos;
@@ -932,6 +933,7 @@ export interface ListaMusicaPortal {
 
 export interface FiestaEnPlanificacion {
   id: string;
+  invitacionSlug?: string;
   configuracion: ConfigEventoDataStorage;
   estado?: string;
   modulosContratados?: ModulosContratados;

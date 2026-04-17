@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { InvitacionDigitalConfig, InvitacionPlantillaId } from '@/types/fiesta';
 import { PLANTILLA_INFO, TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -11,15 +11,24 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2 } from 'lucide-react';
+import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 interface Props {
   config: InvitacionDigitalConfig;
   onChange: (config: InvitacionDigitalConfig) => void;
+  fiestaId?: string;
 }
 
-export function InvitacionConfigPanel({ config, onChange }: Props) {
+export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
+  const { toast } = useToast();
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [galeriaUrlDraft, setGaleriaUrlDraft] = useState('');
+
   const update = <K extends keyof InvitacionDigitalConfig>(key: K, value: InvitacionDigitalConfig[K]) => {
     onChange({ ...config, [key]: value });
   };
@@ -30,6 +39,58 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
 
   const updateRegalos = (key: string, value: string) => {
     onChange({ ...config, regalos: { ...config.regalos, [key]: value } });
+  };
+
+  const uploadFile = async (file: File): Promise<string> => {
+    if (!fiestaId) {
+      throw new Error('Guardá primero el evento para habilitar la subida de archivos.');
+    }
+    const formData = new FormData();
+    formData.append('folder', fiestaId);
+    formData.append('file', file);
+    const result = await uploadPublicPageAsset(formData);
+    if (!result.success || !result.url) {
+      throw new Error(result.error || 'No se pudo subir el archivo.');
+    }
+    return result.url;
+  };
+
+  const handleFotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      event.target.value = '';
+      return;
+    }
+    setIsUploadingCover(true);
+    try {
+      const url = await uploadFile(file);
+      update('fotoPortada', url);
+      toast({ title: 'Foto subida', description: 'La portada se actualizó correctamente.' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: getErrorMessage(error, 'No se pudo subir la foto.'), variant: 'destructive' });
+    } finally {
+      setIsUploadingCover(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleGaleriaUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) {
+      event.target.value = '';
+      return;
+    }
+    setIsUploadingGallery(true);
+    try {
+      const uploaded = await Promise.all(files.map(uploadFile));
+      update('galeriaFotos', [...(config.galeriaFotos || []), ...uploaded]);
+      toast({ title: 'Galería actualizada', description: `${uploaded.length} foto(s) agregadas.` });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: getErrorMessage(error, 'No se pudieron subir las fotos.'), variant: 'destructive' });
+    } finally {
+      setIsUploadingGallery(false);
+      event.target.value = '';
+    }
   };
 
   return (
@@ -118,9 +179,88 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
               <Label className="text-xs">Mensaje de Bienvenida</Label>
               <Textarea value={config.textoBienvenida} onChange={e => update('textoBienvenida', e.target.value)} placeholder="Un mensaje para tus invitados..." rows={3} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Foto de Portada (URL)</Label>
-              <Input value={config.fotoPortada} onChange={e => update('fotoPortada', e.target.value)} placeholder="https://..." />
+            <div className="space-y-2">
+              <Label className="text-xs">Foto de Portada</Label>
+              {config.fotoPortada && (
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={config.fotoPortada} alt="portada" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <label htmlFor="foto-portada-upload" className="cursor-pointer block">
+                <Button variant="outline" size="sm" className="w-full pointer-events-none" asChild disabled={isUploadingCover}>
+                  <span>
+                    {isUploadingCover ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                    {isUploadingCover ? 'Subiendo...' : 'Subir foto desde dispositivo'}
+                  </span>
+                </Button>
+              </label>
+              <input
+                id="foto-portada-upload"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFotoUpload}
+              />
+              <Input value={config.fotoPortada} onChange={e => update('fotoPortada', e.target.value)} placeholder="O pegá una URL..." className="text-xs" />
+            </div>
+            <div className="space-y-2 border rounded-xl p-3 bg-slate-50/40">
+              <Label className="text-xs">Galería de fotos</Label>
+              <label htmlFor="galeria-fotos-upload" className="cursor-pointer block">
+                <Button variant="outline" size="sm" className="w-full pointer-events-none" asChild disabled={isUploadingGallery}>
+                  <span>
+                    {isUploadingGallery ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                    {isUploadingGallery ? 'Subiendo fotos...' : 'Subir fotos (múltiple)'}
+                  </span>
+                </Button>
+              </label>
+              <input
+                id="galeria-fotos-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleGaleriaUpload}
+              />
+              <div className="flex gap-2">
+                <Input
+                  value={galeriaUrlDraft}
+                  onChange={e => setGaleriaUrlDraft(e.target.value)}
+                  placeholder="Agregar foto por URL..."
+                  className="text-xs"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => {
+                    const url = galeriaUrlDraft.trim();
+                    if (!url) return;
+                    update('galeriaFotos', [...(config.galeriaFotos || []), url]);
+                    setGaleriaUrlDraft('');
+                  }}
+                >
+                  <Link2 className="w-4 h-4" />
+                </Button>
+              </div>
+              {(config.galeriaFotos || []).length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {(config.galeriaFotos || []).map((url, index) => (
+                    <div key={`${url}-${index}`} className="relative group rounded-md overflow-hidden border aspect-square">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`Galería ${index + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-90"
+                        onClick={() => update('galeriaFotos', (config.galeriaFotos || []).filter((_, i) => i !== index))}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -176,6 +316,10 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
         <AccordionItem value="dresscode">
           <AccordionTrigger className="text-sm font-bold"><Shirt className="w-4 h-4 mr-2" />Dress Code</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-2">
+            <div className="flex items-center justify-between rounded-lg border p-2">
+              <Label className="text-xs font-semibold">Mostrar dress code</Label>
+              <Switch checked={config.mostrarDressCode} onCheckedChange={v => update('mostrarDressCode', v)} />
+            </div>
             <div className="space-y-1">
               <Label className="text-xs">Tipo</Label>
               <Select value={config.dressCode.tipo} onValueChange={v => updateDressCode('tipo', v)}>
@@ -322,6 +466,16 @@ export function InvitacionConfigPanel({ config, onChange }: Props) {
                       update('cronograma', updated);
                     }}
                     placeholder="Actividad"
+                    className="h-8 text-xs"
+                  />
+                  <Input
+                    value={item.icono || ''}
+                    onChange={e => {
+                      const updated = [...(config.cronograma || [])];
+                      updated[index] = { ...updated[index], icono: e.target.value };
+                      update('cronograma', updated);
+                    }}
+                    placeholder="Icono/emoji (opcional)"
                     className="h-8 text-xs"
                   />
                 </div>
