@@ -254,7 +254,7 @@ function EditableText({
             setEditing(false);
           }
         }}
-        className={cn('bg-white/20 text-white text-center outline-none border-b-2 border-white rounded px-1', className)}
+        className={cn('bg-black/20 text-current text-center outline-none border-b-2 border-current rounded px-1', className)}
       />
     );
   }

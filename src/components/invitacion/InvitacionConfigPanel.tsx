@@ -56,7 +56,10 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
 
   const handleFotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      event.target.value = '';
+      return;
+    }
     setIsUploadingCover(true);
     try {
       const url = await uploadFile(file);
@@ -72,7 +75,10 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
 
   const handleGaleriaUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      event.target.value = '';
+      return;
+    }
     setIsUploadingGallery(true);
     try {
       const uploaded = await Promise.all(files.map(uploadFile));

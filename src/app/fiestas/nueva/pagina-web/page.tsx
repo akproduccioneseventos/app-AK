@@ -32,6 +32,7 @@ import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
@@ -196,8 +197,7 @@ function PaginaWebPageContent() {
     return `${baseUrl}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
   }
 
-  const sanitizeSlug = (value: string) => value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '');
-  const activeSlug = sanitizeSlug(slugInput || fiesta?.invitacionSlug || fiestaId || '');
+  const activeSlug = normalizeInvitationSlug(slugInput || fiesta?.invitacionSlug || fiestaId || '');
   const slugUrl = activeSlug ? getFullLink('/i/[fiestaId]').replace(`/i/${fiestaId}`, `/i/${activeSlug}`) : '';
   const slugPrefixLabel = useMemo(() => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
@@ -247,9 +247,9 @@ function PaginaWebPageContent() {
 
   const handleSaveSlug = async () => {
     if (!fiestaId || fiestaId === 'template_preview') return;
-    const normalized = sanitizeSlug(slugInput);
+    const normalized = normalizeInvitationSlug(slugInput);
     if (!normalized) {
-      toast({ title: 'Slug inválido', description: 'Ingresá un enlace personalizado válido.', variant: 'destructive' });
+      toast({ title: 'Slug inválido', description: 'El enlace debe contener solo letras, números y guiones.', variant: 'destructive' });
       return;
     }
     setIsSavingSlug(true);
@@ -358,7 +358,7 @@ function PaginaWebPageContent() {
                   <span className="text-xs text-muted-foreground whitespace-nowrap">{slugPrefixLabel}</span>
                   <Input
                     value={slugInput}
-                    onChange={e => setSlugInput(sanitizeSlug(e.target.value))}
+                    onChange={e => setSlugInput(normalizeInvitationSlug(e.target.value))}
                     placeholder="ej: fiesta-valentina"
                     className="h-9 text-sm"
                   />
@@ -528,6 +528,7 @@ function PaginaWebPageContent() {
       {!mobileEditorOpen && (
         <button
           onClick={() => setMobileEditorOpen(true)}
+          aria-label="Abrir editor de configuración"
           className="fixed bottom-6 left-6 z-50 flex md:hidden items-center gap-2 bg-primary text-white px-4 py-3 rounded-full shadow-2xl font-bold text-sm"
         >
           <Settings2 className="w-4 h-4" /> Editar

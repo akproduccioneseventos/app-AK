@@ -41,6 +41,7 @@ import { getRoles } from '../roles';
 import { syncLaundryCosts } from './costos.actions';
 import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
+import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion-slug';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -142,19 +143,6 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
     } catch (e) {}
     const archivadas = await getHistorialFiestas();
     return archivadas.find(f => f.id === fiestaId) || null;
-}
-
-function normalizeInvitationSlug(slug: string): string {
-  return slug
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-{2,}/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function isValidInvitationSlug(slug: string): boolean {
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }
 
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {
