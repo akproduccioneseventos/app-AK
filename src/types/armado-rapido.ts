@@ -11,6 +11,7 @@ export interface PaqueteArmadoRapido {
   descripcion?: string;
   serviciosIncluidos: ServicioIncluidoArmadoRapido[];
   recommended?: boolean; // NEW: Flag for "Most Chosen" package
+  tiposDeEventoAplicables?: string[]; // Vacío/undefined => aplica a todos
 }
 
 export interface MenuArmadoRapido {
@@ -55,4 +56,28 @@ export interface LeadFromQuickBudget {
   descuentoGeneral?: number;
   serviciosIncluidos: string[];
   paqueteNombre?: string;
+}
+
+function normalizeEventType(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+export function isPackageApplicableToEventType(
+  paquete: Pick<PaqueteArmadoRapido, 'tiposDeEventoAplicables'>,
+  tipoEvento: string | null | undefined
+): boolean {
+  const tipos = (paquete.tiposDeEventoAplicables || []).map((t) => t.trim()).filter(Boolean);
+  if (tipos.length === 0) return true;
+  const selected = normalizeEventType(tipoEvento || '');
+  if (!selected) return true;
+
+  return tipos.some((tipo) => {
+    const normalized = normalizeEventType(tipo);
+    return normalized === selected || normalized.includes(selected) || selected.includes(normalized);
+  });
 }

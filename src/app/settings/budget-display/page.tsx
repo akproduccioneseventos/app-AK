@@ -115,7 +115,8 @@ export default function BudgetDisplaySettingsPage() {
         id: `pkg_${Date.now()}`,
         nombre: 'Nuevo Paquete',
         serviciosIncluidos: [],
-        recommended: false
+        recommended: false,
+        tiposDeEventoAplicables: [],
     };
     setConfig(prev => prev ? ({ ...prev, paquetes: [...prev.paquetes, newPkg] }) : null);
   };
@@ -396,6 +397,20 @@ export default function BudgetDisplaySettingsPage() {
                             <Button variant="ghost" size="icon" onClick={() => removePackage(pkg.id)} className="text-slate-300 hover:text-destructive"><Trash2 className="w-4 h-4"/></Button>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
+                            <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400">Tipos de evento aplicables</Label>
+                                <Input
+                                    value={(pkg.tiposDeEventoAplicables || []).join(', ')}
+                                    onChange={(e) => {
+                                        const tipos = e.target.value.split(',').map((v) => v.trim()).filter(Boolean);
+                                        setConfig(prev => prev ? ({
+                                            ...prev,
+                                            paquetes: prev.paquetes.map(p => p.id === pkg.id ? { ...p, tiposDeEventoAplicables: tipos } : p)
+                                        }) : null);
+                                    }}
+                                    placeholder="Ej: 15 años, Boda (vacío = todos)"
+                                />
+                            </div>
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase text-slate-400">Servicios Incluidos</Label>
                                 <ScrollArea className="h-48 border rounded-2xl p-2 bg-slate-50/50 shadow-inner">

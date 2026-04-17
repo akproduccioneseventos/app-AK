@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,6 +30,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { EventCatalogData, ServiceItem } from '@/types/public-landing';
+import { getCatalogoSettings } from '@/app/actions/contenido-publico';
+import type { CatalogoSettings } from '@/types/contenido-publico';
 
 // ─── Session storage keys (must match presupuesto flow) ──────────────────────
 const PRESUPUESTO_SESSION_KEY = 'presupuestoEnProgreso_v3';
@@ -94,18 +97,31 @@ const SLIDE_LABELS: Record<SlideId, string> = {
   'cierre':           'Resumen',
 };
 
+const DEFAULT_PRESENTACION_TEXT = [
+  'En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos.',
+  'Nos encargamos de todo: decoración, catering, sonido, fotografía y coordinación general.',
+].join(' ');
+
+const DEFAULT_POR_QUE_TEXT = 'Trabajamos con un solo equipo para que tengas calidad, coordinación y tranquilidad en todo el proceso.';
+
 // ─── Slide Components ─────────────────────────────────────────────────────────
 
 function PortadaSlide({
   catalog,
+  heroImageUrl,
   onNext,
 }: {
   catalog: EventCatalogData;
+  heroImageUrl?: string;
   onNext: () => void;
 }) {
   const accent = getAccent(catalog.hero.accentColor);
   return (
-    <div className="flex flex-col items-center justify-center text-center py-12 px-4 min-h-[500px]">
+    <div className="flex flex-col items-center justify-center text-center py-12 px-4 min-h-[500px] relative overflow-hidden rounded-3xl">
+      {heroImageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={heroImageUrl} alt={catalog.hero.headline} className="absolute inset-0 w-full h-full object-cover opacity-20" />
+      )}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -163,7 +179,7 @@ function PortadaSlide({
   );
 }
 
-function PresentacionSlide({ catalog }: { catalog: EventCatalogData }) {
+function PresentacionSlide({ catalog, textoPresentacion }: { catalog: EventCatalogData; textoPresentacion: string }) {
   const accent = getAccent(catalog.hero.accentColor);
   const stats = [
     { icon: Award, label: 'Años de experiencia', value: '+10' },
@@ -182,14 +198,7 @@ function PresentacionSlide({ catalog }: { catalog: EventCatalogData }) {
         <div className={`${accent.bg} ${accent.border} border rounded-2xl p-6`}>
           <h3 className="font-bold text-slate-800 mb-3 text-lg">Nuestra historia</h3>
           <p className="text-slate-600 leading-relaxed text-sm">
-            En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos.
-            Nacimos con la pasión de organizar eventos únicos, y hoy somos el equipo de confianza de cientos
-            de familias en Salto y la región.
-          </p>
-          <p className="text-slate-600 leading-relaxed text-sm mt-3">
-            Nos encargamos de <span className="font-semibold text-slate-800">todo</span>: desde la decoración
-            hasta el catering, el sonido, la fotografía y la coordinación general. Un solo equipo, una sola
-            propuesta, cero preocupaciones para vos.
+            {textoPresentacion}
           </p>
         </div>
 
@@ -211,7 +220,7 @@ function PresentacionSlide({ catalog }: { catalog: EventCatalogData }) {
   );
 }
 
-function PorQueElegernosSlide({ catalog }: { catalog: EventCatalogData }) {
+function PorQueElegernosSlide({ catalog, textoPorQueElegirnos }: { catalog: EventCatalogData; textoPorQueElegirnos: string }) {
   const accent = getAccent(catalog.hero.accentColor);
   const whyUsIcons = [Shield, Clock, Headphones, Star, Zap, Heart];
   return (
@@ -219,6 +228,7 @@ function PorQueElegernosSlide({ catalog }: { catalog: EventCatalogData }) {
       <div className="text-center mb-8">
         <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Nuestros diferenciales</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Por qué elegirnos</h2>
+        <p className="text-slate-500 mt-2">{textoPorQueElegirnos}</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {catalog.whyUs.map((item, idx) => {
@@ -593,14 +603,47 @@ export default function CatalogoTipoPage() {
   const router = useRouter();
   const tipo = Array.isArray(params.tipo) ? params.tipo[0] : params.tipo;
   const catalog = tipo ? getCatalogBySlug(tipo) : null;
+  const [catalogSettings, setCatalogSettings] = useState<CatalogoSettings | null>(null);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!tipo) return;
+    getCatalogoSettings(tipo)
+      .then((settings) => setCatalogSettings(settings))
+      .catch(() => setCatalogSettings(null));
+  }, [tipo]);
+
+  const mergedCatalog = useMemo(() => {
+    if (!catalog) return null;
+    if (!catalogSettings) return catalog;
+    return {
+      ...catalog,
+      hero: {
+        ...catalog.hero,
+        headline: catalogSettings.hero.titulo || catalog.hero.headline,
+        subheadline: catalogSettings.hero.subtitulo || catalog.hero.subheadline,
+        accentColor: catalogSettings.hero.color || catalog.hero.accentColor,
+      },
+      gallery: catalogSettings.galeria.length > 0
+        ? catalogSettings.galeria.map((item, idx) => ({ id: `cfg-gallery-${idx}`, src: item.url, alt: item.alt || `Foto ${idx + 1}` }))
+        : catalog.gallery,
+      testimonials: catalogSettings.testimonios.length > 0
+        ? catalogSettings.testimonios.map((text, idx) => ({
+          id: `cfg-testimonial-${idx}`,
+          authorName: `Cliente ${idx + 1}`,
+          source: 'text' as const,
+          text,
+        }))
+        : catalog.testimonials,
+    };
+  }, [catalog, catalogSettings]);
+
   const selectedPackage = useMemo(
-    () => (catalog ? catalog.services.find((s) => s.id === selectedPackageId) ?? null : null),
-    [catalog, selectedPackageId],
+    () => (mergedCatalog ? mergedCatalog.services.find((s) => s.id === selectedPackageId) ?? null : null),
+    [mergedCatalog, selectedPackageId],
   );
 
   const goToSlide = useCallback((next: number) => {
@@ -613,12 +656,12 @@ export default function CatalogoTipoPage() {
   const goPrev = useCallback(() => goToSlide(currentSlide - 1), [goToSlide, currentSlide]);
 
   const handleCreateBudget = useCallback(() => {
-    if (!catalog) return;
+    if (!mergedCatalog) return;
     // Pre-populate the presupuesto form via sessionStorage
     const presupuestoData = {
       clienteNombre: '',
       clienteContacto: '',
-      eventoTipo: catalog.name,
+      eventoTipo: mergedCatalog.name,
       eventoFecha: undefined,
       invitadosCantidad: DEFAULT_GUEST_COUNT,
       invitadosAdultos: DEFAULT_GUEST_COUNT,
@@ -631,8 +674,8 @@ export default function CatalogoTipoPage() {
       serviciosSeleccionados: [], // empty Map entries — user configures in budget form
       selectedMenuId: '',
       notas: selectedPackage
-        ? `Catálogo digital — ${catalog.name}\nPaquete seleccionado: ${selectedPackage.title}\nIncluye: ${selectedPackage.included.join(', ')}`
-        : `Catálogo digital — ${catalog.name}`,
+        ? `Catálogo digital — ${mergedCatalog.name}\nPaquete seleccionado: ${selectedPackage.title}\nIncluye: ${selectedPackage.included.join(', ')}`
+        : `Catálogo digital — ${mergedCatalog.name}`,
       estado: 'Borrador',
       nombrePromocion: 'Descuento Promocional',
       descuentoTipo: 'porcentaje',
@@ -643,8 +686,8 @@ export default function CatalogoTipoPage() {
       sessionStorage.setItem(PRESUPUESTO_SESSION_KEY, JSON.stringify(presupuestoData));
       // Also store catalog selection details for reference
       sessionStorage.setItem('catalogo_seleccion', JSON.stringify({
-        slug: catalog.slug,
-        nombre: catalog.name,
+        slug: mergedCatalog.slug,
+        nombre: mergedCatalog.name,
         paqueteId: selectedPackage?.id ?? null,
         paqueteNombre: selectedPackage?.title ?? null,
         incluye: selectedPackage?.included ?? [],
@@ -654,12 +697,12 @@ export default function CatalogoTipoPage() {
       console.warn('[CatalogoWizard] Could not write to sessionStorage:', err);
     }
     router.push('/presupuestos/nuevo/crear');
-  }, [catalog, selectedPackage, router]);
+  }, [mergedCatalog, selectedPackage, router]);
 
   // Not found
-  if (!catalog) return notFound();
+  if (!mergedCatalog) return notFound();
 
-  const accent = getAccent(catalog.hero.accentColor);
+  const accent = getAccent(mergedCatalog.hero.accentColor);
   const currentSlideId = SLIDE_ORDER[currentSlide];
   const isLastSlide = currentSlide === SLIDE_ORDER.length - 1;
   const isFirstSlide = currentSlide === 0;
@@ -679,8 +722,8 @@ export default function CatalogoTipoPage() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xl">{catalog.hero.emoji}</span>
-                <span className="font-black text-slate-800 text-sm md:text-base truncate">{catalog.name}</span>
+                 <span className="text-xl">{mergedCatalog.hero.emoji}</span>
+                 <span className="font-black text-slate-800 text-sm md:text-base truncate">{mergedCatalog.name}</span>
                 <span className="hidden sm:inline text-slate-300">·</span>
                 <span className="hidden sm:inline text-slate-500 text-sm">{SLIDE_LABELS[currentSlideId]}</span>
               </div>
@@ -731,40 +774,40 @@ export default function CatalogoTipoPage() {
               exit="exit"
               transition={slideTransition}
             >
-              {currentSlideId === 'portada' && (
-                <PortadaSlide catalog={catalog} onNext={goNext} />
-              )}
-              {currentSlideId === 'presentacion' && (
-                <PresentacionSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'por-que-elegirnos' && (
-                <PorQueElegernosSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'proceso' && (
-                <ProcesoSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'servicios' && (
-                <ServiciosSlide
-                  catalog={catalog}
-                  selectedPackageId={selectedPackageId}
-                  onSelect={setSelectedPackageId}
-                />
-              )}
-              {currentSlideId === 'regalos' && (
-                <RegalosSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'testimonios' && (
-                <TestimoniosSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'formas-de-pago' && (
-                <FormasDePagoSlide catalog={catalog} />
-              )}
-              {currentSlideId === 'cierre' && (
-                <CierreSlide
-                  catalog={catalog}
-                  selectedPackage={selectedPackage}
-                  onCreateBudget={handleCreateBudget}
-                />
+               {currentSlideId === 'portada' && (
+                 <PortadaSlide catalog={mergedCatalog} heroImageUrl={catalogSettings?.hero.imagenFondoUrl} onNext={goNext} />
+               )}
+               {currentSlideId === 'presentacion' && (
+                 <PresentacionSlide catalog={mergedCatalog} textoPresentacion={catalogSettings?.textoPresentacion || DEFAULT_PRESENTACION_TEXT} />
+               )}
+               {currentSlideId === 'por-que-elegirnos' && (
+                 <PorQueElegernosSlide catalog={mergedCatalog} textoPorQueElegirnos={catalogSettings?.textoPorQueElegirnos || DEFAULT_POR_QUE_TEXT} />
+               )}
+               {currentSlideId === 'proceso' && (
+                 <ProcesoSlide catalog={mergedCatalog} />
+               )}
+               {currentSlideId === 'servicios' && (
+                 <ServiciosSlide
+                   catalog={mergedCatalog}
+                   selectedPackageId={selectedPackageId}
+                   onSelect={setSelectedPackageId}
+                 />
+               )}
+               {currentSlideId === 'regalos' && (
+                 <RegalosSlide catalog={mergedCatalog} />
+               )}
+               {currentSlideId === 'testimonios' && (
+                 <TestimoniosSlide catalog={mergedCatalog} />
+               )}
+               {currentSlideId === 'formas-de-pago' && (
+                 <FormasDePagoSlide catalog={mergedCatalog} />
+               )}
+               {currentSlideId === 'cierre' && (
+                 <CierreSlide
+                   catalog={mergedCatalog}
+                   selectedPackage={selectedPackage}
+                   onCreateBudget={handleCreateBudget}
+                 />
               )}
             </motion.div>
           </AnimatePresence>

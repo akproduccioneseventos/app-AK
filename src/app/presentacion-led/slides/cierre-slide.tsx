@@ -37,6 +37,10 @@ interface CierreSlideProps {
   onPlanPagos?: () => void;
   onContrato?: () => void;
   mostrarPrecios?: boolean;
+  titulo?: string;
+  mensaje?: string;
+  ctaTexto?: string;
+  onCtaAction?: () => void;
 }
 
 export function CierreSlide({
@@ -52,6 +56,10 @@ export function CierreSlide({
   onPlanPagos = () => {},
   onContrato = () => {},
   mostrarPrecios = true,
+  titulo,
+  mensaje,
+  ctaTexto,
+  onCtaAction,
 }: CierreSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
   const safeEmail = isSafeEmail(companyInfo.companyContact) ? companyInfo.companyContact : null;
@@ -78,10 +86,10 @@ export function CierreSlide({
             ¡Estamos listos!
           </p>
           <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-lg mb-3">
-            Siguiente paso 🚀
+            {titulo || 'Siguiente paso 🚀'}
           </h1>
           <p className="text-white/60 text-lg max-w-2xl mx-auto">
-            {contenido.mensajeCierre}
+            {mensaje || contenido.mensajeCierre}
           </p>
         </motion.div>
 
@@ -162,7 +170,7 @@ export function CierreSlide({
           >
             {/* Main CTA */}
             <motion.button
-              onClick={onGenerateBudget}
+              onClick={onCtaAction || onGenerateBudget}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={cn(
@@ -171,7 +179,7 @@ export function CierreSlide({
               )}
             >
               <ShoppingCart className="h-6 w-6" />
-              Generar Presupuesto Manual
+              {ctaTexto || 'Generar Presupuesto Manual'}
             </motion.button>
 
             <p className="text-white/40 text-xs text-center">

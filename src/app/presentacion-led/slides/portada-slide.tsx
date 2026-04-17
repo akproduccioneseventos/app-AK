@@ -11,10 +11,23 @@ interface PortadaSlideProps {
   companyInfo: CompanyInfo;
   logoUrl: string | null;
   tipoFiesta: string;
+  tituloPrincipal?: string;
+  subtitulo?: string;
+  imagenFondoUrl?: string;
+  colorAcento?: string;
   onNext: () => void;
 }
 
-export function PortadaSlide({ companyInfo, logoUrl, tipoFiesta, onNext }: PortadaSlideProps) {
+export function PortadaSlide({
+  companyInfo,
+  logoUrl,
+  tipoFiesta,
+  tituloPrincipal,
+  subtitulo,
+  imagenFondoUrl,
+  colorAcento,
+  onNext,
+}: PortadaSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
   // Validate logo URL before rendering to prevent XSS:
   // Allow only https/http URLs or properly-formed data:image base64 URIs
@@ -54,7 +67,7 @@ export function PortadaSlide({ companyInfo, logoUrl, tipoFiesta, onNext }: Porta
               transition={{ delay: 0.2, duration: 0.5 }}
               className="mb-4"
             >
-              <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-gradient-to-r ${contenido.colorAcento} text-white`}>
+              <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-gradient-to-r ${colorAcento || contenido.colorAcento} text-white`}>
                 {contenido.emoji} {tipoFiesta}
               </span>
             </motion.div>
@@ -67,7 +80,7 @@ export function PortadaSlide({ companyInfo, logoUrl, tipoFiesta, onNext }: Porta
             transition={{ delay: 0.3, duration: 0.6 }}
             className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight mb-4 drop-shadow-lg leading-none"
           >
-            {companyInfo.companyName || 'AK Producciones'}
+            {tituloPrincipal || companyInfo.companyName || 'AK Producciones'}
           </motion.h1>
 
           {/* Tagline */}
@@ -86,7 +99,7 @@ export function PortadaSlide({ companyInfo, logoUrl, tipoFiesta, onNext }: Porta
             transition={{ delay: 0.55, duration: 0.6 }}
             className="text-base md:text-lg text-white/50 mb-8 font-light"
           >
-            {contenido.subtitulo}
+            {subtitulo || contenido.subtitulo}
           </motion.p>
 
           {/* CTA */}
@@ -97,7 +110,7 @@ export function PortadaSlide({ companyInfo, logoUrl, tipoFiesta, onNext }: Porta
           >
             <button
               onClick={onNext}
-              className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-lg font-bold text-white bg-gradient-to-r ${contenido.colorAcento} shadow-2xl hover:opacity-90 transition-opacity`}
+              className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-lg font-bold text-white bg-gradient-to-r ${colorAcento || contenido.colorAcento} shadow-2xl hover:opacity-90 transition-opacity`}
             >
               Ver presentación
               <ChevronRight className="h-5 w-5" />
@@ -112,12 +125,21 @@ export function PortadaSlide({ companyInfo, logoUrl, tipoFiesta, onNext }: Porta
           transition={{ delay: 0.3, duration: 0.7 }}
           className="hidden lg:block"
         >
-          <ImagePlaceholder
-            id="hero-portada"
-            label={tipoFiesta ? `Foto de ${tipoFiesta}` : 'Foto principal del evento'}
-            aspectRatio="4/3"
-            className="shadow-2xl"
-          />
+          {imagenFondoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imagenFondoUrl}
+              alt={tipoFiesta ? `Foto de ${tipoFiesta}` : 'Foto principal del evento'}
+              className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl"
+            />
+          ) : (
+            <ImagePlaceholder
+              id="hero-portada"
+              label={tipoFiesta ? `Foto de ${tipoFiesta}` : 'Foto principal del evento'}
+              aspectRatio="4/3"
+              className="shadow-2xl"
+            />
+          )}
         </motion.div>
       </div>
     </SlideLayout>

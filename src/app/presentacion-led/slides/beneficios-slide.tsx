@@ -1,55 +1,26 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Shield, Clock, Headphones, Star, Zap, Heart } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
+import { ImagePlaceholder } from '../components/image-placeholder';
 
 const BENEFICIOS = [
-  {
-    icon: Shield,
-    titulo: 'Un solo proveedor',
-    descripcion: 'Todo coordinado por nosotros. Sin intermediarios ni sorpresas de último momento.',
-    color: 'from-indigo-500/20 to-indigo-600/10 border-indigo-500/30',
-    iconColor: 'text-indigo-300',
-  },
-  {
-    icon: Clock,
-    titulo: 'Puntualidad garantizada',
-    descripcion: 'Cada servicio en tiempo y forma. Nos encargamos del cronograma completo del evento.',
-    color: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30',
-    iconColor: 'text-emerald-300',
-  },
-  {
-    icon: Headphones,
-    titulo: 'Atención personalizada',
-    descripcion: 'Coordinador dedicado a tu evento. Siempre disponible antes, durante y después.',
-    color: 'from-violet-500/20 to-violet-600/10 border-violet-500/30',
-    iconColor: 'text-violet-300',
-  },
-  {
-    icon: Star,
-    titulo: 'Calidad premium',
-    descripcion: 'Materiales y equipos de primer nivel. El mismo estándar en cada evento que organizamos.',
-    color: 'from-amber-500/20 to-amber-600/10 border-amber-500/30',
-    iconColor: 'text-amber-300',
-  },
-  {
-    icon: Zap,
-    titulo: 'Resolución inmediata',
-    descripcion: 'Si algo sale diferente a lo planeado, lo resolvemos al instante. Vos solo disfrutás.',
-    color: 'from-rose-500/20 to-rose-600/10 border-rose-500/30',
-    iconColor: 'text-rose-300',
-  },
-  {
-    icon: Heart,
-    titulo: 'Experiencia que emociona',
-    descripcion: 'Más de 500 eventos realizados. Sabemos cómo crear momentos que se recuerdan para siempre.',
-    color: 'from-pink-500/20 to-pink-600/10 border-pink-500/30',
-    iconColor: 'text-pink-300',
-  },
+  { emoji: '🛡️', texto: 'Un solo proveedor para coordinar todo el evento.' },
+  { emoji: '⏱️', texto: 'Puntualidad garantizada en cada etapa.' },
+  { emoji: '🎧', texto: 'Atención personalizada antes, durante y después.' },
+  { emoji: '⭐', texto: 'Calidad premium en servicios y ejecución.' },
+  { emoji: '⚡', texto: 'Resolución inmediata ante cualquier imprevisto.' },
+  { emoji: '❤️', texto: 'Experiencia que emociona y se recuerda.' },
 ];
 
-export function BeneficiosSlide() {
+export function BeneficiosSlide({
+  beneficios = BENEFICIOS,
+  imagenLateralUrl,
+}: {
+  beneficios?: { emoji: string; texto: string }[];
+  imagenLateralUrl?: string;
+}) {
   return (
     <SlideLayout overflowScroll>
       <div className="w-full max-w-5xl mx-auto">
@@ -69,27 +40,35 @@ export function BeneficiosSlide() {
           </p>
         </motion.div>
 
-        {/* Benefits grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {BENEFICIOS.map((b, i) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {beneficios.map((b, i) => (
             <motion.div
-              key={b.titulo}
+              key={`${b.texto}-${i}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.1 }}
-              className={`bg-gradient-to-br ${b.color} border rounded-2xl p-5`}
+              className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 border border-indigo-500/30 rounded-2xl p-5"
             >
               <div className="flex items-start gap-4">
-                <div className="shrink-0 h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
-                  <b.icon className={`h-5 w-5 ${b.iconColor}`} />
+                <div className="shrink-0 h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-xl">
+                  {b.emoji || '✨'}
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-base mb-1">{b.titulo}</h3>
-                  <p className="text-white/60 text-sm leading-relaxed">{b.descripcion}</p>
+                  <p className="text-white/80 text-sm leading-relaxed">{b.texto}</p>
                 </div>
               </div>
             </motion.div>
           ))}
+          </div>
+          <div>
+            {imagenLateralUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imagenLateralUrl} alt="Imagen beneficios" className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl" />
+            ) : (
+              <ImagePlaceholder id="beneficios-lateral" label="Imagen lateral beneficios" aspectRatio="4/3" />
+            )}
+          </div>
         </div>
 
         {/* Bottom CTA line */}
