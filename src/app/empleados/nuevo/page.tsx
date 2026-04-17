@@ -53,7 +53,7 @@ export default function NuevoEmpleadoPage() {
     setIsUploadingPhoto(true);
     try {
       const formData = new FormData();
-      formData.append('fiestaId', 'empleados-fotos');
+      formData.append('folder', 'empleados-fotos');
       formData.append('file', file);
       const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');

@@ -52,7 +52,7 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
         setIsUploading(true);
         try {
             const formData = new FormData();
-            formData.append('fiestaId', fiestaId);
+            formData.append('folder', fiestaId);
             formData.append('file', fileToUpload);
             const result = await uploadPublicPageAsset(formData);
 
