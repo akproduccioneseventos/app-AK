@@ -23,7 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { getCargaOperativaMasterTemplate, checkAssetConflicts, updateListaDeCargaOperativa } from '@/app/actions/fiesta/carga-operativa.actions';
+import { getCargaOperativaMasterTemplate, checkAssetConflicts, updateListaDeCargaOperativa, generateCargaFromActivos } from '@/app/actions/fiesta/carga-operativa.actions';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -293,6 +293,39 @@ function ListaDeCargaOperativaContent() {
       toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSyncFromActivos = async () => {
+    if (!fiestaId || !fiesta) return;
+    setIsSyncing(true);
+    try {
+      let totalInvitados = Number(fiesta.configuracion.invitadosEstimados) || 0;
+
+      if (fiesta.presupuestoId) {
+        const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+        if (presupuesto) {
+          const invitadosPresupuesto =
+            (presupuesto.invitadosAdultos || 0) +
+            (presupuesto.invitadosNinos || 0) +
+            (presupuesto.invitadosAdolescentes || 0) ||
+            presupuesto.invitadosCantidad ||
+            0;
+          if (invitadosPresupuesto > 0) totalInvitados = invitadosPresupuesto;
+        }
+      }
+
+      if (totalInvitados <= 0) totalInvitados = 100;
+
+      const result = await generateCargaFromActivos(fiestaId, totalInvitados);
+      if (!result.success) throw new Error(result.error || 'No se pudo regenerar la lista.');
+
+      toast({ title: '✅ Lista regenerada', description: `Calculada para ${totalInvitados} invitados.` });
+      await loadData(false);
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -626,7 +659,11 @@ function ListaDeCargaOperativaContent() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 print:hidden">
-        <div className="max-w-4xl mx-auto flex justify-end">
+        <div className="max-w-4xl mx-auto flex justify-end gap-3">
+            <Button onClick={handleSyncFromActivos} disabled={isSyncing || isSaving || isLoading} variant="outline" size="lg" className="rounded-2xl px-8 h-14 font-black text-base">
+            {isSyncing ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <RefreshCw className="w-5 h-5 mr-3" />}
+            {isSyncing ? 'SINCRONIZANDO...' : 'REGENERAR DESDE ACTIVOS'}
+            </Button>
             <Button onClick={handleSaveListaDeCarga} disabled={isSaving || isLoading} size="lg" className="rounded-2xl px-12 h-14 font-black text-base shadow-2xl shadow-primary/30">
             {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <Save className="w-5 h-5 mr-3" />}
             {isSaving ? 'REVISANDO STOCK...' : 'GUARDAR LOGÍSTICA'}

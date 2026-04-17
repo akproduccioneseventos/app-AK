@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { ListaDeCargaOperativa, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
+import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { getFiestas, getFiestaById, saveFiesta } from './fiesta.actions';
 import { getActivosFijos } from '../activos-fijos';
@@ -102,6 +102,89 @@ export async function updateListaDeCargaOperativa(fiestaId: string, lista: Lista
     const result = await saveFiesta(updatedFiesta);
     if (!result.success) throw new Error(result.error);
     return { success: true, updatedData: result.fiesta?.listaDeCargaOperativa };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+/**
+ * Genera (o regenera) la lista de carga operativa de una fiesta a partir del catálogo
+ * de activos fijos, calculando cantidades en base al número de invitados del evento.
+ *
+ * Lógica de cálculo:
+ * - calculationMethod === 'porPersona': cantidad = totalInvitados
+ * - calculationMethod === 'ratio' && invitadosPorUnidad: cantidad = Math.ceil(totalInvitados / invitadosPorUnidad)
+ * - calculationMethod === 'fijo' || default: cantidad = precioVenta (si existe) || cantidadDisponible || 1
+ *
+ * Agrupa los activos por su `categoria` formando CargaOperativaCategorias.
+ * Preserva los items marcados como `cargado: true` o `retornado: true` si el item ya existe (por origenId).
+ */
+export async function generateCargaFromActivos(
+  fiestaId: string,
+  totalInvitados: number
+): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
+  try {
+    const [fiesta, activos] = await Promise.all([
+      getFiestaById(fiestaId),
+      getActivosFijos(),
+    ]);
+
+    if (!fiesta) throw new Error('Fiesta no encontrada');
+
+    const byCategory: Record<string, typeof activos> = {};
+    activos.forEach((a) => {
+      const cat = a.categoria || 'General';
+      if (!byCategory[cat]) byCategory[cat] = [];
+      byCategory[cat].push(a);
+    });
+
+    const existingItemsByOrigenId: Record<string, CargaOperativaItem> = {};
+    (fiesta.listaDeCargaOperativa?.categorias || []).forEach((cat) => {
+      cat.items.forEach((item) => {
+        if (item.origenId) existingItemsByOrigenId[item.origenId] = item;
+      });
+    });
+
+    const categorias: CargaOperativaCategoria[] = Object.entries(byCategory).map(([catName, assets]) => {
+      const items: CargaOperativaItem[] = assets.map((asset) => {
+        let qty: number;
+        if (asset.calculationMethod === 'porPersona') {
+          qty = totalInvitados;
+        } else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad && asset.invitadosPorUnidad > 0) {
+          qty = Math.ceil(totalInvitados / asset.invitadosPorUnidad);
+        } else {
+          const precioVenta = Number(asset.precioVenta);
+          qty = precioVenta > 0 ? precioVenta : (asset.cantidadDisponible || 1);
+        }
+
+        const existing = existingItemsByOrigenId[asset.id];
+        return {
+          id: `gen_${asset.id}`,
+          nombre: asset.nombre,
+          cantidad: String(qty),
+          unidad: asset.unidad || 'Uds.',
+          cargado: existing?.cargado || false,
+          retornado: existing?.retornado || false,
+          origenId: asset.id,
+          notas: asset.notas || '',
+        };
+      });
+
+      return {
+        id: `cat_${catName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}`,
+        nombre: catName,
+        items,
+      };
+    });
+
+    const newLista: ListaDeCargaOperativa = {
+      id: fiesta.listaDeCargaOperativa?.id || 'lista_auto',
+      name: 'Lista de Carga (Generada desde Activos)',
+      categorias,
+      notasGenerales: fiesta.listaDeCargaOperativa?.notasGenerales || '',
+    };
+
+    return await updateListaDeCargaOperativa(fiestaId, newLista);
   } catch (e: any) {
     return { success: false, error: e.message };
   }
