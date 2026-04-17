@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno, ElementoDecorativo } from '@/types/fiesta';
@@ -31,6 +31,7 @@ import DecoElementLibrary from '@/components/decoracion/DecoElementLibrary';
 import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
 import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
+import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 import {
   AlertDialog,
@@ -153,9 +154,7 @@ function DecoracionYDisenoEventoContent() {
   const [canvasHasChanges, setCanvasHasChanges] = useState(false);
   const [isSavingCanvas, setIsSavingCanvas] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
-  const [plantillaNombre, setPlantillaNombre] = useState('');
-  const [isPlantillaModalOpen, setIsPlantillaModalOpen] = useState(false);
-  const [isLoadPlantillaModalOpen, setIsLoadPlantillaModalOpen] = useState(false);
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
   const [isMuestrarioOpen, setIsMuestrarioOpen] = useState(false);
   const [isMobileLibraryOpen, setIsMobileLibraryOpen] = useState(false);
   const [isMobilePropertiesOpen, setIsMobilePropertiesOpen] = useState(false);
@@ -588,35 +587,14 @@ function DecoracionYDisenoEventoContent() {
     }
   }, [fiestaId, decoracionData, zonasDiseno, canvasElementos, canvasFondoColor, canvasFondoImagenUrl, toast]);
 
-  const handleGuardarPlantilla = useCallback(async () => {
-    if (!plantillaNombre.trim()) return;
-    const nuevaPlantilla = {
-      id: `plantilla_${Date.now()}`,
-      nombre: plantillaNombre.trim(),
-      elementos: canvasElementos,
-      creadaEn: new Date().toISOString(),
-    };
-    const updatedDecoracion = {
-      ...decoracionData,
-      zonasDiseno,
-      plantillasGuardadas: [...(decoracionData.plantillasGuardadas ?? []), nuevaPlantilla],
-    };
-    if (fiestaId) {
-      await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
-      setDecoracionData(updatedDecoracion);
-      toast({ title: `Plantilla "${plantillaNombre}" guardada ✓` });
-    }
-    setPlantillaNombre('');
-    setIsPlantillaModalOpen(false);
-  }, [plantillaNombre, canvasElementos, decoracionData, zonasDiseno, fiestaId, toast]);
-
-  const handleLoadPlantilla = useCallback((elementos: ElementoDecorativo[]) => {
-    setCanvasElementos(elementos);
+  const handleApplyTemplate = useCallback((template: { elementos: ElementoDecorativo[]; fondoColor: string; fondoImagenUrl?: string }) => {
+    setCanvasElementos(template.elementos);
+    setCanvasFondoColor(template.fondoColor);
+    setCanvasFondoImagenUrl(template.fondoImagenUrl ?? '');
     setCanvasHasChanges(true);
     setSelectedCanvasId(null);
-    setIsLoadPlantillaModalOpen(false);
     setIsMobilePropertiesOpen(false);
-    toast({ title: 'Plantilla cargada ✓' });
+    toast({ title: 'Plantilla cargada ✓', description: 'Ahora podés ajustar colores, posiciones y tamaños.' });
   }, [toast]);
 
   const handleLoadMuestrario = useCallback((elementos: ElementoDecorativo[]) => {
@@ -1291,63 +1269,6 @@ function DecoracionYDisenoEventoContent() {
 
         {/* TAB: CANVAS INTERACTIVO */}
         <TabsContent value="canvas">
-          {/* Guardar Plantilla Modal */}
-          <Dialog open={isPlantillaModalOpen} onOpenChange={setIsPlantillaModalOpen}>
-            <DialogContent className="sm:max-w-sm rounded-3xl border-none shadow-2xl">
-              <DialogHeader>
-                <DialogTitle className="font-headline text-2xl">Guardar como Plantilla</DialogTitle>
-                <DialogDescription>Dale un nombre a esta configuración del canvas para reutilizarla.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <Input
-                  value={plantillaNombre}
-                  onChange={e => setPlantillaNombre(e.target.value)}
-                  placeholder="Ej: Decoración Romántica, Mesa Principal..."
-                  className="rounded-xl h-12 bg-slate-50 border-none"
-                  onKeyDown={e => { if (e.key === 'Enter') handleGuardarPlantilla(); }}
-                  autoFocus
-                />
-              </div>
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setIsPlantillaModalOpen(false)} className="flex-1 rounded-xl h-12">Cancelar</Button>
-                <Button onClick={handleGuardarPlantilla} className="flex-1 rounded-xl h-12 shadow-lg shadow-primary/20" disabled={!plantillaNombre.trim()}>
-                  <Save className="w-4 h-4 mr-2" /> Guardar
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* Cargar Plantilla Modal */}
-          <Dialog open={isLoadPlantillaModalOpen} onOpenChange={setIsLoadPlantillaModalOpen}>
-            <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
-              <DialogHeader>
-                <DialogTitle className="font-headline text-2xl">Cargar Plantilla</DialogTitle>
-                <DialogDescription>Seleccioná una plantilla guardada para cargarla en el canvas.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-3 py-4 max-h-80 overflow-y-auto">
-                {(decoracionData.plantillasGuardadas ?? []).length === 0 ? (
-                  <p className="text-center text-sm text-slate-400 py-8">No hay plantillas guardadas todavía.</p>
-                ) : (
-                  (decoracionData.plantillasGuardadas ?? []).map(pt => (
-                    <button
-                      key={pt.id}
-                      type="button"
-                      onClick={() => handleLoadPlantilla(pt.elementos)}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-primary/5 border border-transparent hover:border-primary/20 text-left transition-all"
-                    >
-                      <div>
-                        <p className="font-semibold text-sm text-slate-700">{pt.nombre}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{pt.elementos.length} elementos · {new Date(pt.creadaEn).toLocaleDateString('es-AR')}</p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-300" />
-                    </button>
-                  ))
-                )}
-              </div>
-              <Button variant="outline" onClick={() => setIsLoadPlantillaModalOpen(false)} className="w-full rounded-xl h-11">Cerrar</Button>
-            </DialogContent>
-          </Dialog>
-
           {/* Muestrario Modal */}
           <Dialog open={isMuestrarioOpen} onOpenChange={setIsMuestrarioOpen}>
             <DialogContent className="sm:max-w-lg rounded-3xl border-none shadow-2xl">
@@ -1608,11 +1529,14 @@ function DecoracionYDisenoEventoContent() {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setIsPlantillaModalOpen(true)} className="rounded-xl h-8 text-xs gap-1">
-                    <Save className="w-3 h-3" /> Guardar plantilla
-                  </Button>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setIsLoadPlantillaModalOpen(true)} className="rounded-xl h-8 text-xs gap-1">
-                    <RefreshCcw className="w-3 h-3" /> Cargar plantilla
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowTemplateGallery(prev => !prev)}
+                    className="rounded-xl h-8 text-xs gap-1"
+                  >
+                    <Layers className="w-3 h-3" /> {showTemplateGallery ? 'Ocultar plantillas' : 'Ver plantillas'}
                   </Button>
                   <Button
                     type="button"
@@ -1642,6 +1566,24 @@ function DecoracionYDisenoEventoContent() {
                   />
                 </CardContent>
               </Card>
+
+              {showTemplateGallery && (
+                <Card className="border-none shadow-sm rounded-2xl bg-white/90">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base font-semibold">Plantillas de Diseño</CardTitle>
+                    <CardDescription>Guardá y reutilizá diseños del lienzo para otras fiestas.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <DecoTemplateGallery
+                      currentElementos={canvasElementos}
+                      currentFondoColor={canvasFondoColor}
+                      currentFondoImagenUrl={canvasFondoImagenUrl}
+                      onApplyTemplate={handleApplyTemplate}
+                      fiestaId={fiestaId ?? undefined}
+                    />
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Properties bar for selected element */}
               {selectedCanvasId !== null && selectedCanvasEl && (

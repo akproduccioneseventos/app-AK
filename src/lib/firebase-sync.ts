@@ -30,6 +30,7 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'invitacion-digital-templates.json': 'invitacion_digital_templates',
   'itinerary-templates.json': 'itinerary_templates',
   'salon-layout-templates.json': 'salon_layout_templates',
+  'deco-canvas-templates.json': 'deco_canvas_templates',
   'social-connections.json': 'social_connections',
   'social-posts.json': 'social_posts',
   'task-templates.json': 'task_templates',

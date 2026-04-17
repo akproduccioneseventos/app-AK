@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Download, Save, Loader2, ImageIcon } from 'lucide-react';
+import { Trash2, Download, Save, Loader2, Layers } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,8 +17,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import type { ElementoDecorativo, ColorPalette } from '@/types/fiesta';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import type { ElementoDecorativo, ColorPalette, DecoCanvasTemplate } from '@/types/fiesta';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
+import { saveDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
+import DecoTemplateGallery from './DecoTemplateGallery';
+import { useToast } from '@/hooks/use-toast';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Types
@@ -242,12 +246,17 @@ export default function VistaDecorativaEditor({
   onSave,
   isSaving = false,
 }: Props) {
+  const { toast } = useToast();
   const [elementos, setElementos] = useState<ElementoDecorativo[]>(vistaDecorativa.elementos ?? []);
   const [fondoColor, setFondoColor] = useState(vistaDecorativa.fondoColor ?? '#f0f0f0');
   const [fondoImagenUrl, setFondoImagenUrl] = useState(vistaDecorativa.fondoImagenUrl ?? '');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100); // percentage: 50-200
+  const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
+  const [isSaveTemplateOpen, setIsSaveTemplateOpen] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
   const canvasContainerRef = useRef<HTMLDivElement>(null);
 
@@ -339,6 +348,36 @@ export default function VistaDecorativaEditor({
   const handleGuardar = useCallback(async () => {
     await onSave({ elementos, fondoColor, fondoImagenUrl: fondoImagenUrl || undefined });
   }, [onSave, elementos, fondoColor, fondoImagenUrl]);
+
+  const handleSaveAsTemplate = useCallback(async () => {
+    if (!templateName.trim() || elementos.length === 0) return;
+    setIsSavingTemplate(true);
+    try {
+      const result = await saveDecoCanvasTemplate(
+        templateName,
+        elementos,
+        fondoColor,
+        fondoImagenUrl || undefined,
+      );
+      if (!result.success) throw new Error(result.error);
+      toast({ title: 'Plantilla guardada' });
+      setTemplateName('');
+      setIsSaveTemplateOpen(false);
+    } catch (error: any) {
+      toast({ title: 'Error', description: error?.message || 'No se pudo guardar la plantilla.', variant: 'destructive' });
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  }, [templateName, elementos, fondoColor, fondoImagenUrl, toast]);
+
+  const handleApplyTemplate = useCallback((template: DecoCanvasTemplate) => {
+    setElementos(template.elementos);
+    setFondoColor(template.fondoColor);
+    setFondoImagenUrl(template.fondoImagenUrl ?? '');
+    setSelectedId(null);
+    setIsTemplatePickerOpen(false);
+    toast({ title: 'Plantilla aplicada' });
+  }, [toast]);
 
   // ──── Export ───────────────────────────────────────────────────────────────
 
@@ -633,6 +672,14 @@ export default function VistaDecorativaEditor({
           {isExporting ? 'Exportando...' : 'Exportar como PNG'}
         </Button>
 
+        <Button type="button" variant="outline" className="gap-2" onClick={() => setIsTemplatePickerOpen(true)}>
+          <Layers className="w-4 h-4" /> Cargar plantilla
+        </Button>
+
+        <Button type="button" variant="outline" className="gap-2" onClick={() => setIsSaveTemplateOpen(true)} disabled={elementos.length === 0}>
+          <Save className="w-4 h-4" /> Guardar como plantilla
+        </Button>
+
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button type="button" variant="ghost" className="gap-2 text-destructive hover:text-destructive" disabled={elementos.length === 0}>
@@ -655,6 +702,48 @@ export default function VistaDecorativaEditor({
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
+      <Dialog open={isTemplatePickerOpen} onOpenChange={setIsTemplatePickerOpen}>
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Cargar plantilla</DialogTitle>
+            <DialogDescription>Elegí un diseño guardado para usarlo como base en este lienzo.</DialogDescription>
+          </DialogHeader>
+          <DecoTemplateGallery
+            currentElementos={elementos}
+            currentFondoColor={fondoColor}
+            currentFondoImagenUrl={fondoImagenUrl}
+            onApplyTemplate={handleApplyTemplate}
+            fiestaId={fiestaId}
+            allowSaveCurrent={false}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSaveTemplateOpen} onOpenChange={setIsSaveTemplateOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Guardar como plantilla</DialogTitle>
+            <DialogDescription>Dale un nombre para reutilizar este diseño en otras fiestas.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              value={templateName}
+              onChange={e => setTemplateName(e.target.value)}
+              placeholder="Ej: Decoración XV años rosa"
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  void handleSaveAsTemplate();
+                }
+              }}
+            />
+            <Button onClick={handleSaveAsTemplate} className="w-full" disabled={!templateName.trim() || elementos.length === 0 || isSavingTemplate}>
+              {isSavingTemplate ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Confirmar guardado
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -249,6 +249,16 @@ export interface ElementoDecorativo {
   tintOpacity?: number;
 }
 
+export interface DecoCanvasTemplate {
+  id: string;
+  nombre: string;
+  elementos: ElementoDecorativo[];
+  fondoColor: string;
+  fondoImagenUrl?: string;
+  creadoEn: string;
+  miniatura?: string;
+}
+
 // --- CREATOR PARTY EXTENDED TYPES ---
 
 export interface DecoItem {
