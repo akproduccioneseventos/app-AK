@@ -15,6 +15,8 @@ interface Props {
   config: InvitacionDigitalConfig;
   fiestaId: string;
   socialConnections?: SocialConnection[];
+  isEditorMode?: boolean;
+  onConfigChange?: (nextConfig: InvitacionDigitalConfig) => void;
 }
 
 // ---------- COUNTDOWN ----------
@@ -156,7 +158,7 @@ const Section: React.FC<{ children: React.ReactNode; className?: string; id?: st
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: '-50px' }}
     transition={{ duration: 0.6, ease: 'easeOut' }}
-    className={cn('px-4 sm:px-6 py-10 sm:py-12 md:py-16', className)}
+    className={cn('px-4 sm:px-8 py-8 sm:py-16', className)}
   >
     {children}
   </motion.section>
@@ -220,12 +222,61 @@ function getTemplateStyles(plantillaId: string): {
   }
 }
 
+function EditableText({
+  value,
+  onChange,
+  className,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  className?: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={() => {
+          onChange(draft.trim());
+          setEditing(false);
+        }}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            onChange(draft.trim());
+            setEditing(false);
+          }
+        }}
+        className={cn('bg-white/20 text-white text-center outline-none border-b-2 border-white rounded px-1', className)}
+      />
+    );
+  }
+
+  return (
+    <span onClick={() => setEditing(true)} className={cn('cursor-text hover:bg-white/10 rounded px-1 transition-colors', className)}>
+      {value || 'Clic para editar'}
+    </span>
+  );
+}
+
 // ---------- MAIN COMPONENT ----------
-export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [] }: Props) {
+export function InvitacionPublicaClient({ config, fiestaId, socialConnections = [], isEditorMode = false, onConfigChange }: Props) {
   const styles = getTemplateStyles(config.plantillaId);
   const tipoLabel = TIPO_EVENTO_LABELS[config.tipoEvento] || 'Evento Especial';
   const isBoda = config.tipoEvento === 'boda';
   const secondName = config.nombreHomenajeado2;
+  const [heroImageError, setHeroImageError] = useState(false);
+
+  useEffect(() => {
+    setHeroImageError(false);
+  }, [config.fotoPortada]);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -236,7 +287,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   };
 
   const hasLocation = !!(config.nombreSalon || config.direccionSalon || config.linkMaps);
-  const hasDressCode = !!(config.dressCode && config.dressCode.tipo);
+  const hasDressCode = config.mostrarDressCode && !!(config.dressCode && config.dressCode.tipo);
   const hasGifts = config.regalos?.tipo !== 'ninguno';
   const hasGallery = config.galeriaFotos && config.galeriaFotos.length > 0;
   const hasCronograma = config.cronograma && config.cronograma.length > 0;
@@ -253,10 +304,13 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
     <div className={cn('min-h-screen', styles.fontBody)} style={cssVars}>
       {/* ============= HERO / PORTADA ============= */}
       <section className="relative min-h-screen flex items-end justify-center overflow-hidden">
-        {config.fotoPortada ? (
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${config.fotoPortada})` }}
+        {config.fotoPortada && !heroImageError ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={config.fotoPortada}
+            alt="Portada de la invitación"
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setHeroImageError(true)}
           />
         ) : (
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${config.colorPrincipal}, ${config.colorSecundario})` }} />
@@ -270,12 +324,29 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             transition={{ duration: 1, delay: 0.3 }}
           >
             <p className="text-sm sm:text-base tracking-[0.3em] uppercase mb-4 opacity-80">{tipoLabel}</p>
-            <h1 className={cn('text-3xl sm:text-5xl lg:text-7xl mb-6 leading-tight break-words', styles.fontHeading)}>
-              {config.nombreHomenajeada || 'Tu Nombre'}
-              {isBoda && secondName && (
+            <h1 className={cn('text-4xl sm:text-6xl lg:text-8xl mb-6 leading-tight break-words max-w-full px-4', styles.fontHeading)}>
+              {isEditorMode && onConfigChange ? (
                 <>
-                  <span className="block text-2xl sm:text-4xl lg:text-5xl my-2 sm:my-3 italic opacity-80">&</span>
-                  <span className="block">{secondName}</span>
+                  <EditableText
+                    value={config.nombreHomenajeada || ''}
+                    onChange={(value) => onConfigChange({ ...config, nombreHomenajeada: value })}
+                  />
+                  {isBoda && secondName && (
+                    <>
+                      <span className="block text-2xl sm:text-4xl lg:text-5xl my-2 sm:my-3 italic opacity-80">&</span>
+                      <span className="block">{secondName}</span>
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  {config.nombreHomenajeada || 'Tu Nombre'}
+                  {isBoda && secondName && (
+                    <>
+                      <span className="block text-2xl sm:text-4xl lg:text-5xl my-2 sm:my-3 italic opacity-80">&</span>
+                      <span className="block">{secondName}</span>
+                    </>
+                  )}
                 </>
               )}
             </h1>
@@ -304,7 +375,15 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       {config.textoBienvenida && (
         <Section id="bienvenida" className="text-center max-w-2xl mx-auto">
           <div className="w-16 h-px mx-auto mb-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
-          <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">{config.textoBienvenida}</p>
+          {isEditorMode && onConfigChange ? (
+            <EditableText
+              value={config.textoBienvenida || ''}
+              onChange={(value) => onConfigChange({ ...config, textoBienvenida: value })}
+              className="text-lg sm:text-xl text-gray-600 leading-relaxed border-gray-400 text-gray-700"
+            />
+          ) : (
+            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">{config.textoBienvenida}</p>
+          )}
           <div className="w-16 h-px mx-auto mt-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
         </Section>
       )}
@@ -332,7 +411,10 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
                 <div className="absolute left-1.5 top-1 w-5 h-5 rounded-full border-2 bg-white" style={{ borderColor: 'var(--inv-primary)' }} />
                 <div className="flex items-baseline gap-3">
                   <span className="text-sm font-bold whitespace-nowrap" style={{ color: 'var(--inv-primary)' }}>{item.hora}</span>
-                  <span className="text-gray-700">{item.actividad}</span>
+                  <span className="text-gray-700">
+                    {item.icono ? `${item.icono} ` : ''}
+                    {item.actividad}
+                  </span>
                 </div>
               </div>
             ))}
@@ -508,7 +590,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             </p>
           )}
           <a
-            href={`/evento/social/${fiestaId}`}
+            href={`/evento/muro-en-vivo/${fiestaId}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"

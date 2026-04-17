@@ -19,6 +19,7 @@ export const defaultInvitacionConfig: InvitacionDigitalConfig = {
   dressCode: {
     tipo: 'formal',
   },
+  mostrarDressCode: true,
   regalos: {
     tipo: 'ninguno',
   },

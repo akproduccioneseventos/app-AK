@@ -144,6 +144,50 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
     return archivadas.find(f => f.id === fiestaId) || null;
 }
 
+function normalizeInvitationSlug(slug: string): string {
+  return slug
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function isValidInvitationSlug(slug: string): boolean {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
+
+export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {
+  const normalized = normalizeInvitationSlug(slug);
+  if (!normalized) return null;
+  const fiestas = await getFiestas(true);
+  return fiestas.find(f => f.invitacionSlug === normalized) || null;
+}
+
+export async function updateInvitacionSlug(fiestaId: string, slug: string): Promise<{ success: boolean; slug?: string; error?: string }> {
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+
+  const normalized = normalizeInvitationSlug(slug);
+  if (!normalized) return { success: false, error: 'Ingresá un slug válido.' };
+  if (!isValidInvitationSlug(normalized)) {
+    return { success: false, error: 'El slug debe usar solo letras minúsculas, números y guiones.' };
+  }
+
+  const allFiestas = await getFiestas(true);
+  const existing = allFiestas.find(f => f.id !== fiestaId && f.invitacionSlug === normalized);
+  if (existing) {
+    return { success: false, error: 'Ese enlace ya está en uso. Probá con otro.' };
+  }
+
+  const result = await saveFiesta({ ...fiesta, invitacionSlug: normalized });
+  if (!result.success) {
+    return { success: false, error: result.error || 'No se pudo guardar el enlace personalizado.' };
+  }
+
+  return { success: true, slug: normalized };
+}
+
 // --- HELPERS DE SINCRONIZACIÓN ---
 
 /** Returns true if the item's service name or category contains any of the given keywords (case-insensitive). */

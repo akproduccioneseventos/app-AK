@@ -1,12 +1,12 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, Save, Link as LinkIcon, ClipboardCopy, Gift, Camera, Music, Check, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle, Settings2, Wand2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, ClipboardCopy, Gift, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle, Settings2, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, saveFiesta, updateInvitacionSlug } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, InvitacionDigitalConfig, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { defaultInvitacionConfig, buildInvitacionConfigFromFiesta } from '@/lib/invitacion-config-defaults';
@@ -19,21 +19,23 @@ import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-
 import { InvitacionConfigPanel } from '@/components/invitacion/InvitacionConfigPanel';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
-import { getInvitationTemplates } from '@/app/actions/invitacion-digital-templates';
+import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
 import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
 import { SectionEditorPanel } from '@/components/invitacion/edit/SectionEditorPanel';
 import Link from 'next/link';
-import { Card, CardDescription } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import QRCodeStylized from 'qrcode.react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
+type TemplateCategoryFilter = 'Todas' | 'XV Años' | 'Boda' | 'Cumpleaños' | 'Infantil' | 'General';
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -51,6 +53,12 @@ function PaginaWebPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('mobile');
   const [editorMode, setEditorMode] = useState<EditorMode>('simple');
+  const [mobileEditorOpen, setMobileEditorOpen] = useState(false);
+  const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false);
+  const [templateCategoryFilter, setTemplateCategoryFilter] = useState<TemplateCategoryFilter>('Todas');
+  const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
+  const [slugInput, setSlugInput] = useState('');
+  const [isSavingSlug, setIsSavingSlug] = useState(false);
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
@@ -84,6 +92,7 @@ function PaginaWebPageContent() {
         ]);
         if (!data) throw new Error("Fiesta no encontrada");
         setFiesta(data);
+        setSlugInput((data as FiestaEnPlanificacion).invitacionSlug || fiestaId);
       } else if (templateId) {
         const templates = await getInvitationTemplates();
         data = templates.find(t => t.id === templateId);
@@ -123,6 +132,7 @@ function PaginaWebPageContent() {
 
       setInvitacionData(mergedData);
       setSocialConnections(socialData);
+      setTemplates(await getInvitationTemplates());
 
       // Load simplified config
       if (fiestaId && data) {
@@ -186,6 +196,69 @@ function PaginaWebPageContent() {
     return `${baseUrl}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
   }
 
+  const sanitizeSlug = (value: string) => value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '');
+  const activeSlug = sanitizeSlug(slugInput || fiesta?.invitacionSlug || fiestaId || '');
+  const slugUrl = activeSlug ? getFullLink('/i/[fiestaId]').replace(`/i/${fiestaId}`, `/i/${activeSlug}`) : '';
+
+  const filteredTemplates = useMemo(() => {
+    if (templateCategoryFilter === 'Todas') return templates;
+    return templates.filter(tpl => tpl.category === templateCategoryFilter);
+  }, [templates, templateCategoryFilter]);
+
+  const isTemplateActive = (tpl: InvitacionDigitalTemplate) => {
+    const palette = tpl.cabecera?.paletaColores;
+    return (
+      invitacionData.plantilla === tpl.plantilla &&
+      !!palette &&
+      palette.primary === invitacionData.cabecera.paletaColores.primary &&
+      palette.secondary === invitacionData.cabecera.paletaColores.secondary &&
+      palette.accent === invitacionData.cabecera.paletaColores.accent
+    );
+  };
+
+  const applyTemplate = (tpl: InvitacionDigitalTemplate) => {
+    const palette = tpl.cabecera?.paletaColores;
+    setInvitacionData(prev => ({
+      ...prev,
+      plantilla: tpl.plantilla,
+      cabecera: palette ? { ...prev.cabecera, paletaColores: { ...palette } } : prev.cabecera,
+    }));
+    if (palette) {
+      setInvitacionConfig(prev => ({
+        ...prev,
+        colorPrincipal: palette.primary,
+        colorSecundario: palette.secondary,
+        colorAcento: palette.accent,
+        plantillaId: tpl.plantilla,
+      }));
+    }
+    setTemplateGalleryOpen(false);
+    toast({ title: 'Plantilla aplicada', description: `${tpl.name} está activa.` });
+  };
+
+  const handleSaveSlug = async () => {
+    if (!fiestaId || fiestaId === 'template_preview') return;
+    const normalized = sanitizeSlug(slugInput);
+    if (!normalized) {
+      toast({ title: 'Slug inválido', description: 'Ingresá un enlace personalizado válido.', variant: 'destructive' });
+      return;
+    }
+    setIsSavingSlug(true);
+    try {
+      const result = await updateInvitacionSlug(fiestaId, normalized);
+      if (!result.success || !result.slug) {
+        throw new Error(result.error || 'No se pudo guardar el enlace.');
+      }
+      setSlugInput(result.slug);
+      setFiesta(prev => (prev ? { ...prev, invitacionSlug: result.slug } : prev));
+      toast({ title: 'Enlace guardado', description: 'Tu URL personalizada ya está disponible.' });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'No se pudo guardar el slug.', variant: 'destructive' });
+    } finally {
+      setIsSavingSlug(false);
+    }
+  };
+
   const handleCopyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url);
     toast({ title: "Enlace Copiado" });
@@ -227,6 +300,120 @@ function PaginaWebPageContent() {
         return <GraziaTemplate {...props} />;
     }
   };
+
+  const renderEditorPanel = () => (
+    <div className="h-full bg-white overflow-y-auto custom-scrollbar">
+      {fiestaId && !selectedSectionId && (
+        <div className="p-3 border-b bg-slate-50/80 flex items-center gap-1">
+          <Button
+            variant={editorMode === 'simple' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setEditorMode('simple')}
+            className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'simple' && "shadow-sm")}
+          >
+            <Wand2 className="w-3.5 h-3.5" />Config Rápida
+          </Button>
+          <Button
+            variant={editorMode === 'avanzado' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setEditorMode('avanzado')}
+            className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'avanzado' && "shadow-sm")}
+          >
+            <Settings2 className="w-3.5 h-3.5" />Avanzado
+          </Button>
+        </div>
+      )}
+
+      {selectedSectionId ? (
+        <SectionEditorPanel
+          data={invitacionData}
+          update={handleUpdate}
+          addSection={addSection}
+          removeSection={removeSection}
+          selectedSectionId={selectedSectionId}
+          fiestaId={fiestaId}
+          onClose={() => setSelectedSectionId(null)}
+        />
+      ) : editorMode === 'simple' && fiestaId ? (
+        <>
+          <InvitacionConfigPanel
+            config={invitacionConfig}
+            onChange={setInvitacionConfig}
+            fiestaId={fiestaId}
+          />
+          {fiesta && (
+            <div className="p-4 border-t space-y-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-muted-foreground">Enlace personalizado</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">tu-app.com/i/</span>
+                  <Input
+                    value={slugInput}
+                    onChange={e => setSlugInput(sanitizeSlug(e.target.value))}
+                    placeholder="ej: fiesta-valentina"
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <Button onClick={handleSaveSlug} size="sm" className="rounded-xl" disabled={isSavingSlug}>
+                  {isSavingSlug ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Guardar enlace
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Input value={slugUrl} readOnly className="h-9 text-xs bg-slate-50 rounded-xl" />
+                  <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9 shrink-0" onClick={() => handleCopyToClipboard(slugUrl)}>
+                    <ClipboardCopy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-muted-foreground">Enlace por ID (fallback)</Label>
+                <div className="flex items-center gap-2">
+                  <Input value={getFullLink('/invitacion/[fiestaId]')} readOnly className="h-9 text-xs bg-slate-50 rounded-xl" />
+                  <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/invitacion/[fiestaId]'))}>
+                    <ClipboardCopy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <ControlPanel
+            data={invitacionData}
+            update={handleUpdate}
+            addSection={addSection}
+            removeSection={removeSection}
+            onSectionClick={setSelectedSectionId}
+          />
+
+          {fiestaId && fiesta && (
+            <div className="p-6 space-y-6 border-t bg-slate-50/50">
+              <div className="space-y-1">
+                <h3 className="font-black text-sm uppercase tracking-widest text-slate-400">Marketing y QR</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">Integra estos elementos en tus invitaciones físicas.</p>
+              </div>
+              <div className="space-y-4">
+                {invitacionData.regalos.visible && (
+                  <Card className="p-4 border-none shadow-sm rounded-2xl bg-white">
+                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 block">Lista de Regalos</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input value={getFullLink('/evento/actual', 'regalos')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
+                      <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                    </div>
+                    <div className="text-center mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={100} level="M" />
+                      <Button size="sm" variant="link" className="text-xs mt-2" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}><Download className="w-3 h-3 mr-1"/>Descargar</Button>
+                    </div>
+                  </Card>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
   
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col bg-slate-50">
@@ -270,6 +457,9 @@ function PaginaWebPageContent() {
 
         <div className="flex items-center gap-2">
             <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} className="hidden sm:flex" />
+            <Button variant="outline" className="rounded-xl font-bold h-9" onClick={() => setTemplateGalleryOpen(true)}>
+              <Sparkles className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Cambiar Plantilla</span>
+            </Button>
             <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" className="hidden xs:block">
               <Button variant="outline" className="rounded-xl font-bold h-9"><Eye className="w-4 h-4 mr-2"/>Ver Real</Button>
             </Link>
@@ -280,105 +470,21 @@ function PaginaWebPageContent() {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col md:flex-row min-h-0 overflow-hidden">
-        <div className="w-full md:w-[320px] lg:w-[400px] flex-shrink-0 border-b md:border-b-0 md:border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40 max-h-[42vh] sm:max-h-[48vh] md:max-h-none">
-            {/* Editor mode toggle */}
-            {fiestaId && !selectedSectionId && (
-              <div className="p-3 border-b bg-slate-50/80 flex items-center gap-1">
-                <Button
-                  variant={editorMode === 'simple' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setEditorMode('simple')}
-                  className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'simple' && "shadow-sm")}
-                >
-                  <Wand2 className="w-3.5 h-3.5" />Config Rápida
-                </Button>
-                <Button
-                  variant={editorMode === 'avanzado' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setEditorMode('avanzado')}
-                  className={cn("rounded-xl h-8 text-xs flex-1 gap-1.5", editorMode === 'avanzado' && "shadow-sm")}
-                >
-                  <Settings2 className="w-3.5 h-3.5" />Avanzado
-                </Button>
-              </div>
-            )}
-            
-            {selectedSectionId ? (
-                <SectionEditorPanel
-                    data={invitacionData}
-                    update={handleUpdate}
-                    addSection={addSection}
-                    removeSection={removeSection}
-                    selectedSectionId={selectedSectionId}
-                    fiestaId={fiestaId}
-                    onClose={() => setSelectedSectionId(null)}
-                />
-            ) : editorMode === 'simple' && fiestaId ? (
-                <>
-                <InvitacionConfigPanel
-                  config={invitacionConfig}
-                  onChange={setInvitacionConfig}
-                />
-                {fiesta && (
-                  <div className="p-4 border-t">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold text-muted-foreground">Enlace de Invitación</Label>
-                      <div className="flex items-center gap-2">
-                        <Input value={getFullLink('/invitacion/[fiestaId]')} readOnly className="h-9 text-xs bg-slate-50 rounded-xl" />
-                        <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/invitacion/[fiestaId]'))}><ClipboardCopy className="h-4 w-4" /></Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                </>
-            ) : (
-                <>
-                <ControlPanel
-                    data={invitacionData}
-                    update={handleUpdate}
-                    addSection={addSection}
-                    removeSection={removeSection}
-                    onSectionClick={setSelectedSectionId}
-                />
-                
-                {fiestaId && fiesta && (
-                    <div className="p-6 space-y-6 border-t bg-slate-50/50">
-                        <div className="space-y-1">
-                            <h3 className="font-black text-sm uppercase tracking-widest text-slate-400">Marketing y QR</h3>
-                            <p className="text-xs text-muted-foreground leading-relaxed">Integra estos elementos en tus invitaciones físicas.</p>
-                        </div>
-                        <div className="space-y-4">
-                            {invitacionData.regalos.visible && (
-                            <Card className="p-4 border-none shadow-sm rounded-2xl bg-white">
-                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 block">Lista de Regalos</Label>
-                                <div className="flex items-center space-x-2">
-                                    <Input value={getFullLink('/evento/actual', 'regalos')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
-                                    <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
-                                </div>
-                                <div className="text-center mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={100} level="M" />
-                                    <Button size="sm" variant="link" className="text-xs mt-2" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}><Download className="w-3 h-3 mr-1"/>Descargar</Button>
-                                </div>
-                            </Card>
-                            )}
-                        </div>
-                    </div>
-                )}
-              </>
-            )}
+      <main className="flex-grow flex min-h-0 overflow-hidden">
+        <div className="hidden md:block w-[320px] lg:w-[400px] flex-shrink-0 border-r bg-white shadow-xl z-40">
+          {renderEditorPanel()}
         </div>
-        
+
         {/* LIENZO DE PREVISUALIZACIÓN CON MARCO DE DISPOSITIVO */}
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-8 flex justify-center items-start bg-slate-200 custom-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-0 md:p-8 flex justify-center items-start bg-slate-200 custom-scrollbar">
           <div className={cn(
-              "transition-all duration-700 ease-in-out shadow-3xl bg-white relative overflow-hidden",
-              previewMode === 'mobile' && "w-[320px] h-[568px] xs:w-[375px] xs:h-[667px] md:w-[390px] md:h-[844px] rounded-[2rem] md:rounded-[3rem] border-[8px] md:border-[12px] border-slate-900 mt-4 md:mt-10",
-              previewMode === 'tablet' && "w-full max-w-[768px] h-[1024px] rounded-[2rem] border-[12px] border-slate-900 mt-4",
-              previewMode === 'desktop' && "w-full max-w-full h-full rounded-lg"
+              "transition-all duration-700 ease-in-out shadow-3xl bg-white relative overflow-hidden w-full h-full",
+              previewMode === 'mobile' && "md:w-[390px] md:h-[844px] md:rounded-[3rem] md:border-[12px] md:border-slate-900 md:mt-10",
+              previewMode === 'tablet' && "md:w-full md:max-w-[768px] md:h-[1024px] md:rounded-[2rem] md:border-[12px] md:border-slate-900 md:mt-4",
+              previewMode === 'desktop' && "md:w-full md:max-w-full md:h-full md:rounded-lg"
           )}>
             {(previewMode === 'mobile' || previewMode === 'tablet') && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-[60] flex items-center justify-center">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-[60] items-center justify-center hidden md:flex">
                     <div className="w-12 h-1 bg-slate-800 rounded-full"></div>
                 </div>
             )}
@@ -388,7 +494,13 @@ function PaginaWebPageContent() {
             ) : fiesta ? (
               <div className={cn("h-full", previewMode !== 'desktop' && "overflow-y-auto custom-scrollbar")}>
                 {editorMode === 'simple' && fiestaId ? (
-                  <InvitacionPublicaClient config={invitacionConfig} fiestaId={fiestaId} socialConnections={socialConnections} />
+                  <InvitacionPublicaClient
+                    config={invitacionConfig}
+                    fiestaId={fiestaId}
+                    socialConnections={socialConnections}
+                    isEditorMode={true}
+                    onConfigChange={setInvitacionConfig}
+                  />
                 ) : (
                   <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                       <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
@@ -398,11 +510,70 @@ function PaginaWebPageContent() {
                 )}
               </div>
             ) : (
-               <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
+                <div className="flex items-center justify-center h-full"><AlertTriangle className="w-8 h-8 text-destructive"/></div>
             )}
           </div>
         </div>
       </main>
+
+      {!mobileEditorOpen && (
+        <button
+          onClick={() => setMobileEditorOpen(true)}
+          className="fixed bottom-6 left-6 z-50 flex md:hidden items-center gap-2 bg-primary text-white px-4 py-3 rounded-full shadow-2xl font-bold text-sm"
+        >
+          <Settings2 className="w-4 h-4" /> Editar
+        </button>
+      )}
+      <Sheet open={mobileEditorOpen} onOpenChange={setMobileEditorOpen}>
+        <SheetContent side="bottom" className="h-[85vh] overflow-y-auto p-0 md:hidden">
+          {renderEditorPanel()}
+        </SheetContent>
+      </Sheet>
+
+      <Dialog open={templateGalleryOpen} onOpenChange={setTemplateGalleryOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Elegir Plantilla</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-wrap gap-2">
+            {(['Todas', 'XV Años', 'Boda', 'Cumpleaños', 'Infantil', 'General'] as TemplateCategoryFilter[]).map(category => (
+              <Button
+                key={category}
+                size="sm"
+                variant={templateCategoryFilter === category ? 'default' : 'outline'}
+                onClick={() => setTemplateCategoryFilter(category)}
+                className="rounded-xl"
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {filteredTemplates.map(tpl => (
+              <button
+                key={tpl.id}
+                onClick={() => applyTemplate(tpl)}
+                className={cn(
+                  'border rounded-xl p-3 text-left space-y-3 transition-all',
+                  isTemplateActive(tpl) ? 'border-primary shadow-md bg-primary/5' : 'border-slate-200 hover:border-primary/40'
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-bold">{tpl.name}</div>
+                  {isTemplateActive(tpl) && <span className="text-xs font-semibold text-primary">✓ Activa</span>}
+                </div>
+                <div className="text-xs text-muted-foreground">{tpl.category}</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.primary }} />
+                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.secondary }} />
+                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.accent }} />
+                </div>
+                <div className="text-xs text-muted-foreground">Base: {tpl.plantilla}</div>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
