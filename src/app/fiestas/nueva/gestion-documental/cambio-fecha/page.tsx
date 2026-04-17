@@ -12,6 +12,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CompanyInfo } from '@/types/settings';
+import { updateContratoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -102,14 +103,21 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
       
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
-      setContractText(buildCambioFechaText({
+      const generatedText = buildCambioFechaText({
         companyName: companyData.companyName,
         clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
         clienteCi: clienteData?.taxId,
         fechaContrato: presupuestoData?.timestamp,
         fechaOriginal: fiestaData.configuracion.fechaEvento,
         salon: fiestaData.configuracion.nombreLugar,
-      }));
+      });
+      setContractText(generatedText);
+      await updateContratoFiestaActual(
+        fiestaId,
+        generatedText,
+        'cambio-fecha',
+        'default-cambio-fecha'
+      );
 
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error desconocido";

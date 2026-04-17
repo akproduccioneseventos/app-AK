@@ -132,9 +132,17 @@ export async function addGiftToRegistryFiestaActual(fiestaId: string, newGiftDat
 // --- SEÑALÉTICA E IMPRESIÓN ---
 export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) { return await FiestaModule.updateMenuMesa(fiestaId, menuData); }
 export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) { return await FiestaModule.updateNumerosMesa(fiestaId, data); }
-export async function updateContratoFiestaActual(fiestaId: string, text: string) {
+export async function updateContratoFiestaActual(fiestaId: string, text: string, tipo: string = 'servicios', plantillaId: string = 'default-servicios') {
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");
-    const updatedFiesta = { ...fiesta, contratoServicioTexto: text };
+    const updatedFiesta = {
+      ...fiesta,
+      ...(tipo === 'servicios' ? { contratoServicioTexto: text } : {}),
+      contratoGenerado: {
+        tipo,
+        fecha: new Date().toISOString(),
+        plantillaId,
+      },
+    };
     return await FiestaModule.saveFiesta(updatedFiesta);
 }

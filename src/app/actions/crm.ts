@@ -5,7 +5,7 @@ import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types
 import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
-import { saveFiesta, syncFiestaFromBudget } from '@/app/actions/fiesta/fiesta.actions';
+import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from './notifications';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
@@ -55,9 +55,35 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 
 export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]> {
   const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
-  if (page === undefined) return allLeads;
+  const decoratedLeads = await (async () => {
+    try {
+      const fiestas = await getFiestas(true);
+      const latestContractByPresupuesto = new Map<string, { tipo?: string; fecha?: string; plantillaId?: string }>();
+      for (const fiesta of fiestas) {
+        if (!fiesta.presupuestoId || !fiesta.contratoGenerado?.tipo) continue;
+        const current = latestContractByPresupuesto.get(fiesta.presupuestoId);
+        if (!current || (fiesta.contratoGenerado.fecha || '') > (current.fecha || '')) {
+          latestContractByPresupuesto.set(fiesta.presupuestoId, fiesta.contratoGenerado);
+        }
+      }
+      return allLeads.map((lead) => {
+        const contract = lead.presupuestoId ? latestContractByPresupuesto.get(lead.presupuestoId) : undefined;
+        if (!contract?.tipo) return lead;
+        return {
+          ...lead,
+          contractGeneratedType: contract.tipo,
+          contractGeneratedAt: contract.fecha,
+          contractTemplateId: contract.plantillaId,
+        };
+      });
+    } catch {
+      return allLeads;
+    }
+  })();
+
+  if (page === undefined) return decoratedLeads;
   const start = page * limit;
-  return allLeads.slice(start, start + limit);
+  return decoratedLeads.slice(start, start + limit);
 }
 
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {

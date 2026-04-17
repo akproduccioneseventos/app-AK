@@ -93,7 +93,7 @@ const SectionWrapper: React.FC<{
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             id={seccion.tipo}
-            className={cn("relative py-24 md:py-32 px-6 overflow-hidden", className, onClick && "cursor-pointer group/section")}
+            className={cn("relative py-16 sm:py-24 md:py-32 px-4 sm:px-6 overflow-hidden", className, onClick && "cursor-pointer group/section")}
             onClick={onClick}
             style={{ backgroundColor }}
         >
@@ -137,7 +137,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
     const eventDate = formatDate(fiesta.configuracion.fechaEvento);
 
     return (
-        <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
+        <section className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
             <motion.div 
                 initial={{ scale: 1.2, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -573,14 +573,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'confirmacion':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-slate-900 text-white py-32 md:py-48 text-center relative">
+          <SectionWrapper {...wrapperProps} className="bg-slate-900 text-white py-16 sm:py-32 md:py-48 text-center relative">
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-0 left-0 w-48 h-48 md:w-64 md:h-64 bg-primary/10 rounded-full blur-[80px] md:blur-[100px] -translate-x-1/2 -translate-y-1/2" style={{ backgroundColor: `${primaryColor}1A` }}></div>
                 <div className="absolute bottom-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-primary/5 rounded-full blur-[100px] md:blur-[120px] translate-x-1/2 translate-y-1/2" style={{ backgroundColor: `${primaryColor}0D` }}></div>
             </div>
             <div className="max-w-2xl mx-auto space-y-8 md:space-y-12 relative z-10">
               <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.6em] text-primary/60" style={{ color: `${primaryColor}99` }}>RSVP</span>
-              <h2 className="text-5xl md:text-8xl font-headline font-bold leading-none tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
+              <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold leading-none tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
               <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed px-4">
                 Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
                 <span className="block mt-2 text-white font-bold text-xl md:text-2xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
@@ -607,7 +607,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} isPreview={isPreview} />
       
       <main className="relative">
-        <div className="fixed top-4 right-4 md:top-8 md:right-8 z-50 flex flex-col gap-3 md:gap-4">
+        <div className="fixed top-2 right-2 sm:top-4 sm:right-4 md:top-8 md:right-8 z-50 flex flex-col gap-2 sm:gap-3 md:gap-4">
             {invitacionData.musicaFondoUrl && !isPreview && (
                 <motion.button 
                     whileHover={{ scale: 1.1 }} 
@@ -623,7 +623,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         {invitacionData.secciones.map(seccion => renderSectionComponent(seccion))}
       </main>
 
-      <footer className="py-24 md:py-32 text-center bg-slate-50 px-6 border-t border-slate-100">
+      <footer className="py-16 sm:py-24 md:py-32 text-center bg-slate-50 px-4 sm:px-6 border-t border-slate-100">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="space-y-8 md:space-y-12">
             <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer?.titulo?.text ?? ''}</h4>
             <div className="flex justify-center gap-6 md:gap-8">

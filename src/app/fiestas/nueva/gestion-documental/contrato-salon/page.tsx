@@ -14,7 +14,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CompanyInfo } from '@/types/settings';
-import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateContratoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
@@ -144,6 +144,7 @@ function ContratoSalonContent() {
         });
         setContractText(draft);
         setOriginalText(draft);
+        await updateContratoFiestaActual(fiestaId, draft, 'salon', 'default-salon');
       } else {
         setError('El evento debe tener un cliente asignado para generar este documento.');
       }

@@ -281,7 +281,7 @@ function PaginaWebPageContent() {
       </header>
 
       <main className="flex-grow flex flex-col md:flex-row min-h-0 overflow-hidden">
-        <div className="w-full md:w-[320px] lg:w-[400px] flex-shrink-0 border-b md:border-b-0 md:border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40 max-h-[45vh] md:max-h-none">
+        <div className="w-full md:w-[320px] lg:w-[400px] flex-shrink-0 border-b md:border-b-0 md:border-r bg-white overflow-y-auto custom-scrollbar shadow-xl z-40 max-h-[42vh] sm:max-h-[48vh] md:max-h-none">
             {/* Editor mode toggle */}
             {fiestaId && !selectedSectionId && (
               <div className="p-3 border-b bg-slate-50/80 flex items-center gap-1">

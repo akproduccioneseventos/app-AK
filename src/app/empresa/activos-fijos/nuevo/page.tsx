@@ -87,7 +87,10 @@ function NuevoActivoFijoContent() {
     if (!file) return;
     setIsUploadingImage(true);
     try {
-      const result = await uploadPublicPageAsset('activos-fijos', file);
+      const formData = new FormData();
+      formData.append('fiestaId', 'activos-fijos');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
       handleFormChange('imageUrl', result.url);
       toast({ title: '✅ Imagen subida', description: 'La foto del activo fue cargada correctamente.' });
