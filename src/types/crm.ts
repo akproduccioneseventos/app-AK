@@ -1,5 +1,7 @@
 
 
+import type { ContractType } from './settings';
+
 export interface CrmLeadHistoryItem {
   stageId: string;
   stageName: string;
@@ -63,6 +65,9 @@ export interface CrmLead {
   lastContactMethod?: 'whatsapp' | 'phone' | 'email' | 'in_person';
   // Ownership
   assignedTo?: string; // Empleado id or name
+  contractGeneratedType?: ContractType;
+  contractGeneratedAt?: string;
+  contractTemplateId?: string;
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;

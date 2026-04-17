@@ -169,7 +169,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         <div className={cn("font-body text-slate-900 bg-white w-full max-w-full overflow-x-hidden selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
             <section 
                 onClick={() => onSectionClick?.('cabecera')}
-                className="relative h-screen flex flex-col items-center justify-end pb-32 overflow-hidden"
+                className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-32 overflow-hidden"
             >
                 <motion.div 
                     initial={{ scale: 1.2 }}
@@ -216,12 +216,12 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             </section>
 
             {invitacionData.cuentaRegresiva.visible && (
-                <section className="py-32 bg-slate-950 text-white overflow-hidden relative">
+                <section className="py-16 sm:py-24 md:py-32 bg-slate-950 text-white overflow-hidden relative">
                     <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
                         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary rounded-full blur-[120px]" style={{ backgroundColor: primaryColor }}></div>
                         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary rounded-full blur-[120px]" style={{ backgroundColor: primaryColor }}></div>
                     </div>
-                    <div className="max-w-4xl mx-auto px-6 text-center space-y-16 relative z-10">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-10 sm:space-y-16 relative z-10">
                         <span className="text-xs font-black tracking-[0.6em] uppercase opacity-40">Cuenta regresiva</span>
                         <CountdownTimer targetDate={fiesta.configuracion.fechaEvento} />
                     </div>
@@ -229,21 +229,21 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             )}
 
             {invitacionData.bienvenida.visible && (
-                <section className="py-48 px-6 bg-white relative overflow-hidden">
+                <section className="py-16 sm:py-24 md:py-48 px-4 sm:px-6 bg-white relative overflow-hidden">
                     <div className="max-w-3xl mx-auto text-center space-y-12">
                         <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ type: "spring", damping: 12 }}>
                             <Heart className="w-20 h-20 mx-auto text-primary" fill={primaryColor} />
                         </motion.div>
-                        <h2 className="text-6xl md:text-8xl font-headline font-bold leading-tight tracking-tighter">{displayWelcomeTitle}</h2>
-                        <p className="text-2xl text-slate-500 leading-relaxed font-medium italic px-4 md:px-12">
+                        <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold leading-tight tracking-tighter">{displayWelcomeTitle}</h2>
+                        <p className="text-lg sm:text-xl md:text-2xl text-slate-500 leading-relaxed font-medium italic px-2 sm:px-4 md:px-12">
                             "{invitacionData.bienvenida.texto.text}"
                         </p>
                     </div>
                 </section>
             )}
 
-            <section className="py-48 bg-slate-50 px-6 overflow-hidden">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
+            <section className="py-16 sm:py-24 md:py-48 bg-slate-50 px-4 sm:px-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-16 md:gap-24 items-center">
                     {[invitacionData.detallesEvento.ceremoniaReligiosa, invitacionData.detallesEvento.celebracion].filter(d => d.visible).map((detalle, i) => (
                         <motion.div 
                             key={i}
@@ -251,7 +251,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                            className={cn("flex flex-col gap-12", i === 1 && "md:flex-col-reverse")}
+                            className={cn("flex flex-col gap-8 sm:gap-10 md:gap-12", i === 1 && "md:flex-col-reverse")}
                         >
                             <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden shadow-3xl shadow-slate-200">
                                 <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/location/1200/1600'} alt="" layout="fill" objectFit="cover" />
@@ -260,18 +260,18 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                 </div>
                             </div>
                             <div className="space-y-8 px-4">
-                                <h3 className="text-5xl font-headline font-bold">{detalle.titulo}</h3>
+                                <h3 className="text-3xl sm:text-4xl md:text-5xl font-headline font-bold">{detalle.titulo}</h3>
                                 <div className="space-y-6">
-                                    <div className="flex items-center gap-6 text-xl font-bold">
+                                    <div className="flex items-center gap-4 sm:gap-6 text-base sm:text-lg md:text-xl font-bold">
                                         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center"><Calendar className="w-6 h-6 text-primary" style={{ color: primaryColor }} /></div>
                                         <span className="uppercase tracking-widest">{formatDate(detalle.fecha || fiesta.configuracion.fechaEvento)}</span>
                                     </div>
-                                    <div className="flex items-center gap-6 text-xl font-bold">
+                                    <div className="flex items-center gap-4 sm:gap-6 text-base sm:text-lg md:text-xl font-bold">
                                         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center"><MapPin className="w-6 h-6 text-primary" style={{ color: primaryColor }} /></div>
                                         <span>{detalle.nombreLugar}</span>
                                     </div>
                                 </div>
-                                <Button asChild className="w-full h-20 rounded-[2rem] text-xl font-black shadow-2xl shadow-primary/30" style={{ backgroundColor: primaryColor }}>
+                                <Button asChild className="w-full h-12 sm:h-16 md:h-20 rounded-2xl md:rounded-[2rem] text-sm sm:text-lg md:text-xl font-black shadow-2xl shadow-primary/30" style={{ backgroundColor: primaryColor }}>
                                     <a href={detalle.mapaUrl || '#'}>VER UBICACIÓN</a>
                                 </Button>
                             </div>
@@ -281,15 +281,15 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             </section>
 
             {invitacionData.itinerario.visible && (
-                <section className="py-48 px-6 bg-slate-900 text-white text-center">
+                <section className="py-16 sm:py-24 md:py-48 px-4 sm:px-6 bg-slate-900 text-white text-center">
                     <div className="max-w-3xl mx-auto space-y-12">
                         <Sparkles className="w-20 h-20 mx-auto text-primary" style={{ color: primaryColor }} />
-                        <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter">Plan de Vuelo</h2>
-                        <p className="text-2xl text-slate-400 font-medium italic">Todo lo que pasará en esta noche mágica.</p>
+                        <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold tracking-tighter">Plan de Vuelo</h2>
+                        <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-medium italic">Todo lo que pasará en esta noche mágica.</p>
                         <Button 
                             onClick={(e) => { e.stopPropagation(); setIsItineraryModalOpen(true); }}
                             size="lg" 
-                            className="h-20 px-16 rounded-full text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all"
+                            className="h-12 sm:h-16 md:h-20 px-6 sm:px-10 md:px-16 rounded-full text-sm sm:text-xl md:text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all w-full sm:w-auto"
                             style={{ backgroundColor: primaryColor }}
                         >
                             VER ITINERARIO
@@ -297,9 +297,9 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     </div>
                     
                     <Dialog open={isItineraryModalOpen} onOpenChange={setIsItineraryModalOpen}>
-                        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto rounded-[3rem] p-12 border-none shadow-3xl">
+                        <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto rounded-2xl md:rounded-[3rem] p-6 sm:p-8 md:p-12 border-none shadow-3xl">
                             <DialogHeader className="text-center pb-10 border-b border-slate-100">
-                                <DialogTitle className="text-5xl font-headline font-bold text-slate-900">Cronograma</DialogTitle>
+                                <DialogTitle className="text-3xl sm:text-4xl md:text-5xl font-headline font-bold text-slate-900">Cronograma</DialogTitle>
                                 <DialogDescription className="text-lg">Momentos clave del evento</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-12 pt-12">
@@ -322,20 +322,20 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             )}
 
             {invitacionData.regalos.visible && (
-                <section className="py-48 px-6 text-center space-y-24 bg-white">
+                <section className="py-16 sm:py-24 md:py-48 px-4 sm:px-6 text-center space-y-12 sm:space-y-16 md:space-y-24 bg-white">
                     <div className="max-w-4xl mx-auto space-y-16">
                         <div className="inline-block p-10 bg-slate-50 rounded-[3rem] shadow-inner">
                             <Gift className="w-16 h-16" style={{ color: primaryColor }} />
                         </div>
-                        <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter">{invitacionData.regalos.titulo.text}</h2>
-                        <p className="text-2xl text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto">
+                        <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold tracking-tighter">{invitacionData.regalos.titulo.text}</h2>
+                        <p className="text-lg sm:text-xl md:text-2xl text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto">
                             {invitacionData.regalos.texto.text}
                         </p>
                         
                         {invitacionData.regalos.datosBancarios && (
-                            <div className="p-12 border border-slate-200 rounded-[4rem] bg-slate-50/50 backdrop-blur relative group shadow-2xl shadow-slate-100">
+                            <div className="p-6 sm:p-8 md:p-12 border border-slate-200 rounded-2xl md:rounded-[4rem] bg-slate-50/50 backdrop-blur relative group shadow-2xl shadow-slate-100">
                                 <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Datos para el regalo</span>
-                                <p className="font-mono text-3xl md:text-4xl tracking-tighter font-black text-slate-900 break-all mb-8">
+                                <p className="font-mono text-lg sm:text-2xl md:text-4xl tracking-tighter font-black text-slate-900 break-all mb-6 md:mb-8">
                                     {invitacionData.regalos.datosBancarios}
                                 </p>
                                 <Button 
@@ -352,7 +352,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             <Button 
                                 onClick={(e) => { e.stopPropagation(); setIsGiftModalOpen(true); }}
                                 size="lg"
-                                className="h-20 px-16 rounded-[2rem] text-2xl font-bold shadow-3xl shadow-primary/20"
+                                className="h-12 sm:h-16 md:h-20 px-6 sm:px-10 md:px-16 rounded-2xl md:rounded-[2rem] text-sm sm:text-xl md:text-2xl font-bold shadow-3xl shadow-primary/20 w-full sm:w-auto"
                                 style={{ backgroundColor: primaryColor }}
                             >
                                 VER MESA DE REGALOS
@@ -361,9 +361,9 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     </div>
 
                     <Dialog open={isGiftModalOpen} onOpenChange={setIsGiftModalOpen}>
-                        <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto rounded-[4rem] p-12 border-none shadow-3xl">
+                        <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto rounded-2xl md:rounded-[4rem] p-6 sm:p-8 md:p-12 border-none shadow-3xl">
                             <DialogHeader className="text-center pb-10 border-b">
-                                <DialogTitle className="text-5xl font-headline font-bold text-slate-900">Sugerencias</DialogTitle>
+                                <DialogTitle className="text-3xl sm:text-4xl md:text-5xl font-headline font-bold text-slate-900">Sugerencias</DialogTitle>
                                 <DialogDescription className="text-xl">Ideas para obsequiarnos (Haz clic para elegir)</DialogDescription>
                             </DialogHeader>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 pt-12">
@@ -401,10 +401,10 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             )}
 
             {invitacionData.redesSociales.visible && (
-                <section className="py-48 px-6 bg-slate-50 text-center">
+                <section className="py-16 sm:py-24 md:py-48 px-4 sm:px-6 bg-slate-50 text-center">
                     <div className="max-w-2xl mx-auto space-y-12">
                         <MessageSquare className="w-16 h-16 mx-auto" style={{ color: primaryColor }} />
-                        <h2 className="text-5xl md:text-7xl font-headline font-bold tracking-tighter">Chat de la Previa</h2>
+                        <h2 className="text-3xl sm:text-5xl md:text-7xl font-headline font-bold tracking-tighter">Chat de la Previa</h2>
                         <Card className="shadow-2xl border-none rounded-[2rem] overflow-hidden bg-white">
                             <CardContent className="p-0">
                                 <ScrollArea className="h-80 p-8" viewportRef={chatEndRef}>
@@ -425,9 +425,9 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                         value={newChatMsg} 
                                         onChange={e => setNewChatMsg(e.target.value)} 
                                         placeholder="Escribe un saludo..." 
-                                        className="h-14 rounded-2xl bg-slate-50 border-none px-6"
+                                        className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none px-4 sm:px-6"
                                     />
-                                    <Button type="submit" disabled={isSendingChat || !newChatMsg.trim()} size="icon" className="h-14 w-14 rounded-2xl shadow-xl shrink-0" style={{ backgroundColor: primaryColor }}>
+                                    <Button type="submit" disabled={isSendingChat || !newChatMsg.trim()} size="icon" className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl shadow-xl shrink-0" style={{ backgroundColor: primaryColor }}>
                                         {isSendingChat ? <Loader2 className="animate-spin w-5 h-5"/> : <Send className="w-5 h-5" />}
                                     </Button>
                                 </form>
@@ -438,18 +438,18 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             )}
 
             {invitacionData.confirmacion.visible && (
-                <section className="py-48 bg-slate-900 text-white text-center px-6 relative overflow-hidden">
+                <section className="py-16 sm:py-24 md:py-48 bg-slate-900 text-white text-center px-4 sm:px-6 relative overflow-hidden">
                     <div className="max-w-2xl mx-auto space-y-12 relative z-10">
                         <span className="text-xs font-black tracking-[0.6em] uppercase opacity-40">RSVP</span>
-                        <h2 className="text-6xl md:text-8xl font-headline font-bold tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
-                        <p className="text-2xl text-slate-400 font-medium leading-relaxed">
+                        <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
+                        <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-medium leading-relaxed">
                             Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
-                            <span className="block mt-2 text-white font-bold text-3xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
+                            <span className="block mt-2 text-white font-bold text-xl sm:text-2xl md:text-3xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
                         </p>
                         <Button 
                             onClick={() => setIsRsvpModalOpen(true)}
                             size="lg" 
-                            className="h-20 px-16 rounded-full text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all duration-500" 
+                            className="h-12 sm:h-16 md:h-20 px-6 sm:px-10 md:px-16 rounded-full text-sm sm:text-xl md:text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all duration-500 w-full sm:w-auto" 
                             style={{ backgroundColor: primaryColor }}
                         >
                             CONFIRMAR ASISTENCIA
@@ -458,17 +458,17 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                 </section>
             )}
 
-            <footer className="py-48 bg-slate-950 text-white text-center px-6 relative overflow-hidden">
+            <footer className="py-16 sm:py-24 md:py-48 bg-slate-950 text-white text-center px-4 sm:px-6 relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                 </div>
                 <div className="relative z-10 space-y-12">
-                    <h2 className="text-7xl md:text-9xl font-dancing leading-none" style={{ color: primaryColor }}>
+                    <h2 className="text-4xl sm:text-6xl md:text-9xl font-dancing leading-none" style={{ color: primaryColor }}>
                         {invitacionData.footer.titulo.text}
                     </h2>
-                    <div className="flex justify-center gap-10">
+                    <div className="flex justify-center gap-4 sm:gap-6 md:gap-10 flex-wrap">
                         {socialConnections.filter(c => c.isConnected).map(c => (
-                            <a key={c.platform} href={c.profileUrl} target="_blank" className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 transition-all duration-500 group">
+                            <a key={c.platform} href={c.profileUrl} target="_blank" className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl md:rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white hover:text-slate-950 transition-all duration-500 group">
                                 <Share2 className="w-8 h-8 opacity-50 group-hover:opacity-100" />
                             </a>
                         ))}
@@ -483,23 +483,23 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             </footer>
 
             <Dialog open={isRsvpModalOpen} onOpenChange={setIsRsvpModalOpen}>
-                <DialogContent className="sm:max-w-md rounded-[2.5rem] p-10 border-none shadow-3xl">
+                <DialogContent className="sm:max-w-md rounded-2xl md:rounded-[2.5rem] p-5 sm:p-8 md:p-10 border-none shadow-3xl">
                     <DialogHeader className="text-center space-y-4">
                         <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: `${primaryColor}1A` }}>
                             <Check className="w-10 h-10 text-primary" style={{ color: primaryColor }} />
                         </div>
-                        <DialogTitle className="text-4xl font-headline font-bold text-slate-900">¡Te esperamos!</DialogTitle>
+                        <DialogTitle className="text-2xl sm:text-3xl md:text-4xl font-headline font-bold text-slate-900">¡Te esperamos!</DialogTitle>
                         <DialogDescription className="text-base">Completa tus datos para confirmar.</DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleRsvpFormSubmit} className="space-y-8 pt-6">
                         <div className="space-y-3">
                             <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
-                            <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
+                            <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none text-base sm:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-3">
                                 <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
-                                <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-14 rounded-2xl bg-slate-50 border-none text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
+                                <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none text-base sm:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
                             </div>
                             <div className="space-y-3">
                                 <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Categoría</Label>
@@ -547,7 +547,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             </div>
                         ))}
                         <DialogFooter>
-                            <Button type="submit" className="w-full h-16 rounded-[1.5rem] text-lg font-black tracking-widest shadow-2xl shadow-primary/20" style={{ backgroundColor: primaryColor }} disabled={isSubmittingRsvp}>
+                            <Button type="submit" className="w-full h-12 sm:h-14 md:h-16 rounded-xl sm:rounded-[1.5rem] text-sm sm:text-base md:text-lg font-black tracking-widest shadow-2xl shadow-primary/20" style={{ backgroundColor: primaryColor }} disabled={isSubmittingRsvp}>
                                 {isSubmittingRsvp ? <Loader2 className="animate-spin w-6 h-6" /> : 'CONFIRMAR'}
                             </Button>
                         </DialogFooter>

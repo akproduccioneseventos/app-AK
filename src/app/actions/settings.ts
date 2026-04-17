@@ -2,13 +2,14 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings } from '@/types/settings';
+import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType } from '@/types/settings';
 import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings } from '@/types/settings';
 
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
 const CONTRACT_TEMPLATE_FILE = 'contract-template.json';
+const CONTRACT_TEMPLATES_FILE = 'contract-templates.json';
 const WHATSAPP_SETTINGS_FILE = 'whatsapp-settings.json';
 const WHATSAPP_TEMPLATES_FILE = 'whatsapp-templates.json';
 const CONTRACT_SETTINGS_FILE = 'contract-settings.json';
@@ -55,6 +56,103 @@ POR AK PRODUCCIONES EVENTOS: __________________________
 EL CLIENTE: __________________________
 TEC. ALEXANDER KNUTH`;
 
+const DEFAULT_CONTRACT_TEMPLATE_DATE = '2026-01-01T00:00:00.000Z';
+
+const DEFAULT_CONTRACT_TEMPLATES: ContractTemplateItem[] = [
+  {
+    id: 'default-servicios',
+    type: 'servicios',
+    name: 'Contrato de Servicios',
+    template: defaultContractTemplate,
+    isDefault: true,
+    createdAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+    updatedAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+  },
+  {
+    id: 'default-cancelacion',
+    type: 'cancelacion',
+    name: 'Constancia de Cancelación',
+    template: `CONSTANCIA DE CANCELACIÓN DE CONTRATO
+
+En la ciudad de Salto, a los {{FECHA_HOY}}, comparecen {{EMPRESA_NOMBRE}} y {{CLIENTE_NOMBRE}}, dejando constancia de la cancelación del contrato correspondiente al evento del {{EVENTO_FECHA}} en {{EVENTO_SALON}}.
+
+MOTIVO DE CANCELACIÓN: {{MOTIVO_CANCELACION}}.
+
+Presupuesto total pactado: {{PRESUPUESTO_TOTAL}}.
+Penalización aplicable: {{PENALIZACION_PORCENTAJE}} del total.
+Monto de seña/anticipo registrado: {{SENIA}}.
+
+Las partes acuerdan que, con la firma de la presente constancia, quedan documentadas las condiciones económicas y legales de la cancelación, sin perjuicio de los derechos y obligaciones ya devengados.
+
+Firma empresa: __________________________
+Firma cliente: __________________________`,
+    isDefault: true,
+    createdAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+    updatedAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+  },
+  {
+    id: 'default-cancelacion-servicios',
+    type: 'cancelacion-servicios',
+    name: 'Cancelación de uno o más servicios',
+    template: `ADENDA DE CANCELACIÓN PARCIAL DE SERVICIOS
+
+En la ciudad de Salto, a los {{FECHA_HOY}}, {{EMPRESA_NOMBRE}} y {{CLIENTE_NOMBRE}} acuerdan la cancelación parcial de uno o más servicios vinculados al evento del {{EVENTO_FECHA}}.
+
+Detalle de la modificación/cancelación: {{MOTIVO_CANCELACION}}.
+Penalización aplicable sobre servicios afectados: {{PENALIZACION_PORCENTAJE}}.
+
+El resto del contrato principal permanece vigente en todos sus términos, salvo las modificaciones expresamente establecidas en esta adenda.
+
+Firma empresa: __________________________
+Firma cliente: __________________________`,
+    isDefault: true,
+    createdAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+    updatedAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+  },
+  {
+    id: 'default-cambio-fecha',
+    type: 'cambio-fecha',
+    name: 'Cambio de Fecha',
+    template: `CONSTANCIA DE CAMBIO DE FECHA
+
+En la ciudad de Salto, a los {{FECHA_HOY}}, {{EMPRESA_NOMBRE}} y {{CLIENTE_NOMBRE}} acuerdan modificar la fecha del evento originalmente prevista para {{EVENTO_FECHA}}.
+
+Nueva fecha acordada: {{NUEVA_FECHA}}.
+Motivo del cambio: {{MOTIVO_CANCELACION}}.
+Penalización por cambio (si corresponde): {{PENALIZACION_PORCENTAJE}}.
+
+Se deja constancia de que el contrato principal continúa vigente en todas las cláusulas no modificadas por la presente.
+
+Firma empresa: __________________________
+Firma cliente: __________________________`,
+    isDefault: true,
+    createdAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+    updatedAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+  },
+  {
+    id: 'default-salon',
+    type: 'salon',
+    name: 'Contrato de Salón',
+    template: `CONTRATO DE SALÓN
+
+En la ciudad de Salto, a los {{FECHA_HOY}}, comparecen {{EMPRESA_NOMBRE}} y {{CLIENTE_NOMBRE}} para acordar el arrendamiento y uso del salón {{NOMBRE_SALON}} con fecha {{EVENTO_FECHA}}.
+
+Condiciones económicas:
+- Monto total: {{PRESUPUESTO_TOTAL}}
+- Seña: {{SENIA}}
+
+Si corresponde cancelación o cambio, se aplicará una penalización de {{PENALIZACION_PORCENTAJE}} sobre los montos definidos contractualmente.
+
+Las partes firman en conformidad.
+
+Firma empresa: __________________________
+Firma cliente: __________________________`,
+    isDefault: true,
+    createdAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+    updatedAt: DEFAULT_CONTRACT_TEMPLATE_DATE,
+  },
+];
+
 
 // --- Company Info ---
 export async function getCompanyInfo(): Promise<CompanyInfo> {
@@ -80,21 +178,125 @@ export async function saveCompanyInfo(
 }
 
 // --- Contract Template ---
+function mergeContractTemplates(saved: ContractTemplateItem[], fallbackServiciosTemplate: string): ContractTemplateItem[] {
+  const defaultsById = new Map(DEFAULT_CONTRACT_TEMPLATES.map(t => [t.id, t]));
+  const defaultTypeToId = new Map(DEFAULT_CONTRACT_TEMPLATES.map(t => [t.type, t.id]));
+  const defaultMerged = DEFAULT_CONTRACT_TEMPLATES.map((d) => {
+    const byId = saved.find(s => s.id === d.id);
+    const byType = saved.find(s => s.type === d.type && s.isDefault !== false);
+    const stored = byId || byType;
+    if (!stored) {
+      if (d.type === 'servicios') return { ...d, template: fallbackServiciosTemplate };
+      return d;
+    }
+    return {
+      ...d,
+      ...stored,
+      id: d.id,
+      type: d.type,
+      isDefault: true,
+      name: stored.name || d.name,
+      template: stored.template || d.template,
+      createdAt: stored.createdAt || d.createdAt,
+      updatedAt: stored.updatedAt || d.updatedAt,
+    };
+  });
+
+  const customTemplates = saved.filter((item) => {
+    if (item.isDefault) return false;
+    if (defaultsById.has(item.id)) return false;
+    const maybeDefaultId = defaultTypeToId.get(item.type);
+    return !maybeDefaultId;
+  });
+
+  return [...defaultMerged, ...customTemplates];
+}
+
+export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
+  try {
+    const [savedTemplates, legacyServiciosTemplate] = await Promise.all([
+      readData<ContractTemplateItem[]>(CONTRACT_TEMPLATES_FILE, []),
+      readData<string>(CONTRACT_TEMPLATE_FILE, defaultContractTemplate),
+    ]);
+    return mergeContractTemplates(savedTemplates, legacyServiciosTemplate || defaultContractTemplate);
+  } catch {
+    return [...DEFAULT_CONTRACT_TEMPLATES];
+  }
+}
+
 export async function getContractTemplate(): Promise<string> {
   try {
-    return await readData<string>(CONTRACT_TEMPLATE_FILE, defaultContractTemplate);
+    const templates = await getContractTemplates();
+    const servicios = templates.find(t => t.type === 'servicios') || DEFAULT_CONTRACT_TEMPLATES[0];
+    return servicios.template;
   } catch {
     return defaultContractTemplate;
   }
 }
 
-export async function saveContractTemplate(text: string): Promise<{ success: boolean; error?: string }> {
-    try {
-        await writeData(CONTRACT_TEMPLATE_FILE, text);
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message };
+export async function saveContractTemplate(input: string | ContractTemplateItem): Promise<{ success: boolean; error?: string }> {
+  try {
+    const now = new Date().toISOString();
+    const templates = await getContractTemplates();
+
+    if (typeof input === 'string') {
+      const servicios = templates.find(t => t.type === 'servicios') || DEFAULT_CONTRACT_TEMPLATES[0];
+      const updatedServicios: ContractTemplateItem = { ...servicios, template: input, updatedAt: now, isDefault: true };
+      const nextTemplates = templates.map(t => (t.id === updatedServicios.id ? updatedServicios : t));
+      await Promise.all([
+        writeData(CONTRACT_TEMPLATES_FILE, nextTemplates),
+        writeData(CONTRACT_TEMPLATE_FILE, input),
+      ]);
+      return { success: true };
     }
+
+    const isDefaultType = DEFAULT_CONTRACT_TEMPLATES.some(t => t.type === input.type);
+    const normalizedItem: ContractTemplateItem = {
+      ...input,
+      id: input.id || `contract-template-${Date.now()}`,
+      name: input.name?.trim() || 'Plantilla personalizada',
+      template: input.template || '',
+      isDefault: isDefaultType ? true : !!input.isDefault,
+      createdAt: input.createdAt || now,
+      updatedAt: now,
+    };
+
+    const nextTemplates = templates.filter(t => {
+      if (normalizedItem.isDefault && t.type === normalizedItem.type) return false;
+      return t.id !== normalizedItem.id;
+    });
+    nextTemplates.push(normalizedItem);
+    await writeData(CONTRACT_TEMPLATES_FILE, nextTemplates);
+
+    if (normalizedItem.type === 'servicios') {
+      await writeData(CONTRACT_TEMPLATE_FILE, normalizedItem.template);
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function deleteContractTemplate(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const templates = await getContractTemplates();
+    const target = templates.find(t => t.id === id);
+    if (!target) return { success: false, error: 'Plantilla no encontrada.' };
+    if (target.isDefault) return { success: false, error: 'No se pueden eliminar plantillas por defecto.' };
+    const nextTemplates = templates.filter(t => t.id !== id);
+    await writeData(CONTRACT_TEMPLATES_FILE, nextTemplates);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function getContractTemplateByType(type: ContractType): Promise<ContractTemplateItem> {
+  const templates = await getContractTemplates();
+  const found = templates.find(t => t.type === type);
+  if (found) return found;
+  return DEFAULT_CONTRACT_TEMPLATES[0];
 }
 
 // --- Budget Display Settings ---

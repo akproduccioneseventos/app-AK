@@ -27,6 +27,13 @@ import { useToast } from '@/hooks/use-toast';
 import { CrmLeadTimeline } from './CrmLeadTimeline';
 
 const INACTIVITY_DAYS = 7;
+const CONTRACT_TYPE_LABELS: Record<string, string> = {
+  servicios: 'Contrato Servicios',
+  cancelacion: 'Cancelación',
+  'cancelacion-servicios': 'Cancelación parcial',
+  'cambio-fecha': 'Cambio de fecha',
+  salon: 'Contrato salón',
+};
 
 interface CrmLeadCardProps {
   lead: CrmLead;
@@ -168,6 +175,11 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                       <Badge variant="outline" className={cn("text-[10px] h-4 px-1 font-bold", budgetSource.className)}>
                           {budgetSource.text}
                       </Badge>
+                      {lead.contractGeneratedType && (
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-emerald-50 text-emerald-700 border-emerald-300" title="Contrato generado">
+                          {CONTRACT_TYPE_LABELS[lead.contractGeneratedType] || 'Contrato'}
+                        </Badge>
+                      )}
                     </div>
                 </div>
                 {lead.assignedTo && (
