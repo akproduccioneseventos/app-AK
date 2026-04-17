@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
@@ -11,10 +10,6 @@ interface ErrorProps {
 }
 
 export default function LoginError({ error, reset }: ErrorProps) {
-  useEffect(() => {
-    console.error('[login] Error boundary caught:', error);
-  }, [error]);
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-background p-4">
       <Card className="w-full max-w-md shadow-2xl">

@@ -49,10 +49,26 @@ jobs:
           cp -r .next functions/.next
           cp -r public functions/public
 
+      - name: Check Firebase service account availability
+        id: firebase_auth_check
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -n "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Deploy to Firebase
+        if: ${{ steps.firebase_auth_check.outputs.available == 'true' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: presupuestador-ak-producciones
           channelId: live
+
+      - name: Skip deploy (missing service account)
+        if: ${{ steps.firebase_auth_check.outputs.available == 'false' }}
+        run: echo "FIREBASE_SERVICE_ACCOUNT is not configured. Skipping Firebase deployment."

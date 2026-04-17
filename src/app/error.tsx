@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AlertTriangle, RotateCw, Home, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,10 +13,6 @@ export default function Error({
   reset: () => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
-
-  useEffect(() => {
-    console.error('Error capturado por error boundary:', error);
-  }, [error]);
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-6">
