@@ -33,21 +33,42 @@ interface Props {
 }
 
 export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupuesto, onConfirmed }: Props) {
+  const initialFechaEvento = (presupuesto.fecha?.toString() || '').split('T')[0];
+  const initialSalon = presupuesto.salon || '';
   const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [archiveLead, setArchiveLead] = useState(false);
   const [contractSigned, setContractSigned] = useState(false);
 
   // Client data fields
+  const [name, setName] = useState(lead.name || '');
   const [phone, setPhone] = useState(lead.phone || '');
   const [ci, setCi] = useState('');
   const [address, setAddress] = useState('');
+  const [salon, setSalon] = useState(initialSalon);
+  const [isClubUruguay, setIsClubUruguay] = useState((initialSalon || '').toLowerCase().includes('uruguay'));
+  const [fechaEvento, setFechaEvento] = useState(initialFechaEvento);
+  const [montoSenia, setMontoSenia] = useState('');
   const [companyName, setCompanyName] = useState((lead as any).companyName || '');
   const [taxId, setTaxId] = useState((lead as any).taxId || '');
 
   const { toast } = useToast();
 
   const canProceedStep1 = ci.trim() !== '' && address.trim() !== '';
+  const contractPrintParams = new URLSearchParams({
+    doc: 'contrato',
+    nombre: name,
+    telefono: phone,
+    ci,
+    domicilio: address,
+    salon,
+    fecha: fechaEvento,
+  });
+  if (montoSenia.trim() !== '') contractPrintParams.set('senia', montoSenia);
+  const contractPrintUrl = `/presupuestos/${lead.presupuestoId}/recibo-contrato?${contractPrintParams.toString()}`;
+  const clubUruguayPrintParams = new URLSearchParams(contractPrintParams);
+  clubUruguayPrintParams.set('club', 'uruguay');
+  const clubUruguayPrintUrl = `/presupuestos/${lead.presupuestoId}/recibo-contrato?${clubUruguayPrintParams.toString()}`;
 
   const handleConfirm = async () => {
     if (!lead.presupuestoId) return;
@@ -58,9 +79,13 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
       formData.append('leadId', lead.id);
       formData.append('presupuestoId', lead.presupuestoId);
       formData.append('archiveLead', archiveLead ? 'true' : 'false');
+      formData.append('name', name);
       formData.append('phone', phone);
       formData.append('ci', ci);
       formData.append('address', address);
+      formData.append('salon', salon);
+      formData.append('eventoFecha', fechaEvento);
+      if (montoSenia.trim() !== '') formData.append('montoSenia', montoSenia);
       if (companyName) formData.append('companyName', companyName);
       if (taxId) formData.append('taxId', taxId);
 
@@ -86,9 +111,14 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
       setStep(1);
       setArchiveLead(false);
       setContractSigned(false);
+      setName(lead.name || '');
       setCi('');
       setAddress('');
       setPhone(lead.phone || '');
+      setSalon(presupuesto.salon || '');
+      setIsClubUruguay((presupuesto.salon || '').toLowerCase().includes('uruguay'));
+      setFechaEvento((presupuesto.fecha?.toString() || '').split('T')[0]);
+      setMontoSenia('');
       setCompanyName((lead as any).companyName || '');
       setTaxId((lead as any).taxId || '');
     }
@@ -141,11 +171,11 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
         <div className="space-y-2 p-3 border rounded-lg bg-muted/30">
           <div className="flex items-center gap-3">
             <Calendar className="w-4 h-4 text-primary" />
-            <span className="text-sm"><strong>Fecha:</strong> {formatDate(presupuesto.fecha)}</span>
+            <span className="text-sm"><strong>Fecha:</strong> {formatDate(fechaEvento)}</span>
           </div>
           <div className="flex items-center gap-3">
             <MapPin className="w-4 h-4 text-primary" />
-            <span className="text-sm"><strong>Salón:</strong> {presupuesto.salon}</span>
+            <span className="text-sm"><strong>Salón:</strong> {salon || '—'}</span>
           </div>
           <Separator />
           <div className="flex items-center justify-between">
@@ -161,12 +191,12 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
         {step === 1 && (
           <div className="space-y-4 py-2">
             <div className="space-y-3">
-              {/* Nombre - read only */}
+              {/* Nombre */}
               <div className="space-y-1">
                 <Label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-500">
                   <User className="w-3.5 h-3.5" /> Nombre
                 </Label>
-                <Input value={lead.name} readOnly className="bg-slate-50 text-slate-600" />
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nombre del cliente" />
               </div>
 
               {/* Teléfono */}
@@ -208,6 +238,38 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
                   <Input value={taxId} onChange={e => setTaxId(e.target.value)} placeholder="Opcional" />
                 </div>
               </div>
+
+              <div className="space-y-1">
+                <Label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-500">
+                  <MapPin className="w-3.5 h-3.5" /> Salón / Lugar del evento
+                </Label>
+                <Input
+                  value={salon}
+                  onChange={e => {
+                    const nextSalon = e.target.value;
+                    setSalon(nextSalon);
+                    setIsClubUruguay(nextSalon.toLowerCase().includes('uruguay'));
+                  }}
+                  placeholder="Ej: Club Uruguay"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-slate-500">Fecha del evento</Label>
+                  <Input type="date" value={fechaEvento} onChange={e => setFechaEvento(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-slate-500">Monto de la Seña</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={montoSenia}
+                    onChange={e => setMontoSenia(e.target.value)}
+                    placeholder="Opcional"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -217,7 +279,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
           <div className="space-y-4 py-2">
             <div className="space-y-3">
               <a
-                href={`/presupuestos/${lead.presupuestoId}/recibo-contrato`}
+                href={contractPrintUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group"
@@ -233,7 +295,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
               </a>
 
               <a
-                href={`/presupuestos/${lead.presupuestoId}/ver`}
+                href={`/presupuestos/${lead.presupuestoId}/ver?imprimir=1`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group"
@@ -247,6 +309,24 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
                 </div>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
               </a>
+
+              {isClubUruguay && (
+                <a
+                  href={clubUruguayPrintUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group"
+                >
+                  <div className="bg-primary/10 p-3 rounded-xl group-hover:bg-primary/20 transition-colors">
+                    <Printer className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">🖨️ Imprimir Contrato Club Uruguay</p>
+                    <p className="text-xs text-muted-foreground">Contrato específico para el Club Uruguay</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                </a>
+              )}
             </div>
 
             <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 text-center">
