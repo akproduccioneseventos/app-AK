@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download, X } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno, ElementoDecorativo } from '@/types/fiesta';
@@ -159,7 +159,6 @@ function DecoracionYDisenoEventoContent() {
   const [isMuestrarioOpen, setIsMuestrarioOpen] = useState(false);
   const [isMobileLibraryOpen, setIsMobileLibraryOpen] = useState(false);
   const [isMobilePropertiesOpen, setIsMobilePropertiesOpen] = useState(false);
-  const [pickerOpenIdx, setPickerOpenIdx] = useState<number | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 
@@ -425,7 +424,25 @@ function DecoracionYDisenoEventoContent() {
 
   const selectedCanvasEl = canvasElementos.find(el => el.id === selectedCanvasId) ?? null;
   const selectedCanvasColores = selectedCanvasEl?.colores || [];
-  const selectedCanvasColoresLength = Math.max(1, selectedCanvasColores.length);
+  const SVG_COLOR_COUNTS: Record<string, number> = {
+    globo: 1,
+    lazo: 1,
+    candelabro: 1,
+    mesaTorta: 1,
+    tela: 1,
+    corazon: 1,
+    estrella: 1,
+    corona: 1,
+    flor: 2,
+    centroMesa: 2,
+    mariposa: 2,
+    arco: 3,
+    globosMacizos: 3,
+  };
+  const isSelectedCanvasImage = Boolean(selectedCanvasEl && (selectedCanvasEl.isCustom || selectedCanvasEl.imageDataUri));
+  const selectedCanvasColoresLength = selectedCanvasEl && !isSelectedCanvasImage
+    ? (SVG_COLOR_COUNTS[selectedCanvasEl.tipo] ?? Math.max(1, selectedCanvasColores.length))
+    : Math.max(1, selectedCanvasColores.length);
   const getSelectedCanvasColor = (idx: number) => (selectedCanvasEl?.colores || [])[idx] ?? '#888888';
   const paletaColoresArray = useMemo(
     () => (
@@ -518,7 +535,6 @@ function DecoracionYDisenoEventoContent() {
   const handleClearCanvasAll = useCallback(() => {
     setCanvasElementos([]);
     setSelectedCanvasId(null);
-    setPickerOpenIdx(null);
     setCanvasHasChanges(true);
     toast({ title: 'Canvas limpio' });
   }, [toast]);
@@ -1628,98 +1644,87 @@ function DecoracionYDisenoEventoContent() {
               </Card>
 
               {/* Properties bar for selected element */}
-              {selectedCanvasEl && (
+              {selectedCanvasId !== null && selectedCanvasEl && (
                 <Card className="border-none shadow-sm rounded-2xl bg-white/90">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-3 flex-wrap overflow-x-auto">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <span className="text-xs font-black uppercase tracking-widest text-slate-500">Elemento seleccionado:</span>
                       <Badge variant="secondary" className="rounded-full capitalize">{selectedCanvasEl.tipo}</Badge>
 
-                      {/* Color pickers using DecoColorPicker */}
-                      {Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => {
-                        const colorValue = getSelectedCanvasColor(idx);
-                        return (
-                        <div key={idx} className="relative">
-                          <button
-                            type="button"
-                            className="w-9 h-9 rounded-xl border-2 border-slate-200 shadow cursor-pointer transition-transform hover:scale-110"
-                            style={{ background: colorValue }}
-                            onClick={() => setPickerOpenIdx(pickerOpenIdx === idx ? null : idx)}
-                            title={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : 'Color 3'}
+                      <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-xl h-8 text-xs gap-1" title="Traer al frente">
+                        <ChevronsUp className="w-3.5 h-3.5" /> Traer al frente
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-xl h-8 text-xs gap-1" title="Enviar atrás">
+                        <ChevronsDown className="w-3.5 h-3.5" /> Enviar atrás
+                      </Button>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500">Opacidad ({Math.round((selectedCanvasEl.opacity ?? 1) * 100)}%)</label>
+                        <input
+                          type="range"
+                          min={0}
+                          max={100}
+                          step={1}
+                          value={Math.round((selectedCanvasEl.opacity ?? 1) * 100)}
+                          onChange={e => handleUpdateSelectedElProp('opacity', Number(e.target.value) / 100)}
+                          className="w-full h-2 accent-primary"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500">Etiqueta</label>
+                        <input
+                          type="text"
+                          value={selectedCanvasEl.etiqueta ?? ''}
+                          onChange={e => handleUpdateSelectedElProp('etiqueta', e.target.value)}
+                          className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm"
+                          placeholder="Ej: Mesa principal"
+                        />
+                      </div>
+
+                      {!isSelectedCanvasImage && Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
+                        <div key={`svg-color-${idx}`} className="space-y-1">
+                          <label className="text-xs text-slate-500">{idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}</label>
+                          <input
+                            type="color"
+                            value={getSelectedCanvasColor(idx)}
+                            onChange={e => handleUpdateSelectedElColor(idx, e.target.value)}
+                            className="h-9 w-full rounded-lg border border-slate-200 bg-white p-1 cursor-pointer"
                           />
-                          <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-slate-400 whitespace-nowrap">
-                            {idx === 0 ? 'C1' : idx === 1 ? 'C2' : 'C3'}
-                          </span>
-                          {pickerOpenIdx === idx && (
-                            <div className="absolute top-10 left-0 z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 w-72">
-                              <div className="flex justify-between items-center mb-3">
-                                <span className="text-xs font-bold text-slate-500">Color {idx + 1}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => setPickerOpenIdx(null)}
-                                  className="text-slate-400 hover:text-slate-600"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                              <DecoColorPicker
-                                value={colorValue}
-                                onChange={(color) => {
-                                  handleUpdateSelectedElColor(idx, color);
-                                }}
-                                paletteColors={paletaColoresArray.filter(Boolean)}
-                              />
-                            </div>
-                          )}
                         </div>
-                      )})}
+                      ))}
 
-                      {/* Scale */}
-                      <div className="flex items-center gap-1">
-                        <label className="text-xs text-slate-500">Escala</label>
-                        <input
-                          type="range" min={0.2} max={5} step={0.1}
-                          value={selectedCanvasEl.escala ?? 1}
-                          onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
-                          className="w-24 h-2 accent-primary"
-                        />
-                        <span className="text-xs font-mono text-slate-600 w-10">{(selectedCanvasEl.escala ?? 1).toFixed(1)}x</span>
-                      </div>
+                      {isSelectedCanvasImage && (
+                        <>
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-500">Tinte</label>
+                            <input
+                              type="color"
+                              value={selectedCanvasEl.tintColor ?? '#ffffff'}
+                              onChange={e => handleUpdateSelectedElProp('tintColor', e.target.value)}
+                              className="h-9 w-full rounded-lg border border-slate-200 bg-white p-1 cursor-pointer"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-500">Intensidad tinte ({Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}%)</label>
+                            <input
+                              type="range"
+                              min={0}
+                              max={100}
+                              step={1}
+                              value={Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}
+                              onChange={e => handleUpdateSelectedElProp('tintOpacity', Number(e.target.value) / 100)}
+                              className="w-full h-2 accent-primary"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
 
-                      {/* Rotation */}
-                      <div className="flex items-center gap-1">
-                        <label className="text-xs text-slate-500">Rotación</label>
-                        <input
-                          type="range" min={0} max={360} step={1}
-                          value={selectedCanvasEl.rotacion ?? 0}
-                          onChange={e => handleUpdateSelectedElProp('rotacion', Number(e.target.value))}
-                          className="w-24 h-2 accent-primary"
-                        />
-                        <span className="text-xs font-mono text-slate-600 w-10">{Math.round(selectedCanvasEl.rotacion ?? 0)}°</span>
-                      </div>
-
-                      {/* Opacity */}
-                      <div className="flex items-center gap-1">
-                        <label className="text-xs text-slate-500">Opacidad</label>
-                        <input
-                          type="range" min={0.1} max={1} step={0.05}
-                          value={selectedCanvasEl.opacity ?? 1}
-                          onChange={e => handleUpdateSelectedElProp('opacity', Number(e.target.value))}
-                          className="w-20 h-2 accent-primary"
-                        />
-                        <span className="text-xs font-mono text-slate-600 w-10">{Math.round((selectedCanvasEl.opacity ?? 1) * 100)}%</span>
-                      </div>
-
-                      {/* Z-index */}
-                      <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-xl h-7 text-xs gap-1" title="Traer al frente">
-                        <ChevronsUp className="w-3.5 h-3.5" /> Al frente
-                      </Button>
-                      <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-xl h-7 text-xs gap-1" title="Enviar atrás">
-                        <ChevronsDown className="w-3.5 h-3.5" /> Atrás
-                      </Button>
-
-                      {/* Delete */}
-                      <Button type="button" variant="destructive" size="sm" onClick={handleDeleteSelected} className="rounded-xl h-7 text-xs gap-1 ml-auto">
+                    <div className="mt-4 flex justify-end">
+                      <Button type="button" variant="destructive" size="sm" onClick={handleDeleteSelected} className="rounded-xl h-8 text-xs gap-1">
                         <Trash2 className="w-3.5 h-3.5" /> Eliminar
                       </Button>
                     </div>
