@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Download, Save, Loader2 } from 'lucide-react';
+import { Trash2, Download, Save, Loader2, FolderUp, FolderDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,10 +17,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { ElementoDecorativo, ColorPalette } from '@/types/fiesta';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import DecoCanvas from '@/components/decoracion/DecoCanvas';
 import { TIPOS_ELEMENTOS, type TipoElemento, getMaxColoresByTipo } from '@/components/decoracion/deco-element-types';
+import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
+import { saveDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
+import { useToast } from '@/hooks/use-toast';
 
 const VISTA_TIPOS_ELEMENTOS = TIPOS_ELEMENTOS.filter(t =>
   ['globo', 'globosMacizos', 'flor', 'centroMesa', 'arco', 'lazo', 'candelabro', 'mesaTorta', 'tela'].includes(t.tipo)
@@ -56,11 +60,15 @@ export default function VistaDecorativaEditor({
   onSave,
   isSaving = false,
 }: Props) {
+  const { toast } = useToast();
   const [elementos, setElementos] = useState<ElementoDecorativo[]>(vistaDecorativa.elementos ?? []);
   const [fondoColor, setFondoColor] = useState(vistaDecorativa.fondoColor ?? '#f0f0f0');
   const [fondoImagenUrl, setFondoImagenUrl] = useState(vistaDecorativa.fondoImagenUrl ?? '');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
 
   const canvasContainerRef = useRef<HTMLDivElement>(null);
 
@@ -139,6 +147,26 @@ export default function VistaDecorativaEditor({
       setIsExporting(false);
     }
   }, [fondoColor, fiestaId]);
+
+  const handleSaveAsTemplate = useCallback(async () => {
+    if (!templateName.trim()) return;
+    setIsSavingTemplate(true);
+    try {
+      const result = await saveDecoCanvasTemplate(templateName.trim(), elementos, fondoColor, fondoImagenUrl || undefined);
+      if (!result.success) {
+        toast({
+          title: 'No se pudo guardar la plantilla',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast({ title: 'Plantilla guardada', description: 'Tu diseño ha sido guardado como plantilla.' });
+      setTemplateName('');
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  }, [templateName, elementos, fondoColor, fondoImagenUrl, toast]);
 
   return (
     <div className="space-y-4">
@@ -377,6 +405,33 @@ export default function VistaDecorativaEditor({
           {isExporting ? 'Exportando...' : 'Exportar como PNG'}
         </Button>
 
+        <Input
+          value={templateName}
+          onChange={e => setTemplateName(e.target.value)}
+          placeholder="Nombre de plantilla"
+          className="h-9 w-[220px]"
+        />
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleSaveAsTemplate}
+          disabled={isSavingTemplate || elementos.length === 0 || !templateName.trim()}
+          className="gap-2"
+        >
+          <FolderDown className="w-4 h-4" />
+          {isSavingTemplate ? 'Guardando...' : 'Guardar como plantilla'}
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setIsTemplateDialogOpen(true)}
+          className="gap-2"
+        >
+          <FolderUp className="w-4 h-4" /> Cargar plantilla
+        </Button>
+
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button type="button" variant="ghost" className="gap-2 text-destructive hover:text-destructive" disabled={elementos.length === 0}>
@@ -399,6 +454,27 @@ export default function VistaDecorativaEditor({
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
+      <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Plantillas de Diseño</DialogTitle>
+          </DialogHeader>
+          <DecoTemplateGallery
+            currentElementos={elementos}
+            currentFondoColor={fondoColor}
+            currentFondoImagenUrl={fondoImagenUrl || undefined}
+            onApplyTemplate={(template) => {
+              setElementos(template.elementos);
+              setFondoColor(template.fondoColor);
+              setFondoImagenUrl(template.fondoImagenUrl ?? '');
+              setIsTemplateDialogOpen(false);
+            }}
+            allowSaveCurrent={false}
+            fiestaId={fiestaId}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

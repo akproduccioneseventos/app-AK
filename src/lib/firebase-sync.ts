@@ -48,6 +48,7 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'cupones.json': 'cupones',
   'cupones-usage.json': 'cupones_usage',
   'catalogo-fotos.json': 'catalogo_fotos',
+  'deco-canvas-templates.json': 'deco_canvas_templates',
 };
 
 const CONFIG_FILES: Record<string, string> = {

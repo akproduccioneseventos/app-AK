@@ -1122,3 +1122,13 @@ export interface CuentaBancaria {
   numero: string;
   tipo?: string; // 'Caja de ahorro' | 'Cuenta corriente' | etc.
 }
+
+export interface DecoCanvasTemplate {
+  id: string;
+  nombre: string;
+  elementos: ElementoDecorativo[];
+  fondoColor: string;
+  fondoImagenUrl?: string;
+  creadoEn: string;
+  miniatura?: string;
+}
