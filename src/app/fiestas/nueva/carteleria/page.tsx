@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   ArrowLeft, Printer as PrinterIcon, Loader2, Upload,
-  GlassWater, Utensils, QrCode, Hash, ExternalLink, Info, Settings2,
+  GlassWater, Utensils, QrCode, Hash, ExternalLink, Info,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
@@ -467,7 +467,6 @@ function CarteleriaContent() {
             />
           </div>
           <Button size="sm" variant="secondary" onClick={() => setIsEditorOpen(true)}>
-            <Settings2 className="w-4 h-4 mr-1" />
             ⚙️ Editar Diseño
           </Button>
 
