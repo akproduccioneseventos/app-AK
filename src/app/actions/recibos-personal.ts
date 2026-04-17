@@ -7,6 +7,10 @@ const RECIBOS_PERSONAL_FILE = 'personal-recibos.json';
 
 const ESTADOS_VALIDOS: ReciboFirmado['estado'][] = ['pendiente', 'pagado', 'firmado_subido'];
 
+function generateReciboId(): string {
+  return `recibo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
 function normalizeEstado(value: unknown): ReciboFirmado['estado'] {
   return ESTADOS_VALIDOS.includes(value as ReciboFirmado['estado'])
     ? (value as ReciboFirmado['estado'])
@@ -21,7 +25,7 @@ function normalizeMonto(value: unknown): number {
 function normalizeRecibo(raw: Partial<ReciboFirmado>): ReciboFirmado {
   const now = new Date().toISOString();
   return {
-    id: String(raw.id || `recibo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`),
+    id: String(raw.id || generateReciboId()),
     fiestaId: String(raw.fiestaId || ''),
     empleadoId: String(raw.empleadoId || ''),
     monto: normalizeMonto(raw.monto),
@@ -79,7 +83,7 @@ export async function saveReciboFirmado(
 
   const nuevo = normalizeRecibo({
     ...payload,
-    id: payload.id || `recibo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+    id: payload.id || generateReciboId(),
     createdAt: now,
     updatedAt: now,
   });

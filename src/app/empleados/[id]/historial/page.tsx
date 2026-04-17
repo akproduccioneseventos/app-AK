@@ -409,6 +409,7 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
                     const status = editable?.estado || 'pendiente';
                     const fileUrl = editable?.archivoUrl;
                     const fileName = editable?.archivoNombre || 'Archivo';
+                    const signedInputId = `signed-receipt-${row.fiestaId}`;
                     return (
                       <TableRow key={row.fiestaId}>
                         <TableCell className="font-medium">{row.evento}</TableCell>
@@ -455,24 +456,28 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             {(status === 'pagado' || status === 'firmado_subido') && (
-                              <label className="inline-flex">
-                                  <input
+                              <>
+                                <input
+                                  id={signedInputId}
                                   type="file"
                                   className="hidden"
                                   accept="image/*,.pdf"
                                   onChange={(e) => uploadAndSaveSignedReceipt(row, e)}
                                 />
-                                <span className="inline-flex">
-                                  <Button variant="outline" size="sm" disabled={isUploadingFiestaId === row.fiestaId}>
-                                    {isUploadingFiestaId === row.fiestaId ? (
-                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    ) : (
-                                      <Upload className="w-4 h-4 mr-2" />
-                                    )}
-                                    {fileUrl ? 'Reemplazar' : 'Subir firmado'}
-                                  </Button>
-                                </span>
-                              </label>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={isUploadingFiestaId === row.fiestaId}
+                                  onClick={() => document.getElementById(signedInputId)?.click()}
+                                >
+                                  {isUploadingFiestaId === row.fiestaId ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <Upload className="w-4 h-4 mr-2" />
+                                  )}
+                                  {fileUrl ? 'Reemplazar' : 'Subir firmado'}
+                                </Button>
+                              </>
                             )}
                             <Button size="sm" onClick={() => saveRow(row)} disabled={isSavingFiestaId === row.fiestaId}>
                               {isSavingFiestaId === row.fiestaId && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
