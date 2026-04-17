@@ -59,6 +59,7 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 
 const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{1,20}$/;
 const VIMEO_ID_RE = /^\d+$/;
+const DEFAULT_VIDEO_THUMBNAIL = '/icons/icon-512x512.png';
 
 type VideoSource = {
   platform: 'youtube' | 'vimeo';
@@ -507,7 +508,7 @@ export default function GaleriaAdminPage() {
         youtubeId: '',
         plataforma: 'archivo',
         embedUrl: result.url,
-        thumbnailUrl: '/logo_ak_producciones.png',
+        thumbnailUrl: DEFAULT_VIDEO_THUMBNAIL,
         titulo: videoTitulo.trim(),
         descripcion: videoDescripcion.trim() || undefined,
         categoria: videoCategoria,

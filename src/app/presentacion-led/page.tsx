@@ -60,6 +60,9 @@ const transition = {
   ease: 'easeInOut',
   duration: 0.5,
 };
+const NEXT_SLIDE_OFFSET = 1;
+const SKIP_TEEN_MENU_OFFSET = 2;
+const MAIN_DISHES_PER_PERSON = 1;
 
 // ---- Helpers ----
 
@@ -218,7 +221,7 @@ export default function PresentacionLedPage() {
     const invitados = Math.max(0, Number(clientData.cantidadInvitados || '0'));
     const mesas = Math.max(1, Math.ceil(invitados / 10));
     const mozos = Math.max(1, Math.ceil(invitados / 10));
-    const vajilla = invitados * Math.max(1, entradasCount + 1);
+    const vajilla = invitados * Math.max(1, entradasCount + MAIN_DISHES_PER_PERSON);
     const manteleria = mesas;
     const requiereAsador = Boolean(
       selectedServices.some((id) => {
@@ -510,7 +513,7 @@ export default function PresentacionLedPage() {
               adolescentesCount={adolescentCount}
               onSelectMenu={setSelectedMenuId}
               onChangeEntradasCount={setEntradasCount}
-              onNext={() => goToSlide(currentSlide + (requireTeenMenu ? 1 : 2))}
+              onNext={() => goToSlide(currentSlide + (requireTeenMenu ? NEXT_SLIDE_OFFSET : SKIP_TEEN_MENU_OFFSET))}
             />
           )}
           {currentDynamicSlide?.type === 'menu-adolescente' && (

@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { GaleriaVideo } from '@/types/galeria';
 
+const DIRECT_VIDEO_PATTERN = /\.(mp4|webm|ogg)(\?|$)/i;
+
 export interface VideoItem {
   id: string;
   title: string;
@@ -16,7 +18,7 @@ export interface VideoItem {
 }
 
 function galeriaVideoToVideoItem(video: GaleriaVideo): VideoItem {
-  const isDirectVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(video.youtubeUrl);
+  const isDirectVideo = DIRECT_VIDEO_PATTERN.test(video.youtubeUrl);
   const embedUrl = video.embedUrl
     || (video.plataforma === 'vimeo' ? `https://player.vimeo.com/video/${video.youtubeId}` : undefined)
     || (isDirectVideo ? video.youtubeUrl : undefined);
@@ -110,7 +112,7 @@ export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
   const embedSrc = activeVideo?.youtubeId
     ? `https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`
     : activeVideo?.embedUrl ?? '';
-  const isDirectVideoSrc = !!embedSrc && /\.(mp4|webm|ogg)(\?|$)/i.test(embedSrc);
+  const isDirectVideoSrc = !!embedSrc && DIRECT_VIDEO_PATTERN.test(embedSrc);
 
   return (
     <section id="videos" data-testid="video-section" className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">

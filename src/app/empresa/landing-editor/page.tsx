@@ -86,7 +86,7 @@ function extractVideoSource(url: string): VideoSource | null {
         platform: 'youtube',
         id,
         embedUrl: `https://www.youtube.com/embed/${id}`,
-        thumbnailUrl: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
       };
     }
     else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
@@ -96,7 +96,7 @@ function extractVideoSource(url: string): VideoSource | null {
         platform: 'youtube',
         id,
         embedUrl: `https://www.youtube.com/embed/${id}`,
-        thumbnailUrl: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
       };
     }
     if (u.hostname === 'vimeo.com' || u.hostname === 'www.vimeo.com' || u.hostname === 'player.vimeo.com') {
@@ -348,7 +348,7 @@ export default function LandingEditorPage() {
     }
     const source = extractVideoSource(videoUrl.trim());
     if (!source) {
-      toast({ title: 'URL inválida', description: 'Ingresá un link válido de YouTube o Vimeo.', variant: 'destructive' });
+      toast({ title: 'URL inválida', description: 'Ingresá un link válido de YouTube, Vimeo, o subí un archivo de video.', variant: 'destructive' });
       return;
     }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ChefHat, ChevronRight, Shirt, Soup, Table2, UserCheck, Users } from 'lucide-react';
+import { ChefHat, ChevronRight, Shirt, Table2, UserCheck, Users, UtensilsCrossed } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import type { ResourceSummary } from '../lib/tipos';
 
@@ -16,7 +16,7 @@ export function RecursosSlide({ summary, onNext }: RecursosSlideProps) {
   const cards = [
     { icon: Users, label: 'Invitados', value: summary.invitadosTotales },
     { icon: Table2, label: 'Mesas', value: summary.mesas },
-    { icon: Soup, label: 'Vajilla', value: summary.vajilla },
+    { icon: UtensilsCrossed, label: 'Vajilla', value: summary.vajilla },
     { icon: Shirt, label: 'Mantelería', value: summary.manteleria },
     { icon: UserCheck, label: 'Mozos', value: summary.mozos },
     { icon: ChefHat, label: 'Asador', value: formatBool(summary.requiereAsador) },

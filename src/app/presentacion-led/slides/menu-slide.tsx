@@ -133,7 +133,7 @@ export function MenuSlide({
               </div>
               {adolescentesCount > 0 && (
                 <p className="text-xs text-amber-200">
-                  Hay {adolescentesCount} adolescente{adolescentesCount === 1 ? '' : 's'}: en el siguiente paso se define su menú específico.
+                  Hay {adolescentesCount} adolescente{adolescentesCount === 1 ? '' : 's'}: en el siguiente paso se definirá su menú específico.
                 </p>
               )}
             </div>
