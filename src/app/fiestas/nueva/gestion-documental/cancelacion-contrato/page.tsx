@@ -86,7 +86,6 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [contractText, setContractText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isSavingHistory, setIsSavingHistory] = useState(false);
 
