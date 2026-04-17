@@ -46,6 +46,17 @@ const formatDate = (dateString?: string) => {
   } catch { return '—'; }
 };
 
+const MAX_VOUCHER_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const FALLBACK_COMPANY_ADDRESS = 'Salto, Uruguay';
+const FALLBACK_COMPANY_CONTACT = 'akproduccionessalto@gmail.com';
+
+const getCompanyInitials = (name: string) => {
+  const words = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return 'AK';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+};
+
 const MetodoPagoIcon = ({ metodo }: { metodo: string }) => {
   switch (metodo) {
     case 'Efectivo': return <Banknote className="w-4 h-4" />;
@@ -87,11 +98,16 @@ function ReciboView({
   const receiptNumber = pago.id.slice(-10).toUpperCase();
 
   const exportReceiptAsImage = async () => {
-    if (!receiptRef.current) return null;
-    const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: '#ffffff' });
-    return new Promise<Blob | null>((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), 'image/png');
-    });
+    try {
+      if (!receiptRef.current) return null;
+      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: '#ffffff' });
+      return new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), 'image/png');
+      });
+    } catch (error) {
+      console.error('No se pudo renderizar el recibo para exportar:', error);
+      return null;
+    }
   };
 
   const handleDownloadRecibo = async () => {
@@ -172,7 +188,7 @@ function ReciboView({
                   </div>
                 ) : (
                   <div className="w-12 h-12 rounded-md border border-slate-200 flex items-center justify-center text-xs font-black text-slate-700">
-                    AK
+                    {getCompanyInitials(companyName)}
                   </div>
                 )}
                 <div>
@@ -186,8 +202,8 @@ function ReciboView({
               </div>
             </div>
             <div className="mt-3 text-[11px] text-slate-600 grid grid-cols-1 sm:grid-cols-2 gap-1">
-              <p>{companyAddress || 'Salto, Uruguay'}</p>
-              <p className="sm:text-right">{companyContact || 'akproduccionessalto@gmail.com'}</p>
+              <p>{companyAddress || FALLBACK_COMPANY_ADDRESS}</p>
+              <p className="sm:text-right">{companyContact || FALLBACK_COMPANY_CONTACT}</p>
               <p>RUT: {companyTaxId || 'No informado'}</p>
               <p className="sm:text-right">Fecha emisión: {formatDate(pago.fecha)}</p>
             </div>
@@ -388,7 +404,7 @@ function PagosRapidosContent() {
       toast({ title: 'Formato inválido', description: 'Subí una imagen (PNG/JPG/WEBP) o PDF.', variant: 'destructive' });
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_VOUCHER_FILE_SIZE_BYTES) {
       toast({ title: 'Archivo muy grande', description: 'El comprobante no debe superar 5MB.', variant: 'destructive' });
       return;
     }

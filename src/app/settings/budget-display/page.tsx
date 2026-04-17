@@ -86,7 +86,7 @@ export default function BudgetDisplaySettingsPage() {
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [newDepTrigger, setNewDepTrigger] = useState('');
   const [newDepRequired, setNewDepRequired] = useState('');
-  const [copyTargetsByPackage, setCopyTargetsByPackage] = useState<Record<string, (typeof PACKAGE_EVENT_SECTIONS)[number]['value']>>({});
+  const [packageCopyTargets, setPackageCopyTargets] = useState<Record<string, (typeof PACKAGE_EVENT_SECTIONS)[number]['value']>>({});
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -239,7 +239,7 @@ export default function BudgetDisplaySettingsPage() {
     const section = PACKAGE_EVENT_SECTIONS.find((s) => s.value === sectionValue) || PACKAGE_EVENT_SECTIONS[0];
     const newPkg: PaqueteArmadoRapido = {
       ...pkg,
-      id: `pkg_copy_${Date.now()}`,
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? `pkg_copy_${crypto.randomUUID()}` : `pkg_copy_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       nombre: `${pkg.nombre} (${section.label})`,
       recommended: false,
       tiposDeEventoAplicables: section.eventType ? [section.eventType] : [],
@@ -600,9 +600,9 @@ export default function BudgetDisplaySettingsPage() {
                                 <Label className="text-[10px] font-black uppercase text-slate-400">Copiar paquete a otro tipo</Label>
                                 <div className="flex gap-2">
                                   <Select
-                                    value={copyTargetsByPackage[pkg.id] || getPackageSectionValue(pkg)}
+                                    value={packageCopyTargets[pkg.id] || getPackageSectionValue(pkg)}
                                     onValueChange={(value) =>
-                                      setCopyTargetsByPackage((prev) => ({
+                                      setPackageCopyTargets((prev) => ({
                                         ...prev,
                                         [pkg.id]: value as (typeof PACKAGE_EVENT_SECTIONS)[number]['value'],
                                       }))
@@ -623,7 +623,7 @@ export default function BudgetDisplaySettingsPage() {
                                     type="button"
                                     variant="outline"
                                     className="rounded-xl"
-                                    onClick={() => duplicatePackageToSection(pkg, copyTargetsByPackage[pkg.id] || getPackageSectionValue(pkg))}
+                                    onClick={() => duplicatePackageToSection(pkg, packageCopyTargets[pkg.id] || getPackageSectionValue(pkg))}
                                   >
                                     <Copy className="w-4 h-4 mr-2" />
                                     Copiar
