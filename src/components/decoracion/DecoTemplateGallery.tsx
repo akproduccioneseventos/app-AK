@@ -135,6 +135,7 @@ export default function DecoTemplateGallery({
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           {templates.map(template => {
             const hasMiniatura = typeof template.miniatura === 'string' && /^data:image\//.test(template.miniatura);
+            const isPreset = template.id.startsWith('preset_');
             const fecha = Number.isNaN(new Date(template.creadoEn).getTime())
               ? 'Fecha inválida'
               : new Date(template.creadoEn).toLocaleDateString('es-AR');
@@ -154,7 +155,7 @@ export default function DecoTemplateGallery({
                 </div>
                 <CardContent className="p-3 space-y-2">
                   <p className="font-bold text-sm line-clamp-2">{template.nombre}</p>
-                  <p className="text-xs text-muted-foreground">{fecha}</p>
+                  <p className="text-xs text-muted-foreground">{isPreset ? 'Pre-armado' : fecha}</p>
                   <p className="text-xs text-muted-foreground">{template.elementos.length} elementos</p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -165,31 +166,33 @@ export default function DecoTemplateGallery({
                     >
                       Usar esta plantilla
                     </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button type="button" size="icon" variant="ghost" className="text-red-600 hover:text-red-700">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>¿Eliminar plantilla?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta acción no se puede deshacer.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(template.id)}
-                            className="bg-red-600 hover:bg-red-700"
-                            disabled={deletingId === template.id}
-                          >
-                            {deletingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Eliminar'}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    {!isPreset && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button type="button" size="icon" variant="ghost" className="text-red-600 hover:text-red-700">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>¿Eliminar plantilla?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Esta acción no se puede deshacer.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(template.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                              disabled={deletingId === template.id}
+                            >
+                              {deletingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Eliminar'}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>
                 </CardContent>
               </Card>

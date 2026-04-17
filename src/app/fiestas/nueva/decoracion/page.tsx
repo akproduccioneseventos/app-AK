@@ -771,8 +771,11 @@ function DecoracionYDisenoEventoContent() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="vista">
+      <Tabs defaultValue="canvas">
         <TabsList className="mb-4 flex flex-wrap h-auto gap-1 bg-slate-100 p-1 rounded-2xl">
+          <TabsTrigger value="canvas" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
+            <LayoutDashboard className="w-4 h-4" /> Canvas Interactivo
+          </TabsTrigger>
           <TabsTrigger value="vista" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
             <Paintbrush className="w-4 h-4" /> Vista de Diseño
           </TabsTrigger>
