@@ -71,8 +71,8 @@ const empresaHubItems: HubItem[] = [
     actionLabel: 'Gestionar Plantillas',
   },
   {
-    title: 'Catálogo de Activos Fijos',
-    description: 'Gestiona tu inventario de activos reutilizables (mobiliario, equipo, etc.).',
+    title: 'Activos Fijos',
+    description: 'Inventario de equipos y bienes de la empresa. Control de disponibilidad multi-evento y capital total.',
     href: '/empresa/activos-fijos',
     icon: Package,
     actionLabel: 'Gestionar Activos',

@@ -13,11 +13,12 @@ import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import type { CompanyInfo } from '@/types/settings';
+import { updateContratoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
-import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplates } from '@/app/actions/settings';
 import { uploadDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -81,6 +82,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   const [totalPagado, setTotalPagado] = useState(0);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [contractText, setContractText] = useState('');
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,10 +99,11 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, companyData, settingsData] = await Promise.all([
+      const [fiestaData, companyData, settingsData, templates] = await Promise.all([
         getFiestaById(fiestaId),
         getCompanyInfo(),
-        getInvoiceTemplateSettings()
+        getInvoiceTemplateSettings(),
+        getContractTemplates(),
       ]);
       
       if (!fiestaData) throw new Error("Evento no encontrado.");
@@ -133,9 +136,10 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
         totalPagado: 0,
       }));
 
+      let total = 0;
       if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
         const invoices = await Promise.all(fiestaData.invoiceIds.map(id => getInvoiceById(id)));
-        const total = invoices.reduce((sum, inv) => {
+        total = invoices.reduce((sum, inv) => {
           return sum + (inv?.payments?.reduce((pSum, p) => pSum + p.amount, 0) || 0);
         }, 0);
         setTotalPagado(total);
@@ -150,6 +154,44 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
           totalPagado: total,
         }));
       }
+
+      const presupuestoTotal = presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0;
+      const cancelacionTemplate = templates.find(t => t.type === 'cancelacion') || templates[0];
+      const multa = presupuestoTotal * CANCELLATION_PENALTY_RATE;
+      let generated = cancelacionTemplate?.template || buildCancelacionText({
+        companyName: companyData.companyName,
+        clienteNombre: clienteData?.name || clienteData?.companyName || '________________________',
+        clienteCi: clienteData?.taxId,
+        fechaEvento: fiestaData.configuracion.fechaEvento,
+        fechaContrato: presupuestoData?.timestamp,
+        presupuestoTotal,
+        multa,
+        totalPagado: total,
+      });
+      const replacements: Record<string, string> = {
+        '{{FECHA_HOY}}': today,
+        '{{EMPRESA_NOMBRE}}': companyData.companyName,
+        '{{EMPRESA_RUT}}': companyData.companyTaxId,
+        '{{EMPRESA_DIRECCION}}': companyData.companyAddress,
+        '{{EMPRESA_EMAIL}}': companyData.companyContact,
+        '{{CLIENTE_NOMBRE}}': clienteData?.name || clienteData?.companyName || '________________________',
+        '{{CLIENTE_DIRECCION}}': clienteData?.address || '________________________',
+        '{{CLIENTE_CI}}': clienteData?.taxId || '_______________________',
+        '{{CLIENTE_TELEFONO}}': clienteData?.phone || '_______________________',
+        '{{EVENTO_FECHA}}': formatDate(fiestaData.configuracion.fechaEvento),
+        '{{EVENTO_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
+        '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoTotal),
+        '{{SENIA}}': formatCurrency(total),
+        '{{MOTIVO_CANCELACION}}': 'Cancelación solicitada por el cliente',
+        '{{NUEVA_FECHA}}': '________________________',
+        '{{PENALIZACION_PORCENTAJE}}': '30%',
+        '{{NOMBRE_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
+      };
+      Object.entries(replacements).forEach(([key, val]) => {
+        generated = generated.replaceAll(key, val);
+      });
+      setContractText(generated);
+      await updateContratoFiestaActual(fiestaId, generated, 'cancelacion', cancelacionTemplate?.id || 'default-cancelacion');
 
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error desconocido";

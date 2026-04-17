@@ -33,6 +33,7 @@ export async function saveActivoFijo(
     tipoItem: 'Activo Fijo',
     cantidadDisponible: itemData.cantidadDisponible !== undefined && !isNaN(Number(itemData.cantidadDisponible)) ? Number(itemData.cantidadDisponible) : undefined,
     valorUnitarioEstimado: itemData.valorUnitarioEstimado !== undefined && !isNaN(Number(itemData.valorUnitarioEstimado)) ? Number(itemData.valorUnitarioEstimado) : 0,
+    imageUrl: itemData.imageUrl?.trim() || undefined,
     // Remover campos de precio de venta, ya que no aplican a activos para lista de carga
     precioVenta: undefined,
     precioBase: undefined,

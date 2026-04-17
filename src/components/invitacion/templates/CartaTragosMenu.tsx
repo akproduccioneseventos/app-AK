@@ -91,13 +91,13 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                 {/* Right Column (Info) */}
                 <div className="col-span-8 flex flex-col justify-between">
                     <header className="text-center pt-1">
-                        <h2 className="font-dancing text-4xl leading-tight" style={{color: paleta.secondary}}>
+                        <h2 className="font-dancing text-2xl sm:text-3xl md:text-4xl leading-tight" style={{color: paleta.secondary}}>
                             <EditableText initialValue={carta.protagonistaNombre || "Luciana"} onSave={val => handleUpdate('protagonistaNombre', val)} textarea={false} style={{ fontFamily: 'Dancing_Script' }}/>
                         </h2>
                         <h3 className="font-headline text-lg -mt-1 tracking-widest uppercase opacity-80" style={{color: paleta.secondary}}>
                              <EditableText initialValue={carta.numeroPrincipal || "Mis XV"} onSave={val => handleUpdate('numeroPrincipal', val)} textarea={false} style={{ fontFamily: 'Belleza' }}/>
                         </h3>
-                         <h1 className="font-headline text-2xl uppercase tracking-tighter mt-1 font-bold" style={{color: paleta.primary}}>
+                         <h1 className="font-headline text-lg sm:text-xl md:text-2xl uppercase tracking-tighter mt-1 font-bold" style={{color: paleta.primary}}>
                             <EditableText initialValue={carta.titulo || 'CARTA DE TRAGOS'} onSave={val => handleUpdate('titulo', val)} textarea={false} style={{ fontFamily: 'Belleza' }} />
                         </h1>
                     </header>

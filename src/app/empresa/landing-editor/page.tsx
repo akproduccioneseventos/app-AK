@@ -10,13 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import {
-  ArrowLeft, Save, Loader2, Eye, Globe, Palette, Layout, Type, BarChart3, Phone, Plus, Trash2, ExternalLink, Upload
+  ArrowLeft, Save, Loader2, Eye, Globe, Palette, Layout, Type, BarChart3, Phone, Plus, Trash2, ExternalLink, Upload, Sparkles, Camera
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getLandingSettings, saveLandingSettings } from '@/app/actions/landing-editor';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
-import type { LandingSettings, LandingStatItem, LandingFaqItem } from '@/types/landing-editor';
+import type { LandingSettings, LandingStatItem, LandingFaqItem, LandingGalleryImage, LandingServiceItem } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
 
 /**
@@ -55,6 +56,8 @@ function extractHexColor(value: string, defaultHex: string): string {
   return defaultHex;
 }
 
+const EMOJI_SHORTCUTS = ['🎉', '⭐', '❤️', '📞', '🎂', '🥂', '💍', '🎵', '📸', '🎊', '🏆', '💫', '✨', '🎈', '🕐', '👏'];
+
 export default function LandingEditorPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<LandingSettings>(defaultLandingSettings);
@@ -63,6 +66,9 @@ export default function LandingEditorPage() {
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
   const [isUploadingOgImage, setIsUploadingOgImage] = useState(false);
+  const [galleryInputUrl, setGalleryInputUrl] = useState('');
+  const [isUploadingGalleryImage, setIsUploadingGalleryImage] = useState(false);
+  const [uploadingServiceImageId, setUploadingServiceImageId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -170,6 +176,97 @@ export default function LandingEditorPage() {
     setSettings(s => ({ ...s, stats: s.stats.filter((_, i) => i !== index) }));
   };
 
+  const addGalleryImageByUrl = () => {
+    if (!galleryInputUrl.trim()) return;
+    const newImage: LandingGalleryImage = {
+      id: `gal_${Date.now()}`,
+      url: galleryInputUrl.trim(),
+      caption: '',
+      featured: false,
+    };
+    setSettings(s => ({ ...s, gallery: [...(s.gallery || []), newImage] }));
+    setGalleryInputUrl('');
+  };
+
+  const handleUploadGalleryImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingGalleryImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('fiestaId', 'landing-gallery');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      const newImage: LandingGalleryImage = {
+        id: `gal_${Date.now()}`,
+        url: result.url,
+        caption: '',
+        featured: false,
+      };
+      setSettings(s => ({ ...s, gallery: [...(s.gallery || []), newImage] }));
+      toast({ title: '✅ Imagen agregada a la galería' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingGalleryImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeGalleryImage = (id: string) => {
+    setSettings(s => ({ ...s, gallery: (s.gallery || []).filter(img => img.id !== id) }));
+  };
+
+  const updateGalleryImage = (id: string, field: keyof LandingGalleryImage, value: string | boolean) => {
+    setSettings(s => ({
+      ...s,
+      gallery: (s.gallery || []).map(img => img.id === id ? { ...img, [field]: value } : img),
+    }));
+  };
+
+  const addService = () => {
+    const newService: LandingServiceItem = {
+      id: `svc_${Date.now()}`,
+      icon: '✨',
+      title: 'Nuevo servicio',
+      description: 'Descripción del servicio.',
+      imageUrl: '',
+    };
+    setSettings(s => ({ ...s, services: [...(s.services || []), newService] }));
+  };
+
+  const updateService = (id: string, field: keyof LandingServiceItem, value: string) => {
+    setSettings(s => ({
+      ...s,
+      services: (s.services || []).map(service => service.id === id ? { ...service, [field]: value } : service),
+    }));
+  };
+
+  const removeService = (id: string) => {
+    setSettings(s => ({ ...s, services: (s.services || []).filter(service => service.id !== id) }));
+  };
+
+  const handleUploadServiceImage = async (serviceId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingServiceImageId(serviceId);
+    try {
+      const formData = new FormData();
+      formData.append('fiestaId', 'landing-services');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      updateService(serviceId, 'imageUrl', result.url);
+      toast({ title: '✅ Imagen de servicio subida' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setUploadingServiceImageId(null);
+      e.target.value = '';
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-20">
@@ -218,15 +315,21 @@ export default function LandingEditorPage() {
       </header>
 
       <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-8 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200">
           <TabsTrigger value="hero" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
             <Type className="w-3 h-3" /> Hero
+          </TabsTrigger>
+          <TabsTrigger value="services" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Sparkles className="w-3 h-3" /> Servicios
           </TabsTrigger>
           <TabsTrigger value="stats" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
             <BarChart3 className="w-3 h-3" /> Estadísticas
           </TabsTrigger>
           <TabsTrigger value="cta" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
             <Phone className="w-3 h-3" /> CTA
+          </TabsTrigger>
+          <TabsTrigger value="gallery" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Camera className="w-3 h-3" /> Galería
           </TabsTrigger>
           <TabsTrigger value="colors" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
             <Palette className="w-3 h-3" /> Colores
@@ -342,6 +445,116 @@ export default function LandingEditorPage() {
           </Card>
         </TabsContent>
 
+        {/* ── SERVICES ── */}
+        <TabsContent value="services" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" /> Servicios / Features
+                  </CardTitle>
+                  <CardDescription>Editá los servicios que se muestran en tu landing pública.</CardDescription>
+                </div>
+                <Button onClick={addService} size="sm" className="rounded-xl">
+                  <Plus className="w-4 h-4 mr-2" /> Agregar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {(settings.services || []).map((service) => (
+                <div key={service.id} className="border border-slate-200 rounded-2xl p-4 bg-white space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="secondary" className="rounded-lg">ID: {service.id}</Badge>
+                    <Button variant="ghost" size="icon" onClick={() => removeService(service.id)} className="text-rose-400 hover:text-rose-600">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Emoji</Label>
+                      <Input
+                        value={service.icon}
+                        onChange={e => updateService(service.id, 'icon', e.target.value)}
+                        placeholder="✨"
+                        className="rounded-xl text-center text-2xl"
+                      />
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {EMOJI_SHORTCUTS.map(emoji => (
+                          <button
+                            key={`${service.id}-${emoji}`}
+                            type="button"
+                            onClick={() => updateService(service.id, 'icon', emoji)}
+                            aria-label={`Seleccionar emoji ${emoji}`}
+                            className={`text-xl p-1 rounded-lg hover:bg-slate-100 transition-colors ${service.icon === emoji ? 'bg-primary/10 ring-1 ring-primary' : ''}`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-1 md:col-span-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Título</Label>
+                      <Input
+                        value={service.title}
+                        onChange={e => updateService(service.id, 'title', e.target.value)}
+                        className="rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-400">Descripción</Label>
+                    <Textarea
+                      value={service.description}
+                      onChange={e => updateService(service.id, 'description', e.target.value)}
+                      rows={3}
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400">Imagen opcional (URL o subir)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={service.imageUrl || ''}
+                        onChange={e => updateService(service.id, 'imageUrl', e.target.value)}
+                        placeholder="https://..."
+                        className="rounded-xl"
+                      />
+                      <label htmlFor={`service-image-upload-${service.id}`} className="shrink-0">
+                        <Button asChild variant="outline" className="rounded-xl" disabled={uploadingServiceImageId === service.id}>
+                          <span>
+                            {uploadingServiceImageId === service.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          </span>
+                        </Button>
+                        <input
+                          id={`service-image-upload-${service.id}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleUploadServiceImage(service.id, e)}
+                          disabled={uploadingServiceImageId === service.id}
+                        />
+                      </label>
+                    </div>
+                    {service.imageUrl && sanitizeImageUrl(service.imageUrl) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={sanitizeImageUrl(service.imageUrl)!}
+                        alt={`Vista previa ${service.title}`}
+                        className="rounded-xl w-full h-32 object-cover border border-slate-200"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+              {(!settings.services || settings.services.length === 0) && (
+                <p className="text-center text-muted-foreground py-8 text-sm">No hay servicios. Agregá el primero.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* ── STATS ── */}
         <TabsContent value="stats" className="space-y-6 pt-4 animate-in fade-in duration-500">
           <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
@@ -370,6 +583,19 @@ export default function LandingEditorPage() {
                         placeholder="🎉"
                         className="rounded-xl text-center text-2xl"
                       />
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {EMOJI_SHORTCUTS.map(emoji => (
+                          <button
+                            key={`${index}-${emoji}`}
+                            type="button"
+                            onClick={() => updateStat(index, 'icon', emoji)}
+                            aria-label={`Seleccionar emoji ${emoji}`}
+                            className={`text-xl p-1 rounded-lg hover:bg-slate-100 transition-colors ${stat.icon === emoji ? 'bg-primary/10 ring-1 ring-primary' : ''}`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[10px] font-black uppercase text-slate-400">Valor</Label>
@@ -455,6 +681,95 @@ export default function LandingEditorPage() {
                   />
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── GALLERY ── */}
+        <TabsContent value="gallery" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle>📷 Galería de la Landing Page</CardTitle>
+              <CardDescription>Imágenes que aparecen en la galería de tu página pública. Podés subirlas desde tu celular o PC.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Agregar imagen por URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={galleryInputUrl}
+                    onChange={e => setGalleryInputUrl(e.target.value)}
+                    placeholder="https://..."
+                    className="rounded-xl"
+                  />
+                  <Button type="button" onClick={addGalleryImageByUrl} className="rounded-xl">
+                    <Plus className="w-4 h-4 mr-2" /> Agregar
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subir desde dispositivo</Label>
+                <p className="text-[10px] text-muted-foreground">En celular se habilita elegir entre cámara o galería del dispositivo.</p>
+                <label htmlFor="gallery-image-upload">
+                  <Button asChild variant="outline" className="rounded-xl" disabled={isUploadingGalleryImage}>
+                    <span>
+                      {isUploadingGalleryImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                      Subir imagen
+                    </span>
+                  </Button>
+                  <input
+                    id="gallery-image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleUploadGalleryImage}
+                    disabled={isUploadingGalleryImage}
+                  />
+                </label>
+              </div>
+              <Separator />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(settings.gallery || []).map((img) => (
+                  <div key={img.id} className="border border-slate-200 rounded-2xl p-3 space-y-3 bg-white">
+                    {sanitizeImageUrl(img.url) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={sanitizeImageUrl(img.url)!}
+                        alt={img.caption || 'Imagen de galería'}
+                        className="w-full h-36 object-cover rounded-xl border border-slate-100"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    )}
+                    <Input
+                      value={img.url}
+                      onChange={e => updateGalleryImage(img.id, 'url', e.target.value)}
+                      placeholder="https://..."
+                      className="rounded-xl text-xs"
+                    />
+                    <Input
+                      value={img.caption || ''}
+                      onChange={e => updateGalleryImage(img.id, 'caption', e.target.value)}
+                      placeholder="Pie de foto (opcional)"
+                      className="rounded-xl"
+                    />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={Boolean(img.featured)}
+                          onCheckedChange={(checked) => updateGalleryImage(img.id, 'featured', checked)}
+                        />
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Destacada</span>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => removeGalleryImage(img.id)} className="text-rose-400 hover:text-rose-600">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {(!settings.gallery || settings.gallery.length === 0) && (
+                <p className="text-center text-muted-foreground py-8 text-sm">No hay imágenes en la galería.</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
