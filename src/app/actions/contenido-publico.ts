@@ -3,6 +3,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { CatalogoSettings, CatalogoSettingsMap, PresentacionLedSettings } from '@/types/contenido-publico';
+import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
 
 const PRESENTACION_LED_SETTINGS_FILE = 'presentacion-led-settings.json';
 const CATALOGO_SETTINGS_FILE = 'catalogo-settings.json';
@@ -38,13 +39,6 @@ const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
   },
 };
 
-const DEFAULT_PRESENTACION_TEXT = [
-  'En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos.',
-  'Nos encargamos de todo: decoración, catering, sonido, fotografía y coordinación general.',
-].join(' ');
-
-const DEFAULT_POR_QUE_TEXT = 'Un solo equipo para coordinar todo, con experiencia, calidad y seguimiento personalizado.';
-
 function buildDefaultCatalogSettings(tipo: string): CatalogoSettings {
   const catalog = getCatalogBySlug(tipo);
   if (!catalog) {
@@ -52,8 +46,8 @@ function buildDefaultCatalogSettings(tipo: string): CatalogoSettings {
       hero: { titulo: '', subtitulo: '', imagenFondoUrl: '', color: 'amber' },
       galeria: [],
       testimonios: [],
-      textoPresentacion: DEFAULT_PRESENTACION_TEXT,
-      textoPorQueElegirnos: DEFAULT_POR_QUE_TEXT,
+      textoPresentacion: DEFAULT_CATALOGO_PRESENTACION_TEXT,
+      textoPorQueElegirnos: DEFAULT_CATALOGO_POR_QUE_TEXT,
     };
   }
 
@@ -66,8 +60,8 @@ function buildDefaultCatalogSettings(tipo: string): CatalogoSettings {
     },
     galeria: catalog.gallery.map((item) => ({ url: item.src, alt: item.alt })),
     testimonios: catalog.testimonials.map((t) => t.text),
-    textoPresentacion: DEFAULT_PRESENTACION_TEXT,
-    textoPorQueElegirnos: DEFAULT_POR_QUE_TEXT,
+    textoPresentacion: DEFAULT_CATALOGO_PRESENTACION_TEXT,
+    textoPorQueElegirnos: DEFAULT_CATALOGO_POR_QUE_TEXT,
   };
 }
 

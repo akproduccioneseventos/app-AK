@@ -32,6 +32,7 @@ import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { EventCatalogData, ServiceItem } from '@/types/public-landing';
 import { getCatalogoSettings } from '@/app/actions/contenido-publico';
 import type { CatalogoSettings } from '@/types/contenido-publico';
+import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
 
 // ─── Session storage keys (must match presupuesto flow) ──────────────────────
 const PRESUPUESTO_SESSION_KEY = 'presupuestoEnProgreso_v3';
@@ -59,6 +60,11 @@ const ACCENT_MAP: Record<string, { gradient: string; text: string; bg: string; b
 };
 function getAccent(color: string) {
   return ACCENT_MAP[color] ?? ACCENT_MAP['amber'];
+}
+
+function getSafeImageUrl(url: string | undefined): string | null {
+  if (!url) return null;
+  return /^https?:\/\//i.test(url) ? url : null;
 }
 
 // ─── Slide IDs ────────────────────────────────────────────────────────────────
@@ -97,13 +103,6 @@ const SLIDE_LABELS: Record<SlideId, string> = {
   'cierre':           'Resumen',
 };
 
-const DEFAULT_PRESENTACION_TEXT = [
-  'En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos.',
-  'Nos encargamos de todo: decoración, catering, sonido, fotografía y coordinación general.',
-].join(' ');
-
-const DEFAULT_POR_QUE_TEXT = 'Trabajamos con un solo equipo para que tengas calidad, coordinación y tranquilidad en todo el proceso.';
-
 // ─── Slide Components ─────────────────────────────────────────────────────────
 
 function PortadaSlide({
@@ -116,11 +115,12 @@ function PortadaSlide({
   onNext: () => void;
 }) {
   const accent = getAccent(catalog.hero.accentColor);
+  const safeHeroImageUrl = getSafeImageUrl(heroImageUrl);
   return (
     <div className="flex flex-col items-center justify-center text-center py-12 px-4 min-h-[500px] relative overflow-hidden rounded-3xl">
-      {heroImageUrl && (
+      {safeHeroImageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={heroImageUrl} alt={catalog.hero.headline} className="absolute inset-0 w-full h-full object-cover opacity-20" />
+        <img src={safeHeroImageUrl} alt={catalog.hero.headline} className="absolute inset-0 w-full h-full object-cover opacity-20" />
       )}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
@@ -778,10 +778,10 @@ export default function CatalogoTipoPage() {
                  <PortadaSlide catalog={mergedCatalog} heroImageUrl={catalogSettings?.hero.imagenFondoUrl} onNext={goNext} />
                )}
                {currentSlideId === 'presentacion' && (
-                 <PresentacionSlide catalog={mergedCatalog} textoPresentacion={catalogSettings?.textoPresentacion || DEFAULT_PRESENTACION_TEXT} />
+                 <PresentacionSlide catalog={mergedCatalog} textoPresentacion={catalogSettings?.textoPresentacion || DEFAULT_CATALOGO_PRESENTACION_TEXT} />
                )}
                {currentSlideId === 'por-que-elegirnos' && (
-                 <PorQueElegernosSlide catalog={mergedCatalog} textoPorQueElegirnos={catalogSettings?.textoPorQueElegirnos || DEFAULT_POR_QUE_TEXT} />
+                 <PorQueElegernosSlide catalog={mergedCatalog} textoPorQueElegirnos={catalogSettings?.textoPorQueElegirnos || DEFAULT_CATALOGO_POR_QUE_TEXT} />
                )}
                {currentSlideId === 'proceso' && (
                  <ProcesoSlide catalog={mergedCatalog} />

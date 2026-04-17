@@ -975,7 +975,7 @@ function StepEventBasics({
           type="date"
           value={state.eventoFecha ? state.eventoFecha.split('T')[0] : ''}
           onChange={async (e) => {
-            const value = e.target.value ? `${e.target.value}T00:00:00` : '';
+            const value = e.target.value ? `${e.target.value}T12:00:00` : '';
             onChange('eventoFecha', value);
             if (!value) {
               setDateError('');
@@ -999,7 +999,11 @@ function StepEventBasics({
                 <button
                   key={date}
                   type="button"
-                  onClick={() => onChange('eventoFecha', `${date}T00:00:00`)}
+                  onClick={() => {
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                      onChange('eventoFecha', `${date}T12:00:00`);
+                    }
+                  }}
                   className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-100 text-xs font-bold hover:bg-amber-500/30"
                 >
                   {date}

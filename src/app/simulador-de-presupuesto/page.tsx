@@ -427,6 +427,7 @@ function SimuladorContent() {
 
         if (step === 3) {
             setIsGenerating(true);
+            const selectedPackageName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
                 clienteNombre,
                 clienteContacto,
@@ -437,7 +438,7 @@ function SimuladorContent() {
                 costoEstimado: stats.totalFinal,
                 descuentoGeneral: 10,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
-                paqueteNombre: `${config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre || ''} — ${eventoTipo}`.trim(),
+                paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 items: stats.detallados.map(s => {
                     const original = allSimuladorServices.find(os => os.id === s.id);
                     return {
@@ -819,7 +820,11 @@ function SimuladorContent() {
                                                     key={date}
                                                     type="button"
                                                     className="px-3 py-1 rounded-full bg-amber-200 text-amber-900 text-xs font-bold"
-                                                    onClick={() => handleEventoFechaChange(new Date(`${date}T00:00:00`))}
+                                                    onClick={() => {
+                                                        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                                                            handleEventoFechaChange(new Date(`${date}T12:00:00`));
+                                                        }
+                                                    }}
                                                 >
                                                     {date}
                                                 </button>

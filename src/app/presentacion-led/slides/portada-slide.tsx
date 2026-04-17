@@ -34,6 +34,9 @@ export function PortadaSlide({
   const safeLogoUrl = (logoUrl && /^https?:\/\//i.test(logoUrl)) || (logoUrl && /^data:image\/(png|jpeg|jpg|gif|svg\+xml|webp);base64,/i.test(logoUrl))
     ? logoUrl
     : null;
+  const safeBackgroundUrl = (imagenFondoUrl && /^https?:\/\//i.test(imagenFondoUrl))
+    ? imagenFondoUrl
+    : null;
 
   return (
     <SlideLayout className="text-center">
@@ -125,10 +128,10 @@ export function PortadaSlide({
           transition={{ delay: 0.3, duration: 0.7 }}
           className="hidden lg:block"
         >
-          {imagenFondoUrl ? (
+          {safeBackgroundUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={imagenFondoUrl}
+              src={safeBackgroundUrl}
               alt={tipoFiesta ? `Foto de ${tipoFiesta}` : 'Foto principal del evento'}
               className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl"
             />

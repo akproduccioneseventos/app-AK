@@ -21,6 +21,7 @@ export function BeneficiosSlide({
   beneficios?: { emoji: string; texto: string }[];
   imagenLateralUrl?: string;
 }) {
+  const safeLateralImageUrl = imagenLateralUrl && /^https?:\/\//i.test(imagenLateralUrl) ? imagenLateralUrl : null;
   return (
     <SlideLayout overflowScroll>
       <div className="w-full max-w-5xl mx-auto">
@@ -62,9 +63,9 @@ export function BeneficiosSlide({
           ))}
           </div>
           <div>
-            {imagenLateralUrl ? (
+            {safeLateralImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={imagenLateralUrl} alt="Imagen beneficios" className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl" />
+              <img src={safeLateralImageUrl} alt="Imagen beneficios" className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl" />
             ) : (
               <ImagePlaceholder id="beneficios-lateral" label="Imagen lateral beneficios" aspectRatio="4/3" />
             )}

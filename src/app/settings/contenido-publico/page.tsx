@@ -48,6 +48,7 @@ export default function ContenidoPublicoSettingsPage() {
         setPresentacion(p);
         setCatalogo(c);
       } catch {
+        console.error('Error loading contenido público settings');
         toast({ title: 'Error', description: 'No se pudo cargar la configuración.', variant: 'destructive' });
       } finally {
         setLoading(false);
@@ -66,6 +67,7 @@ export default function ContenidoPublicoSettingsPage() {
       ]);
       toast({ title: 'Guardado', description: 'Los cambios se guardaron correctamente.' });
     } catch {
+      console.error('Error saving contenido público settings');
       toast({ title: 'Error', description: 'No se pudieron guardar los cambios.', variant: 'destructive' });
     } finally {
       setSaving(false);

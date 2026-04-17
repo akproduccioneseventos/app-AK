@@ -114,6 +114,10 @@ function sortCategoriesByFlow(categorias: CategoriaServicio[]): CategoriaServici
   });
 }
 
+function isMenuCategory(categoria: CategoriaServicio): boolean {
+  return normalizeCategory(categoria.nombre).includes('menu');
+}
+
 // ---- Slide index constants ----
 const FIXED_SLIDES_START = 4; // portada, beneficios, datos evento, salon
 const FIXED_SLIDES_END = 3;   // regalos, presupuesto, contratarnos
@@ -169,13 +173,13 @@ export default function PresentacionLedPage() {
   const categorias = useMemo<CategoriaServicio[]>(() => {
     if (!data) return [];
     const grouped = groupServicesByCategory(data.servicios);
-    const menuCategories = grouped.filter((c) => normalizeCategory(c.nombre).includes('menu'));
-    const ordered = sortCategoriesByFlow(grouped.filter((c) => !normalizeCategory(c.nombre).includes('menu')));
+    const menuCategories = grouped.filter(isMenuCategory);
+    const ordered = sortCategoriesByFlow(grouped.filter((c) => !isMenuCategory(c)));
     return [...menuCategories, ...ordered];
   }, [data]);
 
   const dynamicSlides = useMemo<Array<{ type: 'tipo-fiesta' | 'menu' | 'categoria'; categoria?: CategoriaServicio }>>(() => {
-    const categorySlides = categorias.filter((c) => !normalizeCategory(c.nombre).includes('menu'));
+    const categorySlides = categorias.filter((c) => !isMenuCategory(c));
     return [
       { type: 'tipo-fiesta' },
       { type: 'menu' },
