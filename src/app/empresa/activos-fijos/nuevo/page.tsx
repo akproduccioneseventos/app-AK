@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, type FormEvent, Suspense, useMemo } from 'react';
+import React, { useState, type FormEvent, Suspense, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,18 +9,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, PackagePlus, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, PackagePlus, PlusCircle, Trash2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveActivoFijo } from '@/app/actions/activos-fijos';
 import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_ACTIVO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
 import { Separator } from '@/components/ui/separator';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 
 
 function NuevoActivoFijoContent() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Unified state object
   const [formData, setFormData] = useState<Partial<ServicioEmpresa>>({
@@ -77,6 +80,23 @@ function NuevoActivoFijoContent() {
         const nuevosTramos = prev.tramosDePrecio.filter((_, index) => index !== indexToRemove);
         return {...prev, tramosDePrecio: nuevosTramos};
     });
+  };
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const result = await uploadPublicPageAsset('activos-fijos', file);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      handleFormChange('imageUrl', result.url);
+      toast({ title: '✅ Imagen subida', description: 'La foto del activo fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = '';
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -143,6 +163,29 @@ function NuevoActivoFijoContent() {
             <div className="space-y-2">
               <Label htmlFor="item-nombre" className="text-base">Nombre del Ítem *</Label>
               <Input id="item-nombre" value={formData.nombre || ''} onChange={(e) => handleFormChange('nombre', e.target.value)} placeholder="Ej: Silla Tiffany, Mantel Redondo" className="text-base p-3" required disabled={isSaving}/>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="item-image-url" className="text-base">Foto del Activo (URL o subir archivo)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="item-image-url"
+                  value={formData.imageUrl || ''}
+                  onChange={(e) => handleFormChange('imageUrl', e.target.value)}
+                  placeholder="https://..."
+                  className="text-base p-3"
+                  disabled={isSaving || isUploadingImage}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isSaving || isUploadingImage}
+                  onClick={() => imageInputRef.current?.click()}
+                >
+                  {isUploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                  Subir desde dispositivo
+                </Button>
+                <input ref={imageInputRef} id="item-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isSaving || isUploadingImage} aria-label="Subir imagen del activo" />
+              </div>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
