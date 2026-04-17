@@ -170,6 +170,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
   }, [searchParams]);
 
+  const adjustmentPct = presupuesto?.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
   const calculatedValues = useMemo(() => {
     if (!presupuesto) return { itemsAgrupados: {}, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };
   
@@ -199,7 +200,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
         const anioEvento = new Date(presupuesto.eventoFecha).getFullYear();
         anios = Math.max(0, anioEvento - anioCreacion);
-        if (anios > 0) ajuste = totalSinAjuste * (Math.pow(1.15, anios) - 1);
+        if (anios > 0) ajuste = totalSinAjuste * (Math.pow(1 + (adjustmentPct / 100), anios) - 1);
     }
 
     const agrupados = itemsRecalculados.reduce((acc, item) => {
@@ -227,7 +228,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       totalFinal: Math.round(totalSinAjuste + ajuste),
       aniosDiferencia: anios
     };
-  }, [presupuesto]);
+  }, [presupuesto, adjustmentPct]);
 
   const handlePrint = () => window.print();
 
@@ -236,6 +237,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     return (presupuesto.eventoHoraInicio || extractTimeFromDate(presupuesto.eventoFecha)).trim();
   }, [presupuesto]);
   const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
+  const currentYear = new Date().getFullYear();
+  const clubUruguayItem = (presupuesto?.itemsPresupuestados || []).find((item) => item.idServicioCatalogo === 'serv_salon_club_uruguay');
+  const clubUruguayCosto = clubUruguayItem
+    ? Math.round((clubUruguayItem.precioUnitarioPresupuesto || clubUruguayItem.precioUnitario || 0) * (clubUruguayItem.cantidad || 1))
+    : 0;
 
   const handleOpenContrato = useCallback(() => {
     if (!presupuestoId) return;
@@ -936,7 +942,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         {calculatedValues.ajusteAnual > 0 && (
                           <tr style={{ backgroundColor: '#f8fafc' }}>
                             <td colSpan={5} className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
-                              Ajuste anual ({presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15}%):
+                              Ajuste anual ({adjustmentPct}%):
                             </td>
                             <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
                               {formatCurrency(calculatedValues.ajusteAnual)}
@@ -944,7 +950,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                           </tr>
                         )}
                         {(() => {
-                          const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15;
                           const contractYear = new Date(presupuesto.timestamp).getFullYear();
                           const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : contractYear;
                           const totalSinAjuste = calculatedValues.totalFinal - calculatedValues.ajusteAnual;
@@ -973,7 +978,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                       </tbody>
                     </table>
                 </section>
-                    
+                {clubUruguayItem && (
+                  <section className="mb-4 print:mb-3 border border-emerald-300 rounded px-4 py-3 bg-emerald-50/60">
+                    <p className="text-sm font-black text-emerald-800">✅ Salón seleccionado: Club Uruguay</p>
+                    <p className="text-xs text-emerald-700 mt-1">
+                      Costo: {formatCurrency(clubUruguayCosto)} — Este monto se coordinará y formará parte del presupuesto final.
+                    </p>
+                  </section>
+                )}
+                     
                 {/* Totals breakdown */}
                 <section className="flex justify-end mb-4 print:mb-3">
                     <div className="w-full max-w-sm space-y-2 py-4 px-6 border border-gray-300 rounded print:border-gray-400 bg-white">
@@ -995,7 +1008,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         )}
                         {calculatedValues.ajusteAnual > 0 && (
                             <div className="hidden print:flex justify-between items-center text-[9px] font-black uppercase text-amber-600 tracking-widest">
-                                <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. {presupuesto.ajusteAnualPorcentaje ?? displaySettings.annualAdjustmentPercentage ?? 15}%):</span>
+                                <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. {adjustmentPct}%):</span>
                                 <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
                             </div>
                         )}
@@ -1023,6 +1036,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             <span className="tracking-tighter">TOTAL FINAL:</span>
                             <span>{formatCurrency(calculatedValues.totalFinal)}</span>
                         </div>
+                        <p className="text-[10px] text-gray-600 font-semibold mt-2">
+                          Precios {currentYear} — Ajuste anual del {adjustmentPct}% para eventos futuros.
+                        </p>
 
                     </div>
                 </section>

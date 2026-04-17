@@ -1,5 +1,6 @@
 'use server';
 
+import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
 import { savePresupuesto } from './presupuestos';
@@ -14,11 +15,22 @@ const defaultConfig: ArmadoRapidoConfig = {
   platosVisibles: [],
   serviceDependencies: [],
   mostrarPrecios: true,
+  clubUruguayConfig: defaultClubUruguayConfig,
 };
 
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   const config = await readData<ArmadoRapidoConfig>(CONFIG_FILE, defaultConfig);
-  return { ...defaultConfig, ...config };
+  return {
+    ...defaultConfig,
+    ...config,
+    clubUruguayConfig: {
+      ...defaultClubUruguayConfig,
+      ...(config?.clubUruguayConfig || {}),
+      prestaciones: (config?.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
+        .map((p) => p.trim())
+        .filter(Boolean),
+    },
+  };
 }
 
 export async function saveArmadoRapidoConfig(
@@ -53,6 +65,13 @@ export async function saveArmadoRapidoConfig(
         triggerServiceId: dep.triggerServiceId,
         requiredServiceId: dep.requiredServiceId,
       })),
+      clubUruguayConfig: {
+        activo: newConfigData.clubUruguayConfig?.activo ?? defaultClubUruguayConfig.activo,
+        precio: Number(newConfigData.clubUruguayConfig?.precio) || defaultClubUruguayConfig.precio,
+        prestaciones: (newConfigData.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
+          .map((p) => p.trim())
+          .filter(Boolean),
+      },
     };
     await writeData(CONFIG_FILE, sanitizedConfig);
     return { success: true };

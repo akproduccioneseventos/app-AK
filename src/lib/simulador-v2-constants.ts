@@ -2,6 +2,7 @@ import type { SimV2TipoEvento, SimV2Paquete } from '@/types/simulador-v2';
 
 export const SIM_V2_BASE_RATES: Record<SimV2TipoEvento, { perPerson: number; base: number }> = {
   'Cumpleaños': { perPerson: 800, base: 5000 },
+  'Cumpleaños infantil': { perPerson: 700, base: 4500 },
   '15 años': { perPerson: 950, base: 8000 },
   'Boda': { perPerson: 1100, base: 12000 },
   'Evento empresarial': { perPerson: 750, base: 6000 },

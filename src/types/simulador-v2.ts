@@ -1,6 +1,6 @@
 export type SimV2Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13;
 
-export type SimV2TipoEvento = 'Cumpleaños' | '15 años' | 'Boda' | 'Evento empresarial';
+export type SimV2TipoEvento = 'Cumpleaños' | 'Cumpleaños infantil' | '15 años' | 'Boda' | 'Evento empresarial';
 
 export type SimV2Paquete = 'Básico' | 'Intermedio' | 'Premium';
 
