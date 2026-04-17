@@ -44,10 +44,27 @@ export interface LandingFaqItem {
   answer: string;
 }
 
+export interface LandingGalleryImage {
+  id: string;
+  url: string;
+  caption?: string;
+  featured?: boolean;
+}
+
+export interface LandingServiceItem {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+}
+
 export interface LandingSettings {
   hero: LandingHeroSettings;
+  services?: LandingServiceItem[];
   stats: LandingStatItem[];
   cta: LandingCtaSettings;
+  gallery?: LandingGalleryImage[];
   colors: LandingColorSettings;
   seo: LandingSeoSettings;
   faqs?: LandingFaqItem[];
@@ -67,6 +84,12 @@ export const defaultLandingSettings: LandingSettings = {
     ctaLabel: 'Cotizá tu evento ahora',
     ctaUrl: '/simulador-de-presupuesto',
   },
+  services: [
+    { id: 'svc_1', icon: '💍', title: 'Bodas', description: 'Producción integral de bodas civiles y religiosas.' },
+    { id: 'svc_2', icon: '🎂', title: 'XV Años', description: 'Celebraciones únicas y memorables.' },
+    { id: 'svc_3', icon: '🎉', title: 'Cumpleaños', description: 'Fiestas personalizadas para todas las edades.' },
+    { id: 'svc_4', icon: '🏢', title: 'Eventos Corporativos', description: 'Lanzamientos, conferencias y team buildings.' },
+  ],
   stats: [
     { value: '+500', label: 'Eventos Realizados', icon: '🎉' },
     { value: '+12', label: 'Años de Experiencia', icon: '⭐' },
@@ -79,6 +102,7 @@ export const defaultLandingSettings: LandingSettings = {
     ctaLabel: 'Hablar con un asesor',
     whatsappNumber: '59898355530',
   },
+  gallery: [],
   colors: {
     overlayFrom: 'rgba(88,28,135,0.8)',
     overlayTo: 'rgba(112,26,117,0.6)',
