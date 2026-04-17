@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,16 +8,25 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import {
-  ArrowLeft, Save, Loader2, Eye, Globe, Palette, Layout, Type, BarChart3, Phone, Plus, Trash2, ExternalLink, Upload, Sparkles, Camera
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  ArrowLeft, Save, Loader2, Eye, Globe, Palette, Layout, Type, BarChart3, Phone, Plus, Trash2, ExternalLink, Upload, Sparkles, Camera, Video
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getLandingSettings, saveLandingSettings } from '@/app/actions/landing-editor';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
-import type { LandingSettings, LandingStatItem, LandingFaqItem, LandingGalleryImage, LandingServiceItem } from '@/types/landing-editor';
+import { addGaleriaFoto, addGaleriaVideo, deleteGaleriaItem, getGaleriaItems } from '@/app/actions/galeria';
+import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
+import { GALERIA_CATEGORIAS, SERVICIOS_GALERIA, TIPOS_FIESTA_GALERIA } from '@/types/galeria';
+import type { LandingSettings, LandingStatItem, LandingFaqItem, LandingServiceItem } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
 
 /**
@@ -56,6 +65,24 @@ function extractHexColor(value: string, defaultHex: string): string {
   return defaultHex;
 }
 
+const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{1,20}$/;
+
+function extractYoutubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (!['http:', 'https:'].includes(u.protocol)) return null;
+    let id: string | null = null;
+    if (u.hostname === 'youtu.be') id = u.pathname.slice(1).split('?')[0];
+    else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
+      id = u.searchParams.get('v');
+    }
+    return id && YOUTUBE_ID_RE.test(id) ? id : null;
+  } catch {
+    // invalid url
+  }
+  return null;
+}
+
 const EMOJI_SHORTCUTS = ['🎉', '⭐', '❤️', '📞', '🎂', '🥂', '💍', '🎵', '📸', '🎊', '🏆', '💫', '✨', '🎈', '🕐', '👏'];
 
 export default function LandingEditorPage() {
@@ -66,20 +93,38 @@ export default function LandingEditorPage() {
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
   const [isUploadingOgImage, setIsUploadingOgImage] = useState(false);
-  const [galleryInputUrl, setGalleryInputUrl] = useState('');
-  const [isUploadingGalleryImage, setIsUploadingGalleryImage] = useState(false);
   const [uploadingServiceImageId, setUploadingServiceImageId] = useState<string | null>(null);
+  const [galeriaFotos, setGaleriaFotos] = useState<GaleriaFoto[]>([]);
+  const [galeriaVideos, setGaleriaVideos] = useState<GaleriaVideo[]>([]);
+  const [galeriaTab, setGaleriaTab] = useState<'fotos' | 'videos'>('fotos');
+  const [isLoadingGaleria, setIsLoadingGaleria] = useState(false);
+  const [fotoTipoFiesta, setFotoTipoFiesta] = useState<string>('General');
+  const [fotoCategoria, setFotoCategoria] = useState<string>('General');
+  const [fotoTitulo, setFotoTitulo] = useState('');
+  const [isUploadingFotoGaleria, setIsUploadingFotoGaleria] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoTitulo, setVideoTitulo] = useState('');
+  const [videoDescripcion, setVideoDescripcion] = useState('');
+  const [videoCategoria, setVideoCategoria] = useState<string>('General');
+  const [isSavingVideoGaleria, setIsSavingVideoGaleria] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
+    setIsLoadingGaleria(true);
     try {
-      const data = await getLandingSettings();
+      const [data, galeriaData] = await Promise.all([
+        getLandingSettings(),
+        getGaleriaItems(),
+      ]);
       setSettings(data);
+      setGaleriaFotos(galeriaData.fotos.sort((a, b) => a.orden - b.orden));
+      setGaleriaVideos(galeriaData.videos.sort((a, b) => a.orden - b.orden));
       if (data.updatedAt) setLastSaved(new Date(data.updatedAt).toLocaleString('es-UY'));
     } catch {
       toast({ title: 'Error', description: 'No se pudo cargar la configuración.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
+      setIsLoadingGaleria(false);
     }
   }, [toast]);
 
@@ -176,53 +221,128 @@ export default function LandingEditorPage() {
     setSettings(s => ({ ...s, stats: s.stats.filter((_, i) => i !== index) }));
   };
 
-  const addGalleryImageByUrl = () => {
-    if (!galleryInputUrl.trim()) return;
-    const newImage: LandingGalleryImage = {
-      id: `gal_${Date.now()}`,
-      url: galleryInputUrl.trim(),
-      caption: '',
-      featured: false,
-    };
-    setSettings(s => ({ ...s, gallery: [...(s.gallery || []), newImage] }));
-    setGalleryInputUrl('');
-  };
+  const allServiceOptions = useMemo(() => {
+    const options = new Set<string>([
+      ...SERVICIOS_GALERIA,
+      ...GALERIA_CATEGORIAS,
+      ...galeriaFotos.map((f) => f.categoria).filter(Boolean),
+      ...galeriaVideos.map((v) => v.categoria).filter(Boolean),
+    ]);
+    return ['General', ...Array.from(options).sort((a, b) => a.localeCompare(b))];
+  }, [galeriaFotos, galeriaVideos]);
 
-  const handleUploadGalleryImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const groupedFotos = useMemo(() => {
+    const groups = new Map<string, { tipoFiesta: string; servicio: string; fotos: GaleriaFoto[] }>();
+    for (const foto of galeriaFotos) {
+      const tipoFiesta = foto.tipoFiesta || 'General';
+      const servicio = foto.categoria || foto.servicio || 'General';
+      const key = `${tipoFiesta}__${servicio}`;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.fotos.push(foto);
+      } else {
+        groups.set(key, { tipoFiesta, servicio, fotos: [foto] });
+      }
+    }
+    if (!groups.has('General__General')) {
+      groups.set('General__General', { tipoFiesta: 'General', servicio: 'General', fotos: [] });
+    }
+    return Array.from(groups.values()).sort((a, b) => {
+      if (a.tipoFiesta === b.tipoFiesta) return a.servicio.localeCompare(b.servicio);
+      if (a.tipoFiesta === 'General') return -1;
+      if (b.tipoFiesta === 'General') return 1;
+      return a.tipoFiesta.localeCompare(b.tipoFiesta);
+    });
+  }, [galeriaFotos]);
+
+  const handleUploadFotoGaleria = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setIsUploadingGalleryImage(true);
+    setIsUploadingFotoGaleria(true);
     try {
       const formData = new FormData();
-      formData.append('fiestaId', 'landing-gallery');
+      formData.append('folder', 'landing-galeria');
       formData.append('file', file);
       const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
-      const newImage: LandingGalleryImage = {
-        id: `gal_${Date.now()}`,
+
+      const categoria = fotoCategoria || 'General';
+      const tipoSeleccionado = fotoTipoFiesta === 'General' ? undefined : fotoTipoFiesta;
+      const newFoto: GaleriaFoto = {
+        id: `foto_${Date.now()}`,
+        tipo: 'foto',
         url: result.url,
-        caption: '',
-        featured: false,
+        titulo: fotoTitulo.trim() || undefined,
+        categoria,
+        tipoFiesta: tipoSeleccionado,
+        servicio: categoria === 'General' ? undefined : categoria,
+        destacada: false,
+        orden: galeriaFotos.length,
+        createdAt: new Date().toISOString(),
       };
-      setSettings(s => ({ ...s, gallery: [...(s.gallery || []), newImage] }));
-      toast({ title: '✅ Imagen agregada a la galería' });
+
+      await addGaleriaFoto(newFoto);
+      toast({ title: '✅ Foto agregada', description: 'La foto ya está disponible en la landing pública.' });
+      setFotoTitulo('');
+      await fetchData();
     } catch (err: any) {
       toast({ title: 'Error al subir', description: err.message, variant: 'destructive' });
     } finally {
-      setIsUploadingGalleryImage(false);
+      setIsUploadingFotoGaleria(false);
       e.target.value = '';
     }
   };
 
-  const removeGalleryImage = (id: string) => {
-    setSettings(s => ({ ...s, gallery: (s.gallery || []).filter(img => img.id !== id) }));
+  const handleDeleteGaleriaItem = async (id: string) => {
+    try {
+      await deleteGaleriaItem(id);
+      toast({ title: '✅ Eliminado', description: 'El elemento fue eliminado de la galería pública.' });
+      await fetchData();
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo eliminar el elemento.', variant: 'destructive' });
+    }
   };
 
-  const updateGalleryImage = (id: string, field: keyof LandingGalleryImage, value: string | boolean) => {
-    setSettings(s => ({
-      ...s,
-      gallery: (s.gallery || []).map(img => img.id === id ? { ...img, [field]: value } : img),
-    }));
+  const handleAddVideoGaleria = async () => {
+    if (!videoUrl.trim() || !videoTitulo.trim()) {
+      toast({ title: 'Campos requeridos', description: 'Ingresá URL de YouTube y título.', variant: 'destructive' });
+      return;
+    }
+    const youtubeId = extractYoutubeId(videoUrl.trim());
+    if (!youtubeId) {
+      toast({ title: 'URL inválida', description: 'Ingresá un link de YouTube válido.', variant: 'destructive' });
+      return;
+    }
+
+    setIsSavingVideoGaleria(true);
+    try {
+      const categoria = videoCategoria || 'General';
+      const video: GaleriaVideo = {
+        id: `video_${Date.now()}`,
+        tipo: 'video',
+        youtubeUrl: videoUrl.trim(),
+        youtubeId,
+        thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+        titulo: videoTitulo.trim(),
+        descripcion: videoDescripcion.trim() || undefined,
+        categoria,
+        servicio: categoria === 'General' ? undefined : categoria,
+        destacada: false,
+        orden: galeriaVideos.length,
+        createdAt: new Date().toISOString(),
+      };
+      await addGaleriaVideo(video);
+      toast({ title: '✅ Video agregado', description: 'El video ya está disponible en la landing pública.' });
+      setVideoUrl('');
+      setVideoTitulo('');
+      setVideoDescripcion('');
+      setVideoCategoria('General');
+      await fetchData();
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo guardar el video.', variant: 'destructive' });
+    } finally {
+      setIsSavingVideoGaleria(false);
+    }
   };
 
   const addService = () => {
@@ -689,87 +809,231 @@ export default function LandingEditorPage() {
         <TabsContent value="gallery" className="space-y-6 pt-4 animate-in fade-in duration-500">
           <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
             <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
-              <CardTitle>📷 Galería de la Landing Page</CardTitle>
-              <CardDescription>Imágenes que aparecen en la galería de tu página pública. Podés subirlas desde tu celular o PC.</CardDescription>
+              <CardTitle>📷 Galería Pública (Fotos y Videos)</CardTitle>
+              <CardDescription>Gestioná aquí el contenido real que se muestra en la landing pública.</CardDescription>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Agregar imagen por URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={galleryInputUrl}
-                    onChange={e => setGalleryInputUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="rounded-xl"
-                  />
-                  <Button type="button" onClick={addGalleryImageByUrl} className="rounded-xl">
-                    <Plus className="w-4 h-4 mr-2" /> Agregar
-                  </Button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subir desde dispositivo</Label>
-                <p className="text-[10px] text-muted-foreground">En celular se habilita elegir entre cámara o galería del dispositivo.</p>
-                <label htmlFor="gallery-image-upload">
-                  <Button asChild variant="outline" className="rounded-xl" disabled={isUploadingGalleryImage}>
-                    <span>
-                      {isUploadingGalleryImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                      Subir imagen
-                    </span>
-                  </Button>
-                  <input
-                    id="gallery-image-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleUploadGalleryImage}
-                    disabled={isUploadingGalleryImage}
-                  />
-                </label>
-              </div>
-              <Separator />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(settings.gallery || []).map((img) => (
-                  <div key={img.id} className="border border-slate-200 rounded-2xl p-3 space-y-3 bg-white">
-                    {sanitizeImageUrl(img.url) && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={sanitizeImageUrl(img.url)!}
-                        alt={img.caption || 'Imagen de galería'}
-                        className="w-full h-36 object-cover rounded-xl border border-slate-100"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                      />
-                    )}
-                    <Input
-                      value={img.url}
-                      onChange={e => updateGalleryImage(img.id, 'url', e.target.value)}
-                      placeholder="https://..."
-                      className="rounded-xl text-xs"
-                    />
-                    <Input
-                      value={img.caption || ''}
-                      onChange={e => updateGalleryImage(img.id, 'caption', e.target.value)}
-                      placeholder="Pie de foto (opcional)"
-                      className="rounded-xl"
-                    />
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={Boolean(img.featured)}
-                          onCheckedChange={(checked) => updateGalleryImage(img.id, 'featured', checked)}
-                        />
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Destacada</span>
+              <Tabs value={galeriaTab} onValueChange={(v) => setGaleriaTab(v as 'fotos' | 'videos')}>
+                <TabsList className="grid w-full grid-cols-2 rounded-xl">
+                  <TabsTrigger value="fotos" className="rounded-lg text-xs font-black uppercase tracking-widest">
+                    <Camera className="w-3.5 h-3.5 mr-1" /> Fotos
+                  </TabsTrigger>
+                  <TabsTrigger value="videos" className="rounded-lg text-xs font-black uppercase tracking-widest">
+                    <Video className="w-3.5 h-3.5 mr-1" /> Videos
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="fotos" className="space-y-5 pt-4">
+                  <Card className="border border-slate-200">
+                    <CardHeader>
+                      <CardTitle className="text-base font-black uppercase tracking-tight">+ Agregar foto</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label>Tipo de Fiesta</Label>
+                          <Select value={fotoTipoFiesta} onValueChange={setFotoTipoFiesta}>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="General">General / Todos</SelectItem>
+                              {TIPOS_FIESTA_GALERIA.map((tipo) => (
+                                <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Servicio / Categoría</Label>
+                          <Select value={fotoCategoria} onValueChange={setFotoCategoria}>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {allServiceOptions.map((cat) => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => removeGalleryImage(img.id)} className="text-rose-400 hover:text-rose-600">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="space-y-1">
+                        <Label>Título (opcional)</Label>
+                        <Input
+                          value={fotoTitulo}
+                          onChange={(e) => setFotoTitulo(e.target.value)}
+                          placeholder="Ej: Fiesta de Martina"
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <label htmlFor="landing-editor-galeria-foto-upload">
+                        <Button asChild variant="outline" className="rounded-xl w-full" disabled={isUploadingFotoGaleria}>
+                          <span>
+                            {isUploadingFotoGaleria ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                            Subir foto
+                          </span>
+                        </Button>
+                        <input
+                          id="landing-editor-galeria-foto-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleUploadFotoGaleria}
+                          disabled={isUploadingFotoGaleria}
+                        />
+                      </label>
+                    </CardContent>
+                  </Card>
+
+                  {isLoadingGaleria ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                     </div>
-                  </div>
-                ))}
-              </div>
-              {(!settings.gallery || settings.gallery.length === 0) && (
-                <p className="text-center text-muted-foreground py-8 text-sm">No hay imágenes en la galería.</p>
-              )}
+                  ) : (
+                    <Accordion type="multiple" className="w-full">
+                      {groupedFotos.map((group) => (
+                        <AccordionItem key={`${group.tipoFiesta}-${group.servicio}`} value={`${group.tipoFiesta}-${group.servicio}`}>
+                          <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline">
+                            {group.tipoFiesta} · {group.servicio} <span className="text-slate-400 ml-1">({group.fotos.length})</span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {group.fotos.length === 0 ? (
+                              <div className="w-full max-w-[220px] aspect-square rounded-2xl border border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center text-slate-500">
+                                <Camera className="w-8 h-8 mb-2" />
+                                <p className="text-xs font-bold uppercase tracking-wide">Sin fotos</p>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                {group.fotos.map((foto) => (
+                                  <div key={foto.id} className="border border-slate-200 rounded-2xl p-2 bg-white space-y-2">
+                                    {sanitizeImageUrl(foto.url) ? (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img
+                                        src={sanitizeImageUrl(foto.url)!}
+                                        alt={foto.titulo || foto.categoria}
+                                        className="w-full aspect-square object-cover rounded-xl"
+                                      />
+                                    ) : (
+                                      <div className="w-full aspect-square rounded-xl border border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center text-slate-500">
+                                        <Camera className="w-7 h-7 mb-1" />
+                                        <p className="text-[10px] font-bold uppercase tracking-wide">Sin foto</p>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-xs font-semibold truncate">{foto.titulo || foto.categoria || 'Sin título'}</p>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDeleteGaleriaItem(foto.id)}
+                                        className="text-rose-400 hover:text-rose-600"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="videos" className="space-y-5 pt-4">
+                  <Card className="border border-slate-200">
+                    <CardHeader>
+                      <CardTitle className="text-base font-black uppercase tracking-tight">+ Agregar video YouTube</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-1">
+                        <Label>URL de YouTube</Label>
+                        <Input
+                          value={videoUrl}
+                          onChange={(e) => setVideoUrl(e.target.value)}
+                          placeholder="https://youtube.com/watch?v=..."
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Título</Label>
+                        <Input
+                          value={videoTitulo}
+                          onChange={(e) => setVideoTitulo(e.target.value)}
+                          placeholder="Ej: Boda de Lucía y Mateo"
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Descripción (opcional)</Label>
+                        <Textarea
+                          value={videoDescripcion}
+                          onChange={(e) => setVideoDescripcion(e.target.value)}
+                          className="rounded-xl"
+                          rows={2}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Categoría / Servicio (opcional)</Label>
+                        <Select value={videoCategoria} onValueChange={setVideoCategoria}>
+                          <SelectTrigger className="rounded-xl">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allServiceOptions.map((cat) => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button onClick={handleAddVideoGaleria} disabled={isSavingVideoGaleria} className="rounded-xl w-full">
+                        {isSavingVideoGaleria ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+                        Agregar video
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {isLoadingGaleria ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : galeriaVideos.length === 0 ? (
+                    <div className="w-full max-w-sm aspect-video rounded-2xl border border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center text-slate-500">
+                      <Video className="w-8 h-8 mb-2" />
+                      <p className="text-xs font-bold uppercase tracking-wide">Sin videos</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {galeriaVideos.map((video) => (
+                        <div key={video.id} className="border border-slate-200 rounded-2xl p-3 bg-white space-y-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={video.thumbnailUrl}
+                            alt={video.titulo}
+                            className="w-full aspect-video object-cover rounded-xl"
+                          />
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold truncate">{video.titulo}</p>
+                              <p className="text-xs text-muted-foreground truncate">{video.youtubeUrl}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteGaleriaItem(video.id)}
+                              className="text-rose-400 hover:text-rose-600 shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </TabsContent>

@@ -15,36 +15,6 @@ export interface VideoItem {
   categoria?: string;
 }
 
-const DEFAULT_VIDEOS: VideoItem[] = [
-  {
-    id: 'v1',
-    title: 'Boda Soñada en Uruguay',
-    description: 'Una tarde mágica que se convirtió en el día más memorable para Valentina y Rodrigo.',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80&auto=format&fit=crop',
-    youtubeId: 'dQw4w9WgXcQ',
-    categoria: 'Bodas',
-  },
-  {
-    id: 'v2',
-    title: 'XV Años — Florencia',
-    description: 'Una fiesta de cuento de hadas para los 15 años de Florencia, llena de color y alegría.',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=80&auto=format&fit=crop',
-    youtubeId: 'dQw4w9WgXcQ',
-    categoria: 'XV Años',
-  },
-  {
-    id: 'v3',
-    title: 'Evento Corporativo Gala',
-    description: 'Producción integral para gala empresarial con más de 200 invitados.',
-    thumbnailUrl:
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80&auto=format&fit=crop',
-    youtubeId: 'dQw4w9WgXcQ',
-    categoria: 'Eventos Corporativos',
-  },
-];
-
 function galeriaVideoToVideoItem(video: GaleriaVideo): VideoItem {
   return {
     id: video.id,
@@ -108,7 +78,9 @@ interface VideoSectionProps {
 
 export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
   const dynamicVideos: VideoItem[] = galeriaVideos?.map(galeriaVideoToVideoItem) ?? [];
-  const allVideos: VideoItem[] = dynamicVideos.length > 0 ? dynamicVideos : videos ?? DEFAULT_VIDEOS;
+  const allVideos: VideoItem[] = dynamicVideos.length > 0 ? dynamicVideos : videos ?? [];
+  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
 
   // Sort: destacados first using a Map for O(n) performance
   const destacadaMap = new Map(galeriaVideos?.map((v) => [v.id, v.destacada]));
@@ -122,8 +94,9 @@ export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
   ) as string[];
   const categories = ['Todos', ...uniqueCategories];
 
-  const [activeCategory, setActiveCategory] = useState('Todos');
-  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  if (allVideos.length === 0) {
+    return null;
+  }
 
   const filtered = activeCategory === 'Todos'
     ? sortedVideos
