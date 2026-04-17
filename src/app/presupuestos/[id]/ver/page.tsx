@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -86,6 +86,7 @@ function generateJanuaryAdjustmentLines(totalBase: number, adjustmentPct: number
 
 function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const presupuestoId = params.id;
   const { toast } = useToast();
 
@@ -162,6 +163,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   }, [presupuestoId, toast]);
 
   useEffect(() => { fetchPresupuestoAndSettings(); }, [fetchPresupuestoAndSettings]);
+  useEffect(() => {
+    if (searchParams.get('imprimir') === '1') {
+      const t = setTimeout(() => window.print(), 800);
+      return () => clearTimeout(t);
+    }
+  }, [searchParams]);
 
   const calculatedValues = useMemo(() => {
     if (!presupuesto) return { itemsAgrupados: {}, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };

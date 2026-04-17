@@ -156,9 +156,22 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
   /** Build the first seña amount from the first recorded payment, or default to 0. */
   const montoSenia = pagos.find((p) => p.estadoPago !== 'pendiente_confirmacion')?.monto ?? 0;
-  const hasDeposit = montoSenia > 0;
-  const eventStartTime = (presupuesto?.eventoHoraInicio || extractTimeFromDate(presupuesto?.eventoFecha)).trim();
-  const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
+  const overriddenNombre = searchParams.get('nombre') || presupuesto?.clienteNombre || '';
+  const overriddenTelefono = searchParams.get('telefono') || presupuesto?.clienteContacto || '';
+  const overriddenCi = searchParams.get('ci') || (presupuesto as any)?.clienteCi || '___________________';
+  const overriddenDomicilio = searchParams.get('domicilio') || (presupuesto as any)?.clienteDomicilio || '___________________';
+  const overriddenSalon = searchParams.get('salon') || presupuesto?.salonFiestas || '___________________';
+  const overriddenFecha = searchParams.get('fecha') || presupuesto?.eventoFecha || '';
+  const seniaParam = searchParams.get('senia');
+  const overriddenMontoSenia = seniaParam && !isNaN(Number(seniaParam)) && Number(seniaParam) > 0
+    ? Number(seniaParam)
+    : montoSenia;
+  const isClubUruguayDoc = searchParams.get('club') === 'uruguay';
+  const hasDeposit = overriddenMontoSenia > 0;
+  const eventStartTime = (presupuesto?.eventoHoraInicio || extractTimeFromDate(overriddenFecha || presupuesto?.eventoFecha)).trim();
+  const canGenerateContract = Boolean(overriddenFecha && eventStartTime);
+  const effectiveTotalPagado = seniaParam && !isNaN(Number(seniaParam)) && Number(seniaParam) > 0 ? overriddenMontoSenia : totalPagado;
+  const effectiveSaldoPendiente = totalCosto - effectiveTotalPagado;
   const requestedDoc = searchParams.get('doc');
   const showRecibo = requestedDoc !== 'contrato' && hasDeposit;
   const showContrato = requestedDoc !== 'recibo' && canGenerateContract;
@@ -168,44 +181,43 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
     const today = new Date();
     const ciudadFecha = `Salto, a los ${today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-    const montoSenaNum = montoSenia;
+    const montoSenaNum = overriddenMontoSenia;
     const montoSenaWords = numberToSpanishWords(montoSenaNum);
     const montoSenaStr = `$ ${montoSenaNum.toLocaleString('es-UY')} (pesos uruguayos ${montoSenaWords})`;
 
     return fillContractTemplate({
       ciudadFecha,
-      clienteNombre: presupuesto.clienteNombre,
-      clienteDomicilio: '___________________',
-      clienteCi: '___________________',
-      clienteTelefono: presupuesto.clienteContacto || '___________________',
-      fechaEvento: presupuesto.eventoFecha
-        ? `${new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
+      clienteNombre: overriddenNombre,
+      clienteDomicilio: overriddenDomicilio,
+      clienteCi: overriddenCi,
+      clienteTelefono: overriddenTelefono || '___________________',
+      fechaEvento: overriddenFecha
+        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
-      salon: presupuesto.salonFiestas || '___________________',
+      salon: overriddenSalon,
       montoSena: montoSenaStr,
     });
-  }, [presupuesto, montoSenia, eventStartTime]);
+  }, [presupuesto, overriddenMontoSenia, overriddenNombre, overriddenDomicilio, overriddenCi, overriddenTelefono, overriddenFecha, eventStartTime, overriddenSalon]);
 
   const { contractIntro, contractClauses } = useMemo(() => {
     if (!presupuesto || !contractSettings) return { contractIntro: '', contractClauses: [] as { title: string; content: string }[] };
     const today = new Date();
     const ciudadFecha = `Salto, a los ${today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
 
-    const montoSenaNum = montoSenia;
+    const montoSenaNum = overriddenMontoSenia;
     const montoSenaWords = numberToSpanishWords(montoSenaNum);
     const montoSenaStr = `$ ${montoSenaNum.toLocaleString('es-UY')} (pesos uruguayos ${montoSenaWords})`;
 
     const result = buildContractFromSettings(contractSettings, {
       ciudadFecha,
-      clienteNombre: presupuesto.clienteNombre,
-      // Check both field names for backward compatibility with different data sources
-      clienteDomicilio: (presupuesto as any).clienteDomicilio || (presupuesto as any).clienteAddress || '___________________',
-      clienteCi: (presupuesto as any).clienteCi || '___________________',
-      clienteTelefono: presupuesto.clienteContacto || '___________________',
-      fechaEvento: presupuesto.eventoFecha
-        ? `${new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
+      clienteNombre: overriddenNombre,
+      clienteDomicilio: overriddenDomicilio,
+      clienteCi: overriddenCi,
+      clienteTelefono: overriddenTelefono || '___________________',
+      fechaEvento: overriddenFecha
+        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
-      salon: presupuesto.salonFiestas || '___________________',
+      salon: overriddenSalon,
       montoSena: montoSenaStr,
     });
 
@@ -213,7 +225,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       contractIntro: result.intro,
       contractClauses: result.clauses,
     };
-  }, [presupuesto, contractSettings, montoSenia, eventStartTime]);
+  }, [presupuesto, contractSettings, overriddenMontoSenia, overriddenNombre, overriddenDomicilio, overriddenCi, overriddenTelefono, overriddenFecha, eventStartTime, overriddenSalon]);
 
   const handlePrint = () => window.print();
 
@@ -235,7 +247,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       </div>
     );
 
-  const isPaid = saldoPendiente <= 0;
+  const isPaid = effectiveSaldoPendiente <= 0;
 
   return (
     <div className="bg-slate-100 min-h-screen print:bg-white print:min-h-0">
@@ -319,7 +331,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
               <section className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
                 <div className="space-y-0.5">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Cliente</p>
-                  <p className="font-bold text-slate-900">{presupuesto.clienteNombre}</p>
+                  <p className="font-bold text-slate-900">{overriddenNombre || '—'}</p>
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Tipo de Evento</p>
@@ -327,7 +339,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Fecha del Evento</p>
-                  <p className="font-bold text-slate-900">{formatDate(presupuesto.eventoFecha)}</p>
+                  <p className="font-bold text-slate-900">{formatDate(overriddenFecha)}</p>
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Hora de Inicio</p>
@@ -335,12 +347,12 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Salón</p>
-                  <p className="font-bold text-slate-900">{presupuesto.salonFiestas || '—'}</p>
+                  <p className="font-bold text-slate-900">{overriddenSalon || '—'}</p>
                 </div>
-                {presupuesto.clienteContacto && (
+                {overriddenTelefono && (
                   <div className="space-y-0.5 col-span-2">
                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Contacto</p>
-                    <p className="font-medium text-slate-700">{presupuesto.clienteContacto}</p>
+                    <p className="font-medium text-slate-700">{overriddenTelefono}</p>
                   </div>
                 )}
                 <div className="space-y-0.5">
@@ -365,14 +377,14 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                   </div>
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl print:rounded-lg p-4 text-center space-y-1">
                     <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Total Abonado</p>
-                    <p className="text-lg font-black text-slate-900 leading-tight">{formatCurrency(totalPagado)}</p>
+                    <p className="text-lg font-black text-slate-900 leading-tight">{formatCurrency(effectiveTotalPagado)}</p>
                   </div>
                   <div className="rounded-2xl print:rounded-lg p-4 text-center space-y-1 border bg-slate-50 border-slate-200">
                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">
                       {isPaid ? 'Cuenta Saldada' : 'Saldo Pendiente'}
                     </p>
                     <p className="text-lg font-black leading-tight text-slate-900">
-                      {isPaid ? formatCurrency(0) : formatCurrency(saldoPendiente)}
+                      {isPaid ? formatCurrency(0) : formatCurrency(effectiveSaldoPendiente)}
                     </p>
                   </div>
                 </div>
@@ -384,7 +396,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                     {isPaid ? 'EVENTO 100% CANCELADO' : 'SALDO PENDIENTE DE PAGO'}
                   </span>
                   <span className="font-black text-2xl text-slate-900">
-                    {isPaid ? '✓' : formatCurrency(saldoPendiente)}
+                    {isPaid ? '✓' : formatCurrency(effectiveSaldoPendiente)}
                   </span>
                 </div>
               </section>
@@ -429,7 +441,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                         ))}
                         <TableRow className="bg-slate-50 border-t-2 border-slate-200">
                           <TableCell colSpan={4} className="pl-4 py-3 text-xs font-black uppercase text-slate-500 tracking-wide">Total Abonado</TableCell>
-                          <TableCell className="pr-4 py-3 text-right font-black text-slate-900 text-base">{formatCurrency(totalPagado)}</TableCell>
+                          <TableCell className="pr-4 py-3 text-right font-black text-slate-900 text-base">{formatCurrency(effectiveTotalPagado)}</TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
@@ -482,7 +494,9 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
               <div className="text-right text-white">
                 <p className="text-[9px] font-black uppercase tracking-widest opacity-60">Anexo Legal</p>
                 <p className="text-sm font-black uppercase tracking-tight">Contrato de Servicios</p>
-                <p className="text-[9px] opacity-50 mt-0.5">Cliente: {presupuesto.clienteNombre}</p>
+                <p className="text-[9px] opacity-50 mt-0.5">Cliente: {overriddenNombre}</p>
+                <p className="text-[9px] opacity-50">Salón: {overriddenSalon}</p>
+                {isClubUruguayDoc && <p className="text-[9px] font-bold mt-0.5">Lugar: Club Uruguay</p>}
               </div>
             </div>
 
@@ -498,7 +512,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                 {contractIntro}
               </p>
               <p className="text-[10px] print:text-[9pt] leading-relaxed text-slate-600 mb-3 text-justify">
-                Fecha y hora del evento: <strong>{formatDate(presupuesto.eventoFecha)}{eventStartTime ? ` a las ${eventStartTime}` : ''}</strong>.
+                Fecha y hora del evento: <strong>{formatDate(overriddenFecha)}{eventStartTime ? ` a las ${eventStartTime}` : ''}</strong>.
               </p>
 
               {/* Clauses */}
@@ -529,7 +543,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                   <p className="text-[9px] font-black uppercase text-slate-500 mt-1 text-center tracking-wider">
                     EL CLIENTE
                   </p>
-                  <p className="text-[9px] text-slate-400 text-center">{presupuesto.clienteNombre}</p>
+                  <p className="text-[9px] text-slate-400 text-center">{overriddenNombre}</p>
                 </div>
               </div>
             </div>
