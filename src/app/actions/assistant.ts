@@ -224,6 +224,42 @@ function getBudgetParserText(
     : message;
 }
 
+function normalizeActionData(rawData: unknown): any {
+  if (rawData == null) return rawData;
+  if (typeof rawData === 'string') {
+    const trimmed = rawData.trim();
+    if (!trimmed) return undefined;
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return { rawText: trimmed };
+    }
+  }
+  return rawData;
+}
+
+function normalizeServicesInput(rawServices: unknown): Array<{
+  nombre?: string;
+  name?: string;
+  cantidad?: number;
+  precioUnitario?: number;
+  precio?: number;
+  categoria?: string;
+  category?: string;
+}> {
+  if (Array.isArray(rawServices)) return rawServices as any[];
+  if (typeof rawServices === 'string') {
+    const parsed = parseBudgetFromText(rawServices);
+    return parsed.servicios.map(s => ({
+      nombre: s.nombre,
+      cantidad: s.cantidad,
+      precioUnitario: s.precioUnitario,
+      categoria: 'Servicios',
+    }));
+  }
+  return [];
+}
+
 export async function sendAssistantMessage(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -282,6 +318,9 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
       context,
       imageDataUri,
     });
+    if (result.action) {
+      result.action.data = normalizeActionData(result.action.data);
+    }
 
     logger.info('[Asistente AK] AI action received:', JSON.stringify(result.action));
 
@@ -341,7 +380,18 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
           let serviciosInput: Array<{
             id?: string; nombre?: string; name?: string; descripcion?: string;
             cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
-          }> = Array.isArray(d.servicios) ? d.servicios : [];
+          }> = normalizeServicesInput(d.servicios);
+
+          // Fallback when model returned plain text in action.data.rawText instead of structured fields
+          if (serviciosInput.length === 0 && typeof d.rawText === 'string') {
+            const parsedFromRaw = parseBudgetFromText(d.rawText);
+            serviciosInput = parsedFromRaw.servicios.map(s => ({
+              nombre: s.nombre,
+              cantidad: s.cantidad,
+              precioUnitario: s.precioUnitario,
+              categoria: 'Servicios',
+            }));
+          }
 
           // Fallback: if Gemini returned no services but the message has structured text, use local parser
           if (serviciosInput.length === 0) {
@@ -376,8 +426,8 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
             clienteNombre: d.clienteNombre,
             eventoTipo: d.eventoTipo || '',
             eventoFecha: d.eventoFecha || '',
-            invitadosCantidad: d.invitados || 0,
-            invitadosAdultos: d.invitados || 0,
+            invitadosCantidad: Number(d.invitados) || 0,
+            invitadosAdultos: Number(d.invitados) || 0,
             invitadosNinos: 0,
             invitadosAdolescentes: 0,
             itemsPresupuestados: items,

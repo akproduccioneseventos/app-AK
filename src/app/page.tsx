@@ -35,6 +35,7 @@ import {
     BookOpen,
     ChefHat,
     Package,
+    FileSignature,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -252,6 +253,15 @@ export default function MainDashboardPage() {
           icon: Wand2,
           color: "bg-pink-500",
           lightColor: "bg-pink-50 text-pink-600",
+          featured: false,
+        },
+        {
+          title: 'Contratos',
+          description: 'Gestionar plantillas de contrato y cláusulas editables.',
+          href: '/settings/contratos',
+          icon: FileSignature,
+          color: "bg-blue-500",
+          lightColor: "bg-blue-50 text-blue-600",
           featured: false,
         },
         {

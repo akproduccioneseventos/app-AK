@@ -262,6 +262,7 @@ export default function MarketingPage() {
 
   // Tab
   const [tab, setTab] = useState<TabMarketing>('generador');
+  const [wizardStep, setWizardStep] = useState(1);
 
   // Generator state
   const [tipo] = useState<TipoEvento>('XV');
@@ -505,6 +506,17 @@ export default function MarketingPage() {
     },
   ];
 
+  const hasAnyVariable = Boolean(
+    varNombre || varFecha || varInvitados || varPrecioLista || varPrecioHoy || varAhorro
+  );
+  const hasGeneratedContent = channels.some(({ key }) => (contenido[key] || '').trim().length > 0);
+  const hasTemplateName = templateNombre.trim().length > 0;
+  const wizardStatus = {
+    1: objetivo.length > 0 && estilo.length > 0,
+    2: hasAnyVariable || hasGeneratedContent,
+    3: hasTemplateName || templates.length > 0,
+  } as const;
+
   // ─── JSX ──────────────────────────────────────────────────────────────────
 
   return (
@@ -526,7 +538,7 @@ export default function MarketingPage() {
 
       <div className="max-w-2xl mx-auto px-4 pb-20">
         <Tabs value={tab} onValueChange={v => setTab(v as TabMarketing)} className="mt-4">
-          <TabsList className="grid grid-cols-4 w-full h-12 rounded-xl bg-slate-100 p-1">
+          <TabsList className="grid grid-cols-3 w-full h-12 rounded-xl bg-slate-100 p-1">
             <TabsTrigger value="generador" className="rounded-lg text-[11px] font-bold">
               Generar
             </TabsTrigger>
@@ -536,13 +548,55 @@ export default function MarketingPage() {
             <TabsTrigger value="checklist" className="rounded-lg text-[11px] font-bold">
               Checklist
             </TabsTrigger>
-            <TabsTrigger value="respaldo" className="rounded-lg text-[11px] font-bold">
-              Respaldo
-            </TabsTrigger>
           </TabsList>
 
           {/* ── TAB: GENERADOR ── */}
           <TabsContent value="generador" className="mt-4 space-y-4">
+            <Card className="rounded-2xl border-0 shadow-sm bg-white">
+              <CardContent className="p-4 space-y-3">
+                <p className="text-xs font-black uppercase tracking-widest text-indigo-500">Wizard rápido</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {[
+                    { step: 1, title: 'Configurar objetivo y estilo' },
+                    { step: 2, title: 'Completar variables y revisar textos' },
+                    { step: 3, title: 'Guardar como plantilla' },
+                  ].map(({ step, title }) => (
+                    <button
+                      key={step}
+                      type="button"
+                      onClick={() => setWizardStep(step)}
+                      className={`text-left p-3 rounded-xl border transition-all ${
+                        wizardStep === step
+                          ? 'border-indigo-300 bg-indigo-50'
+                          : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {wizardStatus[step as 1 | 2 | 3] ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-slate-300 shrink-0" />
+                        )}
+                        <span className="text-[11px] font-black text-slate-700">Paso {step}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-1">{title}</p>
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] text-slate-500">Seguí los pasos en orden para generar contenido sin perderte.</p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-[11px] font-bold"
+                    onClick={() => setWizardStep(prev => Math.min(3, prev + 1))}
+                  >
+                    Siguiente paso
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
             {/* Selectors */}
             <Card className="rounded-2xl shadow-sm border-0 bg-white">
               <CardHeader className="pb-3">
@@ -675,6 +729,9 @@ export default function MarketingPage() {
                     {editingTemplate ? 'Actualizar' : 'Guardar'}
                   </Button>
                 </div>
+                <p className="text-[11px] text-slate-400">
+                  Paso 3 del wizard: guardá esta versión para reutilizarla en próximos eventos.
+                </p>
                 {editingTemplate && (
                   <Button
                     variant="ghost"
@@ -857,12 +914,10 @@ export default function MarketingPage() {
                 );
               })
             )}
-          </TabsContent>
 
-          {/* ── TAB: RESPALDO ── */}
-          <TabsContent value="respaldo" className="mt-4 space-y-4">
-            <h2 className="text-base font-black text-slate-900">Backup y Respaldo</h2>
+            <Separator />
 
+            <h2 className="text-base font-black text-slate-900">Respaldo de Marketing</h2>
             <Card className="rounded-2xl border-0 shadow-sm bg-white">
               <CardContent className="p-4 space-y-4">
                 <div>
@@ -916,7 +971,6 @@ export default function MarketingPage() {
               </CardContent>
             </Card>
 
-            {/* Variables reference */}
             <Card className="rounded-2xl border-0 shadow-sm bg-white">
               <CardContent className="p-4">
                 <p className="font-black text-slate-800 mb-3">Variables disponibles</p>
