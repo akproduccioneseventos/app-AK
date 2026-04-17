@@ -263,6 +263,7 @@ const SECTIONS: SettingSection[] = [
     bgColor: 'bg-cyan-50 border-cyan-200',
     items: [
       { title: 'Editor de Landing Page', description: 'Modificar textos, colores e imágenes de la página pública.', href: '/empresa/landing-editor', icon: Globe },
+      { title: 'Editor de Contenido Público', description: 'Editar textos e imágenes de Presentación LED y Catálogo por tipo.', href: '/settings/contenido-publico', icon: BookOpen },
       { title: 'Galería Pública', description: 'Fotos y videos de la galería web.', href: '/empresa/galeria', icon: Image },
       { title: 'Modo Presentación LED', description: 'Pantalla kiosco para reuniones con clientes.', href: '/presentacion', icon: Monitor },
       { title: 'Catálogo Digital por Tipo de Fiesta', description: 'Presentación por tipo: cumpleaños, casamientos, corporativos, etc.', href: '/catalogo', icon: BookOpen },

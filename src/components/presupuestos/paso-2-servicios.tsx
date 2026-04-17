@@ -11,6 +11,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
 import type { PaqueteArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
+import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
 import EditServicioForm from '@/components/presupuestos/EditServicioForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -284,6 +285,11 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         return acc;
     }, {} as Record<string, ServicioEmpresa[]>);
   }, [serviciosCatalogo, searchTerm]);
+
+  const paquetesDisponibles = useMemo(
+    () => paquetesBase.filter((p) => isPackageApplicableToEventType(p, formData.eventoTipo)),
+    [paquetesBase, formData.eventoTipo],
+  );
   
   const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (principalesDisponibles || []).some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
   const selectedInfantilId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (menusNinoDisponibles || []).some(m => m.id === id)) || '', [formData.serviciosSeleccionados, menusNinoDisponibles]);
@@ -339,8 +345,17 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         </DialogContent>
       </Dialog>
       <div className="space-y-2">
-        <Label htmlFor="paquete-base" className="text-base">Arrancar con un Paquete Base (Opcional)</Label>
-        <Select onValueChange={(value) => handlePaqueteSelect(value)}><SelectTrigger id="paquete-base"><SelectValue placeholder="Ninguno (empezar de cero)"/></SelectTrigger><SelectContent><SelectItem value="none">Ninguno</SelectItem>{paquetesBase.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>)}</SelectContent></Select>
+        <Label htmlFor="paquete-base" className="text-base">¿Querés partir de un paquete? (Opcional)</Label>
+        <Select onValueChange={(value) => handlePaqueteSelect(value)}>
+          <SelectTrigger id="paquete-base"><SelectValue placeholder="Ninguno (empezar de cero)"/></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">Ninguno</SelectItem>
+            {paquetesDisponibles.map(p => <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        {formData.eventoTipo && paquetesDisponibles.length === 0 && (
+          <p className="text-xs text-muted-foreground">No hay paquetes configurados para \"{formData.eventoTipo}\".</p>
+        )}
       </div>
 
        <Accordion type="single" collapsible className="w-full" defaultValue="gastronomia">

@@ -20,12 +20,14 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
+import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import type { SocialConnection, BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
+import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
@@ -167,6 +169,7 @@ function SimuladorContent() {
     
     const [clienteNombre, setClienteNombre] = useState('');
     const [clienteContacto, setClienteContacto] = useState('');
+    const [eventoTipo, setEventoTipo] = useState('Cumpleaños');
     const [adultos, setAdultos] = useState<number>(50);
     const [ninosYAdolescentes, setNinosYAdolescentes] = useState<number>(0);
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
@@ -175,6 +178,8 @@ function SimuladorContent() {
     const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
     const [selectedInfantil, setSelectedInfantil] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
+    const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
+    const [dateWarning, setDateWarning] = useState('');
     
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
 
@@ -401,6 +406,10 @@ function SimuladorContent() {
             toast({ title: "Datos incompletos", description: "Ingresa tu nombre, celular (9 dígitos) y cantidad de adultos.", variant: "destructive" });
             return;
         }
+        if (step === 1 && !eventoFecha) {
+            toast({ title: "Fecha requerida", description: "La fecha del evento es obligatoria para continuar.", variant: "destructive" });
+            return;
+        }
         if (step === 2) {
             if (!selectedPrincipal || selectedEntradas.length !== maxEntradas) {
                 toast({ title: "Selección incompleta", description: `Elige plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
@@ -418,6 +427,7 @@ function SimuladorContent() {
 
         if (step === 3) {
             setIsGenerating(true);
+            const selectedPackageName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
                 clienteNombre,
                 clienteContacto,
@@ -428,7 +438,7 @@ function SimuladorContent() {
                 costoEstimado: stats.totalFinal,
                 descuentoGeneral: 10,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
-                paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre,
+                paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 items: stats.detallados.map(s => {
                     const original = allSimuladorServices.find(os => os.id === s.id);
                     return {
@@ -464,6 +474,23 @@ function SimuladorContent() {
     };
 
     const handlePrev = () => { if (step > 1) setStep(s => s - 1); };
+
+    const handleEventoFechaChange = useCallback(async (date: Date | undefined) => {
+        setEventoFecha(date);
+        if (!date) {
+            setDateWarning('');
+            setDateSuggestions([]);
+            return;
+        }
+        const availability = await checkDateAvailability(date.toISOString());
+        if (availability.isOccupied) {
+            setDateWarning('⚠️ Esa fecha podría estar ocupada. Te sugerimos estas fechas cercanas:');
+            setDateSuggestions(availability.suggestions || []);
+        } else {
+            setDateWarning('');
+            setDateSuggestions([]);
+        }
+    }, []);
 
     const handleWhatsAppMeetingRequest = () => {
         if (!whatsappNumber) return;
@@ -528,8 +555,15 @@ function SimuladorContent() {
     };
 
     const sortedPaquetes = useMemo(() => {
-        return config?.paquetes || [];
-    }, [config?.paquetes]);
+        return (config?.paquetes || []).filter((p) => isPackageApplicableToEventType(p, eventoTipo));
+    }, [config?.paquetes, eventoTipo]);
+
+    useEffect(() => {
+        if (!selectedPaqueteId) return;
+        if (!sortedPaquetes.some((p) => p.id === selectedPaqueteId)) {
+            setSelectedPaqueteId('');
+        }
+    }, [selectedPaqueteId, sortedPaquetes]);
 
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
     
@@ -760,8 +794,44 @@ function SimuladorContent() {
                                 <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nº Niños/Adolescentes</Label><Input type="number" value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Number(e.target.value))} className="h-14 rounded-2xl font-black bg-slate-50 border-none shadow-inner text-xl text-primary px-6"/></div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2.5">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tipo de Evento</Label>
+                                    <Select value={eventoTipo} onValueChange={setEventoTipo}>
+                                        <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Cumpleaños">Cumpleaños</SelectItem>
+                                            <SelectItem value="15 Años">15 Años</SelectItem>
+                                            <SelectItem value="Boda">Boda</SelectItem>
+                                            <SelectItem value="Empresarial">Empresarial</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                                 <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Duración (Horas)</Label><Input type="number" value={duracionHoras} onChange={e => setDuracionHoras(Number(e.target.value))} className="h-14 rounded-2xl font-black bg-slate-50 border-none shadow-inner text-xl px-6"/></div>
-                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fecha Tentativa</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"/></div>
+                            </div>
+                            <div className="space-y-2.5">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fecha del Evento *</Label>
+                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"/>
+                                {dateWarning && dateSuggestions.length > 0 && (
+                                    <div className="p-3 rounded-xl border border-amber-400/40 bg-amber-500/10">
+                                        <p className="text-amber-800 text-xs font-bold">{dateWarning}</p>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {dateSuggestions.map((date) => (
+                                                <button
+                                                    key={date}
+                                                    type="button"
+                                                    className="px-3 py-1 rounded-full bg-amber-200 text-amber-900 text-xs font-bold"
+                                                    onClick={() => {
+                                                        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                                                            handleEventoFechaChange(new Date(`${date}T12:00:00`));
+                                                        }
+                                                    }}
+                                                >
+                                                    {date}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -919,6 +989,9 @@ function SimuladorContent() {
                                     );
                                 })}
                             </RadioGroup>
+                            {sortedPaquetes.length === 0 && (
+                                <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
+                            )}
                         </div>
                     )}
                 </CardContent>

@@ -32,6 +32,9 @@ export async function saveArmadoRapidoConfig(
         nombre: pkg.nombre,
         descripcion: pkg.descripcion,
         recommended: pkg.recommended || false,
+        tiposDeEventoAplicables: (pkg.tiposDeEventoAplicables || [])
+          .map((tipo) => tipo.trim())
+          .filter(Boolean),
         serviciosIncluidos: pkg.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
       menus: (newConfigData.menus || []).map(menu => ({

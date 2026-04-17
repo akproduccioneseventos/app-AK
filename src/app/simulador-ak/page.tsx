@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PublicFooter } from '@/components/public-footer';
 import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCuponesRegaloActivos } from '@/app/actions/cupones';
 import { getMenus } from '@/app/actions/menus-catering';
@@ -26,6 +27,7 @@ import { CountdownTimer } from '@/components/countdown-timer';
 import type { Coupon } from '@/types/coupon';
 import { esCuponRegalo } from '@/types/coupon';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
+import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { FullMenu } from '@/types/catering';
 import type { MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -176,7 +178,7 @@ function getAssistantMessages(step: number, state: SimuladorState, priceStats: P
     2: [
       ...(state.nombre ? [{ role: 'assistant' as const, text: `¡Buenísimo ${state.nombre}! 🎉`, key: 's2_0' }] : []),
       { role: 'assistant', text: '¿Cuándo es el evento y de qué tipo? Esto me ayuda a afinar los precios.', key: 's2_1' },
-      { role: 'assistant', text: 'Tranquilo/a si la fecha no está 100% confirmada, después la ajustamos.', key: 's2_2' },
+      { role: 'assistant', text: 'La fecha del evento es obligatoria para poder continuar con el presupuesto.', key: 's2_2' },
     ],
     3: [
       ...(eventMeta ? [{ role: 'assistant' as const, text: `${eventMeta.emoji} Un ${eventMeta.label}, ¡qué lindo momento!`, key: 's3_0' }] : []),
@@ -253,6 +255,8 @@ export default function SimuladorAKPage() {
   const [availableMenus, setAvailableMenus] = useState<FullMenu[]>([]);
   const [landingFaqs, setLandingFaqs] = useState<LandingFaqItem[]>([]);
   const [empresaPhone, setEmpresaPhone] = useState<string>(WHATSAPP_NUMBER);
+  const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
+  const [dateWarning, setDateWarning] = useState('');
 
   // ── Persistence ──────────────────────────────────────────────────────────
 
@@ -414,6 +418,34 @@ export default function SimuladorAKPage() {
       return next;
     });
   }, [saveProgress]);
+
+  const checkEventDate = useCallback(async (dateISO: string) => {
+    if (!dateISO) {
+      setDateWarning('');
+      setDateSuggestions([]);
+      return;
+    }
+    const availability = await checkDateAvailability(dateISO);
+    if (availability.isOccupied) {
+      setDateWarning('⚠️ Esa fecha podría estar ocupada. Te sugerimos estas fechas cercanas:');
+      setDateSuggestions(availability.suggestions || []);
+    } else {
+      setDateWarning('');
+      setDateSuggestions([]);
+    }
+  }, []);
+
+  const availablePaquetes = useMemo(() => {
+    const tipo = state.eventoTipo ? EVENT_META[state.eventoTipo].label : '';
+    return (dynamicPaquetes || []).filter((pkg) => isPackageApplicableToEventType(pkg, tipo));
+  }, [dynamicPaquetes, state.eventoTipo]);
+
+  useEffect(() => {
+    if (!state.paquete) return;
+    if (!availablePaquetes.some((pkg) => pkg.id === state.paquete)) {
+      updateState('paquete', '');
+    }
+  }, [availablePaquetes, state.paquete, updateState]);
 
   // ── Duplicate check ───────────────────────────────────────────────────────
 
@@ -614,7 +646,15 @@ export default function SimuladorAKPage() {
                   <StepClientInfo state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} checkDuplicate={checkDuplicate} />
                 )}
                 {state.step === 2 && (
-                  <StepEventBasics state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                  <StepEventBasics
+                    state={state}
+                    onChange={updateState}
+                    onNext={goNext}
+                    onPrev={goPrev}
+                    onCheckDate={checkEventDate}
+                    dateWarning={dateWarning}
+                    dateSuggestions={dateSuggestions}
+                  />
                 )}
                 {state.step === 3 && (
                   <StepGuests state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
@@ -623,7 +663,14 @@ export default function SimuladorAKPage() {
                   <StepSalon state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
                 )}
                 {state.step === 5 && (
-                  <StepPackage state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} dynamicPaquetes={dynamicPaquetes} packagePrices={priceStats} />
+                  <StepPackage
+                    state={state}
+                    onChange={updateState}
+                    onNext={goNext}
+                    onPrev={goPrev}
+                    dynamicPaquetes={availablePaquetes}
+                    packagePrices={priceStats}
+                  />
                 )}
                 {state.step === 6 && (
                   <StepMenus
@@ -892,12 +939,15 @@ function StepClientInfo({
 // ─── Step: Event Basics ───────────────────────────────────────────────────────
 
 function StepEventBasics({
-  state, onChange, onNext, onPrev,
+  state, onChange, onNext, onPrev, onCheckDate, dateWarning, dateSuggestions,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
   onNext: () => void;
   onPrev: () => void;
+  onCheckDate: (dateISO: string) => Promise<void>;
+  dateWarning: string;
+  dateSuggestions: string[];
 }) {
   const EVENT_OPTIONS: { value: EventType; label: string; emoji: string }[] = [
     { value: 'cumpleanos', label: 'Cumpleaños', emoji: '🎂' },
@@ -905,7 +955,17 @@ function StepEventBasics({
     { value: 'boda',       label: 'Boda',      emoji: '💍' },
     { value: 'empresarial',label: 'Empresarial',emoji: '🏢' },
   ];
+  const [dateError, setDateError] = useState('');
   const canNext = !!state.eventoTipo;
+
+  const handleNext = () => {
+    if (!state.eventoFecha) {
+      setDateError('La fecha del evento es obligatoria para continuar.');
+      return;
+    }
+    setDateError('');
+    onNext();
+  };
 
   return (
     <StepCard title="¿Qué tipo de evento es?" icon={<CalendarDays className="w-6 h-6" />}>
@@ -914,9 +974,44 @@ function StepEventBasics({
         <Input
           type="date"
           value={state.eventoFecha ? state.eventoFecha.split('T')[0] : ''}
-          onChange={e => onChange('eventoFecha', e.target.value ? `${e.target.value}T00:00:00` : '')}
+          onChange={async (e) => {
+            const value = e.target.value ? `${e.target.value}T12:00:00` : '';
+            onChange('eventoFecha', value);
+            if (!value) {
+              setDateError('');
+              return;
+            }
+            await onCheckDate(value);
+          }}
+          onBlur={async () => {
+            if (state.eventoFecha) {
+              await onCheckDate(state.eventoFecha);
+            }
+          }}
           className="bg-white/10 border-white/20 text-white rounded-xl h-12 mb-4 focus:border-violet-400 [color-scheme:dark]"
         />
+        {dateError && <p className="text-red-300 text-xs font-semibold mb-2">{dateError}</p>}
+        {dateWarning && dateSuggestions.length > 0 && (
+          <div className="mb-3 p-3 rounded-xl border border-amber-400/40 bg-amber-500/10">
+            <p className="text-amber-200 text-xs font-semibold">{dateWarning}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {dateSuggestions.map((date) => (
+                <button
+                  key={date}
+                  type="button"
+                  onClick={() => {
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                      onChange('eventoFecha', `${date}T12:00:00`);
+                    }
+                  }}
+                  className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-100 text-xs font-bold hover:bg-amber-500/30"
+                >
+                  {date}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-2 block">Hora de inicio</Label>
         <Input
           type="time"
@@ -945,7 +1040,7 @@ function StepEventBasics({
           ))}
         </div>
       </div>
-      <StepNav onPrev={onPrev} onNext={onNext} canNext={canNext} showPrev />
+      <StepNav onPrev={onPrev} onNext={handleNext} canNext={canNext} showPrev />
     </StepCard>
   );
 }
@@ -1152,6 +1247,9 @@ function StepPackage({
           })
         )}
       </div>
+      {hasDynamic && dynamicPaquetes.length === 0 && (
+        <p className="text-white/70 text-sm">No hay paquetes configurados para el tipo de evento seleccionado.</p>
+      )}
       <StepNav onPrev={onPrev} onNext={onNext} canNext={canNext} showPrev />
     </StepCard>
   );

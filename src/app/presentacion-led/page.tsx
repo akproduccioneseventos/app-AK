@@ -15,22 +15,22 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCompanyInfo, getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
+import { getPresentacionLedSettings } from '@/app/actions/contenido-publico';
 import type { FullMenu } from '@/types/catering';
 import type { CatalogoFoto } from '@/types/catalogo';
+import type { PresentacionLedSettings } from '@/types/contenido-publico';
 import { cn } from '@/lib/utils';
 
 // Slide components
 import { PortadaSlide } from './slides/portada-slide';
-import { QuienesSomosSlide } from './slides/quienes-somos-slide';
 import { BeneficiosSlide } from './slides/beneficios-slide';
 import { DatosEventoSlide } from './slides/datos-evento-slide';
 import { SalonSlide } from './slides/salon-slide';
 import { CategoriaServiciosSlide } from './slides/categoria-servicios-slide';
-import { TestimoniosSlide } from './slides/testimonios-slide';
-import { FormasDePagoSlide } from './slides/formas-de-pago-slide';
 import { MenuSlide } from './slides/menu-slide';
 import { RegalosSlide } from './slides/regalos-slide';
 import { CierreSlide } from './slides/cierre-slide';
+import { ContratarnosSlide } from './slides/contratarnos-slide';
 
 // Types
 import type { PageData, ClientData, CategoriaServicio } from './lib/tipos';
@@ -80,9 +80,47 @@ function groupServicesByCategory(servicios: PageData['servicios']): CategoriaSer
   return Array.from(map.values());
 }
 
+function normalizeCategory(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function sortCategoriesByFlow(categorias: CategoriaServicio[]): CategoriaServicio[] {
+  const orderedPatterns = [
+    ['barra', 'tragos'],
+    ['discoteca'],
+    ['dj'],
+    ['fotografia'],
+    ['filmacion'],
+    ['decoracion'],
+    ['entretenimiento'],
+    ['reposteria'],
+  ];
+
+  const getPriority = (name: string) => {
+    const n = normalizeCategory(name);
+    const idx = orderedPatterns.findIndex((patterns) => patterns.some((p) => n.includes(p)));
+    return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+  };
+
+  return [...categorias].sort((a, b) => {
+    const pa = getPriority(a.nombre);
+    const pb = getPriority(b.nombre);
+    if (pa !== pb) return pa - pb;
+    return a.nombre.localeCompare(b.nombre);
+  });
+}
+
+function isMenuCategory(categoria: CategoriaServicio): boolean {
+  return normalizeCategory(categoria.nombre).includes('menu');
+}
+
 // ---- Slide index constants ----
-const FIXED_SLIDES_START = 5; // portada, quienes somos, beneficios, datos evento, salon
-const FIXED_SLIDES_END = 5;   // testimonios, formas de pago, menu, regalos, cierre
+const FIXED_SLIDES_START = 4; // portada, beneficios, datos evento, salon
+const FIXED_SLIDES_END = 3;   // regalos, presupuesto, contratarnos
 
 // ---- Main Component ----
 
@@ -95,6 +133,7 @@ export default function PresentacionLedPage() {
   const [direction, setDirection] = useState(1);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
+  const [presentacionSettings, setPresentacionSettings] = useState<PresentacionLedSettings | null>(null);
   const [clientData, setClientData] = useState<ClientData>({
     nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '', salon: '', ciudad: '',
   });
@@ -104,13 +143,14 @@ export default function PresentacionLedPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData] = await Promise.all([
+        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, ledSettings] = await Promise.all([
           getServiciosEmpresa(),
           getCompanyInfo(),
           getInvoiceTemplateSettings(),
           getBudgetDisplaySettings(),
           getMenus().catch(() => [] as FullMenu[]),
           getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
+          getPresentacionLedSettings(),
         ]);
         setData({
           companyInfo,
@@ -121,6 +161,7 @@ export default function PresentacionLedPage() {
           menus,
         });
         setCatalogoFotos(catalogoData);
+        setPresentacionSettings(ledSettings);
       } finally {
         setLoading(false);
       }
@@ -129,48 +170,58 @@ export default function PresentacionLedPage() {
   }, []);
 
   // Derive category groups from servicios
-  const categorias = useMemo<CategoriaServicio[]>(
-    () => (data ? groupServicesByCategory(data.servicios) : []),
-    [data],
-  );
+  const categorias = useMemo<CategoriaServicio[]>(() => {
+    if (!data) return [];
+    const grouped = groupServicesByCategory(data.servicios);
+    const menuCategories = grouped.filter(isMenuCategory);
+    const ordered = sortCategoriesByFlow(grouped.filter((c) => !isMenuCategory(c)));
+    return [...menuCategories, ...ordered];
+  }, [data]);
 
-  // Total slides: start fixed + categories + end fixed
-  const totalSlides = data ? FIXED_SLIDES_START + categorias.length + FIXED_SLIDES_END : 0;
+  const dynamicSlides = useMemo<Array<{ type: 'tipo-fiesta' | 'menu' | 'categoria'; categoria?: CategoriaServicio }>>(() => {
+    const categorySlides = categorias.filter((c) => !isMenuCategory(c));
+    return [
+      { type: 'tipo-fiesta' },
+      { type: 'menu' },
+      ...categorySlides.map((categoria) => ({ type: 'categoria' as const, categoria })),
+    ];
+  }, [categorias]);
 
-  // Slide index helpers
-  const testimoniosSlideIndex = FIXED_SLIDES_START + categorias.length;
-  const formasDePagoSlideIndex = testimoniosSlideIndex + 1;
-  const menuSlideIndex = formasDePagoSlideIndex + 1;
-  const regalosSlideIndex = menuSlideIndex + 1;
+  const totalSlides = data ? FIXED_SLIDES_START + dynamicSlides.length + FIXED_SLIDES_END : 0;
+
+  const dynamicStartIndex = FIXED_SLIDES_START;
+  const dynamicEndIndex = dynamicStartIndex + dynamicSlides.length;
+  const regalosSlideIndex = dynamicEndIndex;
   const cierreSlideIndex = regalosSlideIndex + 1;
+  const contratarnosSlideIndex = cierreSlideIndex + 1;
 
   const isPortadaSlide = currentSlide === 0;
-  const isQuienesSomosSlide = currentSlide === 1;
-  const isBeneficiosSlide = currentSlide === 2;
-  const isDatosEventoSlide = currentSlide === 3;
-  const isSalonSlide = currentSlide === 4;
-  const isCategoriaSlide = currentSlide >= FIXED_SLIDES_START && currentSlide < testimoniosSlideIndex;
-  const isTestimoniosSlide = currentSlide === testimoniosSlideIndex;
-  const isFormasDePagoSlide = currentSlide === formasDePagoSlideIndex;
-  const isMenuSlide = currentSlide === menuSlideIndex;
+  const isBeneficiosSlide = currentSlide === 1;
+  const isDatosEventoSlide = currentSlide === 2;
+  const isSalonSlide = currentSlide === 3;
+  const isDynamicSlide = currentSlide >= dynamicStartIndex && currentSlide < dynamicEndIndex;
+  const dynamicIndex = isDynamicSlide ? currentSlide - dynamicStartIndex : -1;
+  const currentDynamicSlide = isDynamicSlide ? dynamicSlides[dynamicIndex] : null;
+  const categoriaSlidesCount = dynamicSlides.filter((s) => s.type === 'categoria').length;
+  const categoriaIndex = currentDynamicSlide?.type === 'categoria'
+    ? dynamicSlides.slice(0, dynamicIndex + 1).filter((s) => s.type === 'categoria').length - 1
+    : 0;
+  const currentCategoria = currentDynamicSlide?.type === 'categoria' ? currentDynamicSlide.categoria || null : null;
   const isRegalosSlide = currentSlide === regalosSlideIndex;
   const isCierreSlide = currentSlide === cierreSlideIndex;
-
-  const categoriaIndex = isCategoriaSlide ? currentSlide - FIXED_SLIDES_START : 0;
-  const currentCategoria = isCategoriaSlide ? categorias[categoriaIndex] : null;
+  const isContratarnosSlide = currentSlide === contratarnosSlideIndex;
 
   const getSlideLabel = () => {
     if (isPortadaSlide) return 'Portada';
-    if (isQuienesSomosSlide) return 'Quiénes Somos';
     if (isBeneficiosSlide) return '¿Por qué elegirnos?';
     if (isDatosEventoSlide) return 'Datos del Evento';
     if (isSalonSlide) return 'Nuestro Salón';
-    if (isCategoriaSlide) return currentCategoria?.nombre ?? 'Servicios';
-    if (isTestimoniosSlide) return 'Testimonios';
-    if (isFormasDePagoSlide) return 'Formas de Pago';
-    if (isMenuSlide) return 'Menú';
-    if (isRegalosSlide) return 'Regalos & Extras';
+    if (currentDynamicSlide?.type === 'tipo-fiesta') return 'Tipo de Fiesta';
+    if (currentDynamicSlide?.type === 'menu') return 'Menú';
+    if (currentDynamicSlide?.type === 'categoria') return currentCategoria?.nombre ?? 'Servicios';
+    if (isRegalosSlide) return 'Regalos';
     if (isCierreSlide) return 'Presupuesto';
+    if (isContratarnosSlide) return 'Contratarnos';
     return '';
   };
 
@@ -228,6 +279,20 @@ export default function PresentacionLedPage() {
   const handleContrato = useCallback(() => {
     router.push('/presupuestos/nuevo/crear');
   }, [router]);
+
+  const handleCierreCta = useCallback(() => {
+    const action = presentacionSettings?.cierre?.ctaAccion || 'generar-presupuesto';
+    if (action === 'whatsapp') {
+      const text = encodeURIComponent('Hola, quiero avanzar con la contratación de mi evento.');
+      window.open(`https://wa.me/59898355530?text=${text}`, '_blank');
+      return;
+    }
+    if (action === 'contacto') {
+      window.location.href = 'mailto:info@akproducciones.uy';
+      return;
+    }
+    handleGenerateBudget();
+  }, [presentacionSettings?.cierre?.ctaAccion, handleGenerateBudget]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -332,14 +397,18 @@ export default function PresentacionLedPage() {
               companyInfo={data.companyInfo}
               logoUrl={data.logoUrl}
               tipoFiesta={clientData.tipoFiesta}
+              tituloPrincipal={presentacionSettings?.portada.tituloPrincipal}
+              subtitulo={presentacionSettings?.portada.subtitulo}
+              imagenFondoUrl={presentacionSettings?.portada.imagenFondoUrl}
+              colorAcento={presentacionSettings?.portada.colorAcento}
               onNext={goNext}
             />
           )}
-          {isQuienesSomosSlide && (
-            <QuienesSomosSlide companyInfo={data.companyInfo} />
-          )}
           {isBeneficiosSlide && (
-            <BeneficiosSlide />
+            <BeneficiosSlide
+              beneficios={presentacionSettings?.porQueElegirnos.beneficios}
+              imagenLateralUrl={presentacionSettings?.porQueElegirnos.imagenLateralUrl}
+            />
           )}
           {isDatosEventoSlide && (
             <DatosEventoSlide
@@ -353,9 +422,33 @@ export default function PresentacionLedPage() {
               catalogoFotos={catalogoFotos}
               companyInfo={data.companyInfo}
               tipoFiesta={clientData.tipoFiesta}
+              titulo={presentacionSettings?.salon.titulo}
+              descripcion={presentacionSettings?.salon.descripcion}
+              fotosPersonalizadas={presentacionSettings?.salon.fotos}
             />
           )}
-          {isCategoriaSlide && currentCategoria && (
+          {currentDynamicSlide?.type === 'tipo-fiesta' && (
+            <CategoriaServiciosSlide
+              categoria={`Tipo de Fiesta: ${clientData.tipoFiesta || 'A definir'}`}
+              servicios={[]}
+              selectedServices={selectedServices}
+              onToggleSelect={toggleSelect}
+              mostrarPrecios={data.mostrarPrecios}
+              categoriaIndex={0}
+              totalCategorias={categoriaSlidesCount}
+              catalogoFotos={catalogoFotos}
+              tipoFiesta={clientData.tipoFiesta}
+            />
+          )}
+          {currentDynamicSlide?.type === 'menu' && (
+            <MenuSlide
+              menus={data.menus}
+              selectedMenuId={selectedMenuId}
+              onSelectMenu={setSelectedMenuId}
+              onNext={goNext}
+            />
+          )}
+          {currentDynamicSlide?.type === 'categoria' && currentCategoria && (
             <CategoriaServiciosSlide
               categoria={currentCategoria.nombre}
               servicios={currentCategoria.servicios}
@@ -363,23 +456,9 @@ export default function PresentacionLedPage() {
               onToggleSelect={toggleSelect}
               mostrarPrecios={data.mostrarPrecios}
               categoriaIndex={categoriaIndex}
-              totalCategorias={categorias.length}
+              totalCategorias={categoriaSlidesCount}
               catalogoFotos={catalogoFotos}
               tipoFiesta={clientData.tipoFiesta}
-            />
-          )}
-          {isTestimoniosSlide && (
-            <TestimoniosSlide tipoFiesta={clientData.tipoFiesta} />
-          )}
-          {isFormasDePagoSlide && (
-            <FormasDePagoSlide tipoFiesta={clientData.tipoFiesta} />
-          )}
-          {isMenuSlide && (
-            <MenuSlide
-              menus={data.menus}
-              selectedMenuId={selectedMenuId}
-              onSelectMenu={setSelectedMenuId}
-              onNext={goNext}
             />
           )}
           {isRegalosSlide && (
@@ -402,6 +481,14 @@ export default function PresentacionLedPage() {
               onPlanPagos={handlePlanPagos}
               onContrato={handleContrato}
               mostrarPrecios={data.mostrarPrecios}
+            />
+          )}
+          {isContratarnosSlide && (
+            <ContratarnosSlide
+              titulo={presentacionSettings?.cierre.titulo || 'Contratarnos'}
+              mensaje={presentacionSettings?.cierre.mensaje || 'Estamos listos para ayudarte con tu evento.'}
+              ctaTexto={presentacionSettings?.cierre.ctaTexto || 'Generar Presupuesto Manual'}
+              onCtaAction={handleCierreCta}
             />
           )}
         </motion.div>
@@ -440,17 +527,17 @@ export default function PresentacionLedPage() {
         </div>
 
         <Button
-          onClick={isCierreSlide ? handleGenerateBudget : goNext}
+          onClick={isContratarnosSlide ? handleCierreCta : goNext}
           size="lg"
           className={cn(
             'h-14 px-8 rounded-2xl text-lg font-bold border-0',
-            isCierreSlide
+            isContratarnosSlide
               ? 'bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 text-white shadow-lg'
               : 'bg-white/15 hover:bg-white/25 text-white border border-white/30',
           )}
         >
-          {isCierreSlide ? (
-            <>Generar Presupuesto</>
+          {isContratarnosSlide ? (
+            <>{presentacionSettings?.cierre.ctaTexto || 'Contratarnos'}</>
           ) : (
             <>
               Siguiente

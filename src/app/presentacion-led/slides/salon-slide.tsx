@@ -13,6 +13,9 @@ interface SalonSlideProps {
   catalogoFotos: CatalogoFoto[];
   companyInfo: CompanyInfo;
   tipoFiesta: string;
+  titulo?: string;
+  descripcion?: string;
+  fotosPersonalizadas?: string[];
 }
 
 function toSafeImageUrl(url: string): string | null {
@@ -33,16 +36,34 @@ function normalizeText(text: string): string {
     .toLowerCase();
 }
 
-export function SalonSlide({ catalogoFotos, companyInfo, tipoFiesta }: SalonSlideProps) {
+export function SalonSlide({
+  catalogoFotos,
+  companyInfo,
+  tipoFiesta,
+  titulo,
+  descripcion,
+  fotosPersonalizadas = [],
+}: SalonSlideProps) {
   const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
 
   const fotosSalon = useMemo(
-    () => catalogoFotos.map((foto) => {
+    () => {
+      if (fotosPersonalizadas.length > 0) {
+        return fotosPersonalizadas
+          .map((url, idx) => {
+            const safeUrl = toSafeImageUrl(url);
+            return safeUrl ? { id: `custom-${idx}`, safeUrl, titulo: `Salón ${idx + 1}` } : null;
+          })
+          .filter((foto): foto is { id: string; safeUrl: string; titulo: string } => !!foto)
+          .slice(0, 4);
+      }
+      return catalogoFotos.map((foto) => {
       const safeUrl = toSafeImageUrl(foto.url);
       const categoria = normalizeText(foto.categoriaServicio || '');
       return safeUrl && categoria.includes('salon') ? { ...foto, safeUrl } : null;
-    }).filter((foto): foto is CatalogoFoto & { safeUrl: string } => !!foto).slice(0, 4),
-    [catalogoFotos],
+    }).filter((foto): foto is CatalogoFoto & { safeUrl: string } => !!foto).slice(0, 4);
+    },
+    [catalogoFotos, fotosPersonalizadas],
   );
 
   const visibleFotos = useMemo(
@@ -65,9 +86,9 @@ export function SalonSlide({ catalogoFotos, companyInfo, tipoFiesta }: SalonSlid
             </div>
             <p className="text-white/60 font-semibold uppercase tracking-widest text-xs">Propuesta AK</p>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">Nuestro Salón</h1>
+          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">{titulo || 'Nuestro Salón'}</h1>
           <p className="text-white/60 text-base">
-            Un espacio pensado para celebrar {tipoFiesta || 'tu evento'} con comodidad, estilo y soporte integral.
+            {descripcion || `Un espacio pensado para celebrar ${tipoFiesta || 'tu evento'} con comodidad, estilo y soporte integral.`}
           </p>
         </motion.div>
 

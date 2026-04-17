@@ -297,21 +297,27 @@ export function CategoriaServiciosSlide({
             transition={{ delay: 0.25 }}
             className="flex flex-col gap-3 overflow-y-auto max-h-[50vh] lg:max-h-none pr-1"
           >
-            {servicios.map((servicio, i) => (
-              <motion.div
-                key={servicio.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.07 }}
-              >
-                <ServicioCard
-                  servicio={servicio}
-                  isSelected={selectedServices.includes(servicio.id)}
-                  onToggle={() => onToggleSelect(servicio.id)}
-                  mostrarPrecios={mostrarPrecios}
-                />
-              </motion.div>
-            ))}
+            {servicios.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
+                Elegí el tipo de fiesta para ver las opciones personalizadas.
+              </div>
+            ) : (
+              servicios.map((servicio, i) => (
+                <motion.div
+                  key={servicio.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.07 }}
+                >
+                  <ServicioCard
+                    servicio={servicio}
+                    isSelected={selectedServices.includes(servicio.id)}
+                    onToggle={() => onToggleSelect(servicio.id)}
+                    mostrarPrecios={mostrarPrecios}
+                  />
+                </motion.div>
+              ))
+            )}
           </motion.div>
         </div>
       </div>
