@@ -94,7 +94,7 @@ const portalModules: PortalModule[] = [
   { id: 'cartaTragos', label: 'Carta de Tragos', icon: GlassWater },
   { id: 'dressCode', label: 'Dress Code', icon: Shirt },
   { id: 'faq', label: 'Preguntas Frecuentes', icon: HelpCircle },
-  { id: 'informarPago', label: 'Informar Pago', icon: CreditCard, href: (id) => `/portal/c/${id}` },
+  { id: 'informarPago', label: 'Informar Pago', icon: CreditCard },
   { id: 'pagos', label: 'Estado de Pagos', icon: CreditCard },
   { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas', icon: GlassWater },
   { id: 'invitados', label: 'Lista de Invitados', icon: Users, href: (id) => `/portal-cliente/${id}/confirmar-invitados` },
@@ -106,9 +106,26 @@ function hasVisibleFlag(value: unknown): value is { visible: boolean } {
   return typeof value === 'object' && value !== null && 'visible' in value;
 }
 
+function parseEventDate(dateString: string) {
+  return new Date(dateString.includes('T') ? dateString : `${dateString}T00:00:00Z`);
+}
+
+function safeExternalUrl(url?: string) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.toString();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function formatDate(dateString?: string) {
   if (!dateString) return 'Fecha a confirmar';
-  const date = new Date(dateString.includes('T') ? dateString : `${dateString}T00:00:00`);
+  const date = parseEventDate(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
   return date.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 }
@@ -122,7 +139,7 @@ function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
 
   useEffect(() => {
     const update = () => {
-      const target = new Date(fechaEvento.includes('T') ? fechaEvento : `${fechaEvento}T00:00:00`).getTime();
+      const target = parseEventDate(fechaEvento).getTime();
       const diff = Math.max(0, target - Date.now());
       setTimeLeft({
         dias: Math.floor(diff / 86400000),
@@ -199,11 +216,9 @@ function ClientPortalContent() {
 
     const sessionKey = `${SESSION_KEY_PREFIX}${fiestaId}`;
 
-    const currentFiestaId = fiestaId;
-
     async function loadFiesta() {
       try {
-        const data = await getFiestaById(currentFiestaId);
+        const data = await getFiestaById(fiestaId!);
         if (!data || !data.clientPortalSettings?.enabled) {
           setError('El portal para este evento no está habilitado o el evento no existe.');
           return;
@@ -311,9 +326,9 @@ function ClientPortalContent() {
   };
 
   const eventImage =
-    fiesta?.invitacionConfig?.fotoPortada ||
-    fiesta?.invitacionDigital?.cabecera?.imagenFondoUrl ||
-    fiesta?.configuracion?.protagonistaFotoUrl ||
+    safeExternalUrl(fiesta?.invitacionConfig?.fotoPortada) ||
+    safeExternalUrl(fiesta?.invitacionDigital?.cabecera?.imagenFondoUrl) ||
+    safeExternalUrl(fiesta?.configuracion?.protagonistaFotoUrl) ||
     '';
 
   const primaryColor = fiesta?.invitacionConfig?.colorPrincipal || '#9333ea';
@@ -447,13 +462,15 @@ function ClientPortalContent() {
   const faqItems: FaqItem[] = fiesta.faqPortal ?? [];
   const cuentasBancarias: CuentaBancaria[] = settings.cuentasBancarias ?? [];
   const dressCode = fiesta.invitacionDigital?.dressCode;
-  const mapsHref = fiesta.configuracion.googleMapsUrl || (fiesta.configuracion.direccionLugar ? `https://maps.google.com/?q=${encodeURIComponent(fiesta.configuracion.direccionLugar)}` : '');
+  const mapsHref =
+    safeExternalUrl(fiesta.configuracion.googleMapsUrl) ||
+    (fiesta.configuracion.direccionLugar ? `https://maps.google.com/?q=${encodeURIComponent(fiesta.configuracion.direccionLugar)}` : '');
   const wazeHref = fiesta.configuracion.direccionLugar ? `https://waze.com/ul?q=${encodeURIComponent(fiesta.configuracion.direccionLugar)}` : '';
 
   const bebidaItems: BebidaCalculable[] = settings.calculadoraBebidas?.items ?? [];
   const invitadosBase = fiesta.configuracion.invitadosEstimados || 0;
-  const minReduction = settings.simuladorInvitados.minReductionPercent ?? 10;
-  const maxIncrease = settings.simuladorInvitados.maxIncreasePercent ?? 30;
+  const minReduction = settings.simuladorInvitados?.minReductionPercent ?? 10;
+  const maxIncrease = settings.simuladorInvitados?.maxIncreasePercent ?? 30;
   const minGuests = Math.max(0, Math.floor(invitadosBase * (1 - minReduction / 100)));
   const maxGuests = Math.floor(invitadosBase * (1 + maxIncrease / 100));
 
@@ -739,9 +756,9 @@ function ClientPortalContent() {
 
                 {settings.informarPago.visible && (
                   <Button asChild>
-                    <a href={`/portal/c/${settings.accessKey || fiesta.id}`} target="_blank" rel="noopener noreferrer">
+                    <Link href={`/portal/c/${settings.accessKey || fiesta.id}`}>
                       <CreditCard className="w-4 h-4 mr-2" /> Informar Pago
-                    </a>
+                    </Link>
                   </Button>
                 )}
               </div>
@@ -777,11 +794,15 @@ function ClientPortalContent() {
             <PortalSection title="Moodboard" icon={Palette}>
               {fiesta.decoracion?.moodboardItems?.length ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {fiesta.decoracion.moodboardItems.slice(0, 8).map((item) => (
-                    <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="rounded-xl border p-2 text-xs truncate">
-                      {item.description || 'Inspiración'}
-                    </a>
-                  ))}
+                  {fiesta.decoracion.moodboardItems.slice(0, 8).map((item) => {
+                    const safeMoodboardUrl = safeExternalUrl(item.url);
+                    if (!safeMoodboardUrl) return null;
+                    return (
+                      <a key={item.id} href={safeMoodboardUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border p-2 text-xs truncate">
+                        {item.description || 'Inspiración'}
+                      </a>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">No hay moodboard cargado todavía.</p>
@@ -832,7 +853,9 @@ function ClientPortalContent() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {modulesForQuickAccess.map((module) => {
                 const Icon = module.icon;
-                const href = module.href?.(fiesta.id);
+                const href = module.id === 'informarPago'
+                  ? `/portal/c/${settings.accessKey || fiesta.id}`
+                  : module.href?.(fiesta.id);
                 return href ? (
                   <Link key={module.id} href={href} className="rounded-2xl border p-4 hover:bg-muted/40 transition-colors">
                     <div className="flex items-center gap-3">

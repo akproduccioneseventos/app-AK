@@ -7,6 +7,8 @@ import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto } from '../presupuestos';
 import { createNotification } from '../notifications';
 
+const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
+
 async function updateFiestaData(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>
@@ -232,7 +234,7 @@ export async function addClientMusicSuggestion(
   const value = suggestion.trim();
   if (!value) return { success: false, error: 'Sugerencia vacía' };
 
-  if (!['imprescindibles', 'siEsPosible', 'noQuiero'].includes(listKey)) {
+  if (!MUSIC_LIST_KEYS.includes(listKey as (typeof MUSIC_LIST_KEYS)[number])) {
     return { success: false, error: 'Lista inválida' };
   }
 
