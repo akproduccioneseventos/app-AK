@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,9 +26,11 @@ import {
   getPresupuestosWithPendingPayments,
 } from '@/app/actions/presupuestos';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import { getCompanyInfo } from '@/app/actions/settings';
+import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '$ 0';
@@ -58,20 +60,74 @@ function ReciboView({
   pago,
   presupuesto,
   companyName,
+  companyTaxId,
+  companyAddress,
+  companyContact,
+  logoUrl,
   whatsappNumber,
   onClose,
 }: {
   pago: PagoCliente;
   presupuesto: Presupuesto;
   companyName: string;
+  companyTaxId: string;
+  companyAddress: string;
+  companyContact: string;
+  logoUrl: string | null;
   whatsappNumber: string;
   onClose: () => void;
 }) {
+  const receiptRef = useRef<HTMLDivElement>(null);
   const totalCosto = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
   const totalPagado = (presupuesto.pagosCliente || [])
     .filter(p => p.estadoPago !== 'pendiente_confirmacion' || p.id === pago.id)
     .reduce((sum, p) => sum + p.monto, 0);
   const saldoAnterior = totalCosto - totalPagado + pago.monto;
+  const saldoRestante = totalCosto - totalPagado;
+  const receiptNumber = pago.id.slice(-10).toUpperCase();
+
+  const exportReceiptAsImage = async () => {
+    if (!receiptRef.current) return null;
+    const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: '#ffffff' });
+    return new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), 'image/png');
+    });
+  };
+
+  const handleDownloadRecibo = async () => {
+    try {
+      const blob = await exportReceiptAsImage();
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `recibo-${presupuesto.numero || presupuesto.id.slice(-6)}-${receiptNumber}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('No se pudo descargar el recibo:', error);
+    }
+  };
+
+  const handleShareRecibo = async () => {
+    try {
+      const blob = await exportReceiptAsImage();
+      if (!blob) return;
+      const file = new File([blob], `recibo-${presupuesto.numero || presupuesto.id.slice(-6)}-${receiptNumber}.png`, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `Recibo oficial ${companyName}`,
+          text: `Recibo de pago de ${presupuesto.clienteNombre}`,
+          files: [file],
+        });
+        return;
+      }
+      await handleDownloadRecibo();
+    } catch (error) {
+      console.error('No se pudo compartir el recibo:', error);
+    }
+  };
 
   const handleWhatsAppRecibo = () => {
     const texto =
@@ -86,7 +142,7 @@ function ReciboView({
       (pago.referencia ? `📝 *Referencia:* ${pago.referencia}\n` : '') +
       `━━━━━━━━━━━━━━━━━━━━━━\n` +
       `📊 *Saldo anterior:* ${formatCurrency(saldoAnterior)}\n` +
-      `✅ *Saldo restante:* ${formatCurrency(totalCosto - totalPagado)}\n` +
+      `✅ *Saldo restante:* ${formatCurrency(saldoRestante)}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━\n` +
       `¡Gracias por tu pago! 🙌`;
 
@@ -105,65 +161,81 @@ function ReciboView({
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden">
-        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 text-white">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/20 rounded-xl">
-              <Receipt className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-black text-lg uppercase tracking-tight">Recibo de Pago</h3>
-              <p className="text-emerald-100 text-xs font-medium">{companyName}</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Cliente</p>
-              <p className="font-bold text-slate-900">{presupuesto.clienteNombre}</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Evento</p>
-              <p className="font-bold text-slate-900">{presupuesto.eventoTipo}</p>
-            </div>
-          </div>
-          <Separator />
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Monto pagado</span>
-              <span className="font-black text-emerald-700 text-lg">{formatCurrency(pago.monto)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Fecha</span>
-              <span className="font-bold">{formatDate(pago.fecha)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Método</span>
-              <Badge variant="secondary" className="flex items-center gap-1 text-[10px] font-bold uppercase">
-                <MetodoPagoIcon metodo={pago.metodoPago} /> {pago.metodoPago}
-              </Badge>
-            </div>
-            {pago.referencia && (
-              <div className="flex justify-between">
-                <span className="text-slate-500">Referencia</span>
-                <span className="font-medium text-xs">{pago.referencia}</span>
+      <div className="bg-white rounded-[2rem] shadow-2xl max-w-xl w-full overflow-hidden">
+        <div ref={receiptRef} className="bg-white">
+          <div className="border-b border-slate-200 p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {logoUrl ? (
+                  <div className="w-12 h-12 relative rounded-md overflow-hidden border border-slate-200">
+                    <Image src={logoUrl} alt="Logo empresa" fill className="object-contain p-1" />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-md border border-slate-200 flex items-center justify-center text-xs font-black text-slate-700">
+                    AK
+                  </div>
+                )}
+                <div>
+                  <h3 className="font-black text-lg text-slate-900 uppercase tracking-tight">{companyName}</h3>
+                  <p className="text-xs text-slate-500">Recibo Oficial de Pago</p>
+                </div>
               </div>
-            )}
-          </div>
-          <Separator />
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Saldo anterior</span>
-              <span className="font-bold">{formatCurrency(saldoAnterior)}</span>
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Recibo N°</p>
+                <p className="font-black text-slate-900">{receiptNumber}</p>
+              </div>
             </div>
-            <div className="flex justify-between items-center bg-emerald-50 p-3 rounded-xl border border-emerald-200">
-              <span className="font-black text-emerald-700 uppercase text-xs tracking-tight">Saldo restante</span>
-              <span className="font-black text-emerald-700 text-lg">{formatCurrency(totalCosto - totalPagado)}</span>
+            <div className="mt-3 text-[11px] text-slate-600 grid grid-cols-1 sm:grid-cols-2 gap-1">
+              <p>{companyAddress || 'Salto, Uruguay'}</p>
+              <p className="sm:text-right">{companyContact || 'akproduccionessalto@gmail.com'}</p>
+              <p>RUT: {companyTaxId || 'No informado'}</p>
+              <p className="sm:text-right">Fecha emisión: {formatDate(pago.fecha)}</p>
+            </div>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Cliente</p>
+                <p className="font-bold text-slate-900">{presupuesto.clienteNombre}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Evento</p>
+                <p className="font-bold text-slate-900">{presupuesto.eventoTipo}</p>
+              </div>
+            </div>
+            <Separator />
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Monto pagado</span>
+                <span className="font-black text-slate-900 text-lg">{formatCurrency(pago.monto)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Método</span>
+                <Badge variant="secondary" className="flex items-center gap-1 text-[10px] font-bold uppercase">
+                  <MetodoPagoIcon metodo={pago.metodoPago} /> {pago.metodoPago}
+                </Badge>
+              </div>
+              {pago.referencia && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Referencia</span>
+                  <span className="font-medium text-xs">{pago.referencia}</span>
+                </div>
+              )}
+            </div>
+            <Separator />
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Saldo anterior</span>
+                <span className="font-bold">{formatCurrency(saldoAnterior)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Saldo restante</span>
+                <span className="font-black">{formatCurrency(saldoRestante)}</span>
+              </div>
             </div>
           </div>
         </div>
-        <div className="p-6 pt-0 flex gap-3">
+        <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Button onClick={onClose} variant="outline" className="flex-1 rounded-xl">
             Cerrar
           </Button>
@@ -172,6 +244,12 @@ function ReciboView({
             className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
+          </Button>
+          <Button onClick={handleShareRecibo} variant="outline" className="flex-1 rounded-xl">
+            <Send className="w-4 h-4 mr-2" /> Compartir
+          </Button>
+          <Button onClick={handleDownloadRecibo} variant="outline" className="flex-1 rounded-xl">
+            <ImageIcon className="w-4 h-4 mr-2" /> Descargar imagen
           </Button>
         </div>
       </div>
@@ -189,12 +267,18 @@ function PagosRapidosContent() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [companyName, setCompanyName] = useState('AK Producciones');
+  const [companyTaxId, setCompanyTaxId] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
+  const [companyContact, setCompanyContact] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'registrar' | 'pendientes'>('registrar');
 
   // Payment form state
   const [newPagoMonto, setNewPagoMonto] = useState('');
   const [newPagoMetodo, setNewPagoMetodo] = useState<MetodoPago>('Efectivo');
   const [newPagoReferencia, setNewPagoReferencia] = useState('');
+  const [newPagoComprobante, setNewPagoComprobante] = useState<string | undefined>(undefined);
+  const [newPagoComprobanteName, setNewPagoComprobanteName] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [showRecibo, setShowRecibo] = useState<{ pago: PagoCliente; presupuesto: Presupuesto } | null>(null);
 
@@ -206,11 +290,12 @@ function PagosRapidosContent() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [allPresupuestos, socialConnections, companyInfo, pendientes] = await Promise.all([
+      const [allPresupuestos, socialConnections, companyInfo, pendientes, templateSettings] = await Promise.all([
         getPresupuestos(),
         getSocialConnections(),
         getCompanyInfo(),
         getPresupuestosWithPendingPayments(),
+        getInvoiceTemplateSettings(),
       ]);
 
       const activeStates = ['Aceptado', 'Facturado'];
@@ -224,6 +309,10 @@ function PagosRapidosContent() {
       const wp = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (wp?.phoneNumber) setWhatsappNumber(wp.phoneNumber);
       setCompanyName(companyInfo?.companyName || 'AK Producciones');
+      setCompanyTaxId(companyInfo?.companyTaxId || '');
+      setCompanyAddress(companyInfo?.companyAddress || '');
+      setCompanyContact(companyInfo?.companyContact || '');
+      setLogoUrl(templateSettings.logoUrl || null);
     } catch (e) {
       toast({ title: 'Error', description: 'No se pudieron cargar los datos.', variant: 'destructive' });
     } finally {
@@ -269,6 +358,7 @@ function PagosRapidosContent() {
         metodoPago: newPagoMetodo,
         referencia: newPagoReferencia.trim() || undefined,
         estadoPago: 'confirmado',
+        comprobanteUrl: newPagoComprobante,
       });
       if (!result.success) throw new Error(result.error);
 
@@ -277,6 +367,8 @@ function PagosRapidosContent() {
       setNewPagoMonto('');
       setNewPagoReferencia('');
       setNewPagoMetodo('Efectivo');
+      setNewPagoComprobante(undefined);
+      setNewPagoComprobanteName('');
 
       // Update local state
       setPresupuestos(prev => prev.map(p => p.id === presupuestoId ? result.presupuesto! : p));
@@ -286,6 +378,26 @@ function PagosRapidosContent() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleComprobanteUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const acceptedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'];
+    if (!acceptedTypes.includes(file.type)) {
+      toast({ title: 'Formato inválido', description: 'Subí una imagen (PNG/JPG/WEBP) o PDF.', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Archivo muy grande', description: 'El comprobante no debe superar 5MB.', variant: 'destructive' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setNewPagoComprobante(reader.result as string);
+      setNewPagoComprobanteName(file.name);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleConfirmPago = async (presupuestoId: string, pagoId: string) => {
@@ -534,6 +646,18 @@ function PagosRapidosContent() {
                                     className="h-10 rounded-xl text-sm"
                                   />
                                 </div>
+                                <div className="space-y-1.5">
+                                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Comprobante (imagen o PDF)</Label>
+                                  <Input
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+                                    onChange={handleComprobanteUpload}
+                                    className="h-10 rounded-xl text-xs"
+                                  />
+                                  {newPagoComprobanteName && (
+                                    <p className="text-[10px] text-slate-500">Archivo: {newPagoComprobanteName}</p>
+                                  )}
+                                </div>
 
                                 <Button
                                   onClick={() => handleRegistrarPago(p.id)}
@@ -628,14 +752,26 @@ function PagosRapidosContent() {
                           {pago.comprobanteUrl && (
                             <div className="space-y-1">
                               <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Comprobante adjunto</p>
-                              <div className="relative w-full h-40 bg-slate-100 rounded-xl overflow-hidden">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={pago.comprobanteUrl}
-                                  alt="Comprobante de pago"
-                                  className="w-full h-full object-contain"
-                                />
-                              </div>
+                              {pago.comprobanteUrl.startsWith('data:application/pdf') ? (
+                                <a
+                                  href={pago.comprobanteUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 hover:underline"
+                                >
+                                  <FileCheck2 className="w-4 h-4" />
+                                  Ver comprobante PDF
+                                </a>
+                              ) : (
+                                <div className="relative w-full h-40 bg-slate-100 rounded-xl overflow-hidden">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={pago.comprobanteUrl}
+                                    alt="Comprobante de pago"
+                                    className="w-full h-full object-contain"
+                                  />
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -707,6 +843,10 @@ function PagosRapidosContent() {
           pago={showRecibo.pago}
           presupuesto={showRecibo.presupuesto}
           companyName={companyName}
+          companyTaxId={companyTaxId}
+          companyAddress={companyAddress}
+          companyContact={companyContact}
+          logoUrl={logoUrl}
           whatsappNumber={whatsappNumber}
           onClose={() => setShowRecibo(null)}
         />

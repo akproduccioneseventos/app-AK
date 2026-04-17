@@ -718,7 +718,7 @@ export function MainNav() {
                 )}
               >
                 <Settings className="w-4 h-4" />
-                <span className="ml-2">Ajustes</span>
+                <span className="ml-2">Centro de Control</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

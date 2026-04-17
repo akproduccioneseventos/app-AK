@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
+import {
     ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, 
     Percent, Tag, MessageSquare, ListPlus, ShieldCheck, Zap, Info, 
     Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff, X, Gift, Building2,
-    ChevronsUp, ChevronsDown
+    ChevronsUp, ChevronsDown, Copy
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveArmadoRapidoConfig, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -86,6 +86,7 @@ export default function BudgetDisplaySettingsPage() {
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [newDepTrigger, setNewDepTrigger] = useState('');
   const [newDepRequired, setNewDepRequired] = useState('');
+  const [copyTargetsByPackage, setCopyTargetsByPackage] = useState<Record<string, (typeof PACKAGE_EVENT_SECTIONS)[number]['value']>>({});
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -212,6 +213,40 @@ export default function BudgetDisplaySettingsPage() {
     });
     setCatalogSearchTerm('');
     setIsCatalogModalOpen(false);
+  };
+
+  const getPackageSectionValue = (pkg: PaqueteArmadoRapido): (typeof PACKAGE_EVENT_SECTIONS)[number]['value'] => {
+    const tipos = (pkg.tiposDeEventoAplicables || []).map((t) => t.trim()).filter(Boolean);
+    if (tipos.length === 0) return 'all';
+    const matched = PACKAGE_EVENT_SECTIONS.find(
+      (section) => section.eventType && isPackageApplicableToEventType(pkg, section.eventType)
+    );
+    return matched?.value || 'all';
+  };
+
+  const updatePackageEventType = (pkgId: string, sectionValue: (typeof PACKAGE_EVENT_SECTIONS)[number]['value']) => {
+    const section = PACKAGE_EVENT_SECTIONS.find((s) => s.value === sectionValue) || PACKAGE_EVENT_SECTIONS[0];
+    setConfig(prev => prev ? ({
+      ...prev,
+      paquetes: prev.paquetes.map((pkg) => pkg.id === pkgId ? {
+        ...pkg,
+        tiposDeEventoAplicables: section.eventType ? [section.eventType] : [],
+      } : pkg)
+    }) : null);
+  };
+
+  const duplicatePackageToSection = (pkg: PaqueteArmadoRapido, sectionValue: (typeof PACKAGE_EVENT_SECTIONS)[number]['value']) => {
+    const section = PACKAGE_EVENT_SECTIONS.find((s) => s.value === sectionValue) || PACKAGE_EVENT_SECTIONS[0];
+    const newPkg: PaqueteArmadoRapido = {
+      ...pkg,
+      id: `pkg_copy_${Date.now()}`,
+      nombre: `${pkg.nombre} (${section.label})`,
+      recommended: false,
+      tiposDeEventoAplicables: section.eventType ? [section.eventType] : [],
+      serviciosIncluidos: (pkg.serviciosIncluidos || []).map((serv) => ({ ...serv })),
+    };
+    setConfig(prev => prev ? ({ ...prev, paquetes: [...prev.paquetes, newPkg] }) : null);
+    setActivePackageSection(sectionValue);
   };
 
   // --- ACTIONS FOR DISHES ---
@@ -544,18 +579,56 @@ export default function BudgetDisplaySettingsPage() {
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400">Tipos de evento aplicables</Label>
-                                <Input
-                                    value={(pkg.tiposDeEventoAplicables || []).join(', ')}
-                                    onChange={(e) => {
-                                        const tipos = e.target.value.split(',').map((v) => v.trim()).filter(Boolean);
-                                        setConfig(prev => prev ? ({
-                                            ...prev,
-                                            paquetes: prev.paquetes.map(p => p.id === pkg.id ? { ...p, tiposDeEventoAplicables: tipos } : p)
-                                        }) : null);
-                                    }}
-                                    placeholder="Ej: 15 años, Boda (vacío = todos)"
-                                />
+                                <Label className="text-[10px] font-black uppercase text-slate-400">Tipo de fiesta</Label>
+                                <Select
+                                  value={getPackageSectionValue(pkg)}
+                                  onValueChange={(value) => updatePackageEventType(pkg.id, value as (typeof PACKAGE_EVENT_SECTIONS)[number]['value'])}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Seleccionar tipo de fiesta" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {PACKAGE_EVENT_SECTIONS.map((section) => (
+                                      <SelectItem key={section.value} value={section.value}>
+                                        {section.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400">Copiar paquete a otro tipo</Label>
+                                <div className="flex gap-2">
+                                  <Select
+                                    value={copyTargetsByPackage[pkg.id] || getPackageSectionValue(pkg)}
+                                    onValueChange={(value) =>
+                                      setCopyTargetsByPackage((prev) => ({
+                                        ...prev,
+                                        [pkg.id]: value as (typeof PACKAGE_EVENT_SECTIONS)[number]['value'],
+                                      }))
+                                    }
+                                  >
+                                    <SelectTrigger className="flex-1">
+                                      <SelectValue placeholder="Elegir destino" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {PACKAGE_EVENT_SECTIONS.map((section) => (
+                                        <SelectItem key={section.value} value={section.value}>
+                                          {section.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="rounded-xl"
+                                    onClick={() => duplicatePackageToSection(pkg, copyTargetsByPackage[pkg.id] || getPackageSectionValue(pkg))}
+                                  >
+                                    <Copy className="w-4 h-4 mr-2" />
+                                    Copiar
+                                  </Button>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase text-slate-400">Servicios Incluidos</Label>
