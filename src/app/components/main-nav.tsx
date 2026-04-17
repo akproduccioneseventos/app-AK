@@ -296,6 +296,14 @@ export function MainNav() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
+                <Link href="/settings/contratos">
+                  <SidebarMenuButton isActive={isActive("/settings/contratos")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
+                    <FileText className="w-5 h-5 text-blue-500" />
+                    <span className="ml-2">Contratos</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <Link href="/compras">
                   <SidebarMenuButton isActive={isActive("/compras")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
                     <ShoppingCart className="w-5 h-5 text-slate-400" />

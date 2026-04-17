@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, MessageCircle, Save, Loader2, Bot, Hand, AlertTriangle, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Save, Loader2, Bot, Hand, AlertTriangle, Plus, Trash2, CheckCircle2, Circle, BarChart3, Wand2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,26 @@ export default function WhatsAppSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const automationRules = settings?.automationRules ?? [];
+  const enabledRules = automationRules.filter(r => r.enabled).length;
+
+  const templatePresets = [
+    {
+      key: 'seguimiento',
+      label: 'Seguimiento suave',
+      reminder:
+        'Hola {{NOMBRE}} 👋 Te recordamos nuestra reunión para el {{FECHA}} a las {{HORA}}. Si necesitás reprogramar, avisame por acá.',
+      payment:
+        'Hola {{NOMBRE}} 😊 Te escribo por el saldo pendiente de {{SALDO}} para tu evento del {{FECHA_EVENTO}}. Podés revisarlo acá: {{LINK}}.',
+    },
+    {
+      key: 'cierre',
+      label: 'Cierre comercial',
+      reminder:
+        '¡Hola {{NOMBRE}}! Confirmamos reunión el {{FECHA}} a las {{HORA}} para avanzar con tu propuesta 🎉',
+      payment:
+        '¡Hola {{NOMBRE}}! Te comparto recordatorio de pago ({{SALDO}}) para asegurar fecha y servicios del evento {{FECHA_EVENTO}}: {{LINK}}',
+    },
+  ] as const;
 
   const setAutomationRules = (rules: WhatsAppAutomationRule[]) => {
     setSettings(s => s ? { ...s, automationRules: rules } : s);
@@ -85,6 +105,17 @@ export default function WhatsAppSettingsPage() {
     }
   };
 
+  const applyTemplatePreset = (presetKey: (typeof templatePresets)[number]['key']) => {
+    const preset = templatePresets.find(p => p.key === presetKey);
+    if (!preset) return;
+    setSettings(s => (s ? {
+      ...s,
+      reminderMessageTemplate: preset.reminder,
+      paymentReminderTemplate: preset.payment,
+    } : s));
+    toast({ title: 'Plantilla aplicada', description: `Se aplicó "${preset.label}".` });
+  };
+
   if (isLoading || !settings) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -116,6 +147,60 @@ export default function WhatsAppSettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl">Wizard de configuración inicial</CardTitle>
+            <CardDescription>
+              Segui estos pasos para dejar WhatsApp funcionando rápido y sin confusiones.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-2">
+            {[
+              { done: settings.enabled, label: '1) Activar integración general' },
+              { done: settings.sendingMode === 'manual' || settings.sendingMode === 'automatic', label: '2) Elegir modo de envío (manual o automático)' },
+              { done: settings.reminderMessageTemplate.trim().length > 0 && settings.paymentReminderTemplate.trim().length > 0, label: '3) Configurar plantillas principales' },
+              { done: enabledRules > 0, label: '4) Activar al menos una regla automática' },
+            ].map((step) => (
+              <div key={step.label} className="flex items-center gap-2 p-2 rounded-md bg-muted/30">
+                {step.done ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                ) : (
+                  <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
+                )}
+                <span className="text-sm">{step.label}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-green-600" />
+              Dashboard rápido de métricas
+            </CardTitle>
+            <CardDescription>Estado operativo actual de tu módulo de WhatsApp.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="rounded-md border p-3 bg-white">
+              <p className="text-xs text-muted-foreground">Estado</p>
+              <p className="text-sm font-semibold">{settings.enabled ? 'Activo' : 'Inactivo'}</p>
+            </div>
+            <div className="rounded-md border p-3 bg-white">
+              <p className="text-xs text-muted-foreground">Modo</p>
+              <p className="text-sm font-semibold capitalize">{settings.sendingMode}</p>
+            </div>
+            <div className="rounded-md border p-3 bg-white">
+              <p className="text-xs text-muted-foreground">Reglas activas</p>
+              <p className="text-sm font-semibold">{enabledRules}/{automationRules.length}</p>
+            </div>
+            <div className="rounded-md border p-3 bg-white">
+              <p className="text-xs text-muted-foreground">Plantillas base</p>
+              <p className="text-sm font-semibold">{settings.reminderMessageTemplate ? 'OK' : 'Pendiente'}</p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Global toggle */}
         <Card className="shadow-lg">
           <CardHeader>
@@ -229,6 +314,27 @@ export default function WhatsAppSettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            <Separator />
+            <div className="space-y-2">
+              <Label className="font-semibold flex items-center gap-2">
+                <Wand2 className="w-4 h-4 text-green-600" />
+                Plantillas sugeridas rápidas
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {templatePresets.map((preset) => (
+                  <Button
+                    key={preset.key}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyTemplatePreset(preset.key)}
+                    disabled={isSaving}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
             <Separator />
             <div className="space-y-2">
               <Label htmlFor="reminder-template" className="font-semibold">

@@ -646,6 +646,13 @@ export function MainNav() {
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
+                    <Link href="/settings/contratos">
+                      <SidebarMenuSubButton isActive={isActive("/settings/contratos")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
+                        Contratos
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
                     <Link href="/empresa/galeria">
                       <SidebarMenuSubButton isActive={isActive("/empresa/galeria")} className="rounded-lg h-8 font-semibold text-[11px] uppercase tracking-tighter hover:text-blue-600">
                         Galería

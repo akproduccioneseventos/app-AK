@@ -80,6 +80,7 @@ const SECTIONS: SettingSection[] = [
       { title: 'Calendario', description: 'Vista agenda con todas las fechas importantes.', href: '/calendario', icon: CalendarDays },
       { title: 'Presupuestos', description: 'Ver todos los presupuestos generados.', href: '/presupuestos', icon: Files },
       { title: 'Nuevo Presupuesto', description: 'Crear una cotización manual.', href: '/presupuestos/nuevo/crear', icon: FileText },
+      { title: 'Contratos', description: 'Tipos de contratos listos para editar y reutilizar.', href: '/settings/contratos', icon: FileSignature },
       { title: 'CRM / Seguimiento', description: 'Prospectos, leads y pipeline de ventas.', href: '/contabilidad/crm', icon: ListChecks },
       { title: 'Base de Clientes', description: 'Directorio completo de clientes.', href: '/customers', icon: Users },
       { title: 'Pagos Rápidos', description: 'Registrar cobros y enviar recibos.', href: '/pagos-rapidos', icon: Wallet },
