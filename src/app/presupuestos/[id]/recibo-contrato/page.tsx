@@ -52,7 +52,7 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-const CONTRACT_MISSING_EVENT_DATA_ERROR = 'No se puede generar el contrato sin la fecha y hora del evento';
+const CONTRACT_MISSING_EVENT_DATA_ERROR = 'No se puede generar el contrato sin la fecha del evento';
 
 const extractTimeFromDate = (dateString?: string) => {
   if (!dateString || !dateString.includes('T')) return '';
@@ -173,7 +173,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const eventDateSource = overriddenFecha || presupuesto?.eventoFecha;
   const eventStartTimeRaw = presupuesto?.eventoHoraInicio || extractTimeFromDate(eventDateSource);
   const eventStartTime = (eventStartTimeRaw ?? '').trim();
-  const canGenerateContract = Boolean(overriddenFecha && eventStartTime);
+  const canGenerateContract = Boolean(overriddenFecha);
   const effectiveTotalPagado = hasValidSeniaParam ? overriddenMontoSenia : totalPagado;
   const effectiveSaldoPendiente = totalCosto - effectiveTotalPagado;
   const requestedDoc = searchParams.get('doc');
@@ -269,7 +269,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
               ? 'El PDF incluirá el recibo de seña'
               : requestedDoc === 'contrato'
                 ? 'El PDF incluirá solo el contrato'
-                : 'El PDF incluirá únicamente los documentos válidos (recibo con seña y/o contrato con fecha/hora)'}
+                : 'El PDF incluirá únicamente los documentos válidos (recibo con seña y/o contrato con fecha)'}
           </span>
           <Button onClick={handlePrint} size="sm" className="rounded-xl bg-primary hover:bg-primary/90 text-white">
             <Download className="mr-2 h-4 w-4" />
