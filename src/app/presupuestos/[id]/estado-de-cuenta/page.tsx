@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppSettings } from '@/app/actions/settings';
+import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
@@ -62,19 +62,21 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [waEnabled, setWaEnabled] = useState(true);
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
+  const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(15);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo, wpSettings] =
+      const [fetchedPresupuesto, templateSettings, socialConnections, companyInfo, wpSettings, budgetSettings] =
         await Promise.all([
           getPresupuestoById(presupuestoId),
           getInvoiceTemplateSettings(),
           getSocialConnections(),
           getCompanyInfo(),
           getWhatsAppSettings(),
+          getBudgetDisplaySettings(),
         ]);
 
       if (!fetchedPresupuesto) {
@@ -89,6 +91,7 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
       setCompanyContact(companyInfo?.companyContact || '');
       setWaEnabled(wpSettings.enabled);
       setWaTemplate(wpSettings.paymentReminderTemplate ?? null);
+      setAnnualAdjustmentPercentage(budgetSettings.annualAdjustmentPercentage ?? 15);
 
       const wp = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (wp?.phoneNumber) setWhatsappNumber(wp.phoneNumber);
@@ -103,9 +106,29 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
     fetchData();
   }, [fetchData]);
 
-  const { totalCosto, totalPagado, saldoPendiente, pagos } = useMemo(() => {
-    if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] };
-    const total = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+  const { totalCosto, totalPagado, saldoPendiente, pagos, annualAdjustment, adjustmentPct, yearsDiff, baseTotal } = useMemo(() => {
+    if (!presupuesto) {
+      return {
+        totalCosto: 0,
+        totalPagado: 0,
+        saldoPendiente: 0,
+        pagos: [] as PagoCliente[],
+        annualAdjustment: 0,
+        adjustmentPct: annualAdjustmentPercentage,
+        yearsDiff: 0,
+        baseTotal: 0,
+      };
+    }
+    const baseTotal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+    const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? annualAdjustmentPercentage;
+    const creationYear = new Date(presupuesto.timestamp).getFullYear();
+    const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : creationYear;
+    const yearsDiff = Math.max(0, eventYear - creationYear);
+    const annualAdjustment =
+      presupuesto.ajusteAnualActivo === false || yearsDiff === 0 || adjustmentPct <= 0
+        ? 0
+        : Math.round(baseTotal * (Math.pow(1 + adjustmentPct / 100, yearsDiff) - 1));
+    const total = baseTotal + annualAdjustment;
     const pagos: PagoCliente[] = presupuesto.pagosCliente || [];
     const confirmedPagos = pagos.filter(p => p.estadoPago !== 'pendiente_confirmacion');
     const pagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
@@ -114,8 +137,12 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
       totalPagado: pagado,
       saldoPendiente: total - pagado,
       pagos,
+      annualAdjustment,
+      adjustmentPct,
+      yearsDiff,
+      baseTotal,
     };
-  }, [presupuesto]);
+  }, [presupuesto, annualAdjustmentPercentage]);
 
   const handlePrint = () => window.print();
 
@@ -260,6 +287,18 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
               Resumen de Cuenta
             </h2>
             <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-600 font-medium">Base del Evento</span>
+                <span className="font-bold text-slate-900">{formatCurrency(baseTotal)}</span>
+              </div>
+              {annualAdjustment > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-amber-700 font-medium">
+                    Ajuste anual ({yearsDiff} año{yearsDiff === 1 ? '' : 's'} · {adjustmentPct}%)
+                  </span>
+                  <span className="font-bold text-amber-700">+{formatCurrency(annualAdjustment)}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-600 font-medium">Costo Total del Evento</span>
                 <span className="font-bold text-slate-900">{formatCurrency(totalCosto)}</span>

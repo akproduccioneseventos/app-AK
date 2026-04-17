@@ -42,10 +42,12 @@ import {
   ToggleRight,
   TrendingUp,
   Truck,
+  UtensilsCrossed,
   UserCog,
   Users,
   Wand2,
   Wallet,
+  Wrench,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -184,6 +186,20 @@ const SECTIONS: SettingSection[] = [
       { title: 'Proveedores', description: 'Gestión de proveedores y contactos.', href: '/proveedores', icon: Truck },
       { title: 'Analíticas', description: 'Reportes avanzados y estadísticas de ventas.', href: '/analytics', icon: BarChart3 },
       { title: 'Contabilidad General', description: 'Panel contable completo.', href: '/contabilidad', icon: DollarSign },
+    ],
+  },
+  {
+    id: 'operaciones',
+    label: 'Operaciones, Gastronomía & Activos',
+    emoji: '🧩',
+    color: 'text-teal-700',
+    bgColor: 'bg-teal-50 border-teal-200',
+    items: [
+      { title: 'Módulo Gastronómico', description: 'Gestión de menús, platos y catálogo gastronómico.', href: '/empresa/menus', icon: UtensilsCrossed },
+      { title: 'Módulo de Activos', description: 'Control de activos fijos: sillas, mesas y equipamiento.', href: '/empresa/activos-fijos', icon: Wrench },
+      { title: 'Insumos', description: 'Inventario y compras de insumos operativos.', href: '/empresa/insumos', icon: ShoppingCart },
+      { title: 'Salones', description: 'Gestión de salones y espacios disponibles.', href: '/empresa/salones', icon: Building },
+      { title: 'Recursos Multi-Evento', description: 'Vista de recursos compartidos entre eventos activos.', href: '/recursos-multi-evento', icon: Layers },
     ],
   },
   {

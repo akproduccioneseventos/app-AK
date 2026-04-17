@@ -44,6 +44,8 @@ interface EventPaymentDetails {
   facturasFiesta: Invoice[];
   totalPagadoFiesta: number;
   saldoFiesta: number;
+  pagosConfirmados: number;
+  fuentePagos: 'presupuesto' | 'facturas' | 'mixto' | 'sin_pagos';
 }
 
 export default function CustomerDetailsPage({ params }: { params: { id: string } }) {
@@ -98,10 +100,28 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
           facturasFiesta = (await Promise.all(invoicePromises)).filter(inv => inv !== null) as Invoice[];
         }
         
-        let totalPagadoFiesta = 0;
+        let totalPagadoFacturas = 0;
         facturasFiesta.forEach(factura => {
-          totalPagadoFiesta += factura.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+          totalPagadoFacturas += factura.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
         });
+        const pagosConfirmados = (presupuestoFiesta?.pagosCliente || []).filter((p) => p.estadoPago !== 'pendiente_confirmacion').length;
+        const totalPagadoDesdePresupuesto = (presupuestoFiesta?.pagosCliente || [])
+          .filter((p) => p.estadoPago !== 'pendiente_confirmacion')
+          .reduce((sum, p) => sum + p.monto, 0);
+        const hasBudgetPayments = totalPagadoDesdePresupuesto > 0;
+        const hasInvoicePayments = totalPagadoFacturas > 0;
+        const totalPagadoFiesta = hasBudgetPayments && hasInvoicePayments
+          ? Math.max(totalPagadoDesdePresupuesto, totalPagadoFacturas)
+          : hasBudgetPayments
+            ? totalPagadoDesdePresupuesto
+            : totalPagadoFacturas;
+        const fuentePagos: EventPaymentDetails['fuentePagos'] = hasBudgetPayments && hasInvoicePayments
+          ? 'mixto'
+          : hasBudgetPayments
+            ? 'presupuesto'
+            : hasInvoicePayments
+              ? 'facturas'
+              : 'sin_pagos';
 
         const costoTotalFiesta = presupuestoFiesta?.totalConDescuento ?? presupuestoFiesta?.costoTotalEstimado ?? 0;
         const saldoFiesta = costoTotalFiesta - totalPagadoFiesta;
@@ -111,7 +131,9 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
           presupuestoFiesta,
           facturasFiesta,
           totalPagadoFiesta,
-          saldoFiesta
+          saldoFiesta,
+          pagosConfirmados,
+          fuentePagos,
         });
       }
       setEventPaymentHistory(paymentHistory.sort((a,b) => 
@@ -329,6 +351,13 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
                               <Button variant="outline" size="sm" className="text-xs"><FileText className="w-3 h-3 mr-1.5"/>Ver Presupuesto</Button>
                             </Link>
                           )}
+                          {eventDetail.presupuestoFiesta && (
+                            <Link href={`/presupuestos/${eventDetail.presupuestoFiesta.id}/estado-de-cuenta`}>
+                              <Button variant="outline" size="sm" className="text-xs">
+                                <FileText className="w-3 h-3 mr-1.5"/>Estado de Cuenta
+                              </Button>
+                            </Link>
+                          )}
                           <Button asChild size="sm" variant={index === 0 ? 'default' : 'outline'}>
                              <Link href={`/fiestas/nueva?fiestaId=${eventDetail.fiesta.id}`}>
                                {index === 0 ? 'Planificar Evento' : 'Ver Evento'}
@@ -343,6 +372,16 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
                       <div className="p-2 border rounded-md bg-green-50 dark:bg-green-900/30"><span className="font-medium text-green-700 dark:text-green-300">Total Pagado:</span> {formatCurrency(eventDetail.totalPagadoFiesta)}</div>
                       <div className={`p-2 border rounded-md ${eventDetail.saldoFiesta > 0 ? 'bg-red-50 dark:bg-red-900/30' : 'bg-green-50 dark:bg-green-900/30'}`}><span className={`font-medium ${eventDetail.saldoFiesta > 0 ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}`}>Saldo:</span> {formatCurrency(eventDetail.saldoFiesta)}</div>
                     </div>
+                    {eventDetail.pagosConfirmados > 0 && (
+                      <p className="text-xs text-emerald-700 font-medium">
+                        Recibos registrados: {eventDetail.pagosConfirmados} (disponibles en Estado de Cuenta).
+                      </p>
+                    )}
+                    {eventDetail.fuentePagos === 'mixto' && (
+                      <p className="text-[11px] text-slate-500">
+                        Se detectaron pagos tanto en presupuesto como en facturas; se muestra el mayor total registrado.
+                      </p>
+                    )}
 
                      <div className="flex flex-wrap gap-2">
                         {eventDetail.facturasFiesta.map(factura => (
