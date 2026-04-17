@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,21 +9,44 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   ArrowLeft, Printer as PrinterIcon, Loader2, Upload,
-  GlassWater, Utensils, QrCode, Hash, ExternalLink, Info,
+  GlassWater, Utensils, QrCode, Hash, ExternalLink, Info, Settings2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData } from '@/types/fiesta';
-import { getFiestaById, updateCartaTragos, updateMenuMesa } from '@/app/actions/fiesta/fiesta.actions';
+import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
+import { getFiestaById, updateCartaTragos, updateMenuMesa, updateNumerosMesa } from '@/app/actions/fiesta/fiesta.actions';
+import { updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
-import { defaultCartaTragosData, defaultMenuMesaData } from '@/lib/fiesta-defaults';
+import { defaultCartaTragosData, defaultMenuMesaData, defaultNumerosMesaData } from '@/lib/fiesta-defaults';
 import { CartaTragosMenu } from '@/components/invitacion/templates/CartaTragosMenu';
 import { MenuMesaTemplate } from '@/components/invitacion/templates/MenuMesaTemplate';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { QRCodeSVG } from 'qrcode.react';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
+const FONT_OPTIONS = ['Playfair Display', 'Dancing Script', 'Montserrat', 'Georgia', 'Arial'] as const;
+const TITLE_SIZE_OPTIONS = ['small', 'medium', 'large', 'xlarge'] as const;
+const TABLE_SIZE_MAP: Record<NonNullable<NumerosMesaData['fontSize']>, string> = {
+  small: '3rem',
+  medium: '4rem',
+  large: '5rem',
+  xlarge: '5.8rem',
+};
+const DEFAULT_QR_TEXT = '¡Ayúdanos a capturar el momento!';
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return '';
+  try {
+    return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch {
+    return dateString;
+  }
+};
 
 // ---------------------------------------------------------------------------
 // QR Card (Social Wall) – 10×15 cm card
@@ -33,7 +56,8 @@ const QRCartel: React.FC<{
   primaryColor: string;
   protagonistaFotoUrl?: string;
   nombreEvento: string;
-}> = ({ fiestaId, primaryColor, protagonistaFotoUrl, nombreEvento }) => {
+  subtitleText: string;
+}> = ({ fiestaId, primaryColor, protagonistaFotoUrl, nombreEvento, subtitleText }) => {
   const [origin, setOrigin] = React.useState('');
   React.useEffect(() => { setOrigin(window.location.origin); }, []);
   const qrUrl = origin
@@ -73,7 +97,7 @@ const QRCartel: React.FC<{
       </div>
 
       <p className="text-center text-[9px] font-bold uppercase tracking-widest mt-3 leading-snug" style={{ color: primaryColor }}>
-        ¡Ayúdanos a capturar el momento!
+        {subtitleText}
       </p>
       <p className="text-center text-[8px] text-slate-500 mt-1 leading-snug max-w-[80%]">
         Escanea aquí y sube tus fotos
@@ -91,7 +115,25 @@ const TableNumberCard: React.FC<{
   protagonistaFotoUrl?: string;
   nombreEvento: string;
   tipoCelebracion: string;
-}> = ({ tableNumber, primaryColor, protagonistaFotoUrl, nombreEvento, tipoCelebracion }) => {
+  protagonistaNombre: string;
+  fechaEvento: string;
+  fontSize: NonNullable<NumerosMesaData['fontSize']>;
+  numberColor: string;
+  cardBgColor: string;
+  fontFamily: string;
+}> = ({
+  tableNumber,
+  primaryColor,
+  protagonistaFotoUrl,
+  nombreEvento,
+  tipoCelebracion,
+  protagonistaNombre,
+  fechaEvento,
+  fontSize,
+  numberColor,
+  cardBgColor,
+  fontFamily,
+}) => {
   const cornerClasses: Record<string, string> = {
     'top-left': 'top-1.5 left-1.5 border-t-0 border-r-0',
     'top-right': 'top-1.5 right-1.5 border-t-0 border-l-0',
@@ -102,7 +144,7 @@ const TableNumberCard: React.FC<{
   return (
     <div
       className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center p-4 border-[3px]"
-      style={{ borderColor: primaryColor, backgroundColor: '#ffffff' }}
+      style={{ borderColor: primaryColor, backgroundColor: cardBgColor }}
     >
       {Object.entries(cornerClasses).map(([pos, cls]) => (
         <div key={pos} className={cn('absolute w-6 h-6 border-2', cls)} style={{ borderColor: primaryColor }} />
@@ -118,18 +160,24 @@ const TableNumberCard: React.FC<{
         </div>
       )}
 
-      <p className="font-headline text-xs font-bold uppercase tracking-widest text-center mb-0.5" style={{ color: primaryColor }}>
+      <p className="font-headline text-xs font-bold uppercase tracking-widest text-center mb-0.5" style={{ color: primaryColor, fontFamily }}>
         {nombreEvento}
       </p>
-      <p className="font-headline text-[10px] uppercase tracking-wider text-slate-400 mb-4">
+      <p className="font-headline text-[10px] uppercase tracking-wider text-slate-400 mb-1" style={{ fontFamily }}>
         {tipoCelebracion}
       </p>
+      {fechaEvento && (
+        <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-4" style={{ fontFamily }}>
+          {fechaEvento}
+        </p>
+      )}
 
       <div className="text-center">
-        <p className="text-[8px] uppercase tracking-[0.3em] text-slate-400 font-bold mb-0">MESA</p>
-        <p className="font-headline font-black leading-none" style={{ fontSize: '4rem', color: primaryColor }}>
+        <p className="text-[8px] uppercase tracking-[0.3em] text-slate-400 font-bold mb-0" style={{ fontFamily }}>MESA</p>
+        <p className="font-headline font-black leading-none" style={{ fontSize: TABLE_SIZE_MAP[fontSize], color: numberColor, fontFamily }}>
           {tableNumber}
         </p>
+        <p className="text-[10px] mt-1" style={{ color: primaryColor, fontFamily }}>{protagonistaNombre}</p>
       </div>
     </div>
   );
@@ -168,13 +216,19 @@ function CarteleriaContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cartaTragos, setCartaTragos] = useState<CartaTragosData>(defaultCartaTragosData);
   const [menuMesa, setMenuMesa] = useState<MenuMesaData>(defaultMenuMesaData);
+  const [numerosMesa, setNumerosMesa] = useState<NumerosMesaData>(defaultNumerosMesaData);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   // Shared config
   const [primaryColor, setPrimaryColor] = useState('#9333ea');
   const [protagonistaFotoUrl, setProtagonistFotoUrl] = useState('');
   const [numMesas, setNumMesas] = useState(10);
+  const [nombreEventoOverride, setNombreEventoOverride] = useState('');
+  const [fechaEventoOverride, setFechaEventoOverride] = useState('');
+  const [tipoCelebracionOverride, setTipoCelebracionOverride] = useState('');
+  const [qrSubtitle, setQrSubtitle] = useState(DEFAULT_QR_TEXT);
 
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -205,11 +259,23 @@ function CarteleriaContent() {
           fiestaData.configuracion.tipoCelebracion === 'XV años'
             ? 'Mis XV'
             : fiestaData.configuracion.tipoCelebracion;
+      if (!mergedCarta.fontFamily) mergedCarta.fontFamily = 'Playfair Display';
+      if (!mergedCarta.titleSize) mergedCarta.titleSize = 'medium';
       setCartaTragos(mergedCarta);
 
       // Menu de mesa
       const mergedMenu = { ...defaultMenuMesaData, ...(fiestaData.menuMesa || {}) };
+      if (!mergedMenu.titulo) mergedMenu.titulo = 'MENÚ';
+      if (!mergedMenu.protagonistaNombre) mergedMenu.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
+      if (!mergedMenu.fontFamily) mergedMenu.fontFamily = 'Playfair Display';
       setMenuMesa(mergedMenu);
+
+      // Números de mesa
+      const mergedNumeros = { ...defaultNumerosMesaData, ...(fiestaData.numerosMesa || {}) };
+      if (!mergedNumeros.protagonistaNombre) mergedNumeros.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
+      if (!mergedNumeros.fechaEvento) mergedNumeros.fechaEvento = formatDate(fiestaData.configuracion.fechaEvento);
+      if (!mergedNumeros.fontFamily) mergedNumeros.fontFamily = 'Playfair Display';
+      setNumerosMesa(mergedNumeros);
 
       // Shared color from carta if already set
       const sharedColor = mergedCarta.paletaColores?.primary || '#9333ea';
@@ -222,6 +288,11 @@ function CarteleriaContent() {
         fiestaData.configuracion.protagonistaFotoUrl ||
         '';
       setProtagonistFotoUrl(sharedPhoto);
+
+      setNombreEventoOverride(fiestaData.configuracion.nombreEvento || 'Evento');
+      setFechaEventoOverride(fiestaData.configuracion.fechaEvento || '');
+      setTipoCelebracionOverride(fiestaData.configuracion.tipoCelebracion || '');
+      setQrSubtitle(fiestaData.configuracion.carteleriaQrTexto || DEFAULT_QR_TEXT);
     } catch (e: unknown) {
       setError('No se pudo cargar la información del evento.');
       toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error desconocido', variant: 'destructive' });
@@ -275,13 +346,24 @@ function CarteleriaContent() {
   };
 
   const handleSaveAll = async () => {
-    if (!fiestaId) return;
+    if (!fiestaId || !fiesta) return;
     setIsSaving(true);
     try {
+      const configToSave = {
+        ...fiesta.configuracion,
+        nombreEvento: nombreEventoOverride || fiesta.configuracion.nombreEvento,
+        fechaEvento: fechaEventoOverride,
+        tipoCelebracion: tipoCelebracionOverride || fiesta.configuracion.tipoCelebracion,
+        carteleriaQrTexto: qrSubtitle,
+      };
+
       await Promise.all([
         updateCartaTragos(fiestaId, cartaTragos),
         updateMenuMesa(fiestaId, menuMesa),
+        updateNumerosMesa(fiestaId, numerosMesa),
+        updateConfiguracionFiestaActual(fiestaId, configToSave),
       ]);
+      setFiesta(prev => prev ? ({ ...prev, configuracion: configToSave }) : prev);
       toast({ title: '¡Kit guardado!', description: 'La cartelería ha sido actualizada.' });
     } catch (e: unknown) {
       toast({ title: 'Error al guardar', description: e instanceof Error ? e.message : 'Error desconocido', variant: 'destructive' });
@@ -303,8 +385,15 @@ function CarteleriaContent() {
     return <div className="p-8 text-center text-destructive">{error}</div>;
   }
 
-  const nombreEvento = fiesta.configuracion.nombreEvento || 'Evento';
-  const tipoCelebracion = fiesta.configuracion.tipoCelebracion || '';
+  const nombreEvento = nombreEventoOverride || fiesta.configuracion.nombreEvento || 'Evento';
+  const tipoCelebracion = tipoCelebracionOverride || fiesta.configuracion.tipoCelebracion || '';
+  const fechaEventoTexto = formatDate(fechaEventoOverride || fiesta.configuracion.fechaEvento);
+  const nombreProtagonistaMesa = numerosMesa.protagonistaNombre || cartaTragos.protagonistaNombre || fiesta.configuracion.protagonista1Nombre || 'Protagonista';
+  const fechaMesa = numerosMesa.fechaEvento || fechaEventoTexto;
+  const tableFontSize = numerosMesa.fontSize || 'medium';
+  const tableNumberColor = numerosMesa.numberColor || primaryColor;
+  const tableCardBgColor = numerosMesa.cardBgColor || '#ffffff';
+  const tableFontFamily = numerosMesa.fontFamily || cartaTragos.fontFamily || 'Playfair Display';
 
   // Build table-number pages: 2 cards per A4 sheet
   const tableNumbers = Array.from({ length: numMesas }, (_, i) => i + 1);
@@ -377,6 +466,10 @@ function CarteleriaContent() {
               className="w-20 h-9"
             />
           </div>
+          <Button size="sm" variant="secondary" onClick={() => setIsEditorOpen(true)}>
+            <Settings2 className="w-4 h-4 mr-1" />
+            ⚙️ Editar Diseño
+          </Button>
 
           <Separator orientation="vertical" className="h-9 mx-1 hidden md:block" />
 
@@ -390,6 +483,241 @@ function CarteleriaContent() {
           </Button>
         </div>
       </div>
+
+      <Sheet open={isEditorOpen} onOpenChange={setIsEditorOpen}>
+        <SheetContent side="right" className="w-[96vw] sm:max-w-2xl p-0">
+          <div className="h-full flex flex-col">
+            <SheetHeader className="p-6 pb-3 border-b">
+              <SheetTitle>Panel Avanzado de Cartelería</SheetTitle>
+              <SheetDescription>Personalizá cada pieza y visualizá los cambios en tiempo real.</SheetDescription>
+            </SheetHeader>
+
+            <div className="p-4 overflow-y-auto">
+              <Tabs defaultValue="general" className="space-y-4">
+                <TabsList className="grid grid-cols-2 md:grid-cols-5 h-auto gap-1">
+                  <TabsTrigger value="general">General</TabsTrigger>
+                  <TabsTrigger value="carta">Carta de Tragos</TabsTrigger>
+                  <TabsTrigger value="menu">Menú</TabsTrigger>
+                  <TabsTrigger value="qr">QR</TabsTrigger>
+                  <TabsTrigger value="numeros">Números</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="general" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label>Color principal</Label>
+                      <Input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="w-full h-10" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Foto protagonista</Label>
+                      <div className="flex items-center gap-2">
+                        <label htmlFor="foto-protagonista-carteleria-panel" className="cursor-pointer w-full">
+                          <Button variant="outline" className="w-full pointer-events-none" asChild>
+                            <span><Upload className="w-4 h-4 mr-1" />Subir foto</span>
+                          </Button>
+                        </label>
+                        <input
+                          id="foto-protagonista-carteleria-panel"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handlePhotoUpload}
+                          disabled={isUploading}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>N° de mesas</Label>
+                      <Input type="number" min={1} max={99} value={numMesas} onChange={e => setNumMesas(Math.max(1, Math.min(99, Number(e.target.value))))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Nombre del evento</Label>
+                      <Input value={nombreEventoOverride} onChange={e => setNombreEventoOverride(e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Fecha del evento</Label>
+                      <Input type="date" value={fechaEventoOverride} onChange={e => setFechaEventoOverride(e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Tipo de fiesta</Label>
+                      <Select value={tipoCelebracionOverride} onValueChange={setTipoCelebracionOverride}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Boda">Boda</SelectItem>
+                          <SelectItem value="XV años">XV años</SelectItem>
+                          <SelectItem value="Cumpleaños">Cumpleaños</SelectItem>
+                          <SelectItem value="Aniversario">Aniversario</SelectItem>
+                          <SelectItem value="Corporativo">Corporativo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="carta" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label>Título de la carta</Label>
+                      <Input value={cartaTragos.titulo || ''} onChange={e => setCartaTragos(prev => ({ ...prev, titulo: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Nombre del protagonista</Label>
+                      <Input value={cartaTragos.protagonistaNombre || ''} onChange={e => setCartaTragos(prev => ({ ...prev, protagonistaNombre: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color de fondo</Label>
+                      <Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => setCartaTragos(prev => ({ ...prev, backgroundColor: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color de texto</Label>
+                      <Input
+                        type="color"
+                        value={cartaTragos.paletaColores?.secondary || '#363636'}
+                        onChange={e => setCartaTragos(prev => ({
+                          ...prev,
+                          paletaColores: { ...(prev.paletaColores || { primary: primaryColor, secondary: '#363636', accent: '#ffffff' }), secondary: e.target.value },
+                        }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Tipo de fuente</Label>
+                      <Select value={cartaTragos.fontFamily || 'Playfair Display'} onValueChange={value => setCartaTragos(prev => ({ ...prev, fontFamily: value }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {FONT_OPTIONS.map(option => (<SelectItem key={option} value={option}>{option}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Tamaño número/título</Label>
+                      <Select
+                        value={cartaTragos.titleSize || 'medium'}
+                        onValueChange={value => setCartaTragos(prev => ({ ...prev, titleSize: value as CartaTragosData['titleSize'] }))}
+                      >
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {TITLE_SIZE_OPTIONS.map(size => (<SelectItem key={size} value={size}>{size}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Link href={`/fiestas/nueva/carta-tragos?fiestaId=${fiestaId}`}>
+                    <Button variant="outline" className="w-full">Ir a lista de tragos</Button>
+                  </Link>
+                </TabsContent>
+
+                <TabsContent value="menu" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label>Título del menú</Label>
+                      <Input value={menuMesa.titulo || ''} onChange={e => setMenuMesa(prev => ({ ...prev, titulo: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Nombre del protagonista</Label>
+                      <Input value={menuMesa.protagonistaNombre || ''} onChange={e => setMenuMesa(prev => ({ ...prev, protagonistaNombre: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color de fondo</Label>
+                      <Input
+                        type="color"
+                        value={menuMesa.paletaColores.background || '#ffffff'}
+                        onChange={e => setMenuMesa(prev => ({ ...prev, paletaColores: { ...prev.paletaColores, background: e.target.value } }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color de texto</Label>
+                      <Input
+                        type="color"
+                        value={menuMesa.paletaColores.secondary || '#4b5563'}
+                        onChange={e => setMenuMesa(prev => ({ ...prev, paletaColores: { ...prev.paletaColores, secondary: e.target.value } }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color de acento</Label>
+                      <Input
+                        type="color"
+                        value={menuMesa.paletaColores.accent || primaryColor}
+                        onChange={e => setMenuMesa(prev => ({ ...prev, paletaColores: { ...prev.paletaColores, accent: e.target.value } }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Tipo de fuente</Label>
+                      <Select value={menuMesa.fontFamily || 'Playfair Display'} onValueChange={value => setMenuMesa(prev => ({ ...prev, fontFamily: value }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {FONT_OPTIONS.map(option => (<SelectItem key={option} value={option}>{option}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Link href={`/fiestas/nueva/menu-mesa?fiestaId=${fiestaId}`}>
+                    <Button variant="outline" className="w-full">Ir a lista de platos</Button>
+                  </Link>
+                </TabsContent>
+
+                <TabsContent value="qr" className="space-y-4">
+                  <div className="space-y-1">
+                    <Label>Nombre del evento</Label>
+                    <Input value={nombreEventoOverride} onChange={e => setNombreEventoOverride(e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Color principal</Label>
+                    <Input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Texto debajo del QR</Label>
+                    <Input value={qrSubtitle} onChange={e => setQrSubtitle(e.target.value)} />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="numeros" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label>Nombre del protagonista</Label>
+                      <Input value={numerosMesa.protagonistaNombre || ''} onChange={e => setNumerosMesa(prev => ({ ...prev, protagonistaNombre: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Fecha en tarjeta</Label>
+                      <Input value={numerosMesa.fechaEvento || ''} onChange={e => setNumerosMesa(prev => ({ ...prev, fechaEvento: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color del número</Label>
+                      <Input type="color" value={numerosMesa.numberColor || primaryColor} onChange={e => setNumerosMesa(prev => ({ ...prev, numberColor: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color de fondo de tarjeta</Label>
+                      <Input type="color" value={numerosMesa.cardBgColor || '#ffffff'} onChange={e => setNumerosMesa(prev => ({ ...prev, cardBgColor: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Tamaño del número</Label>
+                      <Select
+                        value={numerosMesa.fontSize || 'medium'}
+                        onValueChange={value => setNumerosMesa(prev => ({ ...prev, fontSize: value as NumerosMesaData['fontSize'] }))}
+                      >
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {TITLE_SIZE_OPTIONS.map(size => (<SelectItem key={size} value={size}>{size}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Tipo de fuente</Label>
+                      <Select value={numerosMesa.fontFamily || 'Playfair Display'} onValueChange={value => setNumerosMesa(prev => ({ ...prev, fontFamily: value }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {FONT_OPTIONS.map(option => (<SelectItem key={option} value={option}>{option}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* ── Hint + Quick links ── */}
       <div className="max-w-5xl mx-auto px-4 py-4 print:hidden space-y-3">
@@ -458,10 +786,22 @@ function CarteleriaContent() {
         {/* PAGE 3 – Cartel QR Social Wall (×2) */}
         <A4Page>
           <CardFrame>
-            <QRCartel fiestaId={fiestaId!} primaryColor={primaryColor} protagonistaFotoUrl={protagonistaFotoUrl || undefined} nombreEvento={nombreEvento} />
+            <QRCartel
+              fiestaId={fiestaId!}
+              primaryColor={primaryColor}
+              protagonistaFotoUrl={protagonistaFotoUrl || undefined}
+              nombreEvento={nombreEvento}
+              subtitleText={qrSubtitle}
+            />
           </CardFrame>
           <CardFrame>
-            <QRCartel fiestaId={fiestaId!} primaryColor={primaryColor} protagonistaFotoUrl={protagonistaFotoUrl || undefined} nombreEvento={nombreEvento} />
+            <QRCartel
+              fiestaId={fiestaId!}
+              primaryColor={primaryColor}
+              protagonistaFotoUrl={protagonistaFotoUrl || undefined}
+              nombreEvento={nombreEvento}
+              subtitleText={qrSubtitle}
+            />
           </CardFrame>
         </A4Page>
 
@@ -476,6 +816,12 @@ function CarteleriaContent() {
                   protagonistaFotoUrl={protagonistaFotoUrl || undefined}
                   nombreEvento={nombreEvento}
                   tipoCelebracion={tipoCelebracion}
+                  protagonistaNombre={nombreProtagonistaMesa}
+                  fechaEvento={fechaMesa}
+                  fontSize={tableFontSize}
+                  numberColor={tableNumberColor}
+                  cardBgColor={tableCardBgColor}
+                  fontFamily={tableFontFamily}
                 />
               </CardFrame>
             ))}
@@ -488,7 +834,7 @@ function CarteleriaContent() {
 
       {/* Print styles */}
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Belleza&family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;700&display=swap');
         @media print {
           body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
           .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header, aside { display: none !important; }

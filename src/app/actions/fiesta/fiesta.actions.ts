@@ -761,7 +761,10 @@ export async function deleteAllFiestas(): Promise<{ success: boolean; deletedCou
   }
 }
 
-export async function createFiestaVacia(): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+export async function createFiestaVacia(
+  clienteId?: string,
+  clienteNombre?: string
+): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
     try {
         const newFiesta = {
             ...initialFiestaActualData,
@@ -769,7 +772,9 @@ export async function createFiestaVacia(): Promise<{ success: boolean; newFiesta
             estado: 'En Planificación' as const,
             configuracion: {
                 ...initialFiestaActualData.configuracion,
-                fechaEvento: ''
+                fechaEvento: '',
+                ...(clienteId ? { clienteId } : {}),
+                ...(clienteNombre ? { clienteNombre } : {}),
             }
         };
 

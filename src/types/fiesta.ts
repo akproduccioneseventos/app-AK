@@ -61,6 +61,9 @@ export interface Invitado {
 // --- MENU MESA ---
 export interface MenuMesaData {
   protagonistaFotoUrl?: string;
+  titulo?: string;
+  protagonistaNombre?: string;
+  fontFamily?: string;
   paletaColores: {
     primary: string;
     secondary: string;
@@ -90,6 +93,7 @@ export interface NumerosMesaData {
   fontSize?: 'small' | 'medium' | 'large' | 'xlarge'; // Size of the table number
   numberColor?: string; // Color of the table number text
   cardBgColor?: string; // Background color of the card
+  fontFamily?: string;
 }
 
 // --- LIVE EVENT ---
@@ -144,6 +148,7 @@ export interface ConfigEventoDataStorage {
   nombreAgasajado?: string;
   clienteNombre?: string;
   primaryColor?: string;
+  carteleriaQrTexto?: string;
   // Phase 3.10: Logistics & Accessibility
   infoEstacionamiento?: string;
   rutaAccesibilidad?: string;
@@ -675,6 +680,8 @@ export interface CartaTragosData {
   titulo?: string;
   protagonistaNombre?: string;
   numeroPrincipal?: string;
+  fontFamily?: string;
+  titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
   protagonistaFotoUrl?: string;
   backgroundImageUrl?: string;
   backgroundColor?: string;

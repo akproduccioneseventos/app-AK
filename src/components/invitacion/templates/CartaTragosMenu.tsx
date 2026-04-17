@@ -50,6 +50,14 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
     }, []);
     
     const paleta = carta.paletaColores || { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' };
+    const fontFamily = carta.fontFamily || 'Playfair Display';
+    const titleSizeMap: Record<NonNullable<CartaTragosData['titleSize']>, { protagonista: string; subtitulo: string; titulo: string }> = {
+        small: { protagonista: '1.25rem', subtitulo: '0.9rem', titulo: '1rem' },
+        medium: { protagonista: '1.5rem', subtitulo: '1rem', titulo: '1.15rem' },
+        large: { protagonista: '1.8rem', subtitulo: '1.15rem', titulo: '1.35rem' },
+        xlarge: { protagonista: '2.1rem', subtitulo: '1.3rem', titulo: '1.6rem' },
+    };
+    const titleSizes = titleSizeMap[carta.titleSize || 'medium'];
     
     const handleUpdate = (field: keyof CartaTragosData, value: string) => {
         if (onUpdate && isPreview) {
@@ -91,13 +99,13 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
                 {/* Right Column (Info) */}
                 <div className="col-span-8 flex flex-col justify-between">
                     <header className="text-center pt-1">
-                        <h2 className="font-dancing text-2xl sm:text-3xl md:text-4xl leading-tight" style={{color: paleta.secondary}}>
+                        <h2 className="font-dancing text-2xl sm:text-3xl md:text-4xl leading-tight" style={{ color: paleta.secondary, fontFamily, fontSize: titleSizes.protagonista }}>
                             <EditableText initialValue={carta.protagonistaNombre || "Luciana"} onSave={val => handleUpdate('protagonistaNombre', val)} textarea={false} style={{ fontFamily: 'Dancing_Script' }}/>
                         </h2>
-                        <h3 className="font-headline text-lg -mt-1 tracking-widest uppercase opacity-80" style={{color: paleta.secondary}}>
+                        <h3 className="font-headline text-lg -mt-1 tracking-widest uppercase opacity-80" style={{ color: paleta.secondary, fontFamily, fontSize: titleSizes.subtitulo }}>
                              <EditableText initialValue={carta.numeroPrincipal || "Mis XV"} onSave={val => handleUpdate('numeroPrincipal', val)} textarea={false} style={{ fontFamily: 'Belleza' }}/>
                         </h3>
-                         <h1 className="font-headline text-lg sm:text-xl md:text-2xl uppercase tracking-tighter mt-1 font-bold" style={{color: paleta.primary}}>
+                         <h1 className="font-headline text-lg sm:text-xl md:text-2xl uppercase tracking-tighter mt-1 font-bold" style={{ color: paleta.primary, fontFamily, fontSize: titleSizes.titulo }}>
                             <EditableText initialValue={carta.titulo || 'CARTA DE TRAGOS'} onSave={val => handleUpdate('titulo', val)} textarea={false} style={{ fontFamily: 'Belleza' }} />
                         </h1>
                     </header>

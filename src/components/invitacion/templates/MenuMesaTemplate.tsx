@@ -51,6 +51,9 @@ const SectionSeparator: React.FC<{ color: string }> = ({ color }) => (
 export const MenuMesaTemplate: React.FC<MenuMesaTemplateProps> = ({ fiesta, data, logoUrl, onUpdate, isPreview }) => {
     
     const paleta = data.paletaColores;
+    const fontFamily = data.fontFamily || 'Playfair Display';
+    const menuTitle = data.titulo || 'MENÚ';
+    const protagonistaNombre = data.protagonistaNombre || fiesta.configuracion.protagonista1Nombre || 'Luciana';
     
     const handleUpdate = (field: keyof MenuMesaData, value: string) => {
         if (onUpdate && isPreview) {
@@ -87,39 +90,41 @@ export const MenuMesaTemplate: React.FC<MenuMesaTemplateProps> = ({ fiesta, data
                 </div>
 
                 <div className="pl-32">
-                    <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold leading-none" style={{color: paleta.primary, textShadow: '2px 2px 4px rgba(0,0,0,0.2)'}}>
-                       MENÚ
+                    <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold leading-none" style={{ color: paleta.primary, textShadow: '2px 2px 4px rgba(0,0,0,0.2)', fontFamily }}>
+                      {menuTitle}
                      </h1>
-                      <h2 className="font-['Dancing_Script',_cursive] text-2xl sm:text-3xl md:text-4xl -mt-1 sm:-mt-2" style={{color: paleta.secondary}}>
-                         {isPreview ? <EditableText initialValue={fiesta.configuracion.protagonista1Nombre || 'Luciana'} onSave={(val) => onUpdate?.({ protagonista1Nombre: val } as any)} textarea={false}/> : (fiesta.configuracion.protagonista1Nombre || 'Luciana')}
-                     </h2>
-                </div>
+                      <h2 className="font-['Dancing_Script',_cursive] text-2xl sm:text-3xl md:text-4xl -mt-1 sm:-mt-2" style={{ color: paleta.secondary, fontFamily }}>
+                        {isPreview
+                          ? <EditableText initialValue={protagonistaNombre} onSave={(val) => onUpdate?.({ protagonistaNombre: val } as any)} textarea={false} />
+                          : protagonistaNombre}
+                      </h2>
+                 </div>
             </header>
 
             <main className="w-full px-2 mt-4 space-y-2 text-center flex-grow">
                  <div>
-                    <h3 className="font-headline text-xl" style={{color: paleta.primary}}>ENTRADA</h3>
-                    <div className="font-playfair text-sm whitespace-pre-line" style={{color: paleta.secondary}}>{isPreview ? <EditableText initialValue={data.entrada} onSave={val => handleUpdate('entrada', val)} textarea/> : renderTextWithLineBreaks(data.entrada)}</div>
+                    <h3 className="font-headline text-xl" style={{ color: paleta.primary, fontFamily }}>ENTRADA</h3>
+                    <div className="font-playfair text-sm whitespace-pre-line" style={{ color: paleta.secondary, fontFamily }}>{isPreview ? <EditableText initialValue={data.entrada} onSave={val => handleUpdate('entrada', val)} textarea/> : renderTextWithLineBreaks(data.entrada)}</div>
                 </div>
                 <SectionSeparator color={paleta.accent} />
                 <div>
-                    <h3 className="font-headline text-xl" style={{color: paleta.primary}}>PLATO PRINCIPAL</h3>
-                    <div className="font-playfair text-sm whitespace-pre-line" style={{color: paleta.secondary}}>{isPreview ? <EditableText initialValue={data.platoPrincipal} onSave={val => handleUpdate('platoPrincipal', val)} textarea/> : renderTextWithLineBreaks(data.platoPrincipal)}</div>
+                    <h3 className="font-headline text-xl" style={{ color: paleta.primary, fontFamily }}>PLATO PRINCIPAL</h3>
+                    <div className="font-playfair text-sm whitespace-pre-line" style={{ color: paleta.secondary, fontFamily }}>{isPreview ? <EditableText initialValue={data.platoPrincipal} onSave={val => handleUpdate('platoPrincipal', val)} textarea/> : renderTextWithLineBreaks(data.platoPrincipal)}</div>
                 </div>
                 <SectionSeparator color={paleta.accent} />
                 <div>
-                    <h3 className="font-headline text-xl" style={{color: paleta.primary}}>ADOLESCENTES Y NIÑOS</h3>
-                    <div className="font-playfair text-sm whitespace-pre-line" style={{color: paleta.secondary}}>{isPreview ? <EditableText initialValue={data.adolescentes} onSave={val => handleUpdate('adolescentes', val)} textarea/> : renderTextWithLineBreaks(data.adolescentes)}</div>
+                    <h3 className="font-headline text-xl" style={{ color: paleta.primary, fontFamily }}>ADOLESCENTES Y NIÑOS</h3>
+                    <div className="font-playfair text-sm whitespace-pre-line" style={{ color: paleta.secondary, fontFamily }}>{isPreview ? <EditableText initialValue={data.adolescentes} onSave={val => handleUpdate('adolescentes', val)} textarea/> : renderTextWithLineBreaks(data.adolescentes)}</div>
                 </div>
                 <SectionSeparator color={paleta.accent} />
                 <div>
-                    <h3 className="font-headline text-xl" style={{color: paleta.primary}}>POSTRES</h3>
-                    <div className="font-playfair text-sm whitespace-pre-line" style={{color: paleta.secondary}}>{isPreview ? <EditableText initialValue={data.postres} onSave={val => handleUpdate('postres', val)} textarea/> : renderTextWithLineBreaks(data.postres)}</div>
+                    <h3 className="font-headline text-xl" style={{ color: paleta.primary, fontFamily }}>POSTRES</h3>
+                    <div className="font-playfair text-sm whitespace-pre-line" style={{ color: paleta.secondary, fontFamily }}>{isPreview ? <EditableText initialValue={data.postres} onSave={val => handleUpdate('postres', val)} textarea/> : renderTextWithLineBreaks(data.postres)}</div>
                 </div>
                  <SectionSeparator color={paleta.accent} />
                 <div>
-                    <h3 className="font-headline text-xl" style={{color: paleta.primary}}>BEBIDAS</h3>
-                    <div className="font-playfair text-sm whitespace-pre-line" style={{color: paleta.secondary}}>{isPreview ? <EditableText initialValue={data.bebidas} onSave={val => handleUpdate('bebidas', val)} textarea/> : renderTextWithLineBreaks(data.bebidas)}</div>
+                    <h3 className="font-headline text-xl" style={{ color: paleta.primary, fontFamily }}>BEBIDAS</h3>
+                    <div className="font-playfair text-sm whitespace-pre-line" style={{ color: paleta.secondary, fontFamily }}>{isPreview ? <EditableText initialValue={data.bebidas} onSave={val => handleUpdate('bebidas', val)} textarea/> : renderTextWithLineBreaks(data.bebidas)}</div>
                 </div>
             </main>
             
