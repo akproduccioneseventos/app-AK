@@ -31,6 +31,7 @@ import DecoElementLibrary from '@/components/decoracion/DecoElementLibrary';
 import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
 import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
+import DecoPropertiesPanel from '@/components/decoracion/DecoPropertiesPanel';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 import {
   AlertDialog,
@@ -458,6 +459,17 @@ function DecoracionYDisenoEventoContent() {
     setCanvasHasChanges(true);
   }, []);
 
+  const handleCanvasUpdateElemento = useCallback((id: string, patch: Partial<ElementoDecorativo>) => {
+    setCanvasElementos(prev => prev.map(el => el.id === id ? { ...el, ...patch } : el));
+    setCanvasHasChanges(true);
+  }, []);
+
+  const handleCanvasDeleteElemento = useCallback((id: string) => {
+    setCanvasElementos(prev => prev.filter(el => el.id !== id));
+    setSelectedCanvasId(prev => (prev === id ? null : prev));
+    setCanvasHasChanges(true);
+  }, []);
+
   const handleAddLibraryElement = useCallback((libEl: LibraryElement) => {
     const FALLBACK_COLORS = ['#FF6B6B', '#4D96FF', '#FFDD57', '#6BCB77'];
     const maxColores = libEl.maxColores || 1;
@@ -848,21 +860,42 @@ function DecoracionYDisenoEventoContent() {
                       fondoImagenUrl={canvasFondoImagenUrl || undefined}
                       showGrid={showGrid}
                     />
-                    <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3 min-h-[220px]">
-                      <div className="flex items-center gap-2 mb-3">
-                        <LayoutDashboard className="w-4 h-4 text-violet-500" />
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-500">Biblioteca Visual</p>
+                    <div className="space-y-4">
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3 min-h-[220px]">
+                        <div className="flex items-center gap-2 mb-3">
+                          <LayoutDashboard className="w-4 h-4 text-violet-500" />
+                          <p className="text-xs font-black uppercase tracking-widest text-slate-500">Biblioteca Visual</p>
+                        </div>
+                        {fiestaId ? (
+                          <DecoElementLibrary
+                            fiestaId={fiestaId}
+                            onAddElement={handleAddLibraryElement}
+                            customElements={decoracionData.customElements}
+                            onUploadCustom={handleUploadCustomElement}
+                          />
+                        ) : (
+                          <div className="text-center text-slate-400 text-xs py-8">Cargando...</div>
+                        )}
                       </div>
-                      {fiestaId ? (
-                        <DecoElementLibrary
-                          fiestaId={fiestaId}
-                          onAddElement={handleAddLibraryElement}
-                          customElements={decoracionData.customElements}
-                          onUploadCustom={handleUploadCustomElement}
+                      <div className="rounded-2xl border border-slate-100 bg-white p-3">
+                        <DecoPropertiesPanel
+                          selectedElemento={selectedCanvasEl}
+                          paletteColors={paletaColoresArray.filter(Boolean)}
+                          canvasFondoColor={canvasFondoColor}
+                          canvasFondoImagenUrl={canvasFondoImagenUrl}
+                          fiestaId={fiestaId || undefined}
+                          onUpdateElemento={handleCanvasUpdateElemento}
+                          onDeleteElemento={handleCanvasDeleteElemento}
+                          onCanvasFondoColorChange={(color) => {
+                            setCanvasFondoColor(color);
+                            setCanvasHasChanges(true);
+                          }}
+                          onCanvasFondoImagenUrlChange={(url) => {
+                            setCanvasFondoImagenUrl(url);
+                            setCanvasHasChanges(true);
+                          }}
                         />
-                      ) : (
-                        <div className="text-center text-slate-400 text-xs py-8">Cargando...</div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>

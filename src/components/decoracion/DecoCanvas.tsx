@@ -221,6 +221,7 @@ export default function DecoCanvas({
   const handleResizeMouseDown = useCallback((e: React.MouseEvent, id: string, handle: 'nw' | 'ne' | 'se' | 'sw') => {
     e.preventDefault();
     e.stopPropagation();
+    onSelectId(id);
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
     interaction.current = {
@@ -235,12 +236,13 @@ export default function DecoCanvas({
         startY: el.y,
       }
     };
-  }, []);
+  }, [onSelectId]);
 
   // ── Mouse down on rotation handle ────────────────────────────────────────
   const handleRotateMouseDown = useCallback((e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
+    onSelectId(id);
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
     const canvas = containerRef.current;
@@ -254,7 +256,7 @@ export default function DecoCanvas({
       type: 'rotate',
       data: { elementId: id, centerX, centerY, startAngle, startRotacion: el.rotacion ?? 0 }
     };
-  }, [zoom]);
+  }, [zoom, onSelectId]);
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
@@ -318,6 +320,7 @@ export default function DecoCanvas({
   const handleResizeTouchStart = useCallback((e: React.TouchEvent, id: string, handle: 'nw' | 'ne' | 'se' | 'sw') => {
     e.preventDefault();
     e.stopPropagation();
+    onSelectId(id);
     const touch = e.touches[0];
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
@@ -329,11 +332,12 @@ export default function DecoCanvas({
         startEscala: el.escala ?? 1, startX: el.x, startY: el.y,
       }
     };
-  }, []);
+  }, [onSelectId]);
 
   const handleRotateTouchStart = useCallback((e: React.TouchEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
+    onSelectId(id);
     const touch = e.touches[0];
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
@@ -348,7 +352,7 @@ export default function DecoCanvas({
       type: 'rotate',
       data: { elementId: id, centerX, centerY, startAngle, startRotacion: el.rotacion ?? 0 }
     };
-  }, [zoom]);
+  }, [zoom, onSelectId]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     const state = interaction.current;
@@ -468,7 +472,10 @@ export default function DecoCanvas({
               backgroundPosition: fondoImagenUrl ? 'center' : undefined,
               cursor: 'default',
             }}
-            onClick={() => onSelectId(null)}
+            onMouseDown={e => {
+              e.stopPropagation();
+              onSelectId(null);
+            }}
           >
             {elementos.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
