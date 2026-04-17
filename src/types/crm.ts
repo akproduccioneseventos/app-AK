@@ -1,5 +1,7 @@
 
 
+import type { ContractType } from './settings';
+
 export interface CrmLeadHistoryItem {
   stageId: string;
   stageName: string;
@@ -69,4 +71,3 @@ export interface CrmLead {
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;
-import type { ContractType } from './settings';

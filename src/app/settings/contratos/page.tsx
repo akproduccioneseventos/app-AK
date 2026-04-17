@@ -65,15 +65,19 @@ export default function ContratosSettingsPage() {
     try {
       const list = await getContractTemplates();
       setTemplates(list);
-      const nextSelectedId = selectedId && list.some(t => t.id === selectedId) ? selectedId : (list[0]?.id || '');
-      setSelectedId(nextSelectedId);
-      setEditorText(list.find(t => t.id === nextSelectedId)?.template || '');
+      setSelectedId((prevSelectedId) => {
+        const nextSelectedId = prevSelectedId && list.some((t) => t.id === prevSelectedId)
+          ? prevSelectedId
+          : (list[0]?.id || '');
+        setEditorText(list.find((t) => t.id === nextSelectedId)?.template || '');
+        return nextSelectedId;
+      });
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar las plantillas.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
-  }, [toast, selectedId]);
+  }, [toast]);
 
   useEffect(() => {
     loadTemplates();
