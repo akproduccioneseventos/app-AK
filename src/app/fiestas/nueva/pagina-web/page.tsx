@@ -63,6 +63,10 @@ function PaginaWebPageContent() {
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (error instanceof Error && error.message) return error.message;
+    return fallback;
+  };
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: { invitacionData, invitacionConfig },
@@ -261,8 +265,8 @@ function PaginaWebPageContent() {
       setSlugInput(result.slug);
       setFiesta(prev => (prev ? { ...prev, invitacionSlug: result.slug } : prev));
       toast({ title: 'Enlace guardado', description: 'Tu URL personalizada ya está disponible.' });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'No se pudo guardar el slug.', variant: 'destructive' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: getErrorMessage(error, 'No se pudo guardar el slug.'), variant: 'destructive' });
     } finally {
       setIsSavingSlug(false);
     }

@@ -65,8 +65,8 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
       const url = await uploadFile(file);
       update('fotoPortada', url);
       toast({ title: 'Foto subida', description: 'La portada se actualizó correctamente.' });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'No se pudo subir la foto.', variant: 'destructive' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: getErrorMessage(error, 'No se pudo subir la foto.'), variant: 'destructive' });
     } finally {
       setIsUploadingCover(false);
       event.target.value = '';
@@ -84,8 +84,8 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
       const uploaded = await Promise.all(files.map(uploadFile));
       update('galeriaFotos', [...(config.galeriaFotos || []), ...uploaded]);
       toast({ title: 'Galería actualizada', description: `${uploaded.length} foto(s) agregadas.` });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'No se pudieron subir las fotos.', variant: 'destructive' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: getErrorMessage(error, 'No se pudieron subir las fotos.'), variant: 'destructive' });
     } finally {
       setIsUploadingGallery(false);
       event.target.value = '';
@@ -509,3 +509,7 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
     </div>
   );
 }
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (error instanceof Error && error.message) return error.message;
+    return fallback;
+  };

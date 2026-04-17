@@ -235,8 +235,10 @@ function EditableText({
   const [draft, setDraft] = useState(value);
 
   useEffect(() => {
-    setDraft(value);
-  }, [value]);
+    if (!editing) {
+      setDraft(value);
+    }
+  }, [value, editing]);
 
   if (editing) {
     return (
