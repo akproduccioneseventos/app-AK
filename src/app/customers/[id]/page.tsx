@@ -45,6 +45,7 @@ interface EventPaymentDetails {
   totalPagadoFiesta: number;
   saldoFiesta: number;
   pagosConfirmados: number;
+  fuentePagos: 'presupuesto' | 'facturas' | 'mixto' | 'sin_pagos';
 }
 
 export default function CustomerDetailsPage({ params }: { params: { id: string } }) {
@@ -107,7 +108,20 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
         const totalPagadoDesdePresupuesto = (presupuestoFiesta?.pagosCliente || [])
           .filter((p) => p.estadoPago !== 'pendiente_confirmacion')
           .reduce((sum, p) => sum + p.monto, 0);
-        const totalPagadoFiesta = totalPagadoDesdePresupuesto > 0 ? totalPagadoDesdePresupuesto : totalPagadoFacturas;
+        const hasBudgetPayments = totalPagadoDesdePresupuesto > 0;
+        const hasInvoicePayments = totalPagadoFacturas > 0;
+        const totalPagadoFiesta = hasBudgetPayments && hasInvoicePayments
+          ? Math.max(totalPagadoDesdePresupuesto, totalPagadoFacturas)
+          : hasBudgetPayments
+            ? totalPagadoDesdePresupuesto
+            : totalPagadoFacturas;
+        const fuentePagos: EventPaymentDetails['fuentePagos'] = hasBudgetPayments && hasInvoicePayments
+          ? 'mixto'
+          : hasBudgetPayments
+            ? 'presupuesto'
+            : hasInvoicePayments
+              ? 'facturas'
+              : 'sin_pagos';
 
         const costoTotalFiesta = presupuestoFiesta?.totalConDescuento ?? presupuestoFiesta?.costoTotalEstimado ?? 0;
         const saldoFiesta = costoTotalFiesta - totalPagadoFiesta;
@@ -119,6 +133,7 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
           totalPagadoFiesta,
           saldoFiesta,
           pagosConfirmados,
+          fuentePagos,
         });
       }
       setEventPaymentHistory(paymentHistory.sort((a,b) => 
@@ -360,6 +375,11 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
                     {eventDetail.pagosConfirmados > 0 && (
                       <p className="text-xs text-emerald-700 font-medium">
                         Recibos registrados: {eventDetail.pagosConfirmados} (disponibles en Estado de Cuenta).
+                      </p>
+                    )}
+                    {eventDetail.fuentePagos === 'mixto' && (
+                      <p className="text-[11px] text-slate-500">
+                        Se detectaron pagos tanto en presupuesto como en facturas; se muestra el mayor total registrado.
                       </p>
                     )}
 

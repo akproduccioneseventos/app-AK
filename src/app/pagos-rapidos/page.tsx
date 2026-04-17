@@ -88,6 +88,7 @@ function ReciboView({
   whatsappNumber: string;
   onClose: () => void;
 }) {
+  const { toast } = useToast();
   const receiptRef = useRef<HTMLDivElement>(null);
   const totalCosto = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
   const totalPagado = (presupuesto.pagosCliente || [])
@@ -106,6 +107,11 @@ function ReciboView({
       });
     } catch (error) {
       console.error('No se pudo renderizar el recibo para exportar:', error);
+      toast({
+        title: 'No se pudo exportar el recibo',
+        description: 'Hubo un problema al generar la imagen del recibo.',
+        variant: 'destructive',
+      });
       return null;
     }
   };
@@ -405,7 +411,8 @@ function PagosRapidosContent() {
       return;
     }
     if (file.size > MAX_VOUCHER_FILE_SIZE_BYTES) {
-      toast({ title: 'Archivo muy grande', description: 'El comprobante no debe superar 5MB.', variant: 'destructive' });
+      const maxMb = Math.round(MAX_VOUCHER_FILE_SIZE_BYTES / (1024 * 1024));
+      toast({ title: 'Archivo muy grande', description: `El comprobante no debe superar ${maxMb}MB.`, variant: 'destructive' });
       return;
     }
     const reader = new FileReader();

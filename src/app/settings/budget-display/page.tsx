@@ -62,6 +62,19 @@ const deepClone = <T,>(value: T): T => {
   return JSON.parse(JSON.stringify(value));
 };
 
+const generateClientSideId = (prefix: string): string => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    const suffix = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    return `${prefix}_${suffix}`;
+  }
+  return `${prefix}_${Date.now()}`;
+};
+
 export default function BudgetDisplaySettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -239,7 +252,7 @@ export default function BudgetDisplaySettingsPage() {
     const section = PACKAGE_EVENT_SECTIONS.find((s) => s.value === sectionValue) || PACKAGE_EVENT_SECTIONS[0];
     const newPkg: PaqueteArmadoRapido = {
       ...pkg,
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? `pkg_copy_${crypto.randomUUID()}` : `pkg_copy_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: generateClientSideId('pkg_copy'),
       nombre: `${pkg.nombre} (${section.label})`,
       recommended: false,
       tiposDeEventoAplicables: section.eventType ? [section.eventType] : [],
