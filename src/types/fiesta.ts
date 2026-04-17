@@ -245,6 +245,8 @@ export interface ElementoDecorativo {
   isCustom?: boolean;
   zIndex?: number;
   opacity?: number;
+  tintColor?: string;
+  tintOpacity?: number;
 }
 
 // --- CREATOR PARTY EXTENDED TYPES ---

@@ -70,7 +70,7 @@ const CanvasElement = memo(function CanvasElement({
         top: el.y,
         transform: `translate(-50%,-50%) rotate(${el.rotacion ?? 0}deg)`,
         transformOrigin: 'center center',
-        zIndex: isSelected ? 1000 : (el.zIndex ?? 1),
+        zIndex: el.zIndex ?? 1,
         opacity: el.opacity ?? 1,
         cursor: 'grab',
         userSelect: 'none',
@@ -90,13 +90,28 @@ const CanvasElement = memo(function CanvasElement({
         }}
       >
         {el.imageDataUri ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={el.imageDataUri.startsWith('data:image/') ? el.imageDataUri : ''}
-            alt={el.etiqueta || el.tipo}
-            style={{ width: el.width ?? 80, height: el.height ?? 80, objectFit: 'contain', display: 'block' }}
-            draggable={false}
-          />
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={el.imageDataUri.startsWith('data:image/') ? el.imageDataUri : ''}
+              alt={el.etiqueta || el.tipo}
+              style={{ width: el.width ?? 80, height: el.height ?? 80, objectFit: 'contain', display: 'block' }}
+              draggable={false}
+            />
+            {el.tintColor && (
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundColor: el.tintColor,
+                  opacity: el.tintOpacity ?? 0,
+                  mixBlendMode: 'multiply',
+                  pointerEvents: 'none',
+                  borderRadius: 4,
+                }}
+              />
+            )}
+          </div>
         ) : (
           <DecoElementSvg tipo={el.tipo} colores={el.colores} size={60} />
         )}
@@ -241,40 +256,45 @@ export default function DecoCanvas({
     };
   }, [zoom]);
 
-  // ── Mouse move ────────────────────────────────────────────────────────────
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const state = interaction.current;
-    if (state.type === 'idle') return;
-    e.preventDefault();
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      const state = interaction.current;
+      if (state.type === 'idle') return;
+      e.preventDefault();
 
-    if (state.type === 'drag') {
-      const { elementId, startMouseX, startMouseY, startElX, startElY } = state.data;
-      const scale = zoom / 100;
-      const dx = (e.clientX - startMouseX) / scale;
-      const dy = (e.clientY - startMouseY) / scale;
-      updateElemento(elementId, {
-        x: Math.max(0, Math.min(CANVAS_W, startElX + dx)),
-        y: Math.max(0, Math.min(CANVAS_H, startElY + dy)),
-      });
-    } else if (state.type === 'resize') {
-      const { elementId, startMouseX, startMouseY, startEscala } = state.data;
-      const scale = zoom / 100;
-      const dx = (e.clientX - startMouseX) / scale;
-      const dy = (e.clientY - startMouseY) / scale;
-      const delta = (Math.abs(dx) > Math.abs(dy) ? dx : dy);
-      const newEscala = Math.max(0.2, Math.min(5, startEscala + delta / 80));
-      updateElemento(elementId, { escala: newEscala });
-    } else if (state.type === 'rotate') {
-      const { elementId, centerX, centerY, startAngle, startRotacion } = state.data;
-      const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
-      const diff = currentAngle - startAngle;
-      updateElemento(elementId, { rotacion: startRotacion + diff });
-    }
+      if (state.type === 'drag') {
+        const { elementId, startMouseX, startMouseY, startElX, startElY } = state.data;
+        const scale = zoom / 100;
+        const dx = (e.clientX - startMouseX) / scale;
+        const dy = (e.clientY - startMouseY) / scale;
+        updateElemento(elementId, {
+          x: Math.max(0, Math.min(CANVAS_W, startElX + dx)),
+          y: Math.max(0, Math.min(CANVAS_H, startElY + dy)),
+        });
+      } else if (state.type === 'resize') {
+        const { elementId, startMouseX, startMouseY, startEscala } = state.data;
+        const scale = zoom / 100;
+        const dx = (e.clientX - startMouseX) / scale;
+        const dy = (e.clientY - startMouseY) / scale;
+        const delta = (Math.abs(dx) > Math.abs(dy) ? dx : dy);
+        updateElemento(elementId, { escala: Math.max(0.2, Math.min(5, startEscala + delta / 80)) });
+      } else if (state.type === 'rotate') {
+        const { elementId, centerX, centerY, startAngle, startRotacion } = state.data;
+        const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+        updateElemento(elementId, { rotacion: startRotacion + (currentAngle - startAngle) });
+      }
+    };
+    const onMouseUp = () => {
+      interaction.current = { type: 'idle' };
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
   }, [zoom, updateElemento]);
-
-  const handleMouseUp = useCallback(() => {
-    interaction.current = { type: 'idle' };
-  }, []);
 
   // ── Touch events ──────────────────────────────────────────────────────────
   const handleTouchStartOnElement = useCallback((e: React.TouchEvent, id: string) => {
@@ -427,9 +447,6 @@ export default function DecoCanvas({
         ref={outerRef}
         className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100"
         style={{ maxHeight: 620 }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
         <div style={{ transformOrigin: 'top left', transform: `scale(${zoom / 100})`, width: CANVAS_W, height: CANVAS_H }}>
           <div
