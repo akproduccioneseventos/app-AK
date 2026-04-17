@@ -55,7 +55,9 @@ export async function deleteFiesta(fiestaId: string) { return await FiestaModule
 export async function resetFiestaActual() { return await FiestaModule.resetFiestaActual(); }
 export async function resetAllActiveFiestas() { return await FiestaModule.resetAllActiveFiestas(); }
 export async function deleteAllFiestas() { return await FiestaModule.deleteAllFiestas(); }
-export async function createFiestaVacia() { return await FiestaModule.createFiestaVacia(); }
+export async function createFiestaVacia(clienteId?: string, clienteNombre?: string) {
+  return await FiestaModule.createFiestaVacia(clienteId, clienteNombre);
+}
 export async function getFiestaById(fiestaId: string) { return await FiestaModule.getFiestaById(fiestaId); }
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion) { return await FiestaModule.saveFiesta(fiestaData); }
 export async function addInvoiceIdToFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.addInvoiceId(fiestaId, invoiceId); }

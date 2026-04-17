@@ -161,9 +161,13 @@ export const defaultNumerosMesaData: NumerosMesaData = {
   backgroundImageUrl: "https://picsum.photos/seed/floral-background/800/400",
   colorPrincipal: "#9333ea",
   colorSecundario: "#363636",
+  fontFamily: 'Playfair Display',
 };
 
 export const defaultMenuMesaData: MenuMesaData = {
+    titulo: 'MENÚ',
+    protagonistaNombre: 'La Agasajada',
+    fontFamily: 'Playfair Display',
     paletaColores: { primary: '#8b5cf6', secondary: '#4b5563', accent: '#3b82f6', background: '#ffffff' },
     entrada: '', platoPrincipal: '', adolescentes: '', postres: '', bebidas: '',
     empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio integral', contacto: '098 355 530' }
@@ -175,6 +179,8 @@ export const defaultCartaTragosData: CartaTragosData = {
   titulo: 'CARTA DE TRAGOS',
   protagonistaNombre: 'La Agasajada',
   numeroPrincipal: 'Mis XV',
+  fontFamily: 'Playfair Display',
+  titleSize: 'medium',
   protagonistaFotoUrl: '',
   backgroundImageUrl: '',
   backgroundColor: '#ffffff',

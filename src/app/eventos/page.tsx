@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle, RotateCcw } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle, RotateCcw, Check } from 'lucide-react';
 import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction, resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { Customer } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
+import { getCustomers } from '@/app/actions/customers';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +26,10 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -54,6 +60,10 @@ export default function GestorFiestasPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isResettingPlanificador, setIsResettingPlanificador] = useState(false);
   const [isDeletingAllFiestas, setIsDeletingAllFiestas] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -173,16 +183,38 @@ export default function GestorFiestasPage() {
     }
   };
   
-  const handleReset = async () => {
+  const loadCustomers = useCallback(async () => {
+    setIsLoadingCustomers(true);
+    try {
+      const list = await getCustomers();
+      setCustomers(Array.isArray(list) ? list : []);
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo cargar la lista de clientes.', variant: 'destructive' });
+    } finally {
+      setIsLoadingCustomers(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    if (isCreateDialogOpen && customers.length === 0) {
+      loadCustomers();
+    }
+  }, [isCreateDialogOpen, customers.length, loadCustomers]);
+
+  const selectedCustomer = customers.find(customer => customer.id === selectedCustomerId);
+
+  const handleReset = async (clienteId?: string, clienteNombre?: string) => {
     setIsProcessing('reset-fiesta');
 
     try {
-      const result = await createFiestaVacia();
+      const result = await createFiestaVacia(clienteId, clienteNombre);
 
       if (result.success && result.newFiestaId) {
         toast({
           title: "¡Nuevo Evento Creado!",
-          description: "Se ha creado un nuevo evento en blanco."
+          description: clienteNombre
+            ? `Se ha creado un nuevo evento en blanco para ${clienteNombre}.`
+            : "Se ha creado un nuevo evento en blanco."
         });
 
         router.push(`/fiestas/nueva?fiestaId=${result.newFiestaId}`);
@@ -286,28 +318,80 @@ export default function GestorFiestasPage() {
           </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
               <Button>
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Crear Nuevo Evento Manual
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Crear Nuevo Evento?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción creará una nueva planificación en blanco sin archivar los eventos existentes. ¿Deseas continuar?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>No, cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleReset}>
-                  Sí, crear nuevo evento
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle>Crear Nuevo Evento Manual</DialogTitle>
+                <DialogDescription>
+                  Seleccioná un cliente para vincularlo al evento desde el inicio. También podés continuar sin cliente.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Cliente</Label>
+                <Command className="rounded-md border">
+                  <CommandInput placeholder="Buscar cliente por nombre..." />
+                  <CommandList>
+                    <CommandEmpty>
+                      {isLoadingCustomers ? 'Cargando clientes...' : 'No se encontraron clientes.'}
+                    </CommandEmpty>
+                    <CommandGroup heading="Clientes">
+                      {customers.map((customer) => (
+                        <CommandItem
+                          key={customer.id}
+                          value={`${customer.name} ${customer.companyName ?? ''}`.trim()}
+                          onSelect={() =>
+                            setSelectedCustomerId(prev => (prev === customer.id ? null : customer.id))
+                          }
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              selectedCustomerId === customer.id ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          <span className="truncate">{customer.name}</span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={async () => {
+                    setIsCreateDialogOpen(false);
+                    await handleReset();
+                    setSelectedCustomerId(null);
+                  }}
+                  disabled={isProcessing === 'reset-fiesta'}
+                >
+                  Continuar sin cliente
+                </Button>
+                <Button
+                  onClick={async () => {
+                    setIsCreateDialogOpen(false);
+                    await handleReset(selectedCustomer?.id, selectedCustomer?.name);
+                    setSelectedCustomerId(null);
+                  }}
+                  disabled={isProcessing === 'reset-fiesta'}
+                >
+                  Crear evento
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
