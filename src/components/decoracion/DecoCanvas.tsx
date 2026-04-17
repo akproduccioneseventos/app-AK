@@ -290,16 +290,17 @@ export default function DecoCanvas({
     const onMouseUp = () => {
       interaction.current = { type: 'idle' };
     };
+    const outerEl = outerRef.current;
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-    window.addEventListener('mouseleave', onMouseUp);
     window.addEventListener('blur', onMouseUp);
+    outerEl?.addEventListener('mouseleave', onMouseUp);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
-      window.removeEventListener('mouseleave', onMouseUp);
       window.removeEventListener('blur', onMouseUp);
+      outerEl?.removeEventListener('mouseleave', onMouseUp);
     };
   }, [zoom, updateElemento]);
 
