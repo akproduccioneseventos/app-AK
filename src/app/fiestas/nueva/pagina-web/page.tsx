@@ -33,6 +33,7 @@ import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
+import { getErrorMessage } from '@/lib/error-utils';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
@@ -63,10 +64,6 @@ function PaginaWebPageContent() {
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const sensors = useSensors(useSensor(PointerSensor));
-  const getErrorMessage = (error: unknown, fallback: string) => {
-    if (error instanceof Error && error.message) return error.message;
-    return fallback;
-  };
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: { invitacionData, invitacionConfig },

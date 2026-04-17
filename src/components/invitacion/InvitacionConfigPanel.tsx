@@ -15,6 +15,7 @@ import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, Cale
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { getErrorMessage } from '@/lib/error-utils';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -509,7 +510,3 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
     </div>
   );
 }
-  const getErrorMessage = (error: unknown, fallback: string) => {
-    if (error instanceof Error && error.message) return error.message;
-    return fallback;
-  };
