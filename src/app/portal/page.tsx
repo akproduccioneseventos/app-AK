@@ -1,13 +1,13 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, type FormEvent } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, MessageSquare, Wand2, FileSignature, Zap } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, LogIn, ArrowRight, NotebookTextIcon, ListChecks, Music, Camera, Gift, FileText, UserCheck, Users, Globe, Wand2, FileSignature, Zap } from 'lucide-react';
 import type { FiestaEnPlanificacion, ClientPortalSettings } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { notifyClientArrival } from '@/app/actions/fiesta/live.actions';
@@ -27,9 +27,13 @@ const portalModules = [
     { id: 'listaRegalos', label: 'Configurar Regalos', icon: Gift },
     { id: 'documentos', label: 'Mis Documentos', href: '/portal/[fiestaId]/documentos', icon: FileText },
     { id: 'notasCliente', label: 'Notas Compartidas', href: '/portal/[fiestaId]/notas', icon: NotebookTextIcon },
-    { id: 'paginaPublica', label: 'Acceso a Página Pública', href: '/evento/actual', icon: Globe },
+    { id: 'paginaPublica', label: 'Acceso a Página Pública', href: '/portal/[fiestaId]/pagina-publica', icon: Globe },
     { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video', href: '/portal/[fiestaId]/fotografia', icon: UserCheck },
 ];
+
+function hasVisibleFlag(value: unknown): value is { visible: boolean } {
+    return typeof value === 'object' && value !== null && 'visible' in value;
+}
 
 function ClientPortalContent() {
     const searchParams = useSearchParams();
@@ -64,7 +68,7 @@ function ClientPortalContent() {
                         setIsAuthenticated(true);
                     }
                 }
-            } catch (err: any) {
+            } catch {
                 setError("No se pudo cargar la información del evento.");
             } finally {
                 setIsLoading(false);
@@ -190,8 +194,8 @@ function ClientPortalContent() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                        {portalModules.map(mod => {
-                           const moduleSetting = settings[mod.id as keyof typeof settings];
-                           const isVisible = (mod.id === 'contrato' && !moduleSetting) || (moduleSetting && (moduleSetting as any).visible);
+                           const moduleSetting = settings[mod.id as keyof ClientPortalSettings];
+                           const isVisible = mod.id === 'contrato' ? Boolean(moduleSetting) : (hasVisibleFlag(moduleSetting) && moduleSetting.visible);
                            
                            if (!isVisible) return null;
                            const Icon = mod.icon;
