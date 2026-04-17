@@ -1008,12 +1008,18 @@ export default function LandingEditorPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {galeriaVideos.map((video) => (
                         <div key={video.id} className="border border-slate-200 rounded-2xl p-3 bg-white space-y-2">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={video.thumbnailUrl}
-                            alt={video.titulo}
-                            className="w-full aspect-video object-cover rounded-xl"
-                          />
+                          {sanitizeImageUrl(video.thumbnailUrl) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={sanitizeImageUrl(video.thumbnailUrl)!}
+                              alt={video.titulo}
+                              className="w-full aspect-video object-cover rounded-xl"
+                            />
+                          ) : (
+                            <div className="w-full aspect-video rounded-xl border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-slate-500">
+                              <Video className="w-7 h-7" />
+                            </div>
+                          )}
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
                               <p className="text-sm font-semibold truncate">{video.titulo}</p>
