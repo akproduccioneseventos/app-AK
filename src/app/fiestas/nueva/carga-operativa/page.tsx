@@ -306,9 +306,9 @@ function ListaDeCargaOperativaContent() {
         const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
         if (presupuesto) {
           const invitadosPresupuesto =
-            (presupuesto.invitadosAdultos || 0) +
+            ((presupuesto.invitadosAdultos || 0) +
             (presupuesto.invitadosNinos || 0) +
-            (presupuesto.invitadosAdolescentes || 0) ||
+            (presupuesto.invitadosAdolescentes || 0)) ||
             presupuesto.invitadosCantidad ||
             0;
           if (invitadosPresupuesto > 0) totalInvitados = invitadosPresupuesto;
