@@ -7,6 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { deleteDecoCanvasTemplate, getDecoCanvasTemplates, saveDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
 import { DecoElementSvg } from './deco-svg-elements';
 import type { DecoCanvasTemplate, ElementoDecorativo } from '@/types/fiesta';
@@ -18,6 +28,14 @@ interface DecoTemplateGalleryProps {
   onApplyTemplate: (template: DecoCanvasTemplate) => void;
   fiestaId?: string;
   allowSaveCurrent?: boolean;
+}
+
+const SAFE_DATA_IMAGE_REGEX = /^data:image\/(?:png|jpeg|jpg|webp|gif);base64,[a-zA-Z0-9+/=\s]+$/i;
+
+function getSafeDataImageUri(value?: string): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  return SAFE_DATA_IMAGE_REGEX.test(trimmed) ? trimmed : undefined;
 }
 
 function DecoTemplateMiniPreview({
@@ -39,7 +57,9 @@ function DecoTemplateMiniPreview({
         backgroundPosition: 'center',
       }}
     >
-      {elementos.map(el => (
+      {elementos.map(el => {
+        const safeImageDataUri = getSafeDataImageUri(el.imageDataUri);
+        return (
         <div
           key={el.id}
           className="absolute pointer-events-none"
@@ -52,11 +72,11 @@ function DecoTemplateMiniPreview({
             zIndex: el.zIndex ?? 1,
           }}
         >
-          {el.imageDataUri ? (
+          {safeImageDataUri ? (
             <div style={{ position: 'relative', display: 'inline-block' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={el.imageDataUri.startsWith('data:image/') ? el.imageDataUri : ''}
+                src={safeImageDataUri}
                 alt={el.etiqueta || el.tipo}
                 style={{ width: (el.width ?? 80) * 0.2, height: (el.height ?? 80) * 0.2, objectFit: 'contain', display: 'block' }}
                 draggable={false}
@@ -79,7 +99,8 @@ function DecoTemplateMiniPreview({
             <DecoElementSvg tipo={el.tipo} colores={el.colores} size={12} />
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -97,6 +118,7 @@ export default function DecoTemplateGallery({
   const [templateName, setTemplateName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [templateToDelete, setTemplateToDelete] = useState<DecoCanvasTemplate | null>(null);
 
   const canSaveCurrent = useMemo(() => currentElementos.length > 0 && !!templateName.trim(), [currentElementos.length, templateName]);
 
@@ -138,9 +160,6 @@ export default function DecoTemplateGallery({
   }, [templateName, currentElementos, currentFondoColor, currentFondoImagenUrl, fetchTemplates, toast]);
 
   const handleDeleteTemplate = useCallback(async (template: DecoCanvasTemplate) => {
-    const confirmed = window.confirm(`¿Eliminar la plantilla "${template.nombre}"?`);
-    if (!confirmed) return;
-
     setDeletingId(template.id);
     try {
       const result = await deleteDecoCanvasTemplate(template.id);
@@ -151,8 +170,15 @@ export default function DecoTemplateGallery({
       toast({ title: 'Error', description: error?.message || 'No se pudo eliminar la plantilla.', variant: 'destructive' });
     } finally {
       setDeletingId(null);
+      setTemplateToDelete(null);
     }
   }, [toast]);
+
+  const handleDeleteDialogChange = useCallback((open: boolean) => {
+    if (!open) {
+      setTemplateToDelete(null);
+    }
+  }, []);
 
   return (
     <div className="space-y-5">
@@ -202,12 +228,14 @@ export default function DecoTemplateGallery({
           <p className="text-sm text-muted-foreground">Todavía no guardaste ningún diseño como plantilla.</p>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {templates.map(template => (
+            {templates.map(template => {
+              const safeMiniatura = getSafeDataImageUri(template.miniatura);
+              return (
               <Card key={template.id} className="overflow-hidden">
                 <CardContent className="p-3 space-y-2">
-                  {template.miniatura ? (
+                  {safeMiniatura ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={template.miniatura} alt={template.nombre} className="w-full h-[120px] rounded-lg object-cover border" />
+                    <img src={safeMiniatura} alt={template.nombre} className="w-full h-[120px] rounded-lg object-cover border" />
                   ) : (
                     <DecoTemplateMiniPreview
                       elementos={template.elementos}
@@ -231,7 +259,7 @@ export default function DecoTemplateGallery({
                       size="icon"
                       variant="destructive"
                       className="h-8 w-8"
-                      onClick={() => handleDeleteTemplate(template)}
+                      onClick={() => setTemplateToDelete(template)}
                       disabled={deletingId === template.id}
                     >
                       {deletingId === template.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -239,10 +267,38 @@ export default function DecoTemplateGallery({
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
+
+      <AlertDialog open={templateToDelete !== null} onOpenChange={handleDeleteDialogChange}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar plantilla?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {templateToDelete ? `Se eliminará "${templateToDelete.nombre}". Esta acción no se puede deshacer.` : 'Esta acción no se puede deshacer.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!deletingId}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              disabled={!templateToDelete || !!deletingId}
+              onClick={e => {
+                e.preventDefault();
+                if (templateToDelete) {
+                  void handleDeleteTemplate(templateToDelete);
+                }
+              }}
+            >
+              {deletingId ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
