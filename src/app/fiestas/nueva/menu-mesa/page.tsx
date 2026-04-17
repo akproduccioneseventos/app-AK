@@ -88,7 +88,7 @@ function MenuDeMesaContent() {
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append('fiestaId', fiestaId);
+      formData.append('folder', fiestaId);
       formData.append('file', file);
       const result = await uploadPublicPageAsset(formData);
       if(result.success && result.url) {

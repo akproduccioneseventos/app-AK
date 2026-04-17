@@ -108,7 +108,7 @@ export default function LandingEditorPage() {
     setIsUploadingHeroImage(true);
     try {
       const formData = new FormData();
-      formData.append('fiestaId', 'landing-editor');
+      formData.append('folder', 'landing-editor');
       formData.append('file', file);
       const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
@@ -128,7 +128,7 @@ export default function LandingEditorPage() {
     setIsUploadingOgImage(true);
     try {
       const formData = new FormData();
-      formData.append('fiestaId', 'landing-editor');
+      formData.append('folder', 'landing-editor');
       formData.append('file', file);
       const result = await uploadPublicPageAsset(formData);
       if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
