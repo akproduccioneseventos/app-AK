@@ -184,7 +184,7 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
     }
   };
 
-  const handleSignedReceiptUpload = async (row: HistorialRow, event: ChangeEvent<HTMLInputElement>) => {
+  const uploadAndSaveSignedReceipt = async (row: HistorialRow, event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
@@ -236,7 +236,10 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
 
   const exportPrintable = () => {
     const printWindow = window.open('', '_blank', 'width=1100,height=780');
-    if (!printWindow) return;
+    if (!printWindow) {
+      toast({ title: 'No se pudo abrir la ventana de impresión', description: 'Habilitá popups para exportar el historial.', variant: 'destructive' });
+      return;
+    }
 
     const escapeHtml = (value: string) =>
       value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
@@ -453,11 +456,11 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
                           <div className="flex items-center justify-end gap-2">
                             {(status === 'pagado' || status === 'firmado_subido') && (
                               <label className="inline-flex">
-                                <input
+                                  <input
                                   type="file"
                                   className="hidden"
                                   accept="image/*,.pdf"
-                                  onChange={(e) => handleSignedReceiptUpload(row, e)}
+                                  onChange={(e) => uploadAndSaveSignedReceipt(row, e)}
                                 />
                                 <span className="inline-flex">
                                   <Button variant="outline" size="sm" disabled={isUploadingFiestaId === row.fiestaId}>
