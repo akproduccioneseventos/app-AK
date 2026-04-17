@@ -516,6 +516,7 @@ export default function MarketingPage() {
     2: hasAnyVariable || hasGeneratedContent,
     3: hasTemplateName || templates.length > 0,
   } as const;
+  const canAdvanceWizard = wizardStatus[wizardStep as 1 | 2 | 3];
 
   // ─── JSX ──────────────────────────────────────────────────────────────────
 
@@ -584,13 +585,18 @@ export default function MarketingPage() {
                   ))}
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-[11px] text-slate-500">Seguí los pasos en orden para generar contenido sin perderte.</p>
+                  <p className="text-[11px] text-slate-500">Segui los pasos en orden para generar contenido sin perderte.</p>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
                     className="h-8 text-[11px] font-bold"
-                    onClick={() => setWizardStep(prev => Math.min(3, prev + 1))}
+                    onClick={() => {
+                      if (canAdvanceWizard) {
+                        setWizardStep(prev => Math.min(3, prev + 1));
+                      }
+                    }}
+                    disabled={wizardStep < 3 && !canAdvanceWizard}
                   >
                     Siguiente paso
                   </Button>
@@ -730,7 +736,7 @@ export default function MarketingPage() {
                   </Button>
                 </div>
                 <p className="text-[11px] text-slate-400">
-                  Paso 3 del wizard: guardá esta versión para reutilizarla en próximos eventos.
+                  Paso 3 del wizard: guarda esta versión para reutilizarla en próximos eventos.
                 </p>
                 {editingTemplate && (
                   <Button

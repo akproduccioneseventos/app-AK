@@ -232,7 +232,7 @@ function normalizeActionData(rawData: unknown): any {
     try {
       return JSON.parse(trimmed);
     } catch {
-      return { rawText: trimmed };
+      return undefined;
     }
   }
   return rawData;
@@ -247,7 +247,19 @@ function normalizeServicesInput(rawServices: unknown): Array<{
   categoria?: string;
   category?: string;
 }> {
-  if (Array.isArray(rawServices)) return rawServices as any[];
+  if (Array.isArray(rawServices)) {
+    return rawServices.filter(
+      (item): item is {
+        nombre?: string;
+        name?: string;
+        cantidad?: number;
+        precioUnitario?: number;
+        precio?: number;
+        categoria?: string;
+        category?: string;
+      } => typeof item === 'object' && item !== null
+    );
+  }
   if (typeof rawServices === 'string') {
     const parsed = parseBudgetFromText(rawServices);
     return parsed.servicios.map(s => ({
@@ -381,17 +393,6 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
             id?: string; nombre?: string; name?: string; descripcion?: string;
             cantidad?: number; precioUnitario?: number; precio?: number; categoria?: string; category?: string;
           }> = normalizeServicesInput(d.servicios);
-
-          // Fallback when model returned plain text in action.data.rawText instead of structured fields
-          if (serviciosInput.length === 0 && typeof d.rawText === 'string') {
-            const parsedFromRaw = parseBudgetFromText(d.rawText);
-            serviciosInput = parsedFromRaw.servicios.map(s => ({
-              nombre: s.nombre,
-              cantidad: s.cantidad,
-              precioUnitario: s.precioUnitario,
-              categoria: 'Servicios',
-            }));
-          }
 
           // Fallback: if Gemini returned no services but the message has structured text, use local parser
           if (serviciosInput.length === 0) {

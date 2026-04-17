@@ -151,7 +151,7 @@ export default function WhatsAppSettingsPage() {
           <CardHeader>
             <CardTitle className="font-headline text-xl">Wizard de configuración inicial</CardTitle>
             <CardDescription>
-              Seguí estos pasos para dejar WhatsApp funcionando rápido y sin confusiones.
+              Segui estos pasos para dejar WhatsApp funcionando rápido y sin confusiones.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
