@@ -41,6 +41,12 @@ const formatDate = (value?: string) => {
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-UY');
 };
 
+const getDateTimestamp = (value?: string) => {
+  if (!value) return Number.NEGATIVE_INFINITY;
+  const d = new Date(`${value}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? Number.NEGATIVE_INFINITY : d.getTime();
+};
+
 export default function EmpleadoHistorialPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const empleadoId = params.id;
@@ -105,7 +111,7 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
           recibo,
         }];
       })
-      .sort((a, b) => new Date(b.fechaEvento || 0).getTime() - new Date(a.fechaEvento || 0).getTime());
+      .sort((a, b) => getDateTimestamp(b.fechaEvento) - getDateTimestamp(a.fechaEvento));
   }, [empleadoId, fiestas, recibos, roles]);
 
   useEffect(() => {
@@ -133,7 +139,7 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
     return historialRows.filter((row) => {
       const editable = editableByFiesta[row.fiestaId];
       const estado = editable?.estado || 'pendiente';
-      const rowTs = row.fechaEvento ? new Date(`${row.fechaEvento}T00:00:00`).getTime() : 0;
+      const rowTs = getDateTimestamp(row.fechaEvento);
       const inDateRange = rowTs >= from && rowTs <= to;
       const statusMatch = estadoFilter === 'all' || estado === estadoFilter;
       return inDateRange && statusMatch;
@@ -241,8 +247,16 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
       return;
     }
 
-    const escapeHtml = (value: string) =>
-      value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+    const escapeHtml = (value: string) => {
+      const htmlEscapes: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      };
+      return value.replace(/[&<>"']/g, (char) => htmlEscapes[char] || char);
+    };
 
     const rowsHtml = filteredRows
       .map((row, index) => {
