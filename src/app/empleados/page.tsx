@@ -372,7 +372,7 @@ export default function EmpleadosPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Listado de Empleados ({empleados.length})</CardTitle>
-          <CardDescription>Consulta y gestiona la información de tu personal. Accedé al historial de fiestas y recibos firmados de cada empleado desde la tabla.</CardDescription>
+          <CardDescription>Consulta y gestiona la información de tu personal. Accede al historial de fiestas y recibos firmados de cada empleado desde la tabla.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (

@@ -197,7 +197,7 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
 
     const editable = editableByFiesta[row.fiestaId];
     if ((editable?.estado || 'pendiente') !== 'pagado') {
-      toast({ title: 'Estado requerido', description: 'Primero marcá el recibo como "pagado".', variant: 'destructive' });
+      toast({ title: 'Estado requerido', description: 'Primero marca el recibo como "pagado".', variant: 'destructive' });
       return;
     }
 
@@ -243,7 +243,7 @@ export default function EmpleadoHistorialPage({ params }: { params: { id: string
   const exportPrintable = () => {
     const printWindow = window.open('', '_blank', 'width=1100,height=780');
     if (!printWindow) {
-      toast({ title: 'No se pudo abrir la ventana de impresión', description: 'Habilitá popups para exportar el historial.', variant: 'destructive' });
+      toast({ title: 'No se pudo abrir la ventana de impresión', description: 'Habilita popups para exportar el historial.', variant: 'destructive' });
       return;
     }
 
