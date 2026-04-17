@@ -30,6 +30,8 @@ interface ShoppingListItem {
   unit: string;
   costoUnitario: number;
   costoTotalFaltante: number;
+  // Deuda técnica: hoy `proveedor` es string libre. Para sincronización real con módulo /proveedores
+  // debe migrarse a `proveedorId` (con fallback a nombre) en catálogo de insumos y lista de compras.
   proveedor: string;
   origen: string;
   origenId?: string;
