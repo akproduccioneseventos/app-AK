@@ -57,7 +57,10 @@ const PACKAGE_EVENT_SECTIONS = [
   { value: 'empresarial', label: 'Empresarial', eventType: 'Evento empresarial' },
 ] as const;
 
-const deepClone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+const deepClone = <T,>(value: T): T => {
+  if (typeof structuredClone === 'function') return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
+};
 
 export default function BudgetDisplaySettingsPage() {
   const router = useRouter();
@@ -724,7 +727,7 @@ export default function BudgetDisplaySettingsPage() {
               {hasUnsavedChanges ? 'Hay cambios sin guardar' : 'Todos los cambios guardados'}
             </p>
             <Button 
-                onClick={() => { void handleSaveAll(); }} 
+                onClick={async () => { await handleSaveAll(); }} 
                 disabled={isSaving} 
                 size="lg" 
                 className="rounded-2xl w-full md:w-auto px-12 h-14 font-black text-base shadow-2xl shadow-primary/30"
@@ -748,13 +751,6 @@ export default function BudgetDisplaySettingsPage() {
             <Button
               variant="ghost"
               onClick={() => {
-                if (!initialConfig || !initialBudgetSettings) {
-                  setShowUnsavedDialog(false);
-                  router.push('/settings');
-                  return;
-                }
-                setConfig(deepClone(initialConfig));
-                setBudgetSettings(deepClone(initialBudgetSettings));
                 setShowUnsavedDialog(false);
                 router.push('/settings');
               }}

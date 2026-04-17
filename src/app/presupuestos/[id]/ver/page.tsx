@@ -170,6 +170,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
   }, [searchParams]);
 
+  const adjustmentPct = presupuesto?.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
   const calculatedValues = useMemo(() => {
     if (!presupuesto) return { itemsAgrupados: {}, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };
   
@@ -195,7 +196,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     
     let ajuste = 0;
     let anios = 0;
-    const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
     if (presupuesto.eventoFecha) {
         const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
         const anioEvento = new Date(presupuesto.eventoFecha).getFullYear();
@@ -228,7 +228,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       totalFinal: Math.round(totalSinAjuste + ajuste),
       aniosDiferencia: anios
     };
-  }, [presupuesto, displaySettings]);
+  }, [presupuesto, adjustmentPct]);
 
   const handlePrint = () => window.print();
 
@@ -238,8 +238,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   }, [presupuesto]);
   const canGenerateContract = Boolean(presupuesto?.eventoFecha && eventStartTime);
   const currentYear = new Date().getFullYear();
-  const adjustmentPct = presupuesto?.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
-  const nextYear = currentYear + 1;
   const clubUruguayItem = (presupuesto?.itemsPresupuestados || []).find((item) => item.idServicioCatalogo === 'serv_salon_club_uruguay');
   const clubUruguayCosto = clubUruguayItem
     ? Math.round((clubUruguayItem.precioUnitarioPresupuesto || clubUruguayItem.precioUnitario || 0) * (clubUruguayItem.cantidad || 1))
@@ -1039,7 +1037,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             <span>{formatCurrency(calculatedValues.totalFinal)}</span>
                         </div>
                         <p className="text-[10px] text-gray-600 font-semibold mt-2">
-                          Precios {currentYear}: {formatCurrency(calculatedValues.totalFinal)} — Si tu evento es en {nextYear}, se aplica ajuste anual del {adjustmentPct}%.
+                          Precios {currentYear} — Ajuste anual del {adjustmentPct}% para eventos futuros.
                         </p>
 
                     </div>

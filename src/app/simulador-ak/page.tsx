@@ -44,6 +44,7 @@ import { cn } from '@/lib/utils';
 const WHATSAPP_NUMBER = '59898355530';
 const STORAGE_KEY = 'ak_simulador_ak_v1';
 const TOTAL_STEPS = 8; // wizard steps 1-8 (welcome is step 0)
+const DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE = 15;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -70,6 +71,27 @@ interface SimuladorState {
   generatedId: string | null;
   savedAt: string;
 }
+
+const getInitialSimuladorState = (): SimuladorState => ({
+  step: 0,
+  nombre: '',
+  apellido: '',
+  telefono: '',
+  eventoFecha: '',
+  eventoHoraInicio: '',
+  eventoTipo: '',
+  adultos: 80,
+  ninos: 10,
+  duracionHoras: 5,
+  tieneSalon: null,
+  paquete: '',
+  selectedEntradas: [],
+  selectedPrincipal: '',
+  selectedInfantil: '',
+  incluirClubUruguay: false,
+  generatedId: null,
+  savedAt: '',
+});
 
 interface ChatMessage {
   role: 'assistant' | 'user';
@@ -231,28 +253,9 @@ export default function SimuladorAKPage() {
   const [generatedId, setGeneratedId] = useState<string | null>(null);
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
-  const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(15);
+  const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE);
 
-  const [state, setState] = useState<SimuladorState>({
-    step: 0,
-    nombre: '',
-    apellido: '',
-    telefono: '',
-    eventoFecha: '',
-    eventoHoraInicio: '',
-    eventoTipo: '',
-    adultos: 80,
-    ninos: 10,
-    duracionHoras: 5,
-    tieneSalon: null,
-    paquete: '',
-    selectedEntradas: [],
-    selectedPrincipal: '',
-    selectedInfantil: '',
-    incluirClubUruguay: false,
-    generatedId: null,
-    savedAt: '',
-  });
+  const [state, setState] = useState<SimuladorState>(getInitialSimuladorState());
 
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [showResumeModal, setShowResumeModal] = useState(false);
@@ -311,7 +314,7 @@ export default function SimuladorAKPage() {
       if (raw) {
         const parsed: SimuladorState = JSON.parse(raw);
         if (parsed.step > 0 && parsed.nombre) {
-          setSavedState({ ...parsed, incluirClubUruguay: !!parsed.incluirClubUruguay });
+          setSavedState({ ...getInitialSimuladorState(), ...parsed, incluirClubUruguay: !!parsed.incluirClubUruguay });
           setShowResumeModal(true);
         }
       }
@@ -414,7 +417,7 @@ export default function SimuladorAKPage() {
     const eventYear = state.eventoFecha ? new Date(state.eventoFecha).getFullYear() : new Date().getFullYear();
     const currentYear = new Date().getFullYear();
     const aniosDif = Math.max(0, eventYear - currentYear);
-    const annualMultiplier = 1 + ((annualAdjustmentPercentage || 15) / 100);
+    const annualMultiplier = 1 + ((annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) / 100);
     const totalFinal = Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
     return { subtotalVenta: Math.round(totalRegular), totalFinal, descPromo, detallados };
   }, [config, state, allSimuladorServices, serviciosCatalogo, annualAdjustmentPercentage]);
@@ -772,7 +775,7 @@ export default function SimuladorAKPage() {
                     onPrint={handlePrint}
                     rawWAMessage={decodeURIComponent(buildWAMessage())}
                     empresaPhone={empresaPhone}
-                    annualAdjustmentPercentage={annualAdjustmentPercentage || 15}
+                    annualAdjustmentPercentage={annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE}
                   />
                 )}
               </motion.div>
@@ -1243,7 +1246,7 @@ function StepSalon({
                   </p>
                   <ul className="text-amber-200/80 text-xs space-y-0.5 ml-6 mt-2">
                     {clubUruguayConfig.prestaciones.map((prestacion, idx) => (
-                      <li key={`${prestacion}-${idx}`}>• {prestacion}</li>
+                      <li key={idx}>• {prestacion}</li>
                     ))}
                   </ul>
                   <label className="mt-3 flex items-center gap-2 text-amber-100 text-xs font-semibold cursor-pointer">

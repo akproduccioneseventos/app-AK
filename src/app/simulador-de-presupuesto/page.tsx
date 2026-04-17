@@ -159,6 +159,7 @@ interface ServicioDetallado {
 function SimuladorContent() {
     const { toast } = useToast();
     const [step, setStep] = useState(1);
+    const currentYear = new Date().getFullYear();
 
     const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings>(defaultBudgetDisplaySettings);
@@ -994,7 +995,7 @@ function SimuladorContent() {
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-                              📅 <strong>Precios {new Date().getFullYear()}</strong> — Para eventos en años posteriores se aplica un ajuste anual del <strong>{budgetSettings.annualAdjustmentPercentage ?? 15}%</strong>.
+                              📅 <strong>Precios {currentYear}</strong> — Para eventos en años posteriores se aplica un ajuste anual del <strong>{budgetSettings.annualAdjustmentPercentage ?? 15}%</strong>.
                             </div>
                         </div>
                     )}
