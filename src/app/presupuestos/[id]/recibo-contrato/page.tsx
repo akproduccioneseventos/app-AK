@@ -156,21 +156,25 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
   /** Build the first seña amount from the first recorded payment, or default to 0. */
   const montoSenia = pagos.find((p) => p.estadoPago !== 'pendiente_confirmacion')?.monto ?? 0;
+  const presupuestoWithClientFields = presupuesto as (Presupuesto & { clienteCi?: string; clienteDomicilio?: string }) | null;
   const overriddenNombre = searchParams.get('nombre') || presupuesto?.clienteNombre || '';
   const overriddenTelefono = searchParams.get('telefono') || presupuesto?.clienteContacto || '';
-  const overriddenCi = searchParams.get('ci') || (presupuesto as any)?.clienteCi || '___________________';
-  const overriddenDomicilio = searchParams.get('domicilio') || (presupuesto as any)?.clienteDomicilio || '___________________';
+  const overriddenCi = searchParams.get('ci') || presupuestoWithClientFields?.clienteCi || '___________________';
+  const overriddenDomicilio = searchParams.get('domicilio') || presupuestoWithClientFields?.clienteDomicilio || '___________________';
   const overriddenSalon = searchParams.get('salon') || presupuesto?.salonFiestas || '___________________';
   const overriddenFecha = searchParams.get('fecha') || presupuesto?.eventoFecha || '';
   const seniaParam = searchParams.get('senia');
-  const overriddenMontoSenia = seniaParam && !isNaN(Number(seniaParam)) && Number(seniaParam) > 0
+  const hasValidSeniaParam = Boolean(seniaParam && !isNaN(Number(seniaParam)) && Number(seniaParam) > 0);
+  const overriddenMontoSenia = hasValidSeniaParam
     ? Number(seniaParam)
     : montoSenia;
   const isClubUruguayDoc = searchParams.get('club') === 'uruguay';
   const hasDeposit = overriddenMontoSenia > 0;
-  const eventStartTime = (presupuesto?.eventoHoraInicio || extractTimeFromDate(overriddenFecha || presupuesto?.eventoFecha)).trim();
+  const eventDateSource = overriddenFecha || presupuesto?.eventoFecha;
+  const eventStartTimeRaw = presupuesto?.eventoHoraInicio || extractTimeFromDate(eventDateSource);
+  const eventStartTime = (eventStartTimeRaw ?? '').trim();
   const canGenerateContract = Boolean(overriddenFecha && eventStartTime);
-  const effectiveTotalPagado = seniaParam && !isNaN(Number(seniaParam)) && Number(seniaParam) > 0 ? overriddenMontoSenia : totalPagado;
+  const effectiveTotalPagado = hasValidSeniaParam ? overriddenMontoSenia : totalPagado;
   const effectiveSaldoPendiente = totalCosto - effectiveTotalPagado;
   const requestedDoc = searchParams.get('doc');
   const showRecibo = requestedDoc !== 'contrato' && hasDeposit;

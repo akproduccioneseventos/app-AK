@@ -33,7 +33,7 @@ interface Props {
 }
 
 export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupuesto, onConfirmed }: Props) {
-  const initialEventoFecha = (presupuesto.fecha || '').split('T')[0];
+  const initialFechaEvento = (presupuesto.fecha?.toString() || '').split('T')[0];
   const initialSalon = presupuesto.salon || '';
   const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,8 +46,8 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
   const [ci, setCi] = useState('');
   const [address, setAddress] = useState('');
   const [salon, setSalon] = useState(initialSalon);
-  const [isClubUruguay, setIsClubUruguay] = useState(initialSalon.toLowerCase().includes('uruguay'));
-  const [fechaEvento, setFechaEvento] = useState(initialEventoFecha);
+  const [isClubUruguay, setIsClubUruguay] = useState((initialSalon || '').toLowerCase().includes('uruguay'));
+  const [fechaEvento, setFechaEvento] = useState(initialFechaEvento);
   const [montoSenia, setMontoSenia] = useState('');
   const [companyName, setCompanyName] = useState((lead as any).companyName || '');
   const [taxId, setTaxId] = useState((lead as any).taxId || '');
@@ -55,6 +55,20 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
   const { toast } = useToast();
 
   const canProceedStep1 = ci.trim() !== '' && address.trim() !== '';
+  const contractPrintParams = new URLSearchParams({
+    doc: 'contrato',
+    nombre: name,
+    telefono: phone,
+    ci,
+    domicilio: address,
+    salon,
+    fecha: fechaEvento,
+  });
+  if (montoSenia.trim() !== '') contractPrintParams.set('senia', montoSenia);
+  const contractPrintUrl = `/presupuestos/${lead.presupuestoId}/recibo-contrato?${contractPrintParams.toString()}`;
+  const clubUruguayPrintParams = new URLSearchParams(contractPrintParams);
+  clubUruguayPrintParams.set('club', 'uruguay');
+  const clubUruguayPrintUrl = `/presupuestos/${lead.presupuestoId}/recibo-contrato?${clubUruguayPrintParams.toString()}`;
 
   const handleConfirm = async () => {
     if (!lead.presupuestoId) return;
@@ -103,7 +117,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
       setPhone(lead.phone || '');
       setSalon(presupuesto.salon || '');
       setIsClubUruguay((presupuesto.salon || '').toLowerCase().includes('uruguay'));
-      setFechaEvento((presupuesto.fecha || '').split('T')[0]);
+      setFechaEvento((presupuesto.fecha?.toString() || '').split('T')[0]);
       setMontoSenia('');
       setCompanyName((lead as any).companyName || '');
       setTaxId((lead as any).taxId || '');
@@ -265,7 +279,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
           <div className="space-y-4 py-2">
             <div className="space-y-3">
               <a
-                href={`/presupuestos/${lead.presupuestoId}/recibo-contrato?doc=contrato&nombre=${encodeURIComponent(name)}&telefono=${encodeURIComponent(phone)}&ci=${encodeURIComponent(ci)}&domicilio=${encodeURIComponent(address)}&salon=${encodeURIComponent(salon)}&fecha=${encodeURIComponent(fechaEvento)}&senia=${encodeURIComponent(montoSenia)}`}
+                href={contractPrintUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group"
@@ -298,7 +312,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
 
               {isClubUruguay && (
                 <a
-                  href={`/presupuestos/${lead.presupuestoId}/recibo-contrato?doc=contrato&club=uruguay&nombre=${encodeURIComponent(name)}&telefono=${encodeURIComponent(phone)}&ci=${encodeURIComponent(ci)}&domicilio=${encodeURIComponent(address)}&salon=${encodeURIComponent(salon)}&fecha=${encodeURIComponent(fechaEvento)}&senia=${encodeURIComponent(montoSenia)}`}
+                  href={clubUruguayPrintUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group"

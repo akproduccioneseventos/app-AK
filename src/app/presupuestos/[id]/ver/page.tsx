@@ -165,8 +165,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   useEffect(() => { fetchPresupuestoAndSettings(); }, [fetchPresupuestoAndSettings]);
   useEffect(() => {
     if (searchParams.get('imprimir') === '1') {
-      const t = setTimeout(() => window.print(), 800);
-      return () => clearTimeout(t);
+      const printTimer = setTimeout(() => window.print(), 800);
+      return () => clearTimeout(printTimer);
     }
   }, [searchParams]);
 
