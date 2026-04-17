@@ -78,6 +78,7 @@ const CanvasElement = memo(function CanvasElement({
       }}
       onMouseDown={e => { e.stopPropagation(); onMouseDown(e, el.id); }}
       onTouchStart={e => { e.stopPropagation(); onTouchStart(e, el.id); }}
+      onClick={e => e.stopPropagation()}
     >
       {/* Element content */}
       <div
@@ -292,9 +293,13 @@ export default function DecoCanvas({
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mouseleave', onMouseUp);
+    window.addEventListener('blur', onMouseUp);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('mouseleave', onMouseUp);
+      window.removeEventListener('blur', onMouseUp);
     };
   }, [zoom, updateElemento]);
 
