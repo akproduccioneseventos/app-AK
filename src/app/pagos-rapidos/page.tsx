@@ -49,6 +49,13 @@ const formatDate = (dateString?: string) => {
 const MAX_VOUCHER_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const FALLBACK_COMPANY_ADDRESS = 'Salto, Uruguay';
 const FALLBACK_COMPANY_CONTACT = 'akproduccionessalto@gmail.com';
+const RECEIPT_EXPORT_SCALE = 2;
+const RECEIPT_EXPORT_BG = '#ffffff';
+const RECEIPT_EXPORT_ERROR_TOAST = {
+  title: 'No se pudo exportar el recibo',
+  description: 'Hubo un problema al generar la imagen del recibo.',
+  variant: 'destructive' as const,
+};
 
 const getCompanyInitials = (name: string) => {
   const words = (name || '').trim().split(/\s+/).filter(Boolean);
@@ -101,17 +108,16 @@ function ReciboView({
   const exportReceiptAsImage = async () => {
     try {
       if (!receiptRef.current) return null;
-      const canvas = await html2canvas(receiptRef.current, { scale: 2, backgroundColor: '#ffffff' });
+      const canvas = await html2canvas(receiptRef.current, {
+        scale: RECEIPT_EXPORT_SCALE,
+        backgroundColor: RECEIPT_EXPORT_BG,
+      });
       return new Promise<Blob | null>((resolve) => {
         canvas.toBlob((blob) => resolve(blob), 'image/png');
       });
     } catch (error) {
       console.error('No se pudo renderizar el recibo para exportar:', error);
-      toast({
-        title: 'No se pudo exportar el recibo',
-        description: 'Hubo un problema al generar la imagen del recibo.',
-        variant: 'destructive',
-      });
+      toast(RECEIPT_EXPORT_ERROR_TOAST);
       return null;
     }
   };

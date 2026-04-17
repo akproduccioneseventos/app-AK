@@ -252,7 +252,7 @@ export default function BudgetDisplaySettingsPage() {
     const section = PACKAGE_EVENT_SECTIONS.find((s) => s.value === sectionValue) || PACKAGE_EVENT_SECTIONS[0];
     const newPkg: PaqueteArmadoRapido = {
       ...pkg,
-      id: generateClientSideId('pkg_copy'),
+      id: generateClientSideId('package_duplicate'),
       nombre: `${pkg.nombre} (${section.label})`,
       recommended: false,
       tiposDeEventoAplicables: section.eventType ? [section.eventType] : [],
