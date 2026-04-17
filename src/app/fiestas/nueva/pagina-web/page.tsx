@@ -199,6 +199,15 @@ function PaginaWebPageContent() {
   const sanitizeSlug = (value: string) => value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '');
   const activeSlug = sanitizeSlug(slugInput || fiesta?.invitacionSlug || fiestaId || '');
   const slugUrl = activeSlug ? getFullLink('/i/[fiestaId]').replace(`/i/${fiestaId}`, `/i/${activeSlug}`) : '';
+  const slugPrefixLabel = useMemo(() => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+    if (!baseUrl) return 'tu-app.com/i/';
+    try {
+      return `${new URL(baseUrl).host}/i/`;
+    } catch {
+      return 'tu-app.com/i/';
+    }
+  }, []);
 
   const filteredTemplates = useMemo(() => {
     if (templateCategoryFilter === 'Todas') return templates;
@@ -346,7 +355,7 @@ function PaginaWebPageContent() {
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-muted-foreground">Enlace personalizado</Label>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">tu-app.com/i/</span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{slugPrefixLabel}</span>
                   <Input
                     value={slugInput}
                     onChange={e => setSlugInput(sanitizeSlug(e.target.value))}

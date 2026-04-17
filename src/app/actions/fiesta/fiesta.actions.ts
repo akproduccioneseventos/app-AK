@@ -169,7 +169,6 @@ export async function updateInvitacionSlug(fiestaId: string, slug: string): Prom
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
   const normalized = normalizeInvitationSlug(slug);
-  if (!normalized) return { success: false, error: 'Ingresá un slug válido.' };
   if (!isValidInvitationSlug(normalized)) {
     return { success: false, error: 'El slug debe usar solo letras minúsculas, números y guiones.' };
   }
