@@ -1028,7 +1028,7 @@ function StepEventBasics({
     { value: 'cumpleanosInfantil', label: 'Cumpleaños infantil', emoji: '🧒' },
     { value: 'quince',     label: '15 años',   emoji: '🎀' },
     { value: 'boda',       label: 'Boda',      emoji: '💍' },
-    { value: 'empresarial',label: 'Empresarial',emoji: '🏢' },
+    { value: 'empresarial',label: 'Evento empresarial',emoji: '🏢' },
   ];
   const [dateError, setDateError] = useState('');
   const canNext = !!state.eventoTipo;
@@ -1236,7 +1236,7 @@ function StepSalon({
                 <>
                   <div className="flex items-center gap-2 mb-1">
                     <Star className="w-4 h-4 text-amber-400" />
-                    <p className="text-amber-300 font-bold text-sm">💎 Club Uruguay — Salón disponible</p>
+                    <p className="text-amber-300 font-bold text-sm">Club Uruguay — Salón disponible</p>
                   </div>
                   <p className="text-amber-100 text-xs">
                     Podemos coordinar el salón para tu evento a costo de <strong>{formatCurrency(clubUruguayConfig.precio)}</strong> (este monto formará parte del presupuesto final).
