@@ -800,9 +800,10 @@ function SimuladorContent() {
                                         <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"><SelectValue /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Cumpleaños">Cumpleaños</SelectItem>
-                                            <SelectItem value="15 Años">15 Años</SelectItem>
+                                            <SelectItem value="Cumpleaños infantil">Cumpleaños infantil</SelectItem>
+                                            <SelectItem value="15 años">15 años</SelectItem>
                                             <SelectItem value="Boda">Boda</SelectItem>
-                                            <SelectItem value="Empresarial">Empresarial</SelectItem>
+                                            <SelectItem value="Evento empresarial">Empresarial</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -992,6 +993,9 @@ function SimuladorContent() {
                             {sortedPaquetes.length === 0 && (
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
+                            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+                              📅 <strong>Precios {new Date().getFullYear()}</strong> — Para eventos en años posteriores se aplica un ajuste anual del <strong>{budgetSettings.annualAdjustmentPercentage ?? 15}%</strong>.
+                            </div>
                         </div>
                     )}
                 </CardContent>

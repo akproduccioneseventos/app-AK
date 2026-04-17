@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PublicFooter } from '@/components/public-footer';
 import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCuponesRegaloActivos } from '@/app/actions/cupones';
@@ -24,9 +25,11 @@ import { getMenus } from '@/app/actions/menus-catering';
 import { getLandingSettings } from '@/app/actions/landing-editor';
 import { getWhatsAppConfig } from '@/app/actions/whatsapp';
 import { CountdownTimer } from '@/components/countdown-timer';
+import { Checkbox } from '@/components/ui/checkbox';
 import type { Coupon } from '@/types/coupon';
 import { esCuponRegalo } from '@/types/coupon';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
+import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { FullMenu } from '@/types/catering';
 import type { MenuItem } from '@/types/catering';
@@ -44,7 +47,7 @@ const TOTAL_STEPS = 8; // wizard steps 1-8 (welcome is step 0)
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type EventType = 'cumpleanos' | 'quince' | 'boda' | 'empresarial';
+type EventType = 'cumpleanos' | 'cumpleanosInfantil' | 'quince' | 'boda' | 'empresarial';
 type PackageType = string;
 
 interface SimuladorState {
@@ -63,6 +66,7 @@ interface SimuladorState {
   selectedEntradas: string[];
   selectedPrincipal: string;
   selectedInfantil: string;
+  incluirClubUruguay: boolean;
   generatedId: string | null;
   savedAt: string;
 }
@@ -93,9 +97,10 @@ type PriceStats = {
 
 const EVENT_META: Record<EventType, { label: string; emoji: string; basePP: number; fixed: number }> = {
   cumpleanos: { label: 'Cumpleaños', emoji: '🎂', basePP: 620, fixed: 12000 },
-  quince:     { label: '15 Años',   emoji: '🎀', basePP: 780, fixed: 15000 },
+  cumpleanosInfantil: { label: 'Cumpleaños infantil', emoji: '🧒', basePP: 600, fixed: 11000 },
+  quince:     { label: '15 años',   emoji: '🎀', basePP: 780, fixed: 15000 },
   boda:       { label: 'Boda',      emoji: '💍', basePP: 950, fixed: 20000 },
-  empresarial:{ label: 'Empresarial',emoji: '🏢', basePP: 680, fixed: 10000 },
+  empresarial:{ label: 'Evento empresarial',emoji: '🏢', basePP: 680, fixed: 10000 },
 };
 
 const PACKAGE_META: Record<PackageType, { label: string; description: string; multiplier: number; recommended?: boolean }> = {
@@ -226,6 +231,7 @@ export default function SimuladorAKPage() {
   const [generatedId, setGeneratedId] = useState<string | null>(null);
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
+  const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(15);
 
   const [state, setState] = useState<SimuladorState>({
     step: 0,
@@ -243,6 +249,7 @@ export default function SimuladorAKPage() {
     selectedEntradas: [],
     selectedPrincipal: '',
     selectedInfantil: '',
+    incluirClubUruguay: false,
     generatedId: null,
     savedAt: '',
   });
@@ -269,12 +276,27 @@ export default function SimuladorAKPage() {
     // Load dynamic config (packages, menus, FAQs) for the assistant
     Promise.all([
       getArmadoRapidoConfig().catch(() => null),
+      getBudgetDisplaySettings().catch(() => null),
       getServiciosEmpresa().catch(() => [] as ServicioEmpresa[]),
       getMenus().catch(() => [] as FullMenu[]),
       getLandingSettings().catch(() => null),
       getWhatsAppConfig().catch(() => null),
-    ]).then(([armadoConfig, servicios, menus, landingCfg, waConfig]) => {
-      if (armadoConfig) setConfig(armadoConfig);
+    ]).then(([armadoConfig, budgetSettings, servicios, menus, landingCfg, waConfig]) => {
+      if (armadoConfig) {
+        setConfig({
+          ...armadoConfig,
+          clubUruguayConfig: {
+            ...defaultClubUruguayConfig,
+            ...(armadoConfig.clubUruguayConfig || {}),
+            prestaciones: (armadoConfig.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
+              .map((p) => p.trim())
+              .filter(Boolean),
+          },
+        });
+      }
+      if (budgetSettings?.annualAdjustmentPercentage !== undefined) {
+        setAnnualAdjustmentPercentage(budgetSettings.annualAdjustmentPercentage);
+      }
       if (armadoConfig?.paquetes?.length) setDynamicPaquetes(armadoConfig.paquetes);
       if (Array.isArray(servicios)) setServiciosCatalogo(servicios.filter(s => s.tipoItem === 'Servicio'));
       if (Array.isArray(menus) && menus.length > 0) setAvailableMenus(menus);
@@ -289,7 +311,7 @@ export default function SimuladorAKPage() {
       if (raw) {
         const parsed: SimuladorState = JSON.parse(raw);
         if (parsed.step > 0 && parsed.nombre) {
-          setSavedState(parsed);
+          setSavedState({ ...parsed, incluirClubUruguay: !!parsed.incluirClubUruguay });
           setShowResumeModal(true);
         }
       }
@@ -363,6 +385,23 @@ export default function SimuladorAKPage() {
         if (servicioRequerido) allSelectedServicesMap.set(servicioRequerido.id, { servicio: servicioRequerido, esRegalo: false });
       }
     });
+    const clubUruguayCfg = {
+      ...defaultClubUruguayConfig,
+      ...(config.clubUruguayConfig || {}),
+    };
+    if (state.tieneSalon === false && state.incluirClubUruguay && clubUruguayCfg.activo) {
+      const servicioClub = serviciosCatalogo.find((s) => s.id === 'serv_salon_club_uruguay');
+      if (servicioClub) {
+        allSelectedServicesMap.set(servicioClub.id, {
+          servicio: {
+            ...servicioClub,
+            precioVenta: clubUruguayCfg.precio,
+            precioBase: clubUruguayCfg.precio,
+          },
+          esRegalo: false,
+        });
+      }
+    }
     let totalRegular = 0;
     const detallados: ServicioDetallado[] = [];
     allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
@@ -375,9 +414,10 @@ export default function SimuladorAKPage() {
     const eventYear = state.eventoFecha ? new Date(state.eventoFecha).getFullYear() : new Date().getFullYear();
     const currentYear = new Date().getFullYear();
     const aniosDif = Math.max(0, eventYear - currentYear);
-    const totalFinal = Math.round(totalSinAjuste * Math.pow(1.15, aniosDif));
+    const annualMultiplier = 1 + ((annualAdjustmentPercentage || 15) / 100);
+    const totalFinal = Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
     return { subtotalVenta: Math.round(totalRegular), totalFinal, descPromo, detallados };
-  }, [config, state, allSimuladorServices]);
+  }, [config, state, allSimuladorServices, serviciosCatalogo, annualAdjustmentPercentage]);
 
   // ── Chat history management ───────────────────────────────────────────────
 
@@ -481,6 +521,27 @@ export default function SimuladorAKPage() {
         esRegalo: d.esRegalo,
       }));
 
+      const clubUruguayCfg = {
+        ...defaultClubUruguayConfig,
+        ...(config?.clubUruguayConfig || {}),
+      };
+      if (
+        state.tieneSalon === false &&
+        state.incluirClubUruguay &&
+        clubUruguayCfg.activo &&
+        !items.some((item) => item.idServicioCatalogo === 'serv_salon_club_uruguay')
+      ) {
+        items.push({
+          idServicioCatalogo: 'serv_salon_club_uruguay',
+          nombreServicio: 'Club Uruguay',
+          cantidad: 1,
+          precioUnitario: clubUruguayCfg.precio,
+          precioUnitarioPresupuesto: clubUruguayCfg.precio,
+          categoriaServicio: 'Servicio',
+          esRegalo: false,
+        });
+      }
+
       const result = await generateBudgetAndLeadFromSimulator({
         clienteNombre:   `${state.nombre} ${state.apellido}`.trim(),
         clienteContacto: state.telefono,
@@ -516,7 +577,7 @@ export default function SimuladorAKPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [state, saveProgress, toast, priceStats, dynamicPaquetes]);
+  }, [state, saveProgress, toast, priceStats, dynamicPaquetes, config]);
 
   // ── WhatsApp message ──────────────────────────────────────────────────────
 
@@ -660,7 +721,19 @@ export default function SimuladorAKPage() {
                   <StepGuests state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
                 )}
                 {state.step === 4 && (
-                  <StepSalon state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                  <StepSalon
+                    state={state}
+                    onChange={updateState}
+                    onNext={goNext}
+                    onPrev={goPrev}
+                    clubUruguayConfig={{
+                      ...defaultClubUruguayConfig,
+                      ...(config?.clubUruguayConfig || {}),
+                      prestaciones: (config?.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
+                        .map((p) => p.trim())
+                        .filter(Boolean),
+                    }}
+                  />
                 )}
                 {state.step === 5 && (
                   <StepPackage
@@ -699,6 +772,7 @@ export default function SimuladorAKPage() {
                     onPrint={handlePrint}
                     rawWAMessage={decodeURIComponent(buildWAMessage())}
                     empresaPhone={empresaPhone}
+                    annualAdjustmentPercentage={annualAdjustmentPercentage || 15}
                   />
                 )}
               </motion.div>
@@ -951,7 +1025,8 @@ function StepEventBasics({
 }) {
   const EVENT_OPTIONS: { value: EventType; label: string; emoji: string }[] = [
     { value: 'cumpleanos', label: 'Cumpleaños', emoji: '🎂' },
-    { value: 'quince',     label: '15 Años',   emoji: '🎀' },
+    { value: 'cumpleanosInfantil', label: 'Cumpleaños infantil', emoji: '🧒' },
+    { value: 'quince',     label: '15 años',   emoji: '🎀' },
     { value: 'boda',       label: 'Boda',      emoji: '💍' },
     { value: 'empresarial',label: 'Empresarial',emoji: '🏢' },
   ];
@@ -1100,19 +1175,23 @@ function StepGuests({
 // ─── Step: Salon ──────────────────────────────────────────────────────────────
 
 function StepSalon({
-  state, onChange, onNext, onPrev,
+  state, onChange, onNext, onPrev, clubUruguayConfig,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
   onNext: () => void;
   onPrev: () => void;
+  clubUruguayConfig: NonNullable<ArmadoRapidoConfig['clubUruguayConfig']>;
 }) {
   const canNext = state.tieneSalon !== null;
   return (
     <StepCard title="¿Ya tenés salón?" icon={<Home className="w-6 h-6" />}>
       <div className="space-y-3">
         <button
-          onClick={() => onChange('tieneSalon', true)}
+          onClick={() => {
+            onChange('tieneSalon', true);
+            onChange('incluirClubUruguay', false);
+          }}
           className={cn(
             'w-full rounded-2xl p-4 text-left transition-all border-2 flex items-center gap-3',
             state.tieneSalon === true
@@ -1127,8 +1206,7 @@ function StepSalon({
           </div>
           {state.tieneSalon === true && <Check className="ml-auto w-5 h-5 text-violet-400" />}
         </button>
-        <button
-          onClick={() => onChange('tieneSalon', false)}
+        <div
           className={cn(
             'w-full rounded-2xl p-4 text-left transition-all border-2 flex flex-col gap-2',
             state.tieneSalon === false
@@ -1136,32 +1214,52 @@ function StepSalon({
               : 'bg-white/5 border-white/10 hover:bg-white/10',
           )}
         >
-          <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => onChange('tieneSalon', false)}
+            className="flex items-center gap-3 text-left"
+          >
             <span className="text-2xl">✨</span>
             <div>
               <p className="text-white font-bold">No, quiero salón incluido</p>
               <p className="text-violet-300 text-xs">Te mostramos opciones</p>
             </div>
             {state.tieneSalon === false && <Check className="ml-auto w-5 h-5 text-violet-400" />}
-          </div>
+          </button>
           {state.tieneSalon === false && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className="mt-1 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30 rounded-xl p-3"
             >
-              <div className="flex items-center gap-2 mb-1">
-                <Star className="w-4 h-4 text-amber-400" />
-                <p className="text-amber-300 font-bold text-sm">💎 Club Uruguay — Opción destacada</p>
-              </div>
-              <ul className="text-amber-200/80 text-xs space-y-0.5 ml-6">
-                <li>• Capacidad: 50 a 200 personas</li>
-                <li>• Ubicación céntrica en Salto</li>
-                <li>• Descuento exclusivo por servicio completo</li>
-              </ul>
+              {clubUruguayConfig.activo ? (
+                <>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Star className="w-4 h-4 text-amber-400" />
+                    <p className="text-amber-300 font-bold text-sm">💎 Club Uruguay — Salón disponible</p>
+                  </div>
+                  <p className="text-amber-100 text-xs">
+                    Podemos coordinar el salón para tu evento a costo de <strong>{formatCurrency(clubUruguayConfig.precio)}</strong> (este monto formará parte del presupuesto final).
+                  </p>
+                  <ul className="text-amber-200/80 text-xs space-y-0.5 ml-6 mt-2">
+                    {clubUruguayConfig.prestaciones.map((prestacion, idx) => (
+                      <li key={`${prestacion}-${idx}`}>• {prestacion}</li>
+                    ))}
+                  </ul>
+                  <label className="mt-3 flex items-center gap-2 text-amber-100 text-xs font-semibold cursor-pointer">
+                    <Checkbox
+                      checked={state.incluirClubUruguay}
+                      onCheckedChange={(checked) => onChange('incluirClubUruguay', !!checked)}
+                    />
+                    Incluir Club Uruguay en mi presupuesto
+                  </label>
+                </>
+              ) : (
+                <p className="text-amber-100 text-xs font-semibold">Coordinamos opciones de salón con vos.</p>
+              )}
             </motion.div>
           )}
-        </button>
+        </div>
       </div>
       <StepNav onPrev={onPrev} onNext={onNext} canNext={canNext} showPrev />
     </StepCard>
@@ -1188,7 +1286,7 @@ function StepPackage({
   ];
 
   // Use dynamic packages if available, otherwise fall back to hardcoded PACKAGE_META
-  const hasDynamic = dynamicPaquetes && dynamicPaquetes.length > 0;
+  const hasDynamic = dynamicPaquetes !== undefined;
 
   return (
     <StepCard title="¿Cómo te imaginás tu fiesta?" icon={<Star className="w-6 h-6" />}>
@@ -1380,7 +1478,7 @@ function StepHours({
 // ─── Step: Conversion ────────────────────────────────────────────────────────
 
 function StepConversion({
-  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone,
+  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone, annualAdjustmentPercentage,
 }: {
   state: SimuladorState;
   prices: PriceStats | null;
@@ -1392,9 +1490,11 @@ function StepConversion({
   onPrint: () => void;
   rawWAMessage: string;
   empresaPhone: string;
+  annualAdjustmentPercentage: number;
 }) {
   const { toast } = useToast();
   const submitted = !!generatedId;
+  const currentYear = new Date().getFullYear();
 
   return (
     <StepCard title="Tu presupuesto está listo" icon={<PartyPopper className="w-6 h-6" />}>
@@ -1424,6 +1524,13 @@ function StepConversion({
           </div>
         </div>
       )}
+
+      <div className="bg-blue-500/15 border border-blue-400/30 rounded-2xl p-4 mb-5">
+        <p className="text-blue-100 text-sm">
+          📅 <strong>Precios {currentYear}</strong> — Este presupuesto refleja los precios vigentes del año actual.
+          Para eventos en años posteriores, se aplica un ajuste anual del <strong>{annualAdjustmentPercentage}%</strong> (configurable).
+        </p>
+      </div>
 
       {/* CTA buttons */}
       <div className="space-y-3">

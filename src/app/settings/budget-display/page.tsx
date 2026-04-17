@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
     ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, 
     Percent, Tag, MessageSquare, ListPlus, ShieldCheck, Zap, Info, 
-    Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff, X, Gift,
+    Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff, X, Gift, Building2,
     ChevronsUp, ChevronsDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,8 @@ import { getBudgetDisplaySettings, saveBudgetDisplaySettings } from '@/app/actio
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
+import { defaultClubUruguayConfig } from '@/types/armado-rapido';
+import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -46,12 +48,26 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+const PACKAGE_EVENT_SECTIONS = [
+  { value: 'all', label: 'Todos', eventType: '' },
+  { value: '15', label: '15 años', eventType: '15 años' },
+  { value: 'boda', label: 'Boda', eventType: 'Boda' },
+  { value: 'cumple-infantil', label: 'Cumpleaños infantil', eventType: 'Cumpleaños infantil' },
+  { value: 'cumple', label: 'Cumpleaños', eventType: 'Cumpleaños' },
+  { value: 'empresarial', label: 'Empresarial', eventType: 'Evento empresarial' },
+] as const;
+
+const deepClone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+
 export default function BudgetDisplaySettingsPage() {
+  const router = useRouter();
   const { toast } = useToast();
   
   // Data States
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings | null>(null);
+  const [initialConfig, setInitialConfig] = useState<ArmadoRapidoConfig | null>(null);
+  const [initialBudgetSettings, setInitialBudgetSettings] = useState<BudgetDisplaySettings | null>(null);
   const [servicios, setServicios] = useState<ServicioEmpresa[]>([]);
   const [allDishes, setAllDishes] = useState<MenuItem[]>([]);
   
@@ -63,6 +79,8 @@ export default function BudgetDisplaySettingsPage() {
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [activePackageId, setActivePackageId] = useState<string | null>(null);
+  const [activePackageSection, setActivePackageSection] = useState<(typeof PACKAGE_EVENT_SECTIONS)[number]['value']>('all');
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [newDepTrigger, setNewDepTrigger] = useState('');
   const [newDepRequired, setNewDepRequired] = useState('');
 
@@ -75,8 +93,20 @@ export default function BudgetDisplaySettingsPage() {
         getServiciosEmpresa(),
         getMenus()
       ]);
-      setConfig(armadoData);
+      const normalizedConfig: ArmadoRapidoConfig = {
+        ...armadoData,
+        clubUruguayConfig: {
+          ...defaultClubUruguayConfig,
+          ...(armadoData.clubUruguayConfig || {}),
+          prestaciones: (armadoData.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
+            .map((p) => p.trim())
+            .filter(Boolean),
+        },
+      };
+      setConfig(normalizedConfig);
       setBudgetSettings(settingsData);
+      setInitialConfig(deepClone(normalizedConfig));
+      setInitialBudgetSettings(deepClone(settingsData));
       setServicios(servicesData.filter(s => s.tipoItem === 'Servicio'));
       setAllDishes(menusData.flatMap(m => m.items));
     } catch (e) {
@@ -90,7 +120,7 @@ export default function BudgetDisplaySettingsPage() {
     fetchData();
   }, [fetchData]);
 
-  const handleSaveAll = async () => {
+  const handleSaveAll = async (onSuccess?: () => void) => {
     if (!config || !budgetSettings) return;
     setIsSaving(true);
     try {
@@ -100,7 +130,9 @@ export default function BudgetDisplaySettingsPage() {
       ]);
       if (res1.success && res2.success) {
         toast({ title: "Configuración Guardada", description: "Todos los cambios se han aplicado al simulador." });
-        await fetchData();
+        setInitialConfig(deepClone(config));
+        setInitialBudgetSettings(deepClone(budgetSettings));
+        onSuccess?.();
       } else throw new Error("Error al guardar una de las secciones.");
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -110,15 +142,17 @@ export default function BudgetDisplaySettingsPage() {
   };
 
   // --- ACTIONS FOR PACKAGES ---
-  const addPackage = () => {
+  const addPackage = (sectionValue: (typeof PACKAGE_EVENT_SECTIONS)[number]['value']) => {
+    const section = PACKAGE_EVENT_SECTIONS.find((s) => s.value === sectionValue) || PACKAGE_EVENT_SECTIONS[0];
     const newPkg: PaqueteArmadoRapido = {
         id: `pkg_${Date.now()}`,
         nombre: 'Nuevo Paquete',
         serviciosIncluidos: [],
         recommended: false,
-        tiposDeEventoAplicables: [],
+        tiposDeEventoAplicables: section.eventType ? [section.eventType] : [],
     };
     setConfig(prev => prev ? ({ ...prev, paquetes: [...prev.paquetes, newPkg] }) : null);
+    setActivePackageSection(sectionValue);
   };
 
   const removePackage = (id: string) => {
@@ -226,6 +260,24 @@ export default function BudgetDisplaySettingsPage() {
   };
 
   // --- FILTERS ---
+  const hasUnsavedChanges = useMemo(() => {
+    if (!config || !budgetSettings || !initialConfig || !initialBudgetSettings) return false;
+    return JSON.stringify(config) !== JSON.stringify(initialConfig) || JSON.stringify(budgetSettings) !== JSON.stringify(initialBudgetSettings);
+  }, [config, budgetSettings, initialConfig, initialBudgetSettings]);
+
+  const selectedSection = PACKAGE_EVENT_SECTIONS.find((s) => s.value === activePackageSection) || PACKAGE_EVENT_SECTIONS[0];
+
+  const visiblePackages = useMemo(() => {
+    const paquetes = config?.paquetes || [];
+    if (!selectedSection.eventType) {
+      return paquetes.filter((pkg) => (pkg.tiposDeEventoAplicables || []).length === 0);
+    }
+    return paquetes.filter((pkg) => {
+      const tipos = pkg.tiposDeEventoAplicables || [];
+      return tipos.length > 0 && isPackageApplicableToEventType(pkg, selectedSection.eventType);
+    });
+  }, [config?.paquetes, selectedSection.eventType]);
+
   const filteredServices = useMemo(() => {
     const term = catalogSearchTerm.toLowerCase();
     return servicios.filter(s => s.nombre.toLowerCase().includes(term));
@@ -234,6 +286,14 @@ export default function BudgetDisplaySettingsPage() {
   const handleCatalogModalOpenChange = (open: boolean) => {
     setIsCatalogModalOpen(open);
     if (!open) setCatalogSearchTerm('');
+  };
+
+  const handleBackNavigation = () => {
+    if (!hasUnsavedChanges) {
+      router.push('/settings');
+      return;
+    }
+    setShowUnsavedDialog(true);
   };
 
   if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-primary w-12 h-12"/></div>;
@@ -274,9 +334,9 @@ export default function BudgetDisplaySettingsPage() {
                 <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Gestión de Paquetes, Platos y Estrategia</p>
             </div>
         </div>
-        <Link href="/settings" className="w-full md:w-auto">
-          <Button variant="outline" className="rounded-xl w-full md:w-auto"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button>
-        </Link>
+        <Button variant="outline" className="rounded-xl w-full md:w-auto" onClick={handleBackNavigation}>
+          <ArrowLeft className="w-4 h-4 mr-2" />Volver
+        </Button>
       </header>
 
       <Tabs defaultValue="estrategia" className="w-full">
@@ -346,7 +406,7 @@ export default function BudgetDisplaySettingsPage() {
                 <CardContent className="p-6 md:p-8 space-y-6">
                     <div className="flex flex-col md:flex-row md:items-center gap-6">
                         <div className="space-y-2 shrink-0">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ajuste Anual Automático (%)</Label>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ajuste anual de precios de la empresa (%)</Label>
                             <Input 
                                 type="number" 
                                 value={budgetSettings?.annualAdjustmentPercentage ?? 15} 
@@ -356,7 +416,7 @@ export default function BudgetDisplaySettingsPage() {
                         </div>
                         <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10 max-w-full md:max-w-sm">
                             <Info className="w-5 h-5 text-primary shrink-0"/>
-                            <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Este ajuste se aplica si la fecha del evento es posterior al año en que se genera el presupuesto.</p>
+                            <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Porcentaje que se aplica automáticamente a presupuestos de años futuros (actualmente {budgetSettings?.annualAdjustmentPercentage ?? 15}%).</p>
                         </div>
                     </div>
                     <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10">
@@ -371,17 +431,100 @@ export default function BudgetDisplaySettingsPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden bg-white">
+              <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 md:p-8">
+                <CardTitle className="font-headline text-lg md:text-xl text-slate-800 flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-primary" /> Club Uruguay
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Configuración del salón para ofrecer en el simulador cuando el cliente no tiene salón.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 md:p-8 space-y-6">
+                <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <div>
+                    <p className="text-sm font-black uppercase tracking-widest text-slate-700">Activo</p>
+                    <p className="text-[10px] text-slate-500">Si está desactivado, no se ofrece Club Uruguay en el simulador.</p>
+                  </div>
+                  <Switch
+                    checked={config?.clubUruguayConfig?.activo ?? defaultClubUruguayConfig.activo}
+                    onCheckedChange={(activo) =>
+                      setConfig((prev) => prev ? ({
+                        ...prev,
+                        clubUruguayConfig: {
+                          ...defaultClubUruguayConfig,
+                          ...(prev.clubUruguayConfig || {}),
+                          activo,
+                        },
+                      }) : null)
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Precio del salón</Label>
+                  <Input
+                    type="number"
+                    value={config?.clubUruguayConfig?.precio ?? defaultClubUruguayConfig.precio}
+                    onChange={(e) => {
+                      const precio = Number(e.target.value) || 0;
+                      setConfig((prev) => prev ? ({
+                        ...prev,
+                        clubUruguayConfig: {
+                          ...defaultClubUruguayConfig,
+                          ...(prev.clubUruguayConfig || {}),
+                          precio,
+                        },
+                      }) : null);
+                    }}
+                    className="h-12 rounded-xl bg-slate-50 border-none shadow-inner"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Prestaciones</Label>
+                  <Textarea
+                    value={(config?.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones).join('\n')}
+                    onChange={(e) =>
+                      setConfig((prev) => prev ? ({
+                        ...prev,
+                        clubUruguayConfig: {
+                          ...defaultClubUruguayConfig,
+                          ...(prev.clubUruguayConfig || {}),
+                          prestaciones: e.target.value.split('\n').map((line) => line.trim()).filter(Boolean),
+                        },
+                      }) : null)
+                    }
+                    className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[120px] text-sm"
+                    placeholder={'Capacidad 50-200 personas\nUbicación céntrica\nAire acondicionado'}
+                  />
+                  <p className="text-[10px] text-slate-500">Escribe una prestación por línea.</p>
+                </div>
+              </CardContent>
+            </Card>
         </TabsContent>
 
         {/* 2. GESTIÓN DE PAQUETES */}
         <TabsContent value="paquetes" className="space-y-6 pt-4 animate-in fade-in duration-500">
-            <div className="flex justify-end">
-                <Button onClick={addPackage} className="rounded-xl font-bold w-full md:w-auto"><PlusCircle className="w-4 h-4 mr-2"/> Crear Paquete</Button>
+            <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                <Tabs value={activePackageSection} onValueChange={(v) => setActivePackageSection(v as (typeof PACKAGE_EVENT_SECTIONS)[number]['value'])} className="w-full">
+                    <TabsList className="grid grid-cols-2 md:grid-cols-6 w-full h-auto bg-slate-100 rounded-2xl p-1">
+                        {PACKAGE_EVENT_SECTIONS.map((section) => (
+                            <TabsTrigger key={section.value} value={section.value} className="rounded-xl text-[10px] py-2 font-black uppercase tracking-widest">
+                                {section.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
+                <Button onClick={() => addPackage(activePackageSection)} className="rounded-xl font-bold w-full md:w-auto">
+                  <PlusCircle className="w-4 h-4 mr-2"/> Crear Paquete
+                </Button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {config?.paquetes.map(pkg => (
-                    <Card key={pkg.id} className={cn("border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white", pkg.recommended && "ring-4 ring-primary/20")}>
+                {visiblePackages.map(pkg => (
+                     <Card key={pkg.id} className={cn("border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white", pkg.recommended && "ring-4 ring-primary/20")}>
                         <CardHeader className="bg-slate-50 p-6 border-b border-slate-100 flex flex-row items-center justify-between">
                             <div className="space-y-1 flex-grow">
                                 <Input 
@@ -440,6 +583,13 @@ export default function BudgetDisplaySettingsPage() {
                     </Card>
                 ))}
             </div>
+            {visiblePackages.length === 0 && (
+              <Card className="border border-dashed rounded-2xl">
+                <CardContent className="py-8 text-center text-sm text-slate-500">
+                  No hay paquetes configurados en la sección <strong>{selectedSection.label}</strong>.
+                </CardContent>
+              </Card>
+            )}
         </TabsContent>
 
         {/* 3. PLATOS VISIBLES */}
@@ -569,9 +719,12 @@ export default function BudgetDisplaySettingsPage() {
       </Tabs>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50">
-        <div className="max-w-5xl mx-auto flex justify-end">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              {hasUnsavedChanges ? 'Hay cambios sin guardar' : 'Todos los cambios guardados'}
+            </p>
             <Button 
-                onClick={handleSaveAll} 
+                onClick={() => { void handleSaveAll(); }} 
                 disabled={isSaving} 
                 size="lg" 
                 className="rounded-2xl w-full md:w-auto px-12 h-14 font-black text-base shadow-2xl shadow-primary/30"
@@ -581,6 +734,46 @@ export default function BudgetDisplaySettingsPage() {
             </Button>
         </div>
       </div>
+
+      <Dialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cambios sin guardar</DialogTitle>
+            <DialogDescription>
+              Tenés cambios pendientes. ¿Querés guardarlos antes de salir?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowUnsavedDialog(false)}>Cancelar</Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                if (!initialConfig || !initialBudgetSettings) {
+                  setShowUnsavedDialog(false);
+                  router.push('/settings');
+                  return;
+                }
+                setConfig(deepClone(initialConfig));
+                setBudgetSettings(deepClone(initialBudgetSettings));
+                setShowUnsavedDialog(false);
+                router.push('/settings');
+              }}
+            >
+              No guardar
+            </Button>
+            <Button
+              onClick={() => handleSaveAll(() => {
+                setShowUnsavedDialog(false);
+                router.push('/settings');
+              })}
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              Guardar y salir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -34,6 +34,22 @@ export interface ServiceDependency {
   requiredServiceId: string; // The service that must be added (e.g., an asador)
 }
 
+export interface ClubUruguayConfig {
+  activo: boolean;
+  precio: number;
+  prestaciones: string[];
+}
+
+export const defaultClubUruguayConfig: ClubUruguayConfig = {
+  activo: true,
+  precio: 20000,
+  prestaciones: [
+    'Capacidad 50-200 personas',
+    'Ubicación céntrica en Salto',
+    'Estacionamiento disponible',
+  ],
+};
+
 export interface ArmadoRapidoConfig {
   menus: MenuArmadoRapido[];
   paquetes: PaqueteArmadoRapido[];
@@ -42,6 +58,7 @@ export interface ArmadoRapidoConfig {
   platosVisibles?: PlatoVisible[]; // To control simulator dish visibility
   serviceDependencies?: ServiceDependency[];
   recommendedDishIds?: string[]; // Alternative way to store recommended dishes
+  clubUruguayConfig?: ClubUruguayConfig;
 }
 
 export interface LeadFromQuickBudget {

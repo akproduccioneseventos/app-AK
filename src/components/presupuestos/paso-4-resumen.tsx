@@ -216,6 +216,8 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     : [];
   const adjustedTotal = projectionRows.length > 0 ? projectionRows[projectionRows.length - 1].total : totalFinal;
   const annualAdjustmentAmount = Math.max(0, adjustedTotal - totalFinal);
+  const nextYear = currentYear + 1;
+  const nextYearProjectedTotal = Math.round(totalFinal * (1 + adjustmentPct / 100));
     
   const budgetNumber = presupuesto.numero || (presupuesto.id.split('_').pop() || presupuesto.id).substring(0,6).toUpperCase();
 
@@ -478,10 +480,13 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                     <p className="font-semibold text-gray-700">Precio con ajuste anual ({adjustmentPct}%):</p>
                     {projectionRows.map((row) => (
                       <div key={row.year} className="flex justify-between text-gray-600">
-                        <span>{row.year === currentYear ? `Precio hoy` : `Precio al 1/1/${row.year}`}:</span>
+                        <span>{row.year === currentYear ? `Precio ${currentYear}` : `Precio al 1/1/${row.year}`}:</span>
                         <span className="font-semibold">{formatCurrency(row.total, true)}</span>
                       </div>
                     ))}
+                    <p className="pt-1 text-gray-700 font-semibold">
+                      Precio {currentYear}: {formatCurrency(totalFinal, true)} — Si tu evento es en {nextYear}, el precio será {formatCurrency(nextYearProjectedTotal, true)} (+{adjustmentPct}%).
+                    </p>
                   </div>
                 )}
               </div>
@@ -529,7 +534,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
               )}
               {showAnnualAdjustmentLegend && (
                 <p className="text-orange-600 print:text-orange-700">
-                  Nota: Este presupuesto está sujeto a un ajuste anual del {adjustmentPct}% acumulativo al 1° de enero de cada año.
+                  Nota: Precios {currentYear} — Ajuste anual del {adjustmentPct}% para eventos futuros (acumulativo al 1° de enero de cada año).
                 </p>
               )}
 
