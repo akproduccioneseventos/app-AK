@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, Phone, Mail, Download } from 'lucide-react';
+import { Edit, Trash2, Loader2, UserPlus, Users, Settings2, AlertTriangle, Printer, ArrowLeft, MessageCircle, CalendarDays, Send, Phone, Mail, Download, History } from 'lucide-react';
 import { getEmpleados, deleteEmpleado as deleteEmpleadoAction } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
@@ -372,7 +372,7 @@ export default function EmpleadosPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Listado de Empleados ({empleados.length})</CardTitle>
-          <CardDescription>Consulta y gestiona la información de tu personal. Usá los botones para ver sus fiestas asignadas o enviarles WhatsApp.</CardDescription>
+          <CardDescription>Consulta y gestiona la información de tu personal. Accede al historial de fiestas y recibos firmados de cada empleado desde la tabla.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -435,6 +435,17 @@ export default function EmpleadosPage() {
                       </TableCell>
                       <TableCell className="text-right min-w-[180px]">
                         <div className="flex items-center justify-end gap-1">
+                          <Link href={`/empleados/${empleado.id}/historial`}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                              title="Ver historial y recibos"
+                              aria-label={`Historial de ${empleado.nombre}`}
+                            >
+                              <History className="w-4 h-4" />
+                            </Button>
+                          </Link>
                           <Button
                             variant="ghost"
                             size="icon"
