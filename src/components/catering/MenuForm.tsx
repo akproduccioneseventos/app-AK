@@ -109,6 +109,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isInitialLoad = useRef(true);
   const isHydratingExistingMenu = useRef(false);
+  const skipNextAutoSave = useRef(false);
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
 
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
@@ -358,6 +359,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       toast({ title: 'Error', description: 'El nombre del menú es obligatorio.', variant: 'destructive' });
       return;
     }
+    skipNextAutoSave.current = true;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     setIsSaving(true);
     setSaveStatus('saving');
@@ -400,8 +402,12 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       isHydratingExistingMenu.current = false;
       return;
     }
-    setHasUnsavedChanges(true);
+    if (skipNextAutoSave.current) {
+      skipNextAutoSave.current = false;
+      return;
+    }
     if (!menu.name?.trim()) return;
+    setHasUnsavedChanges(true);
 
     setSaveStatus('saving');
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -412,37 +418,30 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
         setSaveStatus('saved');
         setHasUnsavedChanges(false);
         setTimeout(() => setSaveStatus('idle'), 3000);
-      } catch {
+      } catch (error: any) {
         setSaveStatus('error');
+        toast({ title: 'Error de auto-guardado', description: error?.message || 'No se pudo guardar automáticamente.', variant: 'destructive' });
       }
     }, 1500);
 
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
-  }, [menu]);
+  }, [menu, toast]);
 
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    };
-  }, []);
+  const getSaveStatusLabel = () => {
+    if (saveStatus === 'saving') return 'Guardando...';
+    if (saveStatus === 'saved' && !hasUnsavedChanges) return '✓ Guardado';
+    if (saveStatus === 'error') return 'Error al guardar';
+    return hasUnsavedChanges ? 'Cambios sin guardar' : '✓ Guardado';
+  };
 
-  const saveStatusLabel = saveStatus === 'saving'
-    ? 'Guardando...'
-    : saveStatus === 'saved' && !hasUnsavedChanges
-      ? '✓ Guardado'
-      : saveStatus === 'error'
-        ? 'Error al guardar'
-        : 'Cambios sin guardar';
-
-  const saveStatusClass = saveStatus === 'saving'
-    ? 'text-amber-600'
-    : saveStatus === 'saved' && !hasUnsavedChanges
-      ? 'text-emerald-600'
-      : saveStatus === 'error'
-        ? 'text-destructive'
-        : 'text-slate-500';
+  const getSaveStatusClass = () => {
+    if (saveStatus === 'saving') return 'text-amber-600';
+    if (saveStatus === 'saved' && !hasUnsavedChanges) return 'text-emerald-600';
+    if (saveStatus === 'error') return 'text-destructive';
+    return 'text-slate-500';
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -486,9 +485,9 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             <Button type="button" variant="secondary" onClick={addItem} className="rounded-xl shrink-0">
               <PlusCircle className="w-4 h-4 mr-2" />Añadir Plato
             </Button>
-            <div className={cn('text-xs font-semibold flex items-center gap-2 shrink-0', saveStatusClass)}>
+            <div className={cn('text-xs font-semibold flex items-center gap-2 shrink-0', getSaveStatusClass())}>
               {saveStatus === 'saving' && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              {saveStatusLabel}
+              {getSaveStatusLabel()}
             </div>
           </div>
         </CardHeader>
