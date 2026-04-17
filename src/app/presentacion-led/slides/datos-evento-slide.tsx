@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, User, CalendarDays, PartyPopper, Users, Building2, MapPin } from 'lucide-react';
+import { ChevronRight, User, CalendarDays, PartyPopper, Users, Building2, MapPin, Clock3 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { SlideLayout } from '../components/slide-layout';
 import { TIPOS_FIESTA } from '../lib/contenido-por-tipo';
@@ -34,7 +34,16 @@ function formatDate(dateString: string): string {
 
 export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: DatosEventoSlideProps) {
   const [fechasBloqueadas, setFechasBloqueadas] = useState<string[]>([]);
+  const [showValidation, setShowValidation] = useState(false);
+  const validationMessageId = 'datos-evento-validation-msg';
   const fechaOcupada = !!clientData.fechaEvento && fechasBloqueadas.includes(clientData.fechaEvento);
+  const hasRequiredFields = Boolean(
+    clientData.nombre.trim()
+    && clientData.tipoFiesta
+    && clientData.fechaEvento
+    && Number(clientData.cantidadInvitados) > 0
+    && Number(clientData.duracionHoras) > 0,
+  );
 
   useEffect(() => {
     try {
@@ -85,6 +94,8 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
               className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
               placeholder="Ej: María y José"
               value={clientData.nombre}
+              aria-invalid={showValidation && !clientData.nombre.trim()}
+              aria-describedby={showValidation && !clientData.nombre.trim() ? validationMessageId : undefined}
               onChange={e => onClientDataChange({ ...clientData, nombre: e.target.value })}
             />
           </div>
@@ -96,6 +107,8 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
             <select
               className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
               value={clientData.tipoFiesta}
+              aria-invalid={showValidation && !clientData.tipoFiesta}
+              aria-describedby={showValidation && !clientData.tipoFiesta ? validationMessageId : undefined}
               onChange={e => onClientDataChange({ ...clientData, tipoFiesta: e.target.value })}
             >
               <option value="">Seleccioná el tipo de evento...</option>
@@ -111,6 +124,8 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
               type="date"
               className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
               value={clientData.fechaEvento}
+              aria-invalid={showValidation && !clientData.fechaEvento}
+              aria-describedby={showValidation && !clientData.fechaEvento ? validationMessageId : undefined}
               onChange={e => onClientDataChange({ ...clientData, fechaEvento: e.target.value })}
             />
             {clientData.fechaEvento && (
@@ -155,8 +170,49 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
               className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
               placeholder="Ej: 150"
               value={clientData.cantidadInvitados}
+              aria-invalid={showValidation && !(Number(clientData.cantidadInvitados) > 0)}
+              aria-describedby={showValidation && !(Number(clientData.cantidadInvitados) > 0) ? validationMessageId : undefined}
               onChange={e => onClientDataChange({ ...clientData, cantidadInvitados: e.target.value })}
             />
+          </div>
+          
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+                <Users className="w-4 h-4" /> Invitados adolescentes
+              </Label>
+              <input
+                type="number"
+                min="0"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
+                placeholder="Ej: 15"
+                value={clientData.invitadosAdolescentes}
+                onChange={e => onClientDataChange({ ...clientData, invitadosAdolescentes: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+                <Clock3 className="w-4 h-4" /> Duración (horas) *
+              </Label>
+              <select
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
+                value={clientData.duracionHoras}
+                aria-invalid={showValidation && !(Number(clientData.duracionHoras) > 0)}
+                aria-describedby={showValidation && !(Number(clientData.duracionHoras) > 0) ? validationMessageId : undefined}
+                onChange={e => onClientDataChange({ ...clientData, duracionHoras: e.target.value })}
+              >
+                <option value="">Seleccionar...</option>
+                {Array.from({ length: 10 }).map((_, idx) => {
+                  const hour = idx + 3;
+                  return (
+                    <option key={hour} value={String(hour)}>
+                      {hour} horas
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -193,12 +249,21 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
           className="mt-6"
         >
           <button
-            onClick={onNext}
+            onClick={() => {
+              setShowValidation(true);
+              if (!hasRequiredFields) return;
+              onNext();
+            }}
             className="w-full h-14 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-lg transition-all flex items-center justify-center gap-2"
           >
-            Continuar a los servicios
+            Continuar a configuración de menú
             <ChevronRight className="h-5 w-5" />
           </button>
+          {showValidation && !hasRequiredFields && (
+            <p id={validationMessageId} className="text-amber-300 text-sm mt-2 text-center">
+              Completá nombre, tipo, fecha, invitados y horas para continuar.
+            </p>
+          )}
         </motion.div>
       </motion.div>
     </SlideLayout>
