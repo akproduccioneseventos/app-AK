@@ -32,6 +32,7 @@ import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
 import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
 import DecoPropertiesPanel from '@/components/decoracion/DecoPropertiesPanel';
+import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 import {
   AlertDialog,
@@ -1675,6 +1676,28 @@ function DecoracionYDisenoEventoContent() {
                   />
                 </CardContent>
               </Card>
+
+              <div className="mt-6">
+                <details className="group">
+                  <summary className="cursor-pointer font-bold text-base flex items-center gap-2 list-none select-none">
+                    <span className="group-open:rotate-90 transition-transform">▶</span>
+                    Plantillas de Diseño
+                  </summary>
+                  <div className="mt-4">
+                    <DecoTemplateGallery
+                      currentElementos={canvasElementos}
+                      currentFondoColor={canvasFondoColor}
+                      currentFondoImagenUrl={canvasFondoImagenUrl}
+                      onApplyTemplate={(template) => {
+                        setCanvasElementos(template.elementos);
+                        setCanvasFondoColor(template.fondoColor);
+                        setCanvasFondoImagenUrl(template.fondoImagenUrl ?? '');
+                        setCanvasHasChanges(true);
+                      }}
+                    />
+                  </div>
+                </details>
+              </div>
 
               {/* Properties bar for selected element */}
               {selectedCanvasId !== null && selectedCanvasEl && (
