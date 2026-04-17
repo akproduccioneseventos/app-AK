@@ -25,6 +25,15 @@ import { TIPOS_ELEMENTOS, type TipoElemento, getMaxColoresByTipo } from '@/compo
 const VISTA_TIPOS_ELEMENTOS = TIPOS_ELEMENTOS.filter(t =>
   ['globo', 'globosMacizos', 'flor', 'centroMesa', 'arco', 'lazo', 'candelabro', 'mesaTorta', 'tela'].includes(t.tipo)
 );
+const CANVAS_W = 900;
+const CANVAS_H = 550;
+// Spawn zone centered in the visible canvas area.
+const NEW_ELEMENT_POSITION = {
+  minX: CANVAS_W * 0.3,
+  rangeX: CANVAS_W * 0.4,
+  minY: CANVAS_H * 0.3,
+  rangeY: CANVAS_H * 0.4,
+};
 
 interface VistaDecorativaData {
   elementos: ElementoDecorativo[];
@@ -72,8 +81,8 @@ export default function VistaDecorativaEditor({
     const el: ElementoDecorativo = {
       id: crypto.randomUUID(),
       tipo,
-      x: 260 + Math.random() * 380,
-      y: 170 + Math.random() * 220,
+      x: NEW_ELEMENT_POSITION.minX + Math.random() * NEW_ELEMENT_POSITION.rangeX,
+      y: NEW_ELEMENT_POSITION.minY + Math.random() * NEW_ELEMENT_POSITION.rangeY,
       escala: 1,
       colores,
       rotacion: 0,

@@ -472,7 +472,7 @@ export default function DecoCanvas({
               backgroundPosition: fondoImagenUrl ? 'center' : undefined,
               cursor: 'default',
             }}
-            onMouseDown={e => {
+            onClick={e => {
               e.stopPropagation();
               onSelectId(null);
             }}

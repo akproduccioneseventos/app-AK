@@ -83,6 +83,11 @@ export default function DecoPropertiesPanel({
     next[index] = value;
     onUpdateElemento(selectedElemento.id, { colores: next });
   };
+  const getColorLabel = (idx: number) => {
+    if (idx === 0) return 'Color principal';
+    if (idx === 1) return 'Color secundario';
+    return `Color ${idx + 1}`;
+  };
 
   return (
     <div className="space-y-3">
@@ -90,7 +95,7 @@ export default function DecoPropertiesPanel({
 
       {Array.from({ length: maxColores }).map((_, idx) => (
         <div key={idx} className="space-y-1">
-          <Label className="text-xs">{idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}</Label>
+          <Label className="text-xs">{getColorLabel(idx)}</Label>
           <div className="flex items-center gap-2 flex-wrap">
             {paletteColors.map((color, i) => (
               <button
@@ -127,7 +132,7 @@ export default function DecoPropertiesPanel({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Intensidad tinte ({(selectedElemento.tintOpacity ?? 0).toFixed(2)})</Label>
+            <Label className="text-xs">Intensidad tinte ({Math.round((selectedElemento.tintOpacity ?? 0) * 100)}%)</Label>
             <input
               type="range"
               min={0}
