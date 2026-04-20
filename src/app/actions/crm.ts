@@ -13,6 +13,7 @@ import * as logger from '@/lib/logger';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
+const TRASH_NAMES = ['test', 'prueba', 'asdf', 'qwerty', 'xxx', 'zzz', 'aaa', 'bbb', 'admin', 'usuario', 'user', 'nombre'];
 
 /** Normalizes a phone number: removes spaces, dashes, parens and keeps the last 9 digits. */
 function normalizePhone(phone: string): string {
@@ -98,7 +99,6 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
   if (/^\d+$/.test(nameCleaned)) {
     return { success: false, error: 'El nombre no puede ser solo números.' };
   }
-  const TRASH_NAMES = ['test', 'prueba', 'asdf', 'qwerty', 'xxx', 'zzz', 'aaa', 'bbb', 'admin', 'usuario', 'user', 'nombre'];
   if (TRASH_NAMES.includes(nameCleaned.toLowerCase())) {
     return { success: false, error: 'El nombre no es válido.' };
   }
@@ -237,11 +237,17 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
             }
         }
 
+        // writeData clears persisted leads in the active storage backend (Firestore).
         await writeData(LEADS_FILE, []);
+        // Keep the local JSON mirror in sync as an explicit fallback/source for local tooling.
         const fs = await import('fs/promises');
         const path = await import('path');
         const localLeadsPath = path.join(process.cwd(), 'src', 'data', LEADS_FILE);
-        await fs.writeFile(localLeadsPath, JSON.stringify([], null, 2), 'utf-8');
+        try {
+            await fs.writeFile(localLeadsPath, JSON.stringify([], null, 2), 'utf-8');
+        } catch (localWriteError) {
+            logger.warn('[CRM] No se pudo limpiar espejo local de leads tras reset:', localWriteError);
+        }
 
         logger.info('[CRM] CRM reiniciado por admin. Prospectos eliminados:', { deletedCount });
         return { success: true, deletedCount };

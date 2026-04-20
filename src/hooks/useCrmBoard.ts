@@ -131,7 +131,9 @@ export function useCrmBoard() {
           setKpiData(kpis.data);
           setCached(CACHE_KEY_KPIS, kpis.data);
         }
-      }).catch(() => {});
+      }).catch((error) => {
+        console.warn('[CRM] No se pudieron refrescar KPIs tras mover lead:', error);
+      });
       return true;
     },
     [fetchData]
@@ -163,7 +165,9 @@ export function useCrmBoard() {
               setKpiData(kpis.data);
               setCached(CACHE_KEY_KPIS, kpis.data);
             }
-          }).catch(() => {});
+          }).catch((error) => {
+            console.warn('[CRM] No se pudieron refrescar KPIs tras eliminar lead:', error);
+          });
         } else {
           // Revert
           if (removedLead) {

@@ -42,6 +42,7 @@ import {
 import { resetCrm } from '@/app/actions/crm';
 
 const INACTIVITY_DAYS = 7;
+const BOARD_SCROLL_STYLE = { height: 'calc(100vh - 320px)', minHeight: '400px', maxHeight: '900px' } as const;
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
@@ -384,7 +385,7 @@ export default function CrmPage() {
               ))}
             </Accordion>
         ) : (
-          <ScrollArea className="w-full whitespace-nowrap pb-4" style={{ height: 'calc(100vh - 320px)', minHeight: '400px', maxHeight: '900px' }}>
+          <ScrollArea className="w-full whitespace-nowrap pb-4" style={BOARD_SCROLL_STYLE}>
               <div className="flex gap-4">
               {stages.map(stage => (
                   <CrmStageColumn key={stage.id} stage={stage} leads={filteredLeadsByStage[stage.id] || []} onDeleteLead={deleteLead} deletingLeadId={deletingLeadId} onHire={handleHireClick} />
