@@ -102,7 +102,25 @@ export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
   const categories = ['Todos', ...uniqueCategories];
 
   if (allVideos.length === 0) {
-    return null;
+    return (
+      <section id="videos" data-testid="video-section" className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <p className="text-xs font-black uppercase tracking-[0.4em] text-fuchsia-400 mb-4">Momentos reales</p>
+            <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-6">
+              Nuestros Videos
+            </h2>
+            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+              Revivimos cada evento. Mirá el trabajo que ponemos en cada celebración.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-slate-800/60 py-16 px-6 text-center">
+            <Play className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+            <p className="text-slate-300 font-semibold">Próximamente agregaremos videos de nuestros eventos.</p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   const filtered = activeCategory === 'Todos'

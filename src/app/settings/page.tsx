@@ -84,7 +84,7 @@ const SECTIONS: SettingSection[] = [
       { title: 'CRM / Seguimiento', description: 'Prospectos, leads y pipeline de ventas.', href: '/contabilidad/crm', icon: ListChecks },
       { title: 'Base de Clientes', description: 'Directorio completo de clientes.', href: '/customers', icon: Users },
       { title: 'Pagos Rápidos', description: 'Registrar cobros y enviar recibos.', href: '/pagos-rapidos', icon: Wallet },
-      { title: 'Historial de Eventos', description: 'Eventos archivados y fiestas pasadas.', href: '/fiestas', icon: Archive },
+      { title: 'Historial de Eventos', description: 'Eventos archivados y fiestas pasadas.', href: '/eventos', icon: Archive },
     ],
   },
   {
@@ -142,7 +142,7 @@ const SECTIONS: SettingSection[] = [
       {
         title: 'Reporte de Servicios',
         description: 'Ver el reporte imprimible del catálogo de servicios.',
-        href: '/empresa/reporte-servicios',
+        href: '/empresa/servicios/reporte',
         icon: Printer,
       },
     ],
@@ -186,7 +186,7 @@ const SECTIONS: SettingSection[] = [
       { title: 'Compras', description: 'Registro de compras e insumos.', href: '/compras', icon: ShoppingCart },
       { title: 'Proveedores', description: 'Gestión de proveedores y contactos.', href: '/proveedores', icon: Truck },
       { title: 'Analíticas', description: 'Reportes avanzados y estadísticas de ventas.', href: '/analytics', icon: BarChart3 },
-      { title: 'Contabilidad General', description: 'Panel contable completo.', href: '/contabilidad', icon: DollarSign },
+      { title: 'Contabilidad General', description: 'Panel contable completo.', href: '/empresa/contabilidad', icon: DollarSign },
     ],
   },
   {
@@ -269,7 +269,7 @@ const SECTIONS: SettingSection[] = [
       { title: 'Accesos para Colaboradores', description: 'Crear accesos para secretaria, DJ, etc.', href: '/settings/accesos-personal', icon: UserCog },
       { title: 'Cuentas Sociales', description: 'Conectar y gestionar redes sociales.', href: '/settings/social-connections', icon: LinkIcon },
       { title: 'Portal de Clientes', description: 'Portal donde los clientes ven su evento.', href: '/portal-cliente', icon: Globe },
-      { title: 'Portal de Proveedores', description: 'Portal para proveedores.', href: '/portal-proveedor', icon: Truck },
+      { title: 'Portal de Proveedores', description: 'Portal para proveedores.', href: '/proveedores', icon: Truck },
     ],
   },
   {
