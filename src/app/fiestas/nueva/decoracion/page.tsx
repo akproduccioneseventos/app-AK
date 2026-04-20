@@ -387,7 +387,9 @@ function DecoracionYDisenoEventoContent() {
     setNewDecoItemQty(1);
     setNewDecoItemCosto(undefined);
     setNewDecoItemImageUrl(undefined);
-    const preferredZona = zona?.trim() || selectedZonaId?.trim() || validZonasForSelect[0]?.id || '';
+    const fallbackZona =
+      [...zonasDiseno, ...ZONAS_DEFAULT_IDS].find(z => z.id && z.id.trim() !== '')?.id || '';
+    const preferredZona = zona?.trim() || selectedZonaId?.trim() || fallbackZona;
     setNewDecoItemZona(preferredZona);
     setIsDecoItemModalOpen(true);
   };
@@ -1937,7 +1939,13 @@ function DecoracionYDisenoEventoContent() {
 
 function ChecklistAddForm({ onAdd, zonas }: { onAdd: (item: string, zona: string) => void; zonas: { id: string; nombre: string }[] }) {
   const [item, setItem] = React.useState('');
-  const [zona, setZona] = React.useState(zonas[0]?.id?.trim() || 'zona_principal');
+  const validZonas = React.useMemo(() => zonas.filter(z => z.id && z.id.trim() !== ''), [zonas]);
+  const [zona, setZona] = React.useState(validZonas[0]?.id || 'zona_principal');
+  React.useEffect(() => {
+    if (!validZonas.some(z => z.id === zona)) {
+      setZona(validZonas[0]?.id || 'zona_principal');
+    }
+  }, [validZonas, zona]);
   return (
     <div className="flex flex-col sm:flex-row gap-3">
       <Input value={item} onChange={e => setItem(e.target.value)} placeholder="Nuevo item del checklist..." className="rounded-xl h-11 bg-slate-50 border-none flex-1"
@@ -1945,7 +1953,7 @@ function ChecklistAddForm({ onAdd, zonas }: { onAdd: (item: string, zona: string
       <Select value={zona} onValueChange={setZona}>
         <SelectTrigger className="rounded-xl h-11 bg-slate-50 border-none w-full sm:w-44"><SelectValue /></SelectTrigger>
         <SelectContent className="rounded-2xl border-none shadow-2xl">
-          {zonas.filter(z => z.id && z.id.trim() !== '').map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
+          {validZonas.map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
         </SelectContent>
       </Select>
       <Button type="button" onClick={() => { if (item.trim()) { onAdd(item, zona); setItem(''); } }} disabled={!item.trim()} className="rounded-xl h-11 px-6 shadow-lg shadow-primary/20">
