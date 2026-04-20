@@ -134,8 +134,6 @@ function DecoracionYDisenoEventoContent() {
   const [selectedZonaId, setSelectedZonaId] = useState<string>('zona_principal');
   const [isNuevaZonaOpen, setIsNuevaZonaOpen] = useState(false);
   const [nuevaZonaNombre, setNuevaZonaNombre] = useState('');
-  const [showCatalog, setShowCatalog] = useState(true);
-
   // Deco item modal
   const [isDecoItemModalOpen, setIsDecoItemModalOpen] = useState(false);
   const [newDecoItemName, setNewDecoItemName] = useState('');
@@ -205,7 +203,7 @@ function DecoracionYDisenoEventoContent() {
       // Load design zones
       if (loadedDecoracion.zonasDiseno && loadedDecoracion.zonasDiseno.length > 0) {
         setZonasDiseno(loadedDecoracion.zonasDiseno);
-        setSelectedZonaId(loadedDecoracion.zonasDiseno[0].id);
+        setSelectedZonaId(loadedDecoracion.zonasDiseno[0].id?.trim() || 'zona_principal');
       } else {
         const defaultZonas: ZonaDiseno[] = [{
           id: 'zona_principal',
@@ -378,7 +376,7 @@ function DecoracionYDisenoEventoContent() {
     }
     const updatedZonas = zonasDiseno.filter(z => z.id !== zonaId);
     setZonasDiseno(updatedZonas);
-    if (selectedZonaId === zonaId) setSelectedZonaId(updatedZonas[0].id);
+    if (selectedZonaId === zonaId) setSelectedZonaId(updatedZonas[0].id?.trim() || 'zona_principal');
   };
 
   const openDecoItemModal = (categoria: string, nombre: string, zona?: string) => {
@@ -793,9 +791,6 @@ function DecoracionYDisenoEventoContent() {
           <TabsTrigger value="canvas" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
             <LayoutDashboard className="w-4 h-4" /> Canvas Interactivo
           </TabsTrigger>
-          <TabsTrigger value="vista" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
-            <Paintbrush className="w-4 h-4" /> Vista de Diseño
-          </TabsTrigger>
           <TabsTrigger value="estilo" className="gap-2 rounded-xl data-[state=active]:shadow-sm">
             <Star className="w-4 h-4" /> Estilo
           </TabsTrigger>
@@ -809,210 +804,6 @@ function DecoracionYDisenoEventoContent() {
             <ImageIconLucide className="w-4 h-4" /> Inspiración
           </TabsTrigger>
         </TabsList>
-
-        {/* TAB: VISTA DE DISEÑO */}
-        <TabsContent value="vista" className="space-y-4">
-          {/* Zone management bar */}
-          <Card className="border-none shadow-sm rounded-2xl bg-white/80">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-1 text-xs font-black uppercase tracking-widest text-slate-400 mr-2">
-                  <Layers className="w-4 h-4" /> Zonas:
-                </div>
-                {zonasDiseno.map(zona => (
-                  <div key={zona.id} className="flex items-center gap-0.5">
-                    <Button
-                      type="button"
-                      variant={selectedZonaId === zona.id ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedZonaId(zona.id)}
-                      className={cn("rounded-xl gap-1.5 transition-all", selectedZonaId === zona.id ? "shadow-lg shadow-primary/20" : "")}
-                    >
-                      <MapPin className="w-3.5 h-3.5" />
-                      {zona.nombre}
-                      {(decoracionData.itemsDecoracion || []).filter(i => i.zona === zona.id).length > 0 && (
-                        <Badge variant="secondary" className="ml-1 text-[10px] h-4 px-1.5 rounded-full">
-                          {(decoracionData.itemsDecoracion || []).filter(i => i.zona === zona.id).length}
-                        </Badge>
-                      )}
-                    </Button>
-                    {zonasDiseno.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7 rounded-lg text-slate-300 hover:text-destructive ml-0.5" onClick={() => handleDeleteZona(zona.id)}>
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={() => setIsNuevaZonaOpen(true)} className="rounded-xl gap-1.5 border-dashed border-primary/40 text-primary hover:bg-primary/5">
-                  <PlusCircle className="w-3.5 h-3.5" /> Nueva Zona
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Canvas + Catalog */}
-          <div className="flex gap-4 items-start">
-            <div className="flex-1 min-w-0 space-y-4">
-              <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 p-5">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white"><Paintbrush className="w-5 h-5" /></div>
-                      <div>
-                        <CardTitle className="font-headline text-lg">Lienzo — {currentZona?.nombre}</CardTitle>
-                        <CardDescription className="text-xs">Usá las herramientas para agregar elementos. Subí una foto del salón como fondo.</CardDescription>
-                      </div>
-                    </div>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setShowCatalog(v => !v)} className="rounded-xl gap-1.5">
-                      <Package className="w-4 h-4" />
-                      {showCatalog ? 'Ocultar catálogo' : 'Mostrar catálogo'}
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-5">
-                  <div className="grid grid-cols-1 xl:grid-cols-[1fr_260px] gap-4 items-start">
-                    <DecoCanvas
-                      elementos={canvasElementos}
-                      onChange={handleCanvasElementsChange}
-                      selectedId={selectedCanvasId}
-                      onSelectId={setSelectedCanvasId}
-                      hiddenZones={canvasHiddenZones}
-                      fondoColor={canvasFondoColor}
-                      fondoImagenUrl={canvasFondoImagenUrl || undefined}
-                      showGrid={showGrid}
-                    />
-                    <div className="space-y-4">
-                      <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3 min-h-[220px]">
-                        <div className="flex items-center gap-2 mb-3">
-                          <LayoutDashboard className="w-4 h-4 text-violet-500" />
-                          <p className="text-xs font-black uppercase tracking-widest text-slate-500">Biblioteca Visual</p>
-                        </div>
-                        {fiestaId ? (
-                          <DecoElementLibrary
-                            fiestaId={fiestaId}
-                            onAddElement={handleAddLibraryElement}
-                            customElements={decoracionData.customElements}
-                            onUploadCustom={handleUploadCustomElement}
-                          />
-                        ) : (
-                          <div className="text-center text-slate-400 text-xs py-8">Cargando...</div>
-                        )}
-                      </div>
-                      <div className="rounded-2xl border border-slate-100 bg-white p-3">
-                        <DecoPropertiesPanel
-                          selectedElemento={selectedCanvasEl}
-                          paletteColors={paletaColoresArray.filter(Boolean)}
-                          canvasFondoColor={canvasFondoColor}
-                          canvasFondoImagenUrl={canvasFondoImagenUrl}
-                          fiestaId={fiestaId || undefined}
-                          onUpdateElemento={handleCanvasUpdateElemento}
-                          onDeleteElemento={handleCanvasDeleteElemento}
-                          onCanvasFondoColorChange={(color) => {
-                            setCanvasFondoColor(color);
-                            setCanvasHasChanges(true);
-                          }}
-                          onCanvasFondoImagenUrlChange={(url) => {
-                            setCanvasFondoImagenUrl(url);
-                            setCanvasHasChanges(true);
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {(decoracionData.itemsDecoracion || []).filter(i => i.zona === currentZona?.id).length > 0 && (
-                <Card className="border-none shadow-sm rounded-2xl bg-white/80">
-                  <CardHeader className="p-4 pb-2">
-                    <CardTitle className="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                      <Package className="w-3.5 h-3.5 text-primary" />
-                      Elementos del catálogo en {currentZona?.nombre}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    <div className="flex flex-wrap gap-2">
-                      {(decoracionData.itemsDecoracion || []).filter(i => i.zona === currentZona?.id).map(item => (
-                        <div key={item.id} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                          {item.imageUrl && <NextImage src={item.imageUrl} alt={item.nombre} width={20} height={20} className="rounded-sm object-cover shrink-0" />}
-                          <span className="font-semibold text-slate-700">{item.nombre}</span>
-                          <span className="text-slate-400">x{item.cantidad}</span>
-                          {getItemCosto(item) > 0 ? <span className="text-emerald-600 font-medium">${(getItemCosto(item) * item.cantidad).toLocaleString()}</span> : null}
-                          <button type="button" onClick={() => handleDeleteDecoItem(item.id)} className="text-slate-300 hover:text-destructive transition-colors ml-1"><Trash2 className="w-3 h-3" /></button>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Catalog sidebar */}
-            {showCatalog && (
-              <div className="w-72 flex-shrink-0">
-                <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md sticky top-4">
-                  <CardHeader className="bg-gradient-to-r from-violet-500/10 to-violet-500/5 p-5 rounded-t-[2rem]">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-violet-500 rounded-2xl shadow-xl shadow-violet-500/20 text-white"><Package className="w-5 h-5" /></div>
-                      <div>
-                        <CardTitle className="font-headline text-base">Catálogo</CardTitle>
-                        <CardDescription className="text-xs">Agregá elementos a la zona actual</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <ScrollArea className="h-[600px]">
-                    <CardContent className="p-4 space-y-4">
-                      <div className="p-3 rounded-2xl border border-dashed border-violet-300 bg-violet-50/50">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Elemento personalizado</p>
-                        <Button type="button" variant="outline" size="sm" className="w-full rounded-xl gap-1.5 border-violet-300 text-violet-700 hover:bg-violet-50 text-xs" onClick={() => openDecoItemModal('Personalizado', '', currentZona?.id)}>
-                          <PlusCircle className="w-3.5 h-3.5" /> Agregar elemento propio
-                        </Button>
-                      </div>
-                      <Separator />
-                      {CATALOGO_ITEMS.map(cat => {
-                        const countInZone = (decoracionData.itemsDecoracion || []).filter(di => di.categoria === cat.categoria && di.zona === currentZona?.id).length;
-                        return (
-                          <div key={cat.categoria} className="space-y-1.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-base">{cat.emoji}</span>
-                              <h4 className="font-black text-[10px] uppercase tracking-widest text-slate-600 flex-1">{cat.categoria}</h4>
-                              {countInZone > 0 && <Badge variant="default" className="text-[9px] h-4 px-1.5 rounded-full shrink-0">{countInZone}</Badge>}
-                            </div>
-                            <div className="space-y-1">
-                              {cat.items.map(itemNombre => {
-                                const ya = (decoracionData.itemsDecoracion || []).some(di => di.nombre === itemNombre && di.zona === currentZona?.id);
-                                return (
-                                  <button
-                                    key={itemNombre}
-                                    type="button"
-                                    onClick={() => !ya && openDecoItemModal(cat.categoria, itemNombre, currentZona?.id)}
-                                    className={cn(
-                                      "w-full p-2 rounded-xl text-left text-xs font-medium transition-all duration-150 flex items-center gap-2",
-                                      ya ? "bg-violet-50 text-violet-700 cursor-default border border-violet-200" : "bg-slate-50 text-slate-700 hover:bg-violet-50 hover:text-violet-700 cursor-pointer border border-transparent hover:border-violet-200"
-                                    )}
-                                  >
-                                    {ya ? <CheckSquare className="w-3.5 h-3.5 shrink-0 text-violet-500" /> : <PlusCircle className="w-3.5 h-3.5 shrink-0 text-slate-300" />}
-                                    <span className="truncate">{itemNombre}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </CardContent>
-                  </ScrollArea>
-                  <CardFooter className="border-t p-4">
-                    <Button onClick={handleSaveClick} size="sm" className="w-full rounded-xl shadow-lg shadow-primary/20" disabled={isSaving}>
-                      {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                      Guardar zona
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-            )}
-          </div>
-        </TabsContent>
 
         {/* TAB: ESTILO */}
         <TabsContent value="estilo" className="space-y-6">
@@ -1564,6 +1355,28 @@ function DecoracionYDisenoEventoContent() {
                     <Button type="button" variant="outline" size="sm" onClick={() => setIsMuestrarioOpen(true)} className="flex-1 rounded-xl text-xs h-8 gap-1">
                       <LayoutDashboard className="w-3 h-3" /> Muestrario
                     </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => openDecoItemModal('Personalizado', '', currentZona?.id)} className="flex-1 rounded-xl text-xs h-8 gap-1">
+                      <PlusCircle className="w-3 h-3" /> Catálogo
+                    </Button>
+                  </div>
+                  {/* Zone selector */}
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {zonasDiseno.map(zona => (
+                      <Button
+                        key={zona.id}
+                        type="button"
+                        variant={selectedZonaId === zona.id ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setSelectedZonaId(zona.id)}
+                        className="rounded-lg text-[10px] h-6 px-2 gap-1"
+                      >
+                        <MapPin className="w-2.5 h-2.5" />
+                        {zona.nombre}
+                      </Button>
+                    ))}
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setIsNuevaZonaOpen(true)} className="rounded-lg text-[10px] h-6 px-2 gap-1 border border-dashed border-slate-200">
+                      <PlusCircle className="w-2.5 h-2.5" /> Zona
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1 p-3 overflow-hidden flex flex-col">
@@ -1739,6 +1552,101 @@ function DecoracionYDisenoEventoContent() {
                         setCanvasHasChanges(true);
                       }}
                     />
+                  </div>
+                </details>
+              </div>
+
+              <div className="mt-4">
+                <details className="group">
+                  <summary className="cursor-pointer font-bold text-base flex items-center gap-2 list-none select-none">
+                    <span className="group-open:rotate-90 transition-transform">▶</span>
+                    Catálogo de Decoración — <span className="text-primary font-semibold">{currentZona?.nombre ?? 'Zona'}</span>
+                  </summary>
+                  <div className="mt-4">
+                    {/* Zone bar */}
+                    <div className="flex items-center gap-2 flex-wrap mb-4 p-3 bg-white/80 rounded-2xl border border-slate-100">
+                      <div className="flex items-center gap-1 text-xs font-black uppercase tracking-widest text-slate-400 mr-2">
+                        <Layers className="w-4 h-4" /> Zona:
+                      </div>
+                      {zonasDiseno.map(zona => (
+                        <div key={zona.id} className="flex items-center gap-0.5">
+                          <Button
+                            type="button"
+                            variant={selectedZonaId === zona.id ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setSelectedZonaId(zona.id)}
+                            className={cn('rounded-xl gap-1.5 transition-all', selectedZonaId === zona.id ? 'shadow-lg shadow-primary/20' : '')}
+                          >
+                            <MapPin className="w-3.5 h-3.5" />
+                            {zona.nombre}
+                            {(decoracionData.itemsDecoracion || []).filter(i => i.zona === zona.id).length > 0 && (
+                              <Badge variant="secondary" className="ml-1 text-[10px] h-4 px-1.5 rounded-full">
+                                {(decoracionData.itemsDecoracion || []).filter(i => i.zona === zona.id).length}
+                              </Badge>
+                            )}
+                          </Button>
+                          {zonasDiseno.length > 1 && (
+                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 rounded-lg text-slate-300 hover:text-destructive ml-0.5" onClick={() => handleDeleteZona(zona.id)}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      <Button type="button" variant="outline" size="sm" onClick={() => setIsNuevaZonaOpen(true)} className="rounded-xl gap-1.5 border-dashed border-primary/40 text-primary hover:bg-primary/5">
+                        <PlusCircle className="w-3.5 h-3.5" /> Nueva Zona
+                      </Button>
+                    </div>
+                    {/* Items in current zone */}
+                    {(decoracionData.itemsDecoracion || []).filter(i => i.zona === currentZona?.id).length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {(decoracionData.itemsDecoracion || []).filter(i => i.zona === currentZona?.id).map(item => (
+                          <div key={item.id} className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                            <span className="font-semibold text-slate-700">{item.nombre}</span>
+                            <span className="text-slate-400">x{item.cantidad}</span>
+                            <button type="button" onClick={() => handleDeleteDecoItem(item.id)} className="text-slate-300 hover:text-destructive transition-colors"><Trash2 className="w-3 h-3" /></button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Catalog grid */}
+                    <div className="p-3 rounded-2xl border border-dashed border-violet-300 bg-violet-50/50 mb-4">
+                      <Button type="button" variant="outline" size="sm" className="w-full rounded-xl gap-1.5 border-violet-300 text-violet-700 hover:bg-violet-50 text-xs" onClick={() => openDecoItemModal('Personalizado', '', currentZona?.id)}>
+                        <PlusCircle className="w-3.5 h-3.5" /> Agregar elemento personalizado
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                      {CATALOGO_ITEMS.map(cat => {
+                        const countInZone = (decoracionData.itemsDecoracion || []).filter(di => di.categoria === cat.categoria && di.zona === currentZona?.id).length;
+                        return (
+                          <div key={cat.categoria} className="space-y-1.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">{cat.emoji}</span>
+                              <h4 className="font-black text-[10px] uppercase tracking-widest text-slate-600 flex-1">{cat.categoria}</h4>
+                              {countInZone > 0 && <Badge variant="default" className="text-[9px] h-4 px-1.5 rounded-full shrink-0">{countInZone}</Badge>}
+                            </div>
+                            <div className="space-y-1">
+                              {cat.items.map(itemNombre => {
+                                const ya = (decoracionData.itemsDecoracion || []).some(di => di.nombre === itemNombre && di.zona === currentZona?.id);
+                                return (
+                                  <button
+                                    key={itemNombre}
+                                    type="button"
+                                    onClick={() => !ya && openDecoItemModal(cat.categoria, itemNombre, currentZona?.id)}
+                                    className={cn(
+                                      'w-full p-2 rounded-xl text-left text-xs font-medium transition-all duration-150 flex items-center gap-2',
+                                      ya ? 'bg-violet-50 text-violet-700 cursor-default border border-violet-200' : 'bg-slate-50 text-slate-700 hover:bg-violet-50 hover:text-violet-700 cursor-pointer border border-transparent hover:border-violet-200'
+                                    )}
+                                  >
+                                    {ya ? <CheckSquare className="w-3.5 h-3.5 shrink-0 text-violet-500" /> : <PlusCircle className="w-3.5 h-3.5 shrink-0 text-slate-300" />}
+                                    <span className="truncate">{itemNombre}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </details>
               </div>
