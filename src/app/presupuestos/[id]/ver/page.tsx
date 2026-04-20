@@ -1286,14 +1286,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 .budget-print-tfoot-content {
                     border-top: 1px solid #ccc;
                     margin-top: 12px;
-                    padding-top: 12px;
                     page-break-inside: avoid;
                     break-inside: avoid;
-                }
-                .budget-print-client-info,
-                .budget-print-items-section {
-                    page-break-before: auto;
-                    break-before: auto;
                 }
                 .shadow-xl, .shadow-2xl, .shadow-3xl { box-shadow: none !important; }
                 .rounded-\\[2rem\\], .rounded-\\[2\\.5rem\\] { border-radius: 0 !important; }
