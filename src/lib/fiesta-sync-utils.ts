@@ -27,7 +27,11 @@ export function mergeClientPortalSettingsForSync(current?: ClientPortalSettings)
   };
 }
 
-export function applyLaundryCosts(baseItems: CostoItem[], guests: number, budgetItems: any[]): CostoItem[] {
+export function applyLaundryCosts(
+  baseItems: CostoItem[],
+  guests: number,
+  budgetItems: ItemPresupuestado[] | null | undefined
+): CostoItem[] {
   const items = [...baseItems];
   const safeItems = Array.isArray(budgetItems) ? budgetItems : [];
   const hasMantel = safeItems.some(i => (i?.nombreServicio || '').toLowerCase().includes('mantel'));
@@ -39,8 +43,9 @@ export function applyLaundryCosts(baseItems: CostoItem[], guests: number, budget
       if (index > -1) {
         items[index].montoEstimado = Math.round(amount);
       } else {
+        const stableIdPart = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
         items.push({
-          id: `laundry_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          id: `laundry_${stableIdPart}`,
           nombre: name,
           category: 'Servicio Proveedor',
           montoEstimado: Math.round(amount),

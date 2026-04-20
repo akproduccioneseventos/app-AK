@@ -1,6 +1,7 @@
 import { mergeClientPortalSettingsForSync, applyLaundryCosts } from '@/lib/fiesta-sync-utils';
 import { defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import type { CostoItem } from '@/types/fiesta';
+import type { ItemPresupuestado } from '@/types/presupuesto';
 
 describe('syncFiestaFromBudget compatibility helpers', () => {
   it('preserva accessKey y configuración existente del portal cliente al sincronizar', () => {
@@ -24,8 +25,12 @@ describe('syncFiestaFromBudget compatibility helpers', () => {
       { id: 'x1', nombre: 'Lavado Mantel ($50)', category: 'Servicio Proveedor', montoEstimado: 120 },
       { id: 'x2', nombre: 'Otro costo', category: 'Manual', montoEstimado: 500 },
     ];
+    const malformedBudgetItems: ItemPresupuestado[] = [
+      {} as ItemPresupuestado,
+      { nombreServicio: undefined as unknown as string } as ItemPresupuestado,
+    ];
 
-    const updated = applyLaundryCosts(existing, 80, [{}, { nombreServicio: undefined }]);
+    const updated = applyLaundryCosts(existing, 80, malformedBudgetItems);
     expect(updated.find(i => i.nombre === 'Lavado Mantel ($50)')).toBeUndefined();
     expect(updated.find(i => i.nombre === 'Otro costo')).toBeDefined();
   });

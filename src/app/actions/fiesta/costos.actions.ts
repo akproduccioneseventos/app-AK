@@ -1,6 +1,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, PagoProveedor } from '@/types/fiesta';
+import type { ItemPresupuestado } from '@/types/presupuesto';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { getPresupuestoById } from '../presupuestos';
 import { getGuestCountForItem } from '@/lib/calculations';
@@ -146,7 +147,7 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
     }
 }
 
-export async function syncLaundryCosts(fiestaId: string, guests: number, budgetItems: any[]): Promise<void> {
+export async function syncLaundryCosts(fiestaId: string, guests: number, budgetItems: ItemPresupuestado[] | null | undefined): Promise<void> {
     if (!fiestaId || !budgetItems) return;
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return;

@@ -661,7 +661,15 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     if (!saved.success) return saved;
 
     // 14. SINCRONIZAR LAVADERO después de guardar para evitar sobrescribir su actualización de costos
-    await syncLaundryCosts(fiestaId, guests, items);
+    try {
+        await syncLaundryCosts(fiestaId, guests, items);
+    } catch (error: any) {
+        logger.error('[syncFiestaFromBudget] Error al sincronizar costos de lavadero', {
+            fiestaId,
+            error: error?.message || String(error),
+        });
+        return { success: false, error: 'La fiesta se sincronizó, pero falló la actualización de costos de lavadero.' };
+    }
 
     return saved;
 }
