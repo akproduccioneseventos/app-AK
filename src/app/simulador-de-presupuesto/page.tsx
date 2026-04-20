@@ -485,7 +485,7 @@ function SimuladorContent() {
         }
         const availability = await checkDateAvailability(date.toISOString());
         if (availability.isOccupied) {
-            setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas disponibles:');
+            setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
             setDateSuggestions(availability.suggestions || []);
         } else {
             setDateWarning('');

@@ -485,7 +485,7 @@ export default function SimuladorAKPage() {
     }
     const availability = await checkDateAvailability(dateISO);
     if (availability.isOccupied) {
-      setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas disponibles:');
+      setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
       setDateSuggestions(availability.suggestions || []);
     } else {
       setDateWarning('');
@@ -1727,7 +1727,7 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
           </div>
           <div className="text-right text-xs text-slate-600">
             <p className="font-bold">Presupuesto Estimado</p>
-            <p>Fecha de emisión: {generatedAt}</p>
+            <p>Generado el: {generatedAt}</p>
           </div>
         </div>
 
