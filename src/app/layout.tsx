@@ -1,32 +1,45 @@
-
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
-import { Inter, Belleza, Playfair_Display, Dancing_Script } from 'next/font/google';
+import localFont from 'next/font/local';
 import { AuthGuard } from './auth-guard';
 
-const inter = Inter({
-  subsets: ['latin'],
+const inter = localFont({
+  src: [
+    { path: './fonts/inter-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/inter-latin-700-normal.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/inter-latin-900-normal.woff2', weight: '900', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-inter',
 });
 
-const belleza = Belleza({
-  subsets: ['latin'],
+const belleza = localFont({
+  src: './fonts/belleza-latin-400-normal.woff2',
+  weight: '400',
+  style: 'normal',
   display: 'swap',
-  weight: ['400'],
   variable: '--font-belleza',
 });
 
-const playfairDisplay = Playfair_Display({
-  subsets: ['latin'],
+const playfairDisplay = localFont({
+  src: [
+    { path: './fonts/playfair-display-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/playfair-display-latin-400-italic.woff2', weight: '400', style: 'italic' },
+    { path: './fonts/playfair-display-latin-700-normal.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/playfair-display-latin-700-italic.woff2', weight: '700', style: 'italic' },
+    { path: './fonts/playfair-display-latin-900-normal.woff2', weight: '900', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-playfair_display',
 });
 
-const dancingScript = Dancing_Script({
-  subsets: ['latin'],
+const dancingScript = localFont({
+  src: [
+    { path: './fonts/dancing-script-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/dancing-script-latin-700-normal.woff2', weight: '700', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-dancing_script',
 });
