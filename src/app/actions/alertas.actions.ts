@@ -65,8 +65,9 @@ export async function getAlertasGlobalesConLeidas(): Promise<AlertaAutomatica[]>
   if (idsLeidosActivos.length !== idsLeidos.length) {
     await writeData(ALERTAS_LEIDAS_FILE, idsLeidosActivos);
   }
+  const idsLeidosSet = new Set(idsLeidosActivos);
 
-  return alertasActuales.map(a => ({ ...a, leida: Boolean(idsLeidosActivos.includes(a.id)) }));
+  return alertasActuales.map(a => ({ ...a, leida: idsLeidosSet.has(a.id) }));
 }
 
 export async function resetAlertasLeidas(): Promise<{ success: boolean }> {

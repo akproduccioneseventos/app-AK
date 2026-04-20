@@ -337,7 +337,7 @@ export default function PresentacionLedPage() {
     }
     const params = new URLSearchParams();
     if (clientData.nombre.trim()) params.set('leadName', clientData.nombre.trim());
-    if (safeIds.length > 0) params.set('servicios', JSON.stringify(safeIds));
+    safeIds.forEach((id) => params.append('servicios', id));
     if (selectedMenuId && /^[\w-]+$/.test(selectedMenuId)) params.set('menuId', selectedMenuId);
     if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) params.set('teenMenuId', selectedTeenMenuId);
     const query = params.toString();

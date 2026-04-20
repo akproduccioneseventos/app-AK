@@ -294,6 +294,12 @@ export async function listCollectionFromFirestore(collectionName: string): Promi
   }
 }
 
+/**
+ * Rehidrata una colección/documento de Firestore desde su JSON local.
+ * Útil para recuperación operativa inicial o reseeding controlado cuando Firestore quedó vacío.
+ * @param filePath Ruta relativa del archivo JSON (ej: "servicios-empresa.json").
+ * @returns Resultado de la operación con estado, cantidad escrita y posible error.
+ */
 export async function rehydrateCollectionFromJson(filePath: string): Promise<{ success: boolean; count: number; error?: string }> {
   try {
     const fs = await import('fs/promises');

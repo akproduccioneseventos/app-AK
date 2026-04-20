@@ -63,6 +63,10 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
     return initialState;
 }
 
+/**
+ * Decodifica parámetros URI sin romper el flujo:
+ * si decodeURIComponent falla, retorna el valor original.
+ */
 function safeDecodeParam(value: string): string {
     try {
         return decodeURIComponent(value);
@@ -90,7 +94,13 @@ function CrearPresupuestoContent() {
     const leadIdFromParams = searchParams.get('leadId');
 
     const mapServicioToSeleccion = useCallback((servicio: ServicioEmpresa, adultos: number, ninos: number) => ({
-        cantidad: calculateSuggestedQuantity(servicio as any, adultos, ninos),
+        cantidad: calculateSuggestedQuantity({
+            calculationMethod: servicio.calculationMethod,
+            invitadosPorUnidad: servicio.invitadosPorUnidad,
+            nombreServicio: servicio.nombre,
+            categoriaServicio: servicio.categoria,
+            subcategoria: servicio.subcategoria,
+        }, adultos, ninos),
         precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
         precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
         nombreServicio: servicio.nombre,
@@ -199,10 +209,11 @@ function CrearPresupuestoContent() {
                     }
                 } else {
                     const leadName = searchParams.get('leadName');
+                    const serviciosParams = searchParams.getAll('servicios');
                     const serviciosParam = searchParams.get('servicios');
                     const menuIdParam = searchParams.get('menuId');
                     const teenMenuIdParam = searchParams.get('teenMenuId');
-                    const hasPlannerParams = Boolean(leadName || serviciosParam || menuIdParam || teenMenuIdParam);
+                    const hasPlannerParams = Boolean(leadName || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam);
 
                     if (hasPlannerParams) {
                         const baseForm: PresupuestoFormData = {
@@ -212,7 +223,16 @@ function CrearPresupuestoContent() {
                         const adultos = baseForm.invitadosAdultos || 0;
                         const ninos = (baseForm.invitadosNinos || 0) + (baseForm.invitadosAdolescentes || 0);
 
-                        if (serviciosParam) {
+                        if (serviciosParams.length > 0) {
+                            serviciosParams
+                                .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+                                .forEach((id) => {
+                                    const servicio = services.find(s => s.id === id);
+                                    if (servicio) {
+                                        baseForm.serviciosSeleccionados.set(id, mapServicioToSeleccion(servicio, adultos, ninos));
+                                    }
+                                });
+                        } else if (serviciosParam) {
                             try {
                                 const parsed = JSON.parse(serviciosParam);
                                 const selectedIds = Array.isArray(parsed) ? parsed : [];

@@ -394,7 +394,7 @@ export default function MainDashboardPage() {
           </CardHeader>
           <CardContent className="px-5 pb-4 space-y-2">
             {alertasUrgentes.map(alerta => (
-              <div key={alerta.id} className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-red-100 text-sm overflow-hidden">
+              <div key={alerta.id} role="alert" aria-live="polite" className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-red-100 text-sm overflow-hidden">
                 <span className="text-lg shrink-0">{alerta.tipo === 'urgente' ? '🔴' : alerta.tipo === 'atencion' ? '🟡' : '🔵'}</span>
                 <div className="flex-1 min-w-0">
                   <span className="font-semibold text-slate-700 text-xs truncate block">{alerta.fiestaName}</span>

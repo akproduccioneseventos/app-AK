@@ -51,11 +51,7 @@ function PresupuestoDashboardContent() {
     useEffect(() => { fetchPresupuestos(); }, [fetchPresupuestos]);
 
     const handleBudgetMutation = useCallback(async (id: string, action: 'archive' | 'delete') => {
-        setPresupuestos(prev => prev.filter(p => {
-            if (p.id !== id) return true;
-            if (showArchived && action === 'archive') return true;
-            return false;
-        }));
+        setPresupuestos(prev => prev.filter(p => p.id !== id || (showArchived && action === 'archive')));
         router.refresh();
         await fetchPresupuestos();
     }, [router, fetchPresupuestos, showArchived]);
