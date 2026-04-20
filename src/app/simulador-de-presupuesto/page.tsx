@@ -485,7 +485,7 @@ function SimuladorContent() {
         }
         const availability = await checkDateAvailability(date.toISOString());
         if (availability.isOccupied) {
-            setDateWarning('⚠️ Esa fecha podría estar ocupada. Te sugerimos estas fechas cercanas:');
+            setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
             setDateSuggestions(availability.suggestions || []);
         } else {
             setDateWarning('');
@@ -633,13 +633,13 @@ function SimuladorContent() {
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-3xl print:shadow-none border border-slate-200 rounded-[2.5rem] overflow-hidden bg-white">
-                        <CardHeader className="text-center bg-slate-800 p-6 sm:p-10 border-b border-slate-700">
+                    <Card className="shadow-3xl print:shadow-none border border-slate-200 rounded-[2.5rem] overflow-hidden bg-white print:bg-white">
+                        <CardHeader className="text-center bg-slate-800 p-6 sm:p-10 border-b border-slate-700 print:bg-white print:border-slate-200">
                             <div className="flex justify-center mb-4">
-                              <CompanyLogo size="sm" src={logoUrl || undefined} className="brightness-0 invert opacity-80" />
+                              <CompanyLogo size="sm" src={logoUrl || undefined} className="brightness-0 invert opacity-80 print:brightness-100 print:invert-0" />
                             </div>
-                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white">Presupuesto Estimado</CardTitle>
-                            <p className="text-slate-400 font-medium text-sm mt-2">AK Producciones Eventos — Salto, Uruguay</p>
+                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white print:text-slate-900">Presupuesto Estimado</CardTitle>
+                            <p className="text-slate-400 font-medium text-sm mt-2 print:text-slate-600">AK Producciones Eventos — Salto, Uruguay</p>
                         </CardHeader>
                         <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
                             <div className="border border-slate-200 rounded-[2rem] overflow-x-auto print:border-slate-300">
@@ -695,9 +695,9 @@ function SimuladorContent() {
                                 </Table>
                             </div>
                             
-                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-800 text-white rounded-[2rem] shadow-xl border border-slate-700">
+                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-800 text-white rounded-[2rem] shadow-xl border border-slate-700 print:bg-white print:text-slate-900 print:border-slate-300">
                                 {(budgetSettings.showIndividualPrices ?? true) && (
-                                  <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                                  <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest print:text-slate-600">
                                       <span>Subtotal Servicios:</span>
                                       <span>{formatCurrency(stats.subtotalBruto)}</span>
                                   </div>
@@ -720,10 +720,10 @@ function SimuladorContent() {
                                         <span>+{formatCurrency(stats.ajusteAnual)}</span>
                                     </div>
                                 )}
-                                <Separator className="bg-white/10" />
+                                <Separator className="bg-white/10 print:bg-slate-300" />
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-sm font-black uppercase tracking-tighter text-white">Total Estimado:</span>
-                                    <span className="text-3xl font-black text-white">{formatCurrency(stats.totalFinal)}</span>
+                                    <span className="text-sm font-black uppercase tracking-tighter text-white print:text-slate-900">Total Estimado:</span>
+                                    <span className="text-3xl font-black text-white print:text-slate-900">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -813,25 +813,27 @@ function SimuladorContent() {
                             <div className="space-y-2.5">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fecha del Evento *</Label>
                                 <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"/>
-                                {dateWarning && dateSuggestions.length > 0 && (
+                                {dateWarning && (
                                     <div className="p-3 rounded-xl border border-amber-400/40 bg-amber-500/10">
                                         <p className="text-amber-800 text-xs font-bold">{dateWarning}</p>
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            {dateSuggestions.map((date) => (
-                                                <button
-                                                    key={date}
-                                                    type="button"
-                                                    className="px-3 py-1 rounded-full bg-amber-200 text-amber-900 text-xs font-bold"
-                                                    onClick={() => {
-                                                        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                                                            handleEventoFechaChange(new Date(`${date}T12:00:00`));
-                                                        }
-                                                    }}
-                                                >
-                                                    {date}
-                                                </button>
-                                            ))}
-                                        </div>
+                                        {dateSuggestions.length > 0 && (
+                                          <div className="flex flex-wrap gap-2 mt-2">
+                                              {dateSuggestions.map((date) => (
+                                                  <button
+                                                      key={date}
+                                                      type="button"
+                                                      className="px-3 py-1 rounded-full bg-amber-200 text-amber-900 text-xs font-bold"
+                                                      onClick={() => {
+                                                          if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                                                              handleEventoFechaChange(new Date(`${date}T12:00:00`));
+                                                          }
+                                                      }}
+                                                  >
+                                                      {date}
+                                                  </button>
+                                              ))}
+                                          </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

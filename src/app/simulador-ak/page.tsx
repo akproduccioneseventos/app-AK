@@ -25,6 +25,7 @@ import { getMenus } from '@/app/actions/menus-catering';
 import { getLandingSettings } from '@/app/actions/landing-editor';
 import { getWhatsAppConfig } from '@/app/actions/whatsapp';
 import { CountdownTimer } from '@/components/countdown-timer';
+import { CompanyLogo } from '@/components/company-logo';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Coupon } from '@/types/coupon';
 import { esCuponRegalo } from '@/types/coupon';
@@ -187,14 +188,19 @@ function menuItemToServicioEmpresa(item: MenuItem & { precioVenta: number }): Se
 
 // ─── Assistant Script ─────────────────────────────────────────────────────────
 
-function getAssistantMessages(step: number, state: SimuladorState, priceStats: PriceStats | null): ChatMessage[] {
+function getAssistantMessages(
+  step: number,
+  state: SimuladorState,
+  priceStats: PriceStats | null,
+  assistantCopy?: { welcome?: string; final?: string },
+): ChatMessage[] {
   const eventMeta = state.eventoTipo ? EVENT_META[state.eventoTipo as EventType] : null;
   const pkgMeta   = state.paquete ? PACKAGE_META[state.paquete as PackageType] : null;
   const nombre    = state.nombre || 'vos';
 
   const msgs: Record<number, ChatMessage[]> = {
     0: [
-      { role: 'assistant', text: '¡Hola! Soy el Asistente AK 👋', key: 'w1' },
+      { role: 'assistant', text: assistantCopy?.welcome || '¡Hola! Soy el Asistente AK 👋', key: 'w1' },
       { role: 'assistant', text: 'Te ayudo a armar el presupuesto de tu fiesta en minutos, sin vueltas y sin sorpresas 😊', key: 'w2' },
       { role: 'assistant', text: 'Contame un poco sobre tu evento y yo me encargo del resto.', key: 'w3' },
     ],
@@ -217,21 +223,21 @@ function getAssistantMessages(step: number, state: SimuladorState, priceStats: P
       ...(state.tieneSalon === false ? [{ role: 'assistant' as const, text: 'Te cuento que el Club Uruguay es ideal para este tipo de eventos: céntrico, capacidad hasta 200 personas y precio especial si contratás el servicio completo con nosotros 🏛️', key: 's4_3' }] : []),
     ],
     5: [
-      { role: 'assistant', text: '¿Cómo te imaginás tu fiesta?', key: 's5_1' },
-      { role: 'assistant', text: 'Elegí un paquete y te muestro el precio real según la configuración actual del simulador.', key: 's5_2' },
+      { role: 'assistant', text: 'Perfecto. Ahora elegí la duración del evento en horas.', key: 's5_1' },
+      { role: 'assistant', text: 'La duración impacta directamente en la cantidad de entradas disponibles.', key: 's5_2' },
     ],
     6: [
-      ...(pkgMeta ? [{ role: 'assistant' as const, text: `¡Excelente elección! El paquete ${pkgMeta.label} es perfecto para lo que necesitás 💪`, key: 's6_0' }] : []),
       { role: 'assistant', text: 'Ahora elegí los menús disponibles tal como en el simulador normal 👇', key: 's6_1' },
     ],
     7: [
-      { role: 'assistant', text: 'Perfecto. Ahora elegí la duración del evento en horas.', key: 's7_1' },
-      { role: 'assistant', text: 'La duración impacta directamente en la cantidad de entradas disponibles.', key: 's7_2' },
+      { role: 'assistant', text: '¿Cómo te imaginás tu fiesta?', key: 's7_1' },
+      { role: 'assistant', text: 'Elegí un paquete y te muestro el precio real según la configuración actual del simulador.', key: 's7_2' },
+      ...(pkgMeta ? [{ role: 'assistant' as const, text: `¡Excelente elección! El paquete ${pkgMeta.label} es perfecto para lo que necesitás 💪`, key: 's7_3' }] : []),
     ],
     8: [
       { role: 'assistant', text: '⚡ Las fechas de fin de semana se reservan rápido, especialmente en temporada alta.', key: 's8_1' },
       ...(priceStats ? [{ role: 'assistant' as const, text: `Tu total final es ${formatCurrency(priceStats.totalFinal)}, con bonificación aplicada exactamente como en el simulador normal.`, key: 's8_2' }] : []),
-      { role: 'assistant', text: '¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀', key: 's8_3' },
+      { role: 'assistant', text: assistantCopy?.final || '¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀', key: 's8_3' },
     ],
   };
   return msgs[step] ?? [];
@@ -240,8 +246,8 @@ function getAssistantMessages(step: number, state: SimuladorState, priceStats: P
 // ─── Step Components ──────────────────────────────────────────────────────────
 
 const STEP_LABELS = [
-  'Bienvenida', 'Tus datos', 'El evento', 'Invitados',
-  'Salón', 'Paquete', 'Menús', 'Horas', 'Resumen',
+  'Bienvenida', 'Datos del cliente', 'Tipo y fecha de evento', 'Invitados',
+  'Salón', 'Duración del evento', 'Menús', 'Paquete', 'Conversión/Resumen',
 ];
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
@@ -254,6 +260,8 @@ export default function SimuladorAKPage() {
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE);
+  const [assistantWelcomeMessage, setAssistantWelcomeMessage] = useState('');
+  const [assistantFinalMessage, setAssistantFinalMessage] = useState('');
 
   const [state, setState] = useState<SimuladorState>(getInitialSimuladorState());
 
@@ -300,6 +308,8 @@ export default function SimuladorAKPage() {
       if (budgetSettings?.annualAdjustmentPercentage !== undefined) {
         setAnnualAdjustmentPercentage(budgetSettings.annualAdjustmentPercentage);
       }
+      if (budgetSettings?.assistantWelcomeMessage) setAssistantWelcomeMessage(budgetSettings.assistantWelcomeMessage);
+      if (budgetSettings?.assistantFinalMessage) setAssistantFinalMessage(budgetSettings.assistantFinalMessage);
       if (armadoConfig?.paquetes?.length) setDynamicPaquetes(armadoConfig.paquetes);
       if (Array.isArray(servicios)) setServiciosCatalogo(servicios.filter(s => s.tipoItem === 'Servicio'));
       if (Array.isArray(menus) && menus.length > 0) setAvailableMenus(menus);
@@ -425,7 +435,12 @@ export default function SimuladorAKPage() {
   // ── Chat history management ───────────────────────────────────────────────
 
   useEffect(() => {
-    const msgs = getAssistantMessages(state.step, state, priceStats);
+    const msgs = getAssistantMessages(
+      state.step,
+      state,
+      priceStats,
+      { welcome: assistantWelcomeMessage, final: assistantFinalMessage },
+    );
     if (msgs.length === 0) return;
     setChatHistory(prev => {
       const existingKeys = new Set(prev.map(m => m.key));
@@ -434,7 +449,7 @@ export default function SimuladorAKPage() {
     });
   // state.nombre triggers a new greeting message; include it so the assistant
   // re-evaluates when the user's name is set (step 1 → step 2 transition).
-  }, [state.step, state.nombre, state.eventoTipo, state.paquete, state.tieneSalon, state.selectedPrincipal, state.selectedInfantil, state.duracionHoras, priceStats]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.step, state.nombre, state.eventoTipo, state.paquete, state.tieneSalon, state.selectedPrincipal, state.selectedInfantil, state.duracionHoras, priceStats, assistantWelcomeMessage, assistantFinalMessage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
@@ -470,7 +485,7 @@ export default function SimuladorAKPage() {
     }
     const availability = await checkDateAvailability(dateISO);
     if (availability.isOccupied) {
-      setDateWarning('⚠️ Esa fecha podría estar ocupada. Te sugerimos estas fechas cercanas:');
+      setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
       setDateSuggestions(availability.suggestions || []);
     } else {
       setDateWarning('');
@@ -487,6 +502,12 @@ export default function SimuladorAKPage() {
     if (!state.paquete) return;
     if (!availablePaquetes.some((pkg) => pkg.id === state.paquete)) {
       updateState('paquete', '');
+    }
+  }, [availablePaquetes, state.paquete, updateState]);
+
+  useEffect(() => {
+    if (availablePaquetes.length === 1 && !state.paquete) {
+      updateState('paquete', availablePaquetes[0].id as PackageType);
     }
   }, [availablePaquetes, state.paquete, updateState]);
 
@@ -549,7 +570,6 @@ export default function SimuladorAKPage() {
         clienteNombre:   `${state.nombre} ${state.apellido}`.trim(),
         clienteContacto: state.telefono,
         eventoFecha:     state.eventoFecha || new Date().toISOString(),
-        eventoHoraInicio: state.eventoHoraInicio || undefined,
         adultos:         state.adultos,
         ninos:           state.ninos,
         subtotal:        priceStats?.subtotalVenta ?? 0,
@@ -591,7 +611,6 @@ export default function SimuladorAKPage() {
       `Hola! Usé el simulador de AK Producciones.`,
       `Nombre: ${state.nombre} ${state.apellido}`,
       state.eventoFecha ? `Fecha evento: ${state.eventoFecha.split('T')[0]}` : '',
-      state.eventoHoraInicio ? `Hora inicio: ${state.eventoHoraInicio}` : '',
       eventMeta ? `Tipo: ${eventMeta.label}` : '',
       `Invitados: ${state.adultos + state.ninos} personas`,
       pkgMeta ? `Paquete: ${pkgMeta}` : '',
@@ -632,7 +651,12 @@ export default function SimuladorAKPage() {
               className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-2xl h-12"
               onClick={() => {
                 setState(savedState);
-                const msgs = getAssistantMessages(savedState.step, savedState, priceStats);
+                const msgs = getAssistantMessages(
+                  savedState.step,
+                  savedState,
+                  priceStats,
+                  { welcome: assistantWelcomeMessage, final: assistantFinalMessage },
+                );
                 setChatHistory(msgs);
                 setShowResumeModal(false);
               }}
@@ -658,12 +682,10 @@ export default function SimuladorAKPage() {
   // ── Layout ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex flex-col print:bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex flex-col print:bg-white print:text-slate-900">
 
       {/* Print header */}
       <div className="hidden print:block p-8">
-        <h1 className="text-2xl font-black">AK Producciones · Presupuesto Estimado</h1>
-        <p className="text-sm text-slate-500 mt-1">Generado el {new Date().toLocaleDateString('es-UY')}</p>
         <PrintSummary state={state} prices={priceStats} />
       </div>
 
@@ -739,14 +761,7 @@ export default function SimuladorAKPage() {
                   />
                 )}
                 {state.step === 5 && (
-                  <StepPackage
-                    state={state}
-                    onChange={updateState}
-                    onNext={goNext}
-                    onPrev={goPrev}
-                    dynamicPaquetes={availablePaquetes}
-                    packagePrices={priceStats}
-                  />
+                  <StepHours state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
                 )}
                 {state.step === 6 && (
                   <StepMenus
@@ -761,7 +776,15 @@ export default function SimuladorAKPage() {
                   />
                 )}
                 {state.step === 7 && (
-                  <StepHours state={state} onChange={updateState} onNext={goNext} onPrev={goPrev} />
+                  <StepPackage
+                    state={state}
+                    onChange={updateState}
+                    onNext={goNext}
+                    onPrev={goPrev}
+                    dynamicPaquetes={availablePaquetes}
+                    packagePrices={priceStats}
+                    allSimuladorServices={allSimuladorServices}
+                  />
                 )}
                 {state.step === 8 && (
                   <StepConversion
@@ -1069,34 +1092,29 @@ function StepEventBasics({
           className="bg-white/10 border-white/20 text-white rounded-xl h-12 mb-4 focus:border-violet-400 [color-scheme:dark]"
         />
         {dateError && <p className="text-red-300 text-xs font-semibold mb-2">{dateError}</p>}
-        {dateWarning && dateSuggestions.length > 0 && (
+        {dateWarning && (
           <div className="mb-3 p-3 rounded-xl border border-amber-400/40 bg-amber-500/10">
             <p className="text-amber-200 text-xs font-semibold">{dateWarning}</p>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {dateSuggestions.map((date) => (
-                <button
-                  key={date}
-                  type="button"
-                  onClick={() => {
-                    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                      onChange('eventoFecha', `${date}T12:00:00`);
-                    }
-                  }}
-                  className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-100 text-xs font-bold hover:bg-amber-500/30"
-                >
-                  {date}
-                </button>
-              ))}
-            </div>
+            {dateSuggestions.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {dateSuggestions.map((date) => (
+                  <button
+                    key={date}
+                    type="button"
+                    onClick={() => {
+                      if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                        onChange('eventoFecha', `${date}T12:00:00`);
+                      }
+                    }}
+                    className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-100 text-xs font-bold hover:bg-amber-500/30"
+                  >
+                    {date}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
-        <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-2 block">Hora de inicio</Label>
-        <Input
-          type="time"
-          value={state.eventoHoraInicio || ''}
-          onChange={e => onChange('eventoHoraInicio', e.target.value)}
-          className="bg-white/10 border-white/20 text-white rounded-xl h-12 mb-4 focus:border-violet-400 [color-scheme:dark]"
-        />
       </div>
       <div>
         <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-3 block">Tipo de evento</Label>
@@ -1272,7 +1290,7 @@ function StepSalon({
 // ─── Step: Package ────────────────────────────────────────────────────────────
 
 function StepPackage({
-  state, onChange, onNext, onPrev, dynamicPaquetes, packagePrices,
+  state, onChange, onNext, onPrev, dynamicPaquetes, packagePrices, allSimuladorServices,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
@@ -1280,6 +1298,7 @@ function StepPackage({
   onPrev: () => void;
   dynamicPaquetes?: PaqueteArmadoRapido[];
   packagePrices: PriceStats | null;
+  allSimuladorServices: ServicioEmpresa[];
 }) {
   const canNext = !!state.paquete;
   const staticOptions: { value: PackageType; emoji: string }[] = [
@@ -1295,28 +1314,40 @@ function StepPackage({
     <StepCard title="¿Cómo te imaginás tu fiesta?" icon={<Star className="w-6 h-6" />}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {hasDynamic ? (
-          dynamicPaquetes.map((pkg) => (
-            <button
-              key={pkg.id}
-              onClick={() => onChange('paquete', pkg.id as PackageType)}
-              className={cn(
-                'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-stretch gap-3 relative',
-                state.paquete === pkg.id
-                  ? 'bg-violet-500/40 border-violet-400'
-                  : 'bg-white/5 border-white/10 hover:bg-white/10',
-              )}
-            >
-              <span className="text-2xl">🎉</span>
-              <div className="flex-1 min-w-0 space-y-1">
-                <p className="text-white font-bold">{pkg.nombre}</p>
-                {pkg.descripcion && <p className="text-violet-300 text-xs">{pkg.descripcion}</p>}
-                {state.paquete === pkg.id && packagePrices && (
-                  <p className="text-emerald-300 text-xs font-black uppercase tracking-wider">{formatCurrency(packagePrices.totalFinal)}</p>
+          dynamicPaquetes.map((pkg) => {
+            const includedServices = (pkg.serviciosIncluidos || [])
+              .map((serviceRef) => allSimuladorServices.find((service) => service.id === serviceRef.id)?.nombre || serviceRef.id)
+              .filter(Boolean);
+            return (
+              <button
+                key={pkg.id}
+                onClick={() => onChange('paquete', pkg.id as PackageType)}
+                className={cn(
+                  'w-full h-full rounded-2xl p-4 text-left transition-all border-2 flex items-stretch gap-3 relative',
+                  state.paquete === pkg.id
+                    ? 'bg-violet-500/40 border-violet-400'
+                    : 'bg-white/5 border-white/10 hover:bg-white/10',
                 )}
-              </div>
-              {state.paquete === pkg.id && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
-            </button>
-          ))
+              >
+                <span className="text-2xl">🎉</span>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <p className="text-white font-bold">{pkg.nombre}</p>
+                  {pkg.descripcion && <p className="text-violet-300 text-xs">{pkg.descripcion}</p>}
+                  {includedServices.length > 0 && (
+                    <ul className="text-violet-200 text-xs mt-2 space-y-1">
+                      {includedServices.map((serviceName, idx) => (
+                        <li key={`${pkg.id}-${idx}`}>• {serviceName}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {state.paquete === pkg.id && packagePrices && (
+                    <p className="text-emerald-300 text-xs font-black uppercase tracking-wider">{formatCurrency(packagePrices.totalFinal)}</p>
+                  )}
+                </div>
+                {state.paquete === pkg.id && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
+              </button>
+            );
+          })
         ) : (
           staticOptions.map(opt => {
             const meta = PACKAGE_META[opt.value];
@@ -1525,6 +1556,22 @@ function StepConversion({
             <span className="text-white font-black">TOTAL FINAL</span>
             <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
           </div>
+
+          {prices.detallados.length > 0 && (
+            <div className="border-t border-white/10 pt-3 mt-3">
+              <p className="text-violet-200 text-xs font-bold uppercase tracking-wider mb-2">Servicios incluidos</p>
+              <ul className="space-y-1">
+                {prices.detallados.map((item) => (
+                  <li key={item.id} className="flex items-start justify-between gap-3 text-xs">
+                    <span className="text-white/80">• {item.nombre}</span>
+                    <span className={item.esRegalo ? 'text-emerald-300 font-bold' : 'text-white/80'}>
+                      {item.esRegalo ? 'Sin costo' : formatCurrency(item.costoTotal)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
@@ -1665,37 +1712,71 @@ function StepNav({
 
 function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceStats | null }) {
   const eventMeta = state.eventoTipo ? EVENT_META[state.eventoTipo as EventType] : null;
-  const pkgMeta = state.paquete ? PACKAGE_META[state.paquete as PackageType] : null;
+  const generatedAt = new Date().toLocaleDateString('es-UY');
 
   return (
-    <div className="mt-6 space-y-4">
-      <div>
-        <h2 className="font-bold text-lg">Datos del cliente</h2>
-        <p>Nombre: {state.nombre} {state.apellido}</p>
-        <p>Teléfono: {state.telefono}</p>
+    <div className="max-w-4xl mx-auto text-slate-900 print:text-black">
+      <div className="border border-slate-200 rounded-2xl p-6 bg-white">
+        <div className="flex items-start justify-between border-b border-slate-200 pb-4 mb-5">
+          <div className="flex items-center gap-3">
+            <CompanyLogo size="md" />
+            <div>
+              <p className="font-black text-lg">AK Producciones Eventos</p>
+              <p className="text-xs text-slate-500">Presupuesto estimado profesional</p>
+            </div>
+          </div>
+          <div className="text-right text-xs text-slate-600">
+            <p className="font-bold">Presupuesto Estimado</p>
+            <p>Generado el: {generatedAt}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-sm mb-5">
+          <p><span className="font-semibold">Cliente:</span> {state.nombre} {state.apellido}</p>
+          <p><span className="font-semibold">Teléfono:</span> {state.telefono}</p>
+          <p><span className="font-semibold">Tipo de evento:</span> {eventMeta ? `${eventMeta.emoji} ${eventMeta.label}` : 'No definido'}</p>
+          <p><span className="font-semibold">Fecha del evento:</span> {state.eventoFecha ? state.eventoFecha.split('T')[0] : 'No definida'}</p>
+          <p><span className="font-semibold">Invitados:</span> {state.adultos + state.ninos} ({state.adultos} adultos + {state.ninos} niños)</p>
+          <p><span className="font-semibold">Duración:</span> {state.duracionHoras} horas</p>
+        </div>
+
+        <div className="border border-slate-200 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-100">
+              <tr>
+                <th className="text-left px-3 py-2 font-bold">Servicio</th>
+                <th className="text-center px-3 py-2 font-bold">Cant.</th>
+                <th className="text-right px-3 py-2 font-bold">Unitario</th>
+                <th className="text-right px-3 py-2 font-bold">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {prices?.detallados?.map((s) => (
+                <tr key={s.id} className="border-t border-slate-200">
+                  <td className="px-3 py-2">{s.nombre}</td>
+                  <td className="px-3 py-2 text-center">{s.cantidad}</td>
+                  <td className="px-3 py-2 text-right">{s.esRegalo ? 'Sin costo' : formatCurrency(s.precioUnitario)}</td>
+                  <td className="px-3 py-2 text-right font-semibold">{s.esRegalo ? 'Sin costo' : formatCurrency(s.costoTotal)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {prices && (
+          <div className="ml-auto mt-5 w-full max-w-sm space-y-1 text-sm">
+            <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(prices.subtotalVenta)}</span></div>
+            <div className="flex justify-between"><span>Descuento ({Math.round(DISCOUNT_RATE * 100)}%)</span><span>-{formatCurrency(prices.descPromo)}</span></div>
+            <div className="flex justify-between border-t border-slate-300 pt-2 font-black text-base">
+              <span>Total final</span><span>{formatCurrency(prices.totalFinal)}</span>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-8 pt-4 border-t border-slate-200 text-xs text-slate-600">
+          AK Producciones Eventos · WhatsApp 098 355 530 · Salto, Uruguay
+        </div>
       </div>
-      {eventMeta && <p>Tipo de evento: {eventMeta.emoji} {eventMeta.label}</p>}
-      {state.eventoFecha && <p>Fecha: {state.eventoFecha.split('T')[0]}</p>}
-      {state.eventoHoraInicio && <p>Hora de inicio: {state.eventoHoraInicio}</p>}
-      <p>Invitados: {state.adultos} adultos + {state.ninos} niños = {state.adultos + state.ninos} total</p>
-      {pkgMeta && <p>Paquete: {pkgMeta.label}</p>}
-      {prices?.detallados?.length ? (
-        <div>
-          <h2 className="font-bold text-lg mt-4">Servicios incluidos</h2>
-          <ul className="list-disc ml-5">
-            {prices.detallados.map((s) => <li key={s.id}>{s.nombre}</li>)}
-          </ul>
-        </div>
-      ) : null}
-      {prices && (
-        <div className="mt-4">
-          <h2 className="font-bold text-lg">Resumen de precios</h2>
-          <p>Subtotal servicios: {formatCurrency(prices.subtotalVenta)}</p>
-          <p>Bonificación ({Math.round(DISCOUNT_RATE * 100)}%): -{formatCurrency(prices.descPromo)}</p>
-          <p className="font-black text-xl">TOTAL FINAL: {formatCurrency(prices.totalFinal)}</p>
-        </div>
-      )}
-      <p className="text-xs text-gray-500 mt-6">WhatsApp: 098 355 530 · AK Producciones · Salto, Uruguay</p>
     </div>
   );
 }
