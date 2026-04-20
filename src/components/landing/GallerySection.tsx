@@ -125,7 +125,23 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   }, [filteredByFiesta, activeServicio]);
 
   if (allImages.length === 0) {
-    return null;
+    return (
+      <section id="galeria" data-testid="gallery-section" className="py-24 bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <p className="text-xs font-black uppercase tracking-[0.4em] text-pink-400 mb-4">Nuestro trabajo</p>
+            <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-6">Galería</h2>
+            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+              Cada foto cuenta una historia. Descubrí la magia que creamos en cada evento.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-slate-800/60 py-16 px-6 text-center">
+            <Camera className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+            <p className="text-slate-300 font-semibold">Próximamente agregaremos fotos de nuestros eventos.</p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   const openLightbox = (index: number) => setLightboxIndex(index);

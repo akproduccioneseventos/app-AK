@@ -431,6 +431,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   if (!displaySettings) return null;
 
   const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 0;
+  const isBorrador = presupuesto.estado === 'Borrador';
 
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-sans">
@@ -451,21 +452,25 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   <Edit className="mr-1.5 h-3.5 w-3.5"/>Editar
                 </Button>
               </Link>
-              <Link href="/pagos-rapidos">
-                <Button size="sm" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-widest">
-                  <CreditCard className="mr-1.5 h-3.5 w-3.5"/>Registrar Pago
+              {!isBorrador && (
+                <Link href="/pagos-rapidos">
+                  <Button size="sm" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-widest">
+                    <CreditCard className="mr-1.5 h-3.5 w-3.5"/>Registrar Pago
+                  </Button>
+                </Link>
+              )}
+              {!isBorrador && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl text-xs font-bold uppercase tracking-widest"
+                  disabled={!canGenerateContract}
+                  onClick={handleOpenContrato}
+                >
+                  <FileSignature className="mr-1.5 h-3.5 w-3.5"/>Ver Contrato
                 </Button>
-              </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl text-xs font-bold uppercase tracking-widest"
-                disabled={!canGenerateContract}
-                onClick={handleOpenContrato}
-              >
-                <FileSignature className="mr-1.5 h-3.5 w-3.5"/>Ver Contrato
-              </Button>
-              {hasDepositPayment && (
+              )}
+              {!isBorrador && hasDepositPayment && (
                 <Link href={`/presupuestos/${presupuestoId}/recibo-contrato?doc=recibo`}>
                   <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
                     <Receipt className="mr-1.5 h-3.5 w-3.5"/>Recibo de Seña
@@ -486,12 +491,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               <Button onClick={handlePrint} size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest" variant="secondary">
                 <Printer className="mr-1.5 h-3.5 w-3.5"/>Imprimir
               </Button>
-              <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}>
-                <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
-                  <Receipt className="mr-1.5 h-3.5 w-3.5"/>Estado de Cuenta
-                </Button>
-              </Link>
-              {linkedFiestaId ? (
+              {!isBorrador && (
+                <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}>
+                  <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
+                    <Receipt className="mr-1.5 h-3.5 w-3.5"/>Estado de Cuenta
+                  </Button>
+                </Link>
+              )}
+              {!isBorrador && (linkedFiestaId ? (
                 <Link href={`/fiestas/nueva?fiestaId=${linkedFiestaId}`}>
                   <Button size="sm" variant="outline" className="rounded-xl text-xs border-violet-200 text-violet-700 hover:bg-violet-50 font-bold uppercase tracking-widest" data-testid="btn-ver-fiesta">
                     <PartyPopper className="mr-1.5 h-3.5 w-3.5"/>Ver Fiesta
@@ -508,9 +515,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   {isCreatingFiesta ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin"/> : <PartyPopper className="mr-1.5 h-3.5 w-3.5"/>}
                   Crear Fiesta
                 </Button>
-              )}
+              ))}
             </div>
-            {!canGenerateContract && (
+            {!isBorrador && !canGenerateContract && (
               <p className="w-full text-[11px] text-rose-600 font-semibold">
                 {CONTRACT_MISSING_EVENT_DATA_ERROR}
               </p>
@@ -872,7 +879,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 })()}
 
                 {/* Client + event info */}
-                <section className="mb-4 print:mb-3 border border-gray-300 rounded px-3 py-2 print:border-gray-400 bg-white">
+                <section className="budget-print-client-info mb-4 print:mb-3 border border-gray-300 rounded px-3 py-2 print:border-gray-400 bg-white">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-[11px] sm:text-sm">
                         <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Cliente</p><p className="font-bold truncate">{presupuesto.clienteNombre}</p></div>
                         <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Fecha Evento</p><p className="font-bold">{formatDate(presupuesto.eventoFecha)}</p></div>
@@ -887,7 +894,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </section>
 
                 {/* Services/items table */}
-                <section className="mb-4 print:mb-3">
+                <section className="budget-print-items-section mb-4 print:mb-3">
                     <table className="w-full text-xs print:text-[8pt] border-collapse">
                       <thead>
                         <tr style={{ backgroundColor: '#0f172a', color: 'white' }}>
@@ -1093,6 +1100,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             </div>
 
             {/* ── HISTORIAL DE PAGOS (admin only, hidden on print) ── */}
+            {!isBorrador && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="print:hidden">
                 <Card className="border-none shadow-xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
                     <CardHeader className="pb-2 px-6 sm:px-10 pt-8">
@@ -1238,6 +1246,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </CardContent>
                 </Card>
             </motion.div>
+            )}
         </div>
 
         <style jsx global>{`
@@ -1257,13 +1266,34 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 .ver-budget-print-document {
                     background-color: #ffffff !important;
                 }
+                .ver-budget-print-document table {
+                    page-break-inside: auto;
+                }
+                .ver-budget-print-document tr {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                .ver-budget-print-document > table > thead {
+                    display: table-header-group;
+                }
+                .ver-budget-print-document > table > tfoot {
+                    display: table-row-group;
+                }
                 .budget-print-thead-content {
                     border-bottom: 1px solid #ccc;
                     margin-bottom: 8px;
                 }
                 .budget-print-tfoot-content {
                     border-top: 1px solid #ccc;
-                    margin-top: 8px;
+                    margin-top: 12px;
+                    padding-top: 12px !important;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                .budget-print-client-info,
+                .budget-print-items-section {
+                    page-break-before: auto;
+                    break-before: auto;
                 }
                 .shadow-xl, .shadow-2xl, .shadow-3xl { box-shadow: none !important; }
                 .rounded-\\[2rem\\], .rounded-\\[2\\.5rem\\] { border-radius: 0 !important; }
