@@ -177,6 +177,11 @@ function DecoracionYDisenoEventoContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada");
 
       const loadedDecoracion = fiestaData.decoracion || defaultDecoracion;
+      const normalizedItemsDecoracion = (loadedDecoracion.itemsDecoracion || []).map(item => (
+        item.costoUnitario === undefined && item.precioUnitario !== undefined
+          ? { ...item, costoUnitario: item.precioUnitario }
+          : item
+      ));
 
       const mergedZonas = (defaultZonasContratadas || []).map(defaultZona => {
         const savedZona = loadedDecoracion.zonasContratadas?.find(sz => sz.id === defaultZona.id);
@@ -187,6 +192,7 @@ function DecoracionYDisenoEventoContent() {
         ...defaultDecoracion,
         ...loadedDecoracion,
         items: loadedDecoracion.items || [],
+        itemsDecoracion: normalizedItemsDecoracion,
         moodboardItems: loadedDecoracion.moodboardItems || [],
         zonasContratadas: mergedZonas,
         salonElements: loadedDecoracion.salonElements || [],
@@ -274,6 +280,13 @@ function DecoracionYDisenoEventoContent() {
     setDecoracionData(prev => ({
       ...prev,
       itemsDecoracion: (prev.itemsDecoracion || []).map(it => it.id === itemId ? { ...it, estado } : it),
+    }));
+  };
+
+  const handleUpdateDecoItem = (itemId: string, patch: Partial<DecoItem>) => {
+    setDecoracionData(prev => ({
+      ...prev,
+      itemsDecoracion: (prev.itemsDecoracion || []).map(it => it.id === itemId ? { ...it, ...patch } : it),
     }));
   };
 
@@ -1136,11 +1149,35 @@ function DecoracionYDisenoEventoContent() {
                           const zonaName = getZonaDisplayName(item.zona, zonasDiseno);
                           return (
                             <tr key={item.id} className={cn("border-b border-slate-50 hover:bg-slate-50/50", i % 2 === 0 ? "bg-white" : "bg-slate-50/30")}>
-                              <td className="p-4 font-semibold text-slate-800">{item.nombre}</td>
+                              <td className="p-4">
+                                <Input
+                                  value={item.nombre}
+                                  onChange={e => handleUpdateDecoItem(item.id, { nombre: e.target.value })}
+                                  className="h-8 text-sm font-semibold"
+                                />
+                              </td>
                               <td className="p-4 text-slate-500 text-xs">{item.categoria}</td>
                               <td className="p-4 text-xs"><Badge variant="outline" className="rounded-full text-[10px]">{zonaName}</Badge></td>
-                              <td className="p-4 text-center font-bold text-slate-700">{item.cantidad}</td>
-                              <td className="p-4 text-right text-slate-500">{costo > 0 ? `$${costo.toLocaleString()}` : '—'}</td>
+                              <td className="p-4">
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  value={item.cantidad}
+                                  onChange={e => handleUpdateDecoItem(item.id, { cantidad: Math.max(1, Number(e.target.value)) })}
+                                  className="h-8 w-20 text-center text-sm font-bold"
+                                />
+                              </td>
+                              <td className="p-4">
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  step="0.01"
+                                  value={item.costoUnitario ?? ''}
+                                  onChange={e => handleUpdateDecoItem(item.id, { costoUnitario: e.target.value === '' ? undefined : Math.max(0, Number(e.target.value)) })}
+                                  className="h-8 w-28 ml-auto text-right text-sm"
+                                  placeholder="—"
+                                />
+                              </td>
                               <td className="p-4 text-right font-bold text-slate-800">{costo > 0 ? `$${(costo * item.cantidad).toLocaleString()}` : '—'}</td>
                               <td className="p-4 text-center">
                                 <Badge
@@ -1719,6 +1756,19 @@ function DecoracionYDisenoEventoContent() {
                     </div>
 
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs text-slate-500">Escala ({(selectedCanvasEl.escala ?? 1).toFixed(1)}x)</label>
+                        <input
+                          type="range"
+                          min={0.2}
+                          max={5}
+                          step={0.1}
+                          value={selectedCanvasEl.escala ?? 1}
+                          onChange={e => handleUpdateSelectedElProp('escala', Number(e.target.value))}
+                          className="w-full h-2 accent-primary"
+                        />
+                      </div>
+
                       <div className="space-y-1">
                         <label className="text-xs text-slate-500">Opacidad ({Math.round((selectedCanvasEl.opacity ?? 1) * 100)}%)</label>
                         <input
