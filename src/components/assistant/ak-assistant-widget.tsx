@@ -1037,7 +1037,7 @@ export function AKAssistantWidget() {
                       {voiceSendMode && inputText && (
                         <span
                           className="text-[10px] text-rose-500 truncate block italic"
-                          aria-label={`Vista previa de transcripción: ${inputText}`}
+                          aria-label={`Vista previa de transcripción: ${inputText.length > 120 ? `${inputText.slice(0, 117)}...` : inputText}`}
                         >
                           "{inputText}"
                         </span>
