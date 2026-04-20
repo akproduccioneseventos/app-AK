@@ -67,6 +67,12 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     }
   }, [lead.notes, isEditingNotes]);
 
+  useEffect(() => {
+    if (isDeleting) {
+      setIsEditingNotes(false);
+    }
+  }, [isDeleting]);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -146,7 +152,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
 
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none">
-      <Card className="shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto overflow-hidden">
+      <Card className={cn("shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto overflow-hidden", isDeleting && "opacity-60 pointer-events-none")}>
         <CardHeader 
           {...attributes} 
           {...listeners} 
@@ -156,7 +162,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
             <div className="flex-grow min-w-0">
                 <div className="flex items-center justify-between gap-2">
                     <p className="font-bold text-sm truncate" title={lead.name}>{lead.name}</p>
-                    <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
                       {isInactive && (
                         <Badge variant="outline" className="text-[9px] h-4 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`Sin actividad hace +${INACTIVITY_DAYS} días`}>
                           <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />Sin actividad
@@ -182,7 +188,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                       )}
                     </div>
                 </div>
-                {lead.assignedTo && (
+                {lead.assignedTo?.trim() && (
                   <p className="text-[10px] text-muted-foreground mt-0.5 truncate">👤 {lead.assignedTo}</p>
                 )}
             </div>
@@ -201,12 +207,12 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
             </div>
           )}
           {lead.partyType && (
-            <div className="flex items-center gap-2">
-              <Building2 className="w-3.5 h-3.5"/>
-              <span className="truncate">{lead.partyType} {lead.venueName && `en ${lead.venueName}`}</span>
-            </div>
-          )}
-          {lead.guestCount && (
+             <div className="flex items-center gap-2">
+               <Building2 className="w-3.5 h-3.5"/>
+               <span className="truncate">{lead.partyType}{!isMobile && lead.venueName && ` en ${lead.venueName}`}</span>
+             </div>
+           )}
+          {!isMobile && lead.guestCount && (
              <div className="flex items-center gap-2">
               <Users className="w-3.5 h-3.5"/>
               <span>~{lead.guestCount} invitados</span>
@@ -316,7 +322,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader><AlertDialogTitle>¿Eliminar Prospecto?</AlertDialogTitle><AlertDialogDescription>Se borrará permanentemente a "{lead.name}".</AlertDialogDescription></AlertDialogHeader>
-                    <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => onDeleteLead(lead.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                    <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => onDeleteLead(lead.id)} className="bg-destructive hover:bg-destructive/90" disabled={isDeleting}>Eliminar</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
         </CardFooter>

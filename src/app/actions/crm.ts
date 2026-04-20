@@ -13,6 +13,7 @@ import * as logger from '@/lib/logger';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
+const TRASH_NAMES = ['test', 'prueba', 'asdf', 'qwerty', 'xxx', 'zzz', 'aaa', 'bbb', 'admin', 'usuario', 'user', 'nombre'];
 
 /** Normalizes a phone number: removes spaces, dashes, parens and keeps the last 9 digits. */
 function normalizePhone(phone: string): string {
@@ -24,7 +25,7 @@ function normalizeName(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
-const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 4;
+const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 6;
 
 function namesAreSimilar(a: string, b: string): boolean {
   const na = normalizeName(a);
@@ -87,17 +88,18 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
 }
 
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
-  // Sanitize name input
   const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
-
-  // Strict name validations
-  if (nameCleaned.length < 2) {
-    return { success: false, error: 'El nombre es demasiado corto.' };
+  const nameOnlyLetters = nameCleaned.replace(/\p{Emoji}/gu, '').replace(/\d/g, '').trim();
+  if (nameCleaned.length < 3) {
+    return { success: false, error: 'El nombre es demasiado corto (mínimo 3 caracteres).' };
+  }
+  if (nameOnlyLetters.length < 2) {
+    return { success: false, error: 'El nombre debe contener al menos 2 letras reales.' };
   }
   if (/^\d+$/.test(nameCleaned)) {
     return { success: false, error: 'El nombre no puede ser solo números.' };
   }
-  if (nameCleaned.replace(/\p{Emoji}/gu, '').trim().length < 2) {
+  if (TRASH_NAMES.includes(nameCleaned.toLowerCase())) {
     return { success: false, error: 'El nombre no es válido.' };
   }
 
@@ -120,7 +122,11 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
   // Duplicate detection by phone
   if (sanitizedData.phone) {
     const normalizedPhone = normalizePhone(sanitizedData.phone);
-    const duplicate = leads.find(l => l.phone && normalizePhone(l.phone) === normalizedPhone);
+    const duplicate = leads.find((l) => {
+      if (!l.phone || normalizePhone(l.phone) !== normalizedPhone) return false;
+      if (sanitizedData.presupuestoId && l.presupuestoId === sanitizedData.presupuestoId) return false;
+      return true;
+    });
     if (duplicate) {
       logger.warn('[CRM] Duplicado detectado por teléfono:', { existing: duplicate.name, incoming: nameNormalized });
       return { success: false, error: `Ya existe un prospecto con este teléfono: "${duplicate.name}".`, duplicate };
@@ -229,6 +235,18 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
                 docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
                 await batch.commit();
             }
+        }
+
+        // writeData clears persisted leads in the active storage backend (Firestore).
+        await writeData(LEADS_FILE, []);
+        // Keep the local JSON mirror in sync as an explicit fallback/source for local tooling.
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const localLeadsPath = path.join(process.cwd(), 'src', 'data', LEADS_FILE);
+        try {
+            await fs.writeFile(localLeadsPath, JSON.stringify([], null, 2), 'utf-8');
+        } catch (localWriteError) {
+            logger.warn('[CRM] No se pudo limpiar espejo local de leads tras reset:', localWriteError);
         }
 
         logger.info('[CRM] CRM reiniciado por admin. Prospectos eliminados:', { deletedCount });
