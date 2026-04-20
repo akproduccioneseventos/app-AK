@@ -335,7 +335,13 @@ export default function PresentacionLedPage() {
     if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) {
       sessionStorage.setItem('presentacion_menu_adolescente', selectedTeenMenuId);
     }
-    router.push('/presupuestos/nuevo/crear');
+    const params = new URLSearchParams();
+    if (clientData.nombre.trim()) params.set('leadName', clientData.nombre.trim());
+    safeIds.forEach((id) => params.append('servicios', id));
+    if (selectedMenuId && /^[\w-]+$/.test(selectedMenuId)) params.set('menuId', selectedMenuId);
+    if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) params.set('teenMenuId', selectedTeenMenuId);
+    const query = params.toString();
+    router.push(query ? `/presupuestos/nuevo/crear?${query}` : '/presupuestos/nuevo/crear');
   }, [selectedServices, clientData, selectedMenuId, selectedTeenMenuId, entradasCount, router]);
 
   const handlePrint = useCallback(() => {

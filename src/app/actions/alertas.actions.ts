@@ -4,6 +4,7 @@ import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { evaluarReglasParaFiesta, evaluarReglasParaTodasLasFiestas } from '@/lib/automatizaciones-engine';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 import { readData, writeData } from '@/lib/data-service';
+import * as logger from '@/lib/logger';
 
 const ALERTAS_LEIDAS_FILE = 'alertas-leidas.json';
 
@@ -37,7 +38,8 @@ export async function marcarAlertaLeida(alertaId: string): Promise<{ success: bo
       await writeData(ALERTAS_LEIDAS_FILE, idsLeidos);
     }
     return { success: true };
-  } catch {
+  } catch (error) {
+    logger.error(`[Alertas] Error marcando alerta "${alertaId}" como leída:`, error);
     return { success: false };
   }
 }
@@ -63,6 +65,22 @@ export async function getAlertasGlobalesConLeidas(): Promise<AlertaAutomatica[]>
   if (idsLeidosActivos.length !== idsLeidos.length) {
     await writeData(ALERTAS_LEIDAS_FILE, idsLeidosActivos);
   }
+  const idsLeidosSet = new Set(idsLeidosActivos);
 
-  return alertasActuales.map(a => ({ ...a, leida: idsLeidosActivos.includes(a.id) }));
+  return alertasActuales.map(a => ({ ...a, leida: idsLeidosSet.has(a.id) }));
+}
+
+export async function resetAlertasLeidas(): Promise<{ success: boolean }> {
+  try {
+    await writeData(ALERTAS_LEIDAS_FILE, []);
+    return { success: true };
+  } catch (error) {
+    logger.error('[Alertas] Error reseteando alertas leídas:', error);
+    return { success: false };
+  }
+}
+
+export async function getAlertasNoLeidas(): Promise<AlertaAutomatica[]> {
+  const todas = await getAlertasGlobalesConLeidas();
+  return todas.filter(a => !a.leida);
 }
