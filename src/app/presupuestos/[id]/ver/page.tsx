@@ -1286,7 +1286,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 .budget-print-tfoot-content {
                     border-top: 1px solid #ccc;
                     margin-top: 12px;
-                    padding-top: 12px !important;
+                    padding-top: 12px;
                     page-break-inside: avoid;
                     break-inside: avoid;
                 }
