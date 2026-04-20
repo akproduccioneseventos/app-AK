@@ -387,7 +387,8 @@ function DecoracionYDisenoEventoContent() {
     setNewDecoItemQty(1);
     setNewDecoItemCosto(undefined);
     setNewDecoItemImageUrl(undefined);
-    setNewDecoItemZona(zona || selectedZonaId);
+    const preferredZona = zona?.trim() || selectedZonaId?.trim() || validZonasForSelect[0]?.id || '';
+    setNewDecoItemZona(preferredZona);
     setIsDecoItemModalOpen(true);
   };
 
@@ -436,6 +437,7 @@ function DecoracionYDisenoEventoContent() {
     ...zonasDiseno,
     ...ZONAS_DEFAULT_IDS.filter(z => !zonasDiseno.find(zd => zd.id === z.id)),
   ];
+  const validZonasForSelect = allZonasForSelect.filter(z => z.id && z.id.trim() !== '');
 
   const selectedCanvasEl = canvasElementos.find(el => el.id === selectedCanvasId) ?? null;
   const selectedCanvasColores = selectedCanvasEl?.colores || [];
@@ -715,7 +717,7 @@ function DecoracionYDisenoEventoContent() {
                   <SelectValue placeholder="Seleccionar zona..." />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
-                  {allZonasForSelect.map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
+                  {allZonasForSelect.filter(z => z.id && z.id.trim() !== '').map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -1935,7 +1937,7 @@ function DecoracionYDisenoEventoContent() {
 
 function ChecklistAddForm({ onAdd, zonas }: { onAdd: (item: string, zona: string) => void; zonas: { id: string; nombre: string }[] }) {
   const [item, setItem] = React.useState('');
-  const [zona, setZona] = React.useState(zonas[0]?.id || 'zona_principal');
+  const [zona, setZona] = React.useState(zonas[0]?.id?.trim() || 'zona_principal');
   return (
     <div className="flex flex-col sm:flex-row gap-3">
       <Input value={item} onChange={e => setItem(e.target.value)} placeholder="Nuevo item del checklist..." className="rounded-xl h-11 bg-slate-50 border-none flex-1"
@@ -1943,7 +1945,7 @@ function ChecklistAddForm({ onAdd, zonas }: { onAdd: (item: string, zona: string
       <Select value={zona} onValueChange={setZona}>
         <SelectTrigger className="rounded-xl h-11 bg-slate-50 border-none w-full sm:w-44"><SelectValue /></SelectTrigger>
         <SelectContent className="rounded-2xl border-none shadow-2xl">
-          {zonas.map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
+          {zonas.filter(z => z.id && z.id.trim() !== '').map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
         </SelectContent>
       </Select>
       <Button type="button" onClick={() => { if (item.trim()) { onAdd(item, zona); setItem(''); } }} disabled={!item.trim()} className="rounded-xl h-11 px-6 shadow-lg shadow-primary/20">
