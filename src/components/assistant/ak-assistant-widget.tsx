@@ -1035,7 +1035,12 @@ export function AKAssistantWidget() {
                         {voiceSendMode ? '🎤 Escuchando... se enviará al terminar. Tocá para cancelar.' : '🎤 Transcribiendo... (tocá Enviar para mandar el mensaje)'}
                       </span>
                       {voiceSendMode && inputText && (
-                        <span className="text-[10px] text-rose-500 truncate block italic">"{inputText}"</span>
+                        <span
+                          className="text-[10px] text-rose-500 truncate block italic"
+                          aria-label={`Vista previa de transcripción: ${inputText}`}
+                        >
+                          "{inputText}"
+                        </span>
                       )}
                     </div>
                     <button onClick={stopListening} className="text-rose-400 hover:text-rose-600 shrink-0"><X className="h-3.5 w-3.5" /></button>
