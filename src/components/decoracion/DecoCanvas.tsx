@@ -64,6 +64,7 @@ const CanvasElement = memo(function CanvasElement({
 
   return (
     <div
+      data-deco-element="true"
       className="absolute"
       style={{
         left: el.x,
@@ -132,6 +133,7 @@ const CanvasElement = memo(function CanvasElement({
             className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-blue-500 border-2 border-white shadow-lg cursor-crosshair flex items-center justify-center"
             onMouseDown={e => { e.stopPropagation(); onRotateMouseDown(e, el.id); }}
             onTouchStart={e => { e.stopPropagation(); onRotateTouchStart(e, el.id); }}
+            onClick={e => e.stopPropagation()}
           >
             <RotateCcw className="w-3 h-3 text-white" />
           </div>
@@ -154,6 +156,7 @@ const CanvasElement = memo(function CanvasElement({
               }}
               onMouseDown={e => { e.stopPropagation(); onResizeMouseDown(e, el.id, handle); }}
               onTouchStart={e => { e.stopPropagation(); onResizeTouchStart(e, el.id, handle); }}
+              onClick={e => e.stopPropagation()}
             />
           ))}
         </>
@@ -308,7 +311,8 @@ export default function DecoCanvas({
   const handleTouchStartOnElement = useCallback((e: React.TouchEvent, id: string) => {
     e.preventDefault();
     onSelectId(id);
-    const touch = e.touches[0];
+    const touch = e.touches[0] ?? e.changedTouches[0];
+    if (!touch) return;
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
     interaction.current = {
@@ -327,7 +331,8 @@ export default function DecoCanvas({
     e.preventDefault();
     e.stopPropagation();
     onSelectId(id);
-    const touch = e.touches[0];
+    const touch = e.touches[0] ?? e.changedTouches[0];
+    if (!touch) return;
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
     interaction.current = {
@@ -344,7 +349,8 @@ export default function DecoCanvas({
     e.preventDefault();
     e.stopPropagation();
     onSelectId(id);
-    const touch = e.touches[0];
+    const touch = e.touches[0] ?? e.changedTouches[0];
+    if (!touch) return;
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
     const canvas = containerRef.current;
@@ -364,7 +370,8 @@ export default function DecoCanvas({
     const state = interaction.current;
     if (state.type === 'idle') return;
     e.preventDefault();
-    const touch = e.touches[0];
+    const touch = e.touches[0] ?? e.changedTouches[0];
+    if (!touch) return;
 
     if (state.type === 'drag') {
       const { elementId, startMouseX, startMouseY, startElX, startElY } = state.data;
@@ -479,6 +486,8 @@ export default function DecoCanvas({
               cursor: 'default',
             }}
             onClick={e => {
+              const target = e.target as HTMLElement;
+              if (target.closest('[data-deco-element="true"]')) return;
               e.stopPropagation();
               onSelectId(null);
             }}
