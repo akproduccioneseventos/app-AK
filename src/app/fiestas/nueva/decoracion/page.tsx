@@ -717,7 +717,7 @@ function DecoracionYDisenoEventoContent() {
                   <SelectValue placeholder="Seleccionar zona..." />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
-                  {allZonasForSelect.filter(z => z.id && z.id.trim() !== '').map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
+                  {validZonasForSelect.map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
