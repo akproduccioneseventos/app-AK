@@ -62,20 +62,23 @@ Podés ejecutar estas acciones cuando el usuario te lo pida:
 Si el usuario te dice "creame un presupuesto" o te pasa datos de un evento:
 - Respondé con action.type = "create_budget"
 - Extraé los datos: nombre del cliente, tipo de evento, fecha, cantidad de invitados, servicios
-- **IMPORTANTE**: Incluí los servicios reales en action.data.servicios como array de objetos
-- **IMPORTANTE**: Si el usuario dice "créalo" (o "crealo"), "dale", "sí", "confirmá", "créalo ahora" (o "crealo ahora") — buscá los datos del presupuesto en el HISTORIAL DE CONVERSACIÓN y crealo con esos datos. SIEMPRE incluí action.data con todos los campos que hayas podido extraer del historial.
+- **OBLIGATORIO**: Incluí los servicios en action.data.servicios como array de objetos JSON puros
+- **OBLIGATORIO**: Si el usuario dice "créalo" (o "crealo"), "dale", "sí", "confirmá", "créalo ahora" (o "crealo ahora") — buscá los datos del presupuesto en el HISTORIAL DE CONVERSACIÓN y crealo con esos datos. SIEMPRE incluí action.data con todos los campos que hayas podido extraer del historial.
 - En action.data poné: { clienteNombre, eventoTipo, eventoFecha, invitados, servicios: [{ nombre, cantidad, precioUnitario, categoria }], notas, senia, saldo, ajusteAnualPorcentaje }
 - Si el usuario menciona seña/saldo/ajuste anual, incluílos en los datos
-- **PROHIBIDO** en create_budget: escribir diálogos, explicaciones o texto conversacional dentro de action.data.servicios
+- **ABSOLUTAMENTE PROHIBIDO** en action.data.servicios: poner strings de texto libre, frases, diálogos o explicaciones como valor del campo nombre. Cada elemento del array DEBE ser un objeto con nombre (string corto ≤ 60 chars, solo el nombre del servicio), cantidad (número), precioUnitario (número), categoria (string).
+- Ejemplo correcto: [{"nombre":"Sonido","cantidad":1,"precioUnitario":15000,"categoria":"Audio"}]
+- Ejemplo INCORRECTO: [{"nombre":"Aquí te presento el presupuesto con los servicios solicitados..."}]
 - Si no tenés servicios claros con precio, enviá action.type = "none" y pedí los datos faltantes en response
 
 ### FORMATO ESTRUCTURADO OBLIGATORIO (TODAS LAS ACCIONES)
 - action.data debe ser SIEMPRE un objeto JSON válido (no string serializado)
 - Los campos numéricos deben ir como número cuando sea posible (invitados, monto, cantidad, precioUnitario, etc.)
-- Nunca pongas frases conversacionales dentro de campos de datos
+- NUNCA pongas frases conversacionales dentro de campos de datos
 - Para create_budget e import_budget_from_image:
-  - servicios debe ser array de objetos: [{ nombre, cantidad, precioUnitario, categoria }]
-  - Si no hay servicios válidos, no inventes texto ni items
+  - servicios DEBE ser un array de objetos: [{ nombre, cantidad, precioUnitario, categoria }]
+  - nombre de cada servicio: string corto, máximo 60 caracteres, solo el nombre del servicio
+  - Si no hay servicios válidos con precio, no inventes texto ni items — dejá servicios como array vacío []
 
 ### 👤 INGRESAR CLIENTE
 Si dice "ingresame un cliente" o "agregá este cliente":
@@ -264,7 +267,7 @@ Conocés todas las secciones de la app:
 
 const assistantPrompt = ai.definePrompt({
   name: 'assistantPrompt',
-  model: 'googleai/gemini-2.5-flash',
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: AssistantInputSchema },
   output: { schema: AssistantOutputSchema },
   system: SYSTEM_PROMPT,
@@ -280,9 +283,12 @@ const assistantPrompt = ai.definePrompt({
 {{{message}}}
 {{#if imageDataUri}}
 {{media url=imageDataUri}}
-{{/if}}`,
+{{/if}}
+
+## RECORDATORIO CRÍTICO DE FORMATO:
+Respondé SIEMPRE con JSON estricto según el schema. El campo action.data.servicios debe ser un array de objetos con claves nombre, cantidad, precioUnitario y categoria. NUNCA pongas texto conversacional ni frases dentro de esos campos.`,
   config: {
-    temperature: 0.7,
+    temperature: 0.2,
   },
 });
 

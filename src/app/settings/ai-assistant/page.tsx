@@ -1,20 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Bot, Save, Loader2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAiAssistantSettings, saveAiAssistantSettings } from '@/app/actions/settings';
+import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection } from '@/app/actions/settings';
 
 export default function AiAssistantSettingsPage() {
   const [customInstructions, setCustomInstructions] = useState('');
   const [updatedAt, setUpdatedAt] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [apiStatus, setApiStatus] = useState<'unknown' | 'ok' | 'error'>('unknown');
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isTesting, setIsTesting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -24,6 +27,29 @@ export default function AiAssistantSettingsPage() {
       setIsLoading(false);
     });
   }, []);
+
+  const handleTestConnection = useCallback(async () => {
+    setIsTesting(true);
+    setApiStatus('unknown');
+    setApiError(null);
+    try {
+      const result = await testGeminiConnection();
+      if (result.ok) {
+        setApiStatus('ok');
+        toast({ title: '✅ Conexión exitosa', description: 'La API de Gemini está funcionando correctamente.' });
+      } else {
+        setApiStatus('error');
+        setApiError(result.error || 'Error desconocido');
+        toast({ title: '❌ Error de conexión', description: result.error || 'No se pudo conectar a Gemini.', variant: 'destructive' });
+      }
+    } catch {
+      setApiStatus('error');
+      setApiError('No se pudo contactar al servidor.');
+      toast({ title: '❌ Error', description: 'No se pudo probar la conexión.', variant: 'destructive' });
+    } finally {
+      setIsTesting(false);
+    }
+  }, [toast]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -55,6 +81,66 @@ export default function AiAssistantSettingsPage() {
           </p>
         </div>
       </div>
+
+      {/* Estado de la API de Gemini */}
+      <Card className={
+        apiStatus === 'ok' ? 'border-green-300 bg-green-50' :
+        apiStatus === 'error' ? 'border-red-300 bg-red-50' :
+        'border-slate-200'
+      }>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            {apiStatus === 'ok' && <Wifi className="w-4 h-4 text-green-600" />}
+            {apiStatus === 'error' && <WifiOff className="w-4 h-4 text-red-600" />}
+            {apiStatus === 'unknown' && <Wifi className="w-4 h-4 text-slate-400" />}
+            Estado de la API de Gemini
+          </CardTitle>
+          <CardDescription>
+            {apiStatus === 'ok' && (
+              <span className="text-green-700 font-medium">✅ Conectada — La API de Gemini está funcionando correctamente.</span>
+            )}
+            {apiStatus === 'error' && (
+              <span className="text-red-700 font-medium">❌ Sin conexión — El Asistente AK no puede funcionar sin esta API.</span>
+            )}
+            {apiStatus === 'unknown' && (
+              <span className="text-slate-500">Verificá si la API key de Gemini está configurada y es válida.</span>
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {apiStatus === 'error' && apiError && (
+            <div className="flex gap-2 p-3 bg-red-100 border border-red-200 rounded-md text-sm text-red-800">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Detalle del error:</p>
+                <p className="font-mono text-xs mt-1 break-all">{apiError}</p>
+                <p className="mt-2 text-xs text-red-700">
+                  Para solucionar: asegurate de que el secreto <code className="bg-red-200 px-1 rounded">google-api-key</code> esté creado en Firebase App Hosting con una API key válida de Google AI Studio (<a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline">aistudio.google.com</a>).
+                </p>
+              </div>
+            </div>
+          )}
+          <Button
+            variant={apiStatus === 'error' ? 'destructive' : 'outline'}
+            size="sm"
+            onClick={handleTestConnection}
+            disabled={isTesting}
+            className="w-full sm:w-auto"
+          >
+            {isTesting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Probando conexión...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Probar conexión con Gemini
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

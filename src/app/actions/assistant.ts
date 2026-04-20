@@ -238,6 +238,20 @@ function normalizeActionData(rawData: unknown): any {
   return rawData;
 }
 
+const MAX_SERVICE_NAME_LENGTH = 80;
+
+function isDialogueText(value: string): boolean {
+  if (!value) return false;
+  // Reject entries that look like conversational text rather than a service name:
+  // - too long (real service names are short; MAX_SERVICE_NAME_LENGTH chars is generous)
+  if (value.length > MAX_SERVICE_NAME_LENGTH) return true;
+  // - multiple sentence-ending punctuation marks (dialogue typically has full sentences)
+  if ((value.match(/[.!?]/g) || []).length >= 2) return true;
+  // - start with common dialogue openers in Spanish
+  if (/^(aquí|acá|claro|por supuesto|entendido|perfecto|voy a|te |le |como|para que|a continuación)/i.test(value.trim())) return true;
+  return false;
+}
+
 function normalizeServicesInput(rawServices: unknown): Array<{
   nombre?: string;
   name?: string;
@@ -257,7 +271,13 @@ function normalizeServicesInput(rawServices: unknown): Array<{
         precio?: number;
         categoria?: string;
         category?: string;
-      } => typeof item === 'object' && item !== null
+      } => {
+        if (typeof item !== 'object' || item === null) return false;
+        const nombre = (item as any).nombre || (item as any).name || '';
+        // Reject items whose name looks like dialogue text
+        if (isDialogueText(nombre)) return false;
+        return true;
+      }
     );
   }
   if (typeof rawServices === 'string') {
@@ -408,20 +428,25 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
             }
           }
 
-          const items = serviciosInput.map((s, i) => {
-            const qty = Number(s.cantidad) || 1;
-            const price = Number(s.precioUnitario) || Number(s.precio) || 0;
-            return {
-              idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
-              nombreServicio: s.nombre || s.name || DEFAULT_SERVICE_NAME,
-              descripcionServicio: s.descripcion,
-              cantidad: qty,
-              precioUnitario: price,
-              precioUnitarioPresupuesto: price,
-              costoTotalItem: qty * price,
-              categoriaServicio: s.categoria || s.category || 'Servicios',
-            };
-          });
+          // Only keep items with a valid price — discard zero-price or dialogue-contaminated entries
+          const items = serviciosInput
+            .map((s, i) => {
+              const qty = Number(s.cantidad) || 1;
+              const price = Number(s.precioUnitario) || Number(s.precio) || 0;
+              // Truncate to MAX_SERVICE_NAME_LENGTH — consistent with isDialogueText() limit above
+              const nombreServicio = (s.nombre || s.name || DEFAULT_SERVICE_NAME).substring(0, MAX_SERVICE_NAME_LENGTH);
+              return {
+                idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
+                nombreServicio,
+                descripcionServicio: s.descripcion,
+                cantidad: qty,
+                precioUnitario: price,
+                precioUnitarioPresupuesto: price,
+                costoTotalItem: qty * price,
+                categoriaServicio: s.categoria || s.category || 'Servicios',
+              };
+            })
+            .filter(item => item.precioUnitario > 0);
           logger.info('[Asistente AK] Guardando presupuesto:', { clienteNombre: d.clienteNombre, itemCount: items.length });
           const budgetResult = await savePresupuesto({
             clienteNombre: d.clienteNombre,

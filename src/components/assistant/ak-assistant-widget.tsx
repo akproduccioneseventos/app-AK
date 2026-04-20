@@ -462,6 +462,7 @@ export function AKAssistantWidget() {
   const [voiceError, setVoiceError] = useState(false);
   const [voiceSendMode, setVoiceSendMode] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const listeningCancelledRef = useRef(false);
 
   // Voice output (TTS) state
   const [ttsEnabled, setTtsEnabled] = useState(false);
@@ -546,10 +547,12 @@ export function AKAssistantWidget() {
       if (result.success && result.response) {
         setChatHistory(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: result.response!, action: result.action }]);
 
-        if (result.action?.type && result.action.type !== 'none') {
+        if (result.action?.type) {
           const actionData = result.action.data;
           const actionResult = result.action.result;
           switch (result.action.type) {
+            case 'none':
+              break;
             case 'navigate':
               if (actionData?.href) {
                 router.push(actionData.href);
@@ -694,6 +697,7 @@ export function AKAssistantWidget() {
     }
     try {
       const recognition = new SpeechRecognition();
+      let accumulatedTranscript = '';
       recognition.lang = 'es-UY';
       recognition.continuous = autoSend ? false : true;
       recognition.interimResults = true;
@@ -705,7 +709,10 @@ export function AKAssistantWidget() {
               transcript += event.results[i][0].transcript;
             }
           }
-          if (transcript) setInputText(prev => prev + transcript);
+          if (transcript) {
+            accumulatedTranscript += transcript;
+            setInputText(prev => prev + transcript);
+          }
         } else {
           let transcript = '';
           for (let i = 0; i < event.results.length; i++) {
@@ -719,20 +726,30 @@ export function AKAssistantWidget() {
           toast({ title: '🎤 Permiso denegado', description: 'No se pudo usar el micrófono en este dispositivo.', variant: 'destructive' });
           setVoiceError(true);
         }
+        recognitionRef.current = null;
         setIsListening(false);
         setVoiceSendMode(false);
       };
       recognition.onend = () => {
+        const wasCancelled = listeningCancelledRef.current;
+        listeningCancelledRef.current = false;
         setIsListening(false);
         setVoiceSendMode(false);
+        recognitionRef.current = null;
         if (autoSend) {
-          recognitionRef.current = null;
-          // Use a timeout so inputText state has settled before sending
-          setTimeout(() => {
-            handleSend();
-          }, 100);
+          const transcriptToSend = accumulatedTranscript.trim();
+          if (wasCancelled) return;
+          if (transcriptToSend) {
+            handleSend(transcriptToSend);
+          } else {
+            toast({
+              title: '🎤 Sin audio detectado',
+              description: 'No se capturó ningún mensaje. Intentá hablar más cerca del micrófono.',
+            });
+          }
         }
       };
+      listeningCancelledRef.current = false;
       recognition.start();
       recognitionRef.current = recognition;
       setIsListening(true);
@@ -746,19 +763,12 @@ export function AKAssistantWidget() {
 
   const stopListening = () => {
     if (recognitionRef.current) {
+      listeningCancelledRef.current = true;
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
     setIsListening(false);
     setVoiceSendMode(false);
-  };
-
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
   };
 
   // --- Voice Output (Text-to-Speech) ---
@@ -1020,8 +1030,20 @@ export function AKAssistantWidget() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500" />
                     </span>
-                    <span className="text-xs text-rose-700 flex-1">{voiceSendMode ? 'Escuchando... (enviará al terminar)' : 'Escuchando...'}</span>
-                    <button onClick={stopListening} className="text-rose-400 hover:text-rose-600"><X className="h-3.5 w-3.5" /></button>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs text-rose-700 font-medium block">
+                        {voiceSendMode ? '🎤 Escuchando... se enviará al terminar. Tocá para cancelar.' : '🎤 Transcribiendo... (tocá Enviar para mandar el mensaje)'}
+                      </span>
+                      {voiceSendMode && inputText && (
+                        <span
+                          className="text-[10px] text-rose-500 truncate block italic"
+                          aria-label={`Vista previa de transcripción: ${inputText.length > 120 ? `${inputText.slice(0, 117)}...` : inputText}`}
+                        >
+                          "{inputText}"
+                        </span>
+                      )}
+                    </div>
+                    <button onClick={stopListening} className="text-rose-400 hover:text-rose-600 shrink-0"><X className="h-3.5 w-3.5" /></button>
                   </div>
                 )}
                 <div className="flex items-end gap-1.5">
@@ -1032,28 +1054,23 @@ export function AKAssistantWidget() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn('h-8 w-8 shrink-0', isListening ? 'text-rose-500 animate-pulse' : voiceError ? 'text-slate-300' : 'text-slate-400 hover:text-indigo-600')}
-                    onClick={toggleListening}
-                    title={isListening ? 'Detener escucha' : voiceError ? 'Micrófono no disponible' : 'Hablar'}
+                    className={cn('h-8 w-8 shrink-0', isListening ? 'text-rose-500 animate-pulse' : voiceError ? 'text-slate-300' : 'text-slate-400 hover:text-emerald-600')}
+                    onClick={() => { if (isListening) { stopListening(); } else { startListening(true); } }}
+                    title={isListening ? 'Detener y cancelar envío' : voiceError ? 'Micrófono no disponible' : 'Hablar (enviará automáticamente al terminar)'}
                     disabled={isSending}
                   >
                     {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn('h-8 w-8 shrink-0', isListening && voiceSendMode ? 'text-emerald-500 animate-pulse' : voiceError ? 'text-slate-300' : 'text-slate-400 hover:text-emerald-600')}
-                    onClick={() => { if (isListening) { stopListening(); } else { startListening(true); } }}
-                    title={isListening && voiceSendMode ? 'Detener y cancelar envío' : voiceError ? 'Micrófono no disponible' : 'Hablar y enviar automáticamente al terminar'}
-                    disabled={isSending}
-                  >
-                    {isListening && voiceSendMode ? <MicOff className="h-4 w-4" /> : <span className="flex items-center"><Mic className="h-3.5 w-3.5" /><Send className="h-2.5 w-2.5 -ml-0.5" /></span>}
                   </Button>
                   <textarea value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Escribí algo, adjuntá un archivo o usá el micrófono..." rows={1} className="flex-1 resize-none text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 bg-slate-50 max-h-20 min-h-[32px]" style={{ lineHeight: '1.4' }} />
                   <Button size="icon" className="h-8 w-8 bg-indigo-600 hover:bg-indigo-700 text-white shrink-0 rounded-xl" onClick={() => handleSend()} disabled={isSending || (!inputText.trim() && !attachedFile)}>
                     {isSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                   </Button>
                 </div>
+                {chatHistory.length === 0 && !isListening && (
+                  <p className="text-[10px] text-slate-400 text-center">
+                    🎤 Tocá el micrófono para hablar y enviar automáticamente
+                  </p>
+                )}
                 <div className="flex items-center justify-between">
                   {chatHistory.length > 0 ? (
                     <button onClick={handleNewConversation} className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-rose-500 transition-colors">
