@@ -11,7 +11,7 @@ export async function GET() {
     firebaseOk = false;
   }
 
-  const geminiKey = process.env.GOOGLE_GENAI_API_KEY;
+  const geminiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   const geminiOk = typeof geminiKey === 'string' && geminiKey.length > 0 && geminiKey !== 'dummy';
 
   return NextResponse.json({

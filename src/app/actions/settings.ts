@@ -453,3 +453,37 @@ export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings
     return { success: false, error: e.message };
   }
 }
+
+const GEMINI_CONNECTION_TIMEOUT_MS = 15000;
+
+export async function testGeminiConnection(): Promise<{ ok: boolean; error?: string }> {
+  const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return {
+      ok: false,
+      error: 'La API key de Gemini no está configurada en el servidor. Verificá que el secreto "google-api-key" esté creado en Firebase y que el backend tenga acceso a él.',
+    };
+  }
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: 'Respondé solo la palabra: ok' }] }],
+          generationConfig: { maxOutputTokens: 5 },
+        }),
+        signal: AbortSignal.timeout(GEMINI_CONNECTION_TIMEOUT_MS),
+      }
+    );
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      const msg = (errData as any)?.error?.message || `HTTP ${resp.status}`;
+      return { ok: false, error: `Gemini respondió con error: ${msg}` };
+    }
+    return { ok: true };
+  } catch (error: any) {
+    return { ok: false, error: error?.message || String(error) };
+  }
+}

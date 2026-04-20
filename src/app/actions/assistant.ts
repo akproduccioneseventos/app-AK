@@ -238,11 +238,13 @@ function normalizeActionData(rawData: unknown): any {
   return rawData;
 }
 
+const MAX_SERVICE_NAME_LENGTH = 80;
+
 function isDialogueText(value: string): boolean {
   if (!value) return false;
   // Reject entries that look like conversational text rather than a service name:
-  // - too long (real service names are short; 80 chars is generous for any real service)
-  if (value.length > 80) return true;
+  // - too long (real service names are short; MAX_SERVICE_NAME_LENGTH chars is generous)
+  if (value.length > MAX_SERVICE_NAME_LENGTH) return true;
   // - multiple sentence-ending punctuation marks (dialogue typically has full sentences)
   if ((value.match(/[.!?]/g) || []).length >= 2) return true;
   // - start with common dialogue openers in Spanish
@@ -431,8 +433,8 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
             .map((s, i) => {
               const qty = Number(s.cantidad) || 1;
               const price = Number(s.precioUnitario) || Number(s.precio) || 0;
-              // Truncate to 80 chars — consistent with isDialogueText() limit above
-              const nombreServicio = (s.nombre || s.name || DEFAULT_SERVICE_NAME).substring(0, 80);
+              // Truncate to MAX_SERVICE_NAME_LENGTH — consistent with isDialogueText() limit above
+              const nombreServicio = (s.nombre || s.name || DEFAULT_SERVICE_NAME).substring(0, MAX_SERVICE_NAME_LENGTH);
               return {
                 idServicioCatalogo: s.id || `asistente_${i}_${Date.now()}`,
                 nombreServicio,
