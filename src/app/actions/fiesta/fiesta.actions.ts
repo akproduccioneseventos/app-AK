@@ -27,12 +27,12 @@ import type { ItemPresupuestado } from '@/types/presupuesto';
 import {
     initialFiestaActualData,
     defaultModulosContratados,
-    defaultClientPortalSettings,
     defaultBebidasData,
     defaultReposteriaData,
     defaultDecoracion,
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
+import { mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
@@ -529,11 +529,14 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     const updatedFiesta = { ...fiesta };
     
     const guests = presupuesto.invitadosCantidad || 100;
-    const items = presupuesto.itemsPresupuestados || [];
+    const items = normalizeBudgetItemsForSync(presupuesto.itemsPresupuestados);
 
     // 1. ACTIVACIÓN DE MÓDULOS
     const modulos: ModulosContratados = { ...defaultModulosContratados };
-    const hasItem = (term: string) => items.some(i => i.nombreServicio.toLowerCase().includes(term.toLowerCase()));
+    const hasItem = (term: string) => {
+        const search = term.toLowerCase();
+        return items.some(i => (i.nombreServicio || '').toLowerCase().includes(search));
+    };
 
     modulos.catering = items.some(i => ['Entrada', 'Plato Principal', 'Postre', 'Servicio de catering', 'Menú Infantil', 'Menú Infantil/Adolescente'].includes(i.categoriaServicio || ''));
     modulos.musica = hasItem('discoteca') || hasItem(' dj') || items.some(i => ['Servicio de discoteca', 'Servicio de entretenimiento'].includes(i.categoriaServicio || ''));
@@ -579,15 +582,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     }
 
     // 3. ACTUALIZAR CONFIGURACIÓN DE PORTAL
-    updatedFiesta.clientPortalSettings = {
-        ...defaultClientPortalSettings,
-        enabled: true,
-        checklist: { visible: true, editable: true },
-        itinerario: { visible: true }
-    };
-
-    // 4. SINCRONIZAR LAVADERO
-    await syncLaundryCosts(fiestaId, guests, items);
+    updatedFiesta.clientPortalSettings = mergeClientPortalSettingsForSync(updatedFiesta.clientPortalSettings);
 
     // 5. ACTUALIZAR CONFIG GENERAL
     updatedFiesta.configuracion = {
@@ -662,7 +657,21 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         updatedFiesta.programa = generateItinerarioSugerido(presupuesto.eventoTipo || 'General', modulos);
     }
 
-    return await saveFiesta(updatedFiesta);
+    const saved = await saveFiesta(updatedFiesta);
+    if (!saved.success) return saved;
+
+    // 14. SINCRONIZAR LAVADERO después de guardar para evitar sobrescribir su actualización de costos
+    try {
+        await syncLaundryCosts(fiestaId, guests, items);
+    } catch (error: any) {
+        logger.error('[syncFiestaFromBudget] Error al sincronizar costos de lavadero', {
+            fiestaId,
+            error: error?.message || String(error),
+        });
+        return { success: false, error: 'La fiesta se sincronizó, pero falló la actualización de costos de lavadero.' };
+    }
+
+    return saved;
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {

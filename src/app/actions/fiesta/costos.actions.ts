@@ -1,6 +1,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, PagoProveedor } from '@/types/fiesta';
+import type { ItemPresupuestado } from '@/types/presupuesto';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { getPresupuestoById } from '../presupuestos';
 import { getGuestCountForItem } from '@/lib/calculations';
@@ -8,6 +9,7 @@ import { getServiciosEmpresa } from '../servicios-empresa';
 import { getMenus } from '../menus-catering';
 import { getRoles } from '../roles';
 import { getInsumos } from '../insumos';
+import { applyLaundryCosts } from '@/lib/fiesta-sync-utils';
 
 export async function updateGestionCostos(fiestaId: string, costos: GestionCostosData): Promise<{ success: boolean; updatedData?: GestionCostosData; error?: string }> {
   try {
@@ -145,44 +147,12 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
     }
 }
 
-export async function syncLaundryCosts(fiestaId: string, guests: number, budgetItems: any[]): Promise<void> {
+export async function syncLaundryCosts(fiestaId: string, guests: number, budgetItems: ItemPresupuestado[] | null | undefined): Promise<void> {
     if (!fiestaId || !budgetItems) return;
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return;
 
     const costs = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
-    const items = [...(costs.costosItems || [])];
-
-    const hasMantel = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('mantel'));
-    const hasCompleta = budgetItems.some(i => i.nombreServicio.toLowerCase().includes('completa'));
-
-    const updateOrCreateCost = (name: string, amount: number) => {
-        const index = items.findIndex(i => i.nombre === name);
-        if (amount > 0) {
-            if (index > -1) {
-                items[index].montoEstimado = Math.round(amount);
-            } else {
-                items.push({
-                    id: `laundry_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-                    nombre: name,
-                    category: 'Servicio Proveedor',
-                    montoEstimado: Math.round(amount),
-                    notas: 'Auto-generado: Lavadero del Sol'
-                });
-            }
-        } else if (index > -1) {
-            items.splice(index, 1);
-        }
-    };
-
-    if (hasMantel) {
-        const units = Math.ceil(guests / 8);
-        updateOrCreateCost('Lavado Mantel ($50)', units * 50);
-        updateOrCreateCost('Lavado Cubre ($18)', units * 18);
-        if (hasCompleta) {
-            updateOrCreateCost('Lavado Cubre Silla ($18)', guests * 18);
-        }
-    }
-
+    const items = applyLaundryCosts(costs.costosItems || [], guests, budgetItems);
     await updateGestionCostos(fiestaId, { ...costs, costosItems: items });
 }
