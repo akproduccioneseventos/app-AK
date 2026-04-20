@@ -36,6 +36,7 @@ import {
     ChefHat,
     Package,
     FileSignature,
+    X,
 } from 'lucide-react';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
@@ -52,7 +53,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { getAlertasGlobalesConLeidas } from '@/app/actions/alertas.actions';
+import { getAlertasGlobalesConLeidas, marcarAlertaLeida } from '@/app/actions/alertas.actions';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 
 const MAX_DASHBOARD_ALERTS = 3;
@@ -110,6 +111,20 @@ export default function MainDashboardPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    const handleDismissUrgentAlert = useCallback(async (alertaId: string) => {
+        const previous = alertasUrgentes;
+        setAlertasUrgentes(prev => prev.filter(a => a.id !== alertaId));
+        try {
+            const result = await marcarAlertaLeida(alertaId);
+            if (!result.success) {
+                throw new Error('No se pudo marcar la alerta como leída.');
+            }
+        } catch {
+            setAlertasUrgentes(previous);
+            toast({ title: "Error", description: "No se pudo cerrar la alerta.", variant: "destructive" });
+        }
+    }, [alertasUrgentes, toast]);
 
     const pieChartData = useMemo(() => {
         if (!kpiData) return [];
@@ -379,12 +394,21 @@ export default function MainDashboardPage() {
           </CardHeader>
           <CardContent className="px-5 pb-4 space-y-2">
             {alertasUrgentes.map(alerta => (
-              <div key={alerta.id} className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-red-100 text-sm">
+              <div key={alerta.id} className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-red-100 text-sm overflow-hidden">
                 <span className="text-lg shrink-0">{alerta.tipo === 'urgente' ? '🔴' : alerta.tipo === 'atencion' ? '🟡' : '🔵'}</span>
                 <div className="flex-1 min-w-0">
                   <span className="font-semibold text-slate-700 text-xs truncate block">{alerta.fiestaName}</span>
                   <span className="text-slate-500 text-xs">{alerta.mensaje}</span>
                 </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 shrink-0 text-slate-500 hover:text-red-700"
+                  onClick={() => handleDismissUrgentAlert(alerta.id)}
+                  aria-label="Cerrar alerta"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
                 {alerta.accionUrl && (
                   <Link href={alerta.accionUrl}>
                     <Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-red-500 hover:text-red-700 shrink-0">
@@ -407,7 +431,7 @@ export default function MainDashboardPage() {
                         <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Herramientas rápidas</CardTitle>
                         <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos, WhatsApp y modo presentación.</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-6 sm:p-8">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-6 sm:p-8 overflow-hidden">
                         <Link href="/presupuestos/nuevo/crear">
                             <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-indigo-200 hover:bg-indigo-50/50 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
                                 <div className="p-4 sm:p-5 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
@@ -520,7 +544,7 @@ export default function MainDashboardPage() {
                 </Card>
             </div>
             <div className="lg:col-span-4">
-                <Card className="h-full border-none shadow-2xl flex flex-col bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
+                <Card className="min-h-[24rem] lg:h-full border-none shadow-2xl flex flex-col bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
                     <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50/50 border-b border-indigo-100/50 pb-6 p-6 sm:p-8">
                         <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800">
                             <div className="p-2.5 bg-indigo-100 rounded-xl shadow-inner">
@@ -576,7 +600,7 @@ export default function MainDashboardPage() {
 
       <Separator className="opacity-30" />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
         <AnimatePresence>
           {mainHubItems.map((item, idx) => (
             <motion.div

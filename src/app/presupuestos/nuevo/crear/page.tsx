@@ -63,6 +63,14 @@ function formStateInitializer(initialState: PresupuestoFormData): PresupuestoFor
     return initialState;
 }
 
+function safeDecodeParam(value: string): string {
+    try {
+        return decodeURIComponent(value);
+    } catch {
+        return value;
+    }
+}
+
 function CrearPresupuestoContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -80,6 +88,22 @@ function CrearPresupuestoContent() {
     const [armadoConfig, setArmadoConfig] = useState<ArmadoRapidoConfig | null>(null);
     
     const leadIdFromParams = searchParams.get('leadId');
+
+    const mapServicioToSeleccion = useCallback((servicio: ServicioEmpresa, adultos: number, ninos: number) => ({
+        cantidad: calculateSuggestedQuantity(servicio as any, adultos, ninos),
+        precioUnitarioOriginal: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+        precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
+        nombreServicio: servicio.nombre,
+        unidad: servicio.unidad,
+        categoriaServicio: servicio.categoria,
+        subcategoria: servicio.subcategoria,
+        esRegalo: false,
+        calculationMethod: servicio.calculationMethod,
+        precioBase: servicio.precioBase,
+        precioPorPersona: servicio.precioPorPersona,
+        invitadosPorUnidad: servicio.invitadosPorUnidad,
+        tramosDePrecio: servicio.tramosDePrecio,
+    }), []);
 
     const fetchServicios = useCallback(async () => {
         try {
@@ -175,8 +199,49 @@ function CrearPresupuestoContent() {
                     }
                 } else {
                     const leadName = searchParams.get('leadName');
-                    if (leadName && !sessionStorage.getItem(SESSION_STORAGE_KEY)) {
-                        setFormData(prev => ({ ...prev, clienteNombre: leadName }));
+                    const serviciosParam = searchParams.get('servicios');
+                    const menuIdParam = searchParams.get('menuId');
+                    const teenMenuIdParam = searchParams.get('teenMenuId');
+                    const hasPlannerParams = Boolean(leadName || serviciosParam || menuIdParam || teenMenuIdParam);
+
+                    if (hasPlannerParams) {
+                        const baseForm: PresupuestoFormData = {
+                            ...initialFormData,
+                            serviciosSeleccionados: new Map(),
+                        };
+                        const adultos = baseForm.invitadosAdultos || 0;
+                        const ninos = (baseForm.invitadosNinos || 0) + (baseForm.invitadosAdolescentes || 0);
+
+                        if (serviciosParam) {
+                            try {
+                                const parsed = JSON.parse(serviciosParam);
+                                const selectedIds = Array.isArray(parsed) ? parsed : [];
+                                selectedIds
+                                    .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+                                    .forEach((id) => {
+                                        const servicio = services.find(s => s.id === id);
+                                        if (servicio) {
+                                            baseForm.serviciosSeleccionados.set(id, mapServicioToSeleccion(servicio, adultos, ninos));
+                                        }
+                                    });
+                            } catch {
+                                // ignore malformed query param
+                            }
+                        }
+
+                        if (menuIdParam) {
+                            baseForm.selectedMenuId = menuIdParam;
+                        } else if (teenMenuIdParam) {
+                            baseForm.selectedMenuId = teenMenuIdParam;
+                        }
+
+                        if (leadName) {
+                            baseForm.clienteNombre = safeDecodeParam(leadName);
+                        }
+
+                        setFormData(baseForm);
+                    } else if (leadName) {
+                        setFormData(prev => ({ ...prev, clienteNombre: safeDecodeParam(leadName) }));
                     }
                 }
             } catch (error) {
@@ -186,7 +251,7 @@ function CrearPresupuestoContent() {
             }
         };
         fetchInitialData();
-    }, [searchParams, toast, fetchServicios]);
+    }, [searchParams, toast, fetchServicios, mapServicioToSeleccion]);
 
     const handleNext = () => {
         if (paso === 1) {

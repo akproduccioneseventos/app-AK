@@ -37,7 +37,7 @@ interface PresupuestoCardProps {
   isAssignedToCurrentFiesta?: boolean;
   onToggleAssign?: () => void;
   isAssigning?: boolean;
-  onDeleteSuccess?: () => void;
+  onDeleteSuccess?: (id: string, action: 'archive' | 'delete') => void | Promise<void>;
   onHire?: () => void;
 }
 
@@ -90,7 +90,7 @@ export default function PresupuestoCard({
       const result = await archivePresupuesto(presupuesto.id);
       if (result.success) {
         toast({ title: "Presupuesto Archivado", description: "No aparecerá en el listado activo." });
-        if (onDeleteSuccess) onDeleteSuccess();
+        if (onDeleteSuccess) await onDeleteSuccess(presupuesto.id, 'archive');
       } else throw new Error(result.error);
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -105,7 +105,7 @@ export default function PresupuestoCard({
       const result = await deletePresupuesto(presupuesto.id);
       if (result.success) {
         toast({ title: "Presupuesto Eliminado Definitivamente", variant: "destructive" });
-        if (onDeleteSuccess) onDeleteSuccess();
+        if (onDeleteSuccess) await onDeleteSuccess(presupuesto.id, 'delete');
       } else throw new Error(result.error);
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });

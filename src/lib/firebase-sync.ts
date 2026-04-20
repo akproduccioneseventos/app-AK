@@ -42,6 +42,7 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'crm-meetings.json': 'crm_meetings',
   'scheduled-messages.json': 'scheduled_messages',
   'automatizaciones-alertas.json': 'automatizaciones_alertas',
+  'alertas-leidas.json': 'alertas_leidas',
   'playbooks.json': 'playbooks',
   'recursos-multi-evento.json': 'recursos_multi_evento',
   '_backup-snapshots.json': 'backup_snapshots',
@@ -103,10 +104,14 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
 
   try {
     const { dbAdmin } = await import('./firebase/server');
-    if (!dbAdmin) return;
+    if (!dbAdmin) {
+      throw new Error('[Firebase Sync] dbAdmin no disponible — Firebase no inicializado correctamente.');
+    }
     db = dbAdmin;
-  } catch {
-    return; // Firebase not available
+  } catch (error) {
+    throw error instanceof Error
+      ? error
+      : new Error('[Firebase Sync] Firebase no disponible para sincronización.');
   }
 
   const normalizedPath = filePath.replace(/\\/g, '/');
@@ -199,6 +204,9 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     logger.warn(`⚠️ [Firebase Sync] Falló la sincronización de "${collectionName}" después de ${MAX_RETRIES + 1} intentos.`);
     logger.warn(`   Motivo: ${error instanceof Error ? error.message : error}`);
     logger.warn(`   ℹ️ Los datos JSON locales NO fueron afectados y están seguros.`);
+    throw error instanceof Error
+      ? error
+      : new Error(`[Firebase Sync] Error sincronizando "${collectionName}".`);
   }
 }
 
@@ -283,5 +291,40 @@ export async function listCollectionFromFirestore(collectionName: string): Promi
   } catch (error) {
     logger.warn(`⚠️ Firestore listCollection failed for "${collectionName}":`, error);
     return [];
+  }
+}
+
+export async function rehydrateCollectionFromJson(filePath: string): Promise<{ success: boolean; count: number; error?: string }> {
+  try {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const normalizedPath = filePath.replace(/\\/g, '/');
+    const localCandidates = [
+      path.join(process.cwd(), 'data', normalizedPath),
+      path.join(process.cwd(), 'src', 'data', normalizedPath),
+    ];
+
+    let raw: string | null = null;
+    for (const localPath of localCandidates) {
+      try {
+        raw = await fs.readFile(localPath, 'utf-8');
+        break;
+      } catch {
+        // try next candidate
+      }
+    }
+
+    if (!raw) {
+      throw new Error(`No se encontró JSON local para "${normalizedPath}".`);
+    }
+
+    const data = JSON.parse(raw);
+    await syncToFirestore(normalizedPath, data);
+    const count = Array.isArray(data) ? data.length : 1;
+    logger.info(`✅ [Rehydrate] "${normalizedPath}" → ${count} elemento(s) escritos en Firestore.`);
+    return { success: true, count };
+  } catch (error: any) {
+    logger.error(`❌ [Rehydrate] Error rehidratando "${filePath}":`, error);
+    return { success: false, count: 0, error: error?.message || 'Error desconocido' };
   }
 }

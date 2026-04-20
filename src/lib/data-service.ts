@@ -16,14 +16,55 @@ const BACKUP_EXCLUDED_FILES = new Set([
  * Reads data from Firestore. Returns defaultValue if not found or on error.
  */
 export async function readData<T>(filePath: string, defaultValue: T): Promise<T> {
+  const normalizedFilePath = filePath.replace(/\\/g, '/');
   try {
-    const data = await readFromFirestore(filePath);
+    const data = await readFromFirestore(normalizedFilePath);
     if (data !== null && data !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(data)) return defaultValue;
       return data as T;
     }
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const localCandidates = [
+        path.join(process.cwd(), 'data', normalizedFilePath),
+        path.join(process.cwd(), 'src', 'data', normalizedFilePath),
+      ];
+      for (const localPath of localCandidates) {
+        try {
+          const raw = await fs.readFile(localPath, 'utf-8');
+          const parsed = JSON.parse(raw);
+          logger.warn(`[readData] ⚠️ FALLBACK JSON usado para "${normalizedFilePath}" — Firestore vacío o no disponible.`);
+          return parsed as T;
+        } catch {
+          // try next candidate
+        }
+      }
+    } catch {
+      // local filesystem fallback unavailable
+    }
   } catch (e) {
-    logger.error(`[readData] Error leyendo ${filePath} desde Firestore:`, e);
+    logger.error(`[readData] Error leyendo ${normalizedFilePath} desde Firestore:`, e);
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const localCandidates = [
+        path.join(process.cwd(), 'data', normalizedFilePath),
+        path.join(process.cwd(), 'src', 'data', normalizedFilePath),
+      ];
+      for (const localPath of localCandidates) {
+        try {
+          const raw = await fs.readFile(localPath, 'utf-8');
+          const parsed = JSON.parse(raw);
+          logger.warn(`[readData] ⚠️ FALLBACK JSON usado para "${normalizedFilePath}" — Firestore vacío o no disponible.`);
+          return parsed as T;
+        } catch {
+          // try next candidate
+        }
+      }
+    } catch {
+      // local filesystem fallback unavailable
+    }
   }
   return defaultValue;
 }

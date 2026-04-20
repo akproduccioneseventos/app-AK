@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 function PresupuestoDashboardContent() {
+    const router = useRouter();
     const { toast } = useToast();
     const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -49,12 +50,23 @@ function PresupuestoDashboardContent() {
 
     useEffect(() => { fetchPresupuestos(); }, [fetchPresupuestos]);
 
+    const handleBudgetMutation = useCallback(async (id: string, action: 'archive' | 'delete') => {
+        setPresupuestos(prev => prev.filter(p => {
+            if (p.id !== id) return true;
+            if (showArchived && action === 'archive') return true;
+            return false;
+        }));
+        router.refresh();
+        await fetchPresupuestos();
+    }, [router, fetchPresupuestos, showArchived]);
+
     const handleResetAllPresupuestos = async () => {
         setIsResettingPresupuestos(true);
         try {
             const result = await resetAllPresupuestos();
             if (result.success) {
                 toast({ title: '🗑️ Presupuestos eliminados', description: `${result.deletedCount ?? 0} presupuesto(s) eliminado(s) permanentemente.`, variant: 'destructive' });
+                router.refresh();
                 await fetchPresupuestos();
             } else {
                 toast({ title: 'Error', description: result.error || 'No se pudieron eliminar los presupuestos.', variant: 'destructive' });
@@ -162,16 +174,16 @@ function PresupuestoDashboardContent() {
                     <>
                       <TabsContent value="todos">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filteredPresupuestos.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={fetchPresupuestos}/>)}
+                            {filteredPresupuestos.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
                         </div>
                       </TabsContent>
                        {['Borrador', 'Enviado', 'Aceptado', 'Facturado', 'Rechazado'].map(estado => (
                            <TabsContent key={estado} value={estado}>
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {filteredPresupuestos.filter(p => p.estado === estado).map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={fetchPresupuestos}/>)}
+                                {filteredPresupuestos.filter(p => p.estado === estado).map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
                               </div>
                            </TabsContent>
-                       ))}
+                        ))}
                     </>
                   )}
                 </Tabs>
