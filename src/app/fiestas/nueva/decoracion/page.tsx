@@ -385,9 +385,7 @@ function DecoracionYDisenoEventoContent() {
     setNewDecoItemQty(1);
     setNewDecoItemCosto(undefined);
     setNewDecoItemImageUrl(undefined);
-    const fallbackZona =
-      [...zonasDiseno, ...ZONAS_DEFAULT_IDS].find(z => z.id && z.id.trim() !== '')?.id || '';
-    const preferredZona = zona?.trim() || selectedZonaId?.trim() || fallbackZona;
+    const preferredZona = zona?.trim() || selectedZonaId?.trim() || validZonasForSelect[0]?.id || '';
     setNewDecoItemZona(preferredZona);
     setIsDecoItemModalOpen(true);
   };
