@@ -107,14 +107,15 @@ export function useCrmBoard() {
   const moveLead = useCallback(
     async (leadId: string, targetStageId: string, meetingDate?: string): Promise<boolean> => {
       // Optimistic update
-      setLeads(prev =>
-        prev.map(l =>
+      setLeads(prev => {
+        const nextLeads = prev.map(l =>
           l.id === leadId
             ? { ...l, currentStageId: targetStageId, updatedAt: new Date().toISOString() }
             : l
-        )
-      );
-      invalidateCache(CACHE_KEY_LEADS);
+        );
+        setCached(CACHE_KEY_LEADS, nextLeads);
+        return nextLeads;
+      });
       invalidateCache(CACHE_KEY_KPIS);
 
       const result = await moveCrmLead(leadId, targetStageId, meetingDate);
@@ -125,6 +126,12 @@ export function useCrmBoard() {
         }
         return false;
       }
+      getCrmKpiData().then(kpis => {
+        if (kpis.success && isMountedRef.current) {
+          setKpiData(kpis.data);
+          setCached(CACHE_KEY_KPIS, kpis.data);
+        }
+      }).catch(() => {});
       return true;
     },
     [fetchData]
@@ -137,36 +144,52 @@ export function useCrmBoard() {
       let removedLead: CrmLead | undefined;
       setLeads(prev => {
         removedLead = prev.find(l => l.id === leadId);
-        return prev.filter(l => l.id !== leadId);
+        const nextLeads = prev.filter(l => l.id !== leadId);
+        setCached(CACHE_KEY_LEADS, nextLeads);
+        return nextLeads;
       });
       setDeletingLeadId(leadId);
-      invalidateCache(CACHE_KEY_LEADS);
       invalidateCache(CACHE_KEY_KPIS);
 
       try {
         const result = await deleteCrmLead(leadId);
         if (!isMountedRef.current) return;
         if (result.success) {
-          toastRef.current({ description: 'Prospecto eliminado.', variant: 'destructive' });
-          fetchData(true);
+          toastRef.current({ description: 'Prospecto eliminado.' });
+          invalidateCache(CACHE_KEY_LEADS);
+          invalidateCache(CACHE_KEY_KPIS);
+          getCrmKpiData().then(kpis => {
+            if (kpis.success && isMountedRef.current) {
+              setKpiData(kpis.data);
+              setCached(CACHE_KEY_KPIS, kpis.data);
+            }
+          }).catch(() => {});
         } else {
           // Revert
           if (removedLead) {
-            setLeads(prev => [...prev, removedLead!].sort(sortLeadsByDate));
+            setLeads(prev => {
+              const restoredLeads = [...prev, removedLead!].sort(sortLeadsByDate);
+              setCached(CACHE_KEY_LEADS, restoredLeads);
+              return restoredLeads;
+            });
           }
           toastRef.current({ title: 'Error', description: result.error, variant: 'destructive' });
         }
       } catch (err: any) {
         if (!isMountedRef.current) return;
         if (removedLead) {
-          setLeads(prev => [...prev, removedLead!].sort(sortLeadsByDate));
+          setLeads(prev => {
+            const restoredLeads = [...prev, removedLead!].sort(sortLeadsByDate);
+            setCached(CACHE_KEY_LEADS, restoredLeads);
+            return restoredLeads;
+          });
         }
         toastRef.current({ title: 'Error', description: err.message, variant: 'destructive' });
       } finally {
         if (isMountedRef.current) setDeletingLeadId(null);
       }
     },
-    [fetchData] // fetchData is stable (useCallback with no deps)
+    []
   );
 
   const leadsByStage = useMemo(

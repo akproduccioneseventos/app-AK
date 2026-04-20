@@ -230,8 +230,6 @@ export default function CrmPage() {
     }
   }, [toast, fetchData]);
 
-  if (isLoading && !isBookingModalOpen) return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin w-12 h-12 text-primary" /></div>;
-
   const quickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
     { key: 'all', label: 'Todos' },
     { key: 'today', label: 'Hoy', icon: <Clock className="w-3 h-3" /> },
@@ -245,9 +243,14 @@ export default function CrmPage() {
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <KanbanSquare className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">CRM de Prospectos</h1>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">
+              Contabilidad › <span className="text-foreground font-medium">CRM de Prospectos</span>
+            </p>
+            <div className="flex items-center gap-3">
+              <KanbanSquare className="w-8 h-8 text-primary" />
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">CRM de Prospectos</h1>
+            </div>
           </div>
           <div className="flex gap-2 flex-wrap w-full sm:w-auto">
             <Link href="/contabilidad/crm/agenda" className="flex-1 sm:flex-none">
@@ -381,7 +384,7 @@ export default function CrmPage() {
               ))}
             </Accordion>
         ) : (
-          <ScrollArea className="w-full whitespace-nowrap pb-4" style={{ height: 'calc(100vh - 22rem)', minHeight: '480px' }}>
+          <ScrollArea className="w-full whitespace-nowrap pb-4" style={{ height: 'calc(100vh - 320px)', minHeight: '400px', maxHeight: '900px' }}>
               <div className="flex gap-4">
               {stages.map(stage => (
                   <CrmStageColumn key={stage.id} stage={stage} leads={filteredLeadsByStage[stage.id] || []} onDeleteLead={deleteLead} deletingLeadId={deletingLeadId} onHire={handleHireClick} />
@@ -406,4 +409,3 @@ export default function CrmPage() {
     </DndContext>
   );
 }
-
