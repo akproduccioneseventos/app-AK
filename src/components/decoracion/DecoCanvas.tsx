@@ -311,7 +311,7 @@ export default function DecoCanvas({
   const handleTouchStartOnElement = useCallback((e: React.TouchEvent, id: string) => {
     e.preventDefault();
     onSelectId(id);
-    const touch = e.touches[0] ?? e.changedTouches[0];
+    const touch = e.touches[0];
     if (!touch) return;
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
@@ -331,7 +331,7 @@ export default function DecoCanvas({
     e.preventDefault();
     e.stopPropagation();
     onSelectId(id);
-    const touch = e.touches[0] ?? e.changedTouches[0];
+    const touch = e.touches[0];
     if (!touch) return;
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
@@ -349,7 +349,7 @@ export default function DecoCanvas({
     e.preventDefault();
     e.stopPropagation();
     onSelectId(id);
-    const touch = e.touches[0] ?? e.changedTouches[0];
+    const touch = e.touches[0];
     if (!touch) return;
     const el = elementosRef.current.find(el => el.id === id);
     if (!el) return;
@@ -370,7 +370,7 @@ export default function DecoCanvas({
     const state = interaction.current;
     if (state.type === 'idle') return;
     e.preventDefault();
-    const touch = e.touches[0] ?? e.changedTouches[0];
+    const touch = e.touches[0];
     if (!touch) return;
 
     if (state.type === 'drag') {

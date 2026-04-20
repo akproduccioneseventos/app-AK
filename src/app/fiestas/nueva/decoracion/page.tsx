@@ -177,6 +177,11 @@ function DecoracionYDisenoEventoContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada");
 
       const loadedDecoracion = fiestaData.decoracion || defaultDecoracion;
+      const normalizedItemsDecoracion = (loadedDecoracion.itemsDecoracion || []).map(item => (
+        item.costoUnitario === undefined && item.precioUnitario !== undefined
+          ? { ...item, costoUnitario: item.precioUnitario }
+          : item
+      ));
 
       const mergedZonas = (defaultZonasContratadas || []).map(defaultZona => {
         const savedZona = loadedDecoracion.zonasContratadas?.find(sz => sz.id === defaultZona.id);
@@ -187,6 +192,7 @@ function DecoracionYDisenoEventoContent() {
         ...defaultDecoracion,
         ...loadedDecoracion,
         items: loadedDecoracion.items || [],
+        itemsDecoracion: normalizedItemsDecoracion,
         moodboardItems: loadedDecoracion.moodboardItems || [],
         zonasContratadas: mergedZonas,
         salonElements: loadedDecoracion.salonElements || [],
@@ -1157,7 +1163,7 @@ function DecoracionYDisenoEventoContent() {
                                   type="number"
                                   min={1}
                                   value={item.cantidad}
-                                  onChange={e => handleUpdateDecoItem(item.id, { cantidad: Math.max(1, Number(e.target.value) || 1) })}
+                                  onChange={e => handleUpdateDecoItem(item.id, { cantidad: Math.max(1, Number(e.target.value)) })}
                                   className="h-8 w-20 text-center text-sm font-bold"
                                 />
                               </td>
@@ -1166,8 +1172,8 @@ function DecoracionYDisenoEventoContent() {
                                   type="number"
                                   min={0}
                                   step="0.01"
-                                  value={item.costoUnitario ?? item.precioUnitario ?? ''}
-                                  onChange={e => handleUpdateDecoItem(item.id, { costoUnitario: e.target.value === '' ? undefined : Math.max(0, Number(e.target.value) || 0) })}
+                                  value={item.costoUnitario ?? ''}
+                                  onChange={e => handleUpdateDecoItem(item.id, { costoUnitario: e.target.value === '' ? undefined : Math.max(0, Number(e.target.value)) })}
                                   className="h-8 w-28 ml-auto text-right text-sm"
                                   placeholder="—"
                                 />
