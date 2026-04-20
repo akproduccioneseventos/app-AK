@@ -22,6 +22,7 @@ import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rap
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { BudgetDisplaySettings } from '@/types/settings';
+import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { Separator } from '@/components/ui/separator';
@@ -121,9 +122,9 @@ export default function BudgetDisplaySettingsPage() {
         },
       };
       setConfig(normalizedConfig);
-      setBudgetSettings(settingsData);
+      setBudgetSettings({ ...defaultBudgetDisplaySettings, ...(settingsData || {}) });
       setInitialConfig(deepClone(normalizedConfig));
-      setInitialBudgetSettings(deepClone(settingsData));
+      setInitialBudgetSettings(deepClone({ ...defaultBudgetDisplaySettings, ...(settingsData || {}) }));
       setServicios(servicesData.filter(s => s.tipoItem === 'Servicio'));
       setAllDishes(menusData.flatMap(m => m.items));
     } catch (e) {
@@ -138,21 +139,30 @@ export default function BudgetDisplaySettingsPage() {
   }, [fetchData]);
 
   const handleSaveAll = async (onSuccess?: () => void) => {
-    if (!config || !budgetSettings) return;
+    if (!config) {
+      toast({ title: "No se pudo guardar", description: "La configuración del simulador no está cargada todavía.", variant: "destructive" });
+      return;
+    }
+    if (isSaving) return;
     setIsSaving(true);
     try {
+      const safeBudgetSettings: BudgetDisplaySettings = { ...defaultBudgetDisplaySettings, ...(budgetSettings || {}) };
       const [res1, res2] = await Promise.all([
         saveArmadoRapidoConfig(config),
-        saveBudgetDisplaySettings(budgetSettings)
+        saveBudgetDisplaySettings(safeBudgetSettings)
       ]);
       if (res1.success && res2.success) {
         toast({ title: "Configuración Guardada", description: "Todos los cambios se han aplicado al simulador." });
         setInitialConfig(deepClone(config));
-        setInitialBudgetSettings(deepClone(budgetSettings));
+        setBudgetSettings(deepClone(safeBudgetSettings));
+        setInitialBudgetSettings(deepClone(safeBudgetSettings));
         onSuccess?.();
-      } else throw new Error("Error al guardar una de las secciones.");
+      } else {
+        const saveError = [res1.error, res2.error].filter(Boolean).join(' | ');
+        throw new Error(saveError || "Error al guardar una de las secciones.");
+      }
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: "Error al guardar", description: e?.message || "No se pudo guardar la configuración. Intenta nuevamente.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -430,6 +440,24 @@ export default function BudgetDisplaySettingsPage() {
                             value={budgetSettings?.whatsappMessageTemplate || ''} 
                             onChange={e => setBudgetSettings(s => s ? { ...s, whatsappMessageTemplate: e.target.value } : null)}
                             className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[80px] text-sm"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mensaje del asistente - Paso bienvenida</Label>
+                        <Textarea
+                            value={budgetSettings?.assistantWelcomeMessage || ''}
+                            onChange={e => setBudgetSettings(s => s ? { ...s, assistantWelcomeMessage: e.target.value } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[80px] text-sm"
+                            placeholder="¡Hola! Soy el Asistente AK 👋"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mensaje del asistente - Paso resumen final</Label>
+                        <Textarea
+                            value={budgetSettings?.assistantFinalMessage || ''}
+                            onChange={e => setBudgetSettings(s => s ? { ...s, assistantFinalMessage: e.target.value } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[80px] text-sm"
+                            placeholder="¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀"
                         />
                     </div>
                     <div className="space-y-2">
@@ -814,12 +842,12 @@ export default function BudgetDisplaySettingsPage() {
             </p>
             <Button 
                 onClick={async () => { await handleSaveAll(); }} 
-                disabled={isSaving} 
+                disabled={isSaving || !hasUnsavedChanges || !config} 
                 size="lg" 
                 className="rounded-2xl w-full md:w-auto px-12 h-14 font-black text-base shadow-2xl shadow-primary/30"
             >
                 {isSaving ? <Loader2 className="animate-spin mr-3"/> : <Save className="w-5 h-5 mr-3"/>}
-                {isSaving ? 'GUARDANDO...' : 'GUARDAR CONFIGURACIÓN'}
+                {isSaving ? 'GUARDANDO...' : (hasUnsavedChanges ? 'GUARDAR CONFIGURACIÓN' : 'SIN CAMBIOS PARA GUARDAR')}
             </Button>
         </div>
       </div>
