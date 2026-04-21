@@ -15,7 +15,8 @@ const ExtractContractOutputSchema = z.object({
   clienteNombre: z.string().describe("Nombre del cliente o empresa."),
   eventoFecha: z.string().describe("Fecha del evento en formato ISO (YYYY-MM-DD)."),
   montoTotal: z.number().describe("Monto total final del contrato o presupuesto."),
-  tipoEvento: z.string().optional().describe("Tipo de evento (Boda, XV, etc)."),
+  // .nullish() because Gemini structured output may return null instead of omitting the field.
+  tipoEvento: z.string().nullish().describe("Tipo de evento (Boda, XV, etc)."),
 });
 export type ExtractContractOutput = z.infer<typeof ExtractContractOutputSchema>;
 

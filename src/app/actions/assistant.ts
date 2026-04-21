@@ -1070,6 +1070,22 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
     const errorMessage: string = error?.message || String(error);
     logger.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
 
+    // Output schema validation failure (Zod): Gemini returned null for an optional field.
+    // This is a schema mismatch issue, not an API error.
+    if (
+      errorMessage.includes('Expected object, received null') ||
+      errorMessage.includes('Expected string, received null') ||
+      errorMessage.includes('Expected number, received null') ||
+      error?.name === 'ZodError'
+    ) {
+      logger.error('[Asistente AK] Output schema validation error (Zod null):', errorMessage);
+      return {
+        success: false,
+        response: 'No pude procesar la respuesta del asistente. Intentá de nuevo.',
+        error: 'Error de validación de respuesta',
+      };
+    }
+
     // Error 403 de Gemini / API key issues
     if (
       (errorMessage.includes('FAILED_PRECONDITION') && errorMessage.includes('API key')) ||
