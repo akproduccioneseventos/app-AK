@@ -20,6 +20,12 @@ const DEFAULT_SERVICE_NAME = 'Servicio';
 const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
 const KNOWLEDGE_DOC_CONTEXT_MAX_CHARS = 1400; // Per-document cap to keep prompt context concise and performant.
 type AssistantKnowledgeDocument = Awaited<ReturnType<typeof getAiAssistantSettings>>['knowledgeDocuments'][number];
+// Matches phrases like "Agenda a Norma a las 11" and extracts "Norma".
+const AGENDA_LEAD_NAME_REGEX =
+  /agend(?:a|á|ar|ame)\s+a\s+([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2}?)(?=\s+a\s+las|\s+para|\s+el\s+\d{1,2}|\s+hoy|\s+mañana|$)/i;
+// Matches phrases like "prospecto de Norma" / "cliente Norma" and extracts the name.
+const NAMED_LEAD_REGEX =
+  /(?:prospecto|lead|consulta|cliente)\s+(?:de|para)?\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2})/i;
 
 interface ParsedLeadLocal {
   name?: string;
@@ -222,17 +228,13 @@ function parseLeadFromMessage(text: string): ParsedLeadLocal {
   if (!cleaned) return {};
 
   let name: string | undefined;
-  const agendaMatch = cleaned.match(
-    /agend(?:a|á|ar|ame)\s+a\s+([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2}?)(?=\s+a\s+las|\s+para|\s+el\s+\d{1,2}|\s+hoy|\s+mañana|$)/i
-  );
+  const agendaMatch = cleaned.match(AGENDA_LEAD_NAME_REGEX);
   if (agendaMatch?.[1]) {
     name = agendaMatch[1].trim();
   }
 
   if (!name) {
-    const namedLeadMatch = cleaned.match(
-      /(?:prospecto|lead|consulta|cliente)\s+(?:de|para)?\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2})/i
-    );
+    const namedLeadMatch = cleaned.match(NAMED_LEAD_REGEX);
     if (namedLeadMatch?.[1]) {
       name = namedLeadMatch[1].trim();
     }

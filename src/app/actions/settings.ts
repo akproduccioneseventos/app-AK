@@ -505,6 +505,11 @@ export async function saveAiAssistantSettings(
   }
 }
 
+/**
+ * Convierte una ruta absoluta de un archivo `page.tsx` dentro de `src/app`
+ * en su URL de App Router.
+ * Remueve route groups `(group)` para exponer la ruta pública real.
+ */
 function buildRouteFromPagePath(absolutePagePath: string, appDir: string): string {
   const rel = path.relative(appDir, absolutePagePath).replace(/\\/g, '/');
   const withoutPage = rel.replace(/\/page\.tsx$/, '');
@@ -517,11 +522,15 @@ function buildRouteFromPagePath(absolutePagePath: string, appDir: string): strin
   return `/${segments.join('/')}`;
 }
 
+/**
+ * Recorre recursivamente `src/app` para encontrar archivos `page.tsx`
+ * y agrega cada ruta URL normalizada al array recibido.
+ */
 async function collectPageRoutes(dir: string, appDir: string, routes: string[]): Promise<void> {
   const entries = await readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
-    if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+    if (entry.name.startsWith('.')) continue;
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
