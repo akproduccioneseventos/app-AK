@@ -2,7 +2,7 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto } from '../presupuestos';
 import { createNotification } from '../notifications';
@@ -74,6 +74,13 @@ export async function updatePortalSettings(
 
 export async function updateFaqPortal(fiestaId: string, faqItems: import('@/types/fiesta').FaqItem[]) {
   return updateFiestaData(fiestaId, data => ({ ...data, faqPortal: faqItems }));
+}
+
+export async function updateSocialGallerySettings(
+  fiestaId: string,
+  socialGallerySettings: SocialGallerySettings
+) {
+  return updateFiestaData(fiestaId, data => ({ ...data, socialGallerySettings }));
 }
 
 export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {

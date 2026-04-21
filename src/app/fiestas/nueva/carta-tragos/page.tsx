@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIconLucide, Download, Info } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload, Download, Info, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
@@ -18,6 +18,9 @@ import { CartaTragosMenu } from '@/components/invitacion/templates/CartaTragosMe
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import NextImage from 'next/image';
 import html2canvas from 'html2canvas';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions';
+import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
 
 
 function CartaTragosContent() {
@@ -28,10 +31,12 @@ function CartaTragosContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cartaTragos, setCartaTragos] = useState<CartaTragosData>(defaultCartaTragosData);
+  const [masterVersion, setMasterVersion] = useState<Trago[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSyncingMaster, setIsSyncingMaster] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const printRef = useRef<HTMLDivElement>(null);
@@ -51,14 +56,19 @@ function CartaTragosContent() {
     }
     setIsLoading(true);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
+      const [fiestaData, masterItems] = await Promise.all([
+        getFiestaById(fiestaId),
+        getCartaTragosMaster(),
+      ]);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
+      setMasterVersion(masterItems);
       
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
       if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
       if (!mergedData.titulo) mergedData.titulo = 'CARTA DE TRAGOS';
       if (!mergedData.numeroPrincipal) mergedData.numeroPrincipal = fiestaData.configuracion.tipoCelebracion === 'XV años' ? 'Mis XV' : 'Nuestra Boda';
+      mergedData.items = mergeMasterTragosWithFiesta(masterItems, mergedData.items || []);
       
       setCartaTragos(mergedData);
 
@@ -86,6 +96,20 @@ function CartaTragosContent() {
             [colorType]: value,
         }
     }));
+  };
+
+  const handleSyncMaster = async () => {
+    setIsSyncingMaster(true);
+    try {
+      const masterItems = await getCartaTragosMaster();
+      setMasterVersion(masterItems);
+      setCartaTragos(prev => ({ ...prev, items: mergeMasterTragosWithFiesta(masterItems, prev.items || []) }));
+      toast({ title: 'Base sincronizada', description: 'Se actualizaron los tragos base del módulo general.' });
+    } catch (e: any) {
+      toast({ title: 'Error al sincronizar', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSyncingMaster(false);
+    }
   };
 
   const handleProtagonistPhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -261,8 +285,25 @@ function CartaTragosContent() {
                          <div className="space-y-1">
                             <Label htmlFor="item-ai-hint">AI Hint (para futuras funciones)</Label>
                             <Input id="item-ai-hint" value={editingItem.aiHint || ''} onChange={e => setEditingItem(prev => prev ? {...prev, aiHint: e.target.value} : null)} placeholder="Ej: pink cocktail with lime"/>
-                        </div>
-                        <DialogFooter>
+                         </div>
+                         <div className="space-y-1">
+                            <Label htmlFor="item-ingredientes">Ingredientes (separados por coma)</Label>
+                            <Input
+                              id="item-ingredientes"
+                              value={(editingItem.ingredientes || []).join(', ')}
+                              onChange={e => setEditingItem(prev => prev ? { ...prev, ingredientes: e.target.value.split(',').map(v => v.trim()).filter(Boolean) } : null)}
+                            />
+                         </div>
+                         <div className="space-y-1">
+                            <Label htmlFor="item-stock">Stock</Label>
+                            <Input
+                              id="item-stock"
+                              type="number"
+                              value={editingItem.stockDisponible ?? 0}
+                              onChange={e => setEditingItem(prev => prev ? { ...prev, stockDisponible: Number(e.target.value) || 0 } : null)}
+                            />
+                         </div>
+                         <DialogFooter>
                             <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
                             <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar Trago</Button>
                         </DialogFooter>
@@ -275,9 +316,12 @@ function CartaTragosContent() {
                 <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
                     <Button variant="ghost" size="icon"><ArrowLeft className="w-5 h-5"/></Button>
                 </Link>
-                <h1 className="font-headline text-lg">Editor de Carta de Tragos (15x10 cm)</h1>
+                <div>
+                  <h1 className="font-headline text-lg">Editor de Carta de Tragos (15x10 cm)</h1>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Módulo maestro sincronizado: {masterVersion.length} tragos base</p>
+                </div>
             </div>
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-end">
                 <div className="flex flex-col">
                     <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Borde</Label>
                     <Input type="color" value={cartaTragos.paletaColores?.primary || '#8b5cf6'} onChange={e => handleColorChange('primary', e.target.value)} className="w-10 h-8 p-0.5"/>
@@ -294,8 +338,38 @@ function CartaTragosContent() {
                     <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Color Fondo</Label>
                     <Input type="color" value={cartaTragos.backgroundColor || '#ffffff'} onChange={e => handleColorChange('background', e.target.value)} className="w-10 h-8 p-0.5"/>
                 </div>
+                <div className="flex flex-col min-w-[130px]">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Tamaño Título</Label>
+                    <Select value={cartaTragos.titleSize || 'medium'} onValueChange={(value) => handleUpdate('titleSize', value)}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="small">Pequeño</SelectItem>
+                        <SelectItem value="medium">Medio</SelectItem>
+                        <SelectItem value="large">Grande</SelectItem>
+                        <SelectItem value="xlarge">Extra grande</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex flex-col">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Fondo Imagen</Label>
+                    <label htmlFor="fondo-carta-upload">
+                      <Button variant="outline" size="sm" className="h-8 pointer-events-none" asChild>
+                        <span><Upload className="w-3 h-3 mr-1" />Subir</span>
+                      </Button>
+                    </label>
+                    <input id="fondo-carta-upload" type="file" accept="image/*" className="hidden" onChange={handleBackgroundImageUpload} />
+                </div>
 
-               <div className="flex items-end gap-2 ml-4">
+               <div className="flex items-end gap-2 ml-2">
+                 <Link href="/empresa/menus/tragos">
+                  <Button size="sm" variant="outline" title="Abrir módulo general de tragos">Módulo General</Button>
+                 </Link>
+                 <Button size="sm" variant="outline" onClick={handleSyncMaster} disabled={isSyncingMaster} title="Sincronizar tragos base">
+                    {isSyncingMaster ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <RefreshCw className="w-4 h-4 mr-2"/>}
+                    Sincronizar
+                 </Button>
                  <Button size="sm" onClick={handleSave} disabled={isSaving} title="Guardar Cambios">
                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
                     Guardar

@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   ArrowLeft, Printer as PrinterIcon, Loader2, Upload,
-  GlassWater, Utensils, QrCode, Hash, ExternalLink, Info,
+  GlassWater, Utensils, Hash, ExternalLink, Info,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
@@ -729,11 +729,10 @@ function CarteleriaContent() {
           </AlertDescription>
         </Alert>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {[
             { href: `carta-tragos?fiestaId=${fiestaId}`, label: 'Carta de Tragos', icon: GlassWater, cls: 'text-violet-600 bg-violet-50 border-violet-200' },
             { href: `menu-mesa?fiestaId=${fiestaId}`, label: 'Menú de Mesa', icon: Utensils, cls: 'text-orange-600 bg-orange-50 border-orange-200' },
-            { href: `/evento/muro-en-vivo/${fiestaId}`, label: 'Ver Muro Social', icon: QrCode, cls: 'text-blue-600 bg-blue-50 border-blue-200', external: true },
             { href: `invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Hash, cls: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
           ].map(item => (
             <Link

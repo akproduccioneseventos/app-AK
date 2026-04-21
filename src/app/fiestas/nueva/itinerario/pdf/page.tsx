@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,7 +11,6 @@ import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Clock, Utensi
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
 import { defaultPrograma } from '@/lib/fiesta-defaults';
 
@@ -116,10 +115,19 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
     : defaultPrograma;
 
   return (
-    <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative">
-        <div className="w-full h-24 print:h-20 mb-4 relative">
-            <WatermarkedImage src={logoUrl} alt="Logo" containerClassName='w-full h-full'/>
+    <div className="bg-gradient-to-b from-slate-100 to-slate-200 print:bg-white py-6 print:py-0 font-sans">
+      <div className="max-w-3xl mx-auto bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-3 relative rounded-2xl print:rounded-none border border-slate-100">
+        <div className="w-full min-h-[5.5rem] print:min-h-[4.5rem] mb-4 relative rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center p-3">
+            {logoUrl ? (
+              <div className="relative w-full h-[4.5rem] print:h-[3.5rem]">
+                <NextImage src={logoUrl} alt="Logo" fill className="object-contain" />
+              </div>
+            ) : (
+              <div className="text-center">
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Organiza</p>
+                <p className="text-2xl font-black text-primary">{companyName}</p>
+              </div>
+            )}
         </div>
         <div className="flex justify-between items-center mb-6 print:hidden">
           <Link href={`/fiestas/nueva/itinerario?fiestaId=${fiestaId}`}>
@@ -140,7 +148,7 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
         </header>
         
         <div className="relative max-w-xl mx-auto pl-12 print:pl-8">
-          <div className="absolute left-[3.25rem] h-full w-0.5 bg-gray-200 -z-10 print:left-[2.25rem]"></div>
+          <div className="absolute left-[3.25rem] h-full w-0.5 bg-primary/25 -z-10 print:left-[2.25rem]"></div>
           {displayPrograma.map((item) => {
               const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
               return (
@@ -149,7 +157,7 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
                           <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 border-2 border-primary print:h-12 print:w-12 shadow-sm">
                               <Icon className="h-7 w-7 text-primary print:h-5 print:w-5" />
                           </div>
-                          <span className="mt-2 text-sm font-bold text-primary print:text-[10px] bg-white px-1.5 border rounded-full">{item.hora}</span>
+                          <span className="mt-2 text-sm font-bold text-primary print:text-[10px] bg-white px-1.5 border rounded-full shadow-sm">{item.hora}</span>
                       </div>
                       <div className="pt-3 print:pt-1 min-w-0">
                           <p className="font-bold text-lg print:text-sm leading-none mb-1">{item.titulo}</p>
