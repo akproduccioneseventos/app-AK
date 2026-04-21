@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   ArrowLeft, Printer as PrinterIcon, Loader2, Upload,
-  GlassWater, Utensils, Hash, ExternalLink, Info,
+  GlassWater, Utensils, Hash, Info,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
@@ -738,13 +738,11 @@ function CarteleriaContent() {
             <Link
               key={item.href}
               href={item.href.startsWith('/') ? item.href : `/fiestas/nueva/${item.href}`}
-              target={item.external ? '_blank' : undefined}
             >
               <Card className={cn('border cursor-pointer hover:shadow-md transition-shadow', item.cls)}>
                 <CardContent className="p-3 flex items-center gap-2">
                   <item.icon className="w-4 h-4 shrink-0" />
                   <span className="text-xs font-bold">{item.label}</span>
-                  {item.external && <ExternalLink className="w-3 h-3 ml-auto shrink-0" />}
                 </CardContent>
               </Card>
             </Link>
