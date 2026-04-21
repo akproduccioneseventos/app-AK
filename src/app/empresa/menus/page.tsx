@@ -309,6 +309,7 @@ export default function GestionMenusPage() {
           <h1 className="text-4xl font-black tracking-tighter uppercase font-headline">Planificador Gastronómico Maestro</h1>
         </div>
         <div className="flex gap-2 flex-wrap">
+            <Link href="/empresa/menus/tragos"><Button variant="outline" className="rounded-xl font-bold"><GlassWater className="w-4 h-4 mr-2"/>Módulo de Tragos</Button></Link>
             <Link href="/empresa/menus/catalogo"><Button variant="secondary" className="rounded-xl font-bold">Catálogo de Platos</Button></Link>
             <Link href="/empresa/menus/nuevo"><Button className="rounded-xl font-bold"><PlusCircle className="w-4 h-4 mr-2"/>Crear Menú</Button></Link>
             <Link href="/empresa"><Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>

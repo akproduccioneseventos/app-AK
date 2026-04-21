@@ -171,6 +171,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/invitados') return Users;
     if (pathname === '/fiestas/nueva/invitados/layout') return LayoutDashboard;
     if (pathname === '/fiestas/nueva/itinerario') return Clock;
+    if (pathname === '/fiestas/nueva/muro-social') return Camera;
     if (pathname === '/fiestas/nueva/tareas') return ClipboardListIcon;
     if (pathname === '/fiestas/nueva/configuracion') return SettingsIcon;
     if (pathname === '/fiestas/nueva/servicios-contratados') return ClipboardCheck;

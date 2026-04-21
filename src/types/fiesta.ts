@@ -675,6 +675,8 @@ export interface Trago {
   nombre: string;
   imageUrl?: string;
   aiHint?: string;
+  ingredientes?: string[];
+  stockDisponible?: number;
 }
 
 export interface CartaTragosData {

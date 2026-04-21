@@ -59,6 +59,7 @@ const modules = [
 
   { id: 'portalCliente', title: "Portal Cliente", href: "portal-cliente", icon: KeyRound, description: "Centro de colaboración.", category: 'Portal del Cliente', color: "bg-amber-100 text-amber-600" },
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva.", category: 'Portal del Cliente', color: "bg-blue-100 text-blue-600" },
+  { id: 'muroSocial', title: "Muro Social & Juegos", href: "muro-social", icon: Camera, description: "Link/QR y funcionalidades interactivas.", category: 'Portal del Cliente', color: "bg-cyan-100 text-cyan-700" },
   { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital.", category: 'Portal del Cliente', color: "bg-rose-100 text-rose-600" },
   { id: 'videoVida', title: "Video Vida", href: "video-vida", icon: Video, description: "Carga de fotos de infancia.", category: 'Portal del Cliente', color: "bg-indigo-100 text-indigo-600" },
   { id: 'feedback', title: "Feedback", href: "/settings/feedback", icon: Star, description: "Encuesta post-evento.", category: 'Portal del Cliente', color: "bg-yellow-100 text-yellow-600" },

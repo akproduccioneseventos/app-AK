@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   ArrowLeft, Printer as PrinterIcon, Loader2, Upload,
-  GlassWater, Utensils, QrCode, Hash, ExternalLink, Info,
+  GlassWater, Utensils, Hash, Info,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
@@ -729,23 +729,20 @@ function CarteleriaContent() {
           </AlertDescription>
         </Alert>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {[
             { href: `carta-tragos?fiestaId=${fiestaId}`, label: 'Carta de Tragos', icon: GlassWater, cls: 'text-violet-600 bg-violet-50 border-violet-200' },
             { href: `menu-mesa?fiestaId=${fiestaId}`, label: 'Menú de Mesa', icon: Utensils, cls: 'text-orange-600 bg-orange-50 border-orange-200' },
-            { href: `/evento/muro-en-vivo/${fiestaId}`, label: 'Ver Muro Social', icon: QrCode, cls: 'text-blue-600 bg-blue-50 border-blue-200', external: true },
             { href: `invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Hash, cls: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
           ].map(item => (
             <Link
               key={item.href}
               href={item.href.startsWith('/') ? item.href : `/fiestas/nueva/${item.href}`}
-              target={item.external ? '_blank' : undefined}
             >
               <Card className={cn('border cursor-pointer hover:shadow-md transition-shadow', item.cls)}>
                 <CardContent className="p-3 flex items-center gap-2">
                   <item.icon className="w-4 h-4 shrink-0" />
                   <span className="text-xs font-bold">{item.label}</span>
-                  {item.external && <ExternalLink className="w-3 h-3 ml-auto shrink-0" />}
                 </CardContent>
               </Card>
             </Link>
