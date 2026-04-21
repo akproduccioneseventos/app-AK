@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/ai/genkit';
+import { ai, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const AssistantInputSchema = z.object({
@@ -267,7 +267,7 @@ Conocés todas las secciones de la app:
 
 const assistantPrompt = ai.definePrompt({
   name: 'assistantPrompt',
-  model: 'googleai/gemini-2.5-flash',
+  model: geminiModel,
   input: { schema: AssistantInputSchema },
   output: { schema: AssistantOutputSchema },
   system: SYSTEM_PROMPT,

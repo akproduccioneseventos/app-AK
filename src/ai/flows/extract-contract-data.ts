@@ -3,7 +3,7 @@
  * @fileOverview Flujo de IA optimizado para documentos de AK Producciones.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const ExtractContractInputSchema = z.object({
@@ -21,7 +21,7 @@ export type ExtractContractOutput = z.infer<typeof ExtractContractOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'extractContractPrompt',
-  model: 'googleai/gemini-2.5-flash',
+  model: geminiModel,
   input: { schema: ExtractContractInputSchema },
   output: { schema: ExtractContractOutputSchema },
   config: {
