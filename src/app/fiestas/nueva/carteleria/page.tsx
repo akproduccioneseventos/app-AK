@@ -38,10 +38,36 @@ const TABLE_SIZE_MAP: Record<NonNullable<NumerosMesaData['fontSize']>, string> =
   xlarge: '5.8rem',
 };
 const DEFAULT_QR_TEXT = '¡Ayúdanos a capturar el momento!';
-const CARD_LAYOUT_PRESETS = [
-  { value: '10x15', label: 'Tarjeta 10×15 cm (2 por hoja A4)', widthCm: 10, heightCm: 15, itemsPerPage: 2 },
-  { value: 'a6', label: 'Tarjeta A6 10.5×14.8 cm (4 por hoja A4)', widthCm: 10.5, heightCm: 14.8, itemsPerPage: 4 },
-] as const;
+const A4_WIDTH_CM = 21;
+const A4_HEIGHT_CM = 29.7;
+const UNASSIGNED_TABLE_LABEL = 'Sin mesa asignada';
+const calculateItemsPerA4 = (widthCm: number, heightCm: number) => {
+  const cols = Math.max(1, Math.floor(A4_WIDTH_CM / widthCm));
+  const rows = Math.max(1, Math.floor(A4_HEIGHT_CM / heightCm));
+  return Math.max(1, cols * rows);
+};
+const sortTableLabels = (a: string, b: string) => {
+  const aNum = Number(a);
+  const bNum = Number(b);
+  if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) return aNum - bNum;
+  if (!Number.isNaN(aNum)) return -1;
+  if (!Number.isNaN(bNum)) return 1;
+  return a.localeCompare(b, 'es');
+};
+type CardLayoutPreset = {
+  value: '10x15' | 'a6';
+  label: string;
+  widthCm: number;
+  heightCm: number;
+  itemsPerPage: number;
+};
+const CARD_LAYOUT_PRESETS: CardLayoutPreset[] = [
+  { value: '10x15', label: 'Tarjeta 10×15 cm (2 por hoja A4)', widthCm: 10, heightCm: 15, itemsPerPage: calculateItemsPerA4(10, 15) },
+  { value: 'a6', label: 'Tarjeta A6 10.5×14.8 cm (4 por hoja A4)', widthCm: 10.5, heightCm: 14.8, itemsPerPage: calculateItemsPerA4(10.5, 14.8) },
+];
+const TENT_FOLD_TOP_MM = 30;
+const TENT_FOLD_BASE_MM = 87;
+const TENT_FOLD_FACE_MM = 90;
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
@@ -436,18 +462,11 @@ function CarteleriaContent() {
   const invitadosPorMesa = (() => {
     const map = new Map<string, string[]>();
     for (const invitado of fiesta.invitados || []) {
-      const mesa = (invitado.tableNumber || '').trim() || 'Sin mesa asignada';
+      const mesa = (invitado.tableNumber || '').trim() || UNASSIGNED_TABLE_LABEL;
       if (!map.has(mesa)) map.set(mesa, []);
       map.get(mesa)?.push(invitado.nombre);
     }
-    return Array.from(map.entries()).sort((a, b) => {
-      const aNum = Number(a[0]);
-      const bNum = Number(b[0]);
-      if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) return aNum - bNum;
-      if (!Number.isNaN(aNum)) return -1;
-      if (!Number.isNaN(bNum)) return 1;
-      return a[0].localeCompare(b[0], 'es');
-    });
+    return Array.from(map.entries()).sort((a, b) => sortTableLabels(a[0], b[0]));
   })();
   const FIXED_PAGES_COUNT = 3 + (showWelcomePoster ? 1 : 0) + (showSeatingPlan ? 1 : 0); // carta + menu + qr + opcionales
   const totalPages = FIXED_PAGES_COUNT + tablePages.length;
@@ -878,9 +897,9 @@ function CarteleriaContent() {
             <div className="w-full h-full grid grid-cols-2 border border-black overflow-hidden">
               {pair.map(n => (
                 <div key={`mesa-carpa-${n}`} className="h-full flex flex-col border-r last:border-r-0 border-black">
-                  <div className="h-[30mm] border-b border-dashed border-slate-300 bg-slate-50/30" />
-                  <div className="h-[87mm] border-b border-dashed border-slate-300 bg-white" />
-                  <div className="h-[90mm] border-b border-dashed border-slate-300">
+                  <div className="border-b border-dashed border-slate-300 bg-slate-50/30" style={{ height: `${TENT_FOLD_TOP_MM}mm` }} />
+                  <div className="border-b border-dashed border-slate-300 bg-white" style={{ height: `${TENT_FOLD_BASE_MM}mm` }} />
+                  <div className="border-b border-dashed border-slate-300" style={{ height: `${TENT_FOLD_FACE_MM}mm` }}>
                     <TableNumberCard
                       tableNumber={n}
                       primaryColor={primaryColor}
@@ -896,7 +915,7 @@ function CarteleriaContent() {
                       inverted
                     />
                   </div>
-                  <div className="h-[90mm]">
+                  <div style={{ height: `${TENT_FOLD_FACE_MM}mm` }}>
                     <TableNumberCard
                       tableNumber={n}
                       primaryColor={primaryColor}
@@ -930,7 +949,7 @@ function CarteleriaContent() {
                   <div key={`mesa-plan-${mesa}`} className="rounded-lg border p-3 break-inside-avoid">
                     <p className="font-bold uppercase tracking-wider text-xs mb-1" style={{ color: primaryColor }}>Mesa {mesa}</p>
                     <ul className="space-y-0.5 text-slate-700">
-                      {nombres.map(nombre => (<li key={`${mesa}-${nombre}`}>• {nombre}</li>))}
+                      {nombres.map((nombre, index) => (<li key={`${mesa}-${nombre}-${index}`}>• {nombre}</li>))}
                     </ul>
                   </div>
                 )) : (
