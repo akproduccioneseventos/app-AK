@@ -31,7 +31,7 @@ function CartaTragosContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cartaTragos, setCartaTragos] = useState<CartaTragosData>(defaultCartaTragosData);
-  const [masterVersion, setMasterVersion] = useState<Trago[]>([]);
+  const [masterItems, setMasterItems] = useState<Trago[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -62,7 +62,7 @@ function CartaTragosContent() {
       ]);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
-      setMasterVersion(masterItems);
+      setMasterItems(masterItems);
       
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
       if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
@@ -102,7 +102,7 @@ function CartaTragosContent() {
     setIsSyncingMaster(true);
     try {
       const masterItems = await getCartaTragosMaster();
-      setMasterVersion(masterItems);
+      setMasterItems(masterItems);
       setCartaTragos(prev => ({ ...prev, items: mergeMasterTragosWithFiesta(masterItems, prev.items || []) }));
       toast({ title: 'Base sincronizada', description: 'Se actualizaron los tragos base del módulo general.' });
     } catch (e: any) {
@@ -318,7 +318,7 @@ function CartaTragosContent() {
                 </Link>
                 <div>
                   <h1 className="font-headline text-lg">Editor de Carta de Tragos (15x10 cm)</h1>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Módulo maestro sincronizado: {masterVersion.length} tragos base</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Módulo maestro sincronizado: {masterItems.length} tragos base</p>
                 </div>
             </div>
             <div className="flex flex-wrap gap-2 items-end">

@@ -7,11 +7,14 @@ import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 const CARTA_TRAGOS_MASTER_FILE = 'carta-tragos-master.json';
 
 const normalizeMasterItems = (items: Trago[]): Trago[] => {
-  return items.map((item) => ({
-    ...item,
-    ingredientes: item.ingredientes || [],
-    stockDisponible: item.stockDisponible ?? 0,
-  }));
+  return items.map((item) => {
+    const { ingredientes, stockDisponible, ...rest } = item;
+    return {
+      ...rest,
+      ingredientes: ingredientes || [],
+      stockDisponible: stockDisponible ?? 0,
+    };
+  });
 };
 
 export async function getCartaTragosMaster(): Promise<Trago[]> {
@@ -29,4 +32,3 @@ export async function saveCartaTragosMaster(items: Trago[]): Promise<{ success: 
     return { success: false, error: e.message };
   }
 }
-
