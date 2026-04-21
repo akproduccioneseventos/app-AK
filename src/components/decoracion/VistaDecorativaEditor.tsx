@@ -117,7 +117,7 @@ export default function VistaDecorativaEditor({
     const patch: Partial<ElementoDecorativo> = { colores: newColores };
     if (idx === 0 && selectedEl.imageDataUri) {
       patch.tintColor = color;
-      if (!selectedEl.tintOpacity || selectedEl.tintOpacity <= 0) {
+      if ((selectedEl.tintOpacity ?? 0) <= 0) {
         patch.tintOpacity = 0.6;
       }
     }

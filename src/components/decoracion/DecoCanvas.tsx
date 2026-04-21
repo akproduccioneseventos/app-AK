@@ -449,6 +449,23 @@ export default function DecoCanvas({
     ...(hasBackgroundImage ? [`url(${fondoImagenUrl})`] : []),
     ...(hasGrid ? gridLayers : []),
   ];
+  let backgroundSize: string | undefined;
+  let backgroundPosition: string | undefined;
+  let backgroundRepeat: string | undefined;
+
+  if (hasBackgroundImage && hasGrid) {
+    backgroundSize = 'cover, 40px 40px, 40px 40px';
+    backgroundPosition = 'center, 0 0, 0 0';
+    backgroundRepeat = 'no-repeat, repeat, repeat';
+  } else if (hasBackgroundImage) {
+    backgroundSize = 'cover';
+    backgroundPosition = 'center';
+    backgroundRepeat = 'no-repeat';
+  } else if (hasGrid) {
+    backgroundSize = '40px 40px, 40px 40px';
+    backgroundPosition = '0 0, 0 0';
+    backgroundRepeat = 'repeat, repeat';
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -487,27 +504,9 @@ export default function DecoCanvas({
                 height: CANVAS_H,
                 backgroundColor: safeFondoColor,
                 backgroundImage: backgroundLayers.join(', ') || undefined,
-                backgroundSize: hasBackgroundImage && hasGrid
-                  ? 'cover, 40px 40px, 40px 40px'
-                  : hasBackgroundImage
-                    ? 'cover'
-                    : hasGrid
-                      ? '40px 40px, 40px 40px'
-                      : undefined,
-                backgroundPosition: hasBackgroundImage && hasGrid
-                  ? 'center, 0 0, 0 0'
-                  : hasBackgroundImage
-                    ? 'center'
-                    : hasGrid
-                      ? '0 0, 0 0'
-                      : undefined,
-                backgroundRepeat: hasBackgroundImage && hasGrid
-                  ? 'no-repeat, repeat, repeat'
-                  : hasBackgroundImage
-                    ? 'no-repeat'
-                    : hasGrid
-                      ? 'repeat, repeat'
-                      : undefined,
+                backgroundSize,
+                backgroundPosition,
+                backgroundRepeat,
                 cursor: 'default',
               }}
             onClick={e => {
