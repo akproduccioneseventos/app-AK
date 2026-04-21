@@ -366,9 +366,23 @@ function SimuladorContent() {
             });
         });
         
-        const descPromo = totalRegular * 0.10;
+        const discountPct = (config.descuentoGeneral ?? 10) / 100;
+        const descPromo = totalRegular * discountPct;
         const totalSinAjuste = totalRegular - descPromo;
-        const totalFinal = totalSinAjuste;
+
+        let ajusteAnual = 0;
+        let aniosDiferencia = 0;
+        if (eventoFecha) {
+            const anioCreacion = new Date().getFullYear();
+            const anioEvento = eventoFecha.getFullYear();
+            aniosDiferencia = Math.max(0, anioEvento - anioCreacion);
+            if (aniosDiferencia > 0) {
+                const adjustmentPct = budgetSettings.annualAdjustmentPercentage ?? 15;
+                ajusteAnual = Math.round(totalSinAjuste * (Math.pow(1 + adjustmentPct / 100, aniosDiferencia) - 1));
+            }
+        }
+
+        const totalFinal = Math.round(totalSinAjuste + ajusteAnual);
 
         const agrupados = detallados.reduce((acc, item) => {
             const cat = item.categoria;
@@ -394,13 +408,13 @@ function SimuladorContent() {
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,
             totalSinAjuste: Math.round(totalSinAjuste),
-            ajusteAnual: 0,
-            totalFinal: Math.round(totalFinal),
-            aniosDiferencia: 0,
+            ajusteAnual,
+            totalFinal,
+            aniosDiferencia,
             agrupados: sortedAgrupados,
             detallados
         };
-    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha]);
+    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha, budgetSettings]);
     
     const handleNext = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
@@ -437,7 +451,7 @@ function SimuladorContent() {
                 ninos: ninosYAdolescentes,
                 subtotal: stats.subtotalVenta,
                 costoEstimado: stats.totalFinal,
-                descuentoGeneral: 10,
+                descuentoGeneral: config?.descuentoGeneral ?? 10,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
                 paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 items: stats.detallados.map(s => {
@@ -550,7 +564,8 @@ function SimuladorContent() {
             }
         });
 
-        const descPromo = totalRegular * 0.10;
+        const discountPct = (config?.descuentoGeneral ?? 10) / 100;
+        const descPromo = totalRegular * discountPct;
         const totalSinAjuste = totalRegular - descPromo;
         return Math.round(totalSinAjuste);
     };
@@ -710,7 +725,7 @@ function SimuladorContent() {
                                 )}
                                 {stats.descPromo > 0 && (
                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400 tracking-widest">
-                                        <span>Bonificación Especial (10%):</span>
+                                        <span>Bonificación Especial ({config?.descuentoGeneral ?? 10}%):</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
                                     </div>
                                 )}
