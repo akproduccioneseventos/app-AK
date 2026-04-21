@@ -3,6 +3,12 @@
 import type { ServicioEmpresa } from './empresa';
 
 export type MetodoPago = 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'Cheque' | 'Tarjeta' | 'Otro';
+export type PresupuestoSource =
+  | 'manual'
+  | 'simulator'
+  | 'simulator_common'
+  | 'simulator_assistant'
+  | 'portal_led';
 
 export const ALL_METODOS_PAGO: MetodoPago[] = [
   'Efectivo',
@@ -88,7 +94,7 @@ export interface Presupuesto {
   invoiceId?: string;
   ajusteAnualActivo?: boolean; // NEW: Controls visibility of annual adjustment
   leadId?: string;
-  source?: 'manual' | 'simulator';
+  source?: PresupuestoSource;
   pagosCliente?: PagoCliente[]; // Detailed client payment records
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real (e.g. 15 → Precio de Lista)
   senia?: number; // Monto de la seña acordada

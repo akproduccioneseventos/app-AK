@@ -1,5 +1,6 @@
 
 
+import type { PresupuestoSource } from './presupuesto';
 import type { ContractType } from './settings';
 
 export interface CrmLeadHistoryItem {
@@ -59,7 +60,8 @@ export interface CrmLead {
   presupuestoId?: string; // ID of the linked budget
   presupuestoEstado?: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Denormalized status
   invoiceId?: string; // If the budget was invoiced
-  budgetSource?: 'manual' | 'simulator';
+  budgetSource?: PresupuestoSource;
+  lastBudgetAt?: string;
   // Contact tracking
   lastContactedAt?: string; // ISO date string
   lastContactMethod?: 'whatsapp' | 'phone' | 'email' | 'in_person';

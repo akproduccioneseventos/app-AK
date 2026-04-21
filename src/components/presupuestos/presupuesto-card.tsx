@@ -71,9 +71,10 @@ export default function PresupuestoCard({
   const displayId = presupuesto.numero ? `#${presupuesto.numero}` : `#${presupuesto.id.split('_').pop()?.substring(0,5)}`;
   
   const budgetSource = useMemo(() => {
-    if (presupuesto.source === 'simulator') {
-      return { text: 'Simulador', className: 'bg-blue-100 text-blue-800 border-blue-200' };
-    }
+    if (presupuesto.source === 'simulator_assistant') return { text: 'Sim. asistido', className: 'bg-indigo-100 text-indigo-800 border-indigo-200' };
+    if (presupuesto.source === 'simulator_common') return { text: 'Sim. común', className: 'bg-blue-100 text-blue-800 border-blue-200' };
+    if (presupuesto.source === 'portal_led') return { text: 'Portal LED', className: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200' };
+    if (presupuesto.source === 'simulator') return { text: 'Simulador', className: 'bg-blue-100 text-blue-800 border-blue-200' };
     return { text: 'Manual', className: 'bg-gray-100 text-gray-700 border-gray-200' };
   }, [presupuesto.source]);
 

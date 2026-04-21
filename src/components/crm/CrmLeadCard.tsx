@@ -80,9 +80,10 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   };
   
   const budgetSource = useMemo(() => {
-    if (lead.budgetSource === 'simulator') {
-      return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
-    }
+    if (lead.budgetSource === 'simulator_assistant') return { text: 'Sim. asistido', className: 'bg-indigo-100 text-indigo-800' };
+    if (lead.budgetSource === 'simulator_common') return { text: 'Sim. común', className: 'bg-blue-100 text-blue-800' };
+    if (lead.budgetSource === 'portal_led') return { text: 'Portal LED', className: 'bg-fuchsia-100 text-fuchsia-800' };
+    if (lead.budgetSource === 'simulator') return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
     return { text: 'Manual', className: 'bg-gray-100 text-gray-700' };
   }, [lead.budgetSource]);
 
@@ -204,6 +205,12 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
              <div className={cn("flex items-center gap-2 font-bold p-1 rounded", isMeetingToday ? "text-red-700 bg-red-50" : isMeetingTomorrow ? "text-blue-700 bg-blue-50" : "text-amber-700 bg-amber-50")}>
                 <Clock className="w-3.5 h-3.5"/>
                 <span className="truncate">Cita: {new Date(lead.followUpDate).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}hs</span>
+            </div>
+          )}
+          {lead.lastBudgetAt && (
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-primary/60" />
+              <span className="truncate">Presupuesto: {new Date(lead.lastBudgetAt).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}hs</span>
             </div>
           )}
           {lead.partyType && (

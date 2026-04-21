@@ -26,6 +26,13 @@ function normalizeName(name: string): string {
 }
 
 const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 6;
+const getBudgetSourceLabel = (source?: string) => {
+  if (source === 'simulator_assistant') return 'Simulador con asistente';
+  if (source === 'simulator_common') return 'Simulador común';
+  if (source === 'portal_led') return 'Portal LED';
+  if (source === 'simulator') return 'Simulador';
+  return 'Manual';
+};
 
 function namesAreSimilar(a: string, b: string): boolean {
   const na = normalizeName(a);
@@ -521,6 +528,8 @@ export async function getCrmKpiData() {
 export async function findLeadByBudgetOrCreate(presupuesto: any) {
     const leads = await getCrmLeads();
     const stages = await getCrmStages();
+    const budgetSource = presupuesto.source || 'manual';
+    const budgetTimestamp = presupuesto.timestamp || new Date().toISOString();
     
     // Normalizar datos de búsqueda para evitar duplicados
     const searchName = presupuesto.clienteNombre?.toLowerCase().trim().replace(/\s+/g, ' ');
@@ -552,7 +561,8 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
             partyType: presupuesto.eventoTipo,
             venueName: presupuesto.salonFiestas,
             guestCount: presupuesto.invitadosCantidad,
-            budgetSource: presupuesto.source || 'manual',
+            budgetSource,
+            lastBudgetAt: budgetTimestamp,
             currentStageId: stages[0].id
         } as NewCrmLeadData);
         return { lead: res.lead!, isNew: true };
@@ -568,6 +578,18 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
         if (presupuesto.eventoTipo) lead.partyType = presupuesto.eventoTipo;
         if (presupuesto.salonFiestas) lead.venueName = presupuesto.salonFiestas;
         if (presupuesto.invitadosCantidad) lead.guestCount = presupuesto.invitadosCantidad;
+        lead.budgetSource = budgetSource;
+        lead.lastBudgetAt = budgetTimestamp;
+        lead.timeline = [
+          ...(lead.timeline || []),
+          {
+            id: `tl_${Date.now()}`,
+            type: 'presupuesto_created',
+            timestamp: budgetTimestamp,
+            description: `Presupuesto ${presupuesto.numero ? `#${presupuesto.numero}` : ''} registrado desde ${getBudgetSourceLabel(budgetSource)}`.trim(),
+            meta: { source: budgetSource },
+          },
+        ];
         
         // Progresión automática de etapas
         if ((presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado')) {

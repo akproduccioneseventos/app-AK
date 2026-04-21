@@ -471,7 +471,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             saldo: d.saldo != null ? Number(d.saldo) : undefined,
             ajusteAnualPorcentaje: d.ajusteAnualPorcentaje != null ? Number(d.ajusteAnualPorcentaje) : undefined,
             fechaFirmaContrato: d.fechaFirmaContrato,
-          } as unknown as Omit<Presupuesto, 'id'>);
+          } as unknown as Omit<Presupuesto, 'id'>, { source: 'simulator_assistant' });
 
           if (budgetResult.success && budgetResult.presupuesto) {
             const pres = budgetResult.presupuesto;
@@ -525,7 +525,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             itemsPresupuestados: items,
             notas: 'Creado desde texto pegado — revisar y completar',
             estado: 'Borrador',
-          } as unknown as Omit<Presupuesto, 'id'>);
+          } as unknown as Omit<Presupuesto, 'id'>, { source: 'simulator_assistant' });
 
           if (budgetResult.success && budgetResult.presupuesto) {
             const pres = budgetResult.presupuesto;
@@ -635,7 +635,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
               ? 'Importado automáticamente — revisar datos'
               : (d.notas || 'Importado desde imagen/PDF vía Asistente AK'),
             estado: 'Borrador',
-          } as unknown as Omit<Presupuesto, 'id'>);
+          } as unknown as Omit<Presupuesto, 'id'>, { source: 'simulator_assistant' });
 
           // Paso 4: Crear fiesta SOLO si NO es borrador incompleto y tenemos clienteId
           let fiestaResult: any = null;

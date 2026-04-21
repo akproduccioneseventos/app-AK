@@ -1,6 +1,6 @@
 'use server';
 
-import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago } from '@/types/presupuesto'; 
+import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto'; 
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
@@ -62,7 +62,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
 
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
-  options?: { source?: 'manual' | 'simulator', leadId?: string }
+  options?: { source?: PresupuestoSource, leadId?: string }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
   let presupuestos = await getPresupuestos();
   
