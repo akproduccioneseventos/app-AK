@@ -425,6 +425,7 @@ export async function saveWhatsAppTemplates(
 // ── AI Assistant Settings ──────────────────────────────────────────────────
 
 const AI_ASSISTANT_SETTINGS_FILE = 'ai-assistant-settings.json';
+const AI_ASSISTANT_DOCUMENT_MAX_CHARS = 12000; // Protects storage/prompt size for assistant context.
 
 export interface AiAssistantSettings {
   customInstructions: string;
@@ -453,12 +454,11 @@ export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings
   try {
     const sanitizedKnowledgeDocuments = Array.isArray(settings.knowledgeDocuments)
       ? settings.knowledgeDocuments
-          .filter(doc => doc && typeof doc.id === 'string' && doc.id.trim() !== '')
           .map(doc => ({
-            id: doc.id,
+            id: doc.id || `doc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
             name: doc.name || 'Documento',
             type: doc.type || 'text/plain',
-            content: (doc.content || '').slice(0, 12000),
+            content: (doc.content || '').slice(0, AI_ASSISTANT_DOCUMENT_MAX_CHARS),
             updatedAt: doc.updatedAt || new Date().toISOString(),
           }))
       : [];

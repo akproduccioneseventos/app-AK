@@ -19,6 +19,8 @@ type KnowledgeDocument = {
   updatedAt: string;
 };
 
+const KNOWLEDGE_DOC_MAX_CHARS = 12000; // Keep context payload bounded to avoid oversized prompts/storage.
+
 export default function AiAssistantSettingsPage() {
   const [customInstructions, setCustomInstructions] = useState('');
   const [updatedAt, setUpdatedAt] = useState('');
@@ -45,19 +47,19 @@ export default function AiAssistantSettingsPage() {
     if (files.length === 0) return;
 
     const docs: KnowledgeDocument[] = [];
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       let content = '';
       if (
         file.type.startsWith('text/') ||
         ['application/json', 'application/xml', 'text/csv'].includes(file.type)
       ) {
-        content = (await file.text()).slice(0, 12000);
+        content = (await file.text()).slice(0, KNOWLEDGE_DOC_MAX_CHARS);
       } else {
         content = `Documento cargado: ${file.name}. Tipo: ${file.type || 'desconocido'}. Si es PDF/DOC, agregá un resumen textual para que el asistente lo use como contexto.`;
       }
 
       docs.push({
-        id: `doc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        id: `doc_${crypto.randomUUID()}_${index}`,
         name: file.name,
         type: file.type || 'application/octet-stream',
         content,
