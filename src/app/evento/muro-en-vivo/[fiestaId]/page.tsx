@@ -14,6 +14,10 @@ import type { SocialGallerySettings } from '@/types/fiesta';
 const REFRESH_INTERVAL_MS = 8000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
 const MARQUEE_REPEAT_COUNT = 3;
+const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
+const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]';
+const GAME_OVERLAY_CLASS =
+  'absolute right-6 top-20 z-30 w-[38vw] max-w-3xl rounded-3xl border-2 border-yellow-300/70 bg-black/70 p-6 shadow-[0_0_60px_rgba(255,215,0,0.35)] backdrop-blur-md';
 
 export default function MuroEnVivoPage() {
   const params = useParams();
@@ -70,11 +74,11 @@ export default function MuroEnVivoPage() {
           latestMoment && Date.now() - new Date(latestMoment.timestamp).getTime() < MOMENT_DISPLAY_DURATION_MS;
         setActiveMoment(momentIsFresh ? latestMoment : null);
       }
-      setActivePoll(
-        pollData
-          ? { id: pollData.id, question: pollData.question, options: pollData.options }
-          : null
-      );
+      if (pollData) {
+        setActivePoll({ id: pollData.id, question: pollData.question, options: pollData.options });
+      } else {
+        setActivePoll(null);
+      }
       setCompanyMarketingText(
         companyInfo?.companyName
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
@@ -135,7 +139,7 @@ export default function MuroEnVivoPage() {
       )}
 
       {activePoll && settings.showPolls && (
-        <div className="absolute right-6 top-20 z-30 w-[38vw] max-w-3xl rounded-3xl border-2 border-yellow-300/70 bg-black/70 p-6 shadow-[0_0_60px_rgba(255,215,0,0.35)] backdrop-blur-md">
+        <div className={GAME_OVERLAY_CLASS}>
           <p className="mb-3 text-center text-base font-black tracking-[0.35em] text-yellow-300 uppercase">Juego en Vivo</p>
           <h2 className="mb-5 text-center text-4xl font-black leading-tight text-white">{activePoll.question}</h2>
           <div className="space-y-4">
@@ -161,13 +165,13 @@ export default function MuroEnVivoPage() {
       <div className="absolute bottom-0 left-0 right-0 z-30 space-y-1">
         {settings.ledMarqueeText && (
           <div className="overflow-hidden border-y border-fuchsia-300/40 bg-fuchsia-500/15 py-2">
-            <div className="whitespace-nowrap text-2xl font-black uppercase tracking-wider text-fuchsia-200 animate-[marquee_22s_linear_infinite]">
+            <div className={`whitespace-nowrap text-2xl font-black uppercase tracking-wider text-fuchsia-200 ${LED_MARQUEE_ANIMATION_CLASS}`}>
               {renderMarqueeText(settings.ledMarqueeText)}
             </div>
           </div>
         )}
         <div className="overflow-hidden border-t border-white/15 bg-black/65 py-2">
-          <div className="whitespace-nowrap text-lg font-bold text-cyan-100 animate-[marquee_28s_linear_infinite]">
+          <div className={`whitespace-nowrap text-lg font-bold text-cyan-100 ${MARKETING_MARQUEE_ANIMATION_CLASS}`}>
             {renderMarqueeText(settings.marketingTickerText || companyMarketingText)}
           </div>
         </div>
@@ -211,7 +215,7 @@ export default function MuroEnVivoPage() {
 
 function renderMarqueeText(text: string) {
   return Array.from({ length: MARQUEE_REPEAT_COUNT }, (_, index) => (
-    <span key={`${text}-${index}`} className="mx-8">
+    <span key={index} className="mx-8">
       {text}
     </span>
   ));
