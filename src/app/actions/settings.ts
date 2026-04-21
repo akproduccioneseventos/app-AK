@@ -4,6 +4,8 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType } from '@/types/settings';
 import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings } from '@/types/settings';
+import { readdir } from 'node:fs/promises';
+import path from 'node:path';
 
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
@@ -426,9 +428,16 @@ export async function saveWhatsAppTemplates(
 
 const AI_ASSISTANT_SETTINGS_FILE = 'ai-assistant-settings.json';
 const AI_ASSISTANT_DOCUMENT_MAX_CHARS = 12000; // Protects storage/prompt size for assistant context.
+const AI_ASSISTANT_TEXT_MAX_CHARS = 20000;
+const AI_ASSISTANT_APP_SCAN_MAX_ROUTES = 200;
 
 export interface AiAssistantSettings {
   customInstructions: string;
+  operationalInstructions: string;
+  salesMarketingInstructions: string;
+  dynamicBusinessRules: string;
+  lessonsLearned: string;
+  appFunctionalityContext: string;
   knowledgeDocuments: Array<{
     id: string;
     name: string;
@@ -441,6 +450,11 @@ export interface AiAssistantSettings {
 
 const defaultAiAssistantSettings: AiAssistantSettings = {
   customInstructions: '',
+  operationalInstructions: '',
+  salesMarketingInstructions: '',
+  dynamicBusinessRules: '',
+  lessonsLearned: '',
+  appFunctionalityContext: '',
   knowledgeDocuments: [],
   updatedAt: '',
 };
@@ -450,7 +464,18 @@ export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
   return { ...defaultAiAssistantSettings, ...data };
 }
 
-export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings, 'customInstructions' | 'knowledgeDocuments'>): Promise<{ success: boolean; error?: string }> {
+export async function saveAiAssistantSettings(
+  settings: Pick<
+    AiAssistantSettings,
+    | 'customInstructions'
+    | 'operationalInstructions'
+    | 'salesMarketingInstructions'
+    | 'dynamicBusinessRules'
+    | 'lessonsLearned'
+    | 'appFunctionalityContext'
+    | 'knowledgeDocuments'
+  >
+): Promise<{ success: boolean; error?: string }> {
   try {
     const sanitizedKnowledgeDocuments = Array.isArray(settings.knowledgeDocuments)
       ? settings.knowledgeDocuments
@@ -464,7 +489,12 @@ export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings
       : [];
 
     const toSave: AiAssistantSettings = {
-      customInstructions: settings.customInstructions,
+      customInstructions: (settings.customInstructions || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
+      operationalInstructions: (settings.operationalInstructions || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
+      salesMarketingInstructions: (settings.salesMarketingInstructions || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
+      dynamicBusinessRules: (settings.dynamicBusinessRules || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
+      lessonsLearned: (settings.lessonsLearned || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
+      appFunctionalityContext: (settings.appFunctionalityContext || '').slice(0, AI_ASSISTANT_TEXT_MAX_CHARS),
       knowledgeDocuments: sanitizedKnowledgeDocuments,
       updatedAt: new Date().toISOString(),
     };
@@ -472,6 +502,62 @@ export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
+  }
+}
+
+function buildRouteFromPagePath(absolutePagePath: string, appDir: string): string {
+  const rel = path.relative(appDir, absolutePagePath).replace(/\\/g, '/');
+  const withoutPage = rel.replace(/\/page\.tsx$/, '');
+  const segments = withoutPage
+    .split('/')
+    .filter(Boolean)
+    .filter((segment) => !/^\(.*\)$/.test(segment)); // ignore route groups
+
+  if (segments.length === 0) return '/';
+  return `/${segments.join('/')}`;
+}
+
+async function collectPageRoutes(dir: string, appDir: string, routes: string[]): Promise<void> {
+  const entries = await readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      await collectPageRoutes(fullPath, appDir, routes);
+      continue;
+    }
+
+    if (entry.isFile() && entry.name === 'page.tsx') {
+      const route = buildRouteFromPagePath(fullPath, appDir);
+      routes.push(route);
+    }
+  }
+}
+
+export async function scanAiAssistantAppContext(): Promise<{ success: boolean; context?: string; error?: string }> {
+  try {
+    const appDir = path.join(process.cwd(), 'src', 'app');
+    const routes: string[] = [];
+    await collectPageRoutes(appDir, appDir, routes);
+
+    const uniqueRoutes = Array.from(new Set(routes)).sort();
+    const listedRoutes = uniqueRoutes.slice(0, AI_ASSISTANT_APP_SCAN_MAX_ROUTES);
+
+    const context = [
+      'Escaneo automático de rutas funcionales de la app (src/app):',
+      ...listedRoutes.map((route) => `- ${route}`),
+      uniqueRoutes.length > listedRoutes.length
+        ? `- ... y ${uniqueRoutes.length - listedRoutes.length} rutas adicionales (omitidas por límite)`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    return { success: true, context };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'No se pudo escanear la app.' };
   }
 }
 

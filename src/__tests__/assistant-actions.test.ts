@@ -87,8 +87,10 @@ jest.mock('@/app/actions/crm', () => ({
 import { sendAssistantMessage } from '@/app/actions/assistant';
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
 import { savePresupuesto } from '@/app/actions/presupuestos';
+import { addCrmLead } from '@/app/actions/crm';
 
 const mockChat = chatWithAssistant as jest.MockedFunction<typeof chatWithAssistant>;
+const mockAddCrmLead = addCrmLead as jest.MockedFunction<typeof addCrmLead>;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -143,6 +145,37 @@ describe('sendAssistantMessage — missing data handlers', () => {
       expect(res.response).not.toContain('Acción no reconocida');
     },
   );
+});
+
+describe('sendAssistantMessage — create_lead fallback with minimal scheduling text', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('creates a CRM lead from scheduling text when Gemini returns create_lead without data', async () => {
+    mockChat.mockResolvedValueOnce(aiResult('create_lead', undefined) as any);
+    mockAddCrmLead.mockResolvedValueOnce({
+      success: true,
+      lead: {
+        id: 'lead_1',
+        name: 'Norma',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } as any,
+    });
+
+    const res = await sendAssistantMessage('Agenda a Norma a las 11', []);
+
+    expect(res.success).toBe(true);
+    expect(mockAddCrmLead).toHaveBeenCalledTimes(1);
+    expect(mockAddCrmLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Norma',
+        notes: expect.stringContaining('11'),
+      }),
+    );
+    expect(res.response).toContain('registrado en el CRM');
+  });
 });
 
 describe('sendAssistantMessage — create_budget uses history on short confirmations', () => {
