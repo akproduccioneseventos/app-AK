@@ -7,13 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Building, Save, Loader2, Image as ImageIconLucide, FileSignature } from 'lucide-react';
+import { ArrowLeft, Building, Save, Loader2, Image as ImageIconLucide, FileSignature, Plus, Trash2, Building2 } from 'lucide-react';
 import React, { useState, type FormEvent, useEffect, useCallback, type ChangeEvent } from 'react';
 import NextImage from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { getInvoiceTemplateSettings, saveInvoiceTemplateSettings, getCompanyInfo, saveCompanyInfo } from '@/app/actions/settings';
 import type { InvoiceTemplateSettings, CompanyInfo } from '@/types/settings';
+import type { CuentaBancaria } from '@/types/fiesta';
 
 
 export default function CompanySettingsPage() {
@@ -50,6 +51,35 @@ export default function CompanySettingsPage() {
   
   const handleInfoChange = (field: keyof CompanyInfo, value: string) => {
     setCompanyInfo(prev => ({...prev, [field]: value}));
+  };
+
+  const updateCuenta = (id: string, field: keyof CuentaBancaria, value: string) => {
+    setCompanyInfo(prev => ({
+      ...prev,
+      cuentasBancariasPortal: (prev.cuentasBancariasPortal ?? []).map(c =>
+        c.id === id ? { ...c, [field]: value } : c
+      ),
+    }));
+  };
+
+  const addCuenta = () => {
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? `cuenta_${crypto.randomUUID()}`
+      : `cuenta_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    setCompanyInfo(prev => ({
+      ...prev,
+      cuentasBancariasPortal: [
+        ...(prev.cuentasBancariasPortal ?? []),
+        { id, banco: '', titular: '', numero: '', tipo: '' },
+      ],
+    }));
+  };
+
+  const removeCuenta = (id: string) => {
+    setCompanyInfo(prev => ({
+      ...prev,
+      cuentasBancariasPortal: (prev.cuentasBancariasPortal ?? []).filter(c => c.id !== id),
+    }));
   };
   
   const handleLogoFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -183,6 +213,42 @@ export default function CompanySettingsPage() {
                  <div className="space-y-2"><Label htmlFor="default-document-notes">Notas por Defecto (Presupuestos/General)</Label><Textarea id="default-document-notes" value={companyInfo.defaultDocumentNotes || ''} onChange={(e) => handleInfoChange('defaultDocumentNotes', e.target.value)} placeholder="Ej: Términos y condiciones, información de pago general." rows={3} disabled={isSaving}/></div>
                 <Separator />
                 <div className="space-y-2"><Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label><Textarea id="invoice-custom-footer" value={companyInfo.invoiceCustomFooter || ''} onChange={(e) => handleInfoChange('invoiceCustomFooter', e.target.value)} placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." rows={3} disabled={isSaving} className="text-sm"/></div>
+                <Separator />
+                <div className="space-y-3">
+                  <Label className="text-base font-medium flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-primary" />
+                    Cuentas bancarias para Portal del Cliente
+                  </Label>
+                  <CardDescription className="text-xs">
+                    Estas cuentas se sincronizan en la configuración del Portal del Cliente para cada fiesta.
+                  </CardDescription>
+                  {(companyInfo.cuentasBancariasPortal ?? []).length === 0 && (
+                    <p className="text-xs text-muted-foreground border border-dashed rounded-lg p-3">
+                      No hay cuentas configuradas.
+                    </p>
+                  )}
+                  {(companyInfo.cuentasBancariasPortal ?? []).map((cuenta) => (
+                    <div key={cuenta.id} className="border rounded-lg p-3 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input value={cuenta.banco} onChange={(e) => updateCuenta(cuenta.id, 'banco', e.target.value)} placeholder="Banco" />
+                        <Input value={cuenta.titular} onChange={(e) => updateCuenta(cuenta.id, 'titular', e.target.value)} placeholder="Titular" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input value={cuenta.numero} onChange={(e) => updateCuenta(cuenta.id, 'numero', e.target.value)} placeholder="Número de cuenta" />
+                        <Input value={cuenta.tipo ?? ''} onChange={(e) => updateCuenta(cuenta.id, 'tipo', e.target.value)} placeholder="Tipo (Caja de ahorro, etc.)" />
+                      </div>
+                      <div className="flex justify-end">
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeCuenta(cuenta.id)} className="text-destructive">
+                          <Trash2 className="w-4 h-4 mr-1" /> Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" onClick={addCuenta}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Agregar cuenta bancaria
+                  </Button>
+                </div>
             </CardContent>
             <CardFooter className="border-t pt-6">
                  <Button type="submit" disabled={isSaving || isLoading}>

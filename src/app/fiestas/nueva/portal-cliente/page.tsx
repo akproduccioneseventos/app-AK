@@ -14,16 +14,30 @@ import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { updateFaqPortal } from '@/app/actions/fiesta/portal.actions';
+import { getCompanyInfo } from '@/app/actions/settings';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq } from '@/lib/fiesta-defaults';
 
 /** Generate a cryptographically secure random password using alphanumeric characters. */
-function generateSecurePassword(length = 12): string {
-  const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  const values = new Uint32Array(length);
-  crypto.getRandomValues(values);
-  return Array.from(values, v => charset[v % charset.length]).join('');
+function slugifyToken(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 24);
+}
+
+function generatePortalAccessKey(fiesta?: FiestaEnPlanificacion | null): string {
+  const base = slugifyToken(
+    fiesta?.configuracion?.nombreEvento ||
+    fiesta?.configuracion?.tipoCelebracion ||
+    'evento'
+  ) || 'evento';
+  const suffix = (fiesta?.id || `${Date.now()}`).replace(/[^a-zA-Z0-9]/g, '').slice(-6).toLowerCase();
+  return `cliente-vip-${base}-${suffix}`;
 }
 
 const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, label: string }[] = [
@@ -39,7 +53,7 @@ const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessK
     { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video' },
     { id: 'pagos', label: 'Mostrar Pagos y Saldo' },
     { id: 'simuladorInvitados', label: 'Simulador de Invitados (+/-)' },
-    { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas' },
+    { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas y Extras' },
     { id: 'moodboard', label: 'Moodboard / Galería de Inspiración' },
     { id: 'contrato', label: 'Contrato y Documentos' },
     { id: 'serviciosContratados', label: '¿Qué estoy contratando? (Servicios)' },
@@ -68,6 +82,7 @@ function ClientPortalConfigContent() {
   // Bank accounts state
   const [cuentasBancarias, setCuentasBancarias] = useState<CuentaBancaria[]>([]);
   const [isSavingCuentas, setIsSavingCuentas] = useState(false);
+  const [fiestaData, setFiestaData] = useState<FiestaEnPlanificacion | null>(null);
 
   // Drink calculator items state
   const [bebidasItems, setBebidasItems] = useState<BebidaCalculable[]>(defaultBebidaItems);
@@ -78,10 +93,13 @@ function ClientPortalConfigContent() {
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
+      setFiestaData(fiestaData);
       const settings = fiestaData.clientPortalSettings || defaultClientPortalSettings;
+      const companyInfo = await getCompanyInfo();
+      const cuentasEmpresa = companyInfo.cuentasBancariasPortal ?? [];
       setPortalSettings(settings);
       setFaqItems(fiestaData.faqPortal ?? defaultFaq);
-      setCuentasBancarias(settings.cuentasBancarias ?? []);
+      setCuentasBancarias(settings.cuentasBancarias?.length ? settings.cuentasBancarias : cuentasEmpresa);
 
       // Resolve drink items with backward compat
       const calc = settings.calculadoraBebidas;
@@ -181,6 +199,22 @@ function ClientPortalConfigContent() {
     setCuentasBancarias(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
   };
 
+  const syncCuentasDesdeEmpresa = async () => {
+    try {
+      const companyInfo = await getCompanyInfo();
+      const cuentasEmpresa = companyInfo.cuentasBancariasPortal ?? [];
+      setCuentasBancarias(cuentasEmpresa);
+      toast({
+        title: "Sincronizado desde Empresa",
+        description: cuentasEmpresa.length > 0
+          ? "Se cargaron las cuentas bancarias generales."
+          : "No hay cuentas bancarias configuradas en Empresa > Configuración de empresa.",
+      });
+    } catch {
+      toast({ title: "Error", description: "No se pudieron sincronizar las cuentas desde Empresa.", variant: "destructive" });
+    }
+  };
+
   const handlePortalSwitch = (moduleId: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, field: 'visible' | 'editable', value: boolean) => {
     setPortalSettings(prev => {
       if (!prev) return defaultClientPortalSettings;
@@ -208,7 +242,7 @@ function ClientPortalConfigContent() {
   const addBebidaItem = () => {
     const newItem: BebidaCalculable = {
       id: `bebida_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-      nombre: 'Nueva bebida',
+      nombre: 'Nuevo ítem',
       emoji: '🥃',
       cantidadPorPersona: 1,
       unidad: 'unidades',
@@ -295,7 +329,7 @@ function ClientPortalConfigContent() {
                 <Switch id="portal-enabled" checked={portalSettings.enabled} onCheckedChange={(val) => setPortalSettings(p => {
                   const current = p || defaultClientPortalSettings;
                   const accessKey = val && !current.accessKey
-                    ? generateSecurePassword()
+                    ? generatePortalAccessKey(fiestaData)
                     : current.accessKey;
                   return { ...current, enabled: val, accessKey };
                 })} />
@@ -309,7 +343,7 @@ function ClientPortalConfigContent() {
                       type={showPassword ? 'text' : 'password'}
                       value={portalSettings.accessKey || ''}
                       onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))}
-                      placeholder="Crear una contraseña segura..."
+                      placeholder="Ej: cliente-vip-cumple-15-abc123"
                       className="pr-10"
                     />
                     <button
@@ -325,14 +359,14 @@ function ClientPortalConfigContent() {
                     type="button"
                     size="icon"
                     variant="outline"
-                    title="Generar contraseña aleatoria"
-                    onClick={() => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: generateSecurePassword()}))}
+                    title="Generar enlace sugerido"
+                    onClick={() => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: generatePortalAccessKey(fiestaData)}))}
                   >
                     <RefreshCw className="w-4 h-4"/>
                   </Button>
                   <Button type="button" size="icon" variant="outline" onClick={handleCopyPassword} disabled={!portalSettings.accessKey}><ClipboardCopy className="w-4 h-4"/></Button>
                 </div>
-                <p className="text-xs text-muted-foreground">Podés escribir tu propia contraseña o generar una aleatoria con el botón 🔄.</p>
+                <p className="text-xs text-muted-foreground">Usá un enlace legible (ej: cliente-vip-nombre-evento) o generá uno sugerido con el botón 🔄.</p>
                 {portalSettings.enabled && (
                   <p className="text-xs text-muted-foreground">Comparte esta contraseña con tu cliente para que pueda acceder a su portal en: <a href={portalLink} target="_blank" rel="noopener noreferrer" className="underline">{portalLink}</a></p>
                 )}
@@ -510,9 +544,9 @@ function ClientPortalConfigContent() {
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2">
               <GlassWater className="w-5 h-5 text-blue-500" />
-              Calculadora de Bebidas
+              Calculadora de Bebidas y Extras
             </CardTitle>
-            <CardDescription>Configura los ítems de bebidas que se muestran al cliente. Puedes editar cantidades, activar/ocultar y marcar cuáles trae el cliente.</CardDescription>
+            <CardDescription>Configurá bebidas y otros ítems que lleva el cliente (postres, torta, servicios subcontratados, etc.).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {bebidasItems.map((item) => (
@@ -529,7 +563,7 @@ function ClientPortalConfigContent() {
                     value={item.nombre}
                     onChange={e => updateBebidaItem(item.id, 'nombre', e.target.value)}
                     className="flex-1"
-                    placeholder="Nombre de la bebida"
+                    placeholder="Nombre del ítem"
                   />
                   <Button type="button" variant="ghost" size="icon" onClick={() => removeBebidaItem(item.id)} className="text-destructive shrink-0">
                     <Trash2 className="w-4 h-4" />
@@ -585,12 +619,12 @@ function ClientPortalConfigContent() {
               </div>
             ))}
             <Button type="button" variant="outline" className="w-full" onClick={addBebidaItem}>
-              <Plus className="w-4 h-4 mr-2" /> Agregar bebida
+              <Plus className="w-4 h-4 mr-2" /> Agregar ítem
             </Button>
           </CardContent>
           <CardFooter>
             <Button onClick={handleSavePortalSettings} disabled={isSaving}>
-              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />} Guardar Bebidas
+              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />} Guardar Bebidas y Extras
             </Button>
           </CardFooter>
         </Card>
@@ -657,10 +691,13 @@ function ClientPortalConfigContent() {
             Datos Bancarios (Portal VIP)
           </CardTitle>
           <CardDescription>
-            Agregá tus cuentas bancarias. El cliente las verá en su Portal VIP al informar un pago.
+            Configurá aquí las cuentas que verá el cliente al informar pagos. Podés sincronizarlas desde Empresa → Configuración de empresa.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
+          <Button type="button" variant="outline" size="sm" onClick={syncCuentasDesdeEmpresa} className="w-full rounded-xl">
+            <RefreshCw className="w-4 h-4 mr-2" /> Sincronizar desde Empresa
+          </Button>
           {cuentasBancarias.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-3 border border-dashed rounded-xl">
               Sin cuentas bancarias configuradas
