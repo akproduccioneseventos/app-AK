@@ -71,20 +71,25 @@ const CONFIG_FILES: Record<string, string> = {
 
 const MAX_RETRIES = 2;
 const isDev = process.env.NODE_ENV === 'development';
+const OMIT_FIRESTORE_VALUE = Symbol('omit-firestore-value');
 
-function sanitizeForFirestore<T>(value: T): T {
+function sanitizeForFirestore(value: unknown): unknown {
+  if (value === undefined) return OMIT_FIRESTORE_VALUE;
   if (Array.isArray(value)) {
     return value
-      .filter((item) => item !== undefined)
-      .map((item) => sanitizeForFirestore(item)) as T;
+      .map((item) => sanitizeForFirestore(item))
+      .filter((item) => item !== OMIT_FIRESTORE_VALUE);
   }
   if (value && typeof value === 'object') {
-    const cleaned: Record<string, unknown> = {};
-    for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
-      if (nestedValue === undefined) continue;
-      cleaned[key] = sanitizeForFirestore(nestedValue);
+    const proto = Object.getPrototypeOf(value);
+    // Preserve non-plain objects (e.g. Date/Timestamp) to avoid corrupting Firestore-supported value types.
+    if (proto !== Object.prototype && proto !== null) {
+      return value;
     }
-    return cleaned as T;
+    const entries = Object.entries(value as Record<string, unknown>)
+      .map(([key, nested]) => [key, sanitizeForFirestore(nested)] as const)
+      .filter(([, nested]) => nested !== OMIT_FIRESTORE_VALUE);
+    return Object.fromEntries(entries);
   }
   return value;
 }
@@ -137,7 +142,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     // Config file → single document in 'configuracion'
     const configDocId = CONFIG_FILES[normalizedPath];
     if (configDocId && data && typeof data === 'object' && !Array.isArray(data)) {
-      const cleanData = sanitizeForFirestore(data);
+      const cleanData = sanitizeForFirestore(data) as Record<string, unknown>;
       await withRetry(() => db.collection('configuracion').doc(configDocId).set({
         ...cleanData,
         _syncedAt: new Date().toISOString(),
@@ -182,7 +187,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
           const docId = getItemDocId(item);
           if (!docId) continue;
           const ref = db.collection(collectionName).doc(docId);
-          const cleanData = sanitizeForFirestore(item);
+          const cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
           batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
         }
         
@@ -197,7 +202,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       const [dir, filename] = pathParts;
       if (!filename.endsWith('.json')) return;
       const docId = filename.replace('.json', '');
-      const cleanData = sanitizeForFirestore(data);
+      const cleanData = sanitizeForFirestore(data) as Record<string, unknown>;
       await withRetry(() => db.collection(dir).doc(docId).set({
         ...cleanData,
         _syncedAt: new Date().toISOString(),
