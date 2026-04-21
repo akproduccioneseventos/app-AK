@@ -7,6 +7,9 @@ import type { SocialGalleryPost } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getActivePoll } from '@/app/actions/social-interactive';
+import { getCompanyInfo } from '@/app/actions/settings';
+import type { SocialGallerySettings } from '@/types/fiesta';
 
 const REFRESH_INTERVAL_MS = 8000;
 
@@ -16,6 +19,18 @@ export default function MuroEnVivoPage() {
 
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [eventName, setEventName] = useState<string>('');
+  const [settings, setSettings] = useState<SocialGallerySettings>({
+    enabled: true,
+    allowLikes: true,
+    allowComments: true,
+    uploadsActive: true,
+    showPolls: true,
+    marketingTickerText: '',
+    ledMarqueeText: '',
+  });
+  const [companyMarketingText, setCompanyMarketingText] = useState<string>('Seguinos en Instagram: @akproducciones');
+  const [activeMoment, setActiveMoment] = useState<{ id: string; nombre: string; emoji: string; timestamp: string } | null>(null);
+  const [activePoll, setActivePoll] = useState<{ id: string; question: string; options: { id: string; text: string; votes: number }[] } | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const postsRef = useRef<SocialGalleryPost[]>([]);
@@ -23,9 +38,11 @@ export default function MuroEnVivoPage() {
   const fetchData = useCallback(async () => {
     if (!fiestaId) return;
     try {
-      const [fetchedPosts, fiestaData] = await Promise.all([
+      const [fetchedPosts, fiestaData, pollData, companyInfo] = await Promise.all([
         getSocialPosts(fiestaId),
         getFiestaById(fiestaId),
+        getActivePoll(fiestaId),
+        getCompanyInfo(),
       ]);
 
       const sorted = [...fetchedPosts].sort(
@@ -43,6 +60,24 @@ export default function MuroEnVivoPage() {
       if (fiestaData && !eventName) {
         setEventName(fiestaData.configuracion?.nombreEvento || '');
       }
+      if (fiestaData?.socialGallerySettings) {
+        setSettings((prev) => ({ ...prev, ...fiestaData.socialGallerySettings }));
+        const latestMoment = [...(fiestaData.socialGallerySettings.momentosActivos ?? [])]
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+        const momentIsFresh =
+          latestMoment && Date.now() - new Date(latestMoment.timestamp).getTime() < 15000;
+        setActiveMoment(momentIsFresh ? latestMoment : null);
+      }
+      setActivePoll(
+        pollData
+          ? { id: pollData.id, question: pollData.question, options: pollData.options }
+          : null
+      );
+      setCompanyMarketingText(
+        companyInfo?.companyName
+          ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
+          : 'Seguinos en Instagram: @akproducciones'
+      );
     } catch (_) {
       // Silent fail for projection wall
     } finally {
@@ -96,6 +131,82 @@ export default function MuroEnVivoPage() {
       {isLoaded && posts.length > 0 && (
         <MasonryLayout posts={posts} />
       )}
+
+      {activePoll && settings.showPolls && (
+        <div className="absolute right-6 top-20 z-30 w-[38vw] max-w-3xl rounded-3xl border-2 border-yellow-300/70 bg-black/70 p-6 shadow-[0_0_60px_rgba(255,215,0,0.35)] backdrop-blur-md">
+          <p className="mb-3 text-center text-base font-black tracking-[0.35em] text-yellow-300 uppercase">Juego en Vivo</p>
+          <h2 className="mb-5 text-center text-4xl font-black leading-tight text-white">{activePoll.question}</h2>
+          <div className="space-y-4">
+            {activePoll.options.map((option) => {
+              const totalVotes = activePoll.options.reduce((acc, opt) => acc + opt.votes, 0);
+              const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
+              return (
+                <div key={option.id} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-white">
+                    <span className="text-2xl font-extrabold">{option.text}</span>
+                    <span className="text-3xl font-black text-yellow-300">{percentage}%</span>
+                  </div>
+                  <div className="h-7 rounded-full bg-white/20">
+                    <div className="h-full rounded-full bg-yellow-300 transition-all duration-500" style={{ width: `${percentage}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="absolute bottom-0 left-0 right-0 z-30 space-y-1">
+        {settings.ledMarqueeText && (
+          <div className="overflow-hidden border-y border-fuchsia-300/40 bg-fuchsia-500/15 py-2">
+            <div className="whitespace-nowrap text-2xl font-black uppercase tracking-wider text-fuchsia-200 animate-[marquee_22s_linear_infinite]">
+              <span className="mx-8">{settings.ledMarqueeText}</span>
+              <span className="mx-8">{settings.ledMarqueeText}</span>
+              <span className="mx-8">{settings.ledMarqueeText}</span>
+            </div>
+          </div>
+        )}
+        <div className="overflow-hidden border-t border-white/15 bg-black/65 py-2">
+          <div className="whitespace-nowrap text-lg font-bold text-cyan-100 animate-[marquee_28s_linear_infinite]">
+            <span className="mx-8">{settings.marketingTickerText || companyMarketingText}</span>
+            <span className="mx-8">{settings.marketingTickerText || companyMarketingText}</span>
+            <span className="mx-8">{settings.marketingTickerText || companyMarketingText}</span>
+          </div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {activeMoment && (
+          <motion.div
+            key={activeMoment.timestamp}
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.45 }}
+            className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/85 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.8, rotate: -8 }}
+              animate={{ scale: [0.95, 1.05, 1], rotate: [0, 5, -3, 0] }}
+              transition={{ duration: 1.2 }}
+              className="mb-6 text-9xl"
+            >
+              {activeMoment.emoji}
+            </motion.div>
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.5em] text-amber-300">Momento especial</p>
+            <h1 className="text-7xl font-black uppercase text-white drop-shadow-[0_0_18px_rgba(255,255,255,0.3)]">
+              {activeMoment.nombre}
+            </h1>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
     </div>
   );
 }

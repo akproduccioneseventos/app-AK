@@ -647,6 +647,8 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
+  marketingTickerText?: string;
+  ledMarqueeText?: string;
   backgroundColor?: string;
   accentColor?: string;
   chatEnabled?: boolean;
