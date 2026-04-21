@@ -6,9 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection } from '@/app/actions/settings';
+
+type KnowledgeDocument = {
+  id: string;
+  name: string;
+  type: string;
+  content: string;
+  updatedAt: string;
+};
 
 export default function AiAssistantSettingsPage() {
   const [customInstructions, setCustomInstructions] = useState('');
@@ -18,15 +27,48 @@ export default function AiAssistantSettingsPage() {
   const [apiStatus, setApiStatus] = useState<'unknown' | 'ok' | 'error'>('unknown');
   const [apiError, setApiError] = useState<string | null>(null);
   const [isTesting, setIsTesting] = useState(false);
+  const [knowledgeDocuments, setKnowledgeDocuments] = useState<KnowledgeDocument[]>([]);
+  const [searchDocTerm, setSearchDocTerm] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
     getAiAssistantSettings().then((data) => {
       setCustomInstructions(data.customInstructions || '');
+      setKnowledgeDocuments(Array.isArray(data.knowledgeDocuments) ? data.knowledgeDocuments : []);
       setUpdatedAt(data.updatedAt || '');
       setIsLoading(false);
     });
   }, []);
+
+  const handleKnowledgeFilesUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const docs: KnowledgeDocument[] = [];
+    for (const file of files) {
+      let content = '';
+      if (
+        file.type.startsWith('text/') ||
+        ['application/json', 'application/xml', 'text/csv'].includes(file.type)
+      ) {
+        content = (await file.text()).slice(0, 12000);
+      } else {
+        content = `Documento cargado: ${file.name}. Tipo: ${file.type || 'desconocido'}. Si es PDF/DOC, agregá un resumen textual para que el asistente lo use como contexto.`;
+      }
+
+      docs.push({
+        id: `doc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        content,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
+    setKnowledgeDocuments((prev) => [...docs, ...prev]);
+    event.target.value = '';
+    toast({ title: 'Documentos cargados', description: `Se agregaron ${docs.length} documento(s) a la base de conocimiento.` });
+  }, [toast]);
 
   const handleTestConnection = useCallback(async () => {
     setIsTesting(true);
@@ -53,15 +95,21 @@ export default function AiAssistantSettingsPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    const result = await saveAiAssistantSettings({ customInstructions });
+    const result = await saveAiAssistantSettings({ customInstructions, knowledgeDocuments });
     setIsSaving(false);
     if (result.success) {
       setUpdatedAt(new Date().toISOString());
-      toast({ title: 'Guardado', description: 'Instrucciones del Asistente AK actualizadas.' });
+      toast({ title: 'Guardado', description: 'Configuración del Asistente AK actualizada.' });
     } else {
       toast({ title: 'Error', description: result.error || 'No se pudo guardar.', variant: 'destructive' });
     }
   };
+
+  const filteredKnowledgeDocuments = knowledgeDocuments.filter((doc) => {
+    const term = searchDocTerm.trim().toLowerCase();
+    if (!term) return true;
+    return doc.name.toLowerCase().includes(term) || doc.content.toLowerCase().includes(term);
+  });
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -77,12 +125,11 @@ export default function AiAssistantSettingsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Asistente IA — Configuración</h1>
           <p className="text-sm text-muted-foreground">
-            Personalizá el comportamiento del Asistente AK con instrucciones propias.
+            Personalizá el comportamiento del Asistente AK con instrucciones y conocimiento empresarial.
           </p>
         </div>
       </div>
 
-      {/* Estado de la API de Gemini */}
       <Card className={
         apiStatus === 'ok' ? 'border-green-300 bg-green-50' :
         apiStatus === 'error' ? 'border-red-300 bg-red-50' :
@@ -114,9 +161,6 @@ export default function AiAssistantSettingsPage() {
               <div>
                 <p className="font-medium">Detalle del error:</p>
                 <p className="font-mono text-xs mt-1 break-all">{apiError}</p>
-                <p className="mt-2 text-xs text-red-700">
-                  Para solucionar: asegurate de que el secreto <code className="bg-red-200 px-1 rounded">google-api-key</code> esté creado en Firebase App Hosting con una API key válida de Google AI Studio (<a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline">aistudio.google.com</a>).
-                </p>
               </div>
             </div>
           )}
@@ -146,9 +190,7 @@ export default function AiAssistantSettingsPage() {
         <CardHeader>
           <CardTitle>Instrucciones personalizadas</CardTitle>
           <CardDescription>
-            Escribí reglas, preferencias o comportamientos específicos que el Asistente debe seguir
-            en cada conversación. Por ejemplo: &ldquo;Siempre ofrecé un 10% de descuento si pagan
-            contado&rdquo;, o &ldquo;Hablá siempre de manera muy formal&rdquo;.
+            Reglas de comportamiento que el asistente debe seguir en cada conversación.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -158,69 +200,97 @@ export default function AiAssistantSettingsPage() {
               <span>Cargando configuración...</span>
             </div>
           ) : (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="customInstructions">Instrucciones para el Asistente</Label>
-                <Textarea
-                  id="customInstructions"
-                  value={customInstructions}
-                  onChange={(e) => setCustomInstructions(e.target.value)}
-                  placeholder="Ej: Siempre saludá al cliente por su nombre. Ofrecé descuento del 10% si el cliente menciona que viene recomendado. No presiones con ventas, respondé con paciencia..."
-                  rows={10}
-                  className="resize-y font-mono text-sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Estas instrucciones se inyectan en cada conversación del Asistente AK y del Simulador Chat.
-                </p>
-              </div>
-              {updatedAt && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                  <span>
-                    Última actualización:{' '}
-                    {new Date(updatedAt).toLocaleString('es-UY', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-              )}
-              <Button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Guardar instrucciones
-                  </>
-                )}
-              </Button>
-            </>
+            <div className="space-y-2">
+              <Label htmlFor="customInstructions">Instrucciones para el Asistente</Label>
+              <Textarea
+                id="customInstructions"
+                value={customInstructions}
+                onChange={(e) => setCustomInstructions(e.target.value)}
+                rows={10}
+                className="resize-y font-mono text-sm"
+              />
+            </div>
           )}
         </CardContent>
       </Card>
 
-      <Card className="bg-violet-50 border-violet-200">
-        <CardContent className="pt-5 pb-4">
-          <div className="flex gap-3">
-            <Bot className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-violet-800">Ejemplos de instrucciones útiles</p>
-              <ul className="text-xs text-violet-700 space-y-1 list-disc list-inside">
-                <li>Ofrecé siempre un 5% de descuento si el cliente paga el 50% de seña.</li>
-                <li>Si el cliente pregunta por precios, explicá que son orientativos y que el presupuesto final se envía por escrito.</li>
-                <li>Nunca confirmes fechas sin antes verificar disponibilidad con el equipo.</li>
-                <li>Si el cliente menciona más de 200 invitados, sugerí el Salón Principal.</li>
-                <li>Siempre terminá con una pregunta para avanzar en la venta.</li>
-              </ul>
-            </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Base de conocimiento empresarial</CardTitle>
+          <CardDescription>
+            Subí documentos y editá su contenido para que el asistente use esta información como contexto.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="knowledgeUpload">Subir documentos (múltiple)</Label>
+            <Input id="knowledgeUpload" type="file" multiple onChange={handleKnowledgeFilesUpload} />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="knowledgeSearch">Buscar en documentos</Label>
+            <Input
+              id="knowledgeSearch"
+              value={searchDocTerm}
+              onChange={(e) => setSearchDocTerm(e.target.value)}
+              placeholder="Buscar por nombre o contenido..."
+            />
+          </div>
+          <div className="space-y-3">
+            {filteredKnowledgeDocuments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No hay documentos cargados.</p>
+            ) : (
+              filteredKnowledgeDocuments.map((doc) => (
+                <div key={doc.id} className="rounded-md border p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold truncate">{doc.name}</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setKnowledgeDocuments((prev) => prev.filter((d) => d.id !== doc.id))}
+                    >
+                      Quitar
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={doc.content}
+                    onChange={(e) => setKnowledgeDocuments((prev) => prev.map((d) => d.id === doc.id ? { ...d, content: e.target.value } : d))}
+                    rows={4}
+                    className="text-xs"
+                  />
+                </div>
+              ))
+            )}
+          </div>
+
+          {updatedAt && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span>
+                Última actualización:{' '}
+                {new Date(updatedAt).toLocaleString('es-UY', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+            </div>
+          )}
+          <Button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Guardar configuración
+              </>
+            )}
+          </Button>
         </CardContent>
       </Card>
     </div>

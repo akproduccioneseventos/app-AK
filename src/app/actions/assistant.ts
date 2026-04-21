@@ -341,6 +341,12 @@ ${customers.slice(-10).map(c => `- ID:${c.id} ${c.name} | ${c.partyType ?? 'Sin 
 SERVICIOS DE EMPRESA (primeros 15):
 ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | Precio venta: $${s.precioVenta ?? s.valorUnitarioEstimado}`).join('\n') || 'Sin servicios configurados'}
 ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\n${aiSettings.customInstructions}` : ''}
+${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.length > 0
+  ? `\nBASE DE CONOCIMIENTO EMPRESARIAL (documentos cargados):\n${aiSettings.knowledgeDocuments
+      .slice(0, 8)
+      .map((doc: { name?: string; content?: string }) => `- ${doc.name || 'Documento'}:\n${(doc.content || '').slice(0, 1400)}`)
+      .join('\n\n')}`
+  : ''}
 `;
 
     // 2. Llamar al flow

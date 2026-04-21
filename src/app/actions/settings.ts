@@ -428,11 +428,19 @@ const AI_ASSISTANT_SETTINGS_FILE = 'ai-assistant-settings.json';
 
 export interface AiAssistantSettings {
   customInstructions: string;
+  knowledgeDocuments: Array<{
+    id: string;
+    name: string;
+    type: string;
+    content: string;
+    updatedAt: string;
+  }>;
   updatedAt: string;
 }
 
 const defaultAiAssistantSettings: AiAssistantSettings = {
   customInstructions: '',
+  knowledgeDocuments: [],
   updatedAt: '',
 };
 
@@ -441,10 +449,23 @@ export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
   return { ...defaultAiAssistantSettings, ...data };
 }
 
-export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings, 'customInstructions'>): Promise<{ success: boolean; error?: string }> {
+export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings, 'customInstructions' | 'knowledgeDocuments'>): Promise<{ success: boolean; error?: string }> {
   try {
+    const sanitizedKnowledgeDocuments = Array.isArray(settings.knowledgeDocuments)
+      ? settings.knowledgeDocuments
+          .filter(doc => doc && typeof doc.id === 'string' && doc.id.trim() !== '')
+          .map(doc => ({
+            id: doc.id,
+            name: doc.name || 'Documento',
+            type: doc.type || 'text/plain',
+            content: (doc.content || '').slice(0, 12000),
+            updatedAt: doc.updatedAt || new Date().toISOString(),
+          }))
+      : [];
+
     const toSave: AiAssistantSettings = {
       customInstructions: settings.customInstructions,
+      knowledgeDocuments: sanitizedKnowledgeDocuments,
       updatedAt: new Date().toISOString(),
     };
     await writeData(AI_ASSISTANT_SETTINGS_FILE, toSave);

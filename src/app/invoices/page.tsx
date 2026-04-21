@@ -154,7 +154,7 @@ export default function InvoicesListPage() {
                                 <DropdownMenuLabel>Filtrar por Estado</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {ALL_STATUSES.map(s => (
-                                    <DropdownMenuCheckboxItem key={s} checked={statusFilter[s]} onCheckedChange={(checked) => setStatusFilter(prev => ({...prev, [status]: !!checked}))}>{s}</DropdownMenuCheckboxItem>
+                                    <DropdownMenuCheckboxItem key={s} checked={statusFilter[s]} onCheckedChange={(checked) => setStatusFilter(prev => ({...prev, [s]: !!checked}))}>{s}</DropdownMenuCheckboxItem>
                                 ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
