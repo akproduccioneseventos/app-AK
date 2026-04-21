@@ -8,6 +8,7 @@ import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
 import { createNotification } from './notifications';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
+const sanitizeText = (value?: string) => (value || '').trim();
 const defaultConfig: ArmadoRapidoConfig = {
   descuentoGeneral: 15,
   paquetes: [],
@@ -41,8 +42,8 @@ export async function saveArmadoRapidoConfig(
       ...newConfigData,
       paquetes: (newConfigData.paquetes || []).map(pkg => ({
         id: pkg.id,
-        nombre: (pkg.nombre || '').trim(),
-        descripcion: (pkg.descripcion || '').trim(),
+        nombre: sanitizeText(pkg.nombre),
+        descripcion: sanitizeText(pkg.descripcion),
         recommended: pkg.recommended || false,
         tiposDeEventoAplicables: (pkg.tiposDeEventoAplicables || [])
           .map((tipo) => tipo.trim())
@@ -51,8 +52,8 @@ export async function saveArmadoRapidoConfig(
       })),
       menus: (newConfigData.menus || []).map(menu => ({
         id: menu.id,
-        nombre: (menu.nombre || '').trim(),
-        descripcion: (menu.descripcion || '').trim(),
+        nombre: sanitizeText(menu.nombre),
+        descripcion: sanitizeText(menu.descripcion),
         serviciosIncluidos: (menu.serviciosIncluidos || []).map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
       platosVisibles: (newConfigData.platosVisibles || []).map(p => ({
