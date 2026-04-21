@@ -8,10 +8,11 @@ const CARTA_TRAGOS_MASTER_FILE = 'carta-tragos-master.json';
 
 const normalizeMasterItems = (items: Trago[]): Trago[] => {
   return items.map((item) => {
-    const { ingredientes, stockDisponible, ...rest } = item;
+    const { ingredientes, recetaIngredientes, stockDisponible, ...rest } = item;
     return {
       ...rest,
       ingredientes: ingredientes || [],
+      recetaIngredientes: recetaIngredientes || [],
       stockDisponible: stockDisponible ?? 0,
     };
   });

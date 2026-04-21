@@ -15,6 +15,7 @@ export function mergeMasterTragosWithFiesta(
       ...master,
       ...fiestaItem,
       ingredientes: fiestaItem.ingredientes?.length ? fiestaItem.ingredientes : master.ingredientes,
+      recetaIngredientes: fiestaItem.recetaIngredientes?.length ? fiestaItem.recetaIngredientes : master.recetaIngredientes,
       stockDisponible: fiestaItem.stockDisponible ?? master.stockDisponible,
     };
   });
@@ -22,4 +23,3 @@ export function mergeMasterTragosWithFiesta(
   const extras = fiestaItems.filter((item) => !masterItems.some((master) => master.id === item.id));
   return [...synced, ...extras];
 }
-
