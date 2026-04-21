@@ -38,6 +38,10 @@ const TABLE_SIZE_MAP: Record<NonNullable<NumerosMesaData['fontSize']>, string> =
   xlarge: '5.8rem',
 };
 const DEFAULT_QR_TEXT = '¡Ayúdanos a capturar el momento!';
+const CARD_LAYOUT_PRESETS = [
+  { value: '10x15', label: 'Tarjeta 10×15 cm (2 por hoja A4)', widthCm: 10, heightCm: 15, itemsPerPage: 2 },
+  { value: 'a6', label: 'Tarjeta A6 10.5×14.8 cm (4 por hoja A4)', widthCm: 10.5, heightCm: 14.8, itemsPerPage: 4 },
+] as const;
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
@@ -121,6 +125,7 @@ const TableNumberCard: React.FC<{
   numberColor: string;
   cardBgColor: string;
   fontFamily: string;
+  inverted?: boolean;
 }> = ({
   tableNumber,
   primaryColor,
@@ -133,6 +138,7 @@ const TableNumberCard: React.FC<{
   numberColor,
   cardBgColor,
   fontFamily,
+  inverted,
 }) => {
   const cornerClasses: Record<string, string> = {
     'top-left': 'top-1.5 left-1.5 border-t-0 border-r-0',
@@ -143,7 +149,7 @@ const TableNumberCard: React.FC<{
 
   return (
     <div
-      className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center p-4 border-[3px]"
+      className={cn('w-full h-full relative overflow-hidden flex flex-col items-center justify-center p-4 border-[3px]', inverted && 'rotate-180')}
       style={{ borderColor: primaryColor, backgroundColor: cardBgColor }}
     >
       {Object.entries(cornerClasses).map(([pos, cls]) => (
@@ -186,11 +192,11 @@ const TableNumberCard: React.FC<{
 // ---------------------------------------------------------------------------
 // A4 Page Wrapper – 2 cards per A4 sheet in portrait orientation
 // ---------------------------------------------------------------------------
-const A4Page: React.FC<{ children: React.ReactNode; isLast?: boolean }> = ({ children, isLast }) => (
+const A4Page: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
   <div
     className={cn(
-      'w-[210mm] min-h-[297mm] bg-white shadow-xl print:shadow-none flex flex-col items-center justify-center gap-4 p-8',
-      !isLast && 'print:break-after-page'
+      'w-[210mm] min-h-[297mm] bg-white shadow-xl print:shadow-none print:break-after-page last:print:break-after-auto flex flex-col items-center justify-center gap-4 p-8',
+      className
     )}
   >
     {children}
@@ -198,9 +204,31 @@ const A4Page: React.FC<{ children: React.ReactNode; isLast?: boolean }> = ({ chi
 );
 
 // A single 10×15 cm card wrapper with visible cutting-guide border
-const CardFrame: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="relative" style={{ width: '10cm', height: '15cm', outline: '1px dashed #cbd5e1' }}>
+const CardFrame: React.FC<{ children: React.ReactNode; widthCm: number; heightCm: number }> = ({ children, widthCm, heightCm }) => (
+  <div className="relative" style={{ width: `${widthCm}cm`, height: `${heightCm}cm`, outline: '1px dashed #cbd5e1' }}>
     <div className="absolute inset-0">{children}</div>
+  </div>
+);
+
+const WelcomePoster: React.FC<{ nombreEvento: string; tipoCelebracion: string; fechaEvento: string; primaryColor: string; protagonistaFotoUrl?: string; }> = ({
+  nombreEvento,
+  tipoCelebracion,
+  fechaEvento,
+  primaryColor,
+  protagonistaFotoUrl,
+}) => (
+  <div className="w-full h-full border-[6px] rounded-[2rem] flex flex-col items-center justify-center text-center px-10 py-8" style={{ borderColor: primaryColor }}>
+    {protagonistaFotoUrl && (
+      <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 mb-6" style={{ borderColor: primaryColor }}>
+        <NextImage src={protagonistaFotoUrl} alt="Protagonista" layout="fill" objectFit="cover" />
+      </div>
+    )}
+    <p className="text-sm font-bold uppercase tracking-[0.35em] mb-3" style={{ color: primaryColor }}>
+      Bienvenidos
+    </p>
+    <h2 className="font-headline text-5xl font-black leading-tight mb-3">{nombreEvento}</h2>
+    {tipoCelebracion && <p className="text-2xl uppercase tracking-[0.15em] text-slate-600 mb-2">{tipoCelebracion}</p>}
+    {fechaEvento && <p className="text-lg uppercase tracking-[0.12em] text-slate-500">{fechaEvento}</p>}
   </div>
 );
 
@@ -227,6 +255,9 @@ function CarteleriaContent() {
   const [fechaEventoOverride, setFechaEventoOverride] = useState('');
   const [tipoCelebracionOverride, setTipoCelebracionOverride] = useState('');
   const [qrSubtitle, setQrSubtitle] = useState(DEFAULT_QR_TEXT);
+  const [cardLayout, setCardLayout] = useState<(typeof CARD_LAYOUT_PRESETS)[number]['value']>('10x15');
+  const [showSeatingPlan, setShowSeatingPlan] = useState(true);
+  const [showWelcomePoster, setShowWelcomePoster] = useState(true);
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -394,6 +425,7 @@ function CarteleriaContent() {
   const tableNumberColor = numerosMesa.numberColor || primaryColor;
   const tableCardBgColor = numerosMesa.cardBgColor || '#ffffff';
   const tableFontFamily = numerosMesa.fontFamily || cartaTragos.fontFamily || 'Playfair Display';
+  const activeCardLayout = CARD_LAYOUT_PRESETS.find(layout => layout.value === cardLayout) || CARD_LAYOUT_PRESETS[0];
 
   // Build table-number pages: 2 cards per A4 sheet
   const tableNumbers = Array.from({ length: numMesas }, (_, i) => i + 1);
@@ -401,7 +433,23 @@ function CarteleriaContent() {
   for (let i = 0; i < tableNumbers.length; i += 2) {
     tablePages.push(tableNumbers.slice(i, i + 2));
   }
-  const FIXED_PAGES_COUNT = 3; // carta de tragos + menú de comida + cartel QR
+  const invitadosPorMesa = (() => {
+    const map = new Map<string, string[]>();
+    for (const invitado of fiesta.invitados || []) {
+      const mesa = (invitado.tableNumber || '').trim() || 'Sin mesa asignada';
+      if (!map.has(mesa)) map.set(mesa, []);
+      map.get(mesa)?.push(invitado.nombre);
+    }
+    return Array.from(map.entries()).sort((a, b) => {
+      const aNum = Number(a[0]);
+      const bNum = Number(b[0]);
+      if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) return aNum - bNum;
+      if (!Number.isNaN(aNum)) return -1;
+      if (!Number.isNaN(bNum)) return 1;
+      return a[0].localeCompare(b[0], 'es');
+    });
+  })();
+  const FIXED_PAGES_COUNT = 3 + (showWelcomePoster ? 1 : 0) + (showSeatingPlan ? 1 : 0); // carta + menu + qr + opcionales
   const totalPages = FIXED_PAGES_COUNT + tablePages.length;
 
   return (
@@ -493,12 +541,13 @@ function CarteleriaContent() {
 
             <div className="p-4 overflow-y-auto">
               <Tabs defaultValue="general" className="space-y-4">
-                <TabsList className="grid grid-cols-2 md:grid-cols-5 h-auto gap-1">
+                <TabsList className="grid grid-cols-2 md:grid-cols-6 h-auto gap-1">
                   <TabsTrigger value="general">General</TabsTrigger>
                   <TabsTrigger value="carta">Carta de Tragos</TabsTrigger>
                   <TabsTrigger value="menu">Menú</TabsTrigger>
                   <TabsTrigger value="qr">QR</TabsTrigger>
                   <TabsTrigger value="numeros">Números</TabsTrigger>
+                  <TabsTrigger value="impresion">Impresión</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="general" className="space-y-4">
@@ -712,6 +761,28 @@ function CarteleriaContent() {
                     </div>
                   </div>
                 </TabsContent>
+
+                <TabsContent value="impresion" className="space-y-4">
+                  <div className="space-y-1">
+                    <Label>Medida predefinida (A4)</Label>
+                    <Select value={cardLayout} onValueChange={value => setCardLayout(value as (typeof CARD_LAYOUT_PRESETS)[number]['value'])}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {CARD_LAYOUT_PRESETS.map(option => (<SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 rounded-lg border p-3">
+                    <label className="flex items-center gap-2 text-sm font-medium">
+                      <input type="checkbox" checked={showSeatingPlan} onChange={e => setShowSeatingPlan(e.target.checked)} />
+                      Incluir “Busca tu mesa” (invitados agrupados por mesa)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-medium">
+                      <input type="checkbox" checked={showWelcomePoster} onChange={e => setShowWelcomePoster(e.target.checked)} />
+                      Incluir cartel de bienvenida A4
+                    </label>
+                  </div>
+                </TabsContent>
               </Tabs>
             </div>
           </div>
@@ -724,7 +795,7 @@ function CarteleriaContent() {
           <Info className="w-4 h-4 text-blue-600" />
           <AlertDescription className="text-blue-800 text-xs">
             Haz clic en <strong>Descargar Kit PDF</strong> para generar las {totalPages} páginas A4 listas para imprimir y
-            cortar. Cada hoja incluye 2 tarjetas de 10×15 cm con guías de corte. Para editar cada pieza en detalle
+            cortar. Formato activo: <strong>{activeCardLayout.label}</strong>. Para editar cada pieza en detalle
             usa los accesos rápidos de abajo.
           </AlertDescription>
         </Alert>
@@ -753,7 +824,7 @@ function CarteleriaContent() {
         </div>
 
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground pt-1">
-          Vista previa · {numMesas} mesas · {totalPages} páginas A4
+          Vista previa · {numMesas} mesas · {totalPages} páginas A4 · {activeCardLayout.itemsPerPage} piezas por hoja
         </p>
       </div>
 
@@ -762,73 +833,125 @@ function CarteleriaContent() {
       ════════════════════════════════════════════ */}
       <div className="flex flex-col items-center gap-8 py-4 print:py-0 print:gap-0">
 
-        {/* PAGE 1 – Carta de Tragos (×2) */}
+        {/* PAGE 1 – Carta de Tragos */}
         <A4Page>
-          <CardFrame>
-            <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={false} />
-          </CardFrame>
-          <CardFrame>
-            <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={false} />
-          </CardFrame>
+          <div className={cn('w-full grid justify-items-center content-center', activeCardLayout.itemsPerPage === 4 ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4')}>
+            {Array.from({ length: activeCardLayout.itemsPerPage }).map((_, idx) => (
+              <CardFrame key={`carta-${idx}`} widthCm={activeCardLayout.widthCm} heightCm={activeCardLayout.heightCm}>
+                <CartaTragosMenu fiesta={fiesta} carta={cartaTragos} isPreview={false} />
+              </CardFrame>
+            ))}
+          </div>
         </A4Page>
 
-        {/* PAGE 2 – Menú de Comida (×2) */}
+        {/* PAGE 2 – Menú de Comida */}
         <A4Page>
-          <CardFrame>
-            <MenuMesaTemplate fiesta={fiesta} data={menuMesa} logoUrl={logoUrl} isPreview={false} />
-          </CardFrame>
-          <CardFrame>
-            <MenuMesaTemplate fiesta={fiesta} data={menuMesa} logoUrl={logoUrl} isPreview={false} />
-          </CardFrame>
+          <div className={cn('w-full grid justify-items-center content-center', activeCardLayout.itemsPerPage === 4 ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4')}>
+            {Array.from({ length: activeCardLayout.itemsPerPage }).map((_, idx) => (
+              <CardFrame key={`menu-${idx}`} widthCm={activeCardLayout.widthCm} heightCm={activeCardLayout.heightCm}>
+                <MenuMesaTemplate fiesta={fiesta} data={menuMesa} logoUrl={logoUrl} isPreview={false} />
+              </CardFrame>
+            ))}
+          </div>
         </A4Page>
 
-        {/* PAGE 3 – Cartel QR Social Wall (×2) */}
+        {/* PAGE 3 – Cartel QR Social Wall */}
         <A4Page>
-          <CardFrame>
-            <QRCartel
-              fiestaId={fiestaId!}
-              primaryColor={primaryColor}
-              protagonistaFotoUrl={protagonistaFotoUrl || undefined}
-              nombreEvento={nombreEvento}
-              subtitleText={qrSubtitle}
-            />
-          </CardFrame>
-          <CardFrame>
-            <QRCartel
-              fiestaId={fiestaId!}
-              primaryColor={primaryColor}
-              protagonistaFotoUrl={protagonistaFotoUrl || undefined}
-              nombreEvento={nombreEvento}
-              subtitleText={qrSubtitle}
-            />
-          </CardFrame>
-        </A4Page>
-
-        {/* PAGES 4+ – Números de Mesa (2 per page) */}
-        {tablePages.map((pair, pageIdx) => (
-          <A4Page key={`mesa-page-${pageIdx}`} isLast={pageIdx === tablePages.length - 1}>
-            {pair.map(n => (
-              <CardFrame key={`mesa-${n}`}>
-                <TableNumberCard
-                  tableNumber={n}
+          <div className={cn('w-full grid justify-items-center content-center', activeCardLayout.itemsPerPage === 4 ? 'grid-cols-2 gap-3' : 'grid-cols-1 gap-4')}>
+            {Array.from({ length: activeCardLayout.itemsPerPage }).map((_, idx) => (
+              <CardFrame key={`qr-${idx}`} widthCm={activeCardLayout.widthCm} heightCm={activeCardLayout.heightCm}>
+                <QRCartel
+                  fiestaId={fiestaId!}
                   primaryColor={primaryColor}
                   protagonistaFotoUrl={protagonistaFotoUrl || undefined}
                   nombreEvento={nombreEvento}
-                  tipoCelebracion={tipoCelebracion}
-                  protagonistaNombre={nombreProtagonistaMesa}
-                  fechaEvento={fechaMesa}
-                  fontSize={tableFontSize}
-                  numberColor={tableNumberColor}
-                  cardBgColor={tableCardBgColor}
-                  fontFamily={tableFontFamily}
+                  subtitleText={qrSubtitle}
                 />
               </CardFrame>
             ))}
-            {pair.length === 1 && (
-              <div style={{ width: '10cm', height: '15cm' }} />
-            )}
+          </div>
+        </A4Page>
+
+        {/* PAGES 4+ – Números de Mesa tipo carpa (2 por A4) */}
+        {tablePages.map((pair, pageIdx) => (
+          <A4Page key={`mesa-page-${pageIdx}`} className="p-0">
+            <div className="w-full h-full grid grid-cols-2 border border-black overflow-hidden">
+              {pair.map(n => (
+                <div key={`mesa-carpa-${n}`} className="h-full flex flex-col border-r last:border-r-0 border-black">
+                  <div className="h-[30mm] border-b border-dashed border-slate-300 bg-slate-50/30" />
+                  <div className="h-[87mm] border-b border-dashed border-slate-300 bg-white" />
+                  <div className="h-[90mm] border-b border-dashed border-slate-300">
+                    <TableNumberCard
+                      tableNumber={n}
+                      primaryColor={primaryColor}
+                      protagonistaFotoUrl={protagonistaFotoUrl || undefined}
+                      nombreEvento={nombreEvento}
+                      tipoCelebracion={tipoCelebracion}
+                      protagonistaNombre={nombreProtagonistaMesa}
+                      fechaEvento={fechaMesa}
+                      fontSize={tableFontSize}
+                      numberColor={tableNumberColor}
+                      cardBgColor={tableCardBgColor}
+                      fontFamily={tableFontFamily}
+                      inverted
+                    />
+                  </div>
+                  <div className="h-[90mm]">
+                    <TableNumberCard
+                      tableNumber={n}
+                      primaryColor={primaryColor}
+                      protagonistaFotoUrl={protagonistaFotoUrl || undefined}
+                      nombreEvento={nombreEvento}
+                      tipoCelebracion={tipoCelebracion}
+                      protagonistaNombre={nombreProtagonistaMesa}
+                      fechaEvento={fechaMesa}
+                      fontSize={tableFontSize}
+                      numberColor={tableNumberColor}
+                      cardBgColor={tableCardBgColor}
+                      fontFamily={tableFontFamily}
+                    />
+                  </div>
+                </div>
+              ))}
+              {pair.length === 1 && (
+                <div className="h-full bg-slate-50/50" />
+              )}
+            </div>
           </A4Page>
         ))}
+
+        {showSeatingPlan && (
+          <A4Page className="items-stretch justify-start p-8">
+            <div className="w-full h-full border rounded-2xl p-8">
+              <h2 className="font-headline text-3xl font-black text-center mb-2" style={{ color: primaryColor }}>Busca tu mesa</h2>
+              <p className="text-center text-sm text-slate-500 mb-6">{nombreEvento}</p>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                {invitadosPorMesa.length > 0 ? invitadosPorMesa.map(([mesa, nombres]) => (
+                  <div key={`mesa-plan-${mesa}`} className="rounded-lg border p-3 break-inside-avoid">
+                    <p className="font-bold uppercase tracking-wider text-xs mb-1" style={{ color: primaryColor }}>Mesa {mesa}</p>
+                    <ul className="space-y-0.5 text-slate-700">
+                      {nombres.map(nombre => (<li key={`${mesa}-${nombre}`}>• {nombre}</li>))}
+                    </ul>
+                  </div>
+                )) : (
+                  <div className="col-span-2 text-center text-slate-500 py-8">No hay invitados con mesa asignada.</div>
+                )}
+              </div>
+            </div>
+          </A4Page>
+        )}
+
+        {showWelcomePoster && (
+          <A4Page className="items-stretch justify-stretch p-8">
+            <WelcomePoster
+              nombreEvento={nombreEvento}
+              tipoCelebracion={tipoCelebracion}
+              fechaEvento={fechaEventoTexto}
+              primaryColor={primaryColor}
+              protagonistaFotoUrl={protagonistaFotoUrl || undefined}
+            />
+          </A4Page>
+        )}
       </div>
 
       {/* Print styles */}
