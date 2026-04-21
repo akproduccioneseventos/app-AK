@@ -425,14 +425,23 @@ export async function saveWhatsAppTemplates(
 // ── AI Assistant Settings ──────────────────────────────────────────────────
 
 const AI_ASSISTANT_SETTINGS_FILE = 'ai-assistant-settings.json';
+const AI_ASSISTANT_DOCUMENT_MAX_CHARS = 12000; // Protects storage/prompt size for assistant context.
 
 export interface AiAssistantSettings {
   customInstructions: string;
+  knowledgeDocuments: Array<{
+    id: string;
+    name: string;
+    type: string;
+    content: string;
+    updatedAt: string;
+  }>;
   updatedAt: string;
 }
 
 const defaultAiAssistantSettings: AiAssistantSettings = {
   customInstructions: '',
+  knowledgeDocuments: [],
   updatedAt: '',
 };
 
@@ -441,10 +450,22 @@ export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
   return { ...defaultAiAssistantSettings, ...data };
 }
 
-export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings, 'customInstructions'>): Promise<{ success: boolean; error?: string }> {
+export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings, 'customInstructions' | 'knowledgeDocuments'>): Promise<{ success: boolean; error?: string }> {
   try {
+    const sanitizedKnowledgeDocuments = Array.isArray(settings.knowledgeDocuments)
+      ? settings.knowledgeDocuments
+          .map(doc => ({
+            id: doc.id || `doc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            name: doc.name || 'Documento',
+            type: doc.type || 'text/plain',
+            content: (doc.content || '').slice(0, AI_ASSISTANT_DOCUMENT_MAX_CHARS),
+            updatedAt: doc.updatedAt || new Date().toISOString(),
+          }))
+      : [];
+
     const toSave: AiAssistantSettings = {
       customInstructions: settings.customInstructions,
+      knowledgeDocuments: sanitizedKnowledgeDocuments,
       updatedAt: new Date().toISOString(),
     };
     await writeData(AI_ASSISTANT_SETTINGS_FILE, toSave);

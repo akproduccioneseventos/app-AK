@@ -305,8 +305,10 @@ export default function AlertasPage() {
                             variant="ghost"
                             className="h-7 px-2 text-xs text-slate-400 hover:text-green-600"
                             onClick={() => handleMarcarLeida(alerta.id)}
+                            aria-label={`Marcar alerta como leída: ${alerta.mensaje}`}
                           >
-                            <CheckCircle2 className="w-4 h-4" />
+                            <CheckCircle2 className="w-4 h-4 mr-1" />
+                            Marcar como leída
                           </Button>
                         )}
                       </div>

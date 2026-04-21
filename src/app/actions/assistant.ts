@@ -18,6 +18,8 @@ import * as logger from '@/lib/logger';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
 const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
+const KNOWLEDGE_DOC_CONTEXT_MAX_CHARS = 1400; // Per-document cap to keep prompt context concise and performant.
+type AssistantKnowledgeDocument = Awaited<ReturnType<typeof getAiAssistantSettings>>['knowledgeDocuments'][number];
 
 // ── Parser local determinista de presupuestos en texto libre ─────────────────
 
@@ -341,6 +343,12 @@ ${customers.slice(-10).map(c => `- ID:${c.id} ${c.name} | ${c.partyType ?? 'Sin 
 SERVICIOS DE EMPRESA (primeros 15):
 ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | Precio venta: $${s.precioVenta ?? s.valorUnitarioEstimado}`).join('\n') || 'Sin servicios configurados'}
 ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\n${aiSettings.customInstructions}` : ''}
+${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.length > 0
+  ? `\nBASE DE CONOCIMIENTO EMPRESARIAL (documentos cargados):\n${aiSettings.knowledgeDocuments
+      .slice(0, 8)
+      .map((doc: AssistantKnowledgeDocument) => `- ${doc.name || 'Documento'}:\n${(doc.content || '').slice(0, KNOWLEDGE_DOC_CONTEXT_MAX_CHARS)}`)
+      .join('\n\n')}`
+  : ''}
 `;
 
     // 2. Llamar al flow
