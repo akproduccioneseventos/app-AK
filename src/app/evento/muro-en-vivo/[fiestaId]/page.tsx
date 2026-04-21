@@ -12,6 +12,8 @@ import { getCompanyInfo } from '@/app/actions/settings';
 import type { SocialGallerySettings } from '@/types/fiesta';
 
 const REFRESH_INTERVAL_MS = 8000;
+const MOMENT_DISPLAY_DURATION_MS = 15000;
+const MARQUEE_REPEAT_COUNT = 3;
 
 export default function MuroEnVivoPage() {
   const params = useParams();
@@ -65,7 +67,7 @@ export default function MuroEnVivoPage() {
         const latestMoment = [...(fiestaData.socialGallerySettings.momentosActivos ?? [])]
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
         const momentIsFresh =
-          latestMoment && Date.now() - new Date(latestMoment.timestamp).getTime() < 15000;
+          latestMoment && Date.now() - new Date(latestMoment.timestamp).getTime() < MOMENT_DISPLAY_DURATION_MS;
         setActiveMoment(momentIsFresh ? latestMoment : null);
       }
       setActivePoll(
@@ -160,17 +162,13 @@ export default function MuroEnVivoPage() {
         {settings.ledMarqueeText && (
           <div className="overflow-hidden border-y border-fuchsia-300/40 bg-fuchsia-500/15 py-2">
             <div className="whitespace-nowrap text-2xl font-black uppercase tracking-wider text-fuchsia-200 animate-[marquee_22s_linear_infinite]">
-              <span className="mx-8">{settings.ledMarqueeText}</span>
-              <span className="mx-8">{settings.ledMarqueeText}</span>
-              <span className="mx-8">{settings.ledMarqueeText}</span>
+              {renderMarqueeText(settings.ledMarqueeText)}
             </div>
           </div>
         )}
         <div className="overflow-hidden border-t border-white/15 bg-black/65 py-2">
           <div className="whitespace-nowrap text-lg font-bold text-cyan-100 animate-[marquee_28s_linear_infinite]">
-            <span className="mx-8">{settings.marketingTickerText || companyMarketingText}</span>
-            <span className="mx-8">{settings.marketingTickerText || companyMarketingText}</span>
-            <span className="mx-8">{settings.marketingTickerText || companyMarketingText}</span>
+            {renderMarqueeText(settings.marketingTickerText || companyMarketingText)}
           </div>
         </div>
       </div>
@@ -209,6 +207,14 @@ export default function MuroEnVivoPage() {
       `}</style>
     </div>
   );
+}
+
+function renderMarqueeText(text: string) {
+  return Array.from({ length: MARQUEE_REPEAT_COUNT }, (_, index) => (
+    <span key={`${text}-${index}`} className="mx-8">
+      {text}
+    </span>
+  ));
 }
 
 function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
