@@ -438,6 +438,35 @@ export default function DecoCanvas({
     return hiddenZones.includes(el.zona ?? '');
   };
 
+  const safeFondoColor = fondoColor || '#FFFFFF';
+  const gridLayers = [
+    'linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px)',
+    'linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px)',
+  ];
+  const hasBackgroundImage = Boolean(fondoImagenUrl);
+  const hasGrid = showGrid;
+  const backgroundLayers = [
+    ...(hasBackgroundImage ? [`url(${fondoImagenUrl})`] : []),
+    ...(hasGrid ? gridLayers : []),
+  ];
+  let backgroundSize: string | undefined;
+  let backgroundPosition: string | undefined;
+  let backgroundRepeat: string | undefined;
+
+  if (hasBackgroundImage && hasGrid) {
+    backgroundSize = 'cover, 40px 40px, 40px 40px';
+    backgroundPosition = 'center, 0 0, 0 0';
+    backgroundRepeat = 'no-repeat, repeat, repeat';
+  } else if (hasBackgroundImage) {
+    backgroundSize = 'cover';
+    backgroundPosition = 'center';
+    backgroundRepeat = 'no-repeat';
+  } else if (hasGrid) {
+    backgroundSize = '40px 40px, 40px 40px';
+    backgroundPosition = '0 0, 0 0';
+    backgroundRepeat = 'repeat, repeat';
+  }
+
   return (
     <div className="flex flex-col gap-2">
       {/* Zoom controls */}
@@ -470,21 +499,16 @@ export default function DecoCanvas({
             ref={containerRef}
             data-deco-canvas
             className="relative select-none overflow-hidden"
-            style={{
-              width: CANVAS_W,
-              height: CANVAS_H,
-              backgroundColor: fondoColor,
-              backgroundImage: [
-                fondoImagenUrl ? `url(${fondoImagenUrl})` : undefined,
-                showGrid ? `
-                  linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
-                  linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px)
-                ` : undefined
-              ].filter(Boolean).join(', ') || undefined,
-              backgroundSize: fondoImagenUrl ? 'cover' : (showGrid ? '40px 40px' : undefined),
-              backgroundPosition: fondoImagenUrl ? 'center' : undefined,
-              cursor: 'default',
-            }}
+              style={{
+                width: CANVAS_W,
+                height: CANVAS_H,
+                backgroundColor: safeFondoColor,
+                backgroundImage: backgroundLayers.join(', ') || undefined,
+                backgroundSize,
+                backgroundPosition,
+                backgroundRepeat,
+                cursor: 'default',
+              }}
             onClick={e => {
               const target = e.target as HTMLElement;
               if (target.closest('[data-deco-element="true"]')) return;

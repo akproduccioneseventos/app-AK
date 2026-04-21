@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import type { ElementoDecorativo } from '@/types/fiesta';
 
 const ZONAS_DISPONIBLES = [
-  { id: '', nombre: 'General (sin zona)' },
+  { id: 'sin_zona', nombre: 'General (sin zona)' },
   { id: 'zona_entrada', nombre: 'Entrada' },
   { id: 'zona_mesas', nombre: 'Mesas' },
   { id: 'zona_principal', nombre: 'Mesa Principal / Torta' },
@@ -34,7 +34,10 @@ export default function DecoZonaPanel({ selectedElement, onChangeZona, hiddenZon
           <p className="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-primary" /> Zona del elemento
           </p>
-          <Select value={selectedElement.zona ?? ''} onValueChange={onChangeZona}>
+          <Select
+            value={selectedElement.zona || 'sin_zona'}
+            onValueChange={(val) => onChangeZona(val === 'sin_zona' ? '' : val)}
+          >
             <SelectTrigger className="h-9 rounded-xl bg-slate-50 border-none text-sm">
               <SelectValue placeholder="Seleccionar zona..." />
             </SelectTrigger>
@@ -51,7 +54,7 @@ export default function DecoZonaPanel({ selectedElement, onChangeZona, hiddenZon
       <div className="space-y-2">
         <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Mostrar por zona</p>
         <div className="space-y-1.5">
-          {ZONAS_DISPONIBLES.filter(z => z.id !== '').map(zona => {
+          {ZONAS_DISPONIBLES.filter(z => z.id !== 'sin_zona').map(zona => {
             const isHidden = hiddenZones.includes(zona.id);
             return (
               <Button
