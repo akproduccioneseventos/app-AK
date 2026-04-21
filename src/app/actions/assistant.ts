@@ -1072,13 +1072,8 @@ ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\
 
     // Output schema validation failure (Zod): Gemini returned null for an optional field.
     // This is a schema mismatch issue, not an API error.
-    if (
-      errorMessage.includes('Expected object, received null') ||
-      errorMessage.includes('Expected string, received null') ||
-      errorMessage.includes('Expected number, received null') ||
-      error?.name === 'ZodError'
-    ) {
-      logger.error('[Asistente AK] Output schema validation error (Zod null):', errorMessage);
+    if (error?.name === 'ZodError') {
+      logger.error('[Asistente AK] Output schema validation error (Zod):', errorMessage);
       return {
         success: false,
         response: 'No pude procesar la respuesta del asistente. Intentá de nuevo.',

@@ -3,7 +3,7 @@ import { googleAI } from '@genkit-ai/google-genai';
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 const DEFAULT_GEMINI_MODEL = 'googleai/gemini-2.5-flash';
-const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9.-]+$/i;
+const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;
 
 const configuredGeminiModel = process.env.GEMINI_MODEL?.trim();
 
