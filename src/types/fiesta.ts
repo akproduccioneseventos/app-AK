@@ -681,6 +681,7 @@ export interface Trago {
 }
 
 export interface TragoRecetaIngrediente {
+  id?: string;
   insumoId: string;
   nombre: string;
   cantidad: number;

@@ -130,6 +130,7 @@ export default function TragosMasterPage() {
       return;
     }
     const newIngredient: TragoRecetaIngrediente = {
+      id: `receta_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       insumoId: defaultInsumo.id,
       nombre: defaultInsumo.nombre,
       cantidad: 0.05,
@@ -191,12 +192,16 @@ export default function TragosMasterPage() {
   const handleSaveMaster = async () => {
     setIsSaving(true);
     try {
-      const normalized = items.map((item) => ({
-        ...item,
-        ingredientes: getRecipe(item).length
-          ? getRecipe(item).map((ing) => `${ing.cantidad} ${ing.unidad} ${ing.nombre}`.trim())
-          : item.ingredientes || [],
-      }));
+      const normalized = items.map((item) => {
+        const recipe = getRecipe(item);
+        return {
+          ...item,
+          ingredientes: recipe.length
+            ? recipe.map((ing) => `${ing.cantidad} ${ing.unidad} ${ing.nombre}`.trim())
+            : item.ingredientes || [],
+          recetaIngredientes: recipe,
+        };
+      });
 
       const result = await saveCartaTragosMaster(normalized);
       if (!result.success) throw new Error(result.error || 'No se pudo guardar');
@@ -357,10 +362,11 @@ export default function TragosMasterPage() {
                     <Label>Imagen (Firebase Storage)</Label>
                     <div className="flex gap-2">
                       <Input value={item.imageUrl || ''} onChange={(e) => updateItem(item.id, { imageUrl: e.target.value })} placeholder="https://..." />
-                      <label htmlFor={`upload-${item.id}`}>
-                        <Button type="button" variant="outline" className="pointer-events-none" asChild>
-                          <span>{isUploading === item.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}</span>
-                        </Button>
+                      <label
+                        htmlFor={`upload-${item.id}`}
+                        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-input bg-background hover:bg-accent"
+                      >
+                        {isUploading === item.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                       </label>
                       <input
                         id={`upload-${item.id}`}
@@ -391,7 +397,7 @@ export default function TragosMasterPage() {
                   ) : (
                     <div className="space-y-2">
                       {getRecipe(item).map((ingredient, index) => (
-                        <div key={`${item.id}-${index}`} className="grid grid-cols-12 gap-2 items-center">
+                        <div key={ingredient.id || `${item.id}-${ingredient.insumoId}-${index}`} className="grid grid-cols-12 gap-2 items-center">
                           <div className="col-span-6">
                             <Select
                               value={ingredient.insumoId}
@@ -502,7 +508,7 @@ export default function TragosMasterPage() {
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="space-y-1">
-                  <Label>Alerta de stock bajo (&lt; X)</Label>
+                  <Label>Alerta de stock bajo ({'<'} X)</Label>
                   <Input type="number" min={0} value={lowStockLimit} onChange={(e) => setLowStockLimit(Number(e.target.value) || 0)} className="w-28" />
                 </div>
                 <Badge variant="secondary">Valor total: {formatCurrency(totalStockValue)}</Badge>
