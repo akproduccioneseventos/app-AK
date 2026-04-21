@@ -114,7 +114,14 @@ export default function VistaDecorativaEditor({
     const newColores = [...selectedEl.colores];
     while (newColores.length <= idx) newColores.push('#888888');
     newColores[idx] = color;
-    updateElemento(selectedEl.id, { colores: newColores });
+    const patch: Partial<ElementoDecorativo> = { colores: newColores };
+    if (idx === 0 && selectedEl.imageDataUri) {
+      patch.tintColor = color;
+      if (!selectedEl.tintOpacity || selectedEl.tintOpacity <= 0) {
+        patch.tintOpacity = 0.6;
+      }
+    }
+    updateElemento(selectedEl.id, patch);
   }, [selectedEl, updateElemento]);
 
   const limpiarTodo = useCallback(() => {

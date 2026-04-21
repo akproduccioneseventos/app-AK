@@ -438,6 +438,18 @@ export default function DecoCanvas({
     return hiddenZones.includes(el.zona ?? '');
   };
 
+  const safeFondoColor = fondoColor || '#FFFFFF';
+  const gridLayers = [
+    'linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px)',
+    'linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px)',
+  ];
+  const hasBackgroundImage = Boolean(fondoImagenUrl);
+  const hasGrid = showGrid;
+  const backgroundLayers = [
+    ...(hasBackgroundImage ? [`url(${fondoImagenUrl})`] : []),
+    ...(hasGrid ? gridLayers : []),
+  ];
+
   return (
     <div className="flex flex-col gap-2">
       {/* Zoom controls */}
@@ -470,21 +482,34 @@ export default function DecoCanvas({
             ref={containerRef}
             data-deco-canvas
             className="relative select-none overflow-hidden"
-            style={{
-              width: CANVAS_W,
-              height: CANVAS_H,
-              backgroundColor: fondoColor,
-              backgroundImage: [
-                fondoImagenUrl ? `url(${fondoImagenUrl})` : undefined,
-                showGrid ? `
-                  linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
-                  linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px)
-                ` : undefined
-              ].filter(Boolean).join(', ') || undefined,
-              backgroundSize: fondoImagenUrl ? 'cover' : (showGrid ? '40px 40px' : undefined),
-              backgroundPosition: fondoImagenUrl ? 'center' : undefined,
-              cursor: 'default',
-            }}
+              style={{
+                width: CANVAS_W,
+                height: CANVAS_H,
+                backgroundColor: safeFondoColor,
+                backgroundImage: backgroundLayers.join(', ') || undefined,
+                backgroundSize: hasBackgroundImage && hasGrid
+                  ? 'cover, 40px 40px, 40px 40px'
+                  : hasBackgroundImage
+                    ? 'cover'
+                    : hasGrid
+                      ? '40px 40px, 40px 40px'
+                      : undefined,
+                backgroundPosition: hasBackgroundImage && hasGrid
+                  ? 'center, 0 0, 0 0'
+                  : hasBackgroundImage
+                    ? 'center'
+                    : hasGrid
+                      ? '0 0, 0 0'
+                      : undefined,
+                backgroundRepeat: hasBackgroundImage && hasGrid
+                  ? 'no-repeat, repeat, repeat'
+                  : hasBackgroundImage
+                    ? 'no-repeat'
+                    : hasGrid
+                      ? 'repeat, repeat'
+                      : undefined,
+                cursor: 'default',
+              }}
             onClick={e => {
               const target = e.target as HTMLElement;
               if (target.closest('[data-deco-element="true"]')) return;
