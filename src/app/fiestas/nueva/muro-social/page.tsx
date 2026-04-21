@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
+import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 
 const QUICK_MOMENTS = [
   { id: 'llegada-agasajados', nombre: 'Llegada de los agasajados', emoji: '🎉' },
@@ -36,7 +37,7 @@ function MuroSocialContent() {
     showPolls: true,
     showSongRequests: true,
     showDedications: true,
-    marketingTickerText: 'Seguinos en Instagram: @akproducciones',
+    marketingTickerText: DEFAULT_MARKETING_TICKER_TEXT,
     ledMarqueeText: '',
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -191,7 +192,7 @@ function MuroSocialContent() {
               <Input
                 value={settings.marketingTickerText ?? ''}
                 onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerText: e.target.value }))}
-                placeholder="Seguinos en Instagram: @akproducciones"
+                placeholder={DEFAULT_MARKETING_TICKER_TEXT}
               />
             </div>
             <div className="space-y-1">

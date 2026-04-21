@@ -1,5 +1,5 @@
 
-import type {
+import type { 
   FiestaEnPlanificacion,
   DecoracionData,
   ClientPortalSettings,
@@ -20,6 +20,7 @@ import type {
   BebidaCalculable,
   FaqItem,
 } from '@/types/fiesta';
+import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 
 export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_1', hora: '22:00', titulo: 'Comienzo', descripcion: 'Recepción de invitados con música suave.', icono: 'PartyPopper' },
@@ -238,7 +239,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     uploadsActive: true,
     chatEnabled: true,
     showPolls: true,
-    marketingTickerText: 'Seguinos en Instagram: @akproducciones',
+    marketingTickerText: DEFAULT_MARKETING_TICKER_TEXT,
     ledMarqueeText: '',
   },
   musica: { cancionesTortaBrindis: [] },

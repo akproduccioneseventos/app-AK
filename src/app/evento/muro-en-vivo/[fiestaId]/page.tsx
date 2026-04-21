@@ -10,6 +10,7 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll } from '@/app/actions/social-interactive';
 import { getCompanyInfo } from '@/app/actions/settings';
 import type { SocialGallerySettings } from '@/types/fiesta';
+import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 
 const REFRESH_INTERVAL_MS = 8000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
@@ -34,7 +35,7 @@ export default function MuroEnVivoPage() {
     marketingTickerText: '',
     ledMarqueeText: '',
   });
-  const [companyMarketingText, setCompanyMarketingText] = useState<string>('Seguinos en Instagram: @akproducciones');
+  const [companyMarketingText, setCompanyMarketingText] = useState<string>(DEFAULT_MARKETING_TICKER_TEXT);
   const [activeMoment, setActiveMoment] = useState<{ id: string; nombre: string; emoji: string; timestamp: string } | null>(null);
   const [activePoll, setActivePoll] = useState<{ id: string; question: string; options: { id: string; text: string; votes: number }[] } | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -82,7 +83,7 @@ export default function MuroEnVivoPage() {
       setCompanyMarketingText(
         companyInfo?.companyName
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
-          : 'Seguinos en Instagram: @akproducciones'
+          : DEFAULT_MARKETING_TICKER_TEXT
       );
     } catch (_) {
       // Silent fail for projection wall
