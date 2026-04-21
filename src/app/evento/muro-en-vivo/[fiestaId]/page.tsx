@@ -20,6 +20,9 @@ const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]
 const GAME_OVERLAY_CLASS =
   'absolute right-6 top-20 z-30 w-[38vw] max-w-3xl rounded-3xl border-2 border-yellow-300/70 bg-black/70 p-6 shadow-[0_0_60px_rgba(255,215,0,0.35)] backdrop-blur-md';
 
+type MomentData = { id: string; nombre: string; emoji: string; timestamp: string };
+type PollData = { id: string; question: string; options: { id: string; text: string; votes: number }[] };
+
 export default function MuroEnVivoPage() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
@@ -36,8 +39,8 @@ export default function MuroEnVivoPage() {
     ledMarqueeText: '',
   });
   const [companyMarketingText, setCompanyMarketingText] = useState<string>(DEFAULT_MARKETING_TICKER_TEXT);
-  const [activeMoment, setActiveMoment] = useState<{ id: string; nombre: string; emoji: string; timestamp: string } | null>(null);
-  const [activePoll, setActivePoll] = useState<{ id: string; question: string; options: { id: string; text: string; votes: number }[] } | null>(null);
+  const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
+  const [activePoll, setActivePoll] = useState<PollData | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const postsRef = useRef<SocialGalleryPost[]>([]);

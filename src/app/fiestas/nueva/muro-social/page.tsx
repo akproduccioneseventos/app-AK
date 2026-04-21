@@ -84,19 +84,19 @@ function MuroSocialContent() {
     }
   };
 
-  const triggerMoment = async (moment: (typeof QUICK_MOMENTS)[number]) => {
+  const triggerMoment = async (momentToTrigger: (typeof QUICK_MOMENTS)[number]) => {
     if (!fiestaId) return;
     const updatedSettings: SocialGallerySettings = {
       ...settings,
       momentosActivos: [
-        ...(settings.momentosActivos ?? []).filter((m) => m.id !== moment.id),
-        { ...moment, timestamp: new Date().toISOString() },
+        ...(settings.momentosActivos ?? []).filter((m) => m.id !== momentToTrigger.id),
+        { ...momentToTrigger, timestamp: new Date().toISOString() },
       ],
     };
     setSettings(updatedSettings);
     const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
     if (result.success) {
-      toast({ title: `Momento lanzado: ${moment.nombre}` });
+      toast({ title: `Momento lanzado: ${momentToTrigger.nombre}` });
     } else {
       toast({ title: 'Error al disparar momento', description: result.error, variant: 'destructive' });
     }

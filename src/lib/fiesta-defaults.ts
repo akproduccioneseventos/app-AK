@@ -1,5 +1,5 @@
 
-import type { 
+import type {
   FiestaEnPlanificacion,
   DecoracionData,
   ClientPortalSettings,
