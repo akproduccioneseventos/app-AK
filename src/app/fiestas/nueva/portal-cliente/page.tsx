@@ -242,7 +242,7 @@ function ClientPortalConfigContent() {
   const addBebidaItem = () => {
     const newItem: BebidaCalculable = {
       id: `bebida_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-      nombre: 'Nuevo ítem',
+      nombre: 'Nuevo item',
       emoji: '🥃',
       cantidadPorPersona: 1,
       unidad: 'unidades',
@@ -546,7 +546,7 @@ function ClientPortalConfigContent() {
               <GlassWater className="w-5 h-5 text-blue-500" />
               Calculadora de Bebidas y Extras
             </CardTitle>
-            <CardDescription>Configurá bebidas y otros ítems que lleva el cliente (postres, torta, servicios subcontratados, etc.).</CardDescription>
+            <CardDescription>Configurá bebidas y otros items que lleva el cliente (postres, torta, servicios subcontratados, etc.).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {bebidasItems.map((item) => (
@@ -563,7 +563,7 @@ function ClientPortalConfigContent() {
                     value={item.nombre}
                     onChange={e => updateBebidaItem(item.id, 'nombre', e.target.value)}
                     className="flex-1"
-                    placeholder="Nombre del ítem"
+                    placeholder="Nombre del item"
                   />
                   <Button type="button" variant="ghost" size="icon" onClick={() => removeBebidaItem(item.id)} className="text-destructive shrink-0">
                     <Trash2 className="w-4 h-4" />
@@ -619,7 +619,7 @@ function ClientPortalConfigContent() {
               </div>
             ))}
             <Button type="button" variant="outline" className="w-full" onClick={addBebidaItem}>
-              <Plus className="w-4 h-4 mr-2" /> Agregar ítem
+              <Plus className="w-4 h-4 mr-2" /> Agregar item
             </Button>
           </CardContent>
           <CardFooter>
