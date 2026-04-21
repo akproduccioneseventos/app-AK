@@ -63,9 +63,10 @@ export default function CompanySettingsPage() {
   };
 
   const addCuenta = () => {
+    const fallbackSuffix = `${Date.now().toString(36)}_${Math.floor((typeof performance !== 'undefined' ? performance.now() : 0) * 1000).toString(36)}_${Math.random().toString(36).slice(2, 10)}_${Math.random().toString(36).slice(2, 10)}`;
     const id = typeof crypto !== 'undefined' && crypto.randomUUID
       ? `cuenta_${crypto.randomUUID()}`
-      : `cuenta_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      : `cuenta_${fallbackSuffix}`;
     setCompanyInfo(prev => ({
       ...prev,
       cuentasBancariasPortal: [

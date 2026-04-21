@@ -19,8 +19,8 @@ import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq } from '@/lib/fiesta-defaults';
 
-/** Generate a cryptographically secure random password using alphanumeric characters. */
-function slugifyToken(value: string): string {
+/** Create URL-friendly slug segments for portal access keys. */
+function createSlugFromText(value: string): string {
   return value
     .toLowerCase()
     .normalize('NFD')
@@ -31,7 +31,7 @@ function slugifyToken(value: string): string {
 }
 
 function generatePortalAccessKey(fiesta?: FiestaEnPlanificacion | null): string {
-  const base = slugifyToken(
+  const base = createSlugFromText(
     fiesta?.configuracion?.nombreEvento ||
     fiesta?.configuracion?.tipoCelebracion ||
     'evento'
@@ -343,7 +343,7 @@ function ClientPortalConfigContent() {
                       type={showPassword ? 'text' : 'password'}
                       value={portalSettings.accessKey || ''}
                       onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))}
-                      placeholder="Ej: cliente-vip-cumple-15-abc123"
+                      placeholder="Ej: cliente-vip-cumpleanos-15-abc123"
                       className="pr-10"
                     />
                     <button
