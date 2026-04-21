@@ -377,14 +377,8 @@ export default function PublicPortalView({
   const celebracion = fiesta.invitacionDigital?.detallesEvento?.celebracion;
   const dressCode = fiesta.invitacionDigital?.dressCode;
 
-  // Budget items grouped by category
+  // Budget items
   const itemsPresupuestados = presupuesto?.itemsPresupuestados ?? [];
-  const itemsByCategory = itemsPresupuestados.reduce<Record<string, typeof itemsPresupuestados>>((acc, item) => {
-    const cat = item.categoriaServicio || 'Servicios';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(item);
-    return acc;
-  }, {});
 
   // FAQ
   const faqItems: FaqItem[] = fiesta.faqPortal ?? [];
@@ -668,7 +662,7 @@ export default function PublicPortalView({
                 <Package className="w-5 h-5 text-primary" />
                 ¿Qué estoy contratando?
               </CardTitle>
-              <p className="text-xs text-muted-foreground">Resumen de los servicios incluidos en tu evento</p>
+              <p className="text-xs text-muted-foreground">Lista exacta tomada del presupuesto confirmado</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
               {presupuesto?.nombrePromocion && (
@@ -677,23 +671,23 @@ export default function PublicPortalView({
                   <p className="text-xs font-semibold text-primary">Promoción aplicada: {presupuesto.nombrePromocion}</p>
                 </div>
               )}
-              {Object.entries(itemsByCategory).map(([cat, items]) => (
-                <div key={cat} className="space-y-2">
-                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">{cat}</p>
-                  <div className="space-y-1.5">
-                    {items.map(item => (
-                      <div key={item.idServicioCatalogo} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-muted/40 text-sm">
-                        <span className="font-medium leading-snug flex-1">{item.nombreServicio}</span>
-                        {item.esRegalo && (
-                          <Badge variant="secondary" className="text-[9px] shrink-0 bg-emerald-100 text-emerald-700 border-emerald-200">
-                            🎁 ¡Incluido sin cargo!
-                          </Badge>
-                        )}
-                      </div>
-                    ))}
+              <div className="space-y-1.5">
+                {itemsPresupuestados.map((item, index) => (
+                  <div key={`${item.idServicioCatalogo}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-muted/40 text-sm">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium leading-snug">{item.nombreServicio}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {item.cantidad} {item.unidad || 'unidad'}{item.cantidad > 1 ? 'es' : ''}{item.categoriaServicio ? ` · ${item.categoriaServicio}` : ''}
+                      </p>
+                    </div>
+                    {item.esRegalo && (
+                      <Badge variant="secondary" className="text-[9px] shrink-0 bg-emerald-100 text-emerald-700 border-emerald-200">
+                        🎁 Incluido
+                      </Badge>
+                    )}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}
@@ -1089,18 +1083,18 @@ export default function PublicPortalView({
             <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-sky-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <GlassWater className="w-5 h-5 text-blue-600" />
-                Calculadora de Bebidas
+                Calculadora de Bebidas y Extras
               </CardTitle>
               <p className="text-xs text-muted-foreground">Estimación para {invitados} invitados</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
               {bebidasItems.some(b => b.clienteLleva && b.visible) ? (
                 <p className="text-xs text-blue-700 font-medium bg-blue-50 rounded-xl px-3 py-2">
-                  🎉 Según tu contrato, vos traés las siguientes bebidas para {invitados} personas:
+                  🎉 Según tu contrato, vos traés estos ítems para {invitados} personas:
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground bg-muted/40 rounded-xl px-3 py-2">
-                  Estimación de bebidas para {invitados} invitados:
+                  Estimación de bebidas y extras para {invitados} invitados:
                 </p>
               )}
               <div className="space-y-2">

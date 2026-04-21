@@ -217,12 +217,14 @@ function PaginaWebPageContent() {
 
   const isTemplateActive = (tpl: InvitacionDigitalTemplate) => {
     const palette = tpl.cabecera?.paletaColores;
+    const currentPalette = invitacionData.cabecera?.paletaColores;
     return (
       invitacionData.plantilla === tpl.plantilla &&
       !!palette &&
-      palette.primary === invitacionData.cabecera.paletaColores.primary &&
-      palette.secondary === invitacionData.cabecera.paletaColores.secondary &&
-      palette.accent === invitacionData.cabecera.paletaColores.accent
+      !!currentPalette &&
+      palette.primary === currentPalette.primary &&
+      palette.secondary === currentPalette.secondary &&
+      palette.accent === currentPalette.accent
     );
   };
 
@@ -575,9 +577,9 @@ function PaginaWebPageContent() {
                 </div>
                 <div className="text-xs text-muted-foreground">{tpl.category}</div>
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.primary }} />
-                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.secondary }} />
-                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.accent }} />
+                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera?.paletaColores?.primary ?? '#8b5cf6' }} />
+                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera?.paletaColores?.secondary ?? '#c4b5fd' }} />
+                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera?.paletaColores?.accent ?? '#ede9fe' }} />
                 </div>
                 <div className="text-xs text-muted-foreground">Base: {tpl.plantilla}</div>
               </button>

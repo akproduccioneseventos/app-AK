@@ -42,7 +42,6 @@ export const defaultBebidaItems: BebidaCalculable[] = [
   { id: 'refresco', nombre: 'Agua / Gaseosa', emoji: '🥤', cantidadPorPersona: 1.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'sky' },
   { id: 'hielo', nombre: 'Hielo', emoji: '🧊', cantidadPorPersona: 1, unidad: 'kg', clienteLleva: false, visible: true, color: 'slate' },
   { id: 'agua', nombre: 'Agua mineral', emoji: '💧', cantidadPorPersona: 0.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'blue' },
-  { id: 'cotillon', nombre: 'Cotillón', emoji: '🎉', cantidadPorPersona: 1, unidad: 'kits', clienteLleva: false, visible: true, color: 'pink' },
 ];
 
 export const defaultFaq: FaqItem[] = [

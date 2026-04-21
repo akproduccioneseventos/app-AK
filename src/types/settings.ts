@@ -1,3 +1,5 @@
+import type { CuentaBancaria } from './fiesta';
+
 export interface PromotionalDiscount {
   id: string;
   name: string;
@@ -110,6 +112,7 @@ export interface CompanyInfo {
     defaultDocumentNotes: string;
     invoiceCustomFooter: string;
     signatureUrl?: string | null;
+    cuentasBancariasPortal?: CuentaBancaria[];
 }
 
 export interface ContractClause {
@@ -243,4 +246,5 @@ export const defaultCompanyInfo: CompanyInfo = {
     defaultDocumentNotes: "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.",
     invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
     signatureUrl: null,
+    cuentasBancariasPortal: [],
 };

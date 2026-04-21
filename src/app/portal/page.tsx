@@ -47,7 +47,9 @@ import type {
   FiestaEnPlanificacion,
   FaqItem,
 } from '@/types/fiesta';
+import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { notifyClientArrival } from '@/app/actions/fiesta/live.actions';
 import {
   addClientMusicSuggestion,
@@ -96,7 +98,7 @@ const portalModules: PortalModule[] = [
   { id: 'faq', label: 'Preguntas Frecuentes', icon: HelpCircle },
   { id: 'informarPago', label: 'Informar Pago', icon: CreditCard },
   { id: 'pagos', label: 'Estado de Pagos', icon: CreditCard },
-  { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas', icon: GlassWater },
+  { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas y Extras', icon: GlassWater },
   { id: 'invitados', label: 'Lista de Invitados', icon: Users, href: (id) => `/portal-cliente/${id}/confirmar-invitados` },
   { id: 'simuladorInvitados', label: 'Cambiar cantidad de invitados', icon: Users },
   { id: 'contrato', label: 'Contrato', icon: FileSignature, href: (id) => `/portal/${id}/contrato` },
@@ -206,6 +208,7 @@ function ClientPortalContent() {
   const [notes, setNotes] = useState('');
   const [isSavingMusic, setIsSavingMusic] = useState(false);
   const [musicSuggestion, setMusicSuggestion] = useState('');
+  const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
 
   useEffect(() => {
     if (!fiestaId) {
@@ -226,6 +229,12 @@ function ClientPortalContent() {
 
         setFiesta(data);
         setNotes(data.clientNotes ?? '');
+        if (data.presupuestoId) {
+          const presupuestoData = await getPresupuestoById(data.presupuestoId);
+          setPresupuesto(presupuestoData);
+        } else {
+          setPresupuesto(null);
+        }
 
         const storedAuthKey = sessionStorage.getItem(sessionKey);
         if (storedAuthKey && storedAuthKey === data.clientPortalSettings.accessKey) {
@@ -625,7 +634,7 @@ function ClientPortalContent() {
           )}
 
           {settings.calculadoraBebidas.visible && (
-            <PortalSection title="Calculadora de Bebidas" icon={GlassWater}>
+            <PortalSection title="Calculadora de Bebidas y Extras" icon={GlassWater}>
               {bebidaItems.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No hay ítems configurados.</p>
               ) : (
@@ -646,19 +655,19 @@ function ClientPortalContent() {
 
           {settings.serviciosContratados.visible && (
             <PortalSection title="Servicios Contratados" icon={Package}>
-              {fiesta.modulosContratados ? (
-                <div className="grid sm:grid-cols-2 gap-2">
-                  {Object.entries(fiesta.modulosContratados).map(([key, enabled]) => (
-                    <div key={key} className="flex items-center justify-between rounded-xl border p-3 text-sm">
-                      <span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                      <Badge variant="secondary" className={enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}>
-                        {enabled ? 'Activo' : 'No activo'}
-                      </Badge>
+              {presupuesto?.itemsPresupuestados?.length ? (
+                <div className="space-y-2">
+                  {presupuesto.itemsPresupuestados.map((item, index) => (
+                    <div key={`${item.idServicioCatalogo}-${index}`} className="rounded-xl border p-3 text-sm bg-muted/30">
+                      <p className="font-medium">{item.nombreServicio}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.cantidad} {item.unidad || 'unidad'}{item.cantidad > 1 ? 'es' : ''}{item.categoriaServicio ? ` · ${item.categoriaServicio}` : ''}
+                      </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No hay servicios detallados para este evento.</p>
+                <p className="text-sm text-muted-foreground">No hay un presupuesto vinculado con servicios detallados.</p>
               )}
             </PortalSection>
           )}

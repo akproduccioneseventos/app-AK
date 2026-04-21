@@ -92,7 +92,7 @@ const CanvasElement = memo(function CanvasElement({
         }}
       >
         {el.imageDataUri ? (
-          <div style={{ position: 'relative', display: 'inline-block' }}>
+          <div style={{ position: 'relative', display: 'inline-block', isolation: 'isolate', overflow: 'hidden', borderRadius: 4 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={el.imageDataUri.startsWith('data:image/') ? el.imageDataUri : ''}
@@ -107,7 +107,7 @@ const CanvasElement = memo(function CanvasElement({
                   inset: 0,
                   backgroundColor: el.tintColor,
                   opacity: el.tintOpacity ?? 0,
-                  mixBlendMode: 'multiply',
+                  mixBlendMode: 'color',
                   pointerEvents: 'none',
                   borderRadius: 4,
                 }}
