@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/ai/genkit';
+import { ai, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const AssistantInputSchema = z.object({
@@ -15,6 +15,8 @@ const AssistantInputSchema = z.object({
 
 const AssistantOutputSchema = z.object({
   response: z.string(),
+  // Gemini structured output returns null (not undefined) for optional fields it doesn't use.
+  // Using .nullish() (= .optional().nullable()) so both null and undefined are accepted.
   action: z.object({
     type: z.enum([
       'none',
@@ -38,9 +40,9 @@ const AssistantOutputSchema = z.object({
       'update_marketing_content',
       'generate_whatsapp_message',
       'generate_promo',
-    ]).optional(),
+    ]).nullish(),
     data: z.any().optional(),
-  }).optional(),
+  }).nullish(),
 });
 
 export type AssistantInput = z.infer<typeof AssistantInputSchema>;
@@ -267,7 +269,7 @@ Conocés todas las secciones de la app:
 
 const assistantPrompt = ai.definePrompt({
   name: 'assistantPrompt',
-  model: 'googleai/gemini-2.5-flash',
+  model: geminiModel,
   input: { schema: AssistantInputSchema },
   output: { schema: AssistantOutputSchema },
   system: SYSTEM_PROMPT,
