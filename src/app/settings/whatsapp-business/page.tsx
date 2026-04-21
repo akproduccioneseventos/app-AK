@@ -15,11 +15,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
   ArrowLeft, MessageCircle, Save, Loader2, Eye, EyeOff, AlertTriangle,
-  Bot, Hand, Zap, Clock, Link as LinkIcon, Users, BarChart3
+  Bot, Hand, Zap, Clock, Link as LinkIcon, Users, BarChart3, QrCode
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getWhatsAppConfig, saveWhatsAppConfig, getWhatsAppStats } from '@/app/actions/whatsapp';
 import type { WhatsAppConfig, WhatsAppStats } from '@/types/whatsapp';
+import { QRCodeSVG } from 'qrcode.react';
 
 const DAYS = [
   { id: 'mon', label: 'Lun' },
@@ -105,6 +106,8 @@ export default function WhatsAppBusinessPage() {
     : '/api/whatsapp/webhook';
 
   const missingApiKey = config.enabled && !config.apiKey.trim();
+  const qrPhone = config.phoneNumber.replace(/\D/g, '');
+  const whatsAppWebUrl = qrPhone ? `https://web.whatsapp.com/send?phone=${qrPhone}` : '';
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -312,6 +315,44 @@ export default function WhatsAppBusinessPage() {
             </div>
           </CardContent>
         </Card>
+
+        {config.mode === 'semi-automatic' && (
+          <Card className={`shadow-lg transition-opacity ${!config.enabled ? 'opacity-60' : ''}`}>
+            <CardHeader>
+              <CardTitle className="font-headline text-xl flex items-center gap-2">
+                <QrCode className="w-5 h-5" /> Acceso semi-automático con QR
+              </CardTitle>
+              <CardDescription>
+                Escaneá este QR con WhatsApp Web para tomar rápidamente conversaciones en modo semi-automático.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {whatsAppWebUrl ? (
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="rounded-xl border bg-white p-3">
+                    <QRCodeSVG value={whatsAppWebUrl} size={160} />
+                  </div>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p>1) Abrí WhatsApp en tu teléfono.</p>
+                    <p>2) Escaneá el código para abrir WhatsApp Web con el número configurado.</p>
+                    <a
+                      href={whatsAppWebUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex text-primary underline underline-offset-2"
+                    >
+                      Abrir también en nueva pestaña
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3">
+                  Ingresá primero un número de WhatsApp Business para generar el QR.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Operating mode */}
         <Card className={`shadow-lg transition-opacity ${!config.enabled ? 'opacity-60' : ''}`}>

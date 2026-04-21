@@ -461,7 +461,10 @@ function SimuladorContent() {
                 }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
             };
             try {
-                const result = await generateBudgetAndLeadFromSimulator(data);
+                const result = await generateBudgetAndLeadFromSimulator(data, {
+                    source: 'simulator_common',
+                    eventoTipo,
+                });
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
                     setStep(4);
@@ -625,7 +628,11 @@ function SimuladorContent() {
                                     <Button variant="ghost" onClick={handleCopyToClipboard} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
                                         <Share2 className="w-3.5 h-3.5 mr-2"/> Compartir Presupuesto
                                     </Button>
-                                    <Button variant="ghost" onClick={() => window.print()} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                    <Button
+                                      variant="ghost"
+                                      onClick={() => window.open(`/presupuestos/${generatedPresupuestoId}/ver?imprimir=1`, '_blank')}
+                                      className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]"
+                                    >
                                         <Printer className="w-3.5 h-3.5 mr-2"/> Guardar PDF
                                     </Button>
                                 </div>

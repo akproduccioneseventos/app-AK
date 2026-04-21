@@ -578,6 +578,10 @@ export default function SimuladorAKPage() {
         paqueteNombre:   pkgMeta,
         serviciosIncluidos: items.map(i => i.idServicioCatalogo),
         items,
+      }, {
+        source: 'simulator_assistant',
+        eventoTipo: state.eventoTipo ? EVENT_META[state.eventoTipo].label : 'Evento (Simulador con asistente)',
+        salonFiestas: state.tieneSalon === false && state.incluirClubUruguay ? 'Club Uruguay' : (state.tieneSalon ? 'Salón propio' : 'A definir'),
       });
 
       if (result.success && result.presupuestoId) {
@@ -616,6 +620,7 @@ export default function SimuladorAKPage() {
       pkgMeta ? `Paquete: ${pkgMeta}` : '',
       priceStats ? `Total estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
       generatedId ? `Nro presupuesto: ${generatedId}` : '',
+      generatedId ? `Link: ${window.location.origin}/presupuestos/${generatedId}/ver` : '',
       `\nMe gustaría coordinar una reunión para cerrar los detalles 🎉`,
     ].filter(Boolean);
     return encodeURIComponent(parts.join('\n'));
@@ -624,8 +629,12 @@ export default function SimuladorAKPage() {
   // ── Print/PDF ─────────────────────────────────────────────────────────────
 
   const handlePrint = useCallback(() => {
+    if (generatedId) {
+      window.open(`/presupuestos/${generatedId}/ver?imprimir=1`, '_blank');
+      return;
+    }
     window.print();
-  }, []);
+  }, [generatedId]);
 
   // ── Prices ────────────────────────────────────────────────────────────────
 

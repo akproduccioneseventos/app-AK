@@ -4,7 +4,7 @@ import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
 import { savePresupuesto } from './presupuestos';
-import type { ItemPresupuestado, Presupuesto } from '@/types/presupuesto';
+import type { ItemPresupuestado, Presupuesto, PresupuestoSource } from '@/types/presupuesto';
 import { createNotification } from './notifications';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
@@ -81,20 +81,22 @@ export async function saveArmadoRapidoConfig(
 }
 
 export async function generateBudgetAndLeadFromSimulator(
-  data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] }
+  data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
+  options?: { source?: PresupuestoSource; eventoTipo?: string; salonFiestas?: string }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
   try {
+    const source = options?.source || 'simulator_common';
     const presupuestoData: Omit<Presupuesto, 'id'> = {
       clienteNombre: data.clienteNombre,
       clienteContacto: data.clienteContacto,
-      eventoTipo: 'Evento (desde Simulador)',
+      eventoTipo: options?.eventoTipo || 'Evento (desde Simulador)',
       eventoFecha: data.eventoFecha || new Date().toISOString(),
       eventoHoraInicio: data.eventoHoraInicio,
       invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
       invitadosAdultos: data.adultos,
       invitadosAdolescentes: 0,
       invitadosNinos: data.ninos,
-      salonFiestas: 'A definir',
+      salonFiestas: options?.salonFiestas || 'A definir',
       itemsPresupuestados: data.items as ItemPresupuestado[],
       timestamp: new Date().toISOString(),
       notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
@@ -103,12 +105,12 @@ export async function generateBudgetAndLeadFromSimulator(
       descuentoValor: data.descuentoGeneral,
       totalConDescuento: data.costoEstimado,
       estado: 'Pendiente Verificación',
-      source: 'simulator'
+      source
     };
 
     // savePresupuesto ahora internamente llama a findLeadByBudgetOrCreate
     const budgetResult = await savePresupuesto(presupuestoData, {
-      source: 'simulator'
+      source
     });
     
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
