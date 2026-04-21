@@ -265,9 +265,11 @@ Conocés todas las secciones de la app:
 13. **NUNCA inventes un estado de procesamiento**. El usuario ve tu respuesta como estado final — no hay un "después" ni "te aviso".
 14. **Si el servicio de IA está con problemas (errores de permisos, cuota, etc.)**: Decí "No pude procesar tu mensaje en este momento. Intentá de nuevo en unos minutos." — NUNCA menciones APIs, tokens, endpoints ni detalles técnicos.`;
 
+const ASSISTANT_MODEL = process.env.AK_ASSISTANT_GEMINI_MODEL || 'googleai/gemini-2.5-flash';
+
 const assistantPrompt = ai.definePrompt({
   name: 'assistantPrompt',
-  model: 'googleai/gemini-2.5-flash',
+  model: ASSISTANT_MODEL,
   input: { schema: AssistantInputSchema },
   output: { schema: AssistantOutputSchema },
   system: SYSTEM_PROMPT,

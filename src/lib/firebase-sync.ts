@@ -71,6 +71,27 @@ const CONFIG_FILES: Record<string, string> = {
 
 const MAX_RETRIES = 2;
 const isDev = process.env.NODE_ENV === 'development';
+const OMIT_FIRESTORE_VALUE = Symbol('omit-firestore-value');
+
+function sanitizeForFirestore<T>(value: T): T {
+  if (value === undefined) return OMIT_FIRESTORE_VALUE as T;
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => sanitizeForFirestore(item))
+      .filter((item) => item !== OMIT_FIRESTORE_VALUE) as T;
+  }
+  if (value && typeof value === 'object') {
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== null) {
+      return value;
+    }
+    const entries = Object.entries(value as Record<string, unknown>)
+      .map(([key, nested]) => [key, sanitizeForFirestore(nested)] as const)
+      .filter(([, nested]) => nested !== OMIT_FIRESTORE_VALUE);
+    return Object.fromEntries(entries) as T;
+  }
+  return value;
+}
 
 async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
   let lastError: unknown;
@@ -120,10 +141,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     // Config file → single document in 'configuracion'
     const configDocId = CONFIG_FILES[normalizedPath];
     if (configDocId && data && typeof data === 'object' && !Array.isArray(data)) {
-      const cleanData = { ...data };
-      Object.keys(cleanData).forEach(key => {
-        if (cleanData[key] === undefined) delete cleanData[key];
-      });
+      const cleanData = sanitizeForFirestore(data);
       await withRetry(() => db.collection('configuracion').doc(configDocId).set({
         ...cleanData,
         _syncedAt: new Date().toISOString(),
@@ -168,10 +186,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
           const docId = getItemDocId(item);
           if (!docId) continue;
           const ref = db.collection(collectionName).doc(docId);
-          const cleanData = { ...item };
-          Object.keys(cleanData).forEach(key => {
-            if (cleanData[key] === undefined) delete cleanData[key];
-          });
+          const cleanData = sanitizeForFirestore(item);
           batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
         }
         
@@ -186,10 +201,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       const [dir, filename] = pathParts;
       if (!filename.endsWith('.json')) return;
       const docId = filename.replace('.json', '');
-      const cleanData = { ...data };
-      Object.keys(cleanData).forEach(key => {
-        if (cleanData[key] === undefined) delete cleanData[key];
-      });
+      const cleanData = sanitizeForFirestore(data);
       await withRetry(() => db.collection(dir).doc(docId).set({
         ...cleanData,
         _syncedAt: new Date().toISOString(),

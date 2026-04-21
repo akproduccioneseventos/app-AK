@@ -455,6 +455,13 @@ export async function saveAiAssistantSettings(settings: Pick<AiAssistantSettings
 }
 
 const GEMINI_CONNECTION_TIMEOUT_MS = 15000;
+const DEFAULT_GEMINI_TEST_MODEL = 'gemini-2.0-flash';
+
+function getGeminiTestModel(): string {
+  const configured = (process.env.AK_ASSISTANT_GEMINI_MODEL || '').trim();
+  if (!configured) return DEFAULT_GEMINI_TEST_MODEL;
+  return configured.startsWith('googleai/') ? configured.replace('googleai/', '') : configured;
+}
 
 export async function testGeminiConnection(): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
@@ -465,8 +472,9 @@ export async function testGeminiConnection(): Promise<{ ok: boolean; error?: str
     };
   }
   try {
+    const model = getGeminiTestModel();
     const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

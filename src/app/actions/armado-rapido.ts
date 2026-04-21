@@ -41,19 +41,19 @@ export async function saveArmadoRapidoConfig(
       ...newConfigData,
       paquetes: (newConfigData.paquetes || []).map(pkg => ({
         id: pkg.id,
-        nombre: pkg.nombre,
-        descripcion: pkg.descripcion,
+        nombre: (pkg.nombre || '').trim(),
+        descripcion: (pkg.descripcion || '').trim(),
         recommended: pkg.recommended || false,
         tiposDeEventoAplicables: (pkg.tiposDeEventoAplicables || [])
           .map((tipo) => tipo.trim())
           .filter(Boolean),
-        serviciosIncluidos: pkg.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
+        serviciosIncluidos: (pkg.serviciosIncluidos || []).map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
       menus: (newConfigData.menus || []).map(menu => ({
         id: menu.id,
-        nombre: menu.nombre,
-        descripcion: menu.descripcion,
-        serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
+        nombre: (menu.nombre || '').trim(),
+        descripcion: (menu.descripcion || '').trim(),
+        serviciosIncluidos: (menu.serviciosIncluidos || []).map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
       })),
       platosVisibles: (newConfigData.platosVisibles || []).map(p => ({
         id: p.id,

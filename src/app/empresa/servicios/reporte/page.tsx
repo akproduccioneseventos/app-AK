@@ -27,6 +27,20 @@ const getCalculationMethodLabel = (method?: string): string => {
     }
 };
 
+const formatPrecioServicio = (item: ServicioEmpresa): string => {
+  if (item.calculationMethod === 'tramos') {
+    const precios = (item.tramosDePrecio || [])
+      .map((t) => Number(t.precio) || 0)
+      .filter((p) => p > 0);
+    if (precios.length > 0) {
+      const min = Math.min(...precios);
+      const max = Math.max(...precios);
+      return min === max ? formatCurrency(min) : `${formatCurrency(min)} - ${formatCurrency(max)}`;
+    }
+  }
+  return formatCurrency(item.precioVenta ?? item.precioPorPersona ?? item.precioBase);
+};
+
 export default function ReporteServiciosPage() {
   const { toast } = useToast();
   const [allItems, setAllItems] = useState<ServicioEmpresa[]>([]);
@@ -140,7 +154,7 @@ export default function ReporteServiciosPage() {
                   <TableCell className="font-medium">{item.nombre}</TableCell>
                   <TableCell>{item.categoria}</TableCell>
                   <TableCell>{getCalculationMethodLabel(item.calculationMethod)}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(item.precioVenta ?? item.precioPorPersona ?? item.precioBase)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatPrecioServicio(item)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

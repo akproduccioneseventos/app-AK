@@ -28,6 +28,10 @@ messaging.onBackgroundMessage((payload) => {
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-192x192.png',
     data: payload.data || {},
+    vibrate: [200, 100, 200],
+    silent: false,
+    tag: payload.data?.tag || payload.messageId || 'ak-notification',
+    renotify: true,
   };
 
   self.registration.showNotification(title, options);
