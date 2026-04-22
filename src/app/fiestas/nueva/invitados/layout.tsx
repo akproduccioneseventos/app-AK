@@ -5,7 +5,7 @@ import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Users, LayoutDashboard, Printer, UserCheck } from 'lucide-react';
+import { Users, LayoutDashboard, TableProperties, Settings } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 function InvitadosLayoutContent({ children }: { children: React.ReactNode }) {
@@ -14,10 +14,10 @@ function InvitadosLayoutContent({ children }: { children: React.ReactNode }) {
   const fiestaId = searchParams.get('fiestaId');
 
   const navItems = [
-    { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Lista de Invitados', icon: Users },
-    { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Diseño de Salón', icon: LayoutDashboard },
-    { href: `/portal/mesas?fiestaId=${fiestaId}`, label: 'Asignación de Cliente', icon: UserCheck },
-    { href: `/fiestas/nueva/invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Printer },
+    { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Invitados', icon: Users },
+    { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Plano de Salón', icon: LayoutDashboard },
+    { href: `/portal/mesas?fiestaId=${fiestaId}`, label: 'Distribución / Mesas', icon: TableProperties },
+    { href: `/fiestas/nueva/configuracion?fiestaId=${fiestaId}`, label: 'Configuración del Cliente', icon: Settings },
   ];
 
   const getIsActive = (href: string) => {

@@ -9,11 +9,16 @@ import NextImage from 'next/image';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll } from '@/app/actions/social-interactive';
 import { getCompanyInfo } from '@/app/actions/settings';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialGallerySettings } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+import type { SocialConnection } from '@/types/settings';
+import { Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 
-const REFRESH_INTERVAL_MS = 8000;
+const REFRESH_INTERVAL_MS = 5000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
+const FRESH_POST_POLAROID_DURATION_MS = 20000;
 const MARQUEE_REPEAT_COUNT = 3;
 const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
 const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]';
@@ -39,6 +44,9 @@ export default function MuroEnVivoPage() {
     ledMarqueeText: '',
   });
   const [companyMarketingText, setCompanyMarketingText] = useState<string>(DEFAULT_MARKETING_TICKER_TEXT);
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState<string>('AK Producciones');
+  const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -48,11 +56,13 @@ export default function MuroEnVivoPage() {
   const fetchData = useCallback(async () => {
     if (!fiestaId) return;
     try {
-      const [fetchedPosts, fiestaData, pollData, companyInfo] = await Promise.all([
+      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections] = await Promise.all([
         getSocialPosts(fiestaId),
         getFiestaById(fiestaId),
         getActivePoll(fiestaId),
         getCompanyInfo(),
+        getInvoiceTemplateSettings(),
+        getSocialConnections(),
       ]);
 
       const sorted = [...fetchedPosts].sort(
@@ -88,6 +98,9 @@ export default function MuroEnVivoPage() {
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
           : DEFAULT_MARKETING_TICKER_TEXT
       );
+      setCompanyName(companyInfo?.companyName || 'AK Producciones');
+      setCompanyLogoUrl(templateSettings?.logoUrl || null);
+      setSocialConnections(connections.filter(connection => connection.isConnected));
     } catch (_) {
       // Silent fail for projection wall
     } finally {
@@ -110,6 +123,11 @@ export default function MuroEnVivoPage() {
       {/* Header bar */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 bg-gradient-to-b from-slate-950/90 to-transparent">
         <div className="flex items-center gap-3">
+          {companyLogoUrl && (
+            <div className="relative h-10 w-24 overflow-hidden rounded bg-white/90 p-1">
+              <NextImage src={companyLogoUrl} alt={`Logo de ${companyName}`} fill className="object-contain" />
+            </div>
+          )}
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
           <span className="text-white/60 text-sm font-medium tracking-widest uppercase">En Vivo</span>
         </div>
@@ -118,6 +136,25 @@ export default function MuroEnVivoPage() {
         )}
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
       </div>
+
+      {socialConnections.length > 0 && (
+        <div className="absolute top-16 right-6 z-30 flex items-center gap-2 rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+          {socialConnections.map((connection) => {
+            const Icon = connection.platform === 'Instagram'
+              ? Instagram
+              : connection.platform === 'Facebook'
+              ? Facebook
+              : connection.platform === 'TikTok'
+              ? Music2
+              : MessageCircle;
+            return (
+              <span key={connection.platform} className="inline-flex items-center gap-1 text-xs text-white/80" title={connection.platform}>
+                <Icon className="h-4 w-4" />
+              </span>
+            );
+          })}
+        </div>
+      )}
 
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -268,14 +305,21 @@ function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
 
 function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }) {
   const [imgError, setImgError] = useState(false);
+  const isFreshPost = Date.now() - new Date(post.timestamp).getTime() < FRESH_POST_POLAROID_DURATION_MS;
+  const polaroidRotation = ((index % 7) - 3) * 1.8;
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: (index % 6) * 0.05 }}
-      className="relative rounded-2xl overflow-hidden bg-slate-900 shadow-2xl flex-shrink-0 group"
-      style={{ aspectRatio: index % 3 === 0 ? '4/5' : index % 3 === 1 ? '1/1' : '3/4' }}
+      className="relative overflow-hidden bg-slate-900 shadow-2xl flex-shrink-0 group rounded-xl"
+      style={{
+        aspectRatio: index % 3 === 0 ? '4/5' : index % 3 === 1 ? '1/1' : '3/4',
+        transform: isFreshPost ? `rotate(${polaroidRotation}deg)` : undefined,
+        border: isFreshPost ? '10px solid rgba(255,255,255,0.95)' : undefined,
+        borderBottomWidth: isFreshPost ? '24px' : undefined,
+      }}
     >
       {!imgError ? (
         <NextImage
@@ -301,7 +345,7 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
 
       {/* New post flash effect */}
       <AnimatePresence>
-        {Date.now() - new Date(post.timestamp).getTime() < 15000 && (
+        {isFreshPost && (
           <motion.div
             initial={{ opacity: 1 }}
             animate={{ opacity: 0 }}
