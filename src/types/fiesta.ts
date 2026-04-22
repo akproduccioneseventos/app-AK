@@ -678,7 +678,16 @@ export interface Trago {
   imageUrl?: string;
   aiHint?: string;
   ingredientes?: string[];
+  recetaIngredientes?: TragoRecetaIngrediente[];
   stockDisponible?: number;
+}
+
+export interface TragoRecetaIngrediente {
+  id?: string;
+  insumoId: string;
+  nombre: string;
+  cantidad: number;
+  unidad: string;
 }
 
 export interface CartaTragosData {

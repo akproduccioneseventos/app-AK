@@ -7,14 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, DollarSign, Info, Percent, GlassWater, Package, Save, Calculator, Search, BookOpen, CakeSlice, Candy, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ChefHat, PlusCircle, Copy, Edit, Trash2, Loader2, Percent, GlassWater, Save, Search, CakeSlice, Candy, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getMenus, deleteMenu, duplicateMenu, adjustAllDishMargins } from '@/app/actions/menus-catering';
-import { getBebidasMasterTemplate, saveBebidasMasterTemplate } from '@/app/actions/bebidas.actions';
 import { getReposteriaMasterTemplate, saveReposteriaMasterTemplate } from '@/app/actions/reposteria.actions';
 import { getInsumos } from '@/app/actions/insumos';
-import type { FullMenu, MenuItem } from '@/types/catering';
-import type { BebidasData, ReposteriaData, BebidaItem, ReposteriaItem } from '@/types/fiesta';
+import type { FullMenu } from '@/types/catering';
+import type { ReposteriaData, ReposteriaItem } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
 import {
   AlertDialog,
@@ -27,8 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -45,7 +43,6 @@ export default function GestionMenusPage() {
   const [menus, setMenus] = useState<FullMenu[]>([]);
   
   // New Services State
-  const [bebidasMaster, setBebidasMaster] = useState<BebidasData | null>(null);
   const [reposteriaMaster, setReposteriaMaster] = useState<ReposteriaData | null>(null);
   const [insumos, setInsumos] = useState<ServicioEmpresa[]>([]);
   
@@ -58,19 +55,17 @@ export default function GestionMenusPage() {
   // Dialog State
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
-  const [targetCategory, setTargetCategory] = useState<{ type: 'bebida' | 'reposteria', catId: string } | null>(null);
+  const [targetCategory, setTargetCategory] = useState<{ catId: string } | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [menuData, bebidasData, reposteriaData, insumosData] = await Promise.all([
+      const [menuData, reposteriaData, insumosData] = await Promise.all([
         getMenus(),
-        getBebidasMasterTemplate(),
         getReposteriaMasterTemplate(),
         getInsumos()
       ]);
       setMenus(Array.isArray(menuData) ? menuData : []);
-      setBebidasMaster(bebidasData);
       setReposteriaMaster(reposteriaData);
       setInsumos(Array.isArray(insumosData) ? insumosData : []);
     } catch (e) {
@@ -131,19 +126,6 @@ export default function GestionMenusPage() {
   };
 
   // --- NEW SERVICE ACTIONS ---
-  const handleSaveBebidas = async () => {
-    if (!bebidasMaster) return;
-    setIsSaving(true);
-    try {
-      const res = await saveBebidasMasterTemplate(bebidasMaster);
-      if (res.success) toast({ title: "Plantilla de Bebidas guardada" });
-    } catch (e) {
-      toast({ title: "Error al guardar bebidas", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleSaveReposteria = async () => {
     if (!reposteriaMaster) return;
     setIsSaving(true);
@@ -155,28 +137,6 @@ export default function GestionMenusPage() {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleBarraItemChange = (itemId: string, field: keyof BebidaItem, value: any) => {
-    if (!bebidasMaster) return;
-    const updated = {
-      ...bebidasMaster,
-      categorias: bebidasMaster.categorias.map(cat => {
-        if (cat.id !== 'barra_tragos') return cat;
-        return {
-          ...cat,
-          items: cat.items.map(item => {
-            if (item.id !== itemId) return item;
-            const updatedItem = { ...item, [field]: value };
-            if (field === 'cantidadNecesaria' || field === 'costoUnitario') {
-              updatedItem.costoTotal = (updatedItem.cantidadNecesaria || 0) * (updatedItem.costoUnitario || 0);
-            }
-            return updatedItem;
-          })
-        };
-      })
-    };
-    setBebidasMaster(updated);
   };
 
   const handleReposteriaItemChange = (catId: string, itemId: string, field: keyof ReposteriaItem, value: any) => {
@@ -197,8 +157,8 @@ export default function GestionMenusPage() {
     setReposteriaMaster(updated);
   };
 
-  const openCatalog = (type: 'bebida' | 'reposteria', catId: string) => {
-    setTargetCategory({ type, catId });
+  const openCatalog = (catId: string) => {
+    setTargetCategory({ catId });
     setCatalogSearchTerm('');
     setIsCatalogModalOpen(true);
   };
@@ -206,71 +166,39 @@ export default function GestionMenusPage() {
   const handleAddFromCatalog = (insumo: ServicioEmpresa) => {
     if (!targetCategory) return;
 
-    if (targetCategory.type === 'bebida') {
-      const newItem: BebidaItem = {
-        id: `beb_${Date.now()}_${insumo.id}`,
-        nombre: insumo.nombre,
-        cantidadNecesaria: 0.02,
-        unidadCantidad: insumo.unidad || 'Litros',
-        costoUnitario: insumo.valorUnitarioEstimado || 0,
-        costoTotal: (insumo.valorUnitarioEstimado || 0) * 0.02,
-        origenId: insumo.id
+    const newItem: ReposteriaItem = {
+      id: `rep_${Date.now()}_${insumo.id}`,
+      nombre: insumo.nombre,
+      cantidad: 1,
+      unidad: insumo.unidad || 'Unidad',
+      costoEstimado: insumo.valorUnitarioEstimado || 0,
+      origenId: insumo.id
+    };
+    setReposteriaMaster(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        categorias: prev.categorias.map(c => c.id === targetCategory.catId ? { ...c, items: [...c.items, newItem] } : c)
       };
-      setBebidasMaster(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          categorias: prev.categorias.map(c => c.id === targetCategory.catId ? { ...c, items: [...c.items, newItem] } : c)
-        };
-      });
-    } else {
-      const newItem: ReposteriaItem = {
-        id: `rep_${Date.now()}_${insumo.id}`,
-        nombre: insumo.nombre,
-        cantidad: 1,
-        unidad: insumo.unidad || 'Unidad',
-        costoEstimado: insumo.valorUnitarioEstimado || 0,
-        origenId: insumo.id
-      };
-      setReposteriaMaster(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          categorias: prev.categorias.map(c => c.id === targetCategory.catId ? { ...c, items: [...c.items, newItem] } : c)
-        };
-      });
-    }
+    });
     setIsCatalogModalOpen(false);
     toast({ title: "Insumo añadido" });
   };
 
-  const removeItem = (type: 'bebida' | 'reposteria', catId: string, itemId: string) => {
-    if (type === 'bebida') {
-      setBebidasMaster(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          categorias: prev.categorias.map(c => c.id === catId ? { ...c, items: c.items.filter(i => i.id !== itemId) } : c)
-        };
-      });
-    } else {
-      setReposteriaMaster(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          categorias: prev.categorias.map(c => c.id === catId ? { ...c, items: c.items.filter(i => i.id !== itemId) } : c)
-        };
-      });
-    }
+  const removeItem = (catId: string, itemId: string) => {
+    setReposteriaMaster(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        categorias: prev.categorias.map(c => c.id === catId ? { ...c, items: c.items.filter(i => i.id !== itemId) } : c)
+      };
+    });
   };
 
   const filteredInsumos = useMemo(() => {
     const term = catalogSearchTerm.toLowerCase();
     return insumos.filter(i => i.nombre.toLowerCase().includes(term) || i.categoria?.toLowerCase().includes(term));
   }, [insumos, catalogSearchTerm]);
-
-  const barraTragosItems = useMemo(() => bebidasMaster?.categorias.find(c => c.id === 'barra_tragos')?.items || [], [bebidasMaster]);
-  const costoPPBarra = useMemo(() => barraTragosItems.reduce((s, i) => s + (i.costoTotal || 0), 0), [barraTragosItems]);
 
   const mesaDulceItems = useMemo(() => reposteriaMaster?.categorias.find(c => c.id === 'mesa_postres')?.items || [], [reposteriaMaster]);
   const candyBarItems = useMemo(() => reposteriaMaster?.categorias.find(c => c.id === 'candy_bar')?.items || [], [reposteriaMaster]);
@@ -329,58 +257,6 @@ export default function GestionMenusPage() {
       </Alert>
 
       <div className="grid grid-cols-1 gap-8">
-        {/* BARRA DE TRAGOS */}
-        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
-          <CardHeader className="bg-primary/5 p-8 border-b border-primary/10">
-              <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                      <CardTitle className="font-headline text-3xl flex items-center gap-3 text-primary">
-                          <GlassWater className="w-8 h-8" /> BARRA DE TRAGOS MAESTRA
-                      </CardTitle>
-                      <CardDescription className="text-sm font-bold text-slate-400 uppercase tracking-widest">Configuración base para el simulador y eventos</CardDescription>
-                  </div>
-                  <Button onClick={handleSaveBebidas} disabled={isSaving} className="rounded-2xl h-12 px-8 font-black shadow-lg shadow-primary/20">
-                    {isSaving ? <Loader2 className="animate-spin mr-2"/> : <Save className="w-4 h-4 mr-2"/>} GUARDAR RECETA
-                  </Button>
-              </div>
-          </CardHeader>
-          <CardContent className="p-8 space-y-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100"><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Costo p/Persona</p><p className="text-3xl font-black text-primary">{formatCurrency(costoPPBarra)}</p></div>
-                  <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100"><p className="text-[10px] font-black uppercase text-emerald-600 tracking-widest mb-1">Rentabilidad</p><p className="text-3xl font-black text-emerald-700">100%</p></div>
-                  <div className="p-6 bg-primary/10 rounded-3xl border border-primary/20 shadow-inner"><p className="text-[10px] font-black uppercase text-primary tracking-widest mb-1">Precio de Venta</p><p className="text-3xl font-black text-primary">{formatCurrency(costoPPBarra * 2)}</p></div>
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col justify-center items-center"><Button variant="outline" onClick={() => openCatalog('bebida', 'barra_tragos')} className="rounded-xl border-dashed border-primary/30 text-primary font-bold"><PlusCircle className="w-4 h-4 mr-2"/> Añadir Insumo</Button></div>
-              </div>
-
-              <div className="rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
-                  <Table>
-                      <TableHeader className="bg-slate-50">
-                          <TableRow className="border-slate-100">
-                              <TableHead className="text-[10px] font-black uppercase pl-8">Producto / Licores</TableHead>
-                              <TableHead className="text-right text-[10px] font-black uppercase">Cant p/p</TableHead>
-                              <TableHead className="text-[10px] font-black uppercase">Unidad</TableHead>
-                              <TableHead className="text-right text-[10px] font-black uppercase">Costo Unit</TableHead>
-                              <TableHead className="text-right text-[10px] font-black uppercase pr-8">Total (100 inv)</TableHead>
-                              <TableHead className="w-10"></TableHead>
-                          </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                          {barraTragosItems.map(row => (
-                              <TableRow key={row.id} className="border-slate-50 hover:bg-slate-50/50">
-                                  <TableCell className="pl-8 py-4"><Input value={row.nombre} onChange={e => handleBarraItemChange(row.id, 'nombre', e.target.value)} className="h-8 border-none font-bold p-0 focus-visible:ring-0"/></TableCell>
-                                  <TableCell className="text-right"><Input type="number" step="0.01" value={row.cantidadNecesaria} onChange={e => handleBarraItemChange(row.id, 'cantidadNecesaria', parseFloat(e.target.value))} className="h-8 w-20 text-right font-mono ml-auto"/></TableCell>
-                                  <TableCell className="text-[10px] font-black text-slate-400 uppercase">{row.unidadCantidad}</TableCell>
-                                  <TableCell className="text-right"><Input type="number" value={row.costoUnitario} onChange={e => handleBarraItemChange(row.id, 'costoUnitario', parseFloat(e.target.value))} className="h-8 w-24 text-right font-mono ml-auto"/></TableCell>
-                                  <TableCell className="text-right pr-8 font-black text-primary">{formatCurrency((row.costoTotal || 0) * 100)}</TableCell>
-                                  <TableCell><Button variant="ghost" size="icon" onClick={() => removeItem('bebida', 'barra_tragos', row.id)} className="text-slate-300 hover:text-destructive"><Trash2 className="w-4 h-4"/></Button></TableCell>
-                              </TableRow>
-                          ))}
-                      </TableBody>
-                  </Table>
-              </div>
-          </CardContent>
-        </Card>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* MESA DULCE Y FUENTE */}
             <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
@@ -393,7 +269,7 @@ export default function GestionMenusPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
-                    <div className="flex justify-end"><Button variant="outline" size="sm" onClick={() => openCatalog('reposteria', 'mesa_postres')} className="rounded-xl text-[10px] font-black uppercase"><PlusCircle className="w-3 h-3 mr-2"/>Añadir Postre</Button></div>
+                    <div className="flex justify-end"><Button variant="outline" size="sm" onClick={() => openCatalog('mesa_postres')} className="rounded-xl text-[10px] font-black uppercase"><PlusCircle className="w-3 h-3 mr-2"/>Añadir Postre</Button></div>
                     <div className="space-y-2">
                         {mesaDulceItems.map(item => (
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-orange-200 transition-all">
@@ -406,7 +282,7 @@ export default function GestionMenusPage() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('mesa_postres', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
-                                    <Button variant="ghost" size="icon" onClick={() => removeItem('reposteria', 'mesa_postres', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                    <Button variant="ghost" size="icon" onClick={() => removeItem('mesa_postres', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
                                 </div>
                             </div>
                         ))}
@@ -425,7 +301,7 @@ export default function GestionMenusPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
-                    <div className="flex justify-end"><Button variant="outline" size="sm" onClick={() => openCatalog('reposteria', 'candy_bar')} className="rounded-xl text-[10px] font-black uppercase"><PlusCircle className="w-3 h-3 mr-2"/>Añadir Elemento</Button></div>
+                    <div className="flex justify-end"><Button variant="outline" size="sm" onClick={() => openCatalog('candy_bar')} className="rounded-xl text-[10px] font-black uppercase"><PlusCircle className="w-3 h-3 mr-2"/>Añadir Elemento</Button></div>
                     <div className="space-y-2">
                         {candyBarItems.map(item => (
                             <div key={item.id} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center group border border-transparent hover:border-pink-200 transition-all">
@@ -438,7 +314,7 @@ export default function GestionMenusPage() {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Input type="number" value={item.cantidad} onChange={e => handleReposteriaItemChange('candy_bar', item.id, 'cantidad', parseInt(e.target.value))} className="w-14 h-8 text-center rounded-lg border-slate-200" />
-                                    <Button variant="ghost" size="icon" onClick={() => removeItem('reposteria', 'candy_bar', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
+                                    <Button variant="ghost" size="icon" onClick={() => removeItem('candy_bar', item.id)} className="text-slate-300 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
                                 </div>
                             </div>
                         ))}
