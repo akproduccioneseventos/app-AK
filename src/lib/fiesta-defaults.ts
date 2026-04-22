@@ -20,6 +20,7 @@ import type {
   BebidaCalculable,
   FaqItem,
 } from '@/types/fiesta';
+import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 
 export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_1', hora: '22:00', titulo: 'Comienzo', descripcion: 'Recepción de invitados con música suave.', icono: 'PartyPopper' },
@@ -231,7 +232,16 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
   menuMesa: defaultMenuMesaData,
   numerosMesa: defaultNumerosMesaData,
   clientPortalSettings: defaultClientPortalSettings,
-  socialGallerySettings: { enabled: true, allowLikes: true, allowComments: true, uploadsActive: true, chatEnabled: true },
+  socialGallerySettings: {
+    enabled: true,
+    allowLikes: true,
+    allowComments: true,
+    uploadsActive: true,
+    chatEnabled: true,
+    showPolls: true,
+    marketingTickerText: DEFAULT_MARKETING_TICKER_TEXT,
+    ledMarqueeText: '',
+  },
   musica: { cancionesTortaBrindis: [] },
   reposteria: defaultReposteriaData,
   bebidas: defaultBebidasData,

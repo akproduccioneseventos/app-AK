@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Camera, Loader2, QrCode, Save } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, QrCode, Save, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,13 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
+import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+
+const QUICK_MOMENTS = [
+  { id: 'llegada-agasajados', nombre: 'Llegada de los agasajados', emoji: '🎉' },
+  { id: 'corte-torta', nombre: 'Corte de Torta', emoji: '🎂' },
+  { id: 'inicio-baile', nombre: 'Inicio del Baile', emoji: '🕺' },
+];
 
 function MuroSocialContent() {
   const { toast } = useToast();
@@ -30,6 +37,8 @@ function MuroSocialContent() {
     showPolls: true,
     showSongRequests: true,
     showDedications: true,
+    marketingTickerText: DEFAULT_MARKETING_TICKER_TEXT,
+    ledMarqueeText: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -72,6 +81,24 @@ function MuroSocialContent() {
       toast({ title: 'Configuración guardada' });
     } else {
       toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const triggerMoment = async (momentToTrigger: (typeof QUICK_MOMENTS)[number]) => {
+    if (!fiestaId) return;
+    const updatedSettings: SocialGallerySettings = {
+      ...settings,
+      momentosActivos: [
+        ...(settings.momentosActivos ?? []).filter((m) => m.id !== momentToTrigger.id),
+        { ...momentToTrigger, timestamp: new Date().toISOString() },
+      ],
+    };
+    setSettings(updatedSettings);
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
+    if (result.success) {
+      toast({ title: `Momento lanzado: ${momentToTrigger.nombre}` });
+    } else {
+      toast({ title: 'Error al disparar momento', description: result.error, variant: 'destructive' });
     }
   };
 
@@ -153,6 +180,46 @@ function MuroSocialContent() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Marketing y Cartel LED</CardTitle>
+            <CardDescription>Texto para zócalo inferior y mensaje pasante tipo marquesina.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-1">
+              <Label>Zócalo de marketing (redes)</Label>
+              <Input
+                value={settings.marketingTickerText ?? ''}
+                onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerText: e.target.value }))}
+                placeholder={DEFAULT_MARKETING_TICKER_TEXT}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Cartel LED / Mensaje pasante</Label>
+              <Input
+                value={settings.ledMarqueeText ?? ''}
+                onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeText: e.target.value }))}
+                placeholder="¡En 10 minutos cortamos la torta!"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">Disparador rápido de momentos</CardTitle>
+            <CardDescription>Interrumpe temporalmente la proyección con anuncio a pantalla completa.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {QUICK_MOMENTS.map((moment) => (
+              <Button key={moment.id} variant="secondary" onClick={() => triggerMoment(moment)}>
+                <Sparkles className="w-4 h-4 mr-2" />
+                {moment.emoji} {moment.nombre}
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -165,4 +232,3 @@ export default function MuroSocialPage() {
     </Suspense>
   );
 }
-
