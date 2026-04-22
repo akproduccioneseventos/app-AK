@@ -46,6 +46,7 @@ import {
   Send,
   Sparkles,
   Building2,
+  ArrowLeft,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,9 +56,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { updateClientChecklist, updateClientNotes, submitClientPayment } from '@/app/actions/fiesta/portal.actions';
+import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientMenuChangeRequest } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
+import { calculateMenuSimulationTotals, resolveMenuUnitPrices } from '@/lib/portal-menu-simulator';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -214,7 +216,10 @@ export default function PublicPortalView({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Guest simulator state
-  const [guestDelta, setGuestDelta] = useState(0);
+  const [adultDelta, setAdultDelta] = useState(0);
+  const [kidsDelta, setKidsDelta] = useState(0);
+  const [simRequestNote, setSimRequestNote] = useState('');
+  const [simRequestLoading, setSimRequestLoading] = useState(false);
 
   // Moodboard liked state
   const [likedItems, setLikedItems] = useState<Set<string>>(
@@ -346,22 +351,21 @@ export default function PublicPortalView({
 
   // Guest simulator
   const invitadosContratados = config.invitadosEstimados || 0;
-  const precioPorPersona = invitadosContratados > 0 ? totalCosto / invitadosContratados : 0;
+  const adultosBase = presupuesto?.invitadosAdultos ?? Math.max(0, invitadosContratados - ((presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0)));
+  const ninosAdolescentesBase = (presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0);
+  const { adultUnit, kidsUnit } = resolveMenuUnitPrices(presupuesto);
   const simConfig = settings?.simuladorInvitadosConfig;
   // Support both new (simuladorInvitados.minReductionPercent) and legacy (simuladorInvitadosConfig) approaches
-  const limiteReduccion = settings?.simuladorInvitados?.minReductionPercent ?? simConfig?.limiteReduccionPorcentaje ?? 10;
   const limiteAumento = settings?.simuladorInvitados?.maxIncreasePercent ?? simConfig?.limiteAumentoPorcentaje ?? 30;
-  const penalizacionReduccion = simConfig?.penalizacionReduccion ?? true;
-  const minDelta = -Math.floor(invitadosContratados * (limiteReduccion / 100));
-  const maxDelta = Math.floor(invitadosContratados * (limiteAumento / 100));
-  const nuevaCantidad = invitadosContratados + guestDelta;
-
-  const guestWhatsappMsg = encodeURIComponent(
-    `Hola, quiero modificar la cantidad de invitados de mi evento "${config.nombreEvento}" de ${invitadosContratados} a ${nuevaCantidad}. ¿Es posible?`
-  );
-  const guestWhatsappHref = hasValidPhone
-    ? `https://wa.me/${whatsappNumber}?text=${guestWhatsappMsg}`
-    : `https://wa.me/?text=${guestWhatsappMsg}`;
+  const maxDeltaAdult = Math.floor(Math.max(1, adultosBase || invitadosContratados) * (limiteAumento / 100));
+  const maxDeltaKids = Math.floor(Math.max(1, ninosAdolescentesBase || invitadosContratados) * (limiteAumento / 100));
+  const simulationTotals = calculateMenuSimulationTotals({
+    adultosDelta: adultDelta,
+    ninosAdolescentesDelta: kidsDelta,
+    adultUnitPrice: adultUnit,
+    kidsUnitPrice: kidsUnit,
+    currentTotal: totalCosto,
+  });
 
   // Drink calculator
   const calcBebidas = settings?.calculadoraBebidas;
@@ -382,6 +386,26 @@ export default function PublicPortalView({
 
   // FAQ
   const faqItems: FaqItem[] = fiesta.faqPortal ?? [];
+  const menuChangeRequests = fiesta.clientMenuChangeRequests ?? [];
+
+  const handleSubmitMenuRequest = async () => {
+    if (!fiesta.id || (adultDelta <= 0 && kidsDelta <= 0)) return;
+    setSimRequestLoading(true);
+    try {
+      await submitClientMenuChangeRequest(fiesta.id, {
+        adultosDelta: adultDelta,
+        ninosAdolescentesDelta: kidsDelta,
+        montoAdicional: simulationTotals.aumentoTotal,
+        nuevoTotalEstimado: simulationTotals.nuevoTotal,
+        notaCliente: simRequestNote,
+      });
+      setAdultDelta(0);
+      setKidsDelta(0);
+      setSimRequestNote('');
+    } finally {
+      setSimRequestLoading(false);
+    }
+  };
 
   const visibleSections = [
     {
@@ -510,9 +534,39 @@ export default function PublicPortalView({
           </Card>
         )}
 
+        <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <CardHeader className="pb-2 bg-gradient-to-r from-slate-50 to-violet-50">
+            <CardTitle className="text-base font-bold flex items-center justify-between gap-2">
+              <span>Menú principal VIP</span>
+              <Button variant="ghost" size="sm" className="h-8 px-3 rounded-xl text-xs" onClick={() => window.history.back()}>
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                Atrás
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {[
+                { id: 'seccion-pagos', label: 'Pagos' },
+                { id: 'seccion-servicios', label: 'Servicios' },
+                { id: 'seccion-menu', label: 'Menú' },
+                { id: 'seccion-simulador', label: 'Simulador' },
+                { id: 'seccion-itinerario', label: 'Cronograma' },
+                { id: 'seccion-moodboard', label: 'Decoración' },
+                { id: 'seccion-faq', label: 'FAQ' },
+                { id: 'seccion-notas', label: 'Notas' },
+              ].map((item) => (
+                <a key={item.id} href={`#${item.id}`}>
+                  <Button variant="outline" className="w-full rounded-xl text-xs">{item.label}</Button>
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Payments & Balance */}
         {settings?.pagos?.visible && presupuesto && (
-          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <Card id="seccion-pagos" className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-primary/10">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-primary" />
@@ -656,7 +710,7 @@ export default function PublicPortalView({
 
         {/* Services / Budget Breakdown */}
         {settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 && (
-          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <Card id="seccion-servicios" className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-primary/5">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Package className="w-5 h-5 text-primary" />
@@ -855,7 +909,7 @@ export default function PublicPortalView({
 
         {/* Event Menu */}
         {settings?.menu?.visible && fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres || fiesta.menuMesa.bebidas) && (
-          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <Card id="seccion-menu" className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-amber-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Utensils className="w-5 h-5 text-orange-500" />
@@ -957,121 +1011,121 @@ export default function PublicPortalView({
 
         {/* Guest Simulator */}
         {settings?.simuladorInvitados?.visible && invitadosContratados > 0 && (
-          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-primary/5">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
-                Simulador de Invitados
+                Simulador de Menús (Sincronizado)
               </CardTitle>
-              <p className="text-xs text-muted-foreground">Simulá agregar o quitar personas (sin confirmar cambios)</p>
+              <p className="text-xs text-muted-foreground">Simulá agregados por Menú Adultos y Menú Niños/Adolescentes.</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
-              {/* Progress bar min/max */}
-              {(minDelta < 0 || maxDelta > 0) && (
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] text-muted-foreground">
-                    <span>{invitadosContratados + minDelta} mín</span>
-                    <span className="font-semibold">{invitadosContratados} contratados</span>
-                    <span>{invitadosContratados + maxDelta} máx</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-muted overflow-hidden relative">
-                    <div
-                      className="h-full rounded-full bg-primary/30 absolute"
-                      style={{ left: 0, right: 0 }}
-                    />
-                    <div
-                      className={`h-full rounded-full absolute transition-all duration-300 ${guestDelta > 0 ? 'bg-primary' : guestDelta < 0 ? 'bg-amber-500' : 'bg-primary/50'}`}
-                      style={{
-                        left: `${maxDelta !== minDelta ? ((guestDelta - minDelta) / (maxDelta - minDelta)) * 100 : 50}%`,
-                        width: '6px',
-                        transform: 'translateX(-50%)',
-                      }}
-                    />
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="rounded-xl border bg-muted/30 p-3 space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">Menú Adultos</p>
+                  <p className="text-xs text-muted-foreground">Base: {adultosBase} · Precio unitario: {formatCurrency(adultUnit)}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      onClick={() => setAdultDelta((d) => Math.max(0, d - 1))}
+                      disabled={adultDelta <= 0}
+                    >
+                      <MinusCircle className="w-4 h-4" />
+                    </Button>
+                    <p className="text-2xl font-black">+{adultDelta}</p>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      onClick={() => setAdultDelta((d) => Math.min(maxDeltaAdult, d + 1))}
+                      disabled={adultDelta >= maxDeltaAdult}
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-              )}
-
-              <div className="flex items-center justify-between gap-4">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-12 w-12 rounded-full border-2"
-                  onClick={() => setGuestDelta(d => Math.max(minDelta, d - 1))}
-                  disabled={guestDelta <= minDelta}
-                >
-                  <MinusCircle className="w-5 h-5" />
-                </Button>
-                <div className="text-center">
-                  <p className="text-4xl font-black tabular-nums">{nuevaCantidad}</p>
-                  <p className="text-xs text-muted-foreground">invitados</p>
-                  {guestDelta !== 0 && (
-                    <Badge variant={guestDelta > 0 ? 'default' : 'secondary'} className="mt-1 text-[10px]">
-                      {guestDelta > 0 ? `+${guestDelta}` : guestDelta} vs contrato ({invitadosContratados})
-                    </Badge>
-                  )}
+                <div className="rounded-xl border bg-muted/30 p-3 space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">Menú Niños/Adolescentes</p>
+                  <p className="text-xs text-muted-foreground">Base: {ninosAdolescentesBase} · Precio unitario: {formatCurrency(kidsUnit)}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      onClick={() => setKidsDelta((d) => Math.max(0, d - 1))}
+                      disabled={kidsDelta <= 0}
+                    >
+                      <MinusCircle className="w-4 h-4" />
+                    </Button>
+                    <p className="text-2xl font-black">+{kidsDelta}</p>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      onClick={() => setKidsDelta((d) => Math.min(maxDeltaKids, d + 1))}
+                      disabled={kidsDelta >= maxDeltaKids}
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-12 w-12 rounded-full border-2"
-                  onClick={() => setGuestDelta(d => Math.min(maxDelta, d + 1))}
-                  disabled={guestDelta >= maxDelta}
-                >
-                  <PlusCircle className="w-5 h-5" />
-                </Button>
               </div>
 
-              {guestDelta > 0 && precioPorPersona > 0 && (
+              {(adultDelta > 0 || kidsDelta > 0) && (
                 <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm space-y-1">
-                  <p className="font-bold text-primary">
-                    {simConfig?.textoAumento || `Agregar ${guestDelta} persona${guestDelta > 1 ? 's' : ''}`}
+                  <p className="font-bold text-primary">{simConfig?.textoAumento || 'Resumen del cambio solicitado'}</p>
+                  <p className="text-muted-foreground text-xs">
+                    Adultos (+{adultDelta}): <strong>{formatCurrency(simulationTotals.aumentoAdultos)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Precio por persona estimado: <strong>{formatCurrency(precioPorPersona)}</strong>
+                    Niños/Adolescentes (+{kidsDelta}): <strong>{formatCurrency(simulationTotals.aumentoKids)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Costo extra estimado: <strong className="text-primary">{formatCurrency(precioPorPersona * guestDelta)}</strong>
+                    Aumento total: <strong className="text-primary">{formatCurrency(simulationTotals.aumentoTotal)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Nuevo total estimado: <strong className="text-primary">{formatCurrency(nuevaCantidad * precioPorPersona)}</strong>
+                    Nuevo total estimado: <strong className="text-primary">{formatCurrency(simulationTotals.nuevoTotal)}</strong>
                   </p>
                 </div>
               )}
 
-              {guestDelta < 0 && (
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm space-y-1">
-                  <p className="font-bold text-amber-800">
-                    {simConfig?.textoReduccion || `Reducir ${Math.abs(guestDelta)} persona${Math.abs(guestDelta) > 1 ? 's' : ''}`}
-                  </p>
-                  {precioPorPersona > 0 && (
-                    <p className="text-amber-700 text-xs">
-                      Ahorro estimado: <strong>{formatCurrency(Math.abs(guestDelta) * precioPorPersona)}</strong>
-                    </p>
-                  )}
-                  {penalizacionReduccion && (
-                    <p className="text-amber-700 text-xs">
-                      ⚠️ Por contrato, hay una penalización del{' '}
-                      <strong>{limiteReduccion}% del número contratado</strong>{' '}
-                      ({Math.ceil(invitadosContratados * (limiteReduccion / 100))} personas).
-                      No se realiza devolución por ese porcentaje.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {guestDelta !== 0 && (
-                <a href={guestWhatsappHref} target="_blank" rel="noopener noreferrer">
-                  <Button className="w-full rounded-xl bg-[#25D366] hover:bg-[#1eb356] text-white">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Solicitar cambio al organizador
+              {(adultDelta > 0 || kidsDelta > 0) && (
+                <div className="space-y-2">
+                  <Textarea
+                    value={simRequestNote}
+                    onChange={(e) => setSimRequestNote(e.target.value)}
+                    placeholder="Nota opcional para el equipo AK (ej: confirmar nuevo menú infantil)."
+                    rows={3}
+                    className="rounded-xl"
+                  />
+                  <Button className="w-full rounded-xl" onClick={handleSubmitMenuRequest} disabled={simRequestLoading}>
+                    {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                    Enviar solicitud de cambio
                   </Button>
-                </a>
+                </div>
               )}
 
-              {guestDelta === 0 && (
+              {adultDelta === 0 && kidsDelta === 0 && (
                 <p className="text-center text-xs text-muted-foreground">
-                  Usá los botones + / − para simular cambios (máx. +{limiteAumento}%, mín. -{limiteReduccion}%)
+                  Ajustá valores por menú y enviá una solicitud. Estado inicial: pendiente de aprobación.
                 </p>
+              )}
+
+              {menuChangeRequests.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Solicitudes recientes</p>
+                  {menuChangeRequests.slice(-3).reverse().map((request) => (
+                    <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
+                        <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
+                      </div>
+                      <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
+                    </div>
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
@@ -1129,7 +1183,7 @@ export default function PublicPortalView({
 
         {/* Event Schedule / Itinerary */}
         {settings?.itinerario?.visible && programa.length > 0 && (
-          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <Card id="seccion-itinerario" className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-primary" />
@@ -1167,7 +1221,7 @@ export default function PublicPortalView({
 
         {/* Moodboard */}
         {settings?.moodboard?.visible && moodboardItems.length > 0 && (
-          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <Card id="seccion-moodboard" className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Star className="w-5 h-5 text-primary" />
@@ -1307,7 +1361,7 @@ export default function PublicPortalView({
 
         {/* FAQ Accordion */}
         {settings?.faq?.visible && faqItems.length > 0 && (
-          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+          <Card id="seccion-faq" className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-primary" />
@@ -1343,7 +1397,7 @@ export default function PublicPortalView({
 
         {/* Shared Notes */}
         {settings?.notasCliente?.visible && (
-          <Card className="shadow-lg border-0 rounded-3xl">
+          <Card id="seccion-notas" className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-primary" />
@@ -1534,6 +1588,12 @@ export default function PublicPortalView({
             <p className="text-center text-xs text-muted-foreground">{companyName}</p>
           </CardContent>
         </Card>
+
+        <div className="flex justify-center">
+          <a href="#">
+            <Button variant="outline" className="rounded-xl">Volver al menú principal</Button>
+          </a>
+        </div>
 
       </div>
 
