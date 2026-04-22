@@ -160,7 +160,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false);
     }
-  }, [presupuestoId, toast]);
+  }, [presupuestoId]);
 
   useEffect(() => { fetchPresupuestoAndSettings(); }, [fetchPresupuestoAndSettings]);
   useEffect(() => {

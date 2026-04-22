@@ -156,7 +156,13 @@ function DecorationPdfPageContent() {
                   <div className="w-4 h-4 rounded-full border shadow-sm" style={{backgroundColor: decoracion?.paletaColores?.accent}}></div>
                 </div>
               </section>
-              {decoracion?.moodboardImageUrl && <section className="mb-2 print:break-inside-avoid"><h2 className="font-semibold text-gray-800 text-sm mb-1">Moodboard General</h2><img src={decoracion.moodboardImageUrl} alt="Moodboard" className="max-w-full h-auto rounded-md border" data-ai-hint="event moodboard inspiration"/></section>}
+              {decoracion?.moodboardImageUrl && (
+                <section className="mb-2 print:break-inside-avoid">
+                  <h2 className="font-semibold text-gray-800 text-sm mb-1">Moodboard General</h2>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={decoracion.moodboardImageUrl} alt="Moodboard" className="max-w-full h-auto rounded-md border" data-ai-hint="event moodboard inspiration"/>
+                </section>
+              )}
               {Object.entries(itemsDecoracionAgrupados).map(([categoria, items]) => (
                 <section key={categoria} className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">{categoria}</h2><ul className="space-y-1 list-disc list-inside pl-2">{items.map(item => <li key={item.id} className="text-sm print:text-xs">{item.quantity}x {item.name} {item.notes ? `- ${item.notes}` : ''}</li>)}</ul></section>
               ))}

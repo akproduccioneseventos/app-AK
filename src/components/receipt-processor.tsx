@@ -97,6 +97,7 @@ export function ReceiptProcessor() {
           </div>
           {previewUrl && (
             <div className="mt-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={previewUrl} alt="Vista previa del recibo" className="max-w-full h-auto rounded-md border" data-ai-hint="receipt scan" />
             </div>
           )}

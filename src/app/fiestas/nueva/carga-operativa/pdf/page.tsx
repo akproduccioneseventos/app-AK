@@ -125,7 +125,7 @@ function CargaOperativaPdfContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();

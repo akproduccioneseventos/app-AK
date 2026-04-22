@@ -123,7 +123,7 @@ function MissionControlContent() {
       }
     }
     if (!silent) setIsLoading(false);
-  }, [fiestaId, toast]);
+  }, [fiestaId, cacheKey, toast]);
 
   useEffect(() => {
     loadData();
