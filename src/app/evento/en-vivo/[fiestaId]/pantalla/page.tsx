@@ -123,7 +123,7 @@ function RedesSocialesSlide({ config }: { config: SocialScreenConfig }) {
 
   const networks = [
     { id: 'instagram' as const, icon: Instagram, handle: instagramHandle, color: 'text-pink-400', label: 'Instagram', isComponent: true },
-    { id: 'tiktok' as const, icon: () => <span className="text-3xl">🎵</span>, handle: tiktokHandle, color: 'text-white', label: 'TikTok', isComponent: false },
+    { id: 'tiktok' as const, icon: () => <span className="text-3xl" role="img" aria-label="TikTok">🎵</span>, handle: tiktokHandle, color: 'text-white', label: 'TikTok', isComponent: false },
     { id: 'facebook' as const, icon: Facebook, handle: facebookHandle, color: 'text-blue-400', label: 'Facebook', isComponent: true },
     { id: 'whatsapp' as const, icon: MessageCircle, handle: whatsappNumber, color: 'text-green-400', label: 'WhatsApp', isComponent: true },
   ].filter(n => visibleNetworks.includes(n.id) && n.handle);
@@ -217,16 +217,15 @@ export default function PantallaPage() {
             duration: item.durationSeconds,
             config: item.type === 'redes-sociales' ? fiestaData.socialScreenConfig : undefined,
           })));
+          return; // skip rebuilding legacy slides when playlist is active
         }
-      } else {
-        setPlaylistMode(false);
       }
+      setPlaylistMode(false);
     }
+    // Only build legacy slides when not in playlist mode
+    setSlides(buildSlides(eventoData));
     setData(eventoData);
-    if (!playlistMode) {
-      setSlides(buildSlides(eventoData));
-    }
-  }, [fiestaId, playlistMode]);
+  }, [fiestaId]);
 
   useEffect(() => {
     fetchData();

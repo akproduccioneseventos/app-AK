@@ -527,7 +527,7 @@ export default function PublicPortalView({
             <div className="flex-1 text-center">
               <span className="text-white font-bold text-sm">{sectionTitles[activeSection] ?? activeSection}</span>
             </div>
-            <div className="w-14" />
+            <div className="w-14" aria-hidden="true" />
           </div>
         </div>
       )}

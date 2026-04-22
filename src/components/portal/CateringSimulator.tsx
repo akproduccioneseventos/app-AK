@@ -41,6 +41,8 @@ const formatDate = (dateString: string) => {
   }
 };
 
+const KIDS_PRICE_RATIO = 0.7; // Children menu typically costs 70% of adult price
+
 export function CateringSimulator({ fiestaId, presupuesto, fiesta }: CateringSimulatorProps) {
   const { toast } = useToast();
   
@@ -49,7 +51,7 @@ export function CateringSimulator({ fiestaId, presupuesto, fiesta }: CateringSim
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const currentAdultos = fiesta.configuracion?.invitadosEstimados || 0;
-  const currentNinos = 0; // Could be extracted from menuSeleccionPortal if available
+  const currentNinos = 0; // No dedicated children count field available; starts at 0
   
   const totalCosto = presupuesto
     ? (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado)
@@ -59,7 +61,7 @@ export function CateringSimulator({ fiestaId, presupuesto, fiesta }: CateringSim
   const pricePerPerson = totalGuests > 0 ? totalCosto / totalGuests : 0;
   
   const pricePerAdult = pricePerPerson;
-  const pricePerNino = pricePerPerson * 0.7; // Assume kids cost 70%
+  const pricePerNino = pricePerPerson * KIDS_PRICE_RATIO;
   
   const estimatedDelta = (deltaAdultos * pricePerAdult) + (deltaNinos * pricePerNino);
   const newTotal = totalCosto + estimatedDelta;
