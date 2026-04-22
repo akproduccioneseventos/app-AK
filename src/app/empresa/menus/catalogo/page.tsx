@@ -282,6 +282,7 @@ export default function CatalogoPlatosPage() {
             <div className="space-y-4 py-2">
                 {sanitizeImageUrl(editingDish?.imageUrl) && (
                   <div className="w-full h-40 rounded-lg border overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={sanitizeImageUrl(editingDish?.imageUrl)!} alt={editingDish?.name} className="w-full h-full object-cover" />
                   </div>
                 )}
@@ -342,6 +343,7 @@ export default function CatalogoPlatosPage() {
                                       <div className="flex items-center gap-2 min-w-0">
                                         <div className="w-10 h-10 rounded-md border bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center">
                                           {sanitizeImageUrl(plato.imageUrl) ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
                                             <img src={sanitizeImageUrl(plato.imageUrl)!} alt={plato.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
                                           ) : (
                                             <span className="text-lg">{DISH_TYPE_EMOJI[plato.type || ''] || '🍴'}</span>

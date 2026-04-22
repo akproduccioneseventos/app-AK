@@ -28,6 +28,7 @@ export function WatermarkedImage({
     }
     return (
       <div className="hidden print:block fixed inset-0 flex items-center justify-center -z-10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={watermarkSrc}
           alt="Marca de agua"

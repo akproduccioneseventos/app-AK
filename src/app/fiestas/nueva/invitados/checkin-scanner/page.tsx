@@ -156,7 +156,7 @@ function CheckinScannerContent() {
     };
 
     getCameraPermission();
-  }, [onScanSuccess]);
+  }, [onScanSuccess, toast]);
 
   const stopScanner = () => {
     if (scannerRef.current && scannerRef.current.getState() !== 1) { // 1 = NOT_STARTED

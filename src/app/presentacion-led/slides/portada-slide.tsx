@@ -51,6 +51,7 @@ export function PortadaSlide({
             className="mb-6"
           >
             {safeLogoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={safeLogoUrl} alt="Logo" className="h-20 w-auto object-contain drop-shadow-2xl" />
             ) : (
               <div className="flex items-center gap-3">

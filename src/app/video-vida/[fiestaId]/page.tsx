@@ -132,7 +132,7 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
     } finally {
       setIsLoading(false);
     }
-  }, [params.fiestaId, toast]);
+  }, [params.fiestaId]);
 
   useEffect(() => {
     loadData();

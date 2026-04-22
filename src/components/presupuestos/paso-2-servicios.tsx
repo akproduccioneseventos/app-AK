@@ -130,7 +130,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     if (wasModified) {
       setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
     }
-  }, [formData.serviciosSeleccionados, config, serviciosCatalogo, setFormData, toast]);
+  }, [formData.serviciosSeleccionados, formData.invitadosAdultos, formData.invitadosNinos, formData.invitadosAdolescentes, config, serviciosCatalogo, setFormData, toast]);
 
 
   const handleServicioToggle = (servicio: ServicioEmpresa) => {

@@ -571,6 +571,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                       </div>
                       <div className="flex items-center justify-center sm:justify-start h-20 w-20 rounded-lg border bg-muted/40 overflow-hidden shrink-0">
                         {sanitizeImageUrl(item.imageUrl) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
                           <img src={sanitizeImageUrl(item.imageUrl)} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
                         ) : (
                           <span className="text-3xl">{DISH_TYPE_EMOJI[item.type || ''] || '🍴'}</span>

@@ -958,6 +958,7 @@ export function AKAssistantWidget() {
                       {msg.imageDataUri && (
                         <div className="mb-1.5">
                           {msg.imageDataUri.startsWith('data:image/') ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img src={msg.imageDataUri} alt={msg.imageFileName || 'Archivo adjunto'} className="h-20 w-20 rounded-xl object-cover border border-slate-200" />
                           ) : (
                             <div className="h-16 w-20 rounded-xl bg-slate-200 flex flex-col items-center justify-center border border-slate-300">
@@ -1016,6 +1017,7 @@ export function AKAssistantWidget() {
                 {attachedFile && (
                   <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-indigo-50 border border-indigo-100">
                     {attachedFile.preview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={attachedFile.preview} alt={attachedFile.name} className="h-8 w-8 rounded object-cover border border-indigo-200" />
                     ) : (
                       <FileText className="h-4 w-4 text-indigo-500 shrink-0" />

@@ -668,17 +668,49 @@ export async function getPresupuestosWithPendingPayments(): Promise<Presupuesto[
 export async function resetAllPresupuestos(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
     const all = await getPresupuestos(true);
+    const deletedIds = new Set(all.map(p => p.id));
     const deletedCount = all.length;
 
-    const { dbAdmin } = await import('@/lib/firebase/server');
-    if (dbAdmin) {
-      const snapshot = await dbAdmin.collection('presupuestos').get();
-      const batchSize = 450;
-      const docs = snapshot.docs;
-      for (let i = 0; i < docs.length; i += batchSize) {
-        const batch = dbAdmin.batch();
-        docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
-        await batch.commit();
+    // Canonical wipe through data-service sync (handles Firestore cleanup by deleting orphan docs).
+    await writeData(PRESUPUESTOS_FILE, []);
+
+    // Keep local JSON fallbacks in sync so the UI doesn't resurrect deleted presupuestos.
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const localCandidates = [
+        path.join(process.cwd(), 'data', PRESUPUESTOS_FILE),
+        path.join(process.cwd(), 'src', 'data', PRESUPUESTOS_FILE),
+      ];
+      for (const localPath of localCandidates) {
+        try {
+          await fs.writeFile(localPath, JSON.stringify([], null, 2), 'utf-8');
+        } catch {
+          // ignore missing local fallback file
+        }
+      }
+    } catch {
+      // ignore local fallback write errors in restricted environments
+    }
+
+    // Clean stale CRM references to deleted presupuestos.
+    if (deletedIds.size > 0) {
+      type CrmLeadRaw = { presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
+      const leads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
+      const cleanedLeads = leads.map((lead) => {
+        if (lead.presupuestoId && deletedIds.has(lead.presupuestoId)) {
+          const { presupuestoId: _pid, presupuestoEstado: _pestado, ...rest } = lead;
+          return rest;
+        }
+        return lead;
+      });
+      await writeData('crm-leads.json', cleanedLeads);
+
+      // Unlink fiestas that referenced deleted presupuestos to keep planner synchronization healthy.
+      const allFiestas = await getAllFiestas();
+      const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && deletedIds.has(fiesta.presupuestoId));
+      for (const fiesta of fiestasToUnlink) {
+        await saveFiesta({ ...fiesta, presupuestoId: undefined });
       }
     }
 
