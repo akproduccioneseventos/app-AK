@@ -1,7 +1,4 @@
-
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
 import JSZip from 'jszip';
 import { getPhotoFilePathsForZip } from '@/app/actions/social-gallery';
 
@@ -25,7 +22,15 @@ export async function GET(
     const zip = new JSZip();
     
     for (const photo of photoPaths) {
-      const fileContent = await fs.readFile(photo.path);
+      let fileContent: Buffer;
+      if (photo.path.startsWith('https://') || photo.path.startsWith('http://')) {
+        const res = await fetch(photo.path);
+        if (!res.ok) continue;
+        fileContent = Buffer.from(await res.arrayBuffer());
+      } else {
+        const fs = await import('fs/promises');
+        fileContent = await fs.readFile(photo.path);
+      }
       zip.file(photo.name, fileContent);
     }
     

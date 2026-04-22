@@ -1,22 +1,21 @@
 
 'use server';
 
-import fs from 'fs/promises';
 import path from 'path';
-import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
+import type { VideoVidaData } from '@/types/fiesta';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
+import admin from 'firebase-admin';
 
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-const VIDEO_VIDA_DIR = path.join(DATA_DIR, 'video-vida-photos');
+const STORAGE_BUCKET =
+  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+  'presupuestador-ak-producciones.firebasestorage.app';
 
-async function ensureDirectoryExists(dirPath: string) {
-  try {
-    await fs.access(dirPath);
-  } catch {
-    await fs.mkdir(dirPath, { recursive: true });
-  }
-}
+const VIDEO_VIDA_STORAGE_PREFIX = 'video-vida-photos';
+
+/** Default signed URL validity: 7 days */
+const SIGNED_URL_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 
 export async function updateVideoVidaSettings(
     videoVidaData: VideoVidaData
@@ -53,28 +52,25 @@ export async function saveLifeStoryVideoPhoto(
   }
 
   try {
-    await ensureDirectoryExists(VIDEO_VIDA_DIR);
-    const eventAssetDir = path.join(VIDEO_VIDA_DIR, fiestaId);
-    await fs.mkdir(eventAssetDir, { recursive: true });
-
     const fileExtension = path.extname(file.name);
     const formattedNumber = String(photoNumber).padStart(2, '0');
     const newFilename = `${formattedNumber}${fileExtension}`;
-    const filePath = path.join(eventAssetDir, newFilename);
+    const storagePath = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/${newFilename}`;
 
     const bytes = await file.arrayBuffer();
-    await fs.writeFile(filePath, Buffer.from(bytes));
+    const publicUrl = await uploadToStorage(
+      Buffer.from(bytes),
+      storagePath,
+      file.type || 'image/jpeg',
+      true
+    );
 
-    const publicUrl = `/api/video-vida-photos/${fiestaId}/${newFilename}`;
-    
-    // Also update fiesta to mark that photos have been uploaded
+    // Mark photos as uploaded in fiesta data
     const fiesta = await getFiestaActual();
-    if(fiesta && fiesta.videoVida) {
-        if (!fiesta.videoVida.photosUploaded) {
-            await updateVideoVidaSettings({...fiesta.videoVida, photosUploaded: true});
-        }
+    if (fiesta && fiesta.videoVida && !fiesta.videoVida.photosUploaded) {
+      await updateVideoVidaSettings({ ...fiesta.videoVida, photosUploaded: true });
     }
-    
+
     return { success: true, url: publicUrl };
   } catch (error: any) {
     console.error('Error uploading life story photo:', error);
@@ -83,24 +79,47 @@ export async function saveLifeStoryVideoPhoto(
 }
 
 export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[]> {
-    const eventAssetDir = path.join(VIDEO_VIDA_DIR, fiestaId);
-    try {
-        await fs.access(eventAssetDir);
-        const filenames = await fs.readdir(eventAssetDir);
-        return filenames
-            .sort((a,b) => a.localeCompare(b, undefined, { numeric: true }))
-            .map(name => `/api/video-vida-photos/${fiestaId}/${name}`);
-    } catch {
-        return []; // Directory doesn't exist, so no photos
-    }
+  try {
+    if (!admin.apps.length) return [];
+    const bucket = admin.storage().bucket(STORAGE_BUCKET);
+    const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;
+    const [files] = await bucket.getFiles({ prefix });
+    if (!files.length) return [];
+
+    const expiry = new Date(Date.now() + SIGNED_URL_EXPIRY_MS);
+    const urlPromises = files.map(async (file) => {
+      // If the file is public, return public URL; otherwise signed
+      try {
+        const [metadata] = await file.getMetadata();
+        if (metadata?.acl?.some?.((a: any) => a.entity === 'allUsers')) {
+          return `https://storage.googleapis.com/${STORAGE_BUCKET}/${file.name}`;
+        }
+      } catch { /* ignore */ }
+      const [signedUrl] = await file.getSignedUrl({ action: 'read', expires: expiry });
+      return signedUrl;
+    });
+
+    const urls = await Promise.all(urlPromises);
+    // Sort by filename (preserves numeric order like 01.jpg, 02.jpg …)
+    return urls.sort((a, b) => {
+      const nameA = a.split('/').pop()?.split('?')[0] ?? '';
+      const nameB = b.split('/').pop()?.split('?')[0] ?? '';
+      return nameA.localeCompare(nameB, undefined, { numeric: true });
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-    const eventAssetDir = path.join(VIDEO_VIDA_DIR, fiestaId);
-    try {
-        await fs.rm(eventAssetDir, { recursive: true, force: true });
-        return { success: true };
-    } catch (error: any) {
-        return { success: false, error: error.message };
-    }
+  try {
+    if (!admin.apps.length) return { success: true };
+    const bucket = admin.storage().bucket(STORAGE_BUCKET);
+    const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;
+    const [files] = await bucket.getFiles({ prefix });
+    await Promise.all(files.map(file => file.delete().catch(() => { /* ignore */ })));
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 }
