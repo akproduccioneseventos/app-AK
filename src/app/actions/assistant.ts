@@ -26,11 +26,20 @@ const AGENDA_LEAD_NAME_REGEX =
 // Matches phrases like "prospecto de Norma" / "cliente Norma" and extracts the name.
 const NAMED_LEAD_REGEX =
   /(?:prospecto|lead|consulta|cliente)\s+(?:de|para)?\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2})/i;
+const QUICK_MEETING_REGEX = /\b(cita|reuni[oó]n|agend|agenda|agendar)\b/i;
 
 interface ParsedLeadLocal {
   name?: string;
   followUpDate?: string;
   notes?: string;
+}
+
+function toTitleCase(value: string): string {
+  return value
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
 // ── Parser local determinista de presupuestos en texto libre ─────────────────
@@ -240,6 +249,21 @@ function parseLeadFromMessage(text: string): ParsedLeadLocal {
     const namedLeadMatch = cleaned.match(NAMED_LEAD_REGEX);
     if (namedLeadMatch?.[1]) {
       name = namedLeadMatch[1].trim();
+    }
+  }
+
+  if (!name) {
+    const normalized = cleaned.replace(/[^\p{L}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+    const maybeNameWords = normalized.split(' ').filter(Boolean);
+    const looksLikeNameCase = /^[A-ZÁÉÍÓÚÑ]/.test(cleaned) || cleaned === cleaned.toUpperCase();
+    if (
+      maybeNameWords.length >= 1 &&
+      maybeNameWords.length <= 3 &&
+      looksLikeNameCase &&
+      !QUICK_MEETING_REGEX.test(normalized) &&
+      maybeNameWords.every(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]{2,}$/.test(w))
+    ) {
+      name = toTitleCase(maybeNameWords.join(' '));
     }
   }
 
@@ -939,6 +963,40 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       }
     } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;
+      const shouldTreatAsMeeting = QUICK_MEETING_REGEX.test(message) && !d.eventoTipo;
+      if (shouldTreatAsMeeting) {
+        const fallbackLead = parseLeadFromMessage(message);
+        if (fallbackLead.name) {
+          try {
+            const leadResult = await addCrmLead({
+              name: fallbackLead.name,
+              phone: d.clientePhone,
+              followUpDate: fallbackLead.followUpDate || d.eventoFecha,
+              notes: fallbackLead.notes,
+              budgetSource: 'manual',
+            });
+            actionResult = leadResult;
+            if (leadResult.success && leadResult.lead) {
+              finalResponse = `✅ Reunión/cita registrada para **${fallbackLead.name}** en el CRM. Podés verla en [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+            } else if (leadResult.duplicate) {
+              finalResponse = `⚠️ Ya existe un prospecto con ese teléfono: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            } else {
+              finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+            }
+          } catch (e: any) {
+            logger.error('[Asistente AK] Error al reconducir create_event(data) a create_lead:', e.message);
+            actionResult = { success: false, error: e.message };
+            finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+          }
+          return {
+            success: true,
+            response: finalResponse,
+            action: result.action
+              ? { type: result.action.type, data: result.action.data, result: actionResult }
+              : undefined,
+          };
+        }
+      }
       try {
         let clienteId: string;
         const existing = customers.find(c =>
@@ -978,8 +1036,32 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         finalResponse = `❌ No se pudo crear el evento. Intentá de nuevo o crealo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'create_event') {
-      actionResult = { success: false, error: 'Falta información del evento.' };
-      finalResponse = `⚠️ Falta información del evento. Proporcioná el cliente y tipo de evento, o crealo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
+      const fallbackLead = parseLeadFromMessage(message);
+      if (fallbackLead.name) {
+        try {
+          const leadResult = await addCrmLead({
+            name: fallbackLead.name,
+            followUpDate: fallbackLead.followUpDate,
+            notes: fallbackLead.notes,
+            budgetSource: 'manual',
+          });
+          actionResult = leadResult;
+          if (leadResult.success && leadResult.lead) {
+            finalResponse = `✅ Reunión/cita registrada para **${fallbackLead.name}** en el CRM. Podés verla en [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+          } else if (leadResult.duplicate) {
+            finalResponse = `⚠️ Ya existe un prospecto con ese teléfono: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+          } else {
+            finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+          }
+        } catch (e: any) {
+          logger.error('[Asistente AK] Error al reconducir create_event a create_lead:', e.message);
+          actionResult = { success: false, error: e.message };
+          finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+        }
+      } else {
+        actionResult = { success: false, error: 'Falta información del evento.' };
+        finalResponse = `⚠️ Falta información del evento. Si querés agendar una cita rápida indicá al menos el nombre (ej: “Norma a las 11”) y lo registro en CRM automáticamente.`;
+      }
     } else if (result.action?.type === 'update_event' && result.action.data) {
       const d = result.action.data;
       try {

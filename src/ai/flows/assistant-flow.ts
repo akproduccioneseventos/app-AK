@@ -141,6 +141,7 @@ Si el usuario dice "creá un evento" o "agendate un evento de X":
 - action.type = "create_event"
 - action.data: { clienteNombre, clientePhone, eventoTipo, eventoFecha, invitados, venueName }
 - Si el cliente no existe, se creará automáticamente
+- IMPORTANTE: si el pedido es una **cita/reunión de CRM** (ej: "agendá a Norma a las 11"), NO uses create_event. Usá create_lead con datos mínimos.
 
 ### 🔄 ACTUALIZAR EVENTOS
 Si el usuario quiere modificar un evento existente (cambiar fecha, lugar, etc.):

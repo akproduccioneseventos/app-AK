@@ -288,12 +288,14 @@ function MuroSocialContent() {
             </div>
             <div className="flex gap-8 pt-2">
               <div className="space-y-2 text-center">
-                <p className="text-xs font-bold uppercase">QR Muro</p>
+                <p className="text-xs font-bold uppercase">QR Único (Subir + Participar)</p>
                 <QRCodeSVG value={socialWallLink || 'https://akproducciones.uy'} size={96} />
               </div>
-              <div className="space-y-2 text-center">
-                <p className="text-xs font-bold uppercase">QR Pantalla</p>
-                <QRCodeSVG value={projectionLink || 'https://akproducciones.uy'} size={96} />
+              <div className="space-y-2 text-left max-w-xs">
+                <p className="text-xs font-bold uppercase">Pantalla gigante</p>
+                <p className="text-xs text-muted-foreground">
+                  La pantalla se abre desde el panel del organizador. El QR para invitados siempre debe apuntar al muro de participación.
+                </p>
               </div>
             </div>
           </CardContent>
@@ -324,7 +326,7 @@ function MuroSocialContent() {
               </div>
             ))}
             <div className="sm:col-span-2 flex gap-2 pt-1">
-              <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro</Button></Link>
+              <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Button></Link>
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank"><Button variant="outline">Abrir Pantalla</Button></Link>
             </div>
           </CardContent>

@@ -434,7 +434,7 @@ export function AKAssistantWidget() {
   const router = useRouter();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('resumen');
+  const [activeTab, setActiveTab] = useState('chat');
 
   const [alerts, setAlerts] = useState<GlobalAlert[]>([]);
   const [loading, setLoading] = useState(false);
@@ -1139,7 +1139,13 @@ export function AKAssistantWidget() {
       )}
 
       <Button
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={() => {
+          setIsOpen(prev => {
+            const next = !prev;
+            if (next) setActiveTab('chat');
+            return next;
+          });
+        }}
         className={cn('h-14 w-14 rounded-full shadow-lg bg-gradient-to-br from-indigo-600 to-emerald-600 hover:from-indigo-700 hover:to-emerald-700 text-white border-0 relative flex flex-col items-center justify-center gap-0', !isOpen && highCount > 0 && 'animate-pulse')}
         aria-label="Abrir Asistente AK"
         size="icon"

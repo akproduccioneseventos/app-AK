@@ -19,7 +19,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  ChevronLeft,
   Loader2,
   Save,
   CreditCard,
@@ -47,12 +46,6 @@ import {
   Send,
   Sparkles,
   Building2,
-  ArrowLeft,
-  Home,
-  Palette,
-  ClipboardList,
-  DollarSign,
-  Image,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,11 +55,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientMenuChangeRequest } from '@/app/actions/fiesta/portal.actions';
+import { updateClientChecklist, updateClientNotes, submitClientPayment } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
-import { calculateMenuSimulationTotals, resolveMenuUnitPrices } from '@/lib/portal-menu-simulator';
-import { CateringSimulator } from '@/components/portal/CateringSimulator';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -201,7 +192,6 @@ export default function PublicPortalView({
   companyName,
   presupuesto,
 }: PublicPortalViewProps) {
-  const topMenuId = 'menu-principal-vip';
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const countdown = useCountdown(config.fechaEvento);
 
@@ -223,14 +213,8 @@ export default function PublicPortalView({
   const [pagoSuccess, setPagoSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Active section navigation (null = home screen)
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-
   // Guest simulator state
-  const [adultDelta, setAdultDelta] = useState(0);
-  const [kidsDelta, setKidsDelta] = useState(0);
-  const [simRequestNote, setSimRequestNote] = useState('');
-  const [simRequestLoading, setSimRequestLoading] = useState(false);
+  const [guestDelta, setGuestDelta] = useState(0);
 
   // Moodboard liked state
   const [likedItems, setLikedItems] = useState<Set<string>>(
@@ -362,21 +346,22 @@ export default function PublicPortalView({
 
   // Guest simulator
   const invitadosContratados = config.invitadosEstimados || 0;
-  const adultosBase = presupuesto?.invitadosAdultos ?? Math.max(0, invitadosContratados - ((presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0)));
-  const ninosAdolescentesBase = (presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0);
-  const { adultUnit, kidsUnit } = resolveMenuUnitPrices(presupuesto);
+  const precioPorPersona = invitadosContratados > 0 ? totalCosto / invitadosContratados : 0;
   const simConfig = settings?.simuladorInvitadosConfig;
   // Support both new (simuladorInvitados.minReductionPercent) and legacy (simuladorInvitadosConfig) approaches
+  const limiteReduccion = settings?.simuladorInvitados?.minReductionPercent ?? simConfig?.limiteReduccionPorcentaje ?? 10;
   const limiteAumento = settings?.simuladorInvitados?.maxIncreasePercent ?? simConfig?.limiteAumentoPorcentaje ?? 30;
-  const maxDeltaAdult = Math.floor(Math.max(1, adultosBase || invitadosContratados) * (limiteAumento / 100));
-  const maxDeltaKids = Math.floor(Math.max(1, ninosAdolescentesBase || invitadosContratados) * (limiteAumento / 100));
-  const simulationTotals = calculateMenuSimulationTotals({
-    adultosDelta: adultDelta,
-    ninosAdolescentesDelta: kidsDelta,
-    adultUnitPrice: adultUnit,
-    kidsUnitPrice: kidsUnit,
-    currentTotal: totalCosto,
-  });
+  const penalizacionReduccion = simConfig?.penalizacionReduccion ?? true;
+  const minDelta = -Math.floor(invitadosContratados * (limiteReduccion / 100));
+  const maxDelta = Math.floor(invitadosContratados * (limiteAumento / 100));
+  const nuevaCantidad = invitadosContratados + guestDelta;
+
+  const guestWhatsappMsg = encodeURIComponent(
+    `Hola, quiero modificar la cantidad de invitados de mi evento "${config.nombreEvento}" de ${invitadosContratados} a ${nuevaCantidad}. ¿Es posible?`
+  );
+  const guestWhatsappHref = hasValidPhone
+    ? `https://wa.me/${whatsappNumber}?text=${guestWhatsappMsg}`
+    : `https://wa.me/?text=${guestWhatsappMsg}`;
 
   // Drink calculator
   const calcBebidas = settings?.calculadoraBebidas;
@@ -397,26 +382,6 @@ export default function PublicPortalView({
 
   // FAQ
   const faqItems: FaqItem[] = fiesta.faqPortal ?? [];
-  const menuChangeRequests = fiesta.clientMenuChangeRequests ?? [];
-
-  const handleSubmitMenuRequest = async () => {
-    if (!fiesta.id || (adultDelta <= 0 && kidsDelta <= 0)) return;
-    setSimRequestLoading(true);
-    try {
-      await submitClientMenuChangeRequest(fiesta.id, {
-        adultosDelta: adultDelta,
-        ninosAdolescentesDelta: kidsDelta,
-        montoAdicional: simulationTotals.aumentoTotal,
-        nuevoTotalEstimado: simulationTotals.nuevoTotal,
-        notaCliente: simRequestNote,
-      });
-      setAdultDelta(0);
-      setKidsDelta(0);
-      setSimRequestNote('');
-    } finally {
-      setSimRequestLoading(false);
-    }
-  };
 
   const visibleSections = [
     {
@@ -439,49 +404,9 @@ export default function PublicPortalView({
   const sectionsWithContent = new Set(['fotografiaYFilmacion', 'listaRegalos']);
   const remainingVisibleSections = visibleSections.filter(s => !sectionsWithContent.has(s.id));
 
-  // Home screen section cards
-  const homeSections = [
-    { id: 'overview', label: 'Resumen', emoji: '🏠', color: 'from-violet-500 to-purple-600', desc: 'Cuenta regresiva y alertas', icon: Home },
-    { id: 'pagos', label: 'Pagos y Saldo', emoji: '💰', color: 'from-emerald-500 to-teal-600', desc: 'Estado de cuenta e informar pago', icon: DollarSign, visible: settings?.pagos?.visible && !!presupuesto },
-    { id: 'presupuesto', label: 'Presupuesto', emoji: '📊', color: 'from-blue-500 to-cyan-600', desc: 'Desglose de servicios contratados', icon: FileText, visible: settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 },
-    { id: 'checklist', label: 'Checklist', emoji: '✅', color: 'from-amber-500 to-orange-500', desc: 'Tareas pendientes de tu evento', icon: ClipboardList, visible: settings?.checklist?.visible && checklist.length > 0 },
-    { id: 'menu', label: 'Menú y Comidas', emoji: '🍽️', color: 'from-rose-500 to-pink-600', desc: 'Menú, bebidas y dress code', icon: Utensils, visible: settings?.menu?.visible },
-    { id: 'musica', label: 'Música', emoji: '🎵', color: 'from-fuchsia-500 to-purple-600', desc: 'Canciones y preferencias musicales', icon: Music, visible: settings?.musica?.visible && !!musica },
-    { id: 'fotografia', label: 'Fotos y Video', emoji: '📸', color: 'from-sky-500 to-blue-600', desc: 'Servicios fotográficos y regalos', icon: Camera, visible: settings?.fotografiaYFilmacion?.visible },
-    { id: 'moodboard', label: 'Moodboard', emoji: '🎨', color: 'from-pink-500 to-rose-600', desc: 'Inspiración y estética del evento', icon: Palette, visible: settings?.moodboard?.visible && moodboardItems.length > 0 },
-    { id: 'documentos', label: 'Documentos', emoji: '📄', color: 'from-slate-500 to-gray-600', desc: 'Contrato y documentación', icon: FileSignature, visible: settings?.contrato?.visible || settings?.documentos?.visible },
-    { id: 'ubicacion', label: 'Ubicación', emoji: '📍', color: 'from-green-500 to-emerald-600', desc: 'Dirección y cómo llegar', icon: MapPin, visible: settings?.ubicacion?.visible && !!celebracion },
-    { id: 'itinerario', label: 'Itinerario', emoji: '📅', color: 'from-indigo-500 to-violet-600', desc: 'Programa del evento', icon: Calendar, visible: settings?.itinerario?.visible && programa.length > 0 },
-    { id: 'simulador-catering', label: 'Simulador Catering', emoji: '🍴', color: 'from-orange-500 to-amber-600', desc: 'Solicitar cambios de menú', icon: Utensils, visible: !!presupuesto && invitadosContratados > 0 },
-    { id: 'simulador-invitados', label: 'Simulador Invitados', emoji: '👥', color: 'from-purple-500 to-indigo-600', desc: 'Simular cambios en la cantidad', icon: Users, visible: settings?.simuladorInvitados?.visible && invitadosContratados > 0 },
-    { id: 'faq', label: 'Preguntas Frecuentes', emoji: '❓', color: 'from-teal-500 to-cyan-600', desc: 'Dudas y consultas comunes', icon: HelpCircle, visible: settings?.faq?.visible && faqItems.length > 0 },
-    { id: 'notas', label: 'Notas Compartidas', emoji: '📝', color: 'from-yellow-500 to-amber-500', desc: 'Anotaciones y comentarios', icon: MessageSquare, visible: settings?.notasCliente?.visible },
-    { id: 'regalos', label: 'Lista de Regalos', emoji: '🎁', color: 'from-red-500 to-rose-600', desc: 'Lista de deseos y regalos', icon: Gift, visible: settings?.listaRegalos?.visible },
-  ].filter(s => s.visible !== false);
-
-  const sectionTitles: Record<string, string> = {
-    overview: 'Resumen del Evento',
-    pagos: 'Pagos y Saldo',
-    presupuesto: 'Presupuesto',
-    checklist: 'Checklist',
-    menu: 'Menú y Comidas',
-    musica: 'Música',
-    fotografia: 'Fotos y Video',
-    moodboard: 'Moodboard',
-    documentos: 'Documentos',
-    ubicacion: 'Ubicación',
-    itinerario: 'Itinerario',
-    'simulador-catering': 'Simulador de Catering',
-    'simulador-invitados': 'Simulador de Invitados',
-    faq: 'Preguntas Frecuentes',
-    notas: 'Notas Compartidas',
-    regalos: 'Lista de Regalos',
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-      {/* HOME Hero - VIP Styling (only shown on home screen) */}
-      {activeSection === null && (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5">
+      {/* Hero Header - VIP Styling */}
       <div className="relative bg-gradient-to-br from-violet-900 via-primary to-violet-700 text-primary-foreground px-4 pb-10 pt-12 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <Star className="absolute top-6 right-8 w-20 h-20 text-yellow-300 rotate-12" />
@@ -536,112 +461,11 @@ export default function PublicPortalView({
           )}
         </div>
       </div>
-      )}
 
-      {/* SECTION Header (back button, shown when a section is active) */}
-      {activeSection !== null && (
-        <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10 px-4 py-3">
-          <div className="max-w-lg mx-auto flex items-center gap-3">
-            <button
-              onClick={() => setActiveSection(null)}
-              className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-semibold"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Inicio
-            </button>
-            <div className="flex-1 text-center">
-              <span className="text-white font-bold text-sm">{sectionTitles[activeSection] ?? activeSection}</span>
-            </div>
-            <div className="w-14" aria-hidden="true" />
-          </div>
-        </div>
-      )}
-
-      {/* HOME GRID - shown when no section is active */}
-      {activeSection === null && (
-        <div className="max-w-lg mx-auto px-4 py-6 space-y-6 pb-24">
-          {/* Alert banners on home */}
-          {alertas.length > 0 && (
-            <div className="space-y-2">
-              {alertas.map((alerta, idx) => (
-                <div
-                  key={idx}
-                  className={`rounded-2xl px-4 py-3 text-sm font-medium ${
-                    alerta.type === 'amber'
-                      ? 'bg-amber-500/20 border border-amber-400/40 text-amber-200'
-                      : alerta.type === 'emerald'
-                      ? 'bg-emerald-500/20 border border-emerald-400/40 text-emerald-200'
-                      : 'bg-blue-500/20 border border-blue-400/40 text-blue-200'
-                  }`}
-                >
-                  {alerta.message}
-                </div>
-              ))}
-            </div>
-          )}
-          {/* Countdown on home */}
-          {config.fechaEvento && countdown && !countdown.isPast && (
-            <div className="bg-gradient-to-br from-violet-600/80 to-purple-800/80 backdrop-blur rounded-3xl p-5 text-white text-center border border-white/10">
-              <p className="text-xs uppercase tracking-widest font-bold opacity-70 mb-3">🎉 ¡Faltan para tu evento!</p>
-              <div className="grid grid-cols-4 gap-2">
-                <CountdownUnit value={countdown.days} label="Días" />
-                <CountdownUnit value={countdown.hours} label="Horas" />
-                <CountdownUnit value={countdown.minutes} label="Min" />
-                <CountdownUnit value={countdown.seconds} label="Seg" />
-              </div>
-            </div>
-          )}
-          {countdown?.isPast && (
-            <div className="bg-gradient-to-br from-violet-600/80 to-purple-800/80 backdrop-blur rounded-3xl p-6 text-white text-center border border-white/10">
-              <p className="text-2xl font-black">🎉 ¡Tu evento ya fue!</p>
-              <p className="text-sm opacity-70 mt-1">¡Esperamos que haya sido increíble!</p>
-            </div>
-          )}
-          {/* Section cards grid */}
-          <div>
-            <p className="text-white/50 text-xs uppercase tracking-widest font-bold mb-3 px-1">Secciones</p>
-            <div className="grid grid-cols-2 gap-3">
-              {homeSections.map((section) => {
-                const SectionIcon = section.icon;
-                return (
-                  <button
-                    key={section.id}
-                    onClick={() => setActiveSection(section.id)}
-                    className={`relative overflow-hidden rounded-2xl p-4 text-left bg-gradient-to-br ${section.color} shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform`}
-                  >
-                    <div className="flex flex-col gap-2">
-                      <span className="text-2xl leading-none">{section.emoji}</span>
-                      <div>
-                        <p className="text-white font-bold text-sm leading-tight">{section.label}</p>
-                        <p className="text-white/70 text-xs mt-0.5 leading-tight line-clamp-2">{section.desc}</p>
-                      </div>
-                    </div>
-                    <ChevronRight className="absolute right-2 bottom-2 w-4 h-4 text-white/40" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          {/* Contact card on home */}
-          <div className="bg-white/5 backdrop-blur rounded-3xl p-5 border border-white/10 text-center space-y-3">
-            <p className="text-white/70 text-sm">¿Tenés alguna consulta?</p>
-            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-              <Button className="w-full h-11 rounded-2xl font-bold bg-[#25D366] hover:bg-[#1eb356] text-white">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Contactar por WhatsApp
-              </Button>
-            </a>
-            <p className="text-white/40 text-xs">{companyName}</p>
-          </div>
-        </div>
-      )}
-
-      {/* SECTION CONTENT - shown when a section is active */}
-      {activeSection !== null && (
-      <div className="max-w-lg mx-auto px-4 -mt-0 space-y-5 pb-28 pt-4">
+      <div className="max-w-lg mx-auto px-4 -mt-4 space-y-5 pb-28">
 
         {/* Smart Alert Banners */}
-        {activeSection === 'overview' && alertas.length > 0 && (
+        {alertas.length > 0 && (
           <div className="space-y-2 pt-1">
             {alertas.map((alerta, idx) => (
               <div
@@ -661,7 +485,7 @@ export default function PublicPortalView({
         )}
 
         {/* Countdown */}
-        {activeSection === 'overview' && config.fechaEvento && countdown && !countdown.isPast && (
+        {config.fechaEvento && countdown && !countdown.isPast && (
           <Card className="shadow-xl border-0 rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-violet-700 text-white">
             <CardContent className="pt-5 pb-5">
               <p className="text-center text-xs uppercase tracking-widest font-bold opacity-80 mb-3">
@@ -677,7 +501,7 @@ export default function PublicPortalView({
           </Card>
         )}
 
-        {activeSection === 'overview' && countdown?.isPast && (
+        {countdown?.isPast && (
           <Card className="shadow-xl border-0 rounded-3xl bg-primary text-primary-foreground">
             <CardContent className="py-6 text-center">
               <p className="text-2xl font-black">🎉 ¡Tu evento ya fue!</p>
@@ -686,50 +510,9 @@ export default function PublicPortalView({
           </Card>
         )}
 
-        <Card id={topMenuId} className="shadow-lg border-0 rounded-3xl overflow-hidden">
-          <CardHeader className="pb-2 bg-gradient-to-r from-slate-50 to-violet-50">
-            <CardTitle className="text-base font-bold flex items-center justify-between gap-2">
-              <span>Menú principal VIP</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-3 rounded-xl text-xs"
-                onClick={() => {
-                  if (window.history.length > 1) {
-                    window.history.back();
-                  } else {
-                    document.getElementById(topMenuId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }}
-              >
-                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                Atrás
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-3">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {[
-                { id: 'seccion-pagos', label: 'Pagos' },
-                { id: 'seccion-servicios', label: 'Servicios' },
-                { id: 'seccion-menu', label: 'Menú' },
-                { id: 'seccion-simulador', label: 'Simulador' },
-                { id: 'seccion-itinerario', label: 'Cronograma' },
-                { id: 'seccion-moodboard', label: 'Decoración' },
-                { id: 'seccion-faq', label: 'FAQ' },
-                { id: 'seccion-notas', label: 'Notas' },
-              ].map((item) => (
-                <a key={item.id} href={`#${item.id}`}>
-                  <Button variant="outline" className="w-full rounded-xl text-xs">{item.label}</Button>
-                </a>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Payments & Balance */}
-        {activeSection === 'pagos' && settings?.pagos?.visible && presupuesto && (
-          <Card id="seccion-pagos" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        {settings?.pagos?.visible && presupuesto && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-primary/10">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-primary" />
@@ -817,7 +600,7 @@ export default function PublicPortalView({
         )}
 
         {/* Informar Pago VIP Section */}
-        {activeSection === 'pagos' && settings?.informarPago?.visible !== false && presupuesto && saldoPendiente > 0 && (
+        {settings?.informarPago?.visible !== false && presupuesto && saldoPendiente > 0 && (
           <Card className="shadow-xl border-0 rounded-3xl overflow-hidden bg-gradient-to-br from-violet-900 to-primary">
             <CardContent className="pt-6 pb-6 space-y-4 text-white">
               <div className="flex items-center gap-3">
@@ -872,8 +655,8 @@ export default function PublicPortalView({
         )}
 
         {/* Services / Budget Breakdown */}
-        {activeSection === 'presupuesto' && settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 && (
-          <Card id="seccion-servicios" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        {settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-primary/5">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Package className="w-5 h-5 text-primary" />
@@ -910,7 +693,7 @@ export default function PublicPortalView({
         )}
 
         {/* Contract Summary + Documents */}
-        {activeSection === 'documentos' && settings?.contrato?.visible && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo || (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0)) && (
+        {settings?.contrato?.visible && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo || (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0)) && (
           <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1008,7 +791,7 @@ export default function PublicPortalView({
         )}
 
         {/* Location with Map */}
-        {activeSection === 'ubicacion' && settings?.ubicacion?.visible && celebracion?.visible && (celebracion.nombreLugar || celebracion.direccionLugar) && (
+        {settings?.ubicacion?.visible && celebracion?.visible && (celebracion.nombreLugar || celebracion.direccionLugar) && (
           <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-emerald-50 to-teal-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1071,8 +854,8 @@ export default function PublicPortalView({
         )}
 
         {/* Event Menu */}
-        {activeSection === 'menu' && settings?.menu?.visible && fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres || fiesta.menuMesa.bebidas) && (
-          <Card id="seccion-menu" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        {settings?.menu?.visible && fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres || fiesta.menuMesa.bebidas) && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-amber-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Utensils className="w-5 h-5 text-orange-500" />
@@ -1103,7 +886,7 @@ export default function PublicPortalView({
         )}
 
         {/* Drinks Menu (Carta de Tragos) */}
-        {activeSection === 'menu' && settings?.cartaTragos?.visible && fiesta.cartaTragos && fiesta.cartaTragos.items.length > 0 && (
+        {settings?.cartaTragos?.visible && fiesta.cartaTragos && fiesta.cartaTragos.items.length > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-purple-50 to-pink-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1131,7 +914,7 @@ export default function PublicPortalView({
         )}
 
         {/* Dress Code */}
-        {activeSection === 'menu' && settings?.dressCode?.visible && dressCode?.visible && (dressCode.texto?.text || (dressCode.sugeridos && dressCode.sugeridos.length > 0) || (dressCode.evitar && dressCode.evitar.length > 0)) && (
+        {settings?.dressCode?.visible && dressCode?.visible && (dressCode.texto?.text || (dressCode.sugeridos && dressCode.sugeridos.length > 0) || (dressCode.evitar && dressCode.evitar.length > 0)) && (
           <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-rose-50 to-pink-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1172,141 +955,130 @@ export default function PublicPortalView({
           </Card>
         )}
 
-        {/* Catering Change Simulator */}
-        {activeSection === 'simulador-catering' && presupuesto && invitadosContratados > 0 && (
-          <div className="space-y-0">
-            <CateringSimulator
-              fiestaId={fiesta.id}
-              presupuesto={presupuesto}
-              fiesta={fiesta}
-            />
-          </div>
-        )}
-
         {/* Guest Simulator */}
-        {activeSection === 'simulador-invitados' && settings?.simuladorInvitados?.visible && invitadosContratados > 0 && (
-          <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        {settings?.simuladorInvitados?.visible && invitadosContratados > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-primary/5">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
-                Simulador de Menús (Sincronizado)
+                Simulador de Invitados
               </CardTitle>
-              <p className="text-xs text-muted-foreground">Simulá agregados por Menú Adultos y Menú Niños/Adolescentes.</p>
+              <p className="text-xs text-muted-foreground">Simulá agregar o quitar personas (sin confirmar cambios)</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="rounded-xl border bg-muted/30 p-3 space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">Menú Adultos</p>
-                  <p className="text-xs text-muted-foreground">Base: {adultosBase} · Precio unitario: {formatCurrency(adultUnit)}</p>
-                  <div className="flex items-center justify-between gap-3">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
-                      onClick={() => setAdultDelta((d) => Math.max(0, d - 1))}
-                      disabled={adultDelta <= 0}
-                    >
-                      <MinusCircle className="w-4 h-4" />
-                    </Button>
-                    <p className="text-2xl font-black">+{adultDelta}</p>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
-                      onClick={() => setAdultDelta((d) => Math.min(maxDeltaAdult, d + 1))}
-                      disabled={adultDelta >= maxDeltaAdult}
-                    >
-                      <PlusCircle className="w-4 h-4" />
-                    </Button>
+              {/* Progress bar min/max */}
+              {(minDelta < 0 || maxDelta > 0) && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>{invitadosContratados + minDelta} mín</span>
+                    <span className="font-semibold">{invitadosContratados} contratados</span>
+                    <span>{invitadosContratados + maxDelta} máx</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted overflow-hidden relative">
+                    <div
+                      className="h-full rounded-full bg-primary/30 absolute"
+                      style={{ left: 0, right: 0 }}
+                    />
+                    <div
+                      className={`h-full rounded-full absolute transition-all duration-300 ${guestDelta > 0 ? 'bg-primary' : guestDelta < 0 ? 'bg-amber-500' : 'bg-primary/50'}`}
+                      style={{
+                        left: `${maxDelta !== minDelta ? ((guestDelta - minDelta) / (maxDelta - minDelta)) * 100 : 50}%`,
+                        width: '6px',
+                        transform: 'translateX(-50%)',
+                      }}
+                    />
                   </div>
                 </div>
-                <div className="rounded-xl border bg-muted/30 p-3 space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">Menú Niños/Adolescentes</p>
-                  <p className="text-xs text-muted-foreground">Base: {ninosAdolescentesBase} · Precio unitario: {formatCurrency(kidsUnit)}</p>
-                  <div className="flex items-center justify-between gap-3">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
-                      onClick={() => setKidsDelta((d) => Math.max(0, d - 1))}
-                      disabled={kidsDelta <= 0}
-                    >
-                      <MinusCircle className="w-4 h-4" />
-                    </Button>
-                    <p className="text-2xl font-black">+{kidsDelta}</p>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
-                      onClick={() => setKidsDelta((d) => Math.min(maxDeltaKids, d + 1))}
-                      disabled={kidsDelta >= maxDeltaKids}
-                    >
-                      <PlusCircle className="w-4 h-4" />
-                    </Button>
-                  </div>
+              )}
+
+              <div className="flex items-center justify-between gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 rounded-full border-2"
+                  onClick={() => setGuestDelta(d => Math.max(minDelta, d - 1))}
+                  disabled={guestDelta <= minDelta}
+                >
+                  <MinusCircle className="w-5 h-5" />
+                </Button>
+                <div className="text-center">
+                  <p className="text-4xl font-black tabular-nums">{nuevaCantidad}</p>
+                  <p className="text-xs text-muted-foreground">invitados</p>
+                  {guestDelta !== 0 && (
+                    <Badge variant={guestDelta > 0 ? 'default' : 'secondary'} className="mt-1 text-[10px]">
+                      {guestDelta > 0 ? `+${guestDelta}` : guestDelta} vs contrato ({invitadosContratados})
+                    </Badge>
+                  )}
                 </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 rounded-full border-2"
+                  onClick={() => setGuestDelta(d => Math.min(maxDelta, d + 1))}
+                  disabled={guestDelta >= maxDelta}
+                >
+                  <PlusCircle className="w-5 h-5" />
+                </Button>
               </div>
 
-              {(adultDelta > 0 || kidsDelta > 0) && (
+              {guestDelta > 0 && precioPorPersona > 0 && (
                 <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm space-y-1">
-                  <p className="font-bold text-primary">{simConfig?.textoAumento || 'Resumen del cambio solicitado'}</p>
-                  <p className="text-muted-foreground text-xs">
-                    Adultos (+{adultDelta}): <strong>{formatCurrency(simulationTotals.aumentoAdultos)}</strong>
+                  <p className="font-bold text-primary">
+                    {simConfig?.textoAumento || `Agregar ${guestDelta} persona${guestDelta > 1 ? 's' : ''}`}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Niños/Adolescentes (+{kidsDelta}): <strong>{formatCurrency(simulationTotals.aumentoKids)}</strong>
+                    Precio por persona estimado: <strong>{formatCurrency(precioPorPersona)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Aumento total: <strong className="text-primary">{formatCurrency(simulationTotals.aumentoTotal)}</strong>
+                    Costo extra estimado: <strong className="text-primary">{formatCurrency(precioPorPersona * guestDelta)}</strong>
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Nuevo total estimado: <strong className="text-primary">{formatCurrency(simulationTotals.nuevoTotal)}</strong>
+                    Nuevo total estimado: <strong className="text-primary">{formatCurrency(nuevaCantidad * precioPorPersona)}</strong>
                   </p>
                 </div>
               )}
 
-              {(adultDelta > 0 || kidsDelta > 0) && (
-                <div className="space-y-2">
-                  <Textarea
-                    value={simRequestNote}
-                    onChange={(e) => setSimRequestNote(e.target.value)}
-                    placeholder="Nota opcional para el equipo AK (ej: confirmar nuevo menú infantil)."
-                    rows={3}
-                    className="rounded-xl"
-                  />
-                  <Button className="w-full rounded-xl" onClick={handleSubmitMenuRequest} disabled={simRequestLoading}>
-                    {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-                    Enviar solicitud de cambio
+              {guestDelta < 0 && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm space-y-1">
+                  <p className="font-bold text-amber-800">
+                    {simConfig?.textoReduccion || `Reducir ${Math.abs(guestDelta)} persona${Math.abs(guestDelta) > 1 ? 's' : ''}`}
+                  </p>
+                  {precioPorPersona > 0 && (
+                    <p className="text-amber-700 text-xs">
+                      Ahorro estimado: <strong>{formatCurrency(Math.abs(guestDelta) * precioPorPersona)}</strong>
+                    </p>
+                  )}
+                  {penalizacionReduccion && (
+                    <p className="text-amber-700 text-xs">
+                      ⚠️ Por contrato, hay una penalización del{' '}
+                      <strong>{limiteReduccion}% del número contratado</strong>{' '}
+                      ({Math.ceil(invitadosContratados * (limiteReduccion / 100))} personas).
+                      No se realiza devolución por ese porcentaje.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {guestDelta !== 0 && (
+                <a href={guestWhatsappHref} target="_blank" rel="noopener noreferrer">
+                  <Button className="w-full rounded-xl bg-[#25D366] hover:bg-[#1eb356] text-white">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Solicitar cambio al organizador
                   </Button>
-                </div>
+                </a>
               )}
 
-              {adultDelta === 0 && kidsDelta === 0 && (
+              {guestDelta === 0 && (
                 <p className="text-center text-xs text-muted-foreground">
-                  Ajustá valores por menú y enviá una solicitud. Estado inicial: pendiente de aprobación.
+                  Usá los botones + / − para simular cambios (máx. +{limiteAumento}%, mín. -{limiteReduccion}%)
                 </p>
-              )}
-
-              {menuChangeRequests.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Solicitudes recientes</p>
-                  {menuChangeRequests.slice(-3).reverse().map((request) => (
-                    <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
-                        <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
-                      </div>
-                      <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
-                    </div>
-                  ))}
-                </div>
               )}
             </CardContent>
           </Card>
         )}
 
         {/* Drink Calculator */}
-        {activeSection === 'simulador-invitados' && calcBebidas?.visible && invitados > 0 && (
+        {calcBebidas?.visible && invitados > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-sky-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1356,8 +1128,8 @@ export default function PublicPortalView({
         )}
 
         {/* Event Schedule / Itinerary */}
-        {activeSection === 'itinerario' && settings?.itinerario?.visible && programa.length > 0 && (
-          <Card id="seccion-itinerario" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        {settings?.itinerario?.visible && programa.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-primary" />
@@ -1394,8 +1166,8 @@ export default function PublicPortalView({
         )}
 
         {/* Moodboard */}
-        {activeSection === 'moodboard' && settings?.moodboard?.visible && moodboardItems.length > 0 && (
-          <Card id="seccion-moodboard" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        {settings?.moodboard?.visible && moodboardItems.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Star className="w-5 h-5 text-primary" />
@@ -1445,7 +1217,7 @@ export default function PublicPortalView({
         )}
 
         {/* Music */}
-        {activeSection === 'musica' && settings?.musica?.visible && musica && (musica.cancionEntrada || musica.cancionVals || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0) || musica.listaNoReproducir) && (
+        {settings?.musica?.visible && musica && (musica.cancionEntrada || musica.cancionVals || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0) || musica.listaNoReproducir) && (
           <Card className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1497,7 +1269,7 @@ export default function PublicPortalView({
         )}
 
         {/* Interactive Checklist */}
-        {activeSection === 'checklist' && settings?.checklist?.visible && checklist.length > 0 && (
+        {settings?.checklist?.visible && checklist.length > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1534,8 +1306,8 @@ export default function PublicPortalView({
         )}
 
         {/* FAQ Accordion */}
-        {activeSection === 'faq' && settings?.faq?.visible && faqItems.length > 0 && (
-          <Card id="seccion-faq" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        {settings?.faq?.visible && faqItems.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-primary" />
@@ -1570,8 +1342,8 @@ export default function PublicPortalView({
         )}
 
         {/* Shared Notes */}
-        {activeSection === 'notas' && settings?.notasCliente?.visible && (
-          <Card id="seccion-notas" className="shadow-lg border-0 rounded-3xl">
+        {settings?.notasCliente?.visible && (
+          <Card className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-primary" />
@@ -1611,7 +1383,7 @@ export default function PublicPortalView({
         )}
 
         {/* Weather placeholder */}
-        {activeSection === 'overview' && daysUntil !== null && daysUntil > 0 && (
+        {daysUntil !== null && daysUntil > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl">
             <CardContent className="py-5 flex items-center gap-4">
               <div className="p-3 rounded-2xl bg-sky-100">
@@ -1630,7 +1402,7 @@ export default function PublicPortalView({
         )}
 
         {/* Fotografía y Filmación */}
-        {activeSection === 'fotografia' && settings?.fotografiaYFilmacion?.visible && fiesta.fotografiaYFilmacion && fiesta.fotografiaYFilmacion.servicios.length > 0 && (
+        {settings?.fotografiaYFilmacion?.visible && fiesta.fotografiaYFilmacion && fiesta.fotografiaYFilmacion.servicios.length > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1679,7 +1451,7 @@ export default function PublicPortalView({
         )}
 
         {/* Lista de Regalos */}
-        {activeSection === 'regalos' && settings?.listaRegalos?.visible && fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0 && (
+        {settings?.listaRegalos?.visible && fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1763,14 +1535,7 @@ export default function PublicPortalView({
           </CardContent>
         </Card>
 
-        <div className="flex justify-center">
-          <a href={`#${topMenuId}`}>
-            <Button variant="outline" className="rounded-xl">Volver al menú principal</Button>
-          </a>
-        </div>
-
       </div>
-      )} {/* End activeSection !== null */}
 
       {/* Floating WhatsApp button */}
       <div className="fixed bottom-6 right-4 z-50">

@@ -1050,6 +1050,10 @@ export interface FiestaEnPlanificacion {
   galeriaEntregada?: boolean;     // Whether photo gallery was delivered to client
   galeriaUrl?: string;            // URL to delivered gallery
   postEventoCompletado?: boolean; // Post-event process completed flag
+  screenPlaylist?: ScreenPlaylist;
+  mediaLibrary?: MediaLibraryItem[];
+  cateringChangeRequests?: CateringChangeRequest[];
+  socialScreenConfig?: SocialScreenConfig;
 }
 
 export interface ContratoFirmaInfo {
@@ -1215,4 +1219,71 @@ export interface DecoCanvasTemplate {
   fondoImagenUrl?: string;
   creadoEn: string;
   miniatura?: string;
+}
+
+// --- SCREEN PLAYLIST ---
+export type PlaylistItemType = 'muro-fotos' | 'video-publicitario' | 'redes-sociales' | 'ruleta' | 'votacion';
+
+export interface PlaylistItem {
+  id: string;
+  type: PlaylistItemType;
+  label: string;
+  durationSeconds: number;
+  mediaUrl?: string;   // for video-publicitario
+  enabled: boolean;
+}
+
+export interface ScreenPlaylist {
+  items: PlaylistItem[];
+  loop: boolean;
+  orientation: 'landscape' | 'portrait'; // 16:9 vs 9:16
+  isPlaying: boolean;
+  currentIndex: number;
+}
+
+// --- MEDIA LIBRARY ---
+export interface MediaLibraryItem {
+  id: string;
+  fiestaId: string;
+  fileName: string;
+  url: string;
+  type: 'video' | 'image';
+  uploadedAt: string;
+  label?: string;
+  globalShared: boolean; // available in global library
+}
+
+// --- CATERING CHANGE REQUESTS ---
+export type CateringChangeStatus = 'pendiente' | 'aprobada' | 'rechazada';
+
+export interface CateringChangeRequest {
+  id: string;
+  timestamp: string;
+  clientName?: string;
+  adultosMenuId?: string;
+  adultosMenuNombre?: string;
+  adultosCount?: number;
+  ninosMenuId?: string;
+  ninosMenuNombre?: string;
+  ninosCount?: number;
+  estimatedCostDelta: number;
+  newTotal?: number;
+  status: CateringChangeStatus;
+  adminNotes?: string;
+  resolvedAt?: string;
+}
+
+// --- SOCIAL SCREEN TEMPLATES ---
+export type SocialScreenTemplate = 'minimal' | 'gradient' | 'dark-luxury';
+
+export interface SocialScreenConfig {
+  template: SocialScreenTemplate;
+  instagramHandle?: string;
+  tiktokHandle?: string;
+  facebookHandle?: string;
+  whatsappNumber?: string;
+  showQR: boolean;
+  qrUrl?: string;
+  customTitle?: string;
+  visibleNetworks: ('instagram' | 'tiktok' | 'facebook' | 'whatsapp')[];
 }

@@ -99,15 +99,15 @@ export default function InvitadoPage() {
   const isAccesibilidad = perfil === 'Necesidades Especiales' || invitado.requiereAccesibilidad;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
-      <header className="bg-white border-b border-slate-100 shadow-sm">
-        <div className="max-w-md mx-auto px-4 h-14 flex items-center gap-3">
+    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-black">
+      <header className="bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-b border-purple-700/30 shadow-2xl">
+        <div className="max-w-md mx-auto px-4 h-16 flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-black text-slate-900 truncate">{config?.nombreEvento ?? 'Evento'}</p>
-            <p className="text-xs text-slate-500">{config?.tipoCelebracion}</p>
+            <p className="text-sm font-black text-white truncate">{config?.nombreEvento ?? 'Evento'}</p>
+            <p className="text-xs text-purple-200">{config?.tipoCelebracion}</p>
           </div>
           {diasRestantes !== null && diasRestantes >= 0 && (
-            <Badge variant="outline" className="text-purple-700 border-purple-200 bg-purple-50 shrink-0">
+            <Badge variant="outline" className="text-amber-300 border-amber-400/50 bg-amber-500/20 shrink-0 font-bold">
               {diasRestantes === 0 ? '🎉 ¡Hoy!' : `${diasRestantes} días`}
             </Badge>
           )}
@@ -116,12 +116,12 @@ export default function InvitadoPage() {
 
       <main className="max-w-md mx-auto px-4 py-8 space-y-6">
         {/* Welcome Card with VIP styling */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-white via-slate-50 to-purple-50">
           <div className={`h-2 bg-gradient-to-r ${perfilCfg.gradient}`} />
           <CardContent className="pt-6 text-center space-y-3">
-            <div className={`w-16 h-16 rounded-full ${perfilCfg.bg} flex items-center justify-center mx-auto`}>
+            <div className={`w-16 h-16 rounded-full ${perfilCfg.bg} flex items-center justify-center mx-auto ring-4 ring-white shadow-lg`}>
               {isVip ? (
-                <Crown className={`w-8 h-8 ${perfilCfg.color}`} />
+                <Crown className={`w-8 h-8 ${perfilCfg.color} animate-pulse`} />
               ) : (
                 <span className="text-3xl">🎉</span>
               )}
@@ -307,8 +307,13 @@ export default function InvitadoPage() {
         )}
       </main>
 
-      <footer className="py-6 text-center text-xs text-slate-400">
-        <p>AK Producciones Eventos · Salto, Uruguay</p>
+      <footer className="py-8 text-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-900/40 to-indigo-900/40 backdrop-blur border border-purple-500/20">
+            <p className="text-sm font-bold text-amber-300 mb-1">✨ AK Producciones Eventos</p>
+            <p className="text-xs text-purple-200">Salto, Uruguay</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
