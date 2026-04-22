@@ -214,6 +214,7 @@ describe('sendAssistantMessage — create_budget uses history on short confirmat
           expect.objectContaining({ nombreServicio: 'Catering' }),
         ]),
       }),
+      expect.objectContaining({ source: 'simulator_assistant' }),
     );
     expect(res.response).toContain('Se creó un borrador de');
   });
@@ -249,6 +250,7 @@ describe('sendAssistantMessage — create_budget uses history on short confirmat
           expect.objectContaining({ nombreServicio: 'Catering', precioUnitario: 35000 }),
         ]),
       }),
+      expect.objectContaining({ source: 'simulator_assistant' }),
     );
   });
 });
@@ -258,6 +260,10 @@ describe('sendAssistantMessage — create_budget uses history on short confirmat
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('sendAssistantMessage — import_budget_from_image validation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('rejects import when services array is empty', async () => {
     mockChat.mockResolvedValueOnce(
       aiResult('import_budget_from_image', {

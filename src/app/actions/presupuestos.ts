@@ -222,7 +222,7 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
   return { success: true };
 }
 
-/** Hard-delete: permanently removes the presupuesto and cleans up CRM lead references. */
+/** Hard-delete: permanently removes the presupuesto and cleans up CRM lead references and linked fiesta. */
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const target = all.find(p => p.id === id);
@@ -248,6 +248,20 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
     } catch (e) {
       // Non-fatal: log and continue
       console.warn('Could not clean CRM lead presupuestoId after delete:', e);
+    }
+  }
+
+  // Unlink any fiesta that was linked to this presupuesto to keep planner sync healthy.
+  if (target) {
+    try {
+      const allFiestas = await getAllFiestas();
+      const linked = allFiestas.filter(f => f.presupuestoId === id);
+      for (const fiesta of linked) {
+        await saveFiesta({ ...fiesta, presupuestoId: undefined });
+      }
+    } catch (e) {
+      // Non-fatal: log and continue
+      console.warn('Could not unlink fiesta presupuestoId after delete:', e);
     }
   }
 
