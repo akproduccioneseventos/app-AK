@@ -661,6 +661,56 @@ export interface SocialGallerySettings {
   momentosActivos?: { id: string; nombre: string; emoji: string; timestamp: string }[];
   sorteoParticipantesRedes?: { nombre: string; timestamp: string }[];
   sorteoGanadores?: string[];
+  screenMode?: ScreenModeSettings;
+  screenMediaLibrary?: ScreenMediaAsset[];
+}
+
+export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';
+export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego';
+
+export interface ScreenMediaAsset {
+  id: string;
+  url: string;
+  type: 'video' | 'image';
+  sourceFiestaId: string;
+  sourceFiestaNombre?: string;
+  createdAt: string;
+  title?: string;
+}
+
+export interface ScreenSocialTemplateConfig {
+  templateId: 'neon' | 'vip' | 'minimal';
+  showInstagram: boolean;
+  showTikTok: boolean;
+  showWhatsApp: boolean;
+  showFacebook: boolean;
+  instagramHandle?: string;
+  tiktokHandle?: string;
+  whatsappHandle?: string;
+  facebookHandle?: string;
+  qrUrl?: string;
+  ctaText?: string;
+}
+
+export interface ScreenPlaylistItem {
+  id: string;
+  type: ScreenPlaylistItemType;
+  title: string;
+  durationSeconds: number;
+  enabled: boolean;
+  layout?: ScreenLayoutMode;
+  mediaAssetId?: string;
+  mediaUrl?: string;
+  socialTemplate?: ScreenSocialTemplateConfig;
+}
+
+export interface ScreenModeSettings {
+  enabled: boolean;
+  loop: boolean;
+  isPlaying: boolean;
+  currentItemIndex: number;
+  startedAt?: string;
+  playlist: ScreenPlaylistItem[];
 }
 
 export interface MusicaFiesta {
@@ -989,6 +1039,7 @@ export interface FiestaEnPlanificacion {
   planDePagos?: PlanDePagos;
   eventoEnVivo?: EventoEnVivoData;
   clientPaymentNotifications?: ClientPaymentNotification[];
+  clientMenuChangeRequests?: ClientMenuChangeRequest[];
   timeline?: TimelineHito[];
   menuSeleccionPortal?: MenuSeleccionPortal;
   listaMusicaPortal?: ListaMusicaPortal;
@@ -1139,6 +1190,17 @@ export interface ClientPaymentNotification {
   timestamp: string;
   approvedAt?: string;
   notas?: string;
+}
+
+export interface ClientMenuChangeRequest {
+  id: string;
+  createdAt: string;
+  status: 'pendiente' | 'aprobada' | 'rechazada';
+  adultosDelta: number;
+  ninosAdolescentesDelta: number;
+  montoAdicional: number;
+  nuevoTotalEstimado: number;
+  notaCliente?: string;
 }
 
 export interface CuentaBancaria {

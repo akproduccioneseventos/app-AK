@@ -9,9 +9,7 @@ import NextImage from 'next/image';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll } from '@/app/actions/social-interactive';
 import { getCompanyInfo } from '@/app/actions/settings';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { getSocialConnections } from '@/app/actions/social-connections';
-import type { SocialGallerySettings } from '@/types/fiesta';
+import type { ScreenPlaylistItem, SocialGallerySettings } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
@@ -27,6 +25,10 @@ const GAME_OVERLAY_CLASS =
 
 type MomentData = { id: string; nombre: string; emoji: string; timestamp: string };
 type PollData = { id: string; question: string; options: { id: string; text: string; votes: number }[] };
+
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
+}
 
 export default function MuroEnVivoPage() {
   const params = useParams();
@@ -50,6 +52,8 @@ export default function MuroEnVivoPage() {
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
+  const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
 
   const postsRef = useRef<SocialGalleryPost[]>([]);
 
@@ -115,6 +119,32 @@ export default function MuroEnVivoPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
+  const enabledPlaylist = (settings.screenMode?.playlist ?? []).filter((item) => item.enabled);
+  const activeScreenItem: ScreenPlaylistItem | null = enabledPlaylist.length > 0
+    ? enabledPlaylist[localPlaylistIndex % enabledPlaylist.length]
+    : null;
+
+  useEffect(() => {
+    if (typeof settings.screenMode?.currentItemIndex === 'number') {
+      setLocalPlaylistIndex(settings.screenMode.currentItemIndex);
+    }
+  }, [settings.screenMode?.currentItemIndex]);
+
+  useEffect(() => {
+    if (!settings.screenMode?.isPlaying) return;
+    if (!activeScreenItem || enabledPlaylist.length === 0) return;
+    const timeoutMs = Math.max(5, activeScreenItem.durationSeconds || 15) * 1000;
+    const timeout = setTimeout(() => {
+      setLocalPlaylistIndex((prev) => {
+        const next = prev + 1;
+        if (settings.screenMode?.loop === false) return Math.min(next, enabledPlaylist.length - 1);
+        return next % enabledPlaylist.length;
+      });
+      setPlaylistTick(Date.now());
+    }, timeoutMs);
+    return () => clearTimeout(timeout);
+  }, [activeScreenItem, enabledPlaylist.length, settings.screenMode?.isPlaying, settings.screenMode?.loop, playlistTick]);
+
   return (
     <div className="fixed inset-0 bg-slate-950 overflow-hidden select-none">
       {/* Ambient gradient background */}
@@ -165,7 +195,7 @@ export default function MuroEnVivoPage() {
         </div>
       )}
 
-      {isLoaded && posts.length === 0 && (
+      {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes') && posts.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
           <div className="text-8xl opacity-20">📸</div>
           <div className="text-center space-y-2">
@@ -175,8 +205,16 @@ export default function MuroEnVivoPage() {
         </div>
       )}
 
-      {isLoaded && posts.length > 0 && (
+      {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural' || activeScreenItem.type === 'juego') && posts.length > 0 && (
         <MasonryLayout posts={posts} />
+      )}
+
+      {isLoaded && activeScreenItem?.type === 'video' && (
+        <ScreenMediaSlide item={activeScreenItem} />
+      )}
+
+      {isLoaded && activeScreenItem?.type === 'redes' && (
+        <SocialTemplateSlide item={activeScreenItem} eventName={eventName} />
       )}
 
       {activePoll && settings.showPolls && (
@@ -260,6 +298,74 @@ function renderMarqueeText(text: string) {
       {text}
     </span>
   ));
+}
+
+function ScreenMediaSlide({ item }: { item: ScreenPlaylistItem }) {
+  if (!item.mediaUrl) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center text-white/70 text-2xl font-bold">
+        Cargá un video o imagen para esta diapositiva
+      </div>
+    );
+  }
+  const isVideo = item.type === 'video' || isVideoUrl(item.mediaUrl);
+  const portrait = item.layout === 'portrait';
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-black">
+      {isVideo ? (
+        <video
+          src={item.mediaUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className={portrait ? 'h-full w-auto max-w-full object-cover' : 'w-full h-full object-cover'}
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.mediaUrl}
+          alt={item.title}
+          className={portrait ? 'h-full w-auto max-w-full object-cover' : 'w-full h-full object-cover'}
+        />
+      )}
+    </div>
+  );
+}
+
+function SocialTemplateSlide({ item, eventName }: { item: ScreenPlaylistItem; eventName: string }) {
+  const template = item.socialTemplate;
+  const templateClass =
+    template?.templateId === 'neon'
+      ? 'from-fuchsia-700 via-purple-900 to-cyan-900'
+      : template?.templateId === 'minimal'
+      ? 'from-slate-900 via-slate-800 to-slate-900'
+      : 'from-neutral-900 via-amber-900 to-neutral-900';
+
+  const rows = [
+    template?.showInstagram ? `Instagram: ${template.instagramHandle || '@akproducciones'}` : null,
+    template?.showTikTok ? `TikTok: ${template.tiktokHandle || '@akproducciones'}` : null,
+    template?.showWhatsApp ? `WhatsApp: ${template.whatsappHandle || '098 355 530'}` : null,
+    template?.showFacebook ? `Facebook: ${template.facebookHandle || 'AK Producciones'}` : null,
+  ].filter(Boolean) as string[];
+
+  return (
+    <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${templateClass}`}>
+      <div className="text-center text-white px-8">
+        <p className="text-sm uppercase tracking-[0.4em] opacity-70 mb-3">{eventName || 'AK Producciones'}</p>
+        <h2 className="text-6xl font-black mb-5">Redes Sociales</h2>
+        <p className="text-2xl font-semibold mb-4">{template?.ctaText || 'Seguinos y compartí tus fotos'}</p>
+        <div className="space-y-1 text-2xl">
+          {rows.map((row) => (
+            <p key={row}>{row}</p>
+          ))}
+        </div>
+        {template?.qrUrl && (
+          <p className="mt-6 text-lg opacity-80">QR: {template.qrUrl}</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {

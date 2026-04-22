@@ -29,6 +29,13 @@ async function updateFiestaData(
   }
 }
 
+function createRequestId(prefix: string) {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
   return updateFiestaData(fiestaId, data => ({ ...data, clientChecklist: checklist }));
 }
@@ -38,7 +45,7 @@ export async function updateClientChecklistItem(
   itemId: string,
   completed: boolean
 ): Promise<{ success: boolean; error?: string }> {
-  return updateFiestaData(fiestaId, data => {
+  const result = await updateFiestaData(fiestaId, data => {
     const currentChecklist = data.clientChecklist ?? [];
     return {
       ...data,
@@ -53,10 +60,26 @@ export async function updateClientChecklistItem(
       ),
     };
   });
+  if (result.success) {
+    await createNotification({
+      mensaje: `✅ Cliente actualizó checklist en portal (${completed ? 'completó' : 'desmarcó'} una tarea).`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'CheckCircle2',
+    });
+  }
+  return result;
 }
 
 export async function updateClientNotes(fiestaId: string, notes: string) {
-  return updateFiestaData(fiestaId, data => ({ ...data, clientNotes: notes }));
+  const result = await updateFiestaData(fiestaId, data => ({ ...data, clientNotes: notes }));
+  if (result.success) {
+    await createNotification({
+      mensaje: '📝 Cliente actualizó notas en el Portal VIP.',
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'MessageSquare',
+    });
+  }
+  return result;
 }
 
 export async function updatePortalSettings(
@@ -138,6 +161,53 @@ export async function submitClientPayment(
   }
 }
 
+export async function submitClientMenuChangeRequest(
+  fiestaId: string,
+  payload: {
+    adultosDelta: number;
+    ninosAdolescentesDelta: number;
+    montoAdicional: number;
+    nuevoTotalEstimado: number;
+    notaCliente?: string;
+  }
+): Promise<{ success: boolean; requestId?: string; error?: string }> {
+  try {
+    if (payload.adultosDelta <= 0 && payload.ninosAdolescentesDelta <= 0) {
+      return { success: false, error: 'No hay cambios para solicitar.' };
+    }
+
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requestId = createRequestId('menu_change_request');
+    const nextRequest = {
+      id: requestId,
+      createdAt: new Date().toISOString(),
+      status: 'pendiente' as const,
+      adultosDelta: Math.max(0, payload.adultosDelta),
+      ninosAdolescentesDelta: Math.max(0, payload.ninosAdolescentesDelta),
+      montoAdicional: Math.max(0, payload.montoAdicional),
+      nuevoTotalEstimado: Math.max(0, payload.nuevoTotalEstimado),
+      notaCliente: payload.notaCliente?.trim() || undefined,
+    };
+
+    await saveFiesta({
+      ...fiesta,
+      clientMenuChangeRequests: [...(fiesta.clientMenuChangeRequests ?? []), nextRequest],
+    });
+
+    await createNotification({
+      mensaje: `🧾 Solicitud de cambio de menú en "${fiesta.configuracion.nombreEvento}": +${nextRequest.adultosDelta} adultos, +${nextRequest.ninosAdolescentesDelta} niños/adolescentes.`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'Users',
+    });
+
+    return { success: true, requestId };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
 export async function approveClientPayment(
   fiestaId: string,
   notificationId: string
@@ -210,7 +280,7 @@ export async function saveMenuSeleccion(
   fiestaId: string,
   menuSeleccion: MenuSeleccionPortal
 ): Promise<{ success: boolean; error?: string }> {
-  return updateFiestaData(fiestaId, fiesta => ({
+  const result = await updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     menuSeleccionPortal: {
       ...menuSeleccion,
@@ -218,19 +288,35 @@ export async function saveMenuSeleccion(
       fechaConfirmacion: new Date().toISOString(),
     },
   }));
+  if (result.success) {
+    await createNotification({
+      mensaje: '🍽️ Cliente confirmó/cambió selección de menú desde el Portal VIP.',
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'UtensilsCrossed',
+    });
+  }
+  return result;
 }
 
 export async function saveListaMusica(
   fiestaId: string,
   listaMusica: ListaMusicaPortal
 ): Promise<{ success: boolean; error?: string }> {
-  return updateFiestaData(fiestaId, fiesta => ({
+  const result = await updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     listaMusicaPortal: {
       ...listaMusica,
       fechaActualizacion: new Date().toISOString(),
     },
   }));
+  if (result.success) {
+    await createNotification({
+      mensaje: '🎵 Cliente actualizó la lista musical del Portal VIP.',
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=musica`,
+      icono: 'Music',
+    });
+  }
+  return result;
 }
 
 export async function addClientMusicSuggestion(
@@ -245,7 +331,7 @@ export async function addClientMusicSuggestion(
     return { success: false, error: 'Lista inválida' };
   }
 
-  return updateFiestaData(fiestaId, fiesta => {
+  const result = await updateFiestaData(fiestaId, fiesta => {
     const current = fiesta.listaMusicaPortal ?? {};
     const list = current[listKey] ?? [];
     return {
@@ -257,4 +343,12 @@ export async function addClientMusicSuggestion(
       },
     };
   });
+  if (result.success) {
+    await createNotification({
+      mensaje: `🎶 Cliente agregó sugerencia musical (${listKey}) desde Portal VIP.`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=musica`,
+      icono: 'Music',
+    });
+  }
+  return result;
 }
