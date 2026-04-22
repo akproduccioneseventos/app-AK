@@ -34,6 +34,14 @@ interface ParsedLeadLocal {
   notes?: string;
 }
 
+function toTitleCase(value: string): string {
+  return value
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 // ── Parser local determinista de presupuestos en texto libre ─────────────────
 
 interface ParsedBudgetLocal {
@@ -255,7 +263,7 @@ function parseLeadFromMessage(text: string): ParsedLeadLocal {
       !QUICK_MEETING_REGEX.test(normalized) &&
       maybeNameWords.every(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]{2,}$/.test(w))
     ) {
-      name = maybeNameWords.map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+      name = toTitleCase(maybeNameWords.join(' '));
     }
   }
 

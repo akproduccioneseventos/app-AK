@@ -17,7 +17,7 @@ function InvitadosLayoutContent({ children }: { children: React.ReactNode }) {
     { href: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`, label: 'Invitados', icon: Users },
     { href: `/fiestas/nueva/invitados/layout?fiestaId=${fiestaId}`, label: 'Plano de Salón', icon: LayoutDashboard },
     { href: `/portal/mesas?fiestaId=${fiestaId}`, label: 'Distribución / Mesas', icon: TableProperties },
-    { href: `/fiestas/nueva/configuracion?fiestaId=${fiestaId}`, label: 'Cliente (Configuración)', icon: Settings },
+    { href: `/fiestas/nueva/configuracion?fiestaId=${fiestaId}`, label: 'Configuración del Cliente', icon: Settings },
   ];
 
   const getIsActive = (href: string) => {

@@ -52,6 +52,8 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import type { Dedication, SongRequest } from '@/types/social-gallery';
 
+const MAX_DISPLAYED_SONG_REQUESTS = 12;
+
 
 const PostCard: React.FC<{ 
   post: SocialGalleryPost; 
@@ -661,7 +663,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                     </Button>
                   </form>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {songRequests.slice(0, 12).map((request) => (
+                    {songRequests.slice(0, MAX_DISPLAYED_SONG_REQUESTS).map((request) => (
                       <div key={request.id} className="rounded-xl border bg-slate-50 px-3 py-2 text-sm">
                         <p className="font-semibold text-slate-700">{request.song}</p>
                         <p className="text-xs text-slate-500">Pedido por {request.requestedBy}</p>

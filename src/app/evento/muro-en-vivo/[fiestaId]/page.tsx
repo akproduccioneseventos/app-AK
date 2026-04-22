@@ -16,8 +16,9 @@ import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 
-const REFRESH_INTERVAL_MS = 3000;
+const REFRESH_INTERVAL_MS = 5000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
+const FRESH_POST_POLAROID_DURATION_MS = 20000;
 const MARQUEE_REPEAT_COUNT = 3;
 const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
 const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]';
@@ -44,6 +45,7 @@ export default function MuroEnVivoPage() {
   });
   const [companyMarketingText, setCompanyMarketingText] = useState<string>(DEFAULT_MARKETING_TICKER_TEXT);
   const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState<string>('AK Producciones');
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
@@ -96,6 +98,7 @@ export default function MuroEnVivoPage() {
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
           : DEFAULT_MARKETING_TICKER_TEXT
       );
+      setCompanyName(companyInfo?.companyName || 'AK Producciones');
       setCompanyLogoUrl(templateSettings?.logoUrl || null);
       setSocialConnections(connections.filter(connection => connection.isConnected));
     } catch (_) {
@@ -122,7 +125,7 @@ export default function MuroEnVivoPage() {
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
             <div className="relative h-10 w-24 overflow-hidden rounded bg-white/90 p-1">
-              <NextImage src={companyLogoUrl} alt="AK Producciones" fill className="object-contain" />
+              <NextImage src={companyLogoUrl} alt={`Logo de ${companyName}`} fill className="object-contain" />
             </div>
           )}
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -302,7 +305,7 @@ function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
 
 function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }) {
   const [imgError, setImgError] = useState(false);
-  const isFreshPost = Date.now() - new Date(post.timestamp).getTime() < 20000;
+  const isFreshPost = Date.now() - new Date(post.timestamp).getTime() < FRESH_POST_POLAROID_DURATION_MS;
   const polaroidRotation = ((index % 7) - 3) * 1.8;
 
   return (
