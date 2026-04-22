@@ -91,7 +91,7 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[
       // If the file is public, return public URL; otherwise signed
       try {
         const [metadata] = await file.getMetadata();
-        if (metadata?.acl?.some?.((a: any) => a.entity === 'allUsers')) {
+        if (Array.isArray(metadata?.acl) && metadata.acl.some((a: { entity?: string }) => a.entity === 'allUsers')) {
           return `https://storage.googleapis.com/${STORAGE_BUCKET}/${file.name}`;
         }
       } catch { /* ignore */ }

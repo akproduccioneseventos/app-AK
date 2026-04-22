@@ -343,8 +343,8 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 1. Save contract file if provided
     if (hasFile) {
       const { uploadToStorage } = await import('@/lib/firebase/storage');
-      const safeName = lead.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '');
-      const storageName = `contrato_${safeName}_${Date.now()}.pdf`;
+      const sanitizedLeadName = lead.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '');
+      const storageName = `contrato_${sanitizedLeadName}_${Date.now()}.pdf`;
       const storagePath = `contracts/${storageName}`;
       const arrayBuffer = await contractFile!.arrayBuffer();
       contractFileName = await uploadToStorage(Buffer.from(arrayBuffer), storagePath, 'application/pdf', false);
