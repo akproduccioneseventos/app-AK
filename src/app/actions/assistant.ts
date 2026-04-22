@@ -20,6 +20,18 @@ const DEFAULT_SERVICE_NAME = 'Servicio';
 const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
 const KNOWLEDGE_DOC_CONTEXT_MAX_CHARS = 1400; // Per-document cap to keep prompt context concise and performant.
 type AssistantKnowledgeDocument = Awaited<ReturnType<typeof getAiAssistantSettings>>['knowledgeDocuments'][number];
+// Matches phrases like "Agenda a Norma a las 11" and extracts "Norma".
+const AGENDA_LEAD_NAME_REGEX =
+  /agend(?:a|á|ar|ame)\s+a\s+([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2}?)(?=\s+a\s+las|\s+para|\s+el\s+\d{1,2}|\s+hoy|\s+mañana|$)/i;
+// Matches phrases like "prospecto de Norma" / "cliente Norma" and extracts the name.
+const NAMED_LEAD_REGEX =
+  /(?:prospecto|lead|consulta|cliente)\s+(?:de|para)?\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2})/i;
+
+interface ParsedLeadLocal {
+  name?: string;
+  followUpDate?: string;
+  notes?: string;
+}
 
 // ── Parser local determinista de presupuestos en texto libre ─────────────────
 
@@ -211,6 +223,34 @@ function parseBudgetFromText(text: string): ParsedBudgetLocal {
   return { clienteNombre, eventoTipo, eventoFecha, invitados, servicios, descuento, total, confidence };
 }
 
+function parseLeadFromMessage(text: string): ParsedLeadLocal {
+  const cleaned = (text || '').trim();
+  if (!cleaned) return {};
+
+  let name: string | undefined;
+  const agendaMatch = cleaned.match(AGENDA_LEAD_NAME_REGEX);
+  if (agendaMatch?.[1]) {
+    name = agendaMatch[1].trim();
+  }
+
+  if (!name) {
+    const namedLeadMatch = cleaned.match(NAMED_LEAD_REGEX);
+    if (namedLeadMatch?.[1]) {
+      name = namedLeadMatch[1].trim();
+    }
+  }
+
+  const parsed = parseBudgetFromText(cleaned);
+  const followUpDate = parsed.eventoFecha;
+  const hourMatch = cleaned.match(/\ba\s+las\s+(\d{1,2}(?::\d{2})?)/i);
+
+  return {
+    name,
+    followUpDate,
+    notes: hourMatch?.[1] ? `Hora solicitada: ${hourMatch[1]}` : undefined,
+  };
+}
+
 function getBudgetParserText(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -343,6 +383,11 @@ ${customers.slice(-10).map(c => `- ID:${c.id} ${c.name} | ${c.partyType ?? 'Sin 
 SERVICIOS DE EMPRESA (primeros 15):
 ${servicios.slice(0, 15).map(s => `- ID:${s.id} ${s.nombre} | ${s.categoria} | Precio venta: $${s.precioVenta ?? s.valorUnitarioEstimado}`).join('\n') || 'Sin servicios configurados'}
 ${aiSettings.customInstructions ? `\nINSTRUCCIONES PERSONALIZADAS DEL OPERADOR:\n${aiSettings.customInstructions}` : ''}
+${aiSettings.operationalInstructions ? `\nPROMPT BASE — ASISTENTE OPERATIVO:\n${aiSettings.operationalInstructions}` : ''}
+${aiSettings.salesMarketingInstructions ? `\nPROMPT BASE — ASISTENTE VENTAS/MARKETING:\n${aiSettings.salesMarketingInstructions}` : ''}
+${aiSettings.dynamicBusinessRules ? `\nREGLAS DE NEGOCIO DINÁMICAS (prioridad alta):\n${aiSettings.dynamicBusinessRules}` : ''}
+${aiSettings.lessonsLearned ? `\nLECCIONES APRENDIDAS Y CORRECCIONES:\n${aiSettings.lessonsLearned}` : ''}
+${aiSettings.appFunctionalityContext ? `\nCONTEXTO FUNCIONAL ESCANEADO DE LA APP:\n${aiSettings.appFunctionalityContext}` : ''}
 ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.length > 0
   ? `\nBASE DE CONOCIMIENTO EMPRESARIAL (documentos cargados):\n${aiSettings.knowledgeDocuments
       .slice(0, 8)
@@ -850,12 +895,18 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
     } else if (result.action?.type === 'create_supplier') {
       actionResult = { success: false, error: 'Falta información del proveedor.' };
       finalResponse = `⚠️ Falta información del proveedor. Proporcioná al menos el nombre, o ingresalo manualmente desde [/proveedores](/proveedores).`;
-    } else if (result.action?.type === 'create_lead' && result.action.data) {
-      const d = result.action.data;
+    } else if (result.action?.type === 'create_lead') {
+      const fallbackLead = parseLeadFromMessage(message);
+      const d = {
+        ...(result.action.data || {}),
+        name: result.action?.data?.name || fallbackLead.name,
+        followUpDate: result.action?.data?.followUpDate || fallbackLead.followUpDate,
+        notes: result.action?.data?.notes || fallbackLead.notes,
+      };
       try {
         if (!d.name) {
-          actionResult = { success: false, error: 'Falta el nombre del prospecto.' };
-          finalResponse = `❌ No se pudo registrar el prospecto: falta el nombre. Intentá de nuevo.`;
+          actionResult = { success: false, error: 'Falta información del prospecto.' };
+          finalResponse = `⚠️ Falta información del prospecto. Proporcioná al menos el nombre, o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
         } else {
           const leadResult = await addCrmLead({
             name: d.name,
@@ -883,9 +934,6 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
-    } else if (result.action?.type === 'create_lead') {
-      actionResult = { success: false, error: 'Falta información del prospecto.' };
-      finalResponse = `⚠️ Falta información del prospecto. Proporcioná al menos el nombre, o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
     } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;
       try {

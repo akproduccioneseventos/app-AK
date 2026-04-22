@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection } from '@/app/actions/settings';
+import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext } from '@/app/actions/settings';
 
 type KnowledgeDocument = {
   id: string;
@@ -31,11 +31,22 @@ export default function AiAssistantSettingsPage() {
   const [isTesting, setIsTesting] = useState(false);
   const [knowledgeDocuments, setKnowledgeDocuments] = useState<KnowledgeDocument[]>([]);
   const [searchDocTerm, setSearchDocTerm] = useState('');
+  const [operationalInstructions, setOperationalInstructions] = useState('');
+  const [salesMarketingInstructions, setSalesMarketingInstructions] = useState('');
+  const [dynamicBusinessRules, setDynamicBusinessRules] = useState('');
+  const [lessonsLearned, setLessonsLearned] = useState('');
+  const [appFunctionalityContext, setAppFunctionalityContext] = useState('');
+  const [isScanningApp, setIsScanningApp] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     getAiAssistantSettings().then((data) => {
       setCustomInstructions(data.customInstructions || '');
+      setOperationalInstructions(data.operationalInstructions || '');
+      setSalesMarketingInstructions(data.salesMarketingInstructions || '');
+      setDynamicBusinessRules(data.dynamicBusinessRules || '');
+      setLessonsLearned(data.lessonsLearned || '');
+      setAppFunctionalityContext(data.appFunctionalityContext || '');
       setKnowledgeDocuments(Array.isArray(data.knowledgeDocuments) ? data.knowledgeDocuments : []);
       setUpdatedAt(data.updatedAt || '');
       setIsLoading(false);
@@ -97,7 +108,15 @@ export default function AiAssistantSettingsPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    const result = await saveAiAssistantSettings({ customInstructions, knowledgeDocuments });
+    const result = await saveAiAssistantSettings({
+      customInstructions,
+      operationalInstructions,
+      salesMarketingInstructions,
+      dynamicBusinessRules,
+      lessonsLearned,
+      appFunctionalityContext,
+      knowledgeDocuments,
+    });
     setIsSaving(false);
     if (result.success) {
       setUpdatedAt(new Date().toISOString());
@@ -106,6 +125,18 @@ export default function AiAssistantSettingsPage() {
       toast({ title: 'Error', description: result.error || 'No se pudo guardar.', variant: 'destructive' });
     }
   };
+
+  const handleScanApp = useCallback(async () => {
+    setIsScanningApp(true);
+    const result = await scanAiAssistantAppContext();
+    setIsScanningApp(false);
+    if (result.success && result.context) {
+      setAppFunctionalityContext(result.context);
+      toast({ title: 'Escaneo completado', description: 'Se actualizó el contexto funcional de la app.' });
+      return;
+    }
+    toast({ title: 'Error de escaneo', description: result.error || 'No se pudo escanear la app.', variant: 'destructive' });
+  }, [toast]);
 
   const filteredKnowledgeDocuments = knowledgeDocuments.filter((doc) => {
     const term = searchDocTerm.trim().toLowerCase();
@@ -213,6 +244,98 @@ export default function AiAssistantSettingsPage() {
               />
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Perfiles de asistentes</CardTitle>
+          <CardDescription>
+            Configurá la base de instrucciones para el modo Operativo y para Ventas/Marketing.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="operationalInstructions">Asistente Operativo</Label>
+            <Textarea
+              id="operationalInstructions"
+              value={operationalInstructions}
+              onChange={(e) => setOperationalInstructions(e.target.value)}
+              rows={7}
+              className="resize-y font-mono text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="salesMarketingInstructions">Asistente de Ventas/Marketing</Label>
+            <Textarea
+              id="salesMarketingInstructions"
+              value={salesMarketingInstructions}
+              onChange={(e) => setSalesMarketingInstructions(e.target.value)}
+              rows={7}
+              className="resize-y font-mono text-sm"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Entrenamiento dinámico</CardTitle>
+          <CardDescription>
+            Agregá reglas de negocio, lecciones aprendidas y correcciones sin tocar código.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="dynamicBusinessRules">Reglas dinámicas</Label>
+            <Textarea
+              id="dynamicBusinessRules"
+              value={dynamicBusinessRules}
+              onChange={(e) => setDynamicBusinessRules(e.target.value)}
+              rows={6}
+              className="resize-y font-mono text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lessonsLearned">Lecciones aprendidas / correcciones</Label>
+            <Textarea
+              id="lessonsLearned"
+              value={lessonsLearned}
+              onChange={(e) => setLessonsLearned(e.target.value)}
+              rows={6}
+              className="resize-y font-mono text-sm"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Escaneo funcional de la app</CardTitle>
+          <CardDescription>
+            Generá un resumen automático de rutas/módulos para que el asistente entienda mejor cómo funciona la app.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button type="button" variant="outline" onClick={handleScanApp} disabled={isScanningApp}>
+            {isScanningApp ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Escaneando app...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Escanear app ahora
+              </>
+            )}
+          </Button>
+          <Textarea
+            value={appFunctionalityContext}
+            onChange={(e) => setAppFunctionalityContext(e.target.value)}
+            rows={10}
+            className="resize-y font-mono text-xs"
+          />
         </CardContent>
       </Card>
 
