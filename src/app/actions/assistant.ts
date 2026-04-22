@@ -52,11 +52,14 @@ function parseBudgetFromText(text: string): ParsedBudgetLocal {
 
   // --- clienteNombre ---
   let clienteNombre: string | undefined;
+  // Use [ \t]+ (horizontal whitespace only) inside the capture group so the name
+  // does NOT cross newline boundaries (e.g. "Cliente: María Pérez\nEvento: ..." must
+  // capture only "María Pérez", not "María Pérez\nEvento").
   const clientePatterns = [
-    /cliente[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑa-záéíóúñ][A-ZÁÉÍÓÚÑa-záéíóúñ]+)*)/i,
-    /para[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
-    /se[ñn]or[a]?[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
-    /nombre[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
+    /cliente[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:[ \t]+[A-ZÁÉÍÓÚÑa-záéíóúñ][A-ZÁÉÍÓÚÑa-záéíóúñ]+)*)/i,
+    /para[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:[ \t]+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
+    /se[ñn]or[a]?[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:[ \t]+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
+    /nombre[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:[ \t]+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/i,
   ];
   for (const pat of clientePatterns) {
     const m = text.match(pat);
@@ -546,8 +549,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
 
         if (confidence === 'low' && lServicios.length === 0) {
           // Nothing useful detected
-          actionResult = { success: false, error: 'No se pudo leer la estructura del texto.' };
-          finalResponse = `⚠️ Pegaste algo pero no pude leer la estructura. Asegurate de incluir: nombre del cliente, tipo de evento y al menos un servicio con precio. O crealo desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
+          actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
+          finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Asegurate de incluir: nombre del cliente, tipo de evento y al menos un servicio con precio. O crealo desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
         } else if (confidence === 'high' || confidence === 'medium') {
           // Enough data to create a draft budget
           const items = lServicios.map((s, i) => ({

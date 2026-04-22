@@ -69,6 +69,11 @@ export async function writeData<T>(
   data: T,
   sortFn?: (a: any, b: any) => number
 ): Promise<void> {
+  // Guard against path traversal and absolute paths to prevent unintended access.
+  if (filePath.includes('..') || filePath.startsWith('/')) {
+    throw new Error('Invalid data file path');
+  }
+
   const normalizedFilePath = filePath.replace(/\\/g, '/');
   let dataToWrite: T = data;
   if (Array.isArray(data) && sortFn) {
@@ -78,7 +83,7 @@ export async function writeData<T>(
     await syncToFirestore(normalizedFilePath, dataToWrite);
   } catch (err) {
     logger.error(`[writeData] Error escribiendo ${filePath} en Firestore:`, err);
-    throw new Error(`Error al guardar datos: ${err instanceof Error ? err.message : err}`);
+    throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
   }
 
   // Trigger auto-backup in the background (fire-and-forget, non-blocking)

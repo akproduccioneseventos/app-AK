@@ -140,11 +140,7 @@ export async function registerBookingDeposit(data: { fiestaId: string; amount: n
     const invoiceResult = await saveInvoice(newInvoice);
     if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || "Error al crear recibo de seña.");
 
-    // Add the payment to the invoice
-    const paymentResult = await addPaymentToInvoice(invoiceResult.id, new FormData()); // Simplified call
-    // Note: We need a specialized addPaymentToInvoice call for non-form data or fix the existing one.
-    // Let's manually inject the payment for now to be safe.
-    
+    // Inject the deposit payment directly into the invoice record.
     const freshInvoices = await getInvoices();
     const invIdx = freshInvoices.findIndex(i => i.id === invoiceResult.id);
     if (invIdx !== -1) {
