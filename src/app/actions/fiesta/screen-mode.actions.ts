@@ -21,6 +21,18 @@ function normalizeSocialSettings(settings?: SocialGallerySettings): SocialGaller
   };
 }
 
+function extensionFromMimeType(mimeType: string, fallbackExt: string) {
+  if (mimeType.includes('mp4')) return '.mp4';
+  if (mimeType.includes('webm')) return '.webm';
+  if (mimeType.includes('ogg')) return '.ogg';
+  if (mimeType.includes('quicktime')) return '.mov';
+  if (mimeType.includes('png')) return '.png';
+  if (mimeType.includes('webp')) return '.webp';
+  if (mimeType.includes('gif')) return '.gif';
+  if (mimeType.includes('jpeg') || mimeType.includes('jpg')) return '.jpg';
+  return fallbackExt || '.bin';
+}
+
 export async function uploadScreenMediaAsset(
   fiestaId: string,
   file: File
@@ -30,7 +42,7 @@ export async function uploadScreenMediaAsset(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 
-    const ext = path.extname(file.name) || (file.type.startsWith('video/') ? '.mp4' : '.jpg');
+    const ext = extensionFromMimeType(file.type || '', path.extname(file.name));
     const id = `screen_asset_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const storagePath = `screen-mode/${fiestaId}/${id}${ext}`;
     const bytes = await file.arrayBuffer();

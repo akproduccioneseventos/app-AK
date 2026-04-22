@@ -32,10 +32,12 @@ export function resolveMenuUnitPrices(presupuesto?: Presupuesto | null) {
   const adultItems = items.filter((item) => scoreItem(item, ADULT_KEYWORDS));
   const kidsItems = items.filter((item) => scoreItem(item, KIDS_KEYWORDS));
 
-  const adultUnit =
-    adultItems.reduce((acc, item) => acc + getUnitPrice(item), 0) / (adultItems.length || 1) || fallbackUnit;
-  const kidsUnit =
-    kidsItems.reduce((acc, item) => acc + getUnitPrice(item), 0) / (kidsItems.length || 1) || fallbackUnit;
+  const adultUnit = adultItems.length
+    ? adultItems.reduce((acc, item) => acc + getUnitPrice(item), 0) / adultItems.length
+    : fallbackUnit;
+  const kidsUnit = kidsItems.length
+    ? kidsItems.reduce((acc, item) => acc + getUnitPrice(item), 0) / kidsItems.length
+    : fallbackUnit;
 
   return {
     adultUnit: Number.isFinite(adultUnit) ? adultUnit : 0,

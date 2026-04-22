@@ -194,6 +194,7 @@ export default function PublicPortalView({
   companyName,
   presupuesto,
 }: PublicPortalViewProps) {
+  const topMenuId = 'menu-principal-vip';
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const countdown = useCountdown(config.fechaEvento);
 
@@ -534,11 +535,22 @@ export default function PublicPortalView({
           </Card>
         )}
 
-        <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+        <Card id={topMenuId} className="shadow-lg border-0 rounded-3xl overflow-hidden">
           <CardHeader className="pb-2 bg-gradient-to-r from-slate-50 to-violet-50">
             <CardTitle className="text-base font-bold flex items-center justify-between gap-2">
               <span>Menú principal VIP</span>
-              <Button variant="ghost" size="sm" className="h-8 px-3 rounded-xl text-xs" onClick={() => window.history.back()}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3 rounded-xl text-xs"
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    window.history.back();
+                  } else {
+                    document.getElementById(topMenuId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
                 Atrás
               </Button>
@@ -1590,7 +1602,7 @@ export default function PublicPortalView({
         </Card>
 
         <div className="flex justify-center">
-          <a href="#">
+          <a href={`#${topMenuId}`}>
             <Button variant="outline" className="rounded-xl">Volver al menú principal</Button>
           </a>
         </div>

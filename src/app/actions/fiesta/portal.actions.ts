@@ -172,7 +172,7 @@ export async function submitClientMenuChangeRequest(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
-    const requestId = `cmr_${crypto.randomUUID()}`;
+    const requestId = `menu_change_request_${crypto.randomUUID()}`;
     const nextRequest = {
       id: requestId,
       createdAt: new Date().toISOString(),

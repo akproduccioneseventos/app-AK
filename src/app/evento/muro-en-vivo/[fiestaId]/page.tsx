@@ -269,7 +269,7 @@ function ScreenMediaSlide({ item }: { item: ScreenPlaylistItem }) {
       </div>
     );
   }
-  const isVideo = /\.(mp4|webm|ogg|mov)(\?|$)/i.test(item.mediaUrl);
+  const isVideo = item.type === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(item.mediaUrl);
   const portrait = item.layout === 'portrait';
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-black">

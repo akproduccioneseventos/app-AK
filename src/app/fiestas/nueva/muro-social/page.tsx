@@ -214,7 +214,7 @@ function MuroSocialContent() {
   };
 
   const addPlaylistItem = (type: ScreenPlaylistItem['type']) => {
-    const id = `playlist_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? `playlist_${crypto.randomUUID()}` : `playlist_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
     const defaults: Record<ScreenPlaylistItem['type'], Omit<ScreenPlaylistItem, 'id'>> = {
       video: { type: 'video', title: 'Video publicitario', durationSeconds: 20, enabled: true, layout: 'auto' },
       mural: { type: 'mural', title: 'Mural de fotos', durationSeconds: 30, enabled: true, layout: 'auto' },
