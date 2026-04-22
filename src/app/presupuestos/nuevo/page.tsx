@@ -31,6 +31,7 @@ function PresupuestoDashboardContent() {
     const router = useRouter();
     const { toast } = useToast();
     const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
+    const [totalPresupuestosCount, setTotalPresupuestosCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [showArchived, setShowArchived] = useState(false);
@@ -40,7 +41,9 @@ function PresupuestoDashboardContent() {
         setIsLoading(true);
         try {
             const guardados = await getPresupuestos(showArchived);
+            const allPresupuestos = await getPresupuestos(true);
             setPresupuestos((Array.isArray(guardados) ? guardados : []).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+            setTotalPresupuestosCount(Array.isArray(allPresupuestos) ? allPresupuestos.length : 0);
         } catch(e) {
             toast({ title: "Error", description: "No se pudieron cargar los presupuestos."});
         } finally {
@@ -101,9 +104,9 @@ function PresupuestoDashboardContent() {
                   <Link href="/presupuestos/reporte"><Button variant="secondary">Reporte</Button></Link>
                   <Link href="/presupuestos/importar"><Button variant="outline" data-testid="btn-importar-presupuesto"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Button></Link>
                   <Link href="/presupuestos/nuevo/crear"><Button><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Button></Link>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || presupuestos.length === 0}>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                      <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || totalPresupuestosCount === 0}>
                         {isResettingPresupuestos ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
                         🗑️ Borrar todos
                       </Button>
@@ -112,7 +115,7 @@ function PresupuestoDashboardContent() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>⚠️ ¿Borrar TODOS los presupuestos permanentemente?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Esta acción eliminará <strong>de forma irreversible</strong> todos los presupuestos ({presupuestos.length}), incluyendo los archivados. Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                          Esta acción eliminará <strong>de forma irreversible</strong> todos los presupuestos ({totalPresupuestosCount}), incluyendo los archivados. Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

@@ -82,7 +82,7 @@ function ReadinessContent() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex items-center gap-2 mb-6">
-          <Link href="/fiestas/nueva">
+          <Link href="/eventos">
             <Button variant="outline" size="sm"><ArrowLeft className="h-4 w-4 mr-2" />Volver</Button>
           </Link>
         </div>
