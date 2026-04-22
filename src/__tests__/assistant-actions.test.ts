@@ -176,6 +176,54 @@ describe('sendAssistantMessage — create_lead fallback with minimal scheduling 
     );
     expect(res.response).toContain('registrado en el CRM');
   });
+
+  it('accepts a single uppercase name as minimal lead data', async () => {
+    mockChat.mockResolvedValueOnce(aiResult('create_lead', undefined) as any);
+    mockAddCrmLead.mockResolvedValueOnce({
+      success: true,
+      lead: {
+        id: 'lead_2',
+        name: 'Norma',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } as any,
+    });
+
+    const res = await sendAssistantMessage('NORMA', []);
+
+    expect(res.success).toBe(true);
+    expect(mockAddCrmLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Norma',
+      }),
+    );
+    expect(res.response).toContain('registrado en el CRM');
+  });
+});
+
+describe('sendAssistantMessage — create_event fallback to CRM meeting', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('reroutes create_event without data to a CRM lead when message is a meeting request', async () => {
+    mockChat.mockResolvedValueOnce(aiResult('create_event', undefined) as any);
+    mockAddCrmLead.mockResolvedValueOnce({
+      success: true,
+      lead: {
+        id: 'lead_3',
+        name: 'Norma',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } as any,
+    });
+
+    const res = await sendAssistantMessage('Agendar a Norma a las 11', []);
+
+    expect(res.success).toBe(true);
+    expect(mockAddCrmLead).toHaveBeenCalledTimes(1);
+    expect(res.response).toContain('Reunión/cita registrada');
+  });
 });
 
 describe('sendAssistantMessage — create_budget uses history on short confirmations', () => {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
+import { addDedication, addSongRequest, getDedications, getSongRequests } from '@/app/actions/social-interactive';
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
@@ -28,7 +29,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -49,6 +50,7 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import type { Dedication, SongRequest } from '@/types/social-gallery';
 
 
 const PostCard: React.FC<{ 
@@ -59,7 +61,9 @@ const PostCard: React.FC<{
   isAdminView: boolean;
   authorName: string;
   accentColor: string;
-}> = ({ post, onLike, onComment, onDelete, isAdminView, authorName, accentColor }) => {
+  allowLikes: boolean;
+  allowComments: boolean;
+}> = ({ post, onLike, onComment, onDelete, isAdminView, authorName, accentColor, allowLikes, allowComments }) => {
   const [commentText, setCommentText] = useState('');
   
   const handleCommentSubmit = async (e: FormEvent) => {
@@ -109,7 +113,7 @@ const PostCard: React.FC<{
         <CardFooter className="p-4 flex flex-col items-start gap-3">
             <div className="w-full flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => onLike(post.id)} className="flex items-center gap-1.5 group/like outline-none">
+                    <button onClick={() => onLike(post.id)} disabled={!allowLikes} className="flex items-center gap-1.5 group/like outline-none disabled:opacity-50 disabled:cursor-not-allowed">
                         <Heart className={`w-6 h-6 transition-all ${post.likes > 0 ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover/like:text-red-400'}`} />
                         <span className="text-sm font-bold text-slate-600">{post.likes}</span>
                     </button>
@@ -119,6 +123,7 @@ const PostCard: React.FC<{
                     </div>
                 </div>
             </div>
+            {allowComments && (
             <div className="w-full pt-3 border-t border-slate-100 space-y-3">
                 <div className="max-h-32 overflow-y-auto space-y-2 pr-2 text-sm scrollbar-hide">
                     {post.comments.length > 0 ? post.comments.map(c => (
@@ -135,6 +140,7 @@ const PostCard: React.FC<{
                     </Button>
                 </form>
             </div>
+            )}
         </CardFooter>
         </Card>
     </motion.div>
@@ -148,7 +154,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [songRequests, setSongRequests] = useState<SongRequest[]>([]);
+  const [dedications, setDedications] = useState<Dedication[]>([]);
   const [newChatMessage, setNewChatMessage] = useState('');
+  const [newSongRequest, setNewSongRequest] = useState('');
+  const [newDedication, setNewDedication] = useState('');
   
   const [authorName, setAuthorName] = useState('');
   const [tempAuthorName, setTempAuthorName] = useState('');
@@ -196,12 +206,14 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
     if(showLoadingIndicator) setIsLoading(true);
     try {
-      const [fetchedPosts, fiestaData, fetchedChat, settingsData, socialConnections] = await Promise.all([
+      const [fetchedPosts, fiestaData, fetchedChat, settingsData, socialConnections, fetchedSongRequests, fetchedDedications] = await Promise.all([
           getSocialPosts(params.fiestaId),
           getFiestaById(params.fiestaId),
           getChatMessages(params.fiestaId),
           getInvoiceTemplateSettings(),
           getSocialConnections(),
+          getSongRequests(params.fiestaId),
+          getDedications(params.fiestaId),
       ]);
       setPosts(fetchedPosts);
       setFiesta(fiestaData);
@@ -209,6 +221,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           setLocalSettings(prev => ({ ...prev, ...fiestaData.socialGallerySettings }));
       }
       setChatMessages(fetchedChat);
+      setSongRequests(fetchedSongRequests);
+      setDedications(fetchedDedications);
       setCompanyLogoUrl(settingsData.logoUrl ?? null);
       setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
 
@@ -283,7 +297,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
   const handleUploadSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!fileToUpload) return;
+    if (!fileToUpload || !localSettings.uploadsActive) return;
     setIsUploading(true);
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
@@ -304,6 +318,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   };
   
   const handleLike = async (postId: string) => {
+    if (!localSettings.allowLikes) return;
     const originalPosts = [...posts];
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
     const result = await addLikeToPost(postId);
@@ -314,6 +329,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   };
   
   const handleComment = async (postId: string, text: string) => {
+    if (!localSettings.allowComments) return;
     const result = await addCommentToPost(postId, text, authorName || 'Anónimo');
     if (!result.success) {
         toast({title: "Error", description: "No se pudo añadir el comentario."});
@@ -321,7 +337,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     await fetchData(false);
   };
 
-   const handleChatSubmit = async (e: FormEvent) => {
+  const handleChatSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!newChatMessage.trim()) return;
 
@@ -344,6 +360,32 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         await fetchData(false); // Sync with server state
     }
     setIsSendingChat(false);
+  };
+
+  const handleSongRequestSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newSongRequest.trim()) return;
+    const result = await addSongRequest(params.fiestaId, newSongRequest.trim(), authorName || 'Anónimo');
+    if (result.success) {
+      setNewSongRequest('');
+      await fetchData(false);
+      toast({ title: 'Pedido recibido 🎵' });
+    } else {
+      toast({ title: 'Error', description: result.error || 'No se pudo guardar el pedido.', variant: 'destructive' });
+    }
+  };
+
+  const handleDedicationSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newDedication.trim()) return;
+    const result = await addDedication(params.fiestaId, newDedication.trim(), authorName || 'Anónimo');
+    if (result.success) {
+      setNewDedication('');
+      await fetchData(false);
+      toast({ title: 'Dedicatoria enviada 💖' });
+    } else {
+      toast({ title: 'Error', description: result.error || 'No se pudo guardar la dedicatoria.', variant: 'destructive' });
+    }
   };
 
 
@@ -465,7 +507,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           <div className="flex items-center gap-2 shrink-0">
              <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button className="h-11 rounded-2xl px-6 font-bold shadow-lg shadow-primary/20 transition-transform active:scale-95" disabled={!authorName} style={{ backgroundColor: accentColor }}>
+                    <Button className="h-11 rounded-2xl px-6 font-bold shadow-lg shadow-primary/20 transition-transform active:scale-95" disabled={!authorName || !localSettings.uploadsActive} style={{ backgroundColor: accentColor }}>
                         <Upload className="w-5 h-5 mr-2"/>
                         <span className="hidden sm:inline">Subir Foto</span>
                     </Button>
@@ -489,11 +531,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                                         <p className="text-xs">JPG, PNG o GIF (Máx 10MB)</p>
                                     </div>
                                 </Label>
-                                <Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/*" />
-                            </div>
-                        )}
+                                 <Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/*" disabled={!localSettings.uploadsActive} />
+                             </div>
+                         )}
                         <DialogFooter>
-                            <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold" disabled={isUploading || !fileToUpload} style={{ backgroundColor: accentColor }}>
+                            <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold" disabled={isUploading || !fileToUpload || !localSettings.uploadsActive} style={{ backgroundColor: accentColor }}>
                                 {isUploading ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Send className="w-5 h-5 mr-2"/>}
                                 {isUploading ? "Publicando..." : "Publicar ahora"}
                             </Button>
@@ -572,7 +614,18 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         <div key={i} className="aspect-square bg-white/50 animate-pulse rounded-3xl border border-white"></div>
                     ))
                 ) : posts.map(post => (
-                    <PostCard key={post.id} post={post} onLike={handleLike} onComment={handleComment} isAdminView={isAdminView} onDelete={handleDelete} authorName={authorName} accentColor={accentColor} />
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onLike={handleLike}
+                      onComment={handleComment}
+                      isAdminView={isAdminView}
+                      onDelete={handleDelete}
+                      authorName={authorName}
+                      accentColor={accentColor}
+                      allowLikes={Boolean(localSettings.allowLikes)}
+                      allowComments={Boolean(localSettings.allowComments)}
+                    />
                 ))}
             </AnimatePresence>
         </div>
@@ -588,6 +641,66 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                 </div>
                 <Button onClick={() => setIsUploadDialogOpen(true)} className="h-12 rounded-xl px-8 font-bold" style={{ backgroundColor: accentColor }}>Subir primera foto</Button>
             </motion.div>
+        )}
+
+        {(localSettings.showSongRequests || localSettings.showDedications) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {localSettings.showSongRequests && (
+              <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-slate-800">
+                    <Music className="w-5 h-5" style={{ color: accentColor }} /> Pedidos de canciones
+                  </CardTitle>
+                  <CardDescription>Tu pedido aparece en el panel del organizador en tiempo real.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <form onSubmit={handleSongRequestSubmit} className="flex gap-2">
+                    <Input value={newSongRequest} onChange={e => setNewSongRequest(e.target.value)} placeholder="Ej: TQG - Karol G & Shakira" />
+                    <Button type="submit" disabled={!newSongRequest.trim()} style={{ backgroundColor: accentColor }}>
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </form>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {songRequests.slice(0, 12).map((request) => (
+                      <div key={request.id} className="rounded-xl border bg-slate-50 px-3 py-2 text-sm">
+                        <p className="font-semibold text-slate-700">{request.song}</p>
+                        <p className="text-xs text-slate-500">Pedido por {request.requestedBy}</p>
+                      </div>
+                    ))}
+                    {songRequests.length === 0 && <p className="text-xs text-slate-400">Todavía no hay pedidos.</p>}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {localSettings.showDedications && (
+              <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-slate-800">
+                    <MicVocal className="w-5 h-5" style={{ color: accentColor }} /> Dedicatorias
+                  </CardTitle>
+                  <CardDescription>Envía un mensaje para que se vea en el control del evento.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <form onSubmit={handleDedicationSubmit} className="space-y-2">
+                    <Textarea value={newDedication} onChange={e => setNewDedication(e.target.value)} placeholder="Escribe tu dedicatoria..." rows={3} />
+                    <Button type="submit" disabled={!newDedication.trim()} style={{ backgroundColor: accentColor }}>
+                      <Send className="w-4 h-4 mr-2" /> Enviar dedicatoria
+                    </Button>
+                  </form>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {dedications.slice(-10).reverse().map((dedication) => (
+                      <div key={dedication.id} className="rounded-xl border bg-slate-50 px-3 py-2 text-sm">
+                        <p className="text-slate-700">{dedication.message}</p>
+                        <p className="text-xs text-slate-500 mt-1">— {dedication.authorName}</p>
+                      </div>
+                    ))}
+                    {dedications.length === 0 && <p className="text-xs text-slate-400">Todavía no hay dedicatorias.</p>}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
         
         {localSettings.chatEnabled && (

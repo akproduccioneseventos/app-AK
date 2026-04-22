@@ -91,8 +91,8 @@ const QRCartel: React.FC<{
   const [origin, setOrigin] = React.useState('');
   React.useEffect(() => { setOrigin(window.location.origin); }, []);
   const qrUrl = origin
-    ? `${origin}/evento/muro-en-vivo/${fiestaId}`
-    : `https://app-ak.vercel.app/evento/muro-en-vivo/${fiestaId}`;
+    ? `${origin}/evento/social/${fiestaId}`
+    : `https://app-ak.vercel.app/evento/social/${fiestaId}`;
 
   const cornerClasses: Record<string, string> = {
     'top-left': 'top-1.5 left-1.5 border-t-0 border-r-0',
