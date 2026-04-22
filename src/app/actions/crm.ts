@@ -342,16 +342,12 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
 
     // 1. Save contract file if provided
     if (hasFile) {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const DATA_DIR = path.join(process.cwd(), 'src', 'data');
-      const contractsDir = path.join(DATA_DIR, 'contracts');
-      try { await fs.access(contractsDir); } catch { await fs.mkdir(contractsDir, { recursive: true }); }
-
-      contractFileName = `contrato_${lead.name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
-      const contractFilePath = path.join(contractsDir, contractFileName);
+      const { uploadToStorage } = await import('@/lib/firebase/storage');
+      const sanitizedLeadName = lead.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '');
+      const storageName = `contrato_${sanitizedLeadName}_${Date.now()}.pdf`;
+      const storagePath = `contracts/${storageName}`;
       const arrayBuffer = await contractFile!.arrayBuffer();
-      await fs.writeFile(contractFilePath, Buffer.from(arrayBuffer));
+      contractFileName = await uploadToStorage(Buffer.from(arrayBuffer), storagePath, 'application/pdf', false);
     }
 
     // 2. Create Customer with full data from lead + budget

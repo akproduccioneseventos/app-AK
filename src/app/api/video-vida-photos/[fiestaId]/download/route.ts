@@ -1,10 +1,6 @@
-
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
 import JSZip from 'jszip';
-
-const DATA_DIR = path.join(process.cwd(), 'src', 'data', 'video-vida-photos');
+import { getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 
 export async function GET(
   request: Request,
@@ -17,22 +13,32 @@ export async function GET(
   }
 
   try {
-    const eventPhotoDir = path.join(DATA_DIR, fiestaId);
-    await fs.access(eventPhotoDir);
-    const filenames = await fs.readdir(eventPhotoDir);
-    
-    if (filenames.length === 0) {
+    const photoUrls = await getLifeStoryVideoPhotos(fiestaId);
+
+    if (photoUrls.length === 0) {
       return NextResponse.json({ error: 'No photos found for this event.' }, { status: 404 });
     }
 
     const zip = new JSZip();
-    
-    for (const name of filenames.sort((a,b) => a.localeCompare(b, undefined, { numeric: true }))) {
-      const filePath = path.join(eventPhotoDir, name);
-      const fileContent = await fs.readFile(filePath);
+
+    for (const url of photoUrls) {
+      let fileContent: Buffer;
+      let name: string;
+      if (url.startsWith('https://') || url.startsWith('http://')) {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        fileContent = Buffer.from(await res.arrayBuffer());
+        name = url.split('/').pop()?.split('?')[0] ?? `photo_${Date.now()}.jpg`;
+      } else {
+        // Legacy local path
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        fileContent = await fs.readFile(url);
+        name = path.basename(url);
+      }
       zip.file(name, fileContent);
     }
-    
+
     const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
     const zipFilename = `video-de-vida-${fiestaId}.zip`;
 
@@ -44,9 +50,6 @@ export async function GET(
 
   } catch (error: any) {
     console.error(`Error creating zip for fiesta ${fiestaId}:`, error);
-     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return NextResponse.json({ error: 'No photos found for this event.' }, { status: 404 });
-    }
     return NextResponse.json({ error: 'Failed to create zip file.', details: error.message }, { status: 500 });
   }
 }

@@ -3,20 +3,10 @@
 
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 import { readData, writeData } from '@/lib/data-service';
-import fs from 'fs/promises';
-import path from 'path';
 import { randomUUID } from 'crypto';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const EMPLEADOS_FILE = 'empleados.json';
-const CONTRACTS_DIR = path.join(process.cwd(), 'src', 'data', 'employee-contracts');
-
-async function ensureContractsDirectoryExists(): Promise<void> {
-    try {
-        await fs.access(CONTRACTS_DIR);
-    } catch {
-        await fs.mkdir(CONTRACTS_DIR, { recursive: true });
-    }
-}
 
 export async function getEmpleados(): Promise<Empleado[]> {
   return readData<Empleado[]>(EMPLEADOS_FILE, []);
@@ -90,12 +80,12 @@ export async function saveEmpleado(
         }
         return { success: false, error: 'El contrato debe ser un archivo PDF.' };
       }
-      await ensureContractsDirectoryExists();
       const bytes = await contractFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uniqueFilename = `contract_${empleadoId}_${Date.now()}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      await fs.writeFile(path.join(CONTRACTS_DIR, uniqueFilename), buffer);
-      empleadoToSave.contractFileName = uniqueFilename;
+      const storagePath = `employee-contracts/${uniqueFilename}`;
+      const fileUrl = await uploadToStorage(buffer, storagePath, 'application/pdf', false);
+      empleadoToSave.contractFileName = fileUrl;
     } catch (fileError: any) {
       console.error("Error saving employee contract file:", fileError);
       // Rollback in-memory addition for new employees before returning
@@ -129,11 +119,9 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
   }
 
   if (empleadoToDelete?.contractFileName) {
-    try {
-      await fs.unlink(path.join(CONTRACTS_DIR, empleadoToDelete.contractFileName));
-    } catch (fileError: any) {
+    deleteFromStorage(empleadoToDelete.contractFileName).catch((fileError: any) => {
       console.warn(`Error deleting contract file ${empleadoToDelete.contractFileName}:`, fileError.message);
-    }
+    });
   }
 
   await writeData(EMPLEADOS_FILE, empleados);

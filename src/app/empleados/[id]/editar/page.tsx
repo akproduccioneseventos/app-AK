@@ -258,7 +258,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
                 <Label htmlFor="contract-file" className="text-base flex items-center gap-1"><FileText className="w-5 h-5 text-primary"/>Contrato (PDF)</Label>
                 {empleado?.contractFileName && (
                     <div className="flex items-center gap-2">
-                        <a href={`/api/employee-contracts/${empleado.contractFileName}`} target="_blank" rel="noopener noreferrer">
+                        <a href={empleado.contractFileName.startsWith('https://') ? empleado.contractFileName : `/api/employee-contracts/${empleado.contractFileName}`} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline" type="button"><Eye className="w-4 h-4 mr-2"/> Ver Contrato Actual</Button>
                         </a>
                     </div>

@@ -286,21 +286,21 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
                  <h4 className="text-sm font-semibold mb-2">Documentos y Acciones</h4>
                  <div className="flex flex-wrap gap-2">
                     {customer.contractFileName ? (
-                        <a href={`/api/contracts/${customer.contractFileName}`} target="_blank" rel="noopener noreferrer">
+                        <a href={customer.contractFileName.startsWith('https://') ? customer.contractFileName : `/api/contracts/${customer.contractFileName}`} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato</Button>
                         </a>
                     ) : (
                         <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Contrato no subido</Button>
                     )}
                      {customer.budgetFileName ? (
-                        <a href={`/api/budgets/${customer.budgetFileName}`} target="_blank" rel="noopener noreferrer">
+                        <a href={customer.budgetFileName.startsWith('https://') ? customer.budgetFileName : `/api/budgets/${customer.budgetFileName}`} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Presupuesto Firmado</Button>
                         </a>
                     ) : (
                          <Button variant="outline" disabled><FileText className="w-4 h-4 mr-2"/> Presupuesto no subido</Button>
                     )}
                     {customer.salonContractFileName ? (
-                        <a href={`/api/salon-contracts/${customer.salonContractFileName}`} target="_blank" rel="noopener noreferrer">
+                        <a href={customer.salonContractFileName.startsWith('https://') ? customer.salonContractFileName : `/api/salon-contracts/${customer.salonContractFileName}`} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline"><Eye className="w-4 h-4 mr-2"/> Ver Contrato Salón</Button>
                         </a>
                     ) : (

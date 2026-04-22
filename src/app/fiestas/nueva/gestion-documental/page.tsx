@@ -246,7 +246,7 @@ function GestionDocumentalContent() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <a href={`/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer">
+                  <a href={doc.fileName.startsWith('https://') ? doc.fileName : `/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" size="sm">Ver</Button>
                   </a>
                   <Button variant="destructive" size="sm" onClick={() => handleDelete(doc.id)}>Eliminar</Button>
