@@ -33,6 +33,13 @@ function extensionFromMimeType(mimeType: string, fallbackExt: string) {
   return fallbackExt || '.bin';
 }
 
+function createScreenAssetId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `screen_asset_${crypto.randomUUID()}`;
+  }
+  return `screen_asset_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export async function uploadScreenMediaAsset(
   fiestaId: string,
   file: File
@@ -43,7 +50,7 @@ export async function uploadScreenMediaAsset(
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 
     const ext = extensionFromMimeType(file.type || '', path.extname(file.name));
-    const id = `screen_asset_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const id = createScreenAssetId();
     const storagePath = `screen-mode/${fiestaId}/${id}${ext}`;
     const bytes = await file.arrayBuffer();
     const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/octet-stream', true);

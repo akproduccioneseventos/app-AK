@@ -23,6 +23,10 @@ const GAME_OVERLAY_CLASS =
 type MomentData = { id: string; nombre: string; emoji: string; timestamp: string };
 type PollData = { id: string; question: string; options: { id: string; text: string; votes: number }[] };
 
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
+}
+
 export default function MuroEnVivoPage() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
@@ -269,7 +273,7 @@ function ScreenMediaSlide({ item }: { item: ScreenPlaylistItem }) {
       </div>
     );
   }
-  const isVideo = item.type === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(item.mediaUrl);
+  const isVideo = item.type === 'video' || isVideoUrl(item.mediaUrl);
   const portrait = item.layout === 'portrait';
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-black">

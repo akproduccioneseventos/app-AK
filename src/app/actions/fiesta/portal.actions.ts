@@ -29,6 +29,13 @@ async function updateFiestaData(
   }
 }
 
+function createRequestId(prefix: string) {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
   return updateFiestaData(fiestaId, data => ({ ...data, clientChecklist: checklist }));
 }
@@ -172,7 +179,7 @@ export async function submitClientMenuChangeRequest(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
-    const requestId = `menu_change_request_${crypto.randomUUID()}`;
+    const requestId = createRequestId('menu_change_request');
     const nextRequest = {
       id: requestId,
       createdAt: new Date().toISOString(),

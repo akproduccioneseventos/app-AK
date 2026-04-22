@@ -58,6 +58,13 @@ function withScreenDefaults(settings: SocialGallerySettings): SocialGallerySetti
   };
 }
 
+function generatePlaylistItemId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `playlist_${crypto.randomUUID()}`;
+  }
+  return `playlist_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+}
+
 function MuroSocialContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -214,7 +221,7 @@ function MuroSocialContent() {
   };
 
   const addPlaylistItem = (type: ScreenPlaylistItem['type']) => {
-    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? `playlist_${crypto.randomUUID()}` : `playlist_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const id = generatePlaylistItemId();
     const defaults: Record<ScreenPlaylistItem['type'], Omit<ScreenPlaylistItem, 'id'>> = {
       video: { type: 'video', title: 'Video publicitario', durationSeconds: 20, enabled: true, layout: 'auto' },
       mural: { type: 'mural', title: 'Mural de fotos', durationSeconds: 30, enabled: true, layout: 'auto' },
