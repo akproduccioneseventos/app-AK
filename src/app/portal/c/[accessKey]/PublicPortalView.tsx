@@ -409,6 +409,9 @@ export default function PublicPortalView({
   const limiteAumento = settings?.simuladorInvitados?.maxIncreasePercent ?? simConfig?.limiteAumentoPorcentaje ?? 30;
   const maxDeltaAdult = Math.floor(Math.max(1, adultosBase || invitadosContratados) * (limiteAumento / 100));
   const maxDeltaKids = Math.floor(Math.max(1, ninosAdolescentesBase || invitadosContratados) * (limiteAumento / 100));
+  // Effective limits: prefer admin-configured percentage, fall back to absolute MAX_GUEST_DELTA
+  const effectiveMaxAdult = maxDeltaAdult || MAX_GUEST_DELTA;
+  const effectiveMaxKids = maxDeltaKids || MAX_GUEST_DELTA;
   // Legacy catering simulator totals (kept for the CateringSimulator component still in use)
   const simulationTotals = calculateMenuSimulationTotals({
     adultosDelta: adultDelta,
@@ -1304,13 +1307,13 @@ export default function PublicPortalView({
                     <p className="text-2xl font-black tabular-nums">+{adultDelta}</p>
                     <button
                       className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                      onClick={() => setAdultDelta((d) => Math.min(maxDeltaAdult || MAX_GUEST_DELTA, d + 1))}
-                      disabled={adultDelta >= (maxDeltaAdult || MAX_GUEST_DELTA)}
+                      onClick={() => setAdultDelta((d) => Math.min(effectiveMaxAdult, d + 1))}
+                      disabled={adultDelta >= (effectiveMaxAdult)}
                     >
                       <PlusCircle className="w-4 h-4" />
                     </button>
                   </div>
-                  <p className="text-[10px] text-muted-foreground text-center">Máx. {maxDeltaAdult || MAX_GUEST_DELTA}</p>
+                  <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxAdult}</p>
                 </div>
                 <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
                   <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
@@ -1327,13 +1330,13 @@ export default function PublicPortalView({
                     <p className="text-2xl font-black tabular-nums">+{kidsDelta}</p>
                     <button
                       className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                      onClick={() => setKidsDelta((d) => Math.min(maxDeltaKids || MAX_GUEST_DELTA, d + 1))}
-                      disabled={kidsDelta >= (maxDeltaKids || MAX_GUEST_DELTA)}
+                      onClick={() => setKidsDelta((d) => Math.min(effectiveMaxKids, d + 1))}
+                      disabled={kidsDelta >= (effectiveMaxKids)}
                     >
                       <PlusCircle className="w-4 h-4" />
                     </button>
                   </div>
-                  <p className="text-[10px] text-muted-foreground text-center">Máx. {maxDeltaKids || MAX_GUEST_DELTA}</p>
+                  <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxKids}</p>
                 </div>
               </div>
 
