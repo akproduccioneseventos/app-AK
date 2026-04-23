@@ -187,6 +187,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       backgroundColor: '#f1f5f9',
       accentColor: '#3b82f6',
       chatEnabled: true,
+      showSongRequests: true,
+      showDedications: true,
       title: '',
       subtitle: '',
       maxPhotos: 200

@@ -169,7 +169,7 @@ export default function MuroEnVivoPage() {
       </div>
 
       {socialConnections.length > 0 && (
-        <div className="absolute top-16 right-6 z-30 flex items-center gap-2 rounded-full border border-white/20 bg-black/45 px-4 py-2 backdrop-blur-md">
+        <div className="absolute top-16 right-6 z-30 flex flex-col gap-1.5 rounded-2xl border border-white/20 bg-black/50 px-4 py-3 backdrop-blur-md min-w-[160px]">
           {socialConnections.map((connection) => {
             const Icon = connection.platform === 'Instagram'
               ? Instagram
@@ -178,9 +178,11 @@ export default function MuroEnVivoPage() {
               : connection.platform === 'TikTok'
               ? Music2
               : MessageCircle;
+            const handle = connection.username || connection.phoneNumber || '';
             return (
-              <span key={connection.platform} className="inline-flex items-center gap-1 text-xs text-white/80" title={connection.platform}>
-                <Icon className="h-4 w-4" />
+              <span key={connection.platform} className="inline-flex items-center gap-2 text-sm text-white/90">
+                <Icon className="h-5 w-5 flex-shrink-0 text-white/70" />
+                <span className="font-semibold truncate max-w-[120px]">{handle || connection.platform}</span>
               </span>
             );
           })}
