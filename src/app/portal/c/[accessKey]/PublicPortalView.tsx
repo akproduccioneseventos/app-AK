@@ -1304,11 +1304,13 @@ export default function PublicPortalView({
                     <p className="text-2xl font-black tabular-nums">+{adultDelta}</p>
                     <button
                       className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                      onClick={() => setAdultDelta((d) => Math.min(MAX_GUEST_DELTA, d + 1))}
+                      onClick={() => setAdultDelta((d) => Math.min(maxDeltaAdult || MAX_GUEST_DELTA, d + 1))}
+                      disabled={adultDelta >= (maxDeltaAdult || MAX_GUEST_DELTA)}
                     >
                       <PlusCircle className="w-4 h-4" />
                     </button>
                   </div>
+                  <p className="text-[10px] text-muted-foreground text-center">Máx. {maxDeltaAdult || MAX_GUEST_DELTA}</p>
                 </div>
                 <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
                   <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
@@ -1325,11 +1327,13 @@ export default function PublicPortalView({
                     <p className="text-2xl font-black tabular-nums">+{kidsDelta}</p>
                     <button
                       className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                      onClick={() => setKidsDelta((d) => Math.min(MAX_GUEST_DELTA, d + 1))}
+                      onClick={() => setKidsDelta((d) => Math.min(maxDeltaKids || MAX_GUEST_DELTA, d + 1))}
+                      disabled={kidsDelta >= (maxDeltaKids || MAX_GUEST_DELTA)}
                     >
                       <PlusCircle className="w-4 h-4" />
                     </button>
                   </div>
+                  <p className="text-[10px] text-muted-foreground text-center">Máx. {maxDeltaKids || MAX_GUEST_DELTA}</p>
                 </div>
               </div>
 

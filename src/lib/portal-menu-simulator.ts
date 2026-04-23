@@ -115,11 +115,13 @@ export function simulateGuestCostImpact({
   const adolescentesActuales = presupuesto.invitadosAdolescentes ?? 0;
   const ninosActualesRaw = presupuesto.invitadosNinos ?? 0;
 
-  // The UI combines adolescentes + niños into one "menores" input for simplicity.
-  // Internally, recalcularCostoItem needs the two buckets separately, so kidsDelta is
-  // applied entirely to the niños bucket (adolescentes stay fixed). This preserves the
-  // original adolescentes/niños split while correctly scaling any per-person cost for
-  // the newly added minors.
+  /*
+   * The UI combines adolescentes + niños into one "menores" input for simplicity.
+   * Internally, recalcularCostoItem needs the two buckets separately, so kidsDelta is
+   * applied entirely to the niños bucket (adolescentes stay fixed). This preserves the
+   * original adolescentes/niños split while correctly scaling any per-person cost for
+   * the newly added minors.
+   */
   const menoresActuales = ninosActualesRaw + adolescentesActuales;
   const adultosNuevos = Math.max(0, adultosActuales + adultDelta);
   const menoresNuevos = Math.max(0, menoresActuales + kidsDelta);
