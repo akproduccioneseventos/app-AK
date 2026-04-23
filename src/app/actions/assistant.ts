@@ -10,7 +10,7 @@ import { getServiciosEmpresa, saveServicioEmpresa } from './servicios-empresa';
 import { saveEmpleado } from './empleados';
 import { saveProveedor } from './proveedores';
 import { createNewFiestaForCustomer, getAllFiestas, saveFiesta } from './fiesta/fiesta.actions';
-import { addCrmLead } from './crm';
+import { addCrmLead, getCrmLeads, scheduleCrmMeeting, moveCrmLead, getCrmStages } from './crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
@@ -276,6 +276,15 @@ function parseLeadFromMessage(text: string): ParsedLeadLocal {
     followUpDate,
     notes: hourMatch?.[1] ? `Hora solicitada: ${hourMatch[1]}` : undefined,
   };
+}
+
+/** Finds the first CRM lead whose name loosely matches the given name string. */
+function findLeadByName(leads: Awaited<ReturnType<typeof getCrmLeads>>, name: string) {
+  const lower = name.toLowerCase();
+  return leads.find(l =>
+    l.name.toLowerCase().includes(lower) ||
+    lower.includes(l.name.toLowerCase().split(' ')[0])
+  );
 }
 
 function getBudgetParserText(
@@ -949,9 +958,39 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           if (leadResult.success && leadResult.lead) {
             const nombre = d.name;
             const id = leadResult.lead.id;
-            finalResponse = `✅ Prospecto **${nombre}** registrado en el CRM${id ? ` (ID: ${id})` : ''}. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            const dateMsg = d.followUpDate ? ` para el **${d.followUpDate}**` : '';
+            const isSchedulingContext = QUICK_MEETING_REGEX.test(message);
+            finalResponse = isSchedulingContext
+              ? `✅ Cita agendada para **${nombre}**${dateMsg}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`
+              : `✅ Prospecto **${nombre}** registrado en el CRM${id ? ` (ID: ${id})` : ''}. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
           } else if (leadResult.duplicate) {
-            finalResponse = `⚠️ Ya existe un prospecto con ese teléfono: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            // Duplicate found — if this was a scheduling request and we have a date, save the meeting on the existing lead
+            if (d.followUpDate && QUICK_MEETING_REGEX.test(message)) {
+              try {
+                const stages = await getCrmStages();
+                const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
+                const scheduleResult = await scheduleCrmMeeting(
+                  leadResult.duplicate.id,
+                  d.followUpDate,
+                  d.notes ? `Cita: ${d.notes}` : undefined
+                );
+                if (meetingStage && scheduleResult.success) {
+                  await moveCrmLead(leadResult.duplicate.id, meetingStage.id, d.followUpDate);
+                }
+                actionResult = { success: scheduleResult.success, leadId: leadResult.duplicate.id };
+                if (scheduleResult.success) {
+                  finalResponse = `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${d.followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
+                } else {
+                  finalResponse = `❌ No se pudo guardar la cita: ${scheduleResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala en [/contabilidad/crm](/contabilidad/crm).`;
+                }
+              } catch (e: any) {
+                logger.error('[Asistente AK] Error al actualizar cita en lead duplicado:', e.message);
+                actionResult = { success: false, error: e.message };
+                finalResponse = `❌ No se pudo guardar la cita. Podés actualizarla manualmente en [/contabilidad/crm](/contabilidad/crm).`;
+              }
+            } else {
+              finalResponse = `⚠️ Ya existe un prospecto con ese nombre: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            }
           } else {
             finalResponse = `❌ No se pudo registrar el prospecto: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /contabilidad/crm.`;
           }
@@ -960,6 +999,64 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         logger.error('[Asistente AK] Error en create_lead:', e.message);
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
+      }
+    } else if (result.action?.type === 'schedule_meeting') {
+      const d = result.action.data || {};
+      const fallbackLead = parseLeadFromMessage(message);
+      const name: string = d.name || fallbackLead.name || '';
+      const followUpDate: string = d.followUpDate || fallbackLead.followUpDate || '';
+      try {
+        if (!name) {
+          actionResult = { success: false, error: 'Falta el nombre del prospecto.' };
+          finalResponse = `⚠️ Indicá el nombre de la persona para agendar la cita, o buscala en [/contabilidad/crm](/contabilidad/crm).`;
+        } else if (!followUpDate) {
+          actionResult = { success: false, error: 'Falta la fecha/hora de la cita.' };
+          finalResponse = `⚠️ Indicá la fecha y hora de la cita para **${name}**.`;
+        } else {
+          // Find existing lead by name
+          const allLeads = await getCrmLeads();
+          const existingLead = findLeadByName(allLeads, name);
+          if (existingLead) {
+            const stages = await getCrmStages();
+            const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
+            const scheduleResult = await scheduleCrmMeeting(existingLead.id, followUpDate, d.notes);
+            if (meetingStage && scheduleResult.success) {
+              await moveCrmLead(existingLead.id, meetingStage.id, followUpDate);
+            }
+            actionResult = { success: scheduleResult.success, leadId: existingLead.id };
+            if (scheduleResult.success) {
+              finalResponse = `✅ Cita agendada para **${existingLead.name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
+            } else {
+              finalResponse = `❌ No se pudo agendar la cita: ${scheduleResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala en [/contabilidad/crm](/contabilidad/crm).`;
+            }
+          } else {
+            // Lead not found — create it with the meeting date
+            const leadResult = await addCrmLead({
+              name,
+              phone: d.phone,
+              followUpDate,
+              notes: d.notes,
+              budgetSource: 'manual',
+            });
+            actionResult = leadResult;
+            if (leadResult.success && leadResult.lead) {
+              finalResponse = `✅ Cita agendada para **${name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
+            } else if (leadResult.duplicate) {
+              // Edge case: duplicate found now — schedule on it
+              const scheduleResult = await scheduleCrmMeeting(leadResult.duplicate.id, followUpDate, d.notes);
+              actionResult = { success: scheduleResult.success, leadId: leadResult.duplicate.id };
+              finalResponse = scheduleResult.success
+                ? `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`
+                : `❌ No se pudo agendar la cita. Actualizala manualmente en [/contabilidad/crm](/contabilidad/crm).`;
+            } else {
+              finalResponse = `❌ No se pudo agendar la cita: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala manualmente en [/contabilidad/crm](/contabilidad/crm).`;
+            }
+          }
+        }
+      } catch (e: any) {
+        logger.error('[Asistente AK] Error en schedule_meeting:', e.message);
+        actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo agendar la cita. Intentá de nuevo o actualizala manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
     } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;

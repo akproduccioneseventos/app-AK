@@ -419,10 +419,35 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     );
   }
 
+  if (action.type === 'schedule_meeting' || (action.type === 'create_lead' && action.result?.leadId)) {
+    if (action.result?.success) {
+      return (
+        <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600 shrink-0" />
+            <span className="text-xs text-green-800 font-medium">
+              Cita agendada{action.data?.name ? ` para ${action.data.name}` : ''}
+            </span>
+          </div>
+          <Link href="/contabilidad/crm" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver en CRM →</Link>
+        </div>
+      );
+    }
+    if (action.result && !action.result.success) {
+      return errorCard(action.result.error || 'No se pudo agendar la cita.');
+    }
+  }
+
   // Fallback: if there's a backend action with a failed result but no specific card above, show generic error.
   // NOTE: This list must stay in sync with the backend action types handled in assistant.ts.
   // Any new backend action type added there should also appear here.
-  const backendActionTypes = ['create_budget', 'create_customer', 'create_event', 'import_budget_from_image', 'register_payment', 'create_invoice', 'update_service_price', 'create_employee', 'create_supplier', 'update_event', 'generate_contract', 'check_availability', 'generate_social_post', 'generate_whatsapp_message', 'generate_promo'];
+  const backendActionTypes = [
+    'create_budget', 'create_customer', 'create_event', 'import_budget_from_image',
+    'register_payment', 'create_invoice', 'update_service_price', 'create_employee',
+    'create_supplier', 'update_event', 'generate_contract', 'check_availability',
+    'generate_social_post', 'generate_whatsapp_message', 'generate_promo',
+    'schedule_meeting', 'create_lead',
+  ];
   if (backendActionTypes.includes(action.type) && action.result && !action.result.success) {
     return errorCard(action.result.error || 'No se pudo completar la acción. Intentá de nuevo o hacelo manualmente.');
   }

@@ -40,6 +40,7 @@ const AssistantOutputSchema = z.object({
       'update_marketing_content',
       'generate_whatsapp_message',
       'generate_promo',
+      'schedule_meeting',
     ]).nullish(),
     data: z.any().optional(),
   }).nullish(),
@@ -133,8 +134,16 @@ Si el usuario dice "agregá un proveedor" o "registrá este servicio":
 Si el usuario dice "registrá un prospecto", "anotá un lead", "agregá una consulta", "agendá/agendame a X", "agendá entrevista/reunión con X" o menciona a alguien que preguntó por el servicio:
 - action.type = "create_lead"
 - action.data: { name, phone, email, partyType, followUpDate, guestCount, notes }
+- Si el usuario menciona una fecha/hora ("mañana", "el viernes", "a las 3"), calculá followUpDate como fecha ISO (YYYY-MM-DD o YYYY-MM-DDTHH:MM) usando la FECHA ACTUAL del contexto
 - Permitido crear lead con datos incompletos: con name (y si existe followUpDate/notes) alcanza para registrar
 - NO bloquear ni pedir email/teléfono como condición para ejecutar
+
+### 🗓️ AGENDAR/REPROGRAMAR CITA (LEAD EXISTENTE)
+Si el usuario dice "agendá una cita con X para el [fecha]", "reprogramá la reunión con X", "cambiale la fecha a X" o quiere agregar/modificar la fecha de un lead que ya existe en CRM:
+- action.type = "schedule_meeting"
+- action.data: { name, followUpDate (ISO), notes }
+- Usá esta acción cuando está claro que la persona ya es un prospecto conocido o cuando create_lead fallaría por duplicado
+- Si el usuario menciona una fecha/hora, calculá followUpDate como fecha ISO usando la FECHA ACTUAL del contexto
 
 ### 🎉 CREAR EVENTOS
 Si el usuario dice "creá un evento" o "agendate un evento de X":

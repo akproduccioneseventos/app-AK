@@ -174,7 +174,7 @@ describe('sendAssistantMessage — create_lead fallback with minimal scheduling 
         notes: expect.stringContaining('11'),
       }),
     );
-    expect(res.response).toContain('registrado en el CRM');
+    expect(res.response).toContain('Cita agendada');
   });
 
   it('accepts a single uppercase name as minimal lead data', async () => {
