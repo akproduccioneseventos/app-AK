@@ -445,6 +445,16 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
 
     logger.info('[Asistente AK] AI action received:', JSON.stringify(result.action));
 
+    // Diagnostic: warn when the AI returned no action (type=none or null) but the
+    // message looks like it was requesting an action. This helps detect prompt-following
+    // regressions where the model defaults to null.
+    if ((!result.action?.type || result.action.type === 'none') && message.trim().length > 5) {
+      const actionKeywords = /\b(creá|crea|registrá|registra|agregá|agrega|agendar|agenda|ingresá|ingresa|actualizá|actualiza|eliminá|elimina|generá|genera|importá|importa|consulta)\b/i;
+      if (actionKeywords.test(message)) {
+        logger.warn('[Asistente AK] ⚠️ AI returned type=none for a likely-action message. Message:', message.slice(0, 80));
+      }
+    }
+
     // 3. Ejecutar acciones si la IA las pidió
     let actionResult: any = null;
     // finalResponse starts as the AI response; budget/import actions will replace it with verified data
@@ -1292,7 +1302,11 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       finalResponse = `⚠️ No se pudo generar la promoción. Indicá los detalles del descuento o vigencia, o creala manualmente desde [/marketing](/marketing).`;
     } else if (result.action?.type === 'update_marketing_content') {
       actionResult = { success: true, href: '/marketing' };
-    } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual' && result.action.type !== 'query_data') {
+    } else if (result.action?.type === 'query_data') {
+      // query_data means the AI answered from context already — no backend write needed.
+      // Just mark it as success so the response text (which contains the queried info) passes through.
+      actionResult = { success: true, queryType: result.action.data?.queryType };
+    } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual') {
       // CATCH-ALL: acción de backend no reconocida — evitar respuesta falsa.
       logger.warn('[Asistente AK] Unrecognized action type:', result.action.type, 'data:', JSON.stringify(result.action.data));
       actionResult = { success: false, error: 'Acción no reconocida o no ejecutable.' };

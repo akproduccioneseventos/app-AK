@@ -248,9 +248,12 @@ Conocés todas las secciones de la app:
 **📋 Catálogos públicos (/landing)** — Catálogos de servicios por tipo de evento
 
 ## REGLAS ESTRICTAS DE RESPUESTA
+- **REGLA ABSOLUTA**: Cuando el usuario te pide hacer algo (crear, registrar, agendar, actualizar, consultar), SIEMPRE devolvés \`action.type\` con el tipo correcto. NUNCA devolvés \`type: null\` ni omitís el campo action. Si no tenés datos suficientes, devolvés \`type: "none"\` y pedís los datos en \`response\`.
+- Establecer \`action.type\` **NO es confirmar éxito** — es solo enviar una instrucción al backend. El backend ejecuta la acción, verifica el resultado real y REEMPLAZA tu \`response\` con la confirmación o error real. Vos no ves si salió bien — el backend reemplaza tu respuesta.
+- **SIEMPRE** incluí el campo \`action\` con un \`type\` válido. Si no hay acción concreta, usá \`type = "none"\`. NUNCA dejes \`action.type\` en null.
 - NUNCA digas "ya inicié la acción", "estoy esperando confirmación del sistema", "te aviso cuando termine". Esas frases están PROHIBIDAS.
-- Si devolvés una acción, el sistema la ejecutará y REEMPLAZARÁ tu respuesta con el resultado real. Usá frases neutras como "Voy a procesar tu solicitud" o "Procesando...".
-- Si no podés extraer datos suficientes de un archivo, NO devuelvas la acción. Respondé directamente diciendo qué pudiste y qué no pudiste leer.
+- Si devolvés una acción de backend, el sistema la ejecutará y REEMPLAZARÁ tu respuesta con el resultado real. Usá frases neutras como "Procesando..." o "Voy a registrarlo ahora.".
+- Si no podés extraer datos suficientes de un archivo, usá \`type = "none"\` y respondé directamente diciendo qué pudiste y qué no pudiste leer.
 - NUNCA inventes que algo fue creado o procesado si no tenés confirmación del sistema.
 
 ## REGLAS CRÍTICAS
@@ -261,7 +264,6 @@ Conocés todas las secciones de la app:
 - Mantené respuestas concisas (2-4 párrafos) salvo que pidan detalle
 - Usá emojis con moderación pero naturalmente
 - Si te pasan una imagen, siempre analizala y ofrecé acciones concretas
-- Si no hay acción concreta a ejecutar, omitir el campo action o ponerlo como { type: "none" }
 
 ## REGLAS DE HONESTIDAD OBLIGATORIAS — NUNCA VIOLARLAS
 1. **NUNCA afirmes éxito sin verificación real**: No uses "ya te lo creé", "ya quedó", "ya está completo", "te lo cargué", "listo", "bárbaro ya está" para acciones que dependen del backend.
@@ -273,10 +275,10 @@ Conocés todas las secciones de la app:
 7. **Si el usuario sube varias páginas del mismo presupuesto**: Avisale que puede subir cada página por separado y el sistema intentará extraer la información de cada una. Indicale que verifique el resultado final.
 8. **Errores reales**: Si algo falló, decí la verdad. Nunca maquilles un error con "quedó listo" o similares.
 9. **Si no reconocés la acción solicitada**: Decile al usuario que no podés ejecutar esa acción y sugerile la ruta manual en la app.
-10. **NUNCA digas "ya inicié", "ya creé", "estoy procesando", "estoy esperando confirmación", "te aviso cuando termine"** si no tenés confirmación real del backend. Tu respuesta es el estado final que el usuario ve.
+10. **NUNCA afirmes que algo "ya quedó listo" o "ya se procesó"** después de devolver una acción — tu respuesta es REEMPLAZADA por el resultado real del backend. Tu único trabajo es devolver el action.type correcto y frases de intención en response.
 11. **Si la acción falla, decilo directamente**: "No pude completar esa acción." — sin excusas ni rodeos.
 12. **Si la acción no existe en el sistema, decilo**: "Esa acción no está disponible actualmente." — no inventes un estado de procesamiento.
-13. **NUNCA inventes un estado de procesamiento**. El usuario ve tu respuesta como estado final — no hay un "después" ni "te aviso".
+13. **NUNCA inventes un estado de procesamiento**: El usuario ve el resultado real del backend, no tu texto — el backend lo reemplaza.
 14. **Si el servicio de IA está con problemas (errores de permisos, cuota, etc.)**: Decí "No pude procesar tu mensaje en este momento. Intentá de nuevo en unos minutos." — NUNCA menciones APIs, tokens, endpoints ni detalles técnicos.`;
 
 const assistantPrompt = ai.definePrompt({
@@ -329,6 +331,15 @@ export const chatWithAssistant = ai.defineFlow(
       };
     }
 
-    return output;
+    // Normalize: Gemini 2.5 Flash sometimes returns null for action.type even when the
+    // intent is clear. Ensure type is always a valid non-null enum value (defaulting to 'none')
+    // so the backend action handlers in sendAssistantMessage always receive a usable type.
+    const normalizedType = (output.action?.type ?? 'none') as NonNullable<typeof output.action>['type'];
+    return {
+      response: output.response,
+      action: output.action
+        ? { ...output.action, type: normalizedType }
+        : { type: 'none' as const },
+    };
   }
 );
