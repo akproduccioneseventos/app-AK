@@ -24,6 +24,19 @@ const rsvpConfig: Record<RsvpStatus, { icon: React.ElementType; cls: string; bad
 
 type FilterTab = 'Todos' | 'Confirmado' | 'Pendiente' | 'Rechazado' | 'Tal vez' | 'Con necesidades' | 'Sin responder';
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Maps a display label to the correct FilterTab value. */
+function labelToFilter(label: string): FilterTab {
+  if (label === 'Pendientes') return 'Pendiente';
+  return label as FilterTab;
+}
+
+/** Returns whether a guest has accessibility requirements. */
+function hasAccessibilityNeeds(inv: Invitado): boolean {
+  return !!(inv.requiereAccesibilidad || inv.perfil === 'Necesidades Especiales');
+}
+
 export default function ConfirmarInvitadosPortalPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -76,7 +89,7 @@ export default function ConfirmarInvitadosPortalPage() {
   const rechazados        = invitados.filter(i => i.rsvp === 'Rechazado');
   const talVez            = invitados.filter(i => i.rsvp === 'Tal vez');
   const pendientes        = invitados.filter(i => i.rsvp === 'Pendiente');
-  const conNecesidades    = invitados.filter(i => i.requiereAccesibilidad || i.perfil === 'Necesidades Especiales');
+  const conNecesidades    = invitados.filter(hasAccessibilityNeeds);
   const totalPersonas     = invitados.reduce((s, i) => s + (i.partySize ?? 1), 0);
   const conDieta          = invitados.filter(i => i.dietaryRestriction && i.dietaryRestriction !== 'Ninguna');
   const conCanciones      = invitados.filter(i => i.cancionesDJ && i.cancionesDJ.length > 0);
@@ -89,7 +102,7 @@ export default function ConfirmarInvitadosPortalPage() {
       case 'Rechazado':       return list.filter(i => i.rsvp === 'Rechazado');
       case 'Tal vez':         return list.filter(i => i.rsvp === 'Tal vez');
       case 'Pendiente':       return list.filter(i => i.rsvp === 'Pendiente');
-      case 'Con necesidades': return list.filter(i => i.requiereAccesibilidad || i.perfil === 'Necesidades Especiales');
+      case 'Con necesidades': return list.filter(hasAccessibilityNeeds);
       case 'Sin responder':   return list.filter(i => i.rsvp === 'Pendiente');
       default:                return list;
     }
@@ -160,7 +173,8 @@ export default function ConfirmarInvitadosPortalPage() {
             return (
               <button
                 key={item.label}
-                onClick={() => setFiltro(item.label === 'Pendientes' ? 'Pendiente' : (item.label === 'Tal vez' ? 'Tal vez' : item.label as FilterTab))}
+                onClick={() => setFiltro(labelToFilter(item.label))}
+                aria-label={`Filtrar por ${item.label.toLowerCase()}`}
                 className={`rounded-2xl border p-3 text-center transition-all hover:scale-105 ${item.cls}`}
               >
                 <Icon className="w-5 h-5 mx-auto mb-1 opacity-70" />
@@ -241,7 +255,7 @@ export default function ConfirmarInvitadosPortalPage() {
               const cfg = rsvpConfig[inv.rsvp] ?? rsvpConfig.Pendiente;
               const Icon = cfg.icon;
               const hasDiet     = inv.dietaryRestriction && inv.dietaryRestriction !== 'Ninguna';
-              const hasAccess   = inv.requiereAccesibilidad || inv.perfil === 'Necesidades Especiales';
+              const hasAccess   = hasAccessibilityNeeds(inv);
               const hasSongs    = inv.cancionesDJ && inv.cancionesDJ.length > 0;
               const hasMensaje  = !!inv.mensaje;
 

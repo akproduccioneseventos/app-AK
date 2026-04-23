@@ -72,6 +72,13 @@ function Section({
   );
 }
 
+/** Ensures at least 3 editable song slots, preserving any existing suggestions. */
+function initializeSongSlots(existing?: string[]): string[] {
+  if (!existing || existing.length === 0) return ['', '', ''];
+  const minSlots = Math.max(3, existing.length);
+  return [...existing, ...Array(minSlots - existing.length).fill('')].slice(0, minSlots);
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function InvitadoPage() {
@@ -110,7 +117,7 @@ export default function InvitadoPage() {
       setCompanionNames(inv.companionNames ?? []);
       setDietary(inv.dietaryRestriction ?? 'Ninguna');
       setAlergias(inv.alergiasEspecificas ?? '');
-      setSongs(inv.cancionesDJ?.length ? [...inv.cancionesDJ, '', ''].slice(0, Math.max(3, inv.cancionesDJ.length)) : ['', '', '']);
+      setSongs(initializeSongSlots(inv.cancionesDJ));
       setMensaje(inv.mensaje ?? '');
       if (inv.rsvp && inv.rsvp !== 'Pendiente') setSaved(true);
     } catch {
@@ -291,6 +298,8 @@ export default function InvitadoPage() {
                   key={status}
                   type="button"
                   onClick={() => setRsvp(status)}
+                  aria-label={`Seleccionar: ${cfg.label}`}
+                  aria-pressed={active}
                   className={`flex flex-col items-center gap-1.5 rounded-xl border-2 py-3 px-2 text-xs font-semibold transition-all
                     ${active ? 'border-purple-500 bg-purple-50 shadow-md scale-105' : 'border-slate-200 bg-white hover:border-purple-300'}`}
                 >
@@ -311,13 +320,15 @@ export default function InvitadoPage() {
                 <Button
                   type="button" variant="outline" size="icon"
                   className="h-8 w-8"
+                  aria-label="Reducir cantidad de personas"
                   onClick={() => handlePartySizeChange(partySize - 1)}
                   disabled={partySize <= 1}
                 >–</Button>
-                <span className="w-8 text-center font-bold text-slate-900">{partySize}</span>
+                <span className="w-8 text-center font-bold text-slate-900" aria-live="polite">{partySize}</span>
                 <Button
                   type="button" variant="outline" size="icon"
                   className="h-8 w-8"
+                  aria-label="Aumentar cantidad de personas"
                   onClick={() => handlePartySizeChange(partySize + 1)}
                 >+</Button>
               </div>
