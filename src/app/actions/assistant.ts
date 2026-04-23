@@ -1,6 +1,7 @@
 'use server';
 
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
+import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import { getDashboardKpiData, type GlobalAlert } from './dashboard';
 import { getCompanyInfo, getAiAssistantSettings } from './settings';
 import { getPresupuestos, savePresupuesto, addPagoToPresupuesto } from './presupuestos';
@@ -10,7 +11,7 @@ import { getServiciosEmpresa, saveServicioEmpresa } from './servicios-empresa';
 import { saveEmpleado } from './empleados';
 import { saveProveedor } from './proveedores';
 import { createNewFiestaForCustomer, getAllFiestas, saveFiesta } from './fiesta/fiesta.actions';
-import { addCrmLead } from './crm';
+import { addCrmLead, getCrmLeads, scheduleCrmMeeting, moveCrmLead, getCrmStages } from './crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
@@ -278,6 +279,15 @@ function parseLeadFromMessage(text: string): ParsedLeadLocal {
   };
 }
 
+/** Finds the first CRM lead whose name loosely matches the given name string. */
+function findLeadByName(leads: Awaited<ReturnType<typeof getCrmLeads>>, name: string) {
+  const lower = name.toLowerCase();
+  return leads.find(l =>
+    l.name.toLowerCase().includes(lower) ||
+    lower.includes(l.name.toLowerCase().split(' ')[0])
+  );
+}
+
 function getBudgetParserText(
   message: string,
   history: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -435,6 +445,16 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
     }
 
     logger.info('[Asistente AK] AI action received:', JSON.stringify(result.action));
+
+    // Diagnostic: warn when the AI returned no action (type=none or null) but the
+    // message looks like it was requesting an action. This helps detect prompt-following
+    // regressions where the model defaults to null.
+    if ((!result.action?.type || result.action.type === 'none') && message.trim().length > 5) {
+      const actionKeywords = /\b(creá|crea|registrá|registra|agregá|agrega|agendar|agenda|ingresá|ingresa|actualizá|actualiza|eliminá|elimina|generá|genera|importá|importa|consulta)\b/i;
+      if (actionKeywords.test(message)) {
+        logger.warn('[Asistente AK] ⚠️ AI returned type=none for a likely-action message. Message:', message.slice(0, 80));
+      }
+    }
 
     // 3. Ejecutar acciones si la IA las pidió
     let actionResult: any = null;
@@ -949,9 +969,39 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           if (leadResult.success && leadResult.lead) {
             const nombre = d.name;
             const id = leadResult.lead.id;
-            finalResponse = `✅ Prospecto **${nombre}** registrado en el CRM${id ? ` (ID: ${id})` : ''}. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            const dateMsg = d.followUpDate ? ` para el **${d.followUpDate}**` : '';
+            const isSchedulingContext = QUICK_MEETING_REGEX.test(message);
+            finalResponse = isSchedulingContext
+              ? `✅ Cita agendada para **${nombre}**${dateMsg}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`
+              : `✅ Prospecto **${nombre}** registrado en el CRM${id ? ` (ID: ${id})` : ''}. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
           } else if (leadResult.duplicate) {
-            finalResponse = `⚠️ Ya existe un prospecto con ese teléfono: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            // Duplicate found — if this was a scheduling request and we have a date, save the meeting on the existing lead
+            if (d.followUpDate && QUICK_MEETING_REGEX.test(message)) {
+              try {
+                const stages = await getCrmStages();
+                const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
+                const scheduleResult = await scheduleCrmMeeting(
+                  leadResult.duplicate.id,
+                  d.followUpDate,
+                  d.notes ? `Cita: ${d.notes}` : undefined
+                );
+                if (meetingStage && scheduleResult.success) {
+                  await moveCrmLead(leadResult.duplicate.id, meetingStage.id, d.followUpDate);
+                }
+                actionResult = { success: scheduleResult.success, leadId: leadResult.duplicate.id };
+                if (scheduleResult.success) {
+                  finalResponse = `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${d.followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
+                } else {
+                  finalResponse = `❌ No se pudo guardar la cita: ${scheduleResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala en [/contabilidad/crm](/contabilidad/crm).`;
+                }
+              } catch (e: any) {
+                logger.error('[Asistente AK] Error al actualizar cita en lead duplicado:', e.message);
+                actionResult = { success: false, error: e.message };
+                finalResponse = `❌ No se pudo guardar la cita. Podés actualizarla manualmente en [/contabilidad/crm](/contabilidad/crm).`;
+              }
+            } else {
+              finalResponse = `⚠️ Ya existe un prospecto con ese nombre: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            }
           } else {
             finalResponse = `❌ No se pudo registrar el prospecto: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /contabilidad/crm.`;
           }
@@ -960,6 +1010,64 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         logger.error('[Asistente AK] Error en create_lead:', e.message);
         actionResult = { success: false, error: e.message };
         finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
+      }
+    } else if (result.action?.type === 'schedule_meeting') {
+      const d = result.action.data || {};
+      const fallbackLead = parseLeadFromMessage(message);
+      const name: string = d.name || fallbackLead.name || '';
+      const followUpDate: string = d.followUpDate || fallbackLead.followUpDate || '';
+      try {
+        if (!name) {
+          actionResult = { success: false, error: 'Falta el nombre del prospecto.' };
+          finalResponse = `⚠️ Indicá el nombre de la persona para agendar la cita, o buscala en [/contabilidad/crm](/contabilidad/crm).`;
+        } else if (!followUpDate) {
+          actionResult = { success: false, error: 'Falta la fecha/hora de la cita.' };
+          finalResponse = `⚠️ Indicá la fecha y hora de la cita para **${name}**.`;
+        } else {
+          // Find existing lead by name
+          const allLeads = await getCrmLeads();
+          const existingLead = findLeadByName(allLeads, name);
+          if (existingLead) {
+            const stages = await getCrmStages();
+            const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
+            const scheduleResult = await scheduleCrmMeeting(existingLead.id, followUpDate, d.notes);
+            if (meetingStage && scheduleResult.success) {
+              await moveCrmLead(existingLead.id, meetingStage.id, followUpDate);
+            }
+            actionResult = { success: scheduleResult.success, leadId: existingLead.id };
+            if (scheduleResult.success) {
+              finalResponse = `✅ Cita agendada para **${existingLead.name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
+            } else {
+              finalResponse = `❌ No se pudo agendar la cita: ${scheduleResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala en [/contabilidad/crm](/contabilidad/crm).`;
+            }
+          } else {
+            // Lead not found — create it with the meeting date
+            const leadResult = await addCrmLead({
+              name,
+              phone: d.phone,
+              followUpDate,
+              notes: d.notes,
+              budgetSource: 'manual',
+            });
+            actionResult = leadResult;
+            if (leadResult.success && leadResult.lead) {
+              finalResponse = `✅ Cita agendada para **${name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
+            } else if (leadResult.duplicate) {
+              // Edge case: duplicate found now — schedule on it
+              const scheduleResult = await scheduleCrmMeeting(leadResult.duplicate.id, followUpDate, d.notes);
+              actionResult = { success: scheduleResult.success, leadId: leadResult.duplicate.id };
+              finalResponse = scheduleResult.success
+                ? `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`
+                : `❌ No se pudo agendar la cita. Actualizala manualmente en [/contabilidad/crm](/contabilidad/crm).`;
+            } else {
+              finalResponse = `❌ No se pudo agendar la cita: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala manualmente en [/contabilidad/crm](/contabilidad/crm).`;
+            }
+          }
+        }
+      } catch (e: any) {
+        logger.error('[Asistente AK] Error en schedule_meeting:', e.message);
+        actionResult = { success: false, error: e.message };
+        finalResponse = `❌ No se pudo agendar la cita. Intentá de nuevo o actualizala manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
     } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;
@@ -1175,27 +1283,35 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
     } else if (result.action?.type === 'check_availability') {
       actionResult = { success: false, error: 'Falta la fecha para consultar disponibilidad.' };
       finalResponse = `⚠️ Falta la fecha para consultar disponibilidad. Indicá la fecha que querés consultar, o revisá el calendario en [/fiestas/nueva](/fiestas/nueva).`;
-    } else if (result.action?.type === 'generate_social_post' && result.action.data) {
-      // Content is already generated by the AI in action.data.content — just confirm success
-      actionResult = { success: true, content: result.action.data.content };
-    } else if (result.action?.type === 'generate_social_post') {
-      actionResult = { success: false, error: 'No se pudo generar el post.' };
-      finalResponse = `⚠️ No se pudo generar el post. Indicá la plataforma y el contenido que querés, o crealo manualmente desde [/marketing](/marketing).`;
-    } else if (result.action?.type === 'generate_whatsapp_message' && result.action.data) {
-      // Content is already generated by the AI in action.data.content — just confirm success
-      actionResult = { success: true, content: result.action.data.content };
-    } else if (result.action?.type === 'generate_whatsapp_message') {
-      actionResult = { success: false, error: 'No se pudo generar el mensaje de WhatsApp.' };
-      finalResponse = `⚠️ No se pudo generar el mensaje de WhatsApp. Indicá el tipo de mensaje y el cliente, o redactalo manualmente.`;
-    } else if (result.action?.type === 'generate_promo' && result.action.data) {
-      // Content is already generated by the AI in action.data.content — just confirm success
-      actionResult = { success: true, content: result.action.data.content };
-    } else if (result.action?.type === 'generate_promo') {
-      actionResult = { success: false, error: 'No se pudo generar la promoción.' };
-      finalResponse = `⚠️ No se pudo generar la promoción. Indicá los detalles del descuento o vigencia, o creala manualmente desde [/marketing](/marketing).`;
+    } else if (
+      result.action?.type === 'generate_social_post' ||
+      result.action?.type === 'generate_whatsapp_message' ||
+      result.action?.type === 'generate_promo'
+    ) {
+      // Route through the dedicated Marketing Agent for higher-quality, platform-optimized content.
+      try {
+        const actionData = result.action.data ?? {};
+        const marketingResult = await chatWithMarketingAgent({
+          request: message,
+          context,
+          platform: actionData.platform,
+          contentType: actionData.tipo ?? actionData.contentType,
+          eventType: actionData.eventoTipo,
+        });
+        actionResult = { success: true, content: marketingResult.content, platform: marketingResult.platform };
+        finalResponse = marketingResult.content;
+      } catch (marketingError: any) {
+        logger.error('[Agente Marketing] Error:', marketingError?.message);
+        actionResult = { success: false, error: 'No se pudo generar el contenido de marketing.' };
+        finalResponse = `⚠️ No pude generar el contenido en este momento. Intentá de nuevo o crealo manualmente desde [/marketing](/marketing).`;
+      }
     } else if (result.action?.type === 'update_marketing_content') {
       actionResult = { success: true, href: '/marketing' };
-    } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual' && result.action.type !== 'query_data') {
+    } else if (result.action?.type === 'query_data') {
+      // query_data means the AI answered from context already — no backend write needed.
+      // Just mark it as success so the response text (which contains the queried info) passes through.
+      actionResult = { success: true, queryType: result.action.data?.queryType };
+    } else if (result.action?.type && result.action.type !== 'none' && result.action.type !== 'navigate' && result.action.type !== 'show_manual') {
       // CATCH-ALL: acción de backend no reconocida — evitar respuesta falsa.
       logger.warn('[Asistente AK] Unrecognized action type:', result.action.type, 'data:', JSON.stringify(result.action.data));
       actionResult = { success: false, error: 'Acción no reconocida o no ejecutable.' };
