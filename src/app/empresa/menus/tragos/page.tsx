@@ -43,7 +43,11 @@ const emptyPreviewFiesta = {} as FiestaEnPlanificacion;
 const fonts = ['Playfair Display', 'Inter', 'Belleza', 'Dancing Script'];
 
 const isBebidaInsumo = (insumo: ServicioEmpresa) =>
-  insumo.tipoItem === 'Bebida (Insumo)' || insumo.categoria === 'Bebida (Insumo)' || insumo.categoria === 'Insumos varios';
+  insumo.tipoItem === 'Bebida (Insumo)' ||
+  insumo.tipoItem === 'Insumo/Ingrediente' ||
+  insumo.categoria === 'Bebida (Insumo)' ||
+  insumo.categoria === 'Insumos varios' ||
+  insumo.categoria === 'Barra de Tragos';
 
 const getRecipe = (item: Trago): TragoRecetaIngrediente[] => item.recetaIngredientes || [];
 
@@ -512,6 +516,9 @@ export default function TragosMasterPage() {
                   <Input type="number" min={0} value={lowStockLimit} onChange={(e) => setLowStockLimit(Number(e.target.value) || 0)} className="w-28" />
                 </div>
                 <Badge variant="secondary">Valor total: {formatCurrency(totalStockValue)}</Badge>
+                <Button variant="outline" onClick={handlePrint} className="ml-auto">
+                  <Printer className="w-4 h-4 mr-2" /> Imprimir Stock
+                </Button>
               </div>
 
               <Table>

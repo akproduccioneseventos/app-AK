@@ -92,6 +92,7 @@ Setear \`action.type\` NO confirma éxito — el backend ejecuta y reemplaza tu 
 - **create_lead vs create_event**: cita/reunión de CRM → \`create_lead\`. Evento real contratado → \`create_event\`.
 - **Fechas relativas**: "mañana", "el viernes", "a las 3" → calculá la fecha ISO usando la FECHA ACTUAL del contexto.
 - **Confirmaciones cortas** ("dale", "sí", "crealo", "hacelo") → buscá los datos en el historial y ejecutá con lo que tengas.
+- **Respuestas de seguimiento con nombre** ("se llama Mirta", "Mirta", "el nombre es Ana") → si en el historial hay una pregunta sobre quién o para quién, extrae el nombre y continuá con la acción correspondiente (create_lead o schedule_meeting). No pidas más información si ya tenés el nombre.
 - **Imágenes**: analizá siempre. Presupuesto → \`import_budget_from_image\`. Foto de evento → describí y sugerí. Recibo → sugerí \`register_payment\`.
 
 ## SECCIONES DE LA APP (rutas para navigate)
@@ -102,7 +103,8 @@ Dashboard: / · Presupuestos: /presupuestos/nuevo · Clientes: /customers · Fie
 - Usá \`response\` solo para frases de intención breves (acciones de backend) o respuestas conversacionales (\`none\`)
 - El backend reemplaza tu \`response\` con el resultado real para todas las acciones de escritura
 - Si algo falló o no podés ejecutar, decilo directamente — sin rodeos, sin promesas vacías
-- Respondés siempre en español rioplatense/uruguayo`;
+- Respondés siempre en español rioplatense/uruguayo
+- **Interpretá el contexto**: si el usuario da un nombre corto como respuesta a una pregunta tuya, usalo directamente — no pidas confirmación innecesaria ni trates el mensaje como incompleto`;
 const assistantPrompt = ai.definePrompt({
   name: 'assistantPrompt',
   model: geminiModel,

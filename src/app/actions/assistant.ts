@@ -27,6 +27,9 @@ const AGENDA_LEAD_NAME_REGEX =
 // Matches phrases like "prospecto de Norma" / "cliente Norma" and extracts the name.
 const NAMED_LEAD_REGEX =
   /(?:prospecto|lead|consulta|cliente)\s+(?:de|para)?\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2})/i;
+// Matches follow-up name introductions like "se llama Mirta", "el nombre es Juan", "mi nombre es Ana García".
+const FOLLOWUP_NAME_REGEX =
+  /(?:se\s+llama|me\s+llamo|el\s+nombre\s+(?:es|del?\s+cliente\s+es)|mi\s+nombre\s+es|para\s+(?:la\s+)?(?:sra?\.?\s+)?|es\s+(?:la\s+)?(?:sra?\.?\s+)?|nombre[:\s]+)\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2})/i;
 const QUICK_MEETING_REGEX = /\b(cita|reuni[oó]n|agend|agenda|agendar)\b/i;
 
 interface ParsedLeadLocal {
@@ -236,7 +239,7 @@ function parseBudgetFromText(text: string): ParsedBudgetLocal {
   return { clienteNombre, eventoTipo, eventoFecha, invitados, servicios, descuento, total, confidence };
 }
 
-function parseLeadFromMessage(text: string): ParsedLeadLocal {
+function parseLeadFromMessage(text: string, history?: Array<{ role: 'user' | 'assistant'; content: string }>): ParsedLeadLocal {
   const cleaned = (text || '').trim();
   if (!cleaned) return {};
 
@@ -254,6 +257,13 @@ function parseLeadFromMessage(text: string): ParsedLeadLocal {
   }
 
   if (!name) {
+    const followupNameMatch = cleaned.match(FOLLOWUP_NAME_REGEX);
+    if (followupNameMatch?.[1]) {
+      name = toTitleCase(followupNameMatch[1].trim());
+    }
+  }
+
+  if (!name) {
     const normalized = cleaned.replace(/[^\p{L}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
     const maybeNameWords = normalized.split(' ').filter(Boolean);
     const looksLikeNameCase = /^[A-ZÁÉÍÓÚÑ]/.test(cleaned) || cleaned === cleaned.toUpperCase();
@@ -265,6 +275,23 @@ function parseLeadFromMessage(text: string): ParsedLeadLocal {
       maybeNameWords.every(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]{2,}$/.test(w))
     ) {
       name = toTitleCase(maybeNameWords.join(' '));
+    }
+  }
+
+  // If name not found in current message but history has a scheduling request,
+  // try to extract a name from the current message more loosely as a follow-up reply
+  if (!name && history && history.length > 0) {
+    const lastAssistantMsg = [...history].reverse().find(h => h.role === 'assistant')?.content || '';
+    const isFollowUpContext =
+      QUICK_MEETING_REGEX.test(lastAssistantMsg) ||
+      /nombre|quién|para quién/i.test(lastAssistantMsg);
+    if (isFollowUpContext) {
+      // Accept any 1-3 capitalized words as a name in follow-up context
+      const words = cleaned.split(/\s+/).filter(Boolean);
+      const nameWords = words.filter(w => /^[A-Za-zÁÉÍÓÚÑáéíóúñ]{2,}$/.test(w));
+      if (nameWords.length >= 1 && nameWords.length <= 3 && words.length <= 4) {
+        name = toTitleCase(nameWords.join(' '));
+      }
     }
   }
 
@@ -943,7 +970,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       actionResult = { success: false, error: 'Falta información del proveedor.' };
       finalResponse = `⚠️ Falta información del proveedor. Proporcioná al menos el nombre, o ingresalo manualmente desde [/proveedores](/proveedores).`;
     } else if (result.action?.type === 'create_lead') {
-      const fallbackLead = parseLeadFromMessage(message);
+      const fallbackLead = parseLeadFromMessage(message, history);
       const d = {
         ...(result.action.data || {}),
         name: result.action?.data?.name || fallbackLead.name,
@@ -1013,7 +1040,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       }
     } else if (result.action?.type === 'schedule_meeting') {
       const d = result.action.data || {};
-      const fallbackLead = parseLeadFromMessage(message);
+      const fallbackLead = parseLeadFromMessage(message, history);
       const name: string = d.name || fallbackLead.name || '';
       const followUpDate: string = d.followUpDate || fallbackLead.followUpDate || '';
       try {
@@ -1073,7 +1100,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       const d = result.action.data;
       const shouldTreatAsMeeting = QUICK_MEETING_REGEX.test(message) && !d.eventoTipo;
       if (shouldTreatAsMeeting) {
-        const fallbackLead = parseLeadFromMessage(message);
+        const fallbackLead = parseLeadFromMessage(message, history);
         if (fallbackLead.name) {
           try {
             const leadResult = await addCrmLead({
@@ -1144,7 +1171,7 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         finalResponse = `❌ No se pudo crear el evento. Intentá de nuevo o crealo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'create_event') {
-      const fallbackLead = parseLeadFromMessage(message);
+      const fallbackLead = parseLeadFromMessage(message, history);
       if (fallbackLead.name) {
         try {
           const leadResult = await addCrmLead({
