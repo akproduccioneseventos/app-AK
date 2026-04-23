@@ -50,6 +50,20 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'cupones-usage.json': 'cupones_usage',
   'catalogo-fotos.json': 'catalogo_fotos',
   'deco-canvas-templates.json': 'deco_canvas_templates',
+  // Modules whose saves were silently lost because they were missing from this map
+  'contract-templates.json': 'contract_templates',
+  'carta-tragos-master.json': 'carta_tragos_master',
+  'invitacion-configs.json': 'invitacion_configs',
+  'marketing-templates.json': 'marketing_templates',
+  'marketing-checklist.json': 'marketing_checklist',
+  'salones.json': 'salones',
+  'promos.json': 'promos',
+  'whatsapp-conversations.json': 'whatsapp_conversations',
+  'playbook-aplicaciones.json': 'playbook_aplicaciones',
+  'audit-logs.json': 'audit_logs',
+  'aprobaciones.json': 'aprobaciones',
+  'incidentes.json': 'incidentes',
+  'personal-recibos.json': 'personal_recibos',
 };
 
 const CONFIG_FILES: Record<string, string> = {
@@ -67,6 +81,11 @@ const CONFIG_FILES: Record<string, string> = {
   'carga-operativa-master-template.json': 'carga-operativa-master-template',
   'carga-operativa-templates.json': 'carga-operativa-templates',
   'meeting-checklist-template.json': 'meeting-checklist-template',
+  // Config files missing from the original mapping
+  'landing-settings.json': 'landing-settings',
+  'whatsapp-config.json': 'whatsapp-config',
+  'presentacion-led-settings.json': 'presentacion-led-settings',
+  'catalogo-settings.json': 'catalogo-settings',
 };
 
 const MAX_RETRIES = 2;
