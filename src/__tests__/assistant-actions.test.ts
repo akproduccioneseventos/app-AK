@@ -33,6 +33,11 @@ jest.mock('@/ai/flows/assistant-flow', () => ({
   chatWithAssistant: jest.fn(),
 }));
 
+// Mock the marketing agent — simulates failure when called without real API key
+jest.mock('@/ai/flows/marketing-agent-flow', () => ({
+  chatWithMarketingAgent: jest.fn().mockRejectedValue(new Error('No API key in test')),
+}));
+
 jest.mock('@/app/actions/dashboard', () => ({
   getDashboardKpiData: jest.fn().mockResolvedValue({ success: true, data: { presupuestosPendientes: 0 } }),
 }));
@@ -126,9 +131,9 @@ describe('sendAssistantMessage — missing data handlers', () => {
     { type: 'update_event', expected: 'Falta información para actualizar el evento' },
     { type: 'generate_contract', expected: 'Falta información para generar el contrato' },
     { type: 'check_availability', expected: 'Falta la fecha para consultar disponibilidad' },
-    { type: 'generate_social_post', expected: 'No se pudo generar el post' },
-    { type: 'generate_whatsapp_message', expected: 'No se pudo generar el mensaje de WhatsApp' },
-    { type: 'generate_promo', expected: 'No se pudo generar la promoción' },
+    { type: 'generate_social_post', expected: 'No pude generar el contenido' },
+    { type: 'generate_whatsapp_message', expected: 'No pude generar el contenido' },
+    { type: 'generate_promo', expected: 'No pude generar el contenido' },
     { type: 'import_budget_from_image', expected: 'No pude leer el archivo automáticamente' },
   ];
 
