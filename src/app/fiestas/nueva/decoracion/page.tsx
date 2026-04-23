@@ -162,6 +162,14 @@ function DecoracionYDisenoEventoContent() {
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Escape key exits fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsFullscreen(false); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isFullscreen]);
+
 
   const loadDecoracionData = useCallback(async (showLoading = true) => {
     if (!fiestaId) {
@@ -1309,7 +1317,7 @@ function DecoracionYDisenoEventoContent() {
                         <Badge variant="secondary" className="rounded-full capitalize w-fit text-xs">{selectedCanvasEl.tipo}</Badge>
                       </CardHeader>
                       <CardContent className="p-4 pt-2 space-y-4">
-                        {Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
+                        {!isSelectedCanvasImage && Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
                           <DecoColorPicker
                             key={idx}
                             label={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}
@@ -1318,6 +1326,31 @@ function DecoracionYDisenoEventoContent() {
                             paletteColors={paletaColoresArray.filter(Boolean)}
                           />
                         ))}
+                        {isSelectedCanvasImage && (
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <label className="text-xs text-slate-500">Tinte de color</label>
+                              <input
+                                type="color"
+                                value={selectedCanvasEl.tintColor ?? '#ffffff'}
+                                onChange={e => handleUpdateSelectedElProp('tintColor', e.target.value)}
+                                className="h-9 w-full rounded-lg border border-slate-200 bg-white p-1 cursor-pointer"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs text-slate-500">Intensidad tinte ({Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}%)</label>
+                              <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={1}
+                                value={Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}
+                                onChange={e => handleUpdateSelectedElProp('tintOpacity', Number(e.target.value) / 100)}
+                                className="w-full h-2 accent-primary"
+                              />
+                            </div>
+                          </div>
+                        )}
                         <div className="border-t border-slate-100 pt-3">
                           <DecoZonaPanel
                             selectedElement={selectedCanvasEl}
@@ -1572,10 +1605,26 @@ function DecoracionYDisenoEventoContent() {
               )}>
                 {isFullscreen && (
                   <div className="flex items-center justify-between mb-2 flex-shrink-0">
-                    <span className="text-sm font-bold text-slate-700">Modo Pantalla Completa</span>
-                    <Button type="button" size="sm" variant="outline" onClick={() => setIsFullscreen(false)} className="rounded-xl h-8 text-xs gap-1">
-                      <Minimize2 className="w-3.5 h-3.5" /> Salir
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-700">Modo Pantalla Completa</span>
+                      {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
+                      {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => saveCanvas(false)}
+                        disabled={isSavingCanvas}
+                        className="rounded-xl h-8 shadow-lg shadow-primary/20 text-xs gap-1"
+                      >
+                        {isSavingCanvas ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                        Guardar
+                      </Button>
+                      <Button type="button" size="sm" variant="outline" onClick={() => setIsFullscreen(false)} className="rounded-xl h-8 text-xs gap-1">
+                        <Minimize2 className="w-3.5 h-3.5" /> Salir (Esc)
+                      </Button>
+                    </div>
                   </div>
                 )}
                 <div className={cn('relative', isFullscreen ? 'flex flex-1 gap-3 min-h-0' : '')}>

@@ -365,6 +365,7 @@ function MuroSocialContent() {
                 <Input
                   value={settings.ledMarqueeText ?? ''}
                   onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeText: e.target.value }))}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveLedText(); } }}
                   placeholder="¡En 10 minutos cortamos la torta!"
                   className="flex-1"
                 />
@@ -378,7 +379,7 @@ function MuroSocialContent() {
                   {isSavingLed ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">Presioná el botón de envío para actualizar el texto en la pantalla en vivo inmediatamente.</p>
+              <p className="text-xs text-muted-foreground">Presioná Enter o el botón de envío para actualizar el texto en la pantalla en vivo inmediatamente.</p>
             </div>
           </CardContent>
         </Card>
