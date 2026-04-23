@@ -458,7 +458,7 @@ export default function PublicPortalView({
     { id: 'overview', label: 'Mi Evento', emoji: '🏠', color: 'from-violet-500 to-purple-600', desc: 'Cuenta regresiva y resumen', icon: Home, priority: true },
     { id: 'itinerario', label: 'Itinerario', emoji: '📅', color: 'from-indigo-500 to-violet-600', desc: 'Programa del evento', icon: Calendar, visible: settings?.itinerario?.visible && programa.length > 0, priority: true },
     { id: 'pagos', label: 'Pagos y Saldo', emoji: '💰', color: 'from-emerald-500 to-teal-600', desc: 'Estado de cuenta e informar pago', icon: DollarSign, visible: settings?.pagos?.visible && !!presupuesto, priority: true },
-    { id: 'simulador-invitados', label: 'Simular Invitados', emoji: '👥', color: 'from-purple-500 to-indigo-600', desc: 'Simulá cambios en el costo', icon: TrendingUp, visible: !!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 },
+    { id: 'simulador-invitados', label: 'Simular Invitados', emoji: '👥', color: 'from-purple-500 to-indigo-600', desc: 'Simulá cambios en el costo', icon: TrendingUp, visible: !!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0, priority: true },
     { id: 'checklist', label: 'Checklist', emoji: '✅', color: 'from-amber-500 to-orange-500', desc: 'Tareas pendientes', icon: ClipboardList, visible: settings?.checklist?.visible && checklist.length > 0 },
     { id: 'menu', label: 'Menú y Comidas', emoji: '🍽️', color: 'from-rose-500 to-pink-600', desc: 'Menú, bebidas y dress code', icon: Utensils, visible: settings?.menu?.visible },
     { id: 'presupuesto', label: 'Presupuesto', emoji: '📊', color: 'from-blue-500 to-cyan-600', desc: 'Desglose de servicios contratados', icon: FileText, visible: settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 },
@@ -1444,7 +1444,7 @@ export default function PublicPortalView({
                         {menuChangeRequests.slice(-3).reverse().map((request) => (
                           <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
                             <div>
-                              <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} menores</p>
+                              <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
                               <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
                             </div>
                             <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>

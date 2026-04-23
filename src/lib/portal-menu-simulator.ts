@@ -132,11 +132,10 @@ export function simulateGuestCostImpact({
   for (const item of items) {
     if (item.esRegalo) continue;
 
-    const adolNuevos = Math.round((adultDelta >= 0 ? adolescentesActuales : adolescentesActuales) );
     const ninosNuevosItem = Math.max(0, ninosNuevos - adolescentesActuales);
 
     const itemCostoActual = recalcularCostoItem(item, adultosActuales, adolescentesActuales, ninosActualesRaw);
-    const itemCostoNuevo = recalcularCostoItem(item, adultosNuevos, adolNuevos, ninosNuevosItem);
+    const itemCostoNuevo = recalcularCostoItem(item, adultosNuevos, adolescentesActuales, ninosNuevosItem);
 
     costoActual += itemCostoActual;
     costoNuevo += itemCostoNuevo;
