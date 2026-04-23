@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks, Receipt, Building2 } from 'lucide-react';
+import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks, Receipt, Building2, Printer, CheckCircle2, CreditCard, UtensilsCrossed, FileCheck2, CalendarClock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, DocumentoTipo } from '@/types/fiesta';
@@ -15,10 +15,14 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 const ALL_DOC_TYPES: { value: DocumentoTipo; label: string }[] = [
+  { value: 'contrato_fiesta', label: 'Contrato de Fiesta' },
   { value: 'contrato_servicio', label: 'Contrato de Servicio (con cliente)' },
   { value: 'contrato_salon', label: 'Contrato de Salón' },
   { value: 'presupuesto_firmado', label: 'Presupuesto Firmado' },
-  { value: 'recibo_pago', label: 'Recibo de Pago (Seña, etc.)' },
+  { value: 'contrato_cambio_fecha', label: 'Contrato de Cambio de Fecha' },
+  { value: 'seña_pago', label: 'Seña / Comprobante de Pago' },
+  { value: 'recibo_pago', label: 'Recibo de Pago' },
+  { value: 'contrato_catering', label: 'Contrato de Catering' },
   { value: 'recibo_salon', label: 'Recibo de Salón' },
   { value: 'recibo_agadu', label: 'Recibo de AGADU' },
   { value: 'recibo_personal', label: 'Recibo de Pago de Personal' },
@@ -199,12 +203,24 @@ function GestionDocumentalContent() {
         <CardHeader>
           <CardTitle>Documentos de la Fiesta</CardTitle>
           <CardDescription>
+            {fiesta.presupuestoId && (
+              <div className="mt-2 mb-3 p-2 border border-primary/30 rounded-md bg-primary/5 flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                  <FileCheck2 className="w-4 h-4" />
+                  <span>Presupuesto vinculado #{fiesta.presupuestoId.substring(0, 8).toUpperCase()}</span>
+                </div>
+                <div className="flex gap-2">
+                  <Link href={`/presupuestos/${fiesta.presupuestoId}/ver`}>
+                    <Button variant="secondary" size="sm"><FileText className="w-4 h-4 mr-1.5"/>Ver Presupuesto</Button>
+                  </Link>
+                  <Link href={`/presupuestos/${fiesta.presupuestoId}/ver?imprimir=1`}>
+                    <Button variant="default" size="sm" className="bg-primary text-white"><Printer className="w-4 h-4 mr-1.5"/>Generar e imprimir presupuesto</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
             <div className="flex flex-wrap gap-2 mt-2">
-                {fiesta.presupuestoId ? (
-                   <Link href={`/presupuestos/${fiesta.presupuestoId}/ver`}>
-                     <Button variant="secondary" size="sm"><FileText className="w-4 h-4 mr-1.5"/>Ver Presupuesto</Button>
-                   </Link>
-                ) : (
+                {!fiesta.presupuestoId && (
                    <Link href={`/presupuestos/nuevo/crear?fiestaId=${fiestaId}`}>
                      <Button variant="secondary" size="sm"><ListChecks className="w-4 h-4 mr-1.5"/>Crear Presupuesto</Button>
                    </Link>
@@ -236,23 +252,41 @@ function GestionDocumentalContent() {
         </CardHeader>
         <CardContent className="space-y-3">
           {(fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0) ? (
-            fiesta.othersDocumentos.map(doc => (
-              <div key={doc.id} className="p-3 border rounded-md flex justify-between items-center bg-muted/40">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-primary"/>
-                  <div>
-                    <p className="font-medium text-sm">{doc.nombre}</p>
-                    <p className="text-xs text-muted-foreground">{ALL_DOC_TYPES.find(t => t.value === doc.tipo)?.label || 'Otro'}</p>
+            fiesta.othersDocumentos.map(doc => {
+              const docType = ALL_DOC_TYPES.find(t => t.value === doc.tipo);
+              const isKeyDoc = doc.tipo === 'contrato_fiesta' || doc.tipo === 'presupuesto_firmado';
+              const icon = (() => {
+                switch (doc.tipo) {
+                  case 'contrato_fiesta': case 'contrato_servicio': case 'contrato-servicio': return <FileSignature className="w-5 h-5 text-blue-600"/>;
+                  case 'contrato_salon': case 'contrato-salon': return <Building2 className="w-5 h-5 text-indigo-600"/>;
+                  case 'presupuesto_firmado': return <FileCheck2 className="w-5 h-5 text-emerald-600"/>;
+                  case 'contrato_cambio_fecha': case 'cambio-fecha': return <CalendarClock className="w-5 h-5 text-orange-500"/>;
+                  case 'seña_pago': case 'recibo_pago': return <CreditCard className="w-5 h-5 text-green-600"/>;
+                  case 'contrato_catering': return <UtensilsCrossed className="w-5 h-5 text-amber-600"/>;
+                  default: return <FileText className="w-5 h-5 text-primary"/>;
+                }
+              })();
+              return (
+                <div key={doc.id} className={`p-3 border rounded-md flex justify-between items-center ${isKeyDoc ? 'bg-primary/5 border-primary/30' : 'bg-muted/40'}`}>
+                  <div className="flex items-center gap-3">
+                    {icon}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm">{doc.nombre}</p>
+                        {isKeyDoc && <CheckCircle2 className="w-4 h-4 text-emerald-500"/>}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{docType?.label || 'Otro'}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href={doc.fileName.startsWith('https://') ? doc.fileName : `/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm">Ver / Descargar</Button>
+                    </a>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(doc.id)}>Eliminar</Button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <a href={doc.fileName.startsWith('https://') ? doc.fileName : `/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm">Ver</Button>
-                  </a>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(doc.id)}>Eliminar</Button>
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className="text-center text-sm text-muted-foreground py-4">No hay documentos subidos para esta fiesta.</p>
           )}

@@ -1157,7 +1157,24 @@ export interface ItineraryTemplate {
 }
 
 // --- DOCUMENT TYPES ---
-export type DocumentoTipo = 'contrato-servicio' | 'contrato_servicio' | 'contrato-salon' | 'contrato_salon' | 'cancelacion' | 'cambio-fecha' | 'cancelacion-parcial' | 'presupuesto_firmado' | 'recibo_pago' | 'recibo_salon' | 'recibo_agadu' | 'recibo_personal' | 'otro';
+export type DocumentoTipo =
+  | 'contrato_fiesta'
+  | 'contrato-servicio'
+  | 'contrato_servicio'
+  | 'contrato-salon'
+  | 'contrato_salon'
+  | 'presupuesto_firmado'
+  | 'contrato_cambio_fecha'
+  | 'cambio-fecha'
+  | 'seña_pago'
+  | 'recibo_pago'
+  | 'contrato_catering'
+  | 'cancelacion'
+  | 'cancelacion-parcial'
+  | 'recibo_salon'
+  | 'recibo_agadu'
+  | 'recibo_personal'
+  | 'otro';
 
 // --- BEBIDA RECETAS ---
 export interface IngredienteReceta {
