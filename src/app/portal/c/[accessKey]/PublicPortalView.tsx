@@ -478,7 +478,7 @@ export default function PublicPortalView({
 
   // Home screen section cards — ordered by client priority
   const homeSections = [
-    { id: 'overview', label: 'Mi Evento', emoji: '🏠', color: 'from-violet-500 to-purple-600', desc: 'Cuenta regresiva y resumen', icon: Home, priority: true },
+    { id: 'overview', label: 'Mi Evento', emoji: '🏠', color: 'from-violet-500 to-purple-600', desc: 'Cuenta regresiva y detalles', icon: Home, priority: true },
     { id: 'itinerario', label: 'Itinerario', emoji: '📅', color: 'from-indigo-500 to-violet-600', desc: 'Programa del evento', icon: Calendar, visible: settings?.itinerario?.visible && programa.length > 0, priority: true },
     { id: 'pagos', label: 'Pagos y Saldo', emoji: '💰', color: 'from-emerald-500 to-teal-600', desc: 'Estado de cuenta e informar pago', icon: DollarSign, visible: settings?.pagos?.visible && !!presupuesto, priority: true },
     { id: 'simulador-invitados', label: 'Simular Invitados', emoji: '👥', color: 'from-purple-500 to-indigo-600', desc: 'Simulá cambios en el costo', icon: TrendingUp, visible: !!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0, priority: true },
@@ -1417,7 +1417,7 @@ export default function PublicPortalView({
                             <p className="text-2xl font-black mt-0.5">
                               {sim.impacto >= 0 ? '+' : ''}{formatCurrency(sim.impacto)}
                             </p>
-                            {sim.impacto > 0 && (
+                            {sim.impacto > 0 && (adultDelta + kidsDelta) > 0 && (
                               <p className="text-[11px] opacity-80 mt-1">
                                 ≈ {formatCurrency(Math.round(sim.impacto / (adultDelta + kidsDelta)))} por invitado adicional
                               </p>
@@ -1488,7 +1488,7 @@ export default function PublicPortalView({
             <CardHeader className="pb-2 bg-gradient-to-r from-amber-50 to-orange-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <GlassWater className="w-5 h-5 text-amber-600" />
-                Lo que debe traer el cliente
+                Lo que debés traer
               </CardTitle>
               <p className="text-xs text-muted-foreground">Elementos a tu cargo para {invitados} invitados</p>
             </CardHeader>
