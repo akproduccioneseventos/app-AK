@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Camera, GripVertical, Loader2, Pause, Play, Plus, QrCode, RotateCcw, Save, SkipBack, SkipForward, Sparkles, Upload } from 'lucide-react';
+import { ArrowLeft, Camera, GripVertical, Loader2, Pause, Play, Plus, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -94,6 +94,7 @@ function MuroSocialContent() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingLed, setIsSavingLed] = useState(false);
   const [globalLibrary, setGlobalLibrary] = useState<ScreenMediaAsset[]>([]);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -150,6 +151,18 @@ function MuroSocialContent() {
       toast({ title: 'Configuración guardada' });
     } else {
       toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const saveLedText = async () => {
+    if (!fiestaId) return;
+    setIsSavingLed(true);
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, settings);
+    setIsSavingLed(false);
+    if (result.success) {
+      toast({ title: 'Cartel LED enviado ✓', description: 'El texto se actualizó en la pantalla en vivo.' });
+    } else {
+      toast({ title: 'Error al enviar cartel LED', description: result.error, variant: 'destructive' });
     }
   };
 
@@ -348,11 +361,24 @@ function MuroSocialContent() {
             </div>
             <div className="space-y-1">
               <Label>Cartel LED / Mensaje pasante</Label>
-              <Input
-                value={settings.ledMarqueeText ?? ''}
-                onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeText: e.target.value }))}
-                placeholder="¡En 10 minutos cortamos la torta!"
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={settings.ledMarqueeText ?? ''}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeText: e.target.value }))}
+                  placeholder="¡En 10 minutos cortamos la torta!"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={saveLedText}
+                  disabled={isSavingLed}
+                  title="Enviar cartel LED a pantalla ahora"
+                >
+                  {isSavingLed ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Presioná el botón de envío para actualizar el texto en la pantalla en vivo inmediatamente.</p>
             </div>
           </CardContent>
         </Card>

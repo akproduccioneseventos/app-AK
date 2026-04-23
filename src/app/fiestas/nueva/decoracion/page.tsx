@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download, Maximize2, Minimize2, ChevronUp, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno, ElementoDecorativo } from '@/types/fiesta';
@@ -160,6 +160,7 @@ function DecoracionYDisenoEventoContent() {
   const [isMobileLibraryOpen, setIsMobileLibraryOpen] = useState(false);
   const [isMobilePropertiesOpen, setIsMobilePropertiesOpen] = useState(false);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
 
   const loadDecoracionData = useCallback(async (showLoading = true) => {
@@ -580,6 +581,44 @@ function DecoracionYDisenoEventoContent() {
     if (!selectedCanvasId) return;
     const minZ = Math.min(...canvasElementos.map(el => el.zIndex ?? 1), 2);
     setCanvasElementos(prev => prev.map(el => el.id === selectedCanvasId ? { ...el, zIndex: Math.max(0, minZ - 1) } : el));
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId, canvasElementos]);
+
+  const handleMoveForward = useCallback(() => {
+    if (!selectedCanvasId) return;
+    const current = canvasElementos.find(el => el.id === selectedCanvasId);
+    if (!current) return;
+    const currentZ = current.zIndex ?? 1;
+    // Find element with the next z-index above current
+    const above = canvasElementos
+      .filter(el => el.id !== selectedCanvasId && (el.zIndex ?? 1) > currentZ)
+      .sort((a, b) => (a.zIndex ?? 1) - (b.zIndex ?? 1))[0];
+    if (!above) return; // already at top
+    const aboveZ = above.zIndex ?? 1;
+    setCanvasElementos(prev => prev.map(el => {
+      if (el.id === selectedCanvasId) return { ...el, zIndex: aboveZ };
+      if (el.id === above.id) return { ...el, zIndex: currentZ };
+      return el;
+    }));
+    setCanvasHasChanges(true);
+  }, [selectedCanvasId, canvasElementos]);
+
+  const handleMoveBack = useCallback(() => {
+    if (!selectedCanvasId) return;
+    const current = canvasElementos.find(el => el.id === selectedCanvasId);
+    if (!current) return;
+    const currentZ = current.zIndex ?? 1;
+    // Find element with the next z-index below current
+    const below = canvasElementos
+      .filter(el => el.id !== selectedCanvasId && (el.zIndex ?? 1) < currentZ)
+      .sort((a, b) => (b.zIndex ?? 1) - (a.zIndex ?? 1))[0];
+    if (!below) return; // already at bottom
+    const belowZ = below.zIndex ?? 1;
+    setCanvasElementos(prev => prev.map(el => {
+      if (el.id === selectedCanvasId) return { ...el, zIndex: belowZ };
+      if (el.id === below.id) return { ...el, zIndex: currentZ };
+      return el;
+    }));
     setCanvasHasChanges(true);
   }, [selectedCanvasId, canvasElementos]);
 
@@ -1513,24 +1552,90 @@ function DecoracionYDisenoEventoContent() {
                     {isSavingCanvas ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                     Guardar
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsFullscreen(f => !f)}
+                    className="rounded-xl h-8 text-xs gap-1"
+                    title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
+                  >
+                    {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                    {isFullscreen ? 'Salir' : 'Pantalla completa'}
+                  </Button>
                 </div>
               </div>
 
               {/* Canvas */}
-              <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden">
-                <CardContent className="p-4">
-                  <DecoCanvas
-                    elementos={canvasElementos}
-                    onChange={handleCanvasElementsChange}
-                    selectedId={selectedCanvasId}
-                    onSelectId={setSelectedCanvasId}
-                    hiddenZones={canvasHiddenZones}
-                    fondoColor={canvasFondoColor}
-                    fondoImagenUrl={canvasFondoImagenUrl || undefined}
-                    showGrid={showGrid}
-                  />
-                </CardContent>
-              </Card>
+              <div className={cn(
+                isFullscreen ? 'fixed inset-0 z-50 bg-white/98 backdrop-blur-sm flex flex-col p-4' : ''
+              )}>
+                {isFullscreen && (
+                  <div className="flex items-center justify-between mb-2 flex-shrink-0">
+                    <span className="text-sm font-bold text-slate-700">Modo Pantalla Completa</span>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setIsFullscreen(false)} className="rounded-xl h-8 text-xs gap-1">
+                      <Minimize2 className="w-3.5 h-3.5" /> Salir
+                    </Button>
+                  </div>
+                )}
+                <div className={cn('relative', isFullscreen ? 'flex flex-1 gap-3 min-h-0' : '')}>
+                  <Card className={cn("border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden", isFullscreen ? 'flex-1' : '')}>
+                    <CardContent className="p-4">
+                      <DecoCanvas
+                        elementos={canvasElementos}
+                        onChange={handleCanvasElementsChange}
+                        selectedId={selectedCanvasId}
+                        onSelectId={setSelectedCanvasId}
+                        hiddenZones={canvasHiddenZones}
+                        fondoColor={canvasFondoColor}
+                        fondoImagenUrl={canvasFondoImagenUrl || undefined}
+                        showGrid={showGrid}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Floating element library in fullscreen mode */}
+                  {isFullscreen && fiestaId && (
+                    <div className="w-72 flex-shrink-0 flex flex-col gap-2 overflow-hidden">
+                      <Card className="border-none shadow-xl rounded-2xl bg-white/90 backdrop-blur-md flex flex-col h-full">
+                        <CardHeader className="p-3 pb-2 bg-gradient-to-r from-violet-500/10 to-violet-500/5 rounded-t-2xl flex-shrink-0">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-violet-500 rounded-lg text-white"><Package className="w-3.5 h-3.5" /></div>
+                            <CardTitle className="font-headline text-xs">Biblioteca de Elementos</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-2 flex-1 overflow-hidden">
+                          <DecoElementLibrary
+                            fiestaId={fiestaId}
+                            onAddElement={handleAddLibraryElement}
+                            customElements={decoracionData.customElements}
+                            onUploadCustom={handleUploadCustomElement}
+                          />
+                        </CardContent>
+                        {selectedCanvasEl && (
+                          <div className="p-3 border-t border-slate-100 space-y-2 flex-shrink-0">
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Capas</p>
+                            <div className="grid grid-cols-4 gap-1">
+                              <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-lg h-7 text-[10px] px-1 gap-0.5" title="Al frente">
+                                <ChevronsUp className="w-3 h-3" />
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" onClick={handleMoveForward} className="rounded-lg h-7 text-[10px] px-1 gap-0.5" title="Subir capa">
+                                <ChevronUp className="w-3 h-3" />
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" onClick={handleMoveBack} className="rounded-lg h-7 text-[10px] px-1 gap-0.5" title="Bajar capa">
+                                <ChevronDown className="w-3 h-3" />
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-lg h-7 text-[10px] px-1 gap-0.5" title="Al fondo">
+                                <ChevronsDown className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <div className="mt-6">
                 <details className="group">
@@ -1658,10 +1763,16 @@ function DecoracionYDisenoEventoContent() {
                       <Badge variant="secondary" className="rounded-full capitalize">{selectedCanvasEl.tipo}</Badge>
 
                       <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-xl h-8 text-xs gap-1" title="Traer al frente">
-                        <ChevronsUp className="w-3.5 h-3.5" /> Traer al frente
+                        <ChevronsUp className="w-3.5 h-3.5" /> Al frente
                       </Button>
-                      <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-xl h-8 text-xs gap-1" title="Enviar atrás">
-                        <ChevronsDown className="w-3.5 h-3.5" /> Enviar atrás
+                      <Button type="button" variant="outline" size="sm" onClick={handleMoveForward} className="rounded-xl h-8 text-xs gap-1" title="Avanzar una capa">
+                        <ChevronUp className="w-3.5 h-3.5" /> Subir capa
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={handleMoveBack} className="rounded-xl h-8 text-xs gap-1" title="Retroceder una capa">
+                        <ChevronDown className="w-3.5 h-3.5" /> Bajar capa
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-xl h-8 text-xs gap-1" title="Enviar al fondo">
+                        <ChevronsDown className="w-3.5 h-3.5" /> Al fondo
                       </Button>
                     </div>
 
@@ -1764,8 +1875,8 @@ function DecoracionYDisenoEventoContent() {
                       <Badge variant="secondary" className="rounded-full capitalize w-fit text-xs">{selectedCanvasEl.tipo}</Badge>
                     </CardHeader>
                     <CardContent className="p-4 pt-2 space-y-4 overflow-y-auto max-h-[620px]">
-                      {/* Color pickers */}
-                      {Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
+                      {/* Color pickers for SVG elements / tint for image elements */}
+                      {!isSelectedCanvasImage && Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
                         <DecoColorPicker
                           key={idx}
                           label={idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}
@@ -1774,6 +1885,31 @@ function DecoracionYDisenoEventoContent() {
                           paletteColors={paletaColoresArray.filter(Boolean)}
                         />
                       ))}
+                      {isSelectedCanvasImage && (
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-500">Tinte de color</label>
+                            <input
+                              type="color"
+                              value={selectedCanvasEl.tintColor ?? '#ffffff'}
+                              onChange={e => handleUpdateSelectedElProp('tintColor', e.target.value)}
+                              className="h-9 w-full rounded-lg border border-slate-200 bg-white p-1 cursor-pointer"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-slate-500">Intensidad tinte ({Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}%)</label>
+                            <input
+                              type="range"
+                              min={0}
+                              max={100}
+                              step={1}
+                              value={Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}
+                              onChange={e => handleUpdateSelectedElProp('tintOpacity', Number(e.target.value) / 100)}
+                              className="w-full h-2 accent-primary"
+                            />
+                          </div>
+                        </div>
+                      )}
                       {/* Zone assignment */}
                       <div className="border-t border-slate-100 pt-3">
                         <DecoZonaPanel
@@ -1810,6 +1946,24 @@ function DecoracionYDisenoEventoContent() {
                             onChange={e => handleUpdateSelectedElProp('opacity', Number(e.target.value))}
                             className="w-full h-2 accent-primary"
                           />
+                        </div>
+                        {/* Layer controls */}
+                        <div className="border-t border-slate-100 pt-3">
+                          <p className="text-xs text-slate-500 mb-2">Orden de capas (z-index: {selectedCanvasEl.zIndex ?? 1})</p>
+                          <div className="grid grid-cols-2 gap-1">
+                            <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-lg h-7 text-[10px] gap-0.5">
+                              <ChevronsUp className="w-3 h-3" /> Al frente
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" onClick={handleMoveForward} className="rounded-lg h-7 text-[10px] gap-0.5">
+                              <ChevronUp className="w-3 h-3" /> Subir
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" onClick={handleMoveBack} className="rounded-lg h-7 text-[10px] gap-0.5">
+                              <ChevronDown className="w-3 h-3" /> Bajar
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" onClick={handleSendToBack} className="rounded-lg h-7 text-[10px] gap-0.5">
+                              <ChevronsDown className="w-3 h-3" /> Al fondo
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
