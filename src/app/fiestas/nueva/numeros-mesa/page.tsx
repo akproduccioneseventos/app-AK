@@ -5,9 +5,8 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   ArrowLeft, Printer as PrinterIcon, Save, Loader2, Plus, Minus,
   Info, Eye, X, LayoutGrid, Rows2,
@@ -26,6 +25,22 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+/** Escape user-supplied text before embedding in raw HTML strings. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Validate CSS hex colour and return a safe fallback if invalid. */
+function safeCssColor(value: string | undefined, fallback: string): string {
+  if (value && /^#[0-9A-Fa-f]{3,8}$/.test(value)) return value;
+  return fallback;
+}
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '____________';
@@ -195,6 +210,7 @@ const TentColumnSmall: React.FC<{
 function NumerosDeMesaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -207,7 +223,11 @@ function NumerosDeMesaContent() {
   const [previewTable, setPreviewTable] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      toast({ title: 'Error', description: 'No se encontró el ID del evento.', variant: 'destructive' });
+      router.replace('/eventos');
+      return;
+    }
     setIsLoading(true);
     try {
       const [fiestaData, settings] = await Promise.all([
@@ -574,25 +594,39 @@ function NumerosDeMesaContent() {
                 onClick={() => {
                   const printWindow = window.open('', '_blank');
                   if (!printWindow) return;
-                  printWindow.document.write(`
-                    <html><head><title>Mesa ${previewTable}</title>
-                    <style>
-                      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
-                      body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #f1f5f9; }
-                      @page { size: 10cm 15cm; margin: 0; }
-                      .card { width: 10cm; height: 15cm; display: flex; flex-direction: column; align-items: center; justify-content: center; background: ${data.cardBgColor || '#fff'}; padding: 1cm; text-align: center; }
-                      h2 { font-family: 'Playfair Display', serif; font-style: italic; font-size: ${FONT_SIZE_MAP[data.fontSize ?? 'medium']}; color: ${data.numberColor || '#475569'}; margin: 0 0 0.5cm 0; line-height: 1; }
-                      p { margin: 0.15cm 0; font-family: sans-serif; }
-                      .name { font-size: 1.2em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #1e293b; }
-                      .date { font-size: 0.9em; color: #64748b; font-style: italic; }
-                    </style></head>
-                    <body><div class="card">
-                      <h2>Mesa ${previewTable}</h2>
-                      <p class="name">${data.protagonistaNombre || fiesta?.configuracion.protagonista1Nombre || ''}</p>
-                      <p class="date">${data.fechaEvento || ''}</p>
-                      ${data.labels?.[previewTable] ? `<p style="font-size:0.75em;border:1px solid currentColor;padding:0.1cm 0.3cm;border-radius:999px;margin-top:0.3cm;color:${data.numberColor || '#475569'}">${data.labels[previewTable]}</p>` : ''}
-                    </div></body></html>
-                  `);
+                  // Use safe CSS colours (validated hex) and escaped HTML text
+                  // to prevent XSS via user-supplied data.
+                  const safeBg = safeCssColor(data.cardBgColor, '#ffffff');
+                  const safeNumColor = safeCssColor(data.numberColor, '#475569');
+                  const safeFontSize = FONT_SIZE_MAP[data.fontSize ?? 'medium'] ?? '72pt';
+                  const nameText = escapeHtml(data.protagonistaNombre || fiesta?.configuracion.protagonista1Nombre || '');
+                  const dateText = escapeHtml(data.fechaEvento || '');
+                  const labelText = previewTable !== null && data.labels?.[previewTable]
+                    ? escapeHtml(data.labels[previewTable])
+                    : '';
+                  const labelHtml = labelText
+                    ? `<p style="font-size:0.75em;border:1px solid currentColor;padding:0.1cm 0.3cm;border-radius:999px;margin-top:0.3cm;color:${safeNumColor}">${labelText}</p>`
+                    : '';
+                  const html = [
+                    '<html><head>',
+                    `<title>Mesa ${Number(previewTable)}</title>`,
+                    '<style>',
+                    "@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');",
+                    'body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #f1f5f9; }',
+                    '@page { size: 10cm 15cm; margin: 0; }',
+                    `.card { width: 10cm; height: 15cm; display: flex; flex-direction: column; align-items: center; justify-content: center; background: ${safeBg}; padding: 1cm; text-align: center; }`,
+                    `h2 { font-family: 'Playfair Display', serif; font-style: italic; font-size: ${safeFontSize}; color: ${safeNumColor}; margin: 0 0 0.5cm 0; line-height: 1; }`,
+                    'p { margin: 0.15cm 0; font-family: sans-serif; }',
+                    '.name { font-size: 1.2em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #1e293b; }',
+                    '.date { font-size: 0.9em; color: #64748b; font-style: italic; }',
+                    '</style></head><body><div class="card">',
+                    `<h2>Mesa ${Number(previewTable)}</h2>`,
+                    `<p class="name">${nameText}</p>`,
+                    `<p class="date">${dateText}</p>`,
+                    labelHtml,
+                    '</div></body></html>',
+                  ].join('');
+                  printWindow.document.write(html);
                   printWindow.document.close();
                   printWindow.print();
                 }}

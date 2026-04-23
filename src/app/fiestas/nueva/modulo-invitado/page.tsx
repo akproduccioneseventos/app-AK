@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -105,6 +104,7 @@ const FEATURE_CONFIG = [
 function GuestModuleContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
@@ -113,7 +113,11 @@ function GuestModuleContent() {
   const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      toast({ title: 'Error', description: 'No se encontró el ID del evento.', variant: 'destructive' });
+      router.replace('/eventos');
+      return;
+    }
     setIsLoading(true);
     try {
       const data = await getFiestaById(fiestaId);
