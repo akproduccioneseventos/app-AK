@@ -204,20 +204,22 @@ const MAX_GUEST_DELTA = 200;
 /** Pick a representative Lucide icon based on itinerary item title keywords */
 function getItineraryIcon(titulo: string): React.ElementType {
   const t = titulo.toLowerCase();
-  if (t.includes('música') || t.includes('musica') || t.includes('baile') || t.includes('vals'))
+  if (t.includes('música') || t.includes('musica') || t.includes('baile') || t.includes('vals') || t.includes('dj') || t.includes('show'))
     return Music;
-  if (t.includes('cena') || t.includes('comida') || t.includes('menú') || t.includes('brindis'))
+  if (t.includes('cena') || t.includes('comida') || t.includes('menú') || t.includes('brindis') || t.includes('cocktail') || t.includes('cóctel'))
     return Utensils;
-  if (t.includes('foto') || t.includes('video') || t.includes('filmación'))
+  if (t.includes('foto') || t.includes('video') || t.includes('filmación') || t.includes('fotografia'))
     return Camera;
-  if (t.includes('torta') || t.includes('postre'))
+  if (t.includes('torta') || t.includes('postre') || t.includes('cumpleaños'))
     return Gift;
-  if (t.includes('entrada') || t.includes('llegada') || t.includes('recepción'))
+  if (t.includes('entrada') || t.includes('llegada') || t.includes('recepción') || t.includes('ingreso'))
     return Users;
-  if (t.includes('bienvenida') || t.includes('apertura'))
+  if (t.includes('bienvenida') || t.includes('apertura') || t.includes('inicio') || t.includes('ceremonia'))
     return Sparkles;
-  if (t.includes('cierre') || t.includes('despedida') || t.includes('fin'))
+  if (t.includes('cierre') || t.includes('despedida') || t.includes('fin') || t.includes('egreso'))
     return Heart;
+  if (t.includes('vestimenta') || t.includes('dress') || t.includes('traje') || t.includes('vestido'))
+    return Shirt;
   return Clock;
 }
 
@@ -407,6 +409,7 @@ export default function PublicPortalView({
   const limiteAumento = settings?.simuladorInvitados?.maxIncreasePercent ?? simConfig?.limiteAumentoPorcentaje ?? 30;
   const maxDeltaAdult = Math.floor(Math.max(1, adultosBase || invitadosContratados) * (limiteAumento / 100));
   const maxDeltaKids = Math.floor(Math.max(1, ninosAdolescentesBase || invitadosContratados) * (limiteAumento / 100));
+  // Legacy catering simulator totals (kept for the CateringSimulator component still in use)
   const simulationTotals = calculateMenuSimulationTotals({
     adultosDelta: adultDelta,
     ninosAdolescentesDelta: kidsDelta,
@@ -414,6 +417,10 @@ export default function PublicPortalView({
     kidsUnitPrice: kidsUnit,
     currentTotal: totalCosto,
   });
+  // Real budget-synced simulation — used by the new guest simulator and submission handler
+  const guestSim = presupuesto
+    ? simulateGuestCostImpact({ presupuesto, adultDelta, kidsDelta })
+    : null;
 
   // Drink calculator
   const calcBebidas = settings?.calculadoraBebidas;
@@ -440,11 +447,14 @@ export default function PublicPortalView({
     if (!fiesta.id || (adultDelta <= 0 && kidsDelta <= 0)) return;
     setSimRequestLoading(true);
     try {
+      // Prefer real budget-synced impact; fall back to legacy estimate for events without items
+      const montoAdicional = guestSim ? guestSim.impacto : simulationTotals.aumentoTotal;
+      const nuevoTotalEstimado = guestSim ? guestSim.costoNuevo : simulationTotals.nuevoTotal;
       await submitClientMenuChangeRequest(fiesta.id, {
         adultosDelta: adultDelta,
         ninosAdolescentesDelta: kidsDelta,
-        montoAdicional: simulationTotals.aumentoTotal,
-        nuevoTotalEstimado: simulationTotals.nuevoTotal,
+        montoAdicional,
+        nuevoTotalEstimado,
         notaCliente: simRequestNote,
       });
       setAdultDelta(0);
@@ -1324,8 +1334,8 @@ export default function PublicPortalView({
               </div>
 
               {/* Budget-synced simulation results */}
-              {(() => {
-                const sim = simulateGuestCostImpact({ presupuesto, adultDelta, kidsDelta });
+              {guestSim && (() => {
+                const sim = guestSim;
                 const hasChanges = adultDelta > 0 || kidsDelta > 0;
                 return (
                   <>
