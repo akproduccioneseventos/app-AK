@@ -279,7 +279,16 @@ function GestionDocumentalContent() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <a href={doc.fileName.startsWith('https://') ? doc.fileName : `/api/documentos-fiesta/${fiesta.id}/${doc.fileName}`} target="_blank" rel="noopener noreferrer">
+                    <a href={
+                      (() => {
+                        if (doc.fileName.startsWith('https://firebasestorage.googleapis.com') ||
+                            doc.fileName.startsWith('https://storage.googleapis.com')) {
+                          return doc.fileName;
+                        }
+                        // For non-absolute or untrusted URLs, always use internal API path
+                        return `/api/documentos-fiesta/${fiesta.id}/${encodeURIComponent(doc.fileName)}`;
+                      })()
+                    } target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm">Ver / Descargar</Button>
                     </a>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(doc.id)}>Eliminar</Button>
