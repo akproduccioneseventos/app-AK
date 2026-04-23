@@ -115,10 +115,12 @@ export function simulateGuestCostImpact({
   const adolescentesActuales = presupuesto.invitadosAdolescentes ?? 0;
   const ninosActualesRaw = presupuesto.invitadosNinos ?? 0;
 
-  // Distribute kid delta: first fill adolescentes proportion, rest to ninos
-  const ninosActuales = ninosActualesRaw + adolescentesActuales; // treat as a combined group
+  // Combine adolescentes + niños into a single "menores" group for the client-facing simulator.
+  // The simulator splits adults vs. all minors; internally recalcularCostoItem still receives
+  // individual counts for accurate pricing.
+  const menoresActuales = ninosActualesRaw + adolescentesActuales;
   const adultosNuevos = Math.max(0, adultosActuales + adultDelta);
-  const ninosNuevos = Math.max(0, ninosActuales + kidsDelta);
+  const menoresNuevos = Math.max(0, menoresActuales + kidsDelta);
 
   const serviciosFijos: GuestSimulationResult['serviciosFijos'] = [];
   const serviciosVariables: GuestSimulationResult['serviciosVariables'] = [];
@@ -132,7 +134,9 @@ export function simulateGuestCostImpact({
   for (const item of items) {
     if (item.esRegalo) continue;
 
-    const ninosNuevosItem = Math.max(0, ninosNuevos - adolescentesActuales);
+    // Apply the kid delta entirely to the niños bucket; adolescentes remain unchanged
+    // because they are already factored into menoresActuales and we preserve the split.
+    const ninosNuevosItem = Math.max(0, ninosActualesRaw + kidsDelta);
 
     const itemCostoActual = recalcularCostoItem(item, adultosActuales, adolescentesActuales, ninosActualesRaw);
     const itemCostoNuevo = recalcularCostoItem(item, adultosNuevos, adolescentesActuales, ninosNuevosItem);
@@ -140,7 +144,11 @@ export function simulateGuestCostImpact({
     costoActual += itemCostoActual;
     costoNuevo += itemCostoNuevo;
 
-    const isFijo = item.calculationMethod === 'fijo' || (!item.calculationMethod && item.precioPorPersona === undefined);
+    // Classify as fixed when the calculation method is explicitly 'fijo', or when the item
+    // lacks a calculationMethod and has no per-person pricing (legacy flat-fee items).
+    const isFijo =
+      item.calculationMethod === 'fijo' ||
+      (!item.calculationMethod && item.precioPorPersona === undefined);
 
     if (isFijo || Math.abs(itemCostoNuevo - itemCostoActual) < 1) {
       costosFijosActuales += itemCostoActual;
@@ -165,11 +173,11 @@ export function simulateGuestCostImpact({
 
   return {
     adultosActuales,
-    ninosActuales,
-    totalActual: adultosActuales + ninosActuales,
+    ninosActuales: menoresActuales,
+    totalActual: adultosActuales + menoresActuales,
     adultosNuevos,
-    ninosNuevos,
-    totalNuevo: adultosNuevos + ninosNuevos,
+    ninosNuevos: menoresNuevos,
+    totalNuevo: adultosNuevos + menoresNuevos,
     costoActual,
     costoNuevo,
     impacto: costoNuevo - costoActual,

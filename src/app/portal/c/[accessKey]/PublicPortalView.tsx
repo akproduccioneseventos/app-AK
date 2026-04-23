@@ -198,6 +198,29 @@ function resolveBebidasItems(settings: FiestaEnPlanificacion['clientPortalSettin
   });
 }
 
+/** Maximum number of additional guests the simulator allows in a single request */
+const MAX_GUEST_DELTA = 200;
+
+/** Pick a representative Lucide icon based on itinerary item title keywords */
+function getItineraryIcon(titulo: string): React.ElementType {
+  const t = titulo.toLowerCase();
+  if (t.includes('música') || t.includes('musica') || t.includes('baile') || t.includes('vals'))
+    return Music;
+  if (t.includes('cena') || t.includes('comida') || t.includes('menú') || t.includes('brindis'))
+    return Utensils;
+  if (t.includes('foto') || t.includes('video') || t.includes('filmación'))
+    return Camera;
+  if (t.includes('torta') || t.includes('postre'))
+    return Gift;
+  if (t.includes('entrada') || t.includes('llegada') || t.includes('recepción'))
+    return Users;
+  if (t.includes('bienvenida') || t.includes('apertura'))
+    return Sparkles;
+  if (t.includes('cierre') || t.includes('despedida') || t.includes('fin'))
+    return Heart;
+  return Clock;
+}
+
 export default function PublicPortalView({
   fiesta,
   companyContact,
@@ -662,7 +685,7 @@ export default function PublicPortalView({
             <div className="grid grid-cols-2 gap-3">
               {homeSections.map((section) => {
                 const SectionIcon = section.icon;
-                const isPriority = (section as any).priority === true;
+                const isPriority = 'priority' in section && section.priority === true;
                 return (
                   <button
                     key={section.id}
@@ -1271,7 +1294,7 @@ export default function PublicPortalView({
                     <p className="text-2xl font-black tabular-nums">+{adultDelta}</p>
                     <button
                       className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                      onClick={() => setAdultDelta((d) => Math.min(200, d + 1))}
+                      onClick={() => setAdultDelta((d) => Math.min(MAX_GUEST_DELTA, d + 1))}
                     >
                       <PlusCircle className="w-4 h-4" />
                     </button>
@@ -1292,7 +1315,7 @@ export default function PublicPortalView({
                     <p className="text-2xl font-black tabular-nums">+{kidsDelta}</p>
                     <button
                       className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                      onClick={() => setKidsDelta((d) => Math.min(200, d + 1))}
+                      onClick={() => setKidsDelta((d) => Math.min(MAX_GUEST_DELTA, d + 1))}
                     >
                       <PlusCircle className="w-4 h-4" />
                     </button>
@@ -1531,23 +1554,7 @@ export default function PublicPortalView({
                       else next.add(item.id);
                       return next;
                     });
-                    // Pick a representative icon based on title keywords
-                    const titleLower = (item.titulo || '').toLowerCase();
-                    const ItemIcon = titleLower.includes('música') || titleLower.includes('musica') || titleLower.includes('baile') || titleLower.includes('vals')
-                      ? Music
-                      : titleLower.includes('cena') || titleLower.includes('comida') || titleLower.includes('menú') || titleLower.includes('brindis')
-                      ? Utensils
-                      : titleLower.includes('foto') || titleLower.includes('video') || titleLower.includes('filmación')
-                      ? Camera
-                      : titleLower.includes('torta') || titleLower.includes('postre')
-                      ? Gift
-                      : titleLower.includes('entrada') || titleLower.includes('llegada') || titleLower.includes('recepción')
-                      ? Users
-                      : titleLower.includes('bienvenida') || titleLower.includes('apertura')
-                      ? Sparkles
-                      : titleLower.includes('cierre') || titleLower.includes('despedida') || titleLower.includes('fin')
-                      ? Heart
-                      : Clock;
+                    const ItemIcon = getItineraryIcon(item.titulo || '');
                     return (
                       <div key={item.id} className="relative flex items-start gap-4 py-2">
                         <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
