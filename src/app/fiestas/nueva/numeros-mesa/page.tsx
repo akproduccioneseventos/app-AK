@@ -609,7 +609,7 @@ function NumerosDeMesaContent() {
                     : '';
                   const html = [
                     '<html><head>',
-                    `<title>Mesa ${Number(previewTable)}</title>`,
+                    `<title>Mesa ${escapeHtml(String(Number(previewTable)))}</title>`,
                     '<style>',
                     "@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');",
                     'body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #f1f5f9; }',
@@ -620,7 +620,7 @@ function NumerosDeMesaContent() {
                     '.name { font-size: 1.2em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: #1e293b; }',
                     '.date { font-size: 0.9em; color: #64748b; font-style: italic; }',
                     '</style></head><body><div class="card">',
-                    `<h2>Mesa ${Number(previewTable)}</h2>`,
+                    `<h2>Mesa ${escapeHtml(String(Number(previewTable)))}</h2>`,
                     `<p class="name">${nameText}</p>`,
                     `<p class="date">${dateText}</p>`,
                     labelHtml,

@@ -958,7 +958,7 @@ function CarteleriaContent() {
                 {showSeatingQr && fiestaId && (
                   <div className="bg-white rounded-xl p-2 shadow-lg">
                     <QRCodeSVG
-                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app'}/evento/actual/mesa?fiestaId=${fiestaId}`}
+                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app'}/evento/actual/mesa?fiestaId=${encodeURIComponent(fiestaId)}`}
                       size={80}
                       level="M"
                       fgColor={primaryColor}
