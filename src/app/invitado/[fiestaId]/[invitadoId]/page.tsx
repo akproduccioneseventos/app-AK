@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { InvitadoQR } from '@/components/invitados/InvitadoQR';
 import { useToast } from '@/hooks/use-toast';
+import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
 
 // ─── Config helpers ───────────────────────────────────────────────────────────
 
@@ -128,7 +129,9 @@ export default function InvitadoPage() {
       if (inv.rsvp && inv.rsvp !== 'Pendiente') setSaved(true);
       // Track that user opened the experience
       if (!inv.guestExperienceStats?.openedAt) {
-        updateGuestExperienceStats(fiestaId, inv.id, { openedAt: new Date().toISOString() }).catch(() => {});
+        updateGuestExperienceStats(fiestaId, inv.id, { openedAt: new Date().toISOString() }).catch(err => {
+          console.error('[GuestStats] Failed to track openedAt:', err);
+        });
       }
     } catch {
       setError('No se pudo cargar el evento.');
@@ -242,16 +245,7 @@ export default function InvitadoPage() {
 
   // Guest experience / AK branding settings (applied after colors are resolved)
   const ges: GuestExperienceSettings = {
-    enabled: true,
-    showAkBranding: true,
-    showLandingCta: true,
-    landingUrl: 'https://ak-producciones-fiestas-y-eventos.my.canva.site',
-    whatsappNumber: '59898355530',
-    instagramUrl: 'https://www.instagram.com/akproduccioneseventos',
-    facebookUrl: 'https://www.facebook.com/akproduccioneseventos',
-    tiktokUrl: 'https://tiktok.com/@akproduccioneseventos',
-    ctaTitle: '¿Te gustó esta experiencia?',
-    ctaText: 'Esta experiencia fue creada por AK Producciones Eventos. Organizamos fiestas completas e inolvidables en Salto, Uruguay.',
+    ...defaultGuestExperienceSettings,
     accentColor,
     ...(fiesta.guestExperienceSettings ?? {}),
   };

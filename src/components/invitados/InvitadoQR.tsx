@@ -12,7 +12,9 @@ interface Props {
 
 export function InvitadoQR({ invitado, fiestaId, nombreEvento, size = 160 }: Props) {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  // Build check-in QR URL — include guestAccessToken as `token` param if available
+  // Build check-in QR URL pointing to the venue access scanner (/evento/accesos).
+  // This QR is scanned at the event entrance — NOT used to navigate to the guest portal.
+  // Include guestAccessToken as `token` param when available for enhanced security.
   const params = new URLSearchParams({ fiestaId, guestId: invitado.id });
   if (invitado.guestAccessToken) params.set('token', invitado.guestAccessToken);
   const url = `${origin}/evento/accesos/${fiestaId}?${params.toString()}`;

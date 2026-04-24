@@ -18,6 +18,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GuestPortalSettings, GuestExperienceSettings } from '@/types/fiesta';
 import { getFiestaById, updateGuestPortalSettings, updateGuestExperienceSettings } from '@/app/actions/fiesta/fiesta.actions';
+import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
 
 const DEFAULT_SETTINGS: GuestPortalSettings = {
   showMural: true,
@@ -31,19 +32,6 @@ const DEFAULT_SETTINGS: GuestPortalSettings = {
   welcomeMessage: '',
   customBgColor: '#f8f5ff',
   customAccentColor: '#9333ea',
-};
-
-const DEFAULT_GES: GuestExperienceSettings = {
-  enabled: true,
-  showAkBranding: true,
-  showLandingCta: true,
-  landingUrl: 'https://ak-producciones-fiestas-y-eventos.my.canva.site',
-  whatsappNumber: '59898355530',
-  instagramUrl: 'https://www.instagram.com/akproduccioneseventos',
-  facebookUrl: 'https://www.facebook.com/akproduccioneseventos',
-  tiktokUrl: 'https://tiktok.com/@akproduccioneseventos',
-  ctaTitle: '¿Te gustó esta experiencia?',
-  ctaText: 'Esta experiencia fue creada por AK Producciones Eventos. Organizamos fiestas completas e inolvidables en Salto, Uruguay.',
 };
 
 const FEATURE_CONFIG = [
@@ -121,7 +109,7 @@ function GuestModuleContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [settings, setSettings] = useState<GuestPortalSettings>(DEFAULT_SETTINGS);
-  const [ges, setGes] = useState<GuestExperienceSettings>(DEFAULT_GES);
+  const [ges, setGes] = useState<GuestExperienceSettings>(defaultGuestExperienceSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -137,7 +125,7 @@ function GuestModuleContent() {
       if (!data) throw new Error('Evento no encontrado');
       setFiesta(data);
       setSettings({ ...DEFAULT_SETTINGS, ...(data.guestPortalSettings || {}) });
-      setGes({ ...DEFAULT_GES, ...(data.guestExperienceSettings || {}) });
+      setGes({ ...defaultGuestExperienceSettings, ...(data.guestExperienceSettings || {}) });
     } catch (e: unknown) {
       toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error al cargar', variant: 'destructive' });
     } finally {

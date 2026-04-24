@@ -101,9 +101,10 @@ function AccessControlContent() {
         resolvedGuestId = match?.id ?? null;
       } else if (token && fiesta) {
         // Verify the token matches the guestId for extra security
-        const match = (fiesta.invitados ?? []).find(i => i.id === guestId && i.guestAccessToken === token);
+        const match = (fiesta.invitados ?? []).find((i: { id: string; guestAccessToken?: string }) => i.id === guestId && i.guestAccessToken === token);
         if (!match && guestId) {
-          // Token mismatch — fall back to guestId only (backward compat)
+          // Token mismatch — log for security audit and fall back to guestId
+          console.warn(`[AccessControl] Token mismatch for guestId=${guestId} at fiestaId=${fiestaId}. Possible QR tampering.`);
         }
       }
 

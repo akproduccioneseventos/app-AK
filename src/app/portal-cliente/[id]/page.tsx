@@ -43,18 +43,9 @@ import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
+import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
-
-// Default "clienteDebeLlevar" items when none are set by organizer
-const DEFAULT_DEBE_LLEVAR: ClienteDebeLlevarItem[] = [
-  { id: 'dl_1', texto: 'Documentación personal (DNI/CI)', completado: false, obligatorio: true },
-  { id: 'dl_2', texto: 'Lista final de invitados confirmados', completado: false, obligatorio: true },
-  { id: 'dl_3', texto: 'Fotos para el video de vida', completado: false },
-  { id: 'dl_4', texto: 'Lista de canciones especiales', completado: false },
-  { id: 'dl_5', texto: 'Confirmación de menú y restricciones alimentarias', completado: false, obligatorio: true },
-  { id: 'dl_6', texto: 'Seña o primer pago pendiente', completado: false, obligatorio: true },
-];
 
 const ESTADO_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pendiente: { label: 'Pendiente', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
@@ -142,7 +133,7 @@ export default function PortalClientePage() {
         setFiesta(data);
         setDebeLlevarItems(data.clienteDebeLlevar && data.clienteDebeLlevar.length > 0
           ? data.clienteDebeLlevar
-          : DEFAULT_DEBE_LLEVAR);
+          : defaultClienteDebeLlevar);
         const storedKey = sessionStorage.getItem(sessionKey);
         if (storedKey === data.clientPortalSettings.accessKey) {
           setIsAuth(true);
@@ -216,7 +207,7 @@ export default function PortalClientePage() {
     try {
       await updateClienteDebeLlevar(fiestaId, updated);
     } catch {
-      toast({ title: 'Error', description: 'No se pudo guardar el estado.', variant: 'destructive' });
+      toast({ title: 'Error al guardar', description: 'No se pudo guardar el estado. Verificá tu conexión e intentá nuevamente.', variant: 'destructive' });
     } finally {
       setIsSavingLlevar(false);
     }

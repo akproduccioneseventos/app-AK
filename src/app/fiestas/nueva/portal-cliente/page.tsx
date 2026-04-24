@@ -18,16 +18,7 @@ import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
-import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq } from '@/lib/fiesta-defaults';
-
-const DEFAULT_DEBE_LLEVAR: ClienteDebeLlevarItem[] = [
-  { id: 'dl_1', texto: 'Documentación personal (DNI/CI)', completado: false, obligatorio: true },
-  { id: 'dl_2', texto: 'Lista final de invitados confirmados', completado: false, obligatorio: true },
-  { id: 'dl_3', texto: 'Fotos para el video de vida', completado: false },
-  { id: 'dl_4', texto: 'Lista de canciones especiales', completado: false },
-  { id: 'dl_5', texto: 'Confirmación de menú y restricciones alimentarias', completado: false, obligatorio: true },
-  { id: 'dl_6', texto: 'Seña o primer pago pendiente', completado: false, obligatorio: true },
-];
+import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq, defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 
 /** Create URL-friendly slug segments for portal access keys. */
 function createSlugFromText(value: string): string {
@@ -98,7 +89,7 @@ function ClientPortalConfigContent() {
   const [bebidasItems, setBebidasItems] = useState<BebidaCalculable[]>(defaultBebidaItems);
 
   // clienteDebeLlevar state
-  const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(DEFAULT_DEBE_LLEVAR);
+  const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(defaultClienteDebeLlevar);
   const [isSavingLlevar, setIsSavingLlevar] = useState(false);
   const [newLlevarTexto, setNewLlevarTexto] = useState('');
 
@@ -126,7 +117,7 @@ function ClientPortalConfigContent() {
       // Load clienteDebeLlevar
       setDebeLlevarItems(fiestaData.clienteDebeLlevar && fiestaData.clienteDebeLlevar.length > 0
         ? fiestaData.clienteDebeLlevar
-        : DEFAULT_DEBE_LLEVAR);
+        : defaultClienteDebeLlevar);
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
@@ -783,9 +774,10 @@ function ClientPortalConfigContent() {
               try {
                 const res = await updateClienteDebeLlevar(fiestaId, debeLlevarItems);
                 if (res.success) toast({ title: '✅ Lista guardada', description: 'El cliente verá la lista actualizada.' });
-                else throw new Error('Error al guardar');
-              } catch {
-                toast({ title: 'Error', variant: 'destructive' });
+                else throw new Error((res as { success: false; error?: string }).error ?? 'Error al guardar');
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : 'Error desconocido';
+                toast({ title: 'No se pudo guardar la lista', description: `${msg}. Por favor, intentá nuevamente.`, variant: 'destructive' });
               } finally {
                 setIsSavingLlevar(false);
               }
