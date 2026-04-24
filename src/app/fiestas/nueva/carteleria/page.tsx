@@ -17,7 +17,7 @@ import {
   GlassWater, Utensils, Hash, Info,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData, LayoutElement } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos, updateMenuMesa, updateNumerosMesa } from '@/app/actions/fiesta/fiesta.actions';
 import { updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -87,6 +87,10 @@ const formatDate = (dateString?: string) => {
     return dateString;
   }
 };
+
+/** Extrae los elementos de tipo mesa de la lista de elementos del diseño de salón */
+const filterTableElements = (salonElements: LayoutElement[]) =>
+  salonElements.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
 
 // ---------------------------------------------------------------------------
 // QR Card (Social Wall) – 10×15 cm card
@@ -364,7 +368,7 @@ function CarteleriaContent() {
 
       // Auto-pull table count from salon layout elements
       const salonElements = fiestaData.decoracion?.salonElements ?? [];
-      const tableElements = salonElements.filter(el => el.type === 'element' && (el.seats != null || (el.name?.toLowerCase().includes('mesa'))));
+      const tableElements = filterTableElements(salonElements);
       if (tableElements.length > 0) {
         setNumMesas(tableElements.length);
       }
@@ -474,7 +478,7 @@ function CarteleriaContent() {
   // Check if table count was auto-derived from salon layout
   const salonTableCount = (() => {
     const els = fiesta.decoracion?.salonElements ?? [];
-    const tableEls = els.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
+    const tableEls = filterTableElements(els);
     return tableEls.length > 0 ? tableEls.length : null;
   })();
 

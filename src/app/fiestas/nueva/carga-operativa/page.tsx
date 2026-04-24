@@ -87,8 +87,11 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
                     )}
                   </div>
                   {item.cargado && (
-                    <p className={cn("text-[10px] font-semibold", item.retornado ? "text-orange-500" : "text-slate-400")}>
-                      {item.retornado ? '↩ Retornado' : '← Pendiente de retorno'}
+                    <p
+                      className={cn("text-[10px] font-semibold", item.retornado ? "text-orange-500" : "text-slate-400")}
+                      aria-label={item.retornado ? `${item.nombre} retornado` : `${item.nombre} pendiente de retorno`}
+                    >
+                      {item.retornado ? 'Retornado' : 'Pendiente de retorno'}
                     </p>
                   )}
                   {item.notas && <p className={cn("text-[10px] italic", item.cargado ? "text-muted-foreground/60" : "text-muted-foreground/80")}>Nota: {item.notas}</p>}

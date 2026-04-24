@@ -319,7 +319,7 @@ function LiveEventDashboardContent() {
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {(() => {
                               const staffTotal = (fiesta.personalAsignado || []).length;
-                              const staffPresentes = Object.values(fiesta.liveState?.staffCheckIn || {}).filter(s => (s as { llego?: boolean }).llego).length;
+                              const staffPresentes = Object.values(fiesta.liveState?.staffCheckIn || {}).filter(s => s.llego).length;
                               const checkInPct = totalConfirmados > 0 ? Math.round((asistentesPresentes / totalConfirmados) * 100) : 0;
                               const proveedoresTotal = (fiesta.liveState?.entregas || []).length;
                               const proveedoresOk = (fiesta.liveState?.entregas || []).filter(e => e.llego).length;
