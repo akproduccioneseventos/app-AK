@@ -1009,7 +1009,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         )}
                         {calculatedValues.bonificacionPromo > 0 && (
                             <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-rose-500 tracking-widest">
-                                <span>Bonificación Promo:</span>
+                                <span>Bonificación Promo{presupuesto.modoDescuentoPromocional ? ' (Promo Visual)' : ''}:</span>
                                 <span>-{formatCurrency(calculatedValues.bonificacionPromo)}</span>
                             </div>
                         )}
@@ -1040,13 +1040,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         })()}
                         <div className="border-t-2 border-gray-700 pt-2" />
                         <div className="flex justify-between items-center text-xl sm:text-2xl font-black text-gray-900 pt-1">
-                            <span className="tracking-tighter">TOTAL FINAL:</span>
+                            <span className="tracking-tighter">TOTAL A PAGAR:</span>
                             <span>{formatCurrency(calculatedValues.totalFinal)}</span>
                         </div>
                         <p className="text-[10px] text-gray-600 font-semibold mt-2">
                           Precios {currentYear} — Ajuste anual del {adjustmentPct}% para eventos futuros.
                         </p>
-
+                        {presupuesto.modoDescuentoPromocional && (
+                          <div className="mt-2 p-2 bg-violet-50 rounded-lg border border-violet-200 text-[9px] font-bold uppercase tracking-wider text-violet-700 flex items-center gap-1.5">
+                            <span>🏷️</span>
+                            <span>Descuento promocional aplicado — Total a pagar refleja precio especial.</span>
+                          </div>
+                        )}
                     </div>
                 </section>
                     

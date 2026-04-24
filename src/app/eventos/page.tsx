@@ -64,6 +64,8 @@ export default function GestorFiestasPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [resetConfirmText, setResetConfirmText] = useState('');
+  const [deleteAllConfirmText, setDeleteAllConfirmText] = useState('');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -393,7 +395,7 @@ export default function GestorFiestasPage() {
             </DialogContent>
           </Dialog>
 
-          <AlertDialog>
+          <AlertDialog onOpenChange={(open) => { if (!open) setResetConfirmText(''); }}>
             <AlertDialogTrigger asChild>
               <Button variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingPlanificador || fiestasActivas.length === 0}>
                 {isResettingPlanificador ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
@@ -403,20 +405,37 @@ export default function GestorFiestasPage() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Reiniciar el Planificador?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción archivará <strong>todos los eventos activos</strong> ({fiestasActivas.length}) para que puedas comenzar de cero. Los eventos se conservan en el historial. Esta operación no se puede deshacer.
+                <AlertDialogDescription asChild>
+                  <div className="space-y-3">
+                    <p>
+                      Esta acción archivará <strong>todos los eventos activos</strong> ({fiestasActivas.length}) para que puedas comenzar de cero. Los eventos se conservan en el historial. Esta operación no se puede deshacer.
+                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
+                      <Input
+                        value={resetConfirmText}
+                        onChange={(e) => setResetConfirmText(e.target.value)}
+                        placeholder="ELIMINAR"
+                        className="border-destructive/40 focus-visible:ring-destructive"
+                      />
+                    </div>
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleResetPlanificador} className="bg-destructive hover:bg-destructive/90">
+                <AlertDialogAction
+                  onClick={handleResetPlanificador}
+                  className="bg-destructive hover:bg-destructive/90"
+                  disabled={resetConfirmText !== 'ELIMINAR'}
+                >
                   Sí, archivar todos y reiniciar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
 
-          <AlertDialog>
+          <AlertDialog onOpenChange={(open) => { if (!open) setDeleteAllConfirmText(''); }}>
             <AlertDialogTrigger asChild>
               <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isDeletingAllFiestas || fiestasActivas.length === 0}>
                 {isDeletingAllFiestas ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
@@ -426,13 +445,30 @@ export default function GestorFiestasPage() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>⚠️ ¿Eliminar TODOS los eventos permanentemente?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos activos ({fiestasActivas.length}). Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                <AlertDialogDescription asChild>
+                  <div className="space-y-3">
+                    <p>
+                      Esta acción eliminará <strong>de forma irreversible</strong> todos los eventos activos ({fiestasActivas.length}). Los datos <strong>NO se podrán recuperar</strong>. Esta operación borra directamente de Firestore y no puede deshacerse.
+                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-destructive">Para confirmar, escribí la palabra ELIMINAR:</p>
+                      <Input
+                        value={deleteAllConfirmText}
+                        onChange={(e) => setDeleteAllConfirmText(e.target.value)}
+                        placeholder="ELIMINAR"
+                        className="border-destructive/40 focus-visible:ring-destructive"
+                      />
+                    </div>
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteAllFiestas} className="bg-destructive hover:bg-destructive/90">
+                <AlertDialogAction
+                  onClick={handleDeleteAllFiestas}
+                  className="bg-destructive hover:bg-destructive/90"
+                  disabled={deleteAllConfirmText !== 'ELIMINAR'}
+                >
                   Sí, eliminar todo permanentemente
                 </AlertDialogAction>
               </AlertDialogFooter>

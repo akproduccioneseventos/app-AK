@@ -122,6 +122,7 @@ export async function uploadDocumentoFiesta(formData: FormData) { return await D
 export async function deleteDocumentoFiesta(fiestaId: string, docId: string) { return await DocumentosModule.deleteDocumento(fiestaId, docId); }
 export async function signContractDigitally(fiestaId: string, name: string) { return await DocumentosModule.signContractDigitally(fiestaId, name); }
 export async function uploadPhysicalContract(formData: FormData) { return await DocumentosModule.uploadPhysicalContract(formData); }
+export async function getContractSigningSummary(fiestaId: string) { return await DocumentosModule.getContractSigningSummary(fiestaId); }
 
 // --- REUNIONES ---
 export async function addReunionToFiestaActual(reunionData: Omit<Reunion, 'id'>) { return await ReunionesModule.addReunion(reunionData); }

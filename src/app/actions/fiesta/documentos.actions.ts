@@ -8,6 +8,99 @@ import { registerBookingDeposit } from '../invoices';
 import { addDays } from 'date-fns';
 import { createNotification } from '../notifications';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
+import { getPresupuestoById } from '../presupuestos';
+
+/** Default deposit amount used only when no presupuesto or plan de pagos seña is available. */
+const DEFAULT_DEPOSIT_AMOUNT = 20000;
+
+/** Returns a pre-signing summary for the given event so the UI can show it. */
+export async function getContractSigningSummary(fiestaId: string): Promise<{
+  success: boolean;
+  summary?: {
+    nombreEvento: string;
+    clienteNombre: string;
+    salon: string;
+    fechaEvento: string;
+    totalEstimado: number;
+    senia: number;
+    saldo: number;
+    presupuestoId?: string;
+  };
+  error?: string;
+}> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    let totalEstimado = 0;
+    let senia = DEFAULT_DEPOSIT_AMOUNT;
+
+    if (fiesta.presupuestoId) {
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        totalEstimado = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+        if (presupuesto.senia && presupuesto.senia > 0) {
+          senia = presupuesto.senia;
+        } else if (totalEstimado > 0) {
+          // Default: 20% of total if no explicit seña
+          senia = Math.round(totalEstimado * 0.2);
+        }
+      }
+    }
+
+    const saldo = totalEstimado > 0 ? totalEstimado - senia : 0;
+
+    // Derive the client name from the fiesta configuration
+    const clienteNombre =
+      fiesta.configuracion.protagonista1Nombre ||
+      fiesta.configuracion.protagonista2Nombre ||
+      fiesta.configuracion.nombreEvento.split(' de ').slice(1).join(' de ') ||
+      fiesta.configuracion.nombreEvento;
+
+    return {
+      success: true,
+      summary: {
+        nombreEvento: fiesta.configuracion.nombreEvento,
+        clienteNombre,
+        salon: fiesta.configuracion.nombreLugar || 'Sin salón definido',
+        fechaEvento: fiesta.configuracion.fechaEvento || '',
+        totalEstimado,
+        senia,
+        saldo,
+        presupuestoId: fiesta.presupuestoId,
+      },
+    };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+/** Resolves the booking deposit amount for a fiesta from its linked presupuesto. */
+async function resolveDepositAmount(fiesta: FiestaEnPlanificacion): Promise<number> {
+  if (fiesta.presupuestoId) {
+    try {
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        if (presupuesto.senia && presupuesto.senia > 0) {
+          return presupuesto.senia;
+        }
+        const total = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+        if (total > 0) {
+          return Math.round(total * 0.2);
+        }
+      }
+    } catch {
+      // fall through to default
+    }
+  }
+  // Check plan de pagos for a seña cuota
+  const seniaCuota = fiesta.planDePagos?.cuotas?.find(c =>
+    c.descripcion?.toLowerCase().includes('seña') || c.descripcion?.toLowerCase().includes('señal')
+  );
+  if (seniaCuota && seniaCuota.monto > 0) return seniaCuota.monto;
+
+  return DEFAULT_DEPOSIT_AMOUNT; // fallback default
+}
 
 export async function uploadDocumento(formData: FormData): Promise<{ success: boolean; error?: string }> {
     const file = formData.get('file') as File | null;
@@ -109,14 +202,15 @@ export async function signContractDigitally(fiestaId: string, signerName: string
             updatedFiesta.clientPortalSettings.moodboard.visible = true;
         }
 
-        // 2. AUTOMATIZACIÓN: Generar Factura de Seña ($20.000)
+        // 2. AUTOMATIZACIÓN: Generar Factura de Seña (monto desde presupuesto)
         // Solo si no existe ya una factura de seña
         const hasDeposit = updatedFiesta.invoiceIds?.length && updatedFiesta.invoiceIds.some(id => id.includes('SEÑA'));
         if (!hasDeposit) {
             try {
+                const depositAmount = await resolveDepositAmount(fiesta);
                 await registerBookingDeposit({
                     fiestaId: fiesta.id,
-                    amount: 20000,
+                    amount: depositAmount,
                     method: 'Transferencia',
                     date: new Date().toISOString()
                 });
@@ -202,13 +296,14 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
             updatedFiesta.clientPortalSettings.moodboard.visible = true;
         }
 
-        // Generar Factura de Seña si no existe
+        // Generar Factura de Seña si no existe (monto desde presupuesto)
         const hasDeposit = updatedFiesta.invoiceIds?.length && updatedFiesta.invoiceIds.some(id => id.includes('SEÑA'));
         if (!hasDeposit) {
             try {
+                const depositAmount = await resolveDepositAmount(fiesta);
                 await registerBookingDeposit({
                     fiestaId: fiesta.id,
-                    amount: 20000,
+                    amount: depositAmount,
                     method: 'Transferencia',
                     date: new Date().toISOString()
                 });

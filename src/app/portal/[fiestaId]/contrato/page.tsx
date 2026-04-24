@@ -4,9 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft, FileSignature, CheckCircle2, ShieldCheck, Info, AlertTriangle } from 'lucide-react';
+import { Loader2, ArrowLeft, FileSignature, CheckCircle2, ShieldCheck, Info, AlertTriangle, User, Building2, Calendar, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, signContractDigitally } from '@/app/actions/fiesta-actual';
+import { getFiestaById, signContractDigitally, getContractSigningSummary } from '@/app/actions/fiesta-actual';
 import { getCompanyInfo } from '@/app/actions/settings';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { CompanyInfo } from '@/types/settings';
@@ -15,6 +15,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
+}
+
+function formatDate(iso?: string) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' });
+}
 
 export default function ClientContractPage({ params }: { params: { fiestaId: string } }) {
   const fiestaId = params.fiestaId;
@@ -25,17 +34,30 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
   const [isLoading, setIsLoading] = useState(true);
   const [isSigning, setIsSaving] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [summary, setSummary] = useState<{
+    nombreEvento: string;
+    clienteNombre: string;
+    salon: string;
+    fechaEvento: string;
+    totalEstimado: number;
+    senia: number;
+    saldo: number;
+  } | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [data, companyData] = await Promise.all([
+      const [data, companyData, summaryData] = await Promise.all([
           getFiestaById(fiestaId),
-          getCompanyInfo()
+          getCompanyInfo(),
+          getContractSigningSummary(fiestaId),
       ]);
       if (!data) throw new Error("Evento no encontrado");
       setFiesta(data);
       setCompanyInfo(companyData);
+      if (summaryData.success && summaryData.summary) {
+        setSummary(summaryData.summary);
+      }
     } catch (e) {
       toast({ title: "Error al cargar", variant: "destructive" });
     } finally {
@@ -121,6 +143,64 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                         </p>
                     </div>
                 </div>
+            )}
+
+            {/* ── Resumen pre-firma ──────────────────────────── */}
+            {!firma?.isSigned && summary && (
+              <Card className="border-blue-100 bg-blue-50/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base font-black text-blue-800">
+                    <Info className="w-5 h-5 text-blue-600" /> Resumen del Contrato
+                  </CardTitle>
+                  <CardDescription className="text-blue-600 text-xs">Revisá los detalles antes de firmar.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-start gap-2 p-3 bg-white rounded-xl border border-blue-100">
+                      <User className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">Evento</p>
+                        <p className="font-semibold text-slate-800">{summary.nombreEvento}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 bg-white rounded-xl border border-blue-100">
+                      <Building2 className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">Salón</p>
+                        <p className="font-semibold text-slate-800">{summary.salon}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 bg-white rounded-xl border border-blue-100">
+                      <Calendar className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">Fecha del Evento</p>
+                        <p className="font-semibold text-slate-800">{formatDate(summary.fechaEvento)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 bg-white rounded-xl border border-blue-100">
+                      <DollarSign className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">Monto Total</p>
+                        <p className="font-semibold text-slate-800">{summary.totalEstimado > 0 ? formatCurrency(summary.totalEstimado) : 'A definir'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                      <DollarSign className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">Seña al Firmar</p>
+                        <p className="font-black text-amber-700">{formatCurrency(summary.senia)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 bg-white rounded-xl border border-blue-100">
+                      <DollarSign className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">Saldo Restante</p>
+                        <p className="font-semibold text-slate-800">{summary.saldo > 0 ? formatCurrency(summary.saldo) : '—'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
