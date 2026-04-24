@@ -10,6 +10,7 @@ import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonth
 import { es } from 'date-fns/locale';
 import { getCrmKpiData, getCrmLeads } from './crm';
 import { getRoles } from './roles';
+import { calculateFinancialLedger } from '@/lib/commercial-flow/ledger-service';
 
 export interface MonthlyChartData {
   month: string;
@@ -61,14 +62,11 @@ export async function getDashboardKpiData() {
     const today = startOfToday();
     const tomorrow = addDays(today, 1);
     
-    // ventasTotales includes invoices + presupuestos aceptados (not yet invoiced)
-    const ventasFacturadas = invoicesData.reduce((total, inv) => total + inv.totalAmount, 0);
-    const ventasPresupuestadas = presupuestosData
-      .filter(p => p.estado === 'Aceptado' && !p.invoiceId)
-      .reduce((total, p) => total + (p.totalConDescuento || p.costoTotalEstimado || 0), 0);
-    const ventasTotales = ventasFacturadas + ventasPresupuestadas;
-    const montoPagado = invoicesData.reduce((total, inv) => total + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
-    const totalPendiente = ventasTotales - montoPagado;
+    // Usar el libro mayor unificado para los totales financieros
+    const ledger = calculateFinancialLedger(presupuestosData, invoicesData);
+    const ventasTotales = ledger.ventasTotales;
+    const montoPagado = ledger.totalCobrado;
+    const totalPendiente = ledger.saldoPendiente;
     const prospectosActivos = crmKpis.success ? crmKpis.data.activeLeads : 0;
     
     const activeCustomerIds = new Set(fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now).map(f => f.configuracion.clienteId));

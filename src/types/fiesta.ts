@@ -1173,7 +1173,8 @@ export interface ContratoFirmaInfo {
     method?: 'digital' | 'physical';
     signedBy?: string;
     ip?: string;
-    physicalContractUrl?: string; 
+    physicalContractUrl?: string;
+    notes?: string;
 }
 
 export interface ContratoDatos {
