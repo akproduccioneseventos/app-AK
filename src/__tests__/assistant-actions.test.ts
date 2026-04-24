@@ -83,6 +83,10 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
 
 jest.mock('@/app/actions/crm', () => ({
   addCrmLead: jest.fn(),
+  getCrmLeads: jest.fn().mockResolvedValue([]),
+  getCrmStages: jest.fn().mockResolvedValue([{ id: 's2', name: 'Agendó entrevista', order: 2 }]),
+  scheduleCrmMeeting: jest.fn().mockResolvedValue({ success: true }),
+  moveCrmLead: jest.fn().mockResolvedValue({ success: true }),
 }));
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -157,8 +161,9 @@ describe('sendAssistantMessage — create_lead fallback with minimal scheduling 
     jest.clearAllMocks();
   });
 
-  it('creates a CRM lead from scheduling text when Gemini returns create_lead without data', async () => {
-    mockChat.mockResolvedValueOnce(aiResult('create_lead', undefined) as any);
+  it('creates a CRM lead from scheduling text via intent router (before Gemini)', async () => {
+    // The intent router intercepts "Agenda a Norma a las 11" before calling Gemini.
+    // chatWithAssistant is NOT called for this message; do NOT set up a mock for it.
     mockAddCrmLead.mockResolvedValueOnce({
       success: true,
       lead: {
@@ -206,13 +211,13 @@ describe('sendAssistantMessage — create_lead fallback with minimal scheduling 
   });
 });
 
-describe('sendAssistantMessage — create_event fallback to CRM meeting', () => {
+describe('sendAssistantMessage — scheduling via intent router (create_event path)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('reroutes create_event without data to a CRM lead when message is a meeting request', async () => {
-    mockChat.mockResolvedValueOnce(aiResult('create_event', undefined) as any);
+  it('intercepts a scheduling message via intent router and creates a CRM lead', async () => {
+    // The intent router handles "Agendar a Norma a las 11" directly, before Gemini is called.
     mockAddCrmLead.mockResolvedValueOnce({
       success: true,
       lead: {
@@ -227,7 +232,7 @@ describe('sendAssistantMessage — create_event fallback to CRM meeting', () => 
 
     expect(res.success).toBe(true);
     expect(mockAddCrmLead).toHaveBeenCalledTimes(1);
-    expect(res.response).toContain('Reunión/cita registrada');
+    expect(res.response).toContain('Cita agendada');
   });
 });
 

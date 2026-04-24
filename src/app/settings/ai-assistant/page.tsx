@@ -58,15 +58,35 @@ export default function AiAssistantSettingsPage() {
     if (files.length === 0) return;
 
     const docs: KnowledgeDocument[] = [];
+    const skipped: string[] = [];
+
     for (const [index, file] of files.entries()) {
       let content = '';
-      if (
+      const isTextReadable =
         file.type.startsWith('text/') ||
-        ['application/json', 'application/xml', 'text/csv'].includes(file.type)
-      ) {
+        ['application/json', 'application/xml', 'text/csv'].includes(file.type) ||
+        file.name.endsWith('.txt') ||
+        file.name.endsWith('.json') ||
+        file.name.endsWith('.csv') ||
+        file.name.endsWith('.md');
+
+      const isPdfOrDoc =
+        file.type === 'application/pdf' ||
+        file.type === 'application/msword' ||
+        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        file.name.endsWith('.pdf') ||
+        file.name.endsWith('.doc') ||
+        file.name.endsWith('.docx');
+
+      if (isTextReadable) {
         content = (await file.text()).slice(0, KNOWLEDGE_DOC_MAX_CHARS);
+      } else if (isPdfOrDoc) {
+        // PDF/DOC — no se puede leer el contenido automáticamente en el navegador.
+        // Mostramos advertencia y dejamos el contenido vacío para que el usuario lo complete.
+        skipped.push(file.name);
+        content = '';
       } else {
-        content = `Documento cargado: ${file.name}. Tipo: ${file.type || 'desconocido'}. Si es PDF/DOC, agregá un resumen textual para que el asistente lo use como contexto.`;
+        content = '';
       }
 
       docs.push({
@@ -80,7 +100,22 @@ export default function AiAssistantSettingsPage() {
 
     setKnowledgeDocuments((prev) => [...docs, ...prev]);
     event.target.value = '';
-    toast({ title: 'Documentos cargados', description: `Se agregaron ${docs.length} documento(s) a la base de conocimiento.` });
+
+    if (skipped.length > 0) {
+      const plural = skipped.length > 1;
+      toast({
+        title: '⚠️ Archivos no leídos automáticamente',
+        description: plural
+          ? `Estos archivos no fueron leídos automáticamente: ${skipped.join(', ')}. Pegá el texto o subí versión TXT.`
+          : `${skipped[0]}: Este archivo no fue leído automáticamente; pegá el texto o subí versión TXT.`,
+        variant: 'destructive',
+      });
+    }
+
+    const readCount = docs.length - skipped.length;
+    if (readCount > 0) {
+      toast({ title: 'Documentos cargados', description: `Se agregaron ${readCount} documento(s) leído(s) a la base de conocimiento.` });
+    }
   }, [toast]);
 
   const handleTestConnection = useCallback(async () => {
@@ -364,27 +399,46 @@ export default function AiAssistantSettingsPage() {
             {filteredKnowledgeDocuments.length === 0 ? (
               <p className="text-sm text-muted-foreground">No hay documentos cargados.</p>
             ) : (
-              filteredKnowledgeDocuments.map((doc) => (
-                <div key={doc.id} className="rounded-md border p-3 space-y-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold truncate">{doc.name}</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setKnowledgeDocuments((prev) => prev.filter((d) => d.id !== doc.id))}
-                    >
-                      Quitar
-                    </Button>
+              filteredKnowledgeDocuments.map((doc) => {
+                const isPdfOrDoc =
+                  doc.type === 'application/pdf' ||
+                  doc.type === 'application/msword' ||
+                  doc.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+                  doc.name.endsWith('.pdf') ||
+                  doc.name.endsWith('.doc') ||
+                  doc.name.endsWith('.docx');
+                const isUnread = isPdfOrDoc && !doc.content.trim();
+                return (
+                  <div key={doc.id} className={`rounded-md border p-3 space-y-2 ${isUnread ? 'border-amber-300 bg-amber-50' : ''}`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold truncate">{doc.name}</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setKnowledgeDocuments((prev) => prev.filter((d) => d.id !== doc.id))}
+                      >
+                        Quitar
+                      </Button>
+                    </div>
+                    {isUnread && (
+                      <div className="flex items-start gap-2 p-2 bg-amber-100 border border-amber-200 rounded text-xs text-amber-800">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                        <span>
+                          Este archivo no fue leído automáticamente; pegá el texto o subí versión TXT.
+                        </span>
+                      </div>
+                    )}
+                    <Textarea
+                      value={doc.content}
+                      onChange={(e) => setKnowledgeDocuments((prev) => prev.map((d) => d.id === doc.id ? { ...d, content: e.target.value } : d))}
+                      rows={4}
+                      className="text-xs"
+                      placeholder={isUnread ? 'Pegá acá el contenido del documento...' : undefined}
+                    />
                   </div>
-                  <Textarea
-                    value={doc.content}
-                    onChange={(e) => setKnowledgeDocuments((prev) => prev.map((d) => d.id === doc.id ? { ...d, content: e.target.value } : d))}
-                    rows={4}
-                    className="text-xs"
-                  />
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
