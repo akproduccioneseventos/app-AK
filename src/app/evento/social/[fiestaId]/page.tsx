@@ -408,7 +408,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     const opts = pollOptions.filter(o => o.trim());
     if (!pollQuestion.trim() || opts.length < 2) return;
     setIsCreatingPoll(true);
-    const result = await createPoll(params.fiestaId, pollQuestion.trim(), opts);
+    const filteredOptions = opts;
+    const result = await createPoll(params.fiestaId, pollQuestion.trim(), filteredOptions);
     if (result.success) {
       setPollQuestion('');
       setPollOptions(['', '']);

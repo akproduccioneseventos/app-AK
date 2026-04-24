@@ -444,15 +444,15 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
 
     // 3. Construir info de firma del contrato
+    const now = new Date().toISOString();
+
     const contratoFirmaInfo = {
       isSigned: true,
       method: 'physical' as const,
-      signedAt: new Date().toISOString(),
+      signedAt: now,
       signedBy: finalName,
       notes: `Firma registrada al confirmar contratación. CI: ${ci || 'N/D'}. Domicilio: ${address || 'N/D'}.`,
     };
-
-    const now = new Date().toISOString();
 
     // 3. Update Presupuesto FIRST with form data, set estado='Aceptado'
     const presupuestoWithFormData: Presupuesto = {
