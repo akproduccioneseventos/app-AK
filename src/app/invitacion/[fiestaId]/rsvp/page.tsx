@@ -173,14 +173,14 @@ function RsvpFormContent() {
                 <p className="text-sm text-slate-500 text-center">
                   Guarda tu pase digital. Lo necesitarás en la entrada.
                 </p>
-                <div className="p-6 bg-white rounded-2xl shadow-inner border border-slate-100">
-                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" />
+                <div className="p-6 bg-white rounded-2xl shadow-inner border border-slate-100" data-testid="guest-qr-container">
+                   <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" />
                 </div>
 
                 {/* Event details for guest */}
                 <div className="w-full space-y-2 text-sm">
                   {confirmedGuest.tableNumber && (
-                    <div className="flex items-center gap-2 bg-purple-50 border border-purple-100 rounded-xl p-3">
+                    <div className="flex items-center gap-2 bg-purple-50 border border-purple-100 rounded-xl p-3" data-testid="guest-table-info">
                       <span className="text-lg">🪑</span>
                       <div>
                         <p className="font-black text-purple-800">Mesa asignada</p>
@@ -253,6 +253,7 @@ function RsvpFormContent() {
           {/* AK Producciones Marketing CTA */}
           {showAkCta && (
             <motion.div
+              data-testid="ak-producciones-cta"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}

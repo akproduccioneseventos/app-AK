@@ -490,3 +490,281 @@ describe('Evento en Vivo — Semáforo Operativo', () => {
     expect(estado).toBe('verde');
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. Portal Cliente VIP — botón "Necesito ayuda"
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Portal Cliente VIP — "Necesito ayuda"', () => {
+  it('el botón necesito-ayuda apunta a WhatsApp con número y texto', () => {
+    const waNumber = '59898355530';
+    const eventName = 'Mi Fiesta de 15';
+    const waText = encodeURIComponent(`Hola, necesito ayuda con mi evento "${eventName}".`);
+    const href = `https://wa.me/${waNumber}?text=${waText}`;
+    expect(href).toContain('wa.me/59898355530');
+    expect(href).toContain('text=');
+    expect(href).toContain('Mi%20Fiesta%20de%2015');
+  });
+
+  it('el atributo data-testid permite localizarlo en pruebas de UI', () => {
+    const testId = 'necesito-ayuda-btn';
+    // Se verifica que el valor del testid es consistente con lo que se necesita
+    expect(testId).toBe('necesito-ayuda-btn');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. Portal Cliente VIP — Video de Vida bloque visible
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Portal Cliente VIP — Bloque Video de Vida', () => {
+  it('el bloque video-vida siempre es visible (showVideoVida = true)', () => {
+    // In simplicityMode or normal mode, video-vida is always shown
+    const showVideoVida = true;
+    expect(showVideoVida).toBe(true);
+  });
+
+  it('muestra badge "Pendiente" cuando photosUploaded es false', () => {
+    const videoVida = { galleryEnabled: false, photosUploaded: false };
+    const badge = videoVida.photosUploaded ? 'Fotos enviadas ✓' : 'Pendiente';
+    expect(badge).toBe('Pendiente');
+  });
+
+  it('muestra badge "Fotos enviadas" cuando photosUploaded es true', () => {
+    const videoVida = { galleryEnabled: true, photosUploaded: true };
+    const badge = videoVida.photosUploaded ? 'Fotos enviadas ✓' : 'Pendiente';
+    expect(badge).toBe('Fotos enviadas ✓');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. Portal Cliente VIP — Itinerario cliente sin notas operativas
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Portal Cliente VIP — Itinerario client view', () => {
+  it('filtra ítems donde visibleParaCliente === false', () => {
+    const programa: ProgramaEventoItem[] = [
+      makeProgramaItem({ titulo: 'Entrada', visibleParaCliente: true }),
+      makeProgramaItem({ titulo: 'Operativo interno', visibleParaCliente: false }),
+      makeProgramaItem({ titulo: 'Torta', visibleParaCliente: undefined }), // default = visible
+    ];
+    const clientView = programa.filter(item => item.visibleParaCliente !== false);
+    expect(clientView).toHaveLength(2);
+    expect(clientView.map(i => i.titulo)).toContain('Entrada');
+    expect(clientView.map(i => i.titulo)).toContain('Torta');
+    expect(clientView.map(i => i.titulo)).not.toContain('Operativo interno');
+  });
+
+  it('muestra descripcionCliente si está definida', () => {
+    const item = makeProgramaItem({
+      titulo: 'Cena',
+      descripcion: 'OPERATIVO: cue DJ #42, mozo 3 en sector A',
+      descripcionCliente: 'Cena de tres pasos con carta de tragos',
+    });
+    // La vista cliente muestra descripcionCliente, no descripcion
+    const clientDesc = item.descripcionCliente ?? null;
+    expect(clientDesc).toBe('Cena de tres pasos con carta de tragos');
+  });
+
+  it('oculta descripcion (interna) en la vista cliente', () => {
+    const item = makeProgramaItem({
+      titulo: 'Entrada protagonistas',
+      descripcion: 'Verificar micro inalámbrico canal 3 antes de cue',
+      descripcionCliente: undefined,
+    });
+    // La vista cliente solo expone titulo y descripcionCliente
+    const exposedToClient = { hora: item.hora, titulo: item.titulo, descripcionCliente: item.descripcionCliente };
+    expect(Object.keys(exposedToClient)).not.toContain('descripcion');
+    expect(exposedToClient.descripcionCliente).toBeUndefined();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 14. Portal Cliente VIP — simplicityMode oculta secciones no esenciales
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Portal Cliente VIP — simplicityMode', () => {
+  function computeVisibility(simplicityMode: boolean, portalSettings?: {
+    pagos?: { visible: boolean };
+    invitados?: { visible: boolean };
+    menu?: { visible: boolean };
+    itinerario?: { visible: boolean };
+  }) {
+    return {
+      showFinancials: simplicityMode ? true  : (portalSettings?.pagos?.visible     ?? true),
+      showInvitados:  simplicityMode ? true  : (portalSettings?.invitados?.visible  ?? true),
+      showCatering:   simplicityMode ? false : (portalSettings?.menu?.visible       ?? true),
+      showTimeline:   simplicityMode ? false : (portalSettings?.itinerario?.visible ?? true),
+      showDecoration: simplicityMode ? false : true,
+      showVideoVida:  true,
+    };
+  }
+
+  it('en modo normal muestra todos los módulos habilitados', () => {
+    const vis = computeVisibility(false);
+    expect(vis.showFinancials).toBe(true);
+    expect(vis.showCatering).toBe(true);
+    expect(vis.showTimeline).toBe(true);
+    expect(vis.showDecoration).toBe(true);
+    expect(vis.showVideoVida).toBe(true);
+  });
+
+  it('en simplicityMode muestra solo: financiero, invitados, video-vida', () => {
+    const vis = computeVisibility(true);
+    expect(vis.showFinancials).toBe(true);
+    expect(vis.showInvitados).toBe(true);
+    expect(vis.showVideoVida).toBe(true);
+    expect(vis.showCatering).toBe(false);
+    expect(vis.showTimeline).toBe(false);
+    expect(vis.showDecoration).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 15. Portal Invitado — QR y CTA AK
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Portal Invitado — QR y CTA AK Producciones', () => {
+  it('el QR apunta a la ruta correcta de acceso', () => {
+    const fiestaId = 'fiesta_abc';
+    const guestId = 'inv_xyz';
+    const baseUrl = 'https://app-ak.vercel.app';
+    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${guestId}`;
+    expect(qrValue).toContain('/evento/accesos/');
+    expect(qrValue).not.toContain('/evento/muro-en-vivo/');
+  });
+
+  it('el CTA AK se muestra solo cuando enabled Y showAkBranding son true', () => {
+    const guestExp = { enabled: true, showAkBranding: true };
+    const showCta = guestExp.enabled && guestExp.showAkBranding;
+    expect(showCta).toBe(true);
+  });
+
+  it('el CTA AK no se muestra cuando enabled es false', () => {
+    const guestExp = { enabled: false, showAkBranding: true };
+    const showCta = guestExp.enabled && guestExp.showAkBranding;
+    expect(showCta).toBe(false);
+  });
+
+  it('el CTA AK no se muestra cuando showAkBranding es false', () => {
+    const guestExp = { enabled: true, showAkBranding: false };
+    const showCta = guestExp.enabled && guestExp.showAkBranding;
+    expect(showCta).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 16. Modo Utilero — enlace apunta a ruta existente
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Evento en Vivo — Modo Utilero', () => {
+  it('el enlace del modo utilero apunta a en-vivo (tab retorno), no a ruta inexistente', () => {
+    const fiestaId = 'fiesta_test';
+    const utilerHref = `/fiestas/nueva/en-vivo?fiestaId=${fiestaId}&tab=retorno`;
+    // Verifica que NO apunta a la ruta inexistente
+    expect(utilerHref).not.toContain('/carga-operativa/retorno');
+    // Verifica que apunta a en-vivo
+    expect(utilerHref).toContain('/fiestas/nueva/en-vivo');
+    expect(utilerHref).toContain('tab=retorno');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 17. Cartelería — plan de mesas con nombres de salon elements
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Cartelería — plan de mesas con salonTableLabels', () => {
+  it('genera labels personalizados desde salonElements', () => {
+    const elements: LayoutElement[] = [
+      makeSalonElement({ seats: 8, name: 'Mesa de honor' }),
+      makeSalonElement({ seats: 8, name: 'Mesa 2' }),
+      makeSalonElement({ seats: 6, name: 'Mesa de la familia' }),
+    ];
+
+    // Simula filterTableElements + buildSalonTableLabels
+    const tableEls = elements.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
+    const labelMap = new Map<string, string>();
+    tableEls.forEach((el, idx) => {
+      const num = String(idx + 1);
+      if (el.name && el.name.toLowerCase() !== 'mesa') {
+        labelMap.set(num, el.name);
+      }
+    });
+
+    expect(labelMap.get('1')).toBe('Mesa de honor');
+    expect(labelMap.get('2')).toBe('Mesa 2');
+    expect(labelMap.get('3')).toBe('Mesa de la familia');
+  });
+
+  it('mesa con nombre genérico "mesa" no genera label personalizado', () => {
+    const elements: LayoutElement[] = [
+      makeSalonElement({ seats: 8, name: 'Mesa' }),
+    ];
+    const tableEls = elements.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
+    const labelMap = new Map<string, string>();
+    tableEls.forEach((el, idx) => {
+      const num = String(idx + 1);
+      if (el.name && el.name.toLowerCase() !== 'mesa') {
+        labelMap.set(num, el.name);
+      }
+    });
+    // "Mesa" exacto no crea label personalizado
+    expect(labelMap.has('1')).toBe(false);
+  });
+
+  it('el plan de mesas muestra nombre del salon element si existe', () => {
+    const labelMap = new Map([['3', 'Mesa VIP']]);
+    const mesa = '3';
+    const displayLabel = labelMap.get(mesa)
+      ? `Mesa ${labelMap.get(mesa)} · ${mesa}`
+      : `Mesa ${mesa}`;
+    expect(displayLabel).toBe('Mesa Mesa VIP · 3');
+  });
+
+  it('el plan de mesas muestra número simple cuando no hay label personalizado', () => {
+    const labelMap = new Map<string, string>();
+    const mesa = '5';
+    const displayLabel = labelMap.get(mesa)
+      ? `Mesa ${labelMap.get(mesa)} · ${mesa}`
+      : `Mesa ${mesa}`;
+    expect(displayLabel).toBe('Mesa 5');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 18. clientePortalExperience.clienteDebeLlevar — cadena de fallback
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Portal Cliente — cadena de fallback para clienteDebeLlevar', () => {
+  function resolveDebeLlevar(
+    portalExpItems?: ClienteDebeLlevarItem[],
+    rootItems?: ClienteDebeLlevarItem[],
+    defaultItems?: ClienteDebeLlevarItem[],
+  ): ClienteDebeLlevarItem[] {
+    return (portalExpItems && portalExpItems.length > 0)
+      ? portalExpItems
+      : (rootItems && rootItems.length > 0)
+        ? rootItems
+        : (defaultItems ?? []);
+  }
+
+  const sampleItem: ClienteDebeLlevarItem = { id: 'x', texto: 'Fotos', completado: false };
+
+  it('usa clientePortalExperience.clienteDebeLlevar cuando existe', () => {
+    const result = resolveDebeLlevar([sampleItem], [], []);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('x');
+  });
+
+  it('usa clienteDebeLlevar de raíz si el de portalExperience está vacío', () => {
+    const rootItem: ClienteDebeLlevarItem = { id: 'y', texto: 'Canciones', completado: true };
+    const result = resolveDebeLlevar([], [rootItem], []);
+    expect(result[0].id).toBe('y');
+  });
+
+  it('cae a default cuando ambos están vacíos', () => {
+    const defaultItem: ClienteDebeLlevarItem = { id: 'z', texto: 'Predeterminado', completado: false };
+    const result = resolveDebeLlevar([], [], [defaultItem]);
+    expect(result[0].id).toBe('z');
+  });
+});

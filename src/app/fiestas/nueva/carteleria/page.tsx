@@ -497,6 +497,20 @@ function CarteleriaContent() {
     }
     return Array.from(map.entries()).sort((a, b) => sortTableLabels(a[0], b[0]));
   })();
+
+  // Enrich table labels with salon element names when available
+  const salonTableLabels = (() => {
+    const els = fiesta.decoracion?.salonElements ?? [];
+    const tableEls = filterTableElements(els);
+    const labelMap = new Map<string, string>();
+    tableEls.forEach((el, idx) => {
+      const num = String(idx + 1);
+      if (el.name && el.name.toLowerCase() !== 'mesa') {
+        labelMap.set(num, el.name);
+      }
+    });
+    return labelMap;
+  })();
   const FIXED_PAGES_COUNT = 3 + (showWelcomePoster ? 1 : 0) + (showSeatingPlan ? 1 : 0); // carta + menu + qr + opcionales
   const totalPages = FIXED_PAGES_COUNT + tablePages.length;
 
@@ -1056,7 +1070,7 @@ function CarteleriaContent() {
                           >
                             {mesa}
                           </span>
-                          Mesa {mesa}
+                          Mesa {salonTableLabels.get(mesa) ? `${salonTableLabels.get(mesa)} · ${mesa}` : mesa}
                         </p>
                         <ul className="space-y-0.5 text-slate-700">
                           {nombres.map((nombre, index) => (

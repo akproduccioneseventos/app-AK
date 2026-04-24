@@ -371,10 +371,11 @@ function LiveEventDashboardContent() {
                         ].map(mode => (
                           <a
                             key={mode.id}
+                            data-testid={`modo-${mode.id}`}
                             href={mode.id === 'portero'
                               ? `/evento/accesos/${fiestaId}`
                               : mode.id === 'utilero'
-                              ? `/fiestas/nueva/carga-operativa/retorno?fiestaId=${fiestaId}`
+                              ? `/fiestas/nueva/en-vivo?fiestaId=${fiestaId}&tab=retorno`
                               : `#`
                             }
                             className="block p-5 rounded-3xl border border-white/10 bg-slate-800/50 hover:bg-slate-800 hover:border-white/20 transition-all"

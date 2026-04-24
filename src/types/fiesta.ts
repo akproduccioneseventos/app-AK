@@ -373,6 +373,8 @@ export interface ProgramaEventoItem {
   hora: string; 
   titulo: string;
   descripcion?: string;
+  descripcionCliente?: string;
+  visibleParaCliente?: boolean;
   icono?: string; 
   completado?: boolean;
 }

@@ -299,7 +299,12 @@ function ItinerarioContent() {
               </div>
             </div>
             <div className="space-y-1"><Label htmlFor="item-titulo">Título*</Label><Input id="item-titulo" value={currentItem?.titulo || ''} onChange={(e) => setCurrentItem(p => p ? {...p, titulo: e.target.value} : null)} required /></div>
-            <div className="space-y-1"><Label htmlFor="item-desc">Descripción (Opcional)</Label><Textarea id="item-desc" value={currentItem?.descripcion || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)} rows={3} /></div>
+            <div className="space-y-1"><Label htmlFor="item-desc">Descripción interna (solo organizador)</Label><Textarea id="item-desc" value={currentItem?.descripcion || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)} rows={2} placeholder="Notas operativas (no visibles para el cliente)" /></div>
+            <div className="space-y-1"><Label htmlFor="item-desc-cliente">Descripción para el cliente (opcional)</Label><Textarea id="item-desc-cliente" value={currentItem?.descripcionCliente || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcionCliente: e.target.value} : null)} rows={2} placeholder="Texto visible en el portal del cliente" /></div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="item-visible-cliente" checked={currentItem?.visibleParaCliente !== false} onChange={(e) => setCurrentItem(p => p ? {...p, visibleParaCliente: e.target.checked} : null)} className="w-4 h-4 rounded border-slate-300" />
+              <Label htmlFor="item-visible-cliente" className="font-normal text-sm">Visible en portal del cliente</Label>
+            </div>
             <DialogFooter className="pt-3">
               <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
               <Button type="submit">Guardar Momento</Button>
