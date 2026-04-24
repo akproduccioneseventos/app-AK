@@ -43,7 +43,8 @@ import type {
   NumerosMesaData,
   VideoVidaData,
   GiftItem,
-  SocialGallerySettings
+  SocialGallerySettings,
+  GuestPortalSettings,
 } from '@/types/fiesta';
 
 // --- ACCIONES GENERALES ---
@@ -136,6 +137,7 @@ export async function addGiftToRegistryFiestaActual(fiestaId: string, newGiftDat
 // --- SEÑALÉTICA E IMPRESIÓN ---
 export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) { return await FiestaModule.updateMenuMesa(fiestaId, menuData); }
 export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) { return await FiestaModule.updateNumerosMesa(fiestaId, data); }
+export async function updateGuestPortalSettings(fiestaId: string, settings: GuestPortalSettings) { return await FiestaModule.updateGuestPortalSettings(fiestaId, settings); }
 export async function updateContratoFiestaActual(fiestaId: string, text: string, tipo: string = 'servicios', plantillaId: string = 'default-servicios') {
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");

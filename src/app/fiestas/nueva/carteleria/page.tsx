@@ -290,6 +290,7 @@ function CarteleriaContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSeatingQr, setShowSeatingQr] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -796,6 +797,12 @@ function CarteleriaContent() {
                       <input type="checkbox" checked={showSeatingPlan} onChange={e => setShowSeatingPlan(e.target.checked)} />
                       Incluir “Busca tu mesa” (invitados agrupados por mesa)
                     </label>
+                    {showSeatingPlan && (
+                      <label className="flex items-center gap-2 text-sm font-medium ml-6 text-muted-foreground">
+                        <input type="checkbox" checked={showSeatingQr} onChange={e => setShowSeatingQr(e.target.checked)} />
+                        Incluir código QR para consultar mesa en el cartel
+                      </label>
+                    )}
                     <label className="flex items-center gap-2 text-sm font-medium">
                       <input type="checkbox" checked={showWelcomePoster} onChange={e => setShowWelcomePoster(e.target.checked)} />
                       Incluir cartel de bienvenida A4
@@ -823,7 +830,7 @@ function CarteleriaContent() {
           {[
             { href: `carta-tragos?fiestaId=${fiestaId}`, label: 'Carta de Tragos', icon: GlassWater, cls: 'text-violet-600 bg-violet-50 border-violet-200' },
             { href: `menu-mesa?fiestaId=${fiestaId}`, label: 'Menú de Mesa', icon: Utensils, cls: 'text-orange-600 bg-orange-50 border-orange-200' },
-            { href: `invitados/numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Hash, cls: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+            { href: `numeros-mesa?fiestaId=${fiestaId}`, label: 'Números de Mesa', icon: Hash, cls: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
           ].map(item => (
             <Link
               key={item.href}
@@ -937,20 +944,80 @@ function CarteleriaContent() {
         ))}
 
         {showSeatingPlan && (
-          <A4Page className="items-stretch justify-start p-8">
-            <div className="w-full h-full border rounded-2xl p-8">
-              <h2 className="font-headline text-3xl font-black text-center mb-2" style={{ color: primaryColor }}>Busca tu mesa</h2>
-              <p className="text-center text-sm text-slate-500 mb-6">{nombreEvento}</p>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                {invitadosPorMesa.length > 0 ? invitadosPorMesa.map(([mesa, nombres]) => (
-                  <div key={`mesa-plan-${mesa}`} className="rounded-lg border p-3 break-inside-avoid">
-                    <p className="font-bold uppercase tracking-wider text-xs mb-1" style={{ color: primaryColor }}>Mesa {mesa}</p>
-                    <ul className="space-y-0.5 text-slate-700">
-                      {nombres.map((nombre, index) => (<li key={`${mesa}-${nombre}-${index}`}>• {nombre}</li>))}
-                    </ul>
+          <A4Page className="items-stretch justify-start p-0">
+            <div className="w-full h-full flex flex-col" style={{ fontFamily: tableFontFamily }}>
+              {/* Header */}
+              <div
+                className="flex items-center justify-between px-10 py-6 shrink-0"
+                style={{ backgroundColor: primaryColor }}
+              >
+                <div className="text-white">
+                  <h2 className="font-headline text-4xl font-black tracking-tight leading-none">Busca tu mesa</h2>
+                  <p className="text-sm mt-1 opacity-80 uppercase tracking-widest">{nombreEvento}</p>
+                </div>
+                {showSeatingQr && fiestaId && (
+                  <div className="bg-white rounded-xl p-2 shadow-lg">
+                    <QRCodeSVG
+                      value={`${typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app'}/evento/actual/mesa?fiestaId=${encodeURIComponent(fiestaId)}`}
+                      size={80}
+                      level="M"
+                      fgColor={primaryColor}
+                    />
+                    <p className="text-[7px] text-center font-bold mt-1" style={{ color: primaryColor }}>CONSULTA TU MESA</p>
                   </div>
-                )) : (
-                  <div className="col-span-2 text-center text-slate-500 py-8">No hay invitados con mesa asignada.</div>
+                )}
+              </div>
+
+              {/* Guest list */}
+              <div className="flex-1 p-8 overflow-hidden">
+                {invitadosPorMesa.length > 0 ? (
+                  <div className="columns-2 gap-5 text-sm">
+                    {invitadosPorMesa.map(([mesa, nombres]) => (
+                      <div
+                        key={`mesa-plan-${mesa}`}
+                        className="rounded-xl border-l-4 bg-slate-50 px-4 py-3 mb-4 break-inside-avoid"
+                        style={{ borderLeftColor: primaryColor }}
+                      >
+                        <p
+                          className="font-black uppercase tracking-wider text-xs mb-2 flex items-center gap-1"
+                          style={{ color: primaryColor }}
+                        >
+                          <span
+                            className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-[9px] font-black"
+                            style={{ backgroundColor: primaryColor }}
+                          >
+                            {mesa}
+                          </span>
+                          Mesa {mesa}
+                        </p>
+                        <ul className="space-y-0.5 text-slate-700">
+                          {nombres.map((nombre, index) => (
+                            <li key={`${mesa}-${nombre}-${index}`} className="flex items-center gap-1.5">
+                              <span className="w-1 h-1 rounded-full bg-slate-400 inline-block shrink-0" />
+                              {nombre}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+                    No hay invitados con mesa asignada.
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div
+                className="px-10 py-3 shrink-0 flex items-center justify-between"
+                style={{ backgroundColor: `${primaryColor}18` }}
+              >
+                <p className="text-[9px] uppercase tracking-widest font-bold" style={{ color: primaryColor }}>
+                  {tipoCelebracion} · {fechaEventoTexto}
+                </p>
+                {showSeatingQr && fiestaId && (
+                  <p className="text-[8px] text-slate-500">Escanea el QR para consultar tu mesa</p>
                 )}
               </div>
             </div>

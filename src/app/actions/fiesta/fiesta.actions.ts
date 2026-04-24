@@ -22,6 +22,7 @@ import type {
     CargaOperativaItem,
     Tarea,
     ProgramaEventoItem,
+    GuestPortalSettings,
 } from '@/types/fiesta';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import {
@@ -935,4 +936,10 @@ export async function createNewFiestaForCustomer(customer: { id: string; name: s
   } catch (error: any) {
     return { success: false, error: error.message };
   }
+}
+
+export async function updateGuestPortalSettings(fiestaId: string, settings: GuestPortalSettings) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+  return await saveFiesta({ ...f, guestPortalSettings: settings });
 }

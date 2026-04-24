@@ -58,6 +58,7 @@ const modules = [
   { id: 'proveedoresPortal', title: "Portal Proveedores", href: "proveedores-portal", icon: Users2, description: "Acceso restringido para externos.", category: 'Evento en Vivo', color: "bg-cyan-100 text-cyan-700" },
 
   { id: 'portalCliente', title: "Portal Cliente", href: "portal-cliente", icon: KeyRound, description: "Centro de colaboración.", category: 'Portal del Cliente', color: "bg-amber-100 text-amber-600" },
+  { id: 'moduloInvitado', title: "Módulo del Invitado", href: "modulo-invitado", icon: Users, description: "Controla qué ve cada invitado en su portal.", category: 'Portal del Cliente', color: "bg-violet-100 text-violet-700" },
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva.", category: 'Portal del Cliente', color: "bg-blue-100 text-blue-600" },
   { id: 'muroSocial', title: "Muro Social & Juegos", href: "muro-social", icon: Camera, description: "Link/QR y funcionalidades interactivas.", category: 'Portal del Cliente', color: "bg-cyan-100 text-cyan-700" },
   { id: 'playlistPantalla', title: "🎬 Playlist de Pantalla", href: "playlist-pantalla", icon: Camera, description: "Configura la secuencia de pantallas en vivo.", category: 'Portal del Cliente', color: "bg-purple-100 text-purple-700" },
@@ -69,7 +70,7 @@ const modules = [
   { id: 'checkin', title: "Check-in QR", href: "invitados/checkin-scanner", icon: QrCode, description: "Recepción de invitados.", category: 'Herramientas Adicionales', color: "bg-green-100 text-green-600" },
   { id: 'listaCompras', title: "Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'menuMesa', title: "Menú Mesa", href: "menu-mesa", icon: Printer, description: "Diseño impreso.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
-  { id: 'numerosMesa', title: "Números Mesa", href: "invitados/numeros-mesa", icon: Printer, description: "Impresión de señalética.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
+  { id: 'numerosMesa', title: "Números Mesa", href: "numeros-mesa", icon: Printer, description: "Impresión de señalética.", category: 'Herramientas Adicionales', color: "bg-slate-100 text-slate-600" },
   { id: 'carteleria', title: "Cartelería de Mesas", href: "carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'Herramientas Adicionales', color: "bg-violet-100 text-violet-600" },
   { id: 'logistica', title: "Logística & Accesibilidad", href: "logistica", icon: MapPin, description: "Estacionamiento, accesibilidad y protocolo de lluvia.", category: 'Herramientas Adicionales', color: "bg-indigo-100 text-indigo-600" },
   { id: 'alergias', title: "Gestión Alimentaria", href: "alergias", icon: Users2, description: "Alergias y dietas para catering.", category: 'Herramientas Adicionales', color: "bg-orange-100 text-orange-600" },
