@@ -3,7 +3,7 @@
 import path from 'path';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
-import type { ScreenMediaAsset, SocialGallerySettings } from '@/types/fiesta';
+import type { ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 
 function normalizeSocialSettings(settings?: SocialGallerySettings): SocialGallerySettings {
   return {
@@ -38,6 +38,148 @@ function createScreenAssetId() {
     return `screen_asset_${crypto.randomUUID()}`;
   }
   return `screen_asset_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+async function patchScreenMode(
+  fiestaId: string,
+  patch: Partial<ScreenModeSettings>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const currentMode = fiesta.socialGallerySettings?.screenMode;
+    const updatedMode: ScreenModeSettings = {
+      enabled: currentMode?.enabled ?? true,
+      loop: currentMode?.loop ?? true,
+      isPlaying: currentMode?.isPlaying ?? false,
+      currentItemIndex: currentMode?.currentItemIndex ?? 0,
+      playlist: currentMode?.playlist ?? [],
+      ...currentMode,
+      ...patch,
+    };
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...normalizeSocialSettings(fiesta.socialGallerySettings),
+        screenMode: updatedMode,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al actualizar pantalla.' };
+  }
+}
+
+/** Inicia la reproducción de la playlist en la pantalla gigante */
+export async function playScreenPlaylist(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  return patchScreenMode(fiestaId, { isPlaying: true, startedAt: new Date().toISOString() });
+}
+
+/** Pausa la reproducción de la playlist en la pantalla gigante */
+export async function pauseScreenPlaylist(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  return patchScreenMode(fiestaId, { isPlaying: false });
+}
+
+/** Avanza al siguiente ítem de la playlist */
+export async function nextScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const mode = fiesta.socialGallerySettings?.screenMode;
+    const enabledItems = (mode?.playlist ?? []).filter(i => i.enabled);
+    if (enabledItems.length === 0) return { success: false, error: 'No hay ítems en la playlist.' };
+    const currentIndex = mode?.currentItemIndex ?? 0;
+    const nextIndex = (currentIndex + 1) % enabledItems.length;
+    return patchScreenMode(fiestaId, { currentItemIndex: nextIndex });
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+/** Retrocede al ítem anterior de la playlist */
+export async function prevScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const mode = fiesta.socialGallerySettings?.screenMode;
+    const enabledItems = (mode?.playlist ?? []).filter(i => i.enabled);
+    if (enabledItems.length === 0) return { success: false, error: 'No hay ítems en la playlist.' };
+    const currentIndex = mode?.currentItemIndex ?? 0;
+    const prevIndex = (currentIndex - 1 + enabledItems.length) % enabledItems.length;
+    return patchScreenMode(fiestaId, { currentItemIndex: prevIndex });
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+/** Activa o desactiva el modo loop de la playlist */
+export async function setScreenLoop(fiestaId: string, loop: boolean): Promise<{ success: boolean; error?: string }> {
+  return patchScreenMode(fiestaId, { loop });
+}
+
+/** Actualiza el texto del cartel LED en la pantalla gigante */
+export async function updateLedMessage(
+  fiestaId: string,
+  text: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...normalizeSocialSettings(fiesta.socialGallerySettings),
+        ledMarqueeText: text,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al actualizar mensaje LED.' };
+  }
+}
+
+/** Registra un momento especial en vivo (aparece como overlay en la pantalla gigante) */
+export async function triggerLiveMoment(
+  fiestaId: string,
+  moment: { id: string; nombre: string; emoji: string }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const existing = fiesta.socialGallerySettings?.momentosActivos ?? [];
+    const newMoment = { ...moment, timestamp: new Date().toISOString() };
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...normalizeSocialSettings(fiesta.socialGallerySettings),
+        momentosActivos: [...existing, newMoment],
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al registrar momento.' };
+  }
+}
+
+/** Actualiza la información de marca (branding) de la pantalla gigante */
+export async function updateScreenBrand(
+  fiestaId: string,
+  brand: SocialGalleryBrand
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...normalizeSocialSettings(fiesta.socialGallerySettings),
+        brand,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al actualizar marca.' };
+  }
 }
 
 export async function uploadScreenMediaAsset(
