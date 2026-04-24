@@ -317,8 +317,17 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const presupuestoId = formData.get('presupuestoId') as string;
     const contractFile = formData.get('contract') as File | null;
     const archiveLead = formData.get('archiveLead') === 'true';
-    const ci = formData.get('ci') as string || undefined;
-    const address = formData.get('address') as string || undefined;
+
+    // Datos finales del formulario (prioridad sobre los datos stale del lead/presupuesto)
+    const formName = (formData.get('name') as string)?.trim() || undefined;
+    const formPhone = (formData.get('phone') as string)?.trim() || undefined;
+    const ci = (formData.get('ci') as string)?.trim() || undefined;
+    const address = (formData.get('address') as string)?.trim() || undefined;
+    const formSalon = (formData.get('salon') as string)?.trim() || undefined;
+    const formFechaEvento = (formData.get('eventoFecha') as string)?.trim() || undefined;
+    const formMontoSenia = formData.get('montoSenia') ? parseFloat(formData.get('montoSenia') as string) : undefined;
+    const formCompanyName = (formData.get('companyName') as string)?.trim() || undefined;
+    const formTaxId = (formData.get('taxId') as string)?.trim() || undefined;
 
     if (!leadId || !presupuestoId) throw new Error('Datos incompletos.');
 
@@ -338,31 +347,38 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     if (!lead || !presupuesto) throw new Error('Datos no encontrados');
     const conversionStage = stages.find(s => s.isConversionStage);
 
+    // Usar datos del formulario cuando estén disponibles; fallback a los datos del lead/presupuesto
+    const finalName = formName || lead.name;
+    const finalPhone = formPhone || lead.phone;
+    const finalSalon = formSalon || presupuesto.salonFiestas;
+    const finalFechaEvento = formFechaEvento || presupuesto.eventoFecha;
+    const finalCompanyName = formCompanyName || (lead as any).companyName || (presupuesto as any).clienteEmpresa;
+    const finalTaxId = formTaxId || (lead as any).taxId;
+
     let contractFileName: string | undefined;
 
     // 1. Save contract file if provided
     if (hasFile) {
       const { uploadToStorage } = await import('@/lib/firebase/storage');
-      const sanitizedLeadName = lead.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '');
+      const sanitizedLeadName = finalName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '');
       const storageName = `contrato_${sanitizedLeadName}_${Date.now()}.pdf`;
       const storagePath = `contracts/${storageName}`;
       const arrayBuffer = await contractFile!.arrayBuffer();
       contractFileName = await uploadToStorage(Buffer.from(arrayBuffer), storagePath, 'application/pdf', false);
     }
 
-    // 2. Create Customer with full data from lead + budget
-    //    Skip automatic fiesta creation - we create the fiesta manually below with budget data
+    // 2. Create Customer with overridden form data
     const customerResult = await saveCustomer({
-      name: lead.name,
-      phone: formData.get('phone') as string || lead.phone,
-      companyName: formData.get('companyName') as string || (lead as any).companyName || (presupuesto as any).clienteEmpresa || undefined,
-      taxId: formData.get('taxId') as string || (lead as any).taxId || undefined,
+      name: finalName,
+      phone: finalPhone,
+      companyName: finalCompanyName || undefined,
+      taxId: finalTaxId || undefined,
       ci,
       address,
       estadoCliente: 'Actual',
-      partyDate: presupuesto.eventoFecha,
+      partyDate: finalFechaEvento,
       partyType: presupuesto.eventoTipo,
-      venueName: presupuesto.salonFiestas,
+      venueName: finalSalon,
       guestCount: presupuesto.invitadosCantidad,
       ...(contractFileName ? { contractFileName } : {}),
       presupuestoId: presupuesto.id,
@@ -370,18 +386,28 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
 
     if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
 
-    // 3. Create Fiesta
+    // 3. Construir info de firma del contrato
+    const contratoFirmaInfo = {
+      isSigned: true,
+      method: 'physical' as const,
+      signedAt: new Date().toISOString(),
+      signedBy: finalName,
+      notes: `Firma registrada al confirmar contratación. CI: ${ci || 'N/D'}. Domicilio: ${address || 'N/D'}.`,
+    };
+
+    // 4. Create Fiesta con datos del formulario y registro de firma
     const newFiesta: FiestaEnPlanificacion = {
       ...initialFiestaActualData,
       id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       estado: 'Contratada',
       presupuestoId: presupuesto.id,
+      contratoFirmaInfo,
       configuracion: {
         ...initialFiestaActualData.configuracion,
         clienteId: customerResult.id,
-        nombreEvento: `${presupuesto.eventoTipo} de ${lead.name}`,
-        fechaEvento: presupuesto.eventoFecha,
-        nombreLugar: presupuesto.salonFiestas,
+        nombreEvento: `${presupuesto.eventoTipo} de ${finalName}`,
+        fechaEvento: finalFechaEvento,
+        nombreLugar: finalSalon,
         invitadosEstimados: presupuesto.invitadosCantidad,
         presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
       }
@@ -389,13 +415,22 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     newFiesta.modulosContratados = { ...defaultModulosContratados };
     await saveFiesta(newFiesta);
 
-    // 4. Sync from budget
+    // 5. Sync from budget
     await syncFiestaFromBudget(newFiesta.id);
 
-    // 5. Update Presupuesto
-    await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
+    // 6. Update Presupuesto with overridden data and signature date
+    await updatePresupuesto({
+      ...presupuesto,
+      estado: 'Aceptado',
+      clienteNombre: finalName,
+      clienteContacto: finalPhone || presupuesto.clienteContacto,
+      salonFiestas: finalSalon,
+      eventoFecha: finalFechaEvento || presupuesto.eventoFecha,
+      ...(formMontoSenia !== undefined ? { senia: formMontoSenia } : {}),
+      fechaFirmaContrato: new Date().toISOString(),
+    });
 
-    // 6. Update lead: optionally link contract file and move to conversion stage
+    // 7. Update lead: optionally link contract file and move to conversion stage
     {
       const currentLeads = await getCrmLeads();
       const leadIdx = currentLeads.findIndex(l => l.id === leadId);
@@ -412,7 +447,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     }
 
     await createNotification({
-      mensaje: `¡Contratación Confirmada! ${lead.name} es ahora cliente. ${contractFileName ? 'Contrato vinculado.' : 'El borrador del contrato está listo para revisar.'}`,
+      mensaje: `¡Contratación Confirmada! ${finalName} es ahora cliente. ${contractFileName ? 'Contrato vinculado.' : 'El borrador del contrato está listo para revisar.'}`,
       href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,
       icono: 'PartyPopper'
     });

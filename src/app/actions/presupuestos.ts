@@ -4,7 +4,7 @@ import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, Presupues
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
-import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead, confirmBooking } from './crm';
+import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
 import { createNotification } from './notifications';
 import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
@@ -271,7 +271,7 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
 export async function markPresupuestoAsFacturado(
   presupuestoId: string,
   invoiceId: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; suggestContractFlow?: boolean }> {
   let presupuestos = await getPresupuestos();
   const index = presupuestos.findIndex(p => p.id === presupuestoId);
 
@@ -283,12 +283,9 @@ export async function markPresupuestoAsFacturado(
   presupuestos[index].invoiceId = invoiceId;
   presupuestos[index].ajusteAnualActivo = true;
 
-  let leadId = presupuestos[index].leadId;
-
   try {
     const syncRes = await findLeadByBudgetOrCreate(presupuestos[index]);
     presupuestos[index].leadId = syncRes.lead.id;
-    leadId = syncRes.lead.id;
   } catch (e) {
     console.warn("CRM Sync error on invoice", e);
   }
@@ -300,17 +297,22 @@ export async function markPresupuestoAsFacturado(
     return { success: false, error: writeError.message || "Error al actualizar el estado del presupuesto." };
   }
 
+  // Sincronizar con la fiesta si ya existe. No crear una nueva fiesta
+  // automáticamente sin contrato firmado: el flujo de contratación debe
+  // iniciarse desde el CRM con confirmBookingWithContract.
   try {
     const fiestas = await getAllFiestas();
     const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
 
     if (existingFiesta) {
       await syncFiestaFromBudget(existingFiesta.id);
-    } else if (leadId) {
-      await confirmBooking(leadId, presupuestoId);
+      return { success: true };
     }
+
+    // No hay evento creado aún → sugerir flujo de contratación al llamador
+    return { success: true, suggestContractFlow: true };
   } catch (e) {
-    console.warn("Error auto-creating fiesta on invoice", e);
+    console.warn("Error syncing fiesta on invoice", e);
   }
 
   return { success: true };
