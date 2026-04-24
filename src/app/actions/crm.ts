@@ -423,7 +423,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const updatedPagosCliente = [...(presupuesto.pagosCliente || [])];
     if (formMontoSenia !== undefined && formMontoSenia > 0) {
       updatedPagosCliente.push({
-        id: `pago_senia_${Date.now()}`,
+        id: `pago_senia_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         fecha: now,
         monto: formMontoSenia,
         metodoPago: 'Efectivo' as const,
