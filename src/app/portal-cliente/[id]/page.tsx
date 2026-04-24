@@ -19,11 +19,11 @@ import {
   ChevronRight,
   Activity,
   Palette,
-  Image as ImageIcon,
   Heart,
   Zap,
   BookHeart,
   PackageCheck,
+  MessageCircle,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago } from '@/types/fiesta';
+import { getFiestaById, updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
+import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem } from '@/types/fiesta';
 import NextImage from 'next/image';
 import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -45,6 +45,23 @@ import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
+
+// Default "clienteDebeLlevar" items when none are set by organizer
+const DEFAULT_DEBE_LLEVAR: ClienteDebeLlevarItem[] = [
+  { id: 'dl_1', texto: 'Documentación personal (DNI/CI)', completado: false, obligatorio: true },
+  { id: 'dl_2', texto: 'Lista final de invitados confirmados', completado: false, obligatorio: true },
+  { id: 'dl_3', texto: 'Fotos para el video de vida', completado: false },
+  { id: 'dl_4', texto: 'Lista de canciones especiales', completado: false },
+  { id: 'dl_5', texto: 'Confirmación de menú y restricciones alimentarias', completado: false, obligatorio: true },
+  { id: 'dl_6', texto: 'Seña o primer pago pendiente', completado: false, obligatorio: true },
+];
+
+const ESTADO_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  pendiente: { label: 'Pendiente', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
+  enviado:   { label: 'Enviado',   color: 'text-blue-700',  bg: 'bg-blue-50 border-blue-200'   },
+  revisado:  { label: 'En revisión', color: 'text-purple-700', bg: 'bg-purple-50 border-purple-200' },
+  listo:     { label: 'Listo ✓',   color: 'text-green-700', bg: 'bg-green-50 border-green-200' },
+};
 
 // ──────────────────────────────────────────────────────────────
 // Helpers
@@ -100,6 +117,10 @@ export default function PortalClientePage() {
   const [pageError, setPageError]     = useState<string | null>(null);
   const [openSections, setOpenSections] = useState<string[]>(['resumen']);
 
+  // debeLlevar state
+  const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>([]);
+  const [isSavingLlevar, setIsSavingLlevar]   = useState(false);
+
   // seating edit state
   const [editingId, setEditingId]         = useState<string | null>(null);
   const [editingTable, setEditingTable]   = useState('');
@@ -119,6 +140,9 @@ export default function PortalClientePage() {
         setPageError('El portal de este evento no está habilitado o el evento no existe.');
       } else {
         setFiesta(data);
+        setDebeLlevarItems(data.clienteDebeLlevar && data.clienteDebeLlevar.length > 0
+          ? data.clienteDebeLlevar
+          : DEFAULT_DEBE_LLEVAR);
         const storedKey = sessionStorage.getItem(sessionKey);
         if (storedKey === data.clientPortalSettings.accessKey) {
           setIsAuth(true);
@@ -179,6 +203,23 @@ export default function PortalClientePage() {
     }
     setEditingId(null);
     setIsSavingSeat(false);
+  };
+
+  const handleToggleLlevar = async (itemId: string) => {
+    const updated = debeLlevarItems.map(item =>
+      item.id === itemId
+        ? { ...item, completado: !item.completado, estado: (!item.completado ? 'enviado' : 'pendiente') as ClienteDebeLlevarItem['estado'] }
+        : item
+    );
+    setDebeLlevarItems(updated);
+    setIsSavingLlevar(true);
+    try {
+      await updateClienteDebeLlevar(fiestaId, updated);
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo guardar el estado.', variant: 'destructive' });
+    } finally {
+      setIsSavingLlevar(false);
+    }
   };
 
   // ── Loading ──────────────────────────────────────────────────
@@ -311,6 +352,36 @@ export default function PortalClientePage() {
           </Badge>
         </div>
       </header>
+
+      {/* ── Hero / Protagonist Card ──────────────────────── */}
+      {config.protagonistaFotoUrl && (
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ minHeight: 220, background: config.primaryColor ? `${config.primaryColor}22` : 'linear-gradient(135deg,#6d28d9 0%,#db2777 100%)' }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
+          <NextImage
+            src={config.protagonistaFotoUrl}
+            alt={config.protagonista1Nombre ?? 'Protagonista'}
+            fill
+            className="object-cover object-top opacity-80"
+            priority
+          />
+          <div className="relative z-10 max-w-4xl mx-auto px-4 py-10 text-white">
+            <p className="text-xs uppercase tracking-widest font-semibold text-white/80 mb-1">Tu evento está siendo organizado por</p>
+            <p className="text-sm font-black text-white/90 mb-3">✨ AK Producciones</p>
+            <h1 className="text-2xl sm:text-3xl font-black drop-shadow-lg">{config.nombreEvento}</h1>
+            {config.protagonista1Nombre && (
+              <p className="text-base font-semibold text-white/90 mt-1">{config.protagonista1Nombre}{config.protagonista2Nombre ? ` & ${config.protagonista2Nombre}` : ''}</p>
+            )}
+            <div className="flex flex-wrap gap-3 mt-3 text-sm text-white/80">
+              {config.fechaEvento && <span>📅 {formatDate(config.fechaEvento)}</span>}
+              {config.nombreLugar && <span>📍 {config.nombreLugar}</span>}
+              {config.invitadosEstimados > 0 && <span>👥 {config.invitadosEstimados} invitados</span>}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
@@ -574,31 +645,56 @@ export default function PortalClientePage() {
             </AccordionContent>
           </AccordionItem>
 
-          {/* ── Lo que el cliente debe llevar ───────────── */}
-          <AccordionItem value="llevar" id="llevar" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+          {/* ── Lo que tenés que llevar ───────────── */}
+          <AccordionItem value="llevar" id="llevar" className="border-2 border-teal-100 rounded-2xl overflow-hidden bg-white shadow-sm">
+            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-teal-50/30">
               <span className="flex items-center gap-2 text-base font-black">
-                <PackageCheck className="w-5 h-5 text-teal-600" /> Lo que el cliente debe llevar
+                <PackageCheck className="w-5 h-5 text-teal-600" /> Lo que tenés que llevar
+                {debeLlevarItems.filter(i => i.completado).length > 0 && (
+                  <Badge className="ml-1 bg-teal-100 text-teal-700 border-0 text-xs">
+                    {debeLlevarItems.filter(i => i.completado).length}/{debeLlevarItems.length}
+                  </Badge>
+                )}
               </span>
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
-              <div className="space-y-3 text-sm text-slate-700">
-                <div className="space-y-2">
-                  {[
-                    'Documentación personal (DNI/CI)',
-                    'Lista final de invitados confirmados',
-                    'Fotos para el video de vida',
-                    'Lista de canciones especiales',
-                    'Confirmación de menú y restricciones alimentarias',
-                    'Seña o primer pago pendiente',
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                      <PackageCheck className="w-4 h-4 text-teal-500 shrink-0" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                  <p className="text-xs text-slate-400 pt-1">Tu organizador puede actualizar esta lista con elementos específicos para tu evento.</p>
-                </div>
+              <div className="space-y-2.5">
+                <p className="text-xs text-slate-500 pb-1">Marcá los elementos a medida que los tenés listos para enviarnos.</p>
+                {debeLlevarItems.map(item => {
+                  const estadoCfg = ESTADO_CONFIG[item.estado ?? (item.completado ? 'enviado' : 'pendiente')];
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      disabled={isSavingLlevar}
+                      onClick={() => handleToggleLlevar(item.id)}
+                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all
+                        ${item.completado
+                          ? 'border-teal-200 bg-teal-50'
+                          : 'border-slate-100 bg-slate-50 hover:border-teal-200 hover:bg-teal-50/40'
+                        }`}
+                    >
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                        ${item.completado ? 'bg-teal-500 border-teal-500' : 'border-slate-300'}`}>
+                        {item.completado && <CheckCircle2 className="w-4 h-4 text-white" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-semibold ${item.completado ? 'text-teal-800 line-through opacity-70' : 'text-slate-800'}`}>
+                          {item.texto}
+                          {item.obligatorio && <span className="ml-1 text-red-500 text-xs">*</span>}
+                        </p>
+                        {item.notas && <p className="text-xs text-slate-500 mt-0.5">{item.notas}</p>}
+                        {item.fechaLimite && <p className="text-xs text-amber-600 mt-0.5">⏰ Antes del {formatDate(item.fechaLimite)}</p>}
+                      </div>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-lg border shrink-0 ${estadoCfg.bg} ${estadoCfg.color}`}>
+                        {estadoCfg.label}
+                      </span>
+                    </button>
+                  );
+                })}
+                <p className="text-xs text-slate-400 pt-1">
+                  * Obligatorio · Tu organizador puede actualizar esta lista con elementos específicos para tu evento.
+                </p>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -851,6 +947,24 @@ export default function PortalClientePage() {
       <footer className="mt-12 py-6 text-center text-xs text-slate-400 border-t border-slate-100">
         <p>AK Producciones Eventos · Salto, Uruguay · 098 355 530</p>
       </footer>
+
+      {/* ── Floating "Necesito ayuda" button ───────────── */}
+      {(() => {
+        const waNumber = '59898355530';
+        const waText = encodeURIComponent(`Hola, necesito ayuda con mi evento "${config.nombreEvento}".`);
+        return (
+          <a
+            href={`https://wa.me/${waNumber}?text=${waText}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-4 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-green-500 hover:bg-green-600 text-white font-black shadow-2xl text-sm transition-all active:scale-95"
+            aria-label="Contactar al organizador por WhatsApp"
+          >
+            <MessageCircle className="w-5 h-5 shrink-0" />
+            Necesito ayuda
+          </a>
+        );
+      })()}
     </div>
   );
 }

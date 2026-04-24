@@ -31,6 +31,14 @@ export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especi
 /** Alias for PerfilInvitado — used in segmentation views and reports */
 export type SegmentoInvitado = PerfilInvitado;
 
+export interface GuestExperienceStats {
+  openedAt?: string;
+  clickedWhatsapp?: boolean;
+  clickedInstagram?: boolean;
+  clickedLanding?: boolean;
+  clickedSimulator?: boolean;
+}
+
 export interface Invitado {
   id: string;
   nombre: string;
@@ -56,6 +64,10 @@ export interface Invitado {
   requiereAccesibilidad?: boolean;
   /** 0-100 readiness score reflecting how complete the guest's event preparation data is */
   readinessScore?: number;
+  /** Secure token for QR-based access (alternative to guestId) */
+  guestAccessToken?: string;
+  /** Tracking stats for guest experience CTAs */
+  guestExperienceStats?: GuestExperienceStats;
 }
 
 // --- MENU MESA ---
@@ -1008,6 +1020,32 @@ export interface GuestPortalSettings {
   customAccentColor?: string;
 }
 
+// --- CLIENTE DEBE LLEVAR ---
+export interface ClienteDebeLlevarItem {
+  id: string;
+  texto: string;
+  completado: boolean;
+  estado?: 'pendiente' | 'enviado' | 'revisado' | 'listo';
+  obligatorio?: boolean;
+  fechaLimite?: string;
+  notas?: string;
+}
+
+// --- GUEST EXPERIENCE SETTINGS ---
+export interface GuestExperienceSettings {
+  enabled: boolean;
+  showAkBranding: boolean;
+  showLandingCta: boolean;
+  landingUrl?: string;
+  whatsappNumber?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  tiktokUrl?: string;
+  ctaTitle?: string;
+  ctaText?: string;
+  accentColor?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   invitacionSlug?: string;
@@ -1069,6 +1107,8 @@ export interface FiestaEnPlanificacion {
   cateringChangeRequests?: CateringChangeRequest[];
   socialScreenConfig?: SocialScreenConfig;
   guestPortalSettings?: GuestPortalSettings;
+  clienteDebeLlevar?: ClienteDebeLlevarItem[];
+  guestExperienceSettings?: GuestExperienceSettings;
 }
 
 export interface ContratoFirmaInfo {

@@ -11,7 +11,11 @@ interface Props {
 }
 
 export function InvitadoQR({ invitado, fiestaId, nombreEvento, size = 160 }: Props) {
-  const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/invitado/${fiestaId}/${invitado.id}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  // Build check-in QR URL — include guestAccessToken as `token` param if available
+  const params = new URLSearchParams({ fiestaId, guestId: invitado.id });
+  if (invitado.guestAccessToken) params.set('token', invitado.guestAccessToken);
+  const url = `${origin}/evento/accesos/${fiestaId}?${params.toString()}`;
 
   return (
     <div className="flex flex-col items-center gap-3 p-4 rounded-2xl border border-purple-100 bg-white">
@@ -32,7 +36,9 @@ export function InvitadoQR({ invitado, fiestaId, nombreEvento, size = 160 }: Pro
           <p className="text-xs text-purple-600 font-semibold">{nombreEvento}</p>
         )}
       </div>
-      <p className="text-[10px] text-slate-400 break-all text-center max-w-[160px]">{url}</p>
+      {invitado.guestAccessToken && (
+        <p className="text-[10px] text-slate-400 text-center">🔐 Código de acceso seguro</p>
+      )}
     </div>
   );
 }

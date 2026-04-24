@@ -23,6 +23,10 @@ import type {
     Tarea,
     ProgramaEventoItem,
     GuestPortalSettings,
+    GuestExperienceSettings,
+    ClienteDebeLlevarItem,
+    Invitado,
+    GuestExperienceStats,
 } from '@/types/fiesta';
 import type { ItemPresupuestado } from '@/types/presupuesto';
 import {
@@ -942,4 +946,31 @@ export async function updateGuestPortalSettings(fiestaId: string, settings: Gues
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, guestPortalSettings: settings });
+}
+
+export async function updateGuestExperienceSettings(fiestaId: string, settings: GuestExperienceSettings) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+  return await saveFiesta({ ...f, guestExperienceSettings: settings });
+}
+
+export async function updateClienteDebeLlevar(fiestaId: string, items: ClienteDebeLlevarItem[]) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+  return await saveFiesta({ ...f, clienteDebeLlevar: items });
+}
+
+export async function updateGuestExperienceStats(
+  fiestaId: string,
+  invitadoId: string,
+  stats: Partial<GuestExperienceStats>
+) {
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+  const invitados = (f.invitados ?? []).map((inv: Invitado) =>
+    inv.id === invitadoId
+      ? { ...inv, guestExperienceStats: { ...inv.guestExperienceStats, ...stats } }
+      : inv
+  );
+  return await saveFiesta({ ...f, invitados });
 }
