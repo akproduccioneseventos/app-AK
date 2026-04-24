@@ -421,6 +421,7 @@ function PlannerDashboardContent() {
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <Input
+            aria-label="Buscar módulos del evento"
             placeholder="Buscá un módulo… (ej: cartelería, invitados, muro)"
             value={searchQuery}
             onChange={e => { setSearchQuery(e.target.value); setActiveMode(null); }}

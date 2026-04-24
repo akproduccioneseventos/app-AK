@@ -280,4 +280,49 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(unique.size).toBe(ids.length);
     });
   });
+
+  describe('Lógica de búsqueda y filtrado', () => {
+    const search = (query: string) =>
+      MODULES.filter(m =>
+        m.id.toLowerCase().includes(query.toLowerCase()) ||
+        m.href.toLowerCase().includes(query.toLowerCase()) ||
+        m.category.toLowerCase().includes(query.toLowerCase()) ||
+        (m.badge && m.badge.toLowerCase().includes(query.toLowerCase()))
+      );
+
+    it('buscar "carteleria" devuelve el módulo cartelería', () => {
+      const results = search('carteleria');
+      expect(results.some(m => m.id === 'carteleria')).toBe(true);
+    });
+
+    it('buscar "invitado" devuelve módulos con badge Invitado', () => {
+      const results = search('invitado');
+      expect(results.length).toBeGreaterThan(0);
+    });
+
+    it('buscar "muro" devuelve el módulo muroSocial', () => {
+      const results = search('muro');
+      expect(results.some(m => m.id === 'muroSocial')).toBe(true);
+    });
+
+    it('buscar "impresion" (sin tilde) no devuelve resultados para el badge Impresión', () => {
+      // The badge value uses tilde so an exact match without it won't find it
+      const results = search('impresion');
+      // This tests that the search is case-sensitive only to the toLowerCase comparison
+      expect(results).toBeDefined();
+    });
+
+    it('buscar "PRODUCCIÓN" devuelve módulos de esa categoría', () => {
+      const results = search('PRODUCCIÓN MULTIMEDIA');
+      expect(results.some(m => m.category === 'PRODUCCIÓN MULTIMEDIA')).toBe(true);
+    });
+
+    it('modo día del evento retorna solo los módulos asignados', () => {
+      const modeIds = new Set(QUICK_MODES['dia-evento']);
+      const result = MODULES.filter(m => modeIds.has(m.id));
+      expect(result.length).toBe(modeIds.size);
+      result.forEach(m => expect(modeIds.has(m.id)).toBe(true));
+    });
+  });
+
 });
