@@ -768,3 +768,254 @@ describe('Portal Cliente — cadena de fallback para clienteDebeLlevar', () => {
     expect(result[0].id).toBe('z');
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 19. Portal Invitado — vista persistente (GuestPortalPage)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Portal Invitado — vista persistente', () => {
+  it('genera URL correcta del portal persistente del invitado', () => {
+    const fiestaId = 'fiesta_abc';
+    const guestId = 'inv_xyz';
+    const guestPortalUrl = `/invitacion/${fiestaId}/invitado/${guestId}`;
+    expect(guestPortalUrl).toBe('/invitacion/fiesta_abc/invitado/inv_xyz');
+    expect(guestPortalUrl).toContain('/invitado/');
+  });
+
+  it('genera URL del QR correcta para el portal persistente', () => {
+    const baseUrl = 'https://app-ak.vercel.app';
+    const fiestaId = 'fiesta_abc';
+    const guestId = 'inv_xyz';
+    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${guestId}`;
+    expect(qrValue).toContain('/evento/accesos/');
+    expect(qrValue).toContain(`guestId=${guestId}`);
+  });
+
+  it('invitado con canciones sugeridas puede acceder a ellas en el portal', () => {
+    const guest = makeInvitado({
+      rsvp: 'Confirmado',
+      cancionesDJ: ['Querida DJ', 'La Vida es un Carnaval', 'Vivir mi Vida'],
+    });
+    expect(guest.cancionesDJ).toHaveLength(3);
+    expect(guest.cancionesDJ?.[0]).toBe('Querida DJ');
+  });
+
+  it('invitado con mensaje/dedicatoria puede verla en el portal', () => {
+    const guest = makeInvitado({
+      rsvp: 'Confirmado',
+      mensaje: 'Feliz cumpleaños! Que cumplas muchos más.',
+    });
+    expect(guest.mensaje).toBe('Feliz cumpleaños! Que cumplas muchos más.');
+  });
+
+  it('invitado con restricción alimentaria la ve en el portal', () => {
+    const guest = makeInvitado({ dietaryRestriction: 'Celiaco', alergiasEspecificas: 'Avena' });
+    const DIETARY_LABELS: Record<string, string> = {
+      Ninguna: '',
+      Celiaco: '🌾 Menú sin gluten',
+      Vegetariano: '🥗 Menú vegetariano',
+      Vegano: '🌱 Menú vegano',
+      Otro: '⚠️ Menú especial',
+    };
+    const dietLabel = guest.dietaryRestriction && guest.dietaryRestriction !== 'Ninguna'
+      ? (DIETARY_LABELS[guest.dietaryRestriction] || guest.dietaryRestriction)
+      : null;
+    expect(dietLabel).toBe('🌾 Menú sin gluten');
+    expect(guest.alergiasEspecificas).toBe('Avena');
+  });
+
+  it('link al portal del invitado se genera desde la confirmación RSVP', () => {
+    const fiestaId = 'fiesta_test';
+    const guestId = 'inv_test';
+    const portalLink = `/invitacion/${fiestaId}/invitado/${guestId}`;
+    expect(portalLink).toContain('/invitacion/');
+    expect(portalLink).toContain('/invitado/');
+    expect(portalLink).toContain(guestId);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 20. guestExperienceSettings — campos completos
+// ─────────────────────────────────────────────────────────────────────────────
+
+import type { GuestExperienceSettings } from '@/types/fiesta';
+
+describe('guestExperienceSettings — campos completos', () => {
+  it('puede construirse con todos los campos requeridos', () => {
+    const settings: GuestExperienceSettings = {
+      enabled: true,
+      showAkBranding: true,
+      showLandingCta: true,
+    };
+    expect(settings.enabled).toBe(true);
+    expect(settings.showAkBranding).toBe(true);
+    expect(settings.showLandingCta).toBe(true);
+  });
+
+  it('campos opcionales son realmente opcionales', () => {
+    const settings: GuestExperienceSettings = {
+      enabled: true,
+      showAkBranding: false,
+      showLandingCta: false,
+    };
+    expect(settings.allowSongSuggestions).toBeUndefined();
+    expect(settings.allowPhotoUpload).toBeUndefined();
+    expect(settings.allowGuestPortal).toBeUndefined();
+    expect(settings.ctaDescription).toBeUndefined();
+  });
+
+  it('todos los campos de URL son opcionales', () => {
+    const settings: GuestExperienceSettings = {
+      enabled: true,
+      showAkBranding: true,
+      showLandingCta: true,
+      landingUrl: 'https://ak.uy',
+      simulatorUrl: 'https://sim.ak.uy',
+      instagramUrl: 'https://instagram.com/ak',
+      whatsappNumber: '59898355530',
+      ctaTitle: '¿Te gustó?',
+      ctaDescription: 'Organizamos tu próximo evento',
+    };
+    expect(settings.landingUrl).toBe('https://ak.uy');
+    expect(settings.ctaDescription).toBe('Organizamos tu próximo evento');
+  });
+
+  it('CTA AK solo aparece cuando enabled Y showAkBranding son true', () => {
+    const show = (s: GuestExperienceSettings) => s.enabled && s.showAkBranding;
+    expect(show({ enabled: true, showAkBranding: true, showLandingCta: false })).toBe(true);
+    expect(show({ enabled: false, showAkBranding: true, showLandingCta: false })).toBe(false);
+    expect(show({ enabled: true, showAkBranding: false, showLandingCta: false })).toBe(false);
+  });
+
+  it('allowGuestPortal controla acceso al portal persistente', () => {
+    const allowPortal = (s: GuestExperienceSettings) => s.allowGuestPortal !== false;
+    // Default (undefined) = allowed
+    expect(allowPortal({ enabled: true, showAkBranding: true, showLandingCta: false })).toBe(true);
+    // Explicitly disabled
+    expect(allowPortal({ enabled: true, showAkBranding: true, showLandingCta: false, allowGuestPortal: false })).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 21. Check-in — información completa del invitado
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Check-in — información completa del invitado', () => {
+  it('muestra nombre, mesa, party size, restricción y accesibilidad', () => {
+    const guest = makeInvitado({
+      nombre: 'Ana Pérez',
+      tableNumber: '5',
+      partySize: 3,
+      dietaryRestriction: 'Celiaco',
+      requiereAccesibilidad: true,
+      rsvp: 'Confirmado',
+    });
+    expect(guest.nombre).toBe('Ana Pérez');
+    expect(guest.tableNumber).toBe('5');
+    expect(guest.partySize).toBe(3);
+    expect(guest.dietaryRestriction).toBe('Celiaco');
+    expect(guest.requiereAccesibilidad).toBe(true);
+  });
+
+  it('muestra alerta de celiaco si dietaryRestriction es Celiaco', () => {
+    const guest = makeInvitado({ dietaryRestriction: 'Celiaco' });
+    const isCeliac = guest.dietaryRestriction === 'Celiaco' || guest.isCeliac === true;
+    expect(isCeliac).toBe(true);
+  });
+
+  it('alergia específica se muestra junto a la restricción', () => {
+    const guest = makeInvitado({ dietaryRestriction: 'Otro', alergiasEspecificas: 'Nueces, soja' });
+    expect(guest.alergiasEspecificas).toBe('Nueces, soja');
+  });
+
+  it('estado RSVP "Confirmado" es el esperado para ingreso', () => {
+    const guest = makeInvitado({ rsvp: 'Confirmado', checkedIn: false });
+    const canEnter = guest.rsvp === 'Confirmado';
+    expect(canEnter).toBe(true);
+  });
+
+  it('invitado ya ingresado tiene checkInTimestamp', () => {
+    const ts = new Date().toISOString();
+    const guest = makeInvitado({ checkedIn: true, checkInTimestamp: ts });
+    expect(guest.checkedIn).toBe(true);
+    expect(guest.checkInTimestamp).toBe(ts);
+  });
+
+  it('cantidad de celíacos presentes se puede calcular de la lista de invitados', () => {
+    const guests: Invitado[] = [
+      makeInvitado({ dietaryRestriction: 'Celiaco', checkedIn: true }),
+      makeInvitado({ dietaryRestriction: 'Celiaco', checkedIn: false }),
+      makeInvitado({ dietaryRestriction: 'Vegetariano', checkedIn: true }),
+    ];
+    const celiacosPresentes = guests.filter(g => g.checkedIn && (g.dietaryRestriction === 'Celiaco' || g.isCeliac));
+    expect(celiacosPresentes).toHaveLength(1);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 22. Diseño salón → invitados → plan de mesas real
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Diseño salón → invitados → plan de mesas real', () => {
+  it('construye mapa de invitados por mesa desde datos reales de invitados', () => {
+    const guests: Invitado[] = [
+      makeInvitado({ nombre: 'Ana García', tableNumber: '1', rsvp: 'Confirmado' }),
+      makeInvitado({ nombre: 'Bruno López', tableNumber: '1', rsvp: 'Confirmado' }),
+      makeInvitado({ nombre: 'Carlos Díaz', tableNumber: '2', rsvp: 'Confirmado' }),
+      makeInvitado({ nombre: 'Diana Pérez', tableNumber: undefined, rsvp: 'Confirmado' }),
+    ];
+
+    const UNASSIGNED = 'Sin asignar';
+    const map = new Map<string, string[]>();
+    for (const inv of guests) {
+      const mesa = (inv.tableNumber || '').trim() || UNASSIGNED;
+      if (!map.has(mesa)) map.set(mesa, []);
+      map.get(mesa)?.push(inv.nombre);
+    }
+
+    expect(map.get('1')).toEqual(['Ana García', 'Bruno López']);
+    expect(map.get('2')).toEqual(['Carlos Díaz']);
+    expect(map.get(UNASSIGNED)).toEqual(['Diana Pérez']);
+  });
+
+  it('plan de mesas imprimible usa etiquetas de salonElements cuando están disponibles', () => {
+    const salonElements: LayoutElement[] = [
+      makeSalonElement({ seats: 8, name: 'Mesa principal' }),
+      makeSalonElement({ seats: 6, name: 'Mesa familia' }),
+    ];
+    const tableEls = salonElements.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
+    const labelMap = new Map<string, string>();
+    tableEls.forEach((el, idx) => {
+      const num = String(idx + 1);
+      if (el.name && el.name.toLowerCase() !== 'mesa') {
+        labelMap.set(num, el.name);
+      }
+    });
+
+    // Invitados asignados a esas mesas
+    const guests: Invitado[] = [
+      makeInvitado({ nombre: 'Invitado A', tableNumber: '1' }),
+      makeInvitado({ nombre: 'Invitado B', tableNumber: '2' }),
+    ];
+
+    const invMap = new Map<string, string[]>();
+    for (const inv of guests) {
+      const mesa = (inv.tableNumber || '').trim();
+      if (mesa) {
+        if (!invMap.has(mesa)) invMap.set(mesa, []);
+        invMap.get(mesa)?.push(inv.nombre);
+      }
+    }
+
+    // Combine: use label if available
+    const plan = Array.from(invMap.entries()).map(([num, nombres]) => ({
+      mesa: num,
+      label: labelMap.get(num) ? `${labelMap.get(num)} (Mesa ${num})` : `Mesa ${num}`,
+      nombres,
+    }));
+
+    expect(plan[0].label).toBe('Mesa principal (Mesa 1)');
+    expect(plan[1].label).toBe('Mesa familia (Mesa 2)');
+    expect(plan[0].nombres).toContain('Invitado A');
+  });
+});

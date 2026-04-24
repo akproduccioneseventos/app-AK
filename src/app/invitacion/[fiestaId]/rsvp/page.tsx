@@ -242,9 +242,18 @@ function RsvpFormContent() {
             )}
             <CardFooter className="flex-col gap-3 pb-8 px-8">
               {confirmedGuest.rsvp === 'Confirmado' && (
-                <Button onClick={downloadQR} className="w-full rounded-xl" variant="outline">
-                  <Download className="w-4 h-4 mr-2" /> Descargar QR
-                </Button>
+                <>
+                  <Button onClick={downloadQR} className="w-full rounded-xl" variant="outline">
+                    <Download className="w-4 h-4 mr-2" /> Descargar QR
+                  </Button>
+                  <a
+                    href={`/invitacion/${fiestaId}/invitado/${confirmedGuest.id}`}
+                    className="block w-full text-center py-3 px-4 rounded-xl bg-purple-50 border border-purple-100 text-purple-700 text-sm font-semibold hover:bg-purple-100 transition-colors"
+                    data-testid="guest-portal-link"
+                  >
+                    🔖 Ver mi pase completo →
+                  </a>
+                </>
               )}
               <p className="text-xs text-center text-slate-400">{eventName}</p>
             </CardFooter>

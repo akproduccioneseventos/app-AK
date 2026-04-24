@@ -1104,7 +1104,14 @@ export interface GuestExperienceSettings {
   tiktokUrl?: string;
   ctaTitle?: string;
   ctaText?: string;
+  ctaDescription?: string;
   accentColor?: string;
+  /** Whether guests can suggest songs via RSVP form */
+  allowSongSuggestions?: boolean;
+  /** Whether guests can upload photos */
+  allowPhotoUpload?: boolean;
+  /** Whether guests can access a persistent guest portal */
+  allowGuestPortal?: boolean;
 }
 
 // --- CLIENTE PORTAL EXPERIENCE ---
