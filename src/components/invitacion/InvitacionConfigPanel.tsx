@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { InvitacionDigitalConfig, InvitacionPlantillaId } from '@/types/fiesta';
-import { PLANTILLA_INFO, TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
+import type { InvitacionDigitalConfig, InvitacionPlantillaId, InvitacionSectionId, InvitacionSectionConfig } from '@/types/fiesta';
+import { PLANTILLA_INFO, TIPO_EVENTO_LABELS, DEFAULT_TYPOGRAPHY_CONFIG, DEFAULT_SECTIONS_CONFIG } from '@/lib/invitacion-config-defaults';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2 } from 'lucide-react';
+import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2, Layers, AlertCircle, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -503,6 +503,237 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" /> Agregar actividad
             </Button>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ===== DISEÑO Y TIPOGRAFÍA ===== */}
+        <AccordionItem value="typography">
+          <AccordionTrigger className="text-sm font-bold"><Type className="w-4 h-4 mr-2" />Diseño y tipografía</AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-2">
+            <p className="text-[10px] text-muted-foreground">Controlá el tamaño y estilo del texto en la invitación.</p>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Título principal (móvil)</Label>
+              <Select
+                value={config.typography?.heroTitleMobile || DEFAULT_TYPOGRAPHY_CONFIG.heroTitleMobile}
+                onValueChange={(v) => onChange({ ...config, typography: { ...DEFAULT_TYPOGRAPHY_CONFIG, ...config.typography, heroTitleMobile: v } })}
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text-3xl sm:text-5xl">Pequeño</SelectItem>
+                  <SelectItem value="text-4xl sm:text-6xl">Normal</SelectItem>
+                  <SelectItem value="text-5xl sm:text-7xl">Grande</SelectItem>
+                  <SelectItem value="text-6xl sm:text-8xl">Muy grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Título principal (escritorio)</Label>
+              <Select
+                value={config.typography?.heroTitleDesktop || DEFAULT_TYPOGRAPHY_CONFIG.heroTitleDesktop}
+                onValueChange={(v) => onChange({ ...config, typography: { ...DEFAULT_TYPOGRAPHY_CONFIG, ...config.typography, heroTitleDesktop: v } })}
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="lg:text-6xl">Pequeño</SelectItem>
+                  <SelectItem value="lg:text-7xl">Normal</SelectItem>
+                  <SelectItem value="lg:text-8xl">Grande</SelectItem>
+                  <SelectItem value="lg:text-9xl">Muy grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Títulos de sección</Label>
+              <Select
+                value={config.typography?.sectionTitle || DEFAULT_TYPOGRAPHY_CONFIG.sectionTitle}
+                onValueChange={(v) => onChange({ ...config, typography: { ...DEFAULT_TYPOGRAPHY_CONFIG, ...config.typography, sectionTitle: v } })}
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text-xl sm:text-2xl">Pequeño</SelectItem>
+                  <SelectItem value="text-2xl sm:text-3xl">Normal</SelectItem>
+                  <SelectItem value="text-3xl sm:text-4xl">Grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Texto del cuerpo</Label>
+              <Select
+                value={config.typography?.body || DEFAULT_TYPOGRAPHY_CONFIG.body}
+                onValueChange={(v) => onChange({ ...config, typography: { ...DEFAULT_TYPOGRAPHY_CONFIG, ...config.typography, body: v } })}
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text-sm">Pequeño</SelectItem>
+                  <SelectItem value="text-base">Normal</SelectItem>
+                  <SelectItem value="text-lg">Grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Texto de botones</Label>
+              <Select
+                value={config.typography?.button || DEFAULT_TYPOGRAPHY_CONFIG.button}
+                onValueChange={(v) => onChange({ ...config, typography: { ...DEFAULT_TYPOGRAPHY_CONFIG, ...config.typography, button: v } })}
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text-xs">Pequeño</SelectItem>
+                  <SelectItem value="text-sm">Normal</SelectItem>
+                  <SelectItem value="text-base">Grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Interlineado</Label>
+              <Select
+                value={config.typography?.lineHeight || DEFAULT_TYPOGRAPHY_CONFIG.lineHeight}
+                onValueChange={(v) => onChange({ ...config, typography: { ...DEFAULT_TYPOGRAPHY_CONFIG, ...config.typography, lineHeight: v } })}
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="leading-tight">Compacto</SelectItem>
+                  <SelectItem value="leading-normal">Normal</SelectItem>
+                  <SelectItem value="leading-relaxed">Relajado</SelectItem>
+                  <SelectItem value="leading-loose">Amplio</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Espaciado entre secciones</Label>
+              <Select
+                value={config.typography?.spacing || DEFAULT_TYPOGRAPHY_CONFIG.spacing}
+                onValueChange={(v) => onChange({ ...config, typography: { ...DEFAULT_TYPOGRAPHY_CONFIG, ...config.typography, spacing: v } })}
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="compact">Compacto</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="spacious">Espacioso</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-xs text-muted-foreground"
+              onClick={() => onChange({ ...config, typography: DEFAULT_TYPOGRAPHY_CONFIG })}
+            >
+              Restaurar tipografía por defecto
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ===== ESTADO DE SECCIONES ===== */}
+        <AccordionItem value="sections">
+          <AccordionTrigger className="text-sm font-bold"><Layers className="w-4 h-4 mr-2" />Estado de secciones</AccordionTrigger>
+          <AccordionContent className="space-y-3 pt-2">
+            <p className="text-[10px] text-muted-foreground">Activá, desactivá y reordenás las secciones de la invitación.</p>
+            {(() => {
+              const activeSections: InvitacionSectionConfig[] = config.sectionsConfig?.length
+                ? [...config.sectionsConfig].sort((a, b) => a.order - b.order)
+                : [...DEFAULT_SECTIONS_CONFIG];
+
+              const sectionLabels: Record<InvitacionSectionId, string> = {
+                hero: 'Portada',
+                bienvenida: 'Mensaje de bienvenida',
+                contador: 'Contador regresivo',
+                cronograma: 'Cronograma',
+                ubicacion: 'Ubicación',
+                dressCode: 'Dress Code',
+                galeria: 'Galería de fotos',
+                regalos: 'Regalos / Transferencia',
+                rsvp: 'RSVP / Confirmación',
+                muroSocial: 'Portal social (mural)',
+                ctaAk: 'CTA AK Producciones',
+                footer: 'Pie de página',
+              };
+
+              const contentCheck: Record<InvitacionSectionId, boolean> = {
+                hero: true,
+                bienvenida: !!config.textoBienvenida,
+                contador: !!(config.contadorActivo && !!config.fechaEvento),
+                cronograma: !!(config.cronograma && config.cronograma.length > 0),
+                ubicacion: !!(config.nombreSalon || config.direccionSalon || config.linkMaps),
+                dressCode: !!(config.mostrarDressCode && config.dressCode?.tipo),
+                galeria: !!(config.galeriaFotos && config.galeriaFotos.length > 0),
+                regalos: config.regalos?.tipo !== 'ninguno',
+                rsvp: !!config.rsvpActivo,
+                muroSocial: !!config.portalSocialActivo,
+                ctaAk: true,
+                footer: true,
+              };
+
+              return activeSections.map((sec, idx) => {
+                const hasContent = contentCheck[sec.id];
+                const reason = !sec.visible
+                  ? 'Desactivada manualmente'
+                  : !hasContent
+                    ? 'Sin contenido configurado'
+                    : null;
+
+                return (
+                  <div key={sec.id} className="flex items-center gap-2 py-1 border-b last:border-0">
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        disabled={idx === 0}
+                        onClick={() => {
+                          const updated = [...activeSections];
+                          [updated[idx - 1], updated[idx]] = [updated[idx], updated[idx - 1]];
+                          updated.forEach((s, i) => { s.order = i + 1; });
+                          onChange({ ...config, sectionsConfig: updated });
+                        }}
+                      >
+                        <ArrowUp className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        disabled={idx === activeSections.length - 1}
+                        onClick={() => {
+                          const updated = [...activeSections];
+                          [updated[idx], updated[idx + 1]] = [updated[idx + 1], updated[idx]];
+                          updated.forEach((s, i) => { s.order = i + 1; });
+                          onChange({ ...config, sectionsConfig: updated });
+                        }}
+                      >
+                        <ArrowDown className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <Switch
+                      checked={sec.visible}
+                      disabled={sec.id === 'hero'}
+                      onCheckedChange={(checked) => {
+                        const updated = activeSections.map((s) =>
+                          s.id === sec.id ? { ...s, visible: checked } : s
+                        );
+                        onChange({ ...config, sectionsConfig: updated });
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold truncate">{sectionLabels[sec.id]}</p>
+                      {reason && (
+                        <p className="text-[10px] text-amber-600 flex items-center gap-1">
+                          <AlertCircle className="w-2.5 h-2.5 flex-shrink-0" />
+                          {reason}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </AccordionContent>
         </AccordionItem>
 

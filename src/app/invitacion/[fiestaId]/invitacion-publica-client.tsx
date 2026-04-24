@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { DietaryRestriction, InvitacionDigitalConfig, InvitacionDigitalCronograma } from '@/types/fiesta';
+import type { DietaryRestriction, InvitacionDigitalConfig, InvitacionDigitalCronograma, InvitacionSectionId, InvitacionSectionConfig, InvitacionTypographyConfig } from '@/types/fiesta';
 import type { SocialConnection } from '@/types/settings';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
@@ -18,6 +18,69 @@ interface Props {
   isEditorMode?: boolean;
   onConfigChange?: (nextConfig: InvitacionDigitalConfig) => void;
 }
+
+// ─── Typography helpers ───────────────────────────────────────────────────────
+
+export function getHeroTitleClass(typography?: InvitacionTypographyConfig): string {
+  const mobile = typography?.heroTitleMobile || 'text-4xl sm:text-6xl';
+  const desktop = typography?.heroTitleDesktop || 'lg:text-8xl';
+  return `${mobile} ${desktop}`;
+}
+
+export function getSectionTitleClass(typography?: InvitacionTypographyConfig): string {
+  return typography?.sectionTitle || 'text-2xl sm:text-3xl';
+}
+
+export function getBodyTextClass(typography?: InvitacionTypographyConfig): string {
+  return typography?.body || 'text-base';
+}
+
+export function getButtonTextClass(typography?: InvitacionTypographyConfig): string {
+  return typography?.button || 'text-sm';
+}
+
+export function getSectionSpacingClass(typography?: InvitacionTypographyConfig): string {
+  const spacing = typography?.spacing;
+  if (spacing === 'compact') return 'py-8';
+  if (spacing === 'spacious') return 'py-20';
+  return 'py-16';
+}
+
+// ─── Section visibility / ordering helpers ────────────────────────────────────
+
+const DEFAULT_SECTION_ORDER: Record<InvitacionSectionId, number> = {
+  hero: 1,
+  bienvenida: 2,
+  contador: 3,
+  cronograma: 4,
+  ubicacion: 5,
+  dressCode: 6,
+  galeria: 7,
+  regalos: 8,
+  rsvp: 9,
+  muroSocial: 10,
+  ctaAk: 11,
+  footer: 12,
+};
+
+export function isSectionVisible(
+  sectionId: InvitacionSectionId,
+  sectionsConfig?: InvitacionSectionConfig[]
+): boolean {
+  if (!sectionsConfig || sectionsConfig.length === 0) return true;
+  const cfg = sectionsConfig.find((s) => s.id === sectionId);
+  return cfg ? cfg.visible : true;
+}
+
+export function getSectionOrder(
+  sectionId: InvitacionSectionId,
+  sectionsConfig?: InvitacionSectionConfig[]
+): number {
+  if (!sectionsConfig) return DEFAULT_SECTION_ORDER[sectionId] ?? 99;
+  const cfg = sectionsConfig.find((s) => s.id === sectionId);
+  return cfg ? cfg.order : (DEFAULT_SECTION_ORDER[sectionId] ?? 99);
+}
+
 
 // ---------- COUNTDOWN ----------
 function Countdown({ fechaEvento }: { fechaEvento: string }) {
@@ -422,6 +485,240 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
     '--inv-accent': config.colorAcento,
   } as React.CSSProperties;
 
+  // ─── Build ordered middle sections ───────────────────────────────────────
+  type SectionEntry = { id: InvitacionSectionId; order: number; el: React.ReactNode };
+  const sectionEntries: SectionEntry[] = [];
+
+  const addSectionEntry = (
+    id: InvitacionSectionId,
+    condition: boolean,
+    el: React.ReactNode
+  ) => {
+    if (!isSectionVisible(id, config.sectionsConfig)) return;
+    if (!condition) return;
+    sectionEntries.push({ id, order: getSectionOrder(id, config.sectionsConfig), el });
+  };
+
+  addSectionEntry('bienvenida', !!config.textoBienvenida, (
+    <Section key="bienvenida" id="bienvenida" className="text-center max-w-2xl mx-auto">
+      <div className="w-16 h-px mx-auto mb-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
+      {isEditorMode && onConfigChange ? (
+        <EditableText
+          value={config.textoBienvenida || ''}
+          onChange={(value) => onConfigChange({ ...config, textoBienvenida: value })}
+          className="text-lg sm:text-xl text-gray-600 leading-relaxed border-gray-400 text-gray-700"
+        />
+      ) : (
+        <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">{config.textoBienvenida}</p>
+      )}
+      <div className="w-16 h-px mx-auto mt-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
+    </Section>
+  ));
+
+  addSectionEntry('contador', config.contadorActivo && !!config.fechaEvento, (
+    <Section key="contador" className={cn('text-center', styles.sectionAltBg)}>
+      <h2 className={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+        Faltan...
+      </h2>
+      <Countdown fechaEvento={config.fechaEvento} />
+    </Section>
+  ));
+
+  addSectionEntry('cronograma', !!hasCronograma, (
+    <Section key="cronograma" className="max-w-lg mx-auto">
+      <h2 className={cn(getSectionTitleClass(config.typography), 'text-center mb-10', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+        Cronograma
+      </h2>
+      <div className="relative">
+        <div className="absolute left-4 top-0 bottom-0 w-0.5" style={{ backgroundColor: 'var(--inv-secondary)' }} />
+        {(config.cronograma as InvitacionDigitalCronograma[]).map((item, i) => (
+          <div key={i} className="relative pl-12 pb-8 last:pb-0">
+            <div className="absolute left-1.5 top-1 w-5 h-5 rounded-full border-2 bg-white" style={{ borderColor: 'var(--inv-primary)' }} />
+            <div className="flex items-baseline gap-3">
+              <span className="text-sm font-bold whitespace-nowrap" style={{ color: 'var(--inv-primary)' }}>{item.hora}</span>
+              <span className="text-gray-700">
+                {item.icono ? `${item.icono} ` : ''}
+                {item.actividad}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Section>
+  ));
+
+  addSectionEntry('ubicacion', hasLocation, (
+    <Section key="ubicacion" className={cn('text-center', styles.sectionAltBg)}>
+      <MapPin className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
+      <h2 className={cn(getSectionTitleClass(config.typography), 'mb-2', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+        {config.nombreSalon || 'Ubicación'}
+      </h2>
+      {config.direccionSalon && (
+        <p className="text-gray-600 mb-6">{config.direccionSalon}</p>
+      )}
+      {config.linkMaps && (
+        <a
+          href={config.linkMaps}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
+          style={{ backgroundColor: 'var(--inv-primary)' }}
+        >
+          <MapPin className="w-4 h-4" />
+          Cómo llegar
+        </a>
+      )}
+    </Section>
+  ));
+
+  addSectionEntry('dressCode', hasDressCode, (
+    <Section key="dressCode" className="text-center max-w-lg mx-auto">
+      <Shirt className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
+      <h2 className={cn(getSectionTitleClass(config.typography), 'mb-4', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+        Dress Code
+      </h2>
+      <span className={cn('inline-block px-4 py-1.5 rounded-full text-sm font-semibold', styles.badgeClass)}>
+        {config.dressCode.tipo === 'personalizado'
+          ? (config.dressCode.textoPersonalizado || 'Personalizado')
+          : config.dressCode.tipo.charAt(0).toUpperCase() + config.dressCode.tipo.slice(1)}
+      </span>
+      {config.dressCode.colorSugerido && (
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-gray-200 shadow-inner" style={{ backgroundColor: config.dressCode.colorSugerido }} />
+          <span className="text-sm text-gray-600">Color sugerido</span>
+        </div>
+      )}
+      {config.dressCode.restricciones && (
+        <p className="mt-4 text-sm text-gray-500 italic">⚠ {config.dressCode.restricciones}</p>
+      )}
+    </Section>
+  ));
+
+  addSectionEntry('galeria', hasGallery, (
+    <Section key="galeria" className={styles.sectionAltBg}>
+      <h2 className={cn(getSectionTitleClass(config.typography), 'text-center mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+        Galería
+      </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 max-w-3xl mx-auto">
+        {config.galeriaFotos.map((url, i) => (
+          <div key={i} className="aspect-square rounded-xl overflow-hidden shadow-md">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+          </div>
+        ))}
+      </div>
+    </Section>
+  ));
+
+  addSectionEntry('regalos', hasGifts, (
+    <Section key="regalos" className="max-w-lg mx-auto">
+      <div className="text-center mb-8">
+        {(config.regalos.tipo === 'dinero' || config.regalos.tipo === 'ambos')
+          ? <CreditCard className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
+          : <Gift className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
+        }
+        <h2 className={cn(getSectionTitleClass(config.typography), styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+          {config.regalos.tipo === 'dinero' ? 'Datos para Transferencia' : config.regalos.tipo === 'regalos' ? 'Lista de Regalos' : 'Regalos'}
+        </h2>
+      </div>
+      {config.regalos.textoPersonalizado && (
+        <p className="text-center text-gray-600 mb-6">{config.regalos.textoPersonalizado}</p>
+      )}
+      {(config.regalos.tipo === 'dinero' || config.regalos.tipo === 'ambos') && (config.regalos.aliasCBU || config.regalos.cuentaNumero) && (
+        <div className="rounded-2xl p-6 shadow-lg border" style={{ borderColor: 'var(--inv-secondary)', backgroundColor: 'var(--inv-secondary)' }}>
+          <div className="space-y-3 text-sm">
+            {config.regalos.banco && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Banco</span>
+                <span className="font-semibold">{config.regalos.banco}</span>
+              </div>
+            )}
+            {config.regalos.titular && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Titular</span>
+                <span className="font-semibold">{config.regalos.titular}</span>
+              </div>
+            )}
+            {config.regalos.aliasCBU && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-gray-500 block">Alias / CBU</span>
+                  <span className="font-mono font-bold text-base" style={{ color: 'var(--inv-primary)' }}>{config.regalos.aliasCBU}</span>
+                </div>
+                <CopyButton text={config.regalos.aliasCBU} />
+              </div>
+            )}
+            {config.regalos.cuentaNumero && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-gray-500 block">N° de Cuenta</span>
+                  <span className="font-mono font-bold">{config.regalos.cuentaNumero}</span>
+                </div>
+                <CopyButton text={config.regalos.cuentaNumero} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {(config.regalos.tipo === 'regalos' || config.regalos.tipo === 'ambos') && (
+        <div className={cn('mt-6 text-center', config.regalos.tipo === 'ambos' && 'border-t pt-6')}>
+          {config.regalos.instruccionesRegalos && (
+            <p className="text-gray-600">{config.regalos.instruccionesRegalos}</p>
+          )}
+          {config.regalos.linkListaRegalos && (
+            <a
+              href={config.regalos.linkListaRegalos}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
+              style={{ backgroundColor: 'var(--inv-primary)' }}
+            >
+              <Gift className="w-4 h-4" />
+              Ver Lista de Regalos
+            </a>
+          )}
+        </div>
+      )}
+    </Section>
+  ));
+
+  addSectionEntry('rsvp', config.rsvpActivo, (
+    <Section key="rsvp" className={cn('max-w-lg mx-auto', styles.sectionAltBg)} id="rsvp">
+      <Users className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
+      <h2 className={cn(getSectionTitleClass(config.typography), 'text-center mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+        Confirmar Asistencia
+      </h2>
+      <RsvpSection fiestaId={fiestaId} texto={config.rsvpTexto} />
+    </Section>
+  ));
+
+  addSectionEntry('muroSocial', hasSocialPortal, (
+    <Section key="muroSocial" className="text-center">
+      <Camera className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
+      <h2 className={cn(getSectionTitleClass(config.typography), 'mb-4', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
+        ¡Compartí tus fotos!
+      </h2>
+      {config.hashtagEvento && (
+        <p className="text-lg font-semibold mb-6" style={{ color: 'var(--inv-accent)' }}>
+          {config.hashtagEvento}
+        </p>
+      )}
+      <a
+        href={`/evento/social/${fiestaId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
+        style={{ backgroundColor: 'var(--inv-primary)' }}
+      >
+        <Camera className="w-4 h-4" />
+        Ir al Mural Social
+      </a>
+    </Section>
+  ));
+
+  sectionEntries.sort((a, b) => a.order - b.order);
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <div className={cn('min-h-screen', styles.fontBody)} style={cssVars}>
       {/* ============= HERO / PORTADA ============= */}
@@ -446,7 +743,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             transition={{ duration: 1, delay: 0.3 }}
           >
             <p className="text-sm sm:text-base tracking-[0.3em] uppercase mb-4 opacity-80">{tipoLabel}</p>
-            <h1 className={cn('text-4xl sm:text-6xl lg:text-8xl mb-6 leading-tight break-words max-w-full px-4', styles.fontHeading)}>
+            <h1 className={cn(getHeroTitleClass(config.typography), config.typography?.lineHeight || 'leading-tight', 'mb-6 break-words max-w-full px-4', styles.fontHeading)}>
               {isEditorMode && onConfigChange ? (
                 <>
                   <EditableText
@@ -493,236 +790,10 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         </div>
       </section>
 
-      {/* ============= BIENVENIDA ============= */}
-      {config.textoBienvenida && (
-        <Section id="bienvenida" className="text-center max-w-2xl mx-auto">
-          <div className="w-16 h-px mx-auto mb-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
-          {isEditorMode && onConfigChange ? (
-            <EditableText
-              value={config.textoBienvenida || ''}
-              onChange={(value) => onConfigChange({ ...config, textoBienvenida: value })}
-              className="text-lg sm:text-xl text-gray-600 leading-relaxed border-gray-400 text-gray-700"
-            />
-          ) : (
-            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">{config.textoBienvenida}</p>
-          )}
-          <div className="w-16 h-px mx-auto mt-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
-        </Section>
-      )}
-
-      {/* ============= COUNTDOWN ============= */}
-      {config.contadorActivo && config.fechaEvento && (
-        <Section className={cn('text-center', styles.sectionAltBg)}>
-          <h2 className={cn('text-2xl sm:text-3xl mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            Faltan...
-          </h2>
-          <Countdown fechaEvento={config.fechaEvento} />
-        </Section>
-      )}
-
-      {/* ============= CRONOGRAMA ============= */}
-      {hasCronograma && (
-        <Section className="max-w-lg mx-auto">
-          <h2 className={cn('text-2xl sm:text-3xl text-center mb-10', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            Cronograma
-          </h2>
-          <div className="relative">
-            <div className="absolute left-4 top-0 bottom-0 w-0.5" style={{ backgroundColor: 'var(--inv-secondary)' }} />
-            {(config.cronograma as InvitacionDigitalCronograma[]).map((item, i) => (
-              <div key={i} className="relative pl-12 pb-8 last:pb-0">
-                <div className="absolute left-1.5 top-1 w-5 h-5 rounded-full border-2 bg-white" style={{ borderColor: 'var(--inv-primary)' }} />
-                <div className="flex items-baseline gap-3">
-                  <span className="text-sm font-bold whitespace-nowrap" style={{ color: 'var(--inv-primary)' }}>{item.hora}</span>
-                  <span className="text-gray-700">
-                    {item.icono ? `${item.icono} ` : ''}
-                    {item.actividad}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* ============= UBICACIÓN ============= */}
-      {hasLocation && (
-        <Section className={cn('text-center', styles.sectionAltBg)}>
-          <MapPin className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
-          <h2 className={cn('text-2xl sm:text-3xl mb-2', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            {config.nombreSalon || 'Ubicación'}
-          </h2>
-          {config.direccionSalon && (
-            <p className="text-gray-600 mb-6">{config.direccionSalon}</p>
-          )}
-          {config.linkMaps && (
-            <a
-              href={config.linkMaps}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
-              style={{ backgroundColor: 'var(--inv-primary)' }}
-            >
-              <MapPin className="w-4 h-4" />
-              Cómo llegar
-            </a>
-          )}
-        </Section>
-      )}
-
-      {/* ============= DRESS CODE ============= */}
-      {hasDressCode && (
-        <Section className="text-center max-w-lg mx-auto">
-          <Shirt className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
-          <h2 className={cn('text-2xl sm:text-3xl mb-4', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            Dress Code
-          </h2>
-          <span className={cn('inline-block px-4 py-1.5 rounded-full text-sm font-semibold', styles.badgeClass)}>
-            {config.dressCode.tipo === 'personalizado'
-              ? (config.dressCode.textoPersonalizado || 'Personalizado')
-              : config.dressCode.tipo.charAt(0).toUpperCase() + config.dressCode.tipo.slice(1)}
-          </span>
-          {config.dressCode.colorSugerido && (
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-gray-200 shadow-inner" style={{ backgroundColor: config.dressCode.colorSugerido }} />
-              <span className="text-sm text-gray-600">Color sugerido</span>
-            </div>
-          )}
-          {config.dressCode.restricciones && (
-            <p className="mt-4 text-sm text-gray-500 italic">⚠ {config.dressCode.restricciones}</p>
-          )}
-        </Section>
-      )}
-
-      {/* ============= GALERÍA ============= */}
-      {hasGallery && (
-        <Section className={styles.sectionAltBg}>
-          <h2 className={cn('text-2xl sm:text-3xl text-center mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            Galería
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 max-w-3xl mx-auto">
-            {config.galeriaFotos.map((url, i) => (
-              <div key={i} className="aspect-square rounded-xl overflow-hidden shadow-md">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-              </div>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* ============= REGALOS / DINERO ============= */}
-      {hasGifts && (
-        <Section className="max-w-lg mx-auto">
-          <div className="text-center mb-8">
-            {(config.regalos.tipo === 'dinero' || config.regalos.tipo === 'ambos')
-              ? <CreditCard className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
-              : <Gift className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
-            }
-            <h2 className={cn('text-2xl sm:text-3xl', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-              {config.regalos.tipo === 'dinero' ? 'Datos para Transferencia' : config.regalos.tipo === 'regalos' ? 'Lista de Regalos' : 'Regalos'}
-            </h2>
-          </div>
-
-          {config.regalos.textoPersonalizado && (
-            <p className="text-center text-gray-600 mb-6">{config.regalos.textoPersonalizado}</p>
-          )}
-
-          {/* Bank card for money/both */}
-          {(config.regalos.tipo === 'dinero' || config.regalos.tipo === 'ambos') && (config.regalos.aliasCBU || config.regalos.cuentaNumero) && (
-            <div className="rounded-2xl p-6 shadow-lg border" style={{ borderColor: 'var(--inv-secondary)', backgroundColor: 'var(--inv-secondary)' }}>
-              <div className="space-y-3 text-sm">
-                {config.regalos.banco && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Banco</span>
-                    <span className="font-semibold">{config.regalos.banco}</span>
-                  </div>
-                )}
-                {config.regalos.titular && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Titular</span>
-                    <span className="font-semibold">{config.regalos.titular}</span>
-                  </div>
-                )}
-                {config.regalos.aliasCBU && (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-gray-500 block">Alias / CBU</span>
-                      <span className="font-mono font-bold text-base" style={{ color: 'var(--inv-primary)' }}>{config.regalos.aliasCBU}</span>
-                    </div>
-                    <CopyButton text={config.regalos.aliasCBU} />
-                  </div>
-                )}
-                {config.regalos.cuentaNumero && (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-gray-500 block">N° de Cuenta</span>
-                      <span className="font-mono font-bold">{config.regalos.cuentaNumero}</span>
-                    </div>
-                    <CopyButton text={config.regalos.cuentaNumero} />
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Gift instructions for regalos/both */}
-          {(config.regalos.tipo === 'regalos' || config.regalos.tipo === 'ambos') && (
-            <div className={cn('mt-6 text-center', config.regalos.tipo === 'ambos' && 'border-t pt-6')}>
-              {config.regalos.instruccionesRegalos && (
-                <p className="text-gray-600">{config.regalos.instruccionesRegalos}</p>
-              )}
-              {config.regalos.linkListaRegalos && (
-                <a
-                  href={config.regalos.linkListaRegalos}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
-                  style={{ backgroundColor: 'var(--inv-primary)' }}
-                >
-                  <Gift className="w-4 h-4" />
-                  Ver Lista de Regalos
-                </a>
-              )}
-            </div>
-          )}
-        </Section>
-      )}
-
-      {/* ============= RSVP ============= */}
-      {config.rsvpActivo && (
-        <Section className={cn('max-w-lg mx-auto', styles.sectionAltBg)} id="rsvp">
-          <Users className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
-          <h2 className={cn('text-2xl sm:text-3xl text-center mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            Confirmar Asistencia
-          </h2>
-          <RsvpSection fiestaId={fiestaId} texto={config.rsvpTexto} />
-        </Section>
-      )}
-
-      {/* ============= PORTAL SOCIAL ============= */}
-      {hasSocialPortal && (
-        <Section className="text-center">
-          <Camera className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
-          <h2 className={cn('text-2xl sm:text-3xl mb-4', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-            ¡Compartí tus fotos!
-          </h2>
-          {config.hashtagEvento && (
-            <p className="text-lg font-semibold mb-6" style={{ color: 'var(--inv-accent)' }}>
-              {config.hashtagEvento}
-            </p>
-          )}
-          <a
-            href={`/evento/social/${fiestaId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
-            style={{ backgroundColor: 'var(--inv-primary)' }}
-          >
-            <Camera className="w-4 h-4" />
-            Ir al Mural Social
-          </a>
-        </Section>
-      )}
+      {/* ============= ORDERED MIDDLE SECTIONS ============= */}
+      {sectionEntries.map(({ id, el }) => (
+        <React.Fragment key={id}>{el}</React.Fragment>
+      ))}
 
       {/* ============= FOOTER ============= */}
       <footer className="py-12 text-center" style={{ backgroundColor: 'var(--inv-primary)', color: 'white' }}>

@@ -1,4 +1,27 @@
-import type { InvitacionDigitalConfig, FiestaEnPlanificacion } from '@/types/fiesta';
+import type { InvitacionDigitalConfig, InvitacionSectionConfig, InvitacionTypographyConfig, FiestaEnPlanificacion } from '@/types/fiesta';
+
+export const DEFAULT_TYPOGRAPHY_CONFIG: InvitacionTypographyConfig = {
+  heroTitleMobile: 'text-4xl sm:text-6xl',
+  heroTitleDesktop: 'lg:text-8xl',
+  sectionTitle: 'text-2xl sm:text-3xl',
+  body: 'text-base',
+  button: 'text-sm',
+  lineHeight: 'leading-tight',
+  spacing: 'normal',
+};
+
+export const DEFAULT_SECTIONS_CONFIG: InvitacionSectionConfig[] = [
+  { id: 'hero', visible: true, order: 1 },
+  { id: 'bienvenida', visible: true, order: 2 },
+  { id: 'contador', visible: true, order: 3 },
+  { id: 'cronograma', visible: true, order: 4 },
+  { id: 'ubicacion', visible: true, order: 5 },
+  { id: 'dressCode', visible: true, order: 6 },
+  { id: 'galeria', visible: true, order: 7 },
+  { id: 'regalos', visible: true, order: 8 },
+  { id: 'rsvp', visible: true, order: 9 },
+  { id: 'muroSocial', visible: true, order: 10 },
+];
 
 export const defaultInvitacionConfig: InvitacionDigitalConfig = {
   nombreHomenajeada: '',
@@ -27,6 +50,8 @@ export const defaultInvitacionConfig: InvitacionDigitalConfig = {
   rsvpActivo: true,
   contadorActivo: true,
   portalSocialActivo: false,
+  typography: DEFAULT_TYPOGRAPHY_CONFIG,
+  sectionsConfig: DEFAULT_SECTIONS_CONFIG,
 };
 
 export function buildInvitacionConfigFromFiesta(
