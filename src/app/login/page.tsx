@@ -13,6 +13,7 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSession, setSession } from '@/lib/auth';
 import { verifyPassword } from '@/app/actions/simple-auth';
+import { setSessionCookie } from '@/app/actions/session';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -52,6 +53,7 @@ export default function LoginPage() {
       }
 
       setSession();
+      await setSessionCookie();
       router.push('/');
     } catch {
       setError('Error al verificar la contraseña.');

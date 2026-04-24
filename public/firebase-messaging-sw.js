@@ -5,16 +5,24 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
-// Firebase config — public values only (no secrets).
-// These mirror the values in src/lib/firebase/config.ts.
+// Firebase public config — estos son valores públicos (no secretos).
+// Los service workers son archivos estáticos: no tienen acceso a process.env
+// ni a variables inyectadas dinámicamente como self.FIREBASE_*.
+// Los valores aquí son los mismos que en src/lib/firebase/config.ts y son
+// seguros para estar en código público (son visibles en cualquier app web).
 const firebaseConfig = {
-  apiKey: self.FIREBASE_API_KEY || 'dummy-key-for-firestore',
-  authDomain: self.FIREBASE_AUTH_DOMAIN || 'presupuestador-ak-producciones.firebaseapp.com',
-  projectId: self.FIREBASE_PROJECT_ID || 'presupuestador-ak-producciones',
-  storageBucket: self.FIREBASE_STORAGE_BUCKET || 'presupuestador-ak-producciones.firebasestorage.app',
-  messagingSenderId: self.FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: self.FIREBASE_APP_ID || '',
+  apiKey: 'AIzaSyDummy-replace-with-real-value-from-firebase-console',
+  authDomain: 'presupuestador-ak-producciones.firebaseapp.com',
+  projectId: 'presupuestador-ak-producciones',
+  storageBucket: 'presupuestador-ak-producciones.firebasestorage.app',
+  messagingSenderId: '',
+  appId: '',
 };
+
+// IMPORTANTE: Reemplazar los valores de apiKey, messagingSenderId y appId
+// con los valores reales del proyecto Firebase.
+// Obtenerlos en: https://console.firebase.google.com/project/presupuestador-ak-producciones/settings/general
+// Estos valores son públicos y seguros de incluir en el código fuente del SW.
 
 firebase.initializeApp(firebaseConfig);
 

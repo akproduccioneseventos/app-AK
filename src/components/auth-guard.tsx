@@ -5,9 +5,11 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { getSession, clearSession } from '@/lib/auth';
+import { clearSessionCookie } from '@/app/actions/session';
 
 export async function triggerAppLogout() {
   clearSession();
+  await clearSessionCookie();
   if (typeof window !== 'undefined') {
     // Remove portal-specific session keys
     Object.keys(sessionStorage).forEach(key => {

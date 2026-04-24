@@ -15,9 +15,9 @@
     "firebase:verify": "npx tsx src/scripts/migrate-to-firebase.ts verify",
     "dev:firebase": "concurrently \"firebase emulators:start --project presupuestador-ak-producciones\" \"next dev\"",
     "build:functions": "cd functions && npm install && npm run build",
-    "predeploy": "npm run build && npm run build:functions && cp -r .next functions/.next && cp -r public functions/public",
-    "deploy": "npm run predeploy && firebase deploy --project presupuestador-ak-producciones",
-    "dev:local": "concurrently \"next dev\" \"firebase emulators:start --only firestore,auth,functions,hosting --project presupuestador-ak-producciones\""
+    "dev:local": "concurrently \"next dev\" \"firebase emulators:start --only firestore,auth,functions,hosting --project presupuestador-ak-producciones\"",
+    "predeploy:functions": "npm run build && npm run build:functions && cp -r .next functions/.next && cp -r public functions/public",
+    "deploy:functions": "npm run predeploy:functions && firebase deploy --only functions,hosting --project presupuestador-ak-producciones"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -105,6 +105,7 @@
     "tailwindcss": "^3.4.4",
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "concurrently": "^8.2.2"
   }
 }
