@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
-import { Loader2, AlertTriangle, CheckCircle, Music, Utensils, Users, Download } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, Music, Utensils, Users, Download, MapPin, CalendarDays, Instagram, MessageCircle, ExternalLink } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
 import type { FiestaEnPlanificacion, DietaryRestriction, Invitado } from '@/types/fiesta';
@@ -128,6 +128,17 @@ function RsvpFormContent() {
 
   if (confirmedGuest) {
     const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${confirmedGuest.id}`;
+    const guestExp = fiesta.guestExperienceSettings;
+    const showAkCta = guestExp?.enabled && guestExp?.showAkBranding;
+    const eventName = fiesta.configuracion?.nombreEvento || 'El Evento';
+    const venue = fiesta.configuracion?.nombreLugar;
+    const address = fiesta.configuracion?.direccionLugar;
+    const fecha = fiesta.configuracion?.fechaEvento
+      ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+      : null;
+    const hora = fiesta.configuracion?.horaInicio;
+    const dressCode = fiesta.invitacionConfig?.dressCode;
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col items-center justify-center p-4">
         <motion.div
@@ -158,22 +169,78 @@ function RsvpFormContent() {
               )}
             </CardHeader>
             {confirmedGuest.rsvp === 'Confirmado' && (
-              <CardContent className="flex flex-col items-center gap-6 px-8 py-6">
+              <CardContent className="flex flex-col items-center gap-4 px-8 py-4">
                 <p className="text-sm text-slate-500 text-center">
                   Guarda tu pase digital. Lo necesitarás en la entrada.
                 </p>
                 <div className="p-6 bg-white rounded-2xl shadow-inner border border-slate-100">
                   <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" />
                 </div>
-                {confirmedGuest.dietaryRestriction && confirmedGuest.dietaryRestriction !== 'Ninguna' && (
-                  <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
-                    <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-1">Menú especial</p>
-                    <p className="text-sm font-semibold text-amber-800">{confirmedGuest.dietaryRestriction}</p>
-                  </div>
-                )}
+
+                {/* Event details for guest */}
+                <div className="w-full space-y-2 text-sm">
+                  {confirmedGuest.tableNumber && (
+                    <div className="flex items-center gap-2 bg-purple-50 border border-purple-100 rounded-xl p-3">
+                      <span className="text-lg">🪑</span>
+                      <div>
+                        <p className="font-black text-purple-800">Mesa asignada</p>
+                        <p className="text-purple-600 font-semibold">Mesa {confirmedGuest.tableNumber}</p>
+                      </div>
+                    </div>
+                  )}
+                  {(venue || address) && (
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl p-3">
+                      <MapPin className="w-5 h-5 text-slate-500 shrink-0" />
+                      <div>
+                        {venue && <p className="font-semibold text-slate-800">{venue}</p>}
+                        {address && <p className="text-xs text-slate-500">{address}</p>}
+                      </div>
+                    </div>
+                  )}
+                  {(fecha || hora) && (
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl p-3">
+                      <CalendarDays className="w-5 h-5 text-slate-500 shrink-0" />
+                      <div>
+                        {fecha && <p className="font-semibold text-slate-800 capitalize">{fecha}</p>}
+                        {hora && <p className="text-xs text-slate-500">{hora} hs</p>}
+                      </div>
+                    </div>
+                  )}
+                  {dressCode && dressCode.tipo && dressCode.tipo !== 'casual' && (
+                    <div className="flex items-center gap-2 bg-rose-50 border border-rose-100 rounded-xl p-3">
+                      <span className="text-lg shrink-0">👗</span>
+                      <div>
+                        <p className="font-semibold text-rose-800 capitalize">
+                          Dress code: {dressCode.tipo === 'personalizado' ? dressCode.textoPersonalizado : dressCode.tipo}
+                        </p>
+                        {dressCode.colorSugerido && (
+                          <p className="text-xs text-rose-600">Color sugerido: {dressCode.colorSugerido}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {confirmedGuest.dietaryRestriction && confirmedGuest.dietaryRestriction !== 'Ninguna' && (
+                    <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                      <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-1">Menú especial</p>
+                      <p className="text-sm font-semibold text-amber-800">{confirmedGuest.dietaryRestriction}</p>
+                    </div>
+                  )}
+                  {guestExp?.showSocialCta && (
+                    <a
+                      href={`/evento/social/${fiestaId}`}
+                      className="flex items-center justify-between w-full bg-indigo-50 border border-indigo-100 rounded-xl p-3 hover:bg-indigo-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">📸</span>
+                        <p className="text-sm font-semibold text-indigo-800">Muro social del evento</p>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-indigo-500 shrink-0" />
+                    </a>
+                  )}
+                </div>
               </CardContent>
             )}
-            <CardFooter className="flex-col gap-3 pb-10 px-8">
+            <CardFooter className="flex-col gap-3 pb-8 px-8">
               {confirmedGuest.rsvp === 'Confirmado' && (
                 <Button onClick={downloadQR} className="w-full rounded-xl" variant="outline">
                   <Download className="w-4 h-4 mr-2" /> Descargar QR
@@ -182,6 +249,70 @@ function RsvpFormContent() {
               <p className="text-xs text-center text-slate-400">{eventName}</p>
             </CardFooter>
           </Card>
+
+          {/* AK Producciones Marketing CTA */}
+          {showAkCta && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mt-4 rounded-[1.5rem] border border-purple-100 bg-white shadow-lg overflow-hidden"
+            >
+              <div className="px-6 py-5 text-center space-y-3">
+                <p className="text-xs font-black uppercase tracking-widest text-purple-500">
+                  ✨ AK Producciones Eventos
+                </p>
+                <p className="text-sm font-semibold text-slate-700">
+                  {guestExp?.ctaTitle || '¿Te gustó esta experiencia?'}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {guestExp?.ctaText || 'Esto es parte del servicio integral de AK Producciones Eventos. Organizamos tu próximo evento con la misma dedicación.'}
+                </p>
+                <div className="flex items-center justify-center gap-3 flex-wrap pt-1">
+                  {guestExp?.instagramUrl && (
+                    <a
+                      href={guestExp.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                    >
+                      <Instagram className="w-3.5 h-3.5" /> Instagram
+                    </a>
+                  )}
+                  {guestExp?.whatsappNumber && (
+                    <a
+                      href={`https://wa.me/${guestExp.whatsappNumber.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-green-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                    </a>
+                  )}
+                  {guestExp?.landingUrl && guestExp?.showLandingCta && (
+                    <a
+                      href={guestExp.landingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Ver servicios
+                    </a>
+                  )}
+                  {guestExp?.simulatorUrl && guestExp?.showBudgetSimulatorCta && (
+                    <a
+                      href={guestExp.simulatorUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                    >
+                      💰 Simular presupuesto
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     );

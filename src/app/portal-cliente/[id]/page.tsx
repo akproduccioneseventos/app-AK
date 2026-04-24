@@ -37,7 +37,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { getFiestaById, updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import NextImage from 'next/image';
 import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -284,6 +284,14 @@ export default function PortalClientePage() {
   const invitados = fiesta.invitados ?? [];
   const plan      = fiesta.planDePagos;
   const portalSettings = fiesta.clientPortalSettings;
+  const portalExp: ClientePortalExperience = fiesta.clientePortalExperience ?? {};
+
+  // clientePortalExperience overrides
+  const heroImageUrl   = portalExp.heroImageUrl   ?? config.protagonistaFotoUrl;
+  const primaryColor   = portalExp.primaryColor   ?? config.primaryColor;
+  const welcomeMsg     = portalExp.welcomeMessage;
+  const organizerMsg   = portalExp.organizerMessage;
+  const simplicityMode = portalExp.simplicityMode ?? false;
 
   // Module visibility helpers — default true when no settings configured (backward compatible)
   const showFinancials = portalSettings?.pagos?.visible ?? true;
@@ -345,14 +353,14 @@ export default function PortalClientePage() {
       </header>
 
       {/* ── Hero / Protagonist Card ──────────────────────── */}
-      {config.protagonistaFotoUrl && (
+      {heroImageUrl && (
         <div
           className="relative w-full overflow-hidden"
-          style={{ minHeight: 220, background: config.primaryColor ? `${config.primaryColor}22` : 'linear-gradient(135deg,#6d28d9 0%,#db2777 100%)' }}
+          style={{ minHeight: 220, background: primaryColor ? `${primaryColor}22` : 'linear-gradient(135deg,#6d28d9 0%,#db2777 100%)' }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
           <NextImage
-            src={config.protagonistaFotoUrl}
+            src={heroImageUrl}
             alt={config.protagonista1Nombre ?? 'Protagonista'}
             fill
             className="object-cover object-top opacity-80"
@@ -376,10 +384,29 @@ export default function PortalClientePage() {
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
+        {/* ── Mensaje de Bienvenida personalizado ──────── */}
+        {welcomeMsg && (
+          <div className="rounded-2xl p-4 text-center border border-purple-100 bg-purple-50/60">
+            <p className="text-sm font-semibold text-purple-800">{welcomeMsg}</p>
+          </div>
+        )}
+
+        {/* ── Mensaje del Organizador ───────────────────── */}
+        {organizerMsg && (
+          <div className="rounded-2xl p-4 border border-amber-100 bg-amber-50/60 flex gap-3 items-start">
+            <span className="text-2xl shrink-0">💬</span>
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-amber-700 mb-1">Mensaje de tu Organizador</p>
+              <p className="text-sm text-amber-900">{organizerMsg}</p>
+            </div>
+          </div>
+        )}
+
         {/* ── Progreso del Evento ──────────────────────── */}
         <EventProgressBar fiesta={fiesta} />
 
-        {/* ── Feature Navigation Cards ─────────────────── */}
+        {/* ── Feature Navigation Cards (hidden in simplicityMode) ─── */}
+        {!simplicityMode && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
@@ -396,6 +423,7 @@ export default function PortalClientePage() {
             </a>
           ))}
         </div>
+        )}
 
         {/* ── Catálogo Canva contextual ─────────────── */}
         {(() => {

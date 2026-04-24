@@ -351,6 +351,13 @@ function CarteleriaContent() {
       setFechaEventoOverride(fiestaData.configuracion.fechaEvento || '');
       setTipoCelebracionOverride(fiestaData.configuracion.tipoCelebracion || '');
       setQrSubtitle(fiestaData.configuracion.carteleriaQrTexto || DEFAULT_QR_TEXT);
+
+      // Auto-pull table count from salon layout elements
+      const salonElements = fiestaData.decoracion?.salonElements ?? [];
+      const tableElements = salonElements.filter(el => el.type === 'element' && (el.seats != null || (el.name?.toLowerCase().includes('mesa'))));
+      if (tableElements.length > 0) {
+        setNumMesas(tableElements.length);
+      }
     } catch (e: unknown) {
       setError('No se pudo cargar la información del evento.');
       toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error desconocido', variant: 'destructive' });
@@ -454,6 +461,13 @@ function CarteleriaContent() {
   const tableFontFamily = numerosMesa.fontFamily || cartaTragos.fontFamily || 'Playfair Display';
   const activeCardLayout = CARD_LAYOUT_PRESETS.find(layout => layout.value === cardLayout) || CARD_LAYOUT_PRESETS[0];
 
+  // Check if table count was auto-derived from salon layout
+  const salonTableCount = (() => {
+    const els = fiesta.decoracion?.salonElements ?? [];
+    const tableEls = els.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
+    return tableEls.length > 0 ? tableEls.length : null;
+  })();
+
   // Build table-number pages: 2 cards per A4 sheet
   const tableNumbers = Array.from({ length: numMesas }, (_, i) => i + 1);
   const tablePages: number[][] = [];
@@ -524,7 +538,12 @@ function CarteleriaContent() {
           </div>
           {/* Number of tables */}
           <div className="flex flex-col gap-1">
-            <Label className="text-[10px] uppercase font-bold text-muted-foreground">N° de Mesas</Label>
+            <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+              N° de Mesas
+              {salonTableCount != null && (
+                <span className="ml-1 text-green-600 normal-case font-normal">(del diseño)</span>
+              )}
+            </Label>
             <Input
               type="number"
               min={1}
@@ -550,6 +569,18 @@ function CarteleriaContent() {
           </Button>
         </div>
       </div>
+
+      {/* Auto-pull notice */}
+      {salonTableCount != null && (
+        <div className="print:hidden mx-4 mt-3">
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Se detectaron <strong>{salonTableCount} mesas</strong> en el Diseño de Salón y se usaron automáticamente. Podés ajustar el número manualmente si necesitás.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
 
       <Sheet open={isEditorOpen} onOpenChange={setIsEditorOpen}>
         <SheetContent side="right" className="w-[96vw] sm:max-w-2xl p-0">

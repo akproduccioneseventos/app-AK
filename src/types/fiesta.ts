@@ -1092,7 +1092,10 @@ export interface GuestExperienceSettings {
   enabled: boolean;
   showAkBranding: boolean;
   showLandingCta: boolean;
+  showSocialCta?: boolean;
+  showBudgetSimulatorCta?: boolean;
   landingUrl?: string;
+  simulatorUrl?: string;
   whatsappNumber?: string;
   instagramUrl?: string;
   facebookUrl?: string;
@@ -1100,6 +1103,16 @@ export interface GuestExperienceSettings {
   ctaTitle?: string;
   ctaText?: string;
   accentColor?: string;
+}
+
+// --- CLIENTE PORTAL EXPERIENCE ---
+export interface ClientePortalExperience {
+  heroImageUrl?: string;
+  primaryColor?: string;
+  welcomeMessage?: string;
+  organizerMessage?: string;
+  simplicityMode?: boolean;
+  clienteDebeLlevar?: ClienteDebeLlevarItem[];
 }
 
 export interface FiestaEnPlanificacion {
@@ -1165,6 +1178,7 @@ export interface FiestaEnPlanificacion {
   guestPortalSettings?: GuestPortalSettings;
   clienteDebeLlevar?: ClienteDebeLlevarItem[];
   guestExperienceSettings?: GuestExperienceSettings;
+  clientePortalExperience?: ClientePortalExperience;
 }
 
 export interface ContratoFirmaInfo {
