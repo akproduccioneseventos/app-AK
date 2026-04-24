@@ -102,9 +102,12 @@ export default function AiAssistantSettingsPage() {
     event.target.value = '';
 
     if (skipped.length > 0) {
+      const plural = skipped.length > 1;
       toast({
         title: '⚠️ Archivos no leídos automáticamente',
-        description: `${skipped.join(', ')}: Este archivo no fue leído automáticamente; pegá el texto o subí versión TXT.`,
+        description: plural
+          ? `Estos archivos no fueron leídos automáticamente: ${skipped.join(', ')}. Pegá el texto o subí versión TXT.`
+          : `${skipped[0]}: Este archivo no fue leído automáticamente; pegá el texto o subí versión TXT.`,
         variant: 'destructive',
       });
     }

@@ -49,7 +49,7 @@ function toTitleCase(s: string): string {
   return s
     .split(/\s+/)
     .filter(Boolean)
-    .map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+    .map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w))
     .join(' ');
 }
 

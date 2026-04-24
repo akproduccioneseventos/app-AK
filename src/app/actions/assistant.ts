@@ -444,7 +444,7 @@ export async function sendAssistantMessage(
             if (intent.data.followUpDate) {
               try {
                 const stages = await getCrmStages();
-                const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
+                const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || (stages.length > 1 ? stages[1] : stages[0]);
                 const scheduleResult = await scheduleCrmMeeting(
                   leadResult.duplicate.id,
                   intent.data.followUpDate,
