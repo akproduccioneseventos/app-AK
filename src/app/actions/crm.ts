@@ -418,7 +418,20 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 5. Sync from budget
     await syncFiestaFromBudget(newFiesta.id);
 
-    // 6. Update Presupuesto with overridden data and signature date
+    // 6. Update Presupuesto with overridden data and signature date, including deposit
+    const now = new Date().toISOString();
+    const updatedPagosCliente = [...(presupuesto.pagosCliente || [])];
+    if (formMontoSenia !== undefined && formMontoSenia > 0) {
+      updatedPagosCliente.push({
+        id: `pago_senia_${Date.now()}`,
+        fecha: now,
+        monto: formMontoSenia,
+        metodoPago: 'Efectivo' as const,
+        referencia: 'Seña registrada al firmar contrato',
+      });
+    }
+    const totalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+    const totalPagado = updatedPagosCliente.reduce((acc, p) => acc + (p.monto || 0), 0);
     await updatePresupuesto({
       ...presupuesto,
       estado: 'Aceptado',
@@ -426,11 +439,12 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       clienteContacto: finalPhone || presupuesto.clienteContacto,
       salonFiestas: finalSalon,
       eventoFecha: finalFechaEvento || presupuesto.eventoFecha,
-      ...(formMontoSenia !== undefined ? { senia: formMontoSenia } : {}),
-      fechaFirmaContrato: new Date().toISOString(),
+      ...(formMontoSenia !== undefined ? { senia: formMontoSenia, saldo: Math.max(0, totalConDescuento - totalPagado) } : {}),
+      pagosCliente: updatedPagosCliente,
+      fechaFirmaContrato: now,
     });
 
-    // 7. Update lead: optionally link contract file and move to conversion stage
+    // 7. Update lead: move to conversion stage, add timeline events, link contract
     {
       const currentLeads = await getCrmLeads();
       const leadIdx = currentLeads.findIndex(l => l.id === leadId);
@@ -441,7 +455,34 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
         if (contractFileName) {
           (currentLeads[leadIdx] as any).contractFileName = contractFileName;
         }
-        currentLeads[leadIdx].updatedAt = new Date().toISOString();
+        const timelineItems: CrmTimelineItem[] = [
+          {
+            id: `tl_contract_${Date.now()}`,
+            type: 'contract_signed',
+            timestamp: now,
+            description: `Contrato firmado. CI: ${ci || 'N/D'}. Salón: ${finalSalon || 'N/D'}.`,
+          },
+        ];
+        if (formMontoSenia !== undefined && formMontoSenia > 0) {
+          timelineItems.push({
+            id: `tl_deposit_${Date.now()}`,
+            type: 'deposit_registered',
+            timestamp: now,
+            description: `Seña registrada: $${formMontoSenia.toLocaleString('es-UY')} UYU.`,
+            meta: { monto: formMontoSenia },
+          });
+        }
+        timelineItems.push({
+          id: `tl_event_${Date.now()}`,
+          type: 'event_created',
+          timestamp: now,
+          description: `Evento creado: ${newFiesta.configuracion.nombreEvento} (ID: ${newFiesta.id}).`,
+        });
+        currentLeads[leadIdx].timeline = [
+          ...(currentLeads[leadIdx].timeline || []),
+          ...timelineItems,
+        ];
+        currentLeads[leadIdx].updatedAt = now;
         await writeData(LEADS_FILE, currentLeads);
       }
     }

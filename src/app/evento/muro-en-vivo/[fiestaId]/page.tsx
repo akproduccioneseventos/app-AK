@@ -103,9 +103,21 @@ export default function MuroEnVivoPage() {
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
           : DEFAULT_MARKETING_TICKER_TEXT
       );
-      setCompanyName(companyInfo?.companyName || 'AK Producciones');
-      setCompanyLogoUrl(templateSettings?.logoUrl || null);
-      setSocialConnections(connections.filter(connection => connection.isConnected));
+      // Use socialGallerySettings.brand as primary branding source, fall back to company settings
+      const brand = fiestaData?.socialGallerySettings?.brand;
+      setCompanyName(brand?.companyName || companyInfo?.companyName || 'AK Producciones');
+      setCompanyLogoUrl(brand?.logoUrl || templateSettings?.logoUrl || null);
+      // Enrich social connections with brand data when available
+      const enrichedConnections = connections.filter(c => c.isConnected);
+      if (brand) {
+        if (brand.instagramHandle && !enrichedConnections.some(c => c.platform === 'Instagram')) {
+          enrichedConnections.push({ platform: 'Instagram', isConnected: true, username: brand.instagramHandle, profileUrl: `https://instagram.com/${brand.instagramHandle.replace('@', '')}` } as any);
+        }
+        if (brand.facebookHandle && !enrichedConnections.some(c => c.platform === 'Facebook')) {
+          enrichedConnections.push({ platform: 'Facebook', isConnected: true, username: brand.facebookHandle, profileUrl: `https://facebook.com/${brand.facebookHandle}` } as any);
+        }
+      }
+      setSocialConnections(enrichedConnections);
     } catch (_) {
       // Silent fail for projection wall
     } finally {
