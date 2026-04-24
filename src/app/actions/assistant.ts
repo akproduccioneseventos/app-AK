@@ -16,6 +16,8 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import type { Customer } from '@/types/customer';
 import * as logger from '@/lib/logger';
+import { detectIntent } from '@/lib/assistant/intent-router';
+import { parseDateTimeUY } from '@/lib/assistant/date-parser';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
 const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
@@ -295,14 +297,19 @@ function parseLeadFromMessage(text: string, history?: Array<{ role: 'user' | 'as
     }
   }
 
+  // Use the enhanced date parser for better date/time extraction
+  const { date: parsedDate, time: parsedTime } = parseDateTimeUY(cleaned);
+  // Fall back to budget text parser for date if the date parser didn't find one
   const parsed = parseBudgetFromText(cleaned);
-  const followUpDate = parsed.eventoFecha;
-  const hourMatch = cleaned.match(/\ba\s+las\s+(\d{1,2}(?::\d{2})?)/i);
+  const followUpDate = parsedDate || parsed.eventoFecha;
+
+  const notesArr: string[] = [];
+  if (parsedTime) notesArr.push(`Hora solicitada: ${parsedTime}`);
 
   return {
     name,
     followUpDate,
-    notes: hourMatch?.[1] ? `Hora solicitada: ${hourMatch[1]}` : undefined,
+    notes: notesArr.length > 0 ? notesArr.join('; ') : undefined,
   };
 }
 
@@ -410,6 +417,68 @@ export async function sendAssistantMessage(
 }> {
   try {
     logger.info('[Asistente AK] Inicio sendAssistantMessage:', { msgLength: message?.length ?? 0, hasImage: !!imageDataUri });
+
+    // 0. Router de intenciones — detectar acciones claras ANTES de llamar a Gemini
+    // Solo para mensajes de texto sin imagen adjunta.
+    if (!imageDataUri) {
+      const intent = detectIntent(message);
+      if (intent.type === 'schedule_meeting' && intent.confidence === 'high' && intent.data.name) {
+        logger.info('[Asistente AK] Intent router: schedule_meeting detectado sin Gemini', { name: intent.data.name });
+        try {
+          const leadResult = await addCrmLead({
+            name: intent.data.name,
+            followUpDate: intent.data.followUpDate,
+            notes: intent.data.notes,
+            budgetSource: 'manual',
+          });
+          if (leadResult.success && leadResult.lead) {
+            const dateMsg = intent.data.followUpDate ? ` para el **${intent.data.followUpDate}**` : '';
+            const timeMsg = intent.data.time ? ` a las **${intent.data.time}**` : '';
+            return {
+              success: true,
+              response: `✅ Cita agendada para **${intent.data.name}**${dateMsg}${timeMsg}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`,
+              action: { type: 'create_lead', data: intent.data, result: leadResult },
+            };
+          } else if (leadResult.duplicate) {
+            // Prospecto duplicado — intentar agendar la reunión en el existente
+            if (intent.data.followUpDate) {
+              try {
+                const stages = await getCrmStages();
+                const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
+                const scheduleResult = await scheduleCrmMeeting(
+                  leadResult.duplicate.id,
+                  intent.data.followUpDate,
+                  intent.data.notes,
+                );
+                if (meetingStage && scheduleResult.success) {
+                  await moveCrmLead(leadResult.duplicate.id, meetingStage.id, intent.data.followUpDate);
+                }
+                if (scheduleResult.success) {
+                  const timeMsg = intent.data.time ? ` a las **${intent.data.time}**` : '';
+                  return {
+                    success: true,
+                    response: `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${intent.data.followUpDate}**${timeMsg}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`,
+                    action: { type: 'schedule_meeting', data: intent.data, result: { success: true, leadId: leadResult.duplicate.id } },
+                  };
+                }
+              } catch (schedErr: any) {
+                logger.error('[Asistente AK] Intent router: error al actualizar cita duplicada:', schedErr.message);
+              }
+            }
+            return {
+              success: true,
+              response: `⚠️ Ya existe un prospecto con ese nombre: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`,
+              action: { type: 'create_lead', data: intent.data, result: leadResult },
+            };
+          }
+          // addCrmLead devolvió error — fall through a Gemini para que maneje el caso
+          logger.warn('[Asistente AK] Intent router: addCrmLead falló, delegando a Gemini:', leadResult.error);
+        } catch (intentErr: any) {
+          logger.error('[Asistente AK] Intent router: error inesperado, delegando a Gemini:', intentErr.message);
+        }
+      }
+    }
+
     // 1. Armar contexto rico con datos reales del negocio
     const [kpiResult, companyInfo, presupuestos, customers, servicios, aiSettings] = await Promise.all([
       getDashboardKpiData(),
