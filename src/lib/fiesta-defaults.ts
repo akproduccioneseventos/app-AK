@@ -19,8 +19,34 @@ import type {
   GiftItem,
   BebidaCalculable,
   FaqItem,
+  ClienteDebeLlevarItem,
+  GuestExperienceSettings,
 } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+
+/** Default "Lo que el cliente debe llevar" checklist items */
+export const defaultClienteDebeLlevar: ClienteDebeLlevarItem[] = [
+  { id: 'dl_1', texto: 'Documentación personal (DNI/CI)', completado: false, obligatorio: true },
+  { id: 'dl_2', texto: 'Lista final de invitados confirmados', completado: false, obligatorio: true },
+  { id: 'dl_3', texto: 'Fotos para el video de vida', completado: false },
+  { id: 'dl_4', texto: 'Lista de canciones especiales', completado: false },
+  { id: 'dl_5', texto: 'Confirmación de menú y restricciones alimentarias', completado: false, obligatorio: true },
+  { id: 'dl_6', texto: 'Seña o primer pago pendiente', completado: false, obligatorio: true },
+];
+
+/** Default guest experience / AK branding settings */
+export const defaultGuestExperienceSettings: GuestExperienceSettings = {
+  enabled: true,
+  showAkBranding: true,
+  showLandingCta: true,
+  landingUrl: 'https://ak-producciones-fiestas-y-eventos.my.canva.site',
+  whatsappNumber: '59898355530',
+  instagramUrl: 'https://www.instagram.com/akproduccioneseventos',
+  facebookUrl: 'https://www.facebook.com/akproduccioneseventos',
+  tiktokUrl: 'https://tiktok.com/@akproduccioneseventos',
+  ctaTitle: '¿Te gustó esta experiencia?',
+  ctaText: 'Esta experiencia fue creada por AK Producciones Eventos. Organizamos fiestas completas e inolvidables en Salto, Uruguay.',
+};
 
 export const defaultPrograma: ProgramaEventoItem[] = [
   { id: 'prog_1', hora: '22:00', titulo: 'Comienzo', descripcion: 'Recepción de invitados con música suave.', icono: 'PartyPopper' },

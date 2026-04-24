@@ -86,6 +86,7 @@ function AccessControlContent() {
       const url = new URL(decodedText);
       const scannedFiestaId = url.searchParams.get('fiestaId');
       const guestId = url.searchParams.get('guestId');
+      const token = url.searchParams.get('token'); // guestAccessToken support
 
       if (!scannedFiestaId || scannedFiestaId !== fiestaId) {
         setScanResult({ status: 'invalid', message: 'Este QR no pertenece a este evento.' });
@@ -93,13 +94,27 @@ function AccessControlContent() {
         return;
       }
 
-      if (!guestId) {
+      // Resolve guest: prefer token-based lookup, fallback to guestId
+      let resolvedGuestId = guestId;
+      if (!resolvedGuestId && token && fiesta) {
+        const match = (fiesta.invitados ?? []).find((i: { id: string; guestAccessToken?: string }) => i.guestAccessToken === token);
+        resolvedGuestId = match?.id ?? null;
+      } else if (token && fiesta) {
+        // Verify the token matches the guestId for extra security
+        const match = (fiesta.invitados ?? []).find((i: { id: string; guestAccessToken?: string }) => i.id === guestId && i.guestAccessToken === token);
+        if (!match && guestId) {
+          // Token mismatch — log for security audit and fall back to guestId
+          console.warn(`[AccessControl] Token mismatch for guestId=${guestId} at fiestaId=${fiestaId}. Possible QR tampering.`);
+        }
+      }
+
+      if (!resolvedGuestId) {
         setScanResult({ status: 'invalid', message: 'El QR no contiene un ID de invitado.' });
         scheduleReset();
         return;
       }
 
-      const result = await checkInGuest(fiestaId, guestId);
+      const result = await checkInGuest(fiestaId, resolvedGuestId);
 
       if (!result.success) {
         setScanResult({ status: 'invalid', message: result.error || 'Invitado no encontrado.' });
@@ -122,7 +137,7 @@ function AccessControlContent() {
       setScanResult({ status: 'invalid', message: 'Código QR inválido o ilegible.' });
       scheduleReset();
     }
-  }, [fiestaId, scheduleReset]);
+  }, [fiestaId, fiesta, scheduleReset]);
 
   const startScanner = useCallback(() => {
     const init = async () => {
@@ -222,15 +237,34 @@ function AccessControlContent() {
                   <CheckCircle2 className="w-16 h-16 mx-auto text-green-400 mb-4" />
                   <p className="text-2xl font-black text-green-300 mb-2">✅ ACCESO PERMITIDO</p>
                   <p className="text-xl font-bold text-white mb-3">{scanResult.guest.nombre}</p>
+                  {scanResult.guest.rsvp && scanResult.guest.rsvp !== 'Confirmado' && (
+                    <div className="bg-yellow-900/50 rounded-xl px-4 py-2 mb-2">
+                      <p className="text-sm font-semibold text-yellow-300">Estado RSVP: {scanResult.guest.rsvp}</p>
+                    </div>
+                  )}
                   {scanResult.guest.dietaryRestriction && scanResult.guest.dietaryRestriction !== 'Ninguna' && (
                     <div className="bg-green-900/50 rounded-xl px-4 py-2 mb-2">
                       <p className="text-sm font-semibold text-green-300">
                         {DIETARY_LABELS[scanResult.guest.dietaryRestriction] || scanResult.guest.dietaryRestriction}
                       </p>
+                      {scanResult.guest.alergiasEspecificas && (
+                        <p className="text-xs text-green-400 mt-1">{scanResult.guest.alergiasEspecificas}</p>
+                      )}
+                    </div>
+                  )}
+                  {scanResult.guest.requiereAccesibilidad && (
+                    <div className="bg-blue-900/50 rounded-xl px-4 py-2 mb-2">
+                      <p className="text-sm font-semibold text-blue-300">♿ Requiere accesibilidad</p>
                     </div>
                   )}
                   {scanResult.guest.tableNumber && (
-                    <p className="text-sm text-green-400">Mesa: <strong>{scanResult.guest.tableNumber}</strong></p>
+                    <p className="text-sm text-green-400 mb-1">Mesa: <strong>{scanResult.guest.tableNumber}</strong></p>
+                  )}
+                  {scanResult.guest.partySize && scanResult.guest.partySize > 1 && (
+                    <p className="text-sm text-green-400 mb-1">Grupo: <strong>{scanResult.guest.partySize} personas</strong></p>
+                  )}
+                  {scanResult.guest.companionNames && scanResult.guest.companionNames.length > 0 && (
+                    <p className="text-xs text-green-500">Acompañantes: {scanResult.guest.companionNames.join(', ')}</p>
                   )}
                 </>
               )}
@@ -239,7 +273,13 @@ function AccessControlContent() {
                   <AlertCircle className="w-16 h-16 mx-auto text-yellow-400 mb-4" />
                   <p className="text-2xl font-black text-yellow-300 mb-2">⚠️ YA INGRESÓ</p>
                   <p className="text-xl font-bold text-white mb-2">{scanResult.guest.nombre}</p>
-                  <p className="text-sm text-yellow-400">Este QR ya fue utilizado anteriormente.</p>
+                  {scanResult.guest.tableNumber && (
+                    <p className="text-sm text-yellow-400 mb-1">Mesa: <strong>{scanResult.guest.tableNumber}</strong></p>
+                  )}
+                  {scanResult.guest.checkInTimestamp && (
+                    <p className="text-sm text-yellow-400">Ingresó: {new Date(scanResult.guest.checkInTimestamp).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}</p>
+                  )}
+                  <p className="text-xs text-yellow-500 mt-2">Este QR ya fue utilizado anteriormente.</p>
                 </>
               )}
               {scanResult.status === 'invalid' && (

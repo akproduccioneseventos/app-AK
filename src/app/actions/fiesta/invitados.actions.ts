@@ -79,6 +79,7 @@ export async function updateGuestRsvp(
     alergiasEspecificas?: string;
     cancionesDJ?: string[];
     mensaje?: string;
+    requiereAccesibilidad?: boolean;
   }
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   let updatedInvitado: Invitado | undefined;
@@ -98,6 +99,7 @@ export async function updateGuestRsvp(
         cancionesDJ: submission.cancionesDJ ?? inv.cancionesDJ,
         isCeliac: submission.dietaryRestriction === 'Celiaco' || inv.isCeliac,
         ...(submission.mensaje !== undefined ? { mensaje: submission.mensaje } : {}),
+        ...(submission.requiereAccesibilidad !== undefined ? { requiereAccesibilidad: submission.requiereAccesibilidad } : {}),
       };
       return updatedInvitado;
     });

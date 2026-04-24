@@ -13,12 +13,12 @@ import { Badge } from '@/components/ui/badge';
 import {
   ArrowLeft, Save, Loader2, Eye,
   Images, Globe, MapPin, Music, Gift, QrCode,
-  PartyPopper, Star, Instagram, Heart, Sparkles, Users,
+  PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, GuestPortalSettings } from '@/types/fiesta';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { updateGuestPortalSettings } from '@/app/actions/fiesta/fiesta.actions';
+import type { FiestaEnPlanificacion, GuestPortalSettings, GuestExperienceSettings } from '@/types/fiesta';
+import { getFiestaById, updateGuestPortalSettings, updateGuestExperienceSettings } from '@/app/actions/fiesta/fiesta.actions';
+import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
 
 const DEFAULT_SETTINGS: GuestPortalSettings = {
   showMural: true,
@@ -109,6 +109,7 @@ function GuestModuleContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [settings, setSettings] = useState<GuestPortalSettings>(DEFAULT_SETTINGS);
+  const [ges, setGes] = useState<GuestExperienceSettings>(defaultGuestExperienceSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -124,6 +125,7 @@ function GuestModuleContent() {
       if (!data) throw new Error('Evento no encontrado');
       setFiesta(data);
       setSettings({ ...DEFAULT_SETTINGS, ...(data.guestPortalSettings || {}) });
+      setGes({ ...defaultGuestExperienceSettings, ...(data.guestExperienceSettings || {}) });
     } catch (e: unknown) {
       toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error al cargar', variant: 'destructive' });
     } finally {
@@ -137,11 +139,14 @@ function GuestModuleContent() {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateGuestPortalSettings(fiestaId, settings);
-      if (result.success) {
+      const [r1, r2] = await Promise.all([
+        updateGuestPortalSettings(fiestaId, settings),
+        updateGuestExperienceSettings(fiestaId, ges),
+      ]);
+      if (r1.success && r2.success) {
         toast({ title: '¡Configuración guardada!', description: 'El portal del invitado ha sido actualizado.' });
       } else {
-        throw new Error((result as { success: false; error?: string }).error);
+        throw new Error('No se pudo guardar');
       }
     } catch (e: unknown) {
       toast({ title: 'Error al guardar', variant: 'destructive' });
@@ -355,6 +360,87 @@ function GuestModuleContent() {
                 Las redes sociales, datos de contacto y el logo de <strong>AK Producciones</strong> están presentes en todo momento en el portal del invitado, promoviendo constantemente tus servicios.
               </p>
             </div>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* AK Branding / Guest Experience Settings */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-violet-500" />
+              Experiencia Invitado — Branding AK
+            </h2>
+            <p className="text-sm text-muted-foreground">Personalizá el bloque de AK Producciones que ven los invitados al pie de su portal.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="border-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Activación</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold">Mostrar bloque AK Producciones</p>
+                    <p className="text-xs text-muted-foreground">El bloque de marca aparece al final del portal del invitado.</p>
+                  </div>
+                  <Switch checked={ges.showAkBranding} onCheckedChange={v => setGes(p => ({ ...p, showAkBranding: v }))} />
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold">Mostrar botones CTA (servicios, WhatsApp, etc.)</p>
+                    <p className="text-xs text-muted-foreground">Botones para ver servicios, simular presupuesto, contactar.</p>
+                  </div>
+                  <Switch checked={ges.showLandingCta} onCheckedChange={v => setGes(p => ({ ...p, showLandingCta: v }))} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Links y Contacto</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider">Landing / Web de Servicios</Label>
+                  <Input value={ges.landingUrl || ''} onChange={e => setGes(p => ({ ...p, landingUrl: e.target.value }))} placeholder="https://miwebdeservicios.com" className="text-xs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider">WhatsApp (número con código país)</Label>
+                  <Input value={ges.whatsappNumber || ''} onChange={e => setGes(p => ({ ...p, whatsappNumber: e.target.value }))} placeholder="59898355530" className="text-xs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider">Instagram URL</Label>
+                  <Input value={ges.instagramUrl || ''} onChange={e => setGes(p => ({ ...p, instagramUrl: e.target.value }))} placeholder="https://instagram.com/..." className="text-xs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider">Facebook URL</Label>
+                  <Input value={ges.facebookUrl || ''} onChange={e => setGes(p => ({ ...p, facebookUrl: e.target.value }))} placeholder="https://facebook.com/..." className="text-xs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider">TikTok URL</Label>
+                  <Input value={ges.tiktokUrl || ''} onChange={e => setGes(p => ({ ...p, tiktokUrl: e.target.value }))} placeholder="https://tiktok.com/@..." className="text-xs" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 md:col-span-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Texto del CTA</CardTitle>
+              </CardHeader>
+              <CardContent className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider">Título del bloque</Label>
+                  <Input value={ges.ctaTitle || ''} onChange={e => setGes(p => ({ ...p, ctaTitle: e.target.value }))} placeholder="¿Te gustó esta experiencia?" className="text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 uppercase tracking-wider">Descripción</Label>
+                  <Input value={ges.ctaText || ''} onChange={e => setGes(p => ({ ...p, ctaText: e.target.value }))} placeholder="Esta experiencia fue creada por AK Producciones..." className="text-sm" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
