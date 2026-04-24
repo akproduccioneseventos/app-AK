@@ -219,10 +219,17 @@ export const consultarDisponibilidadTool: AKTool<z.infer<typeof consultarDisponi
 };
 
 // Marketing tools: executed via dedicated Marketing Agent (not via direct backend calls)
+//
+// TODO (Fase 4): Implementar conexión real con el Agente Marketing AK para:
+//   - crearPublicacionMarketing → chatWithMarketingAgent({ request, platform, contentType })
+//   - guardarIdeaMarketing       → guardar en colección ideas-marketing en Firestore
+//   - agregarTareaMarketing      → guardar en colección tareas-marketing en Firestore
+// Mientras tanto, estas herramientas responden con un mensaje de redirección al agente.
+// Estado: PENDIENTE — Fase 3 incompleta para herramientas de marketing.
 const marketingNotImplemented = async (_input: unknown): Promise<ToolResult> => ({
   success: false,
   error: 'Usar el Agente Marketing AK',
-  message: 'Usar el Agente Marketing AK',
+  message: 'Esta acción requiere el Agente Marketing AK. Abrí el agente de marketing para generar contenido.',
 });
 
 export const crearPublicacionMarketingTool: AKTool<z.infer<typeof crearPublicacionSchema>> = {

@@ -53,6 +53,14 @@ jest.mock('@/app/actions/invoices', () => ({
   saveInvoice: jest.fn().mockResolvedValue({ success: true, id: 'inv_test_1' }),
 }));
 
+jest.mock('@/app/actions/servicios-empresa', () => ({
+  getServiciosEmpresa: jest.fn().mockResolvedValue([
+    { id: 'svc_dj', nombre: 'DJ', precioVenta: 50000, categoria: 'Sonido' },
+    { id: 'svc_catering', nombre: 'Catering', precioVenta: 500, categoria: 'Gastronomía' },
+  ]),
+  saveServicioEmpresa: jest.fn(),
+}));
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Imports
 // ─────────────────────────────────────────────────────────────────────────────

@@ -118,6 +118,9 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
     if (!result.success) {
       return { success: false, error: result.error || 'No se pudo agendar la cita.', message: result.error || 'No se pudo agendar la cita.' };
     }
+    // TODO (Fase 4 — Notificaciones): enviar notificación 'cita agendada'
+    // const { createNotification } = await import('@/app/actions/notifications');
+    // await createNotification({ titulo: 'Cita agendada', mensaje: `Cita con ${existing.name} para el ${input.followUpDate}`, tipo: 'exito', href: '/contabilidad/crm' });
     return {
       success: true,
       message: `Cita agendada con ${existing.name}${input.followUpDate ? ` para el ${input.followUpDate}` : ''}${input.time ? ` a las ${input.time}` : ''}.`,
@@ -155,9 +158,13 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
     return { success: false, error: leadResult.error || 'No se pudo crear el prospecto.', message: leadResult.error || 'No se pudo crear el prospecto.' };
   }
 
+  // TODO (Fase 4 — Notificaciones): enviar notificación 'cita agendada'
+  // const { createNotification } = await import('@/app/actions/notifications');
+  // await createNotification({ titulo: 'Cita agendada', mensaje: `Nuevo prospecto ${leadResult.lead!.name} creado y cita agendada`, tipo: 'exito', href: '/contabilidad/crm' });
+
   return {
     success: true,
-    message: `Prospecto ${leadResult.lead!.name} creado y cita agendada${input.followUpDate ? ` para el ${input.followUpDate}` : ''}.`,
+    message: `Cita agendada para ${leadResult.lead!.name}${input.followUpDate ? ` el ${input.followUpDate}` : ''}. Podés verla en /contabilidad/crm.`,
     data: { leadId: leadResult.lead!.id, action: 'create_lead_and_schedule' },
   };
 }
@@ -170,17 +177,37 @@ export async function executeCrearPresupuesto(input: CrearPresupuestoInput): Pro
   }
 
   const { savePresupuesto } = await import('@/app/actions/presupuestos');
+  const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
 
-  const items = (input.servicios || []).map(s => ({
-    idServicioCatalogo: `srv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    nombreServicio: s.nombre,
-    cantidad: s.cantidad || 1,
-    precioUnitario: s.precioUnitario,
-    precioUnitarioPresupuesto: s.precioUnitario,
-    costoTotalItem: (s.cantidad || 1) * s.precioUnitario,
-    categoriaServicio: s.categoria,
-    calculationMethod: 'fijo' as const,
-  }));
+  // Try to match requested services against the company catalog.
+  // Items matched by name get the catalog id and price; unmatched items are
+  // kept as-is but flagged with nota: 'manual/asistente' so staff can review.
+  let catalogo: Array<{ id: string; nombre: string; precioVenta?: number; categoria?: string }> = [];
+  try {
+    const raw = await getServiciosEmpresa();
+    catalogo = raw.map(s => ({ id: s.id, nombre: s.nombre, precioVenta: s.precioVenta, categoria: s.categoria }));
+  } catch {
+    // Catalog unavailable — proceed with manual items only
+  }
+
+  const items = (input.servicios || []).map(s => {
+    const nameNorm = s.nombre.toLowerCase();
+    const catalogMatch = catalogo.find(c =>
+      c.nombre.toLowerCase().includes(nameNorm) || nameNorm.includes(c.nombre.toLowerCase())
+    );
+    const precio = catalogMatch?.precioVenta ?? s.precioUnitario;
+    return {
+      idServicioCatalogo: catalogMatch?.id ?? `srv_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      nombreServicio: catalogMatch ? catalogMatch.nombre : s.nombre,
+      cantidad: s.cantidad || 1,
+      precioUnitario: precio,
+      precioUnitarioPresupuesto: precio,
+      costoTotalItem: (s.cantidad || 1) * precio,
+      categoriaServicio: s.categoria || catalogMatch?.categoria,
+      calculationMethod: 'fijo' as const,
+      ...(catalogMatch ? {} : { nota: 'manual/asistente' }),
+    };
+  });
 
   const subtotal = items.reduce((sum, i) => sum + i.costoTotalItem, 0);
 
@@ -205,9 +232,16 @@ export async function executeCrearPresupuesto(input: CrearPresupuestoInput): Pro
     return { success: false, error: result.error || 'No se pudo crear el presupuesto.', message: result.error || 'No se pudo crear el presupuesto.' };
   }
 
+  const manualCount = items.filter((i: { nota?: string }) => i.nota === 'manual/asistente').length;
+  const catalogNote = manualCount > 0 ? ` (${manualCount} ítem(s) no encontrado(s) en catálogo — marcado(s) como manual/asistente)` : '';
+
+  // TODO (Fase 4 — Notificaciones): enviar notificación 'presupuesto creado'
+  // const { createNotification } = await import('@/app/actions/notifications');
+  // await createNotification({ titulo: 'Presupuesto creado', mensaje: `Presupuesto para ${input.clienteNombre} creado desde el asistente`, tipo: 'exito', href: `/presupuestos/${result.id}/ver` });
+
   return {
     success: true,
-    message: `Presupuesto creado para ${input.clienteNombre}. Podés verlo en /presupuestos/${result.id}.`,
+    message: `Presupuesto creado para ${input.clienteNombre}. Podés verlo en /presupuestos/${result.id}/ver${catalogNote}.`,
     data: { presupuestoId: result.id, href: `/presupuestos/${result.id}/ver` },
   };
 }
@@ -322,6 +356,11 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
   }
 
   const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(input.monto);
+
+  // TODO (Fase 4 — Notificaciones): enviar notificación 'pago registrado'
+  // const { createNotification } = await import('@/app/actions/notifications');
+  // await createNotification({ titulo: 'Pago registrado', mensaje: `Pago de ${montoFmt} registrado para presupuesto ${presupuestoId}`, tipo: 'exito', href: `/presupuestos/${presupuestoId}/ver` });
+
   return {
     success: true,
     message: `Pago de ${montoFmt} registrado exitosamente. Podés ver el estado en /presupuestos/${presupuestoId}/ver.`,
