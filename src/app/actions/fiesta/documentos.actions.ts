@@ -10,6 +10,9 @@ import { createNotification } from '../notifications';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
 
+/** Default deposit amount used only when no presupuesto or plan de pagos seña is available. */
+const DEFAULT_DEPOSIT_AMOUNT = 20000;
+
 /** Returns a pre-signing summary for the given event so the UI can show it. */
 export async function getContractSigningSummary(fiestaId: string): Promise<{
   success: boolean;
@@ -30,7 +33,7 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
     let totalEstimado = 0;
-    let senia = 20000;
+    let senia = DEFAULT_DEPOSIT_AMOUNT;
 
     if (fiesta.presupuestoId) {
       const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
@@ -47,11 +50,18 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
 
     const saldo = totalEstimado > 0 ? totalEstimado - senia : 0;
 
+    // Derive the client name from the fiesta configuration
+    const clienteNombre =
+      fiesta.configuracion.protagonista1Nombre ||
+      fiesta.configuracion.protagonista2Nombre ||
+      fiesta.configuracion.nombreEvento.split(' de ').slice(1).join(' de ') ||
+      fiesta.configuracion.nombreEvento;
+
     return {
       success: true,
       summary: {
         nombreEvento: fiesta.configuracion.nombreEvento,
-        clienteNombre: fiesta.configuracion.nombreEvento.split(' de ')[1] || fiesta.configuracion.nombreEvento,
+        clienteNombre,
         salon: fiesta.configuracion.nombreLugar || 'Sin salón definido',
         fechaEvento: fiesta.configuracion.fechaEvento || '',
         totalEstimado,
@@ -89,7 +99,7 @@ async function resolveDepositAmount(fiesta: FiestaEnPlanificacion): Promise<numb
   );
   if (seniaCuota && seniaCuota.monto > 0) return seniaCuota.monto;
 
-  return 20000; // fallback default
+  return DEFAULT_DEPOSIT_AMOUNT; // fallback default
 }
 
 export async function uploadDocumento(formData: FormData): Promise<{ success: boolean; error?: string }> {
