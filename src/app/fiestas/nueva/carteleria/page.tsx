@@ -1054,7 +1054,9 @@ function CarteleriaContent() {
               <div className="flex-1 p-8 overflow-hidden">
                 {invitadosPorMesa.length > 0 ? (
                   <div className="columns-2 gap-5 text-sm">
-                    {invitadosPorMesa.map(([mesa, nombres]) => (
+                    {invitadosPorMesa.map(([mesa, nombres]) => {
+                      const mesaLabel = salonTableLabels.get(mesa);
+                      return (
                       <div
                         key={`mesa-plan-${mesa}`}
                         className="rounded-xl border-l-4 bg-slate-50 px-4 py-3 mb-4 break-inside-avoid"
@@ -1070,7 +1072,7 @@ function CarteleriaContent() {
                           >
                             {mesa}
                           </span>
-                          Mesa {salonTableLabels.get(mesa) ? `${salonTableLabels.get(mesa)} · ${mesa}` : mesa}
+                          Mesa {mesaLabel ? `${mesaLabel} · ${mesa}` : mesa}
                         </p>
                         <ul className="space-y-0.5 text-slate-700">
                           {nombres.map((nombre, index) => (
@@ -1081,7 +1083,8 @@ function CarteleriaContent() {
                           ))}
                         </ul>
                       </div>
-                    ))}
+                    );
+                    })}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-full text-slate-400 text-sm">

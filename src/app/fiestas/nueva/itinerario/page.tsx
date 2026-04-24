@@ -345,7 +345,7 @@ function ItinerarioContent() {
             <p className="text-sm text-slate-400 text-center py-4">No hay momentos cargados aún.</p>
           ) : (
             <div className="space-y-3">
-              {programa.map(item => {
+              {programa.filter(item => item.visibleParaCliente !== false).map(item => {
                 const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
                 return (
                   <div key={item.id} className="flex gap-3 items-start p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
@@ -355,7 +355,7 @@ function ItinerarioContent() {
                     <div>
                       <p className="font-black text-sm text-primary">{item.hora}</p>
                       <p className="font-semibold text-slate-800">{item.titulo}</p>
-                      {item.descripcion && <p className="text-xs text-slate-500 mt-0.5">{item.descripcion}</p>}
+                      {item.descripcionCliente && <p className="text-xs text-slate-500 mt-0.5">{item.descripcionCliente}</p>}
                     </div>
                   </div>
                 );
