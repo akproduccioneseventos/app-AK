@@ -6,7 +6,9 @@
  *
  * Intenciones soportadas:
  *  - schedule_meeting  → "Agendame una cita con Norma mañana a las 15"
- *  - create_budget     → (alta confianza cuando hay nombre + tipo + servicios claros)
+ *  - create_budget     → "Haceme un presupuesto para María, XV años, 100 invitados"
+ *  - create_lead       → "Registrá un prospecto: Ana García, casamiento, tel 098123456"
+ *  - register_payment  → "Registrá un pago de 10000 pesos para el presupuesto de Mirta"
  *  - none              → no se detectó intención clara (pasar a Gemini)
  */
 
@@ -14,6 +16,9 @@ import { parseDateTimeUY } from './date-parser';
 
 export type RouterIntentType =
   | 'schedule_meeting'
+  | 'create_budget'
+  | 'create_lead'
+  | 'register_payment'
   | 'none';
 
 export interface RouterDetectedIntent {
@@ -24,6 +29,13 @@ export interface RouterDetectedIntent {
     followUpDate?: string;
     time?: string;
     notes?: string;
+    // create_budget
+    eventoTipo?: string;
+    invitados?: number;
+    // register_payment
+    monto?: number;
+    metodoPago?: string;
+    presupuestoId?: string;
   };
 }
 
@@ -45,6 +57,48 @@ const AGENDA_A_NAME_REGEX =
 const AGENDAR_NAME_REGEX =
   /\bagendar\s+(?:a\s+)?([A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){0,2}?)(?=\s+a\s+las|\s+para|\s+el\s+\d{1,2}|\s+hoy|\s+mañana|$)/i;
 
+// ── Patrones de presupuesto ──────────────────────────────────────────────────
+
+const BUDGET_VERB_REGEX =
+  /\b(presupuesto\s+para|hac[eé]me?\s+un\s+presupuesto|cre[aá]\s+(?:un\s+)?presupuesto|nuevo\s+presupuesto|generar?\s+presupuesto)\b/i;
+
+const BUDGET_CLIENT_REGEX =
+  /(?:para|cliente|de)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,2})/i;
+
+const BUDGET_TIPO_MAP: Array<[RegExp, string]> = [
+  [/casamiento|boda/i, 'Boda'],
+  [/quincea[ñn]os|15\s*a[ñn]os|xv\s*a[ñn]os/i, 'XV años'],
+  [/cumplea[ñn]os/i, 'Cumpleaños'],
+  [/egreso/i, 'Egreso'],
+  [/corporativo|empresarial/i, 'Evento corporativo'],
+];
+
+const BUDGET_INVITADOS_REGEX = /(\d{2,4})\s*(?:invitados?|personas?)/i;
+
+// ── Patrones de prospecto ────────────────────────────────────────────────────
+
+const LEAD_VERB_REGEX =
+  /\b(registr[aá](?:r|me)?\s+(?:un\s+)?(?:prospecto|lead|consulta)|agreg[aá](?:r|me)?\s+(?:un\s+)?(?:prospecto|lead)|nuevo\s+(?:prospecto|lead))\b/i;
+
+const LEAD_NAME_REGEX =
+  /(?:prospecto|lead|cliente|nombre)[:\s]+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,2})/i;
+
+// ── Patrones de pago ─────────────────────────────────────────────────────────
+
+const PAYMENT_VERB_REGEX =
+  /\b(registr[aá](?:r|me)?\s+(?:un\s+)?pago|carg[aá](?:r|me)?\s+(?:un\s+)?pago|anot[aá](?:r|me)?\s+(?:un\s+)?pago|ingres[aá](?:r|me)?\s+(?:un\s+)?pago)\b/i;
+
+const PAYMENT_AMOUNT_REGEX = /(\d[\d.,]*)\s*(?:pesos?|uyu|\$)?/i;
+
+const PAYMENT_METHOD_MAP: Array<[RegExp, string]> = [
+  [/efectivo|cash/i, 'Efectivo'],
+  [/transferencia|transf/i, 'Transferencia'],
+  [/tarjeta/i, 'Tarjeta'],
+  [/cheque/i, 'Cheque'],
+];
+
+// ── Utilidades ────────────────────────────────────────────────────────────────
+
 function toTitleCase(s: string): string {
   return s
     .split(/\s+/)
@@ -58,6 +112,42 @@ function extractScheduleName(message: string): string | undefined {
   for (const pat of [NAME_FROM_SCHEDULE_REGEX, AGENDA_A_NAME_REGEX, AGENDAR_NAME_REGEX]) {
     const m = message.match(pat);
     if (m?.[1]) return toTitleCase(m[1].trim());
+  }
+  return undefined;
+}
+
+function extractClientName(message: string): string | undefined {
+  const m = message.match(BUDGET_CLIENT_REGEX);
+  if (m?.[1]) return toTitleCase(m[1].trim());
+  return undefined;
+}
+
+function extractEventoTipo(message: string): string | undefined {
+  for (const [pat, tipo] of BUDGET_TIPO_MAP) {
+    if (pat.test(message)) return tipo;
+  }
+  return undefined;
+}
+
+function extractInvitados(message: string): number | undefined {
+  const m = message.match(BUDGET_INVITADOS_REGEX);
+  if (m?.[1]) return parseInt(m[1], 10);
+  return undefined;
+}
+
+function extractPaymentAmount(message: string): number | undefined {
+  const m = message.match(PAYMENT_AMOUNT_REGEX);
+  if (m?.[1]) {
+    const raw = m[1].replace(/\./g, '').replace(/,/g, '.');
+    const val = parseFloat(raw);
+    return isNaN(val) ? undefined : val;
+  }
+  return undefined;
+}
+
+function extractPaymentMethod(message: string): string | undefined {
+  for (const [pat, method] of PAYMENT_METHOD_MAP) {
+    if (pat.test(message)) return method;
   }
   return undefined;
 }
@@ -101,6 +191,68 @@ export function detectIntent(
         },
       };
     }
+  }
+
+  // ── Presupuesto ────────────────────────────────────────────────────────────
+  if (BUDGET_VERB_REGEX.test(trimmed)) {
+    const name = extractClientName(trimmed);
+    const eventoTipo = extractEventoTipo(trimmed);
+    const invitados = extractInvitados(trimmed);
+    const { date } = parseDateTimeUY(trimmed, referenceDate);
+
+    // Alta confianza solo si tenemos nombre y tipo de evento
+    if (name && eventoTipo) {
+      return {
+        type: 'create_budget',
+        confidence: 'high',
+        data: { name, eventoTipo, invitados, followUpDate: date },
+      };
+    }
+    if (name) {
+      return {
+        type: 'create_budget',
+        confidence: 'medium',
+        data: { name, eventoTipo, invitados, followUpDate: date },
+      };
+    }
+  }
+
+  // ── Prospecto/Lead ─────────────────────────────────────────────────────────
+  if (LEAD_VERB_REGEX.test(trimmed)) {
+    const m = trimmed.match(LEAD_NAME_REGEX);
+    const name = m?.[1] ? toTitleCase(m[1].trim()) : undefined;
+    const eventoTipo = extractEventoTipo(trimmed);
+    const { date } = parseDateTimeUY(trimmed, referenceDate);
+
+    if (name) {
+      return {
+        type: 'create_lead',
+        confidence: 'high',
+        data: { name, eventoTipo, followUpDate: date },
+      };
+    }
+    return {
+      type: 'create_lead',
+      confidence: 'medium',
+      data: { eventoTipo, followUpDate: date },
+    };
+  }
+
+  // ── Pago ───────────────────────────────────────────────────────────────────
+  if (PAYMENT_VERB_REGEX.test(trimmed)) {
+    const monto = extractPaymentAmount(trimmed);
+    const metodoPago = extractPaymentMethod(trimmed);
+    const clienteNombre = extractClientName(trimmed);
+
+    return {
+      type: 'register_payment',
+      confidence: monto ? 'high' : 'medium',
+      data: {
+        monto,
+        metodoPago,
+        name: clienteNombre,
+      },
+    };
   }
 
   return { type: 'none', confidence: 'low', data: {} };

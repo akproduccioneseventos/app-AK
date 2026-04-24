@@ -16,6 +16,16 @@
  */
 
 import { z } from 'zod';
+import {
+  executeAgendarCita,
+  executeCrearPresupuesto,
+  executeCrearCliente,
+  executeCrearProspecto,
+  executeRegistrarPago,
+  executeCrearEvento,
+  executeGenerarContrato,
+  executeConsultarDisponibilidad,
+} from './tools/executors';
 
 // ── Tipos base ───────────────────────────────────────────────────────────────
 
@@ -134,21 +144,13 @@ const navegarSchema = z.object({
   label: z.string().optional(),
 });
 
-// ── Placeholder execute (implementación real provista por assistant.ts) ───────
-
-const notImplemented = async (_input: unknown): Promise<ToolResult> => ({
-  success: false,
-  error: 'Usar el dispatcher de assistant.ts',
-  message: 'Usar el dispatcher de assistant.ts',
-});
-
 // ── Herramientas ─────────────────────────────────────────────────────────────
 
 export const crearPresupuestoTool: AKTool<z.infer<typeof crearPresupuestoSchema>> = {
   nombre: 'crearPresupuesto',
   descripcion: 'Crea un nuevo presupuesto de evento para un cliente con servicios y precios.',
   schema: crearPresupuestoSchema,
-  execute: notImplemented,
+  execute: executeCrearPresupuesto,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -157,7 +159,7 @@ export const crearClienteTool: AKTool<z.infer<typeof crearClienteSchema>> = {
   nombre: 'crearCliente',
   descripcion: 'Registra un nuevo cliente en el sistema.',
   schema: crearClienteSchema,
-  execute: notImplemented,
+  execute: executeCrearCliente,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -166,7 +168,7 @@ export const crearProspectoTool: AKTool<z.infer<typeof crearProspectoSchema>> = 
   nombre: 'crearProspecto',
   descripcion: 'Registra un nuevo prospecto/lead en el CRM.',
   schema: crearProspectoSchema,
-  execute: notImplemented,
+  execute: executeCrearProspecto,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -175,7 +177,7 @@ export const agendarCitaTool: AKTool<z.infer<typeof agendarCitaSchema>> = {
   nombre: 'agendarCita',
   descripcion: 'Agenda una cita o reunión con un prospecto. Crea o actualiza el registro en CRM.',
   schema: agendarCitaSchema,
-  execute: notImplemented,
+  execute: executeAgendarCita,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -184,7 +186,7 @@ export const registrarPagoTool: AKTool<z.infer<typeof registrarPagoSchema>> = {
   nombre: 'registrarPago',
   descripcion: 'Registra un pago sobre un presupuesto existente.',
   schema: registrarPagoSchema,
-  execute: notImplemented,
+  execute: executeRegistrarPago,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -193,7 +195,7 @@ export const crearEventoTool: AKTool<z.infer<typeof crearEventoSchema>> = {
   nombre: 'crearEvento',
   descripcion: 'Crea un nuevo evento/fiesta en planificación para un cliente.',
   schema: crearEventoSchema,
-  execute: notImplemented,
+  execute: executeCrearEvento,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -202,7 +204,7 @@ export const generarContratoTool: AKTool<z.infer<typeof generarContratoSchema>> 
   nombre: 'generarContrato',
   descripcion: 'Genera y guarda los datos del contrato para un evento.',
   schema: generarContratoSchema,
-  execute: notImplemented,
+  execute: executeGenerarContrato,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -211,17 +213,24 @@ export const consultarDisponibilidadTool: AKTool<z.infer<typeof consultarDisponi
   nombre: 'consultarDisponibilidad',
   descripcion: 'Consulta si hay eventos agendados para una fecha determinada.',
   schema: consultarDisponibilidadSchema,
-  execute: notImplemented,
+  execute: executeConsultarDisponibilidad,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
+
+// Marketing tools: executed via dedicated Marketing Agent (not via direct backend calls)
+const marketingNotImplemented = async (_input: unknown): Promise<ToolResult> => ({
+  success: false,
+  error: 'Usar el Agente Marketing AK',
+  message: 'Usar el Agente Marketing AK',
+});
 
 export const crearPublicacionMarketingTool: AKTool<z.infer<typeof crearPublicacionSchema>> = {
   nombre: 'crearPublicacionMarketing',
   descripcion:
     'Genera contenido de marketing para redes sociales. Exclusivo del Agente Marketing AK.',
   schema: crearPublicacionSchema,
-  execute: notImplemented,
+  execute: marketingNotImplemented,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -230,7 +239,7 @@ export const guardarIdeaMarketingTool: AKTool<z.infer<typeof guardarIdeaSchema>>
   nombre: 'guardarIdeaMarketing',
   descripcion: 'Guarda una idea de marketing para futura referencia.',
   schema: guardarIdeaSchema,
-  execute: notImplemented,
+  execute: marketingNotImplemented,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -239,7 +248,7 @@ export const agregarTareaMarketingTool: AKTool<z.infer<typeof agregarTareaSchema
   nombre: 'agregarTareaMarketing',
   descripcion: 'Agrega una tarea al plan de marketing.',
   schema: agregarTareaSchema,
-  execute: notImplemented,
+  execute: marketingNotImplemented,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
