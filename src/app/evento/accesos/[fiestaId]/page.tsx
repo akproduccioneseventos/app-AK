@@ -97,7 +97,7 @@ function AccessControlContent() {
       // Resolve guest: prefer token-based lookup, fallback to guestId
       let resolvedGuestId = guestId;
       if (!resolvedGuestId && token && fiesta) {
-        const match = (fiesta.invitados ?? []).find(i => i.guestAccessToken === token);
+        const match = (fiesta.invitados ?? []).find((i: { id: string; guestAccessToken?: string }) => i.guestAccessToken === token);
         resolvedGuestId = match?.id ?? null;
       } else if (token && fiesta) {
         // Verify the token matches the guestId for extra security
