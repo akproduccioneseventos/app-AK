@@ -715,10 +715,9 @@ describe('Cartelería — plan de mesas con salonTableLabels', () => {
   it('el plan de mesas muestra nombre del salon element si existe', () => {
     const labelMap = new Map([['3', 'Mesa VIP']]);
     const mesa = '3';
-    const displayLabel = labelMap.get(mesa)
-      ? `Mesa ${labelMap.get(mesa)} · ${mesa}`
-      : `Mesa ${mesa}`;
-    expect(displayLabel).toBe('Mesa Mesa VIP · 3');
+    const mesaLabel = labelMap.get(mesa);
+    const displayLabel = mesaLabel ? `Mesa ${mesaLabel} (${mesa})` : `Mesa ${mesa}`;
+    expect(displayLabel).toBe('Mesa Mesa VIP (3)');
   });
 
   it('el plan de mesas muestra número simple cuando no hay label personalizado', () => {
