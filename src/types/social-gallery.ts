@@ -51,6 +51,7 @@ export interface Dedication {
   message: string;
   authorName: string;
   timestamp: string;
+  highlighted?: boolean;
 }
 
 export interface SorteoParticipant {
