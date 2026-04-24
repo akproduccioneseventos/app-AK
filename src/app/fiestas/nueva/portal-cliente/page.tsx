@@ -9,15 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { updateFaqPortal } from '@/app/actions/fiesta/portal.actions';
+import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
-import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq } from '@/lib/fiesta-defaults';
+import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq, defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 
 /** Create URL-friendly slug segments for portal access keys. */
 function createSlugFromText(value: string): string {
@@ -87,6 +88,11 @@ function ClientPortalConfigContent() {
   // Drink calculator items state
   const [bebidasItems, setBebidasItems] = useState<BebidaCalculable[]>(defaultBebidaItems);
 
+  // clienteDebeLlevar state
+  const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(defaultClienteDebeLlevar);
+  const [isSavingLlevar, setIsSavingLlevar] = useState(false);
+  const [newLlevarTexto, setNewLlevarTexto] = useState('');
+
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
@@ -108,6 +114,10 @@ function ClientPortalConfigContent() {
       } else {
         setBebidasItems(defaultBebidaItems);
       }
+      // Load clienteDebeLlevar
+      setDebeLlevarItems(fiestaData.clienteDebeLlevar && fiestaData.clienteDebeLlevar.length > 0
+        ? fiestaData.clienteDebeLlevar
+        : defaultClienteDebeLlevar);
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
@@ -682,6 +692,103 @@ function ClientPortalConfigContent() {
           </CardFooter>
         </Card>
       )}
+
+      {/* clienteDebeLlevar Editor */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <PackageCheck className="w-5 h-5 text-teal-600" />
+            Lo que el cliente debe llevar
+          </CardTitle>
+          <CardDescription>
+            Configurá la lista de ítems que el cliente debe preparar y traer al evento. El cliente puede marcarlos como enviados desde su portal.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {debeLlevarItems.map((item) => (
+            <div key={item.id} className="flex items-center gap-2 border rounded-xl p-3 bg-slate-50">
+              <button
+                type="button"
+                onClick={() => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, obligatorio: !i.obligatorio } : i))}
+                className={`shrink-0 text-xs px-2 py-1 rounded-lg border font-semibold transition-all
+                  ${item.obligatorio ? 'bg-red-50 border-red-200 text-red-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}
+                title="Marcar como obligatorio"
+              >
+                {item.obligatorio ? '* Oblig.' : 'Opcional'}
+              </button>
+              <Input
+                value={item.texto}
+                onChange={e => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, texto: e.target.value } : i))}
+                className="flex-1 h-8 text-sm"
+              />
+              <Input
+                placeholder="Notas (opcional)"
+                value={item.notas || ''}
+                onChange={e => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, notas: e.target.value } : i))}
+                className="w-32 h-8 text-xs"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="text-destructive hover:text-destructive h-8 w-8 shrink-0"
+                onClick={() => setDebeLlevarItems(prev => prev.filter(i => i.id !== item.id))}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          ))}
+          <div className="flex gap-2">
+            <Input
+              placeholder="Nuevo ítem (ej: Torta de cumpleaños)"
+              value={newLlevarTexto}
+              onChange={e => setNewLlevarTexto(e.target.value)}
+              className="flex-1 text-sm"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && newLlevarTexto.trim()) {
+                  setDebeLlevarItems(prev => [...prev, { id: `dl_${Date.now()}`, texto: newLlevarTexto.trim(), completado: false }]);
+                  setNewLlevarTexto('');
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!newLlevarTexto.trim()}
+              onClick={() => {
+                if (!newLlevarTexto.trim()) return;
+                setDebeLlevarItems(prev => [...prev, { id: `dl_${Date.now()}`, texto: newLlevarTexto.trim(), completado: false }]);
+                setNewLlevarTexto('');
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Agregar
+            </Button>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            onClick={async () => {
+              if (!fiestaId) return;
+              setIsSavingLlevar(true);
+              try {
+                const res = await updateClienteDebeLlevar(fiestaId, debeLlevarItems);
+                if (res.success) toast({ title: '✅ Lista guardada', description: 'El cliente verá la lista actualizada.' });
+                else throw new Error((res as { success: false; error?: string }).error ?? 'Error al guardar');
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : 'Error desconocido';
+                toast({ title: 'No se pudo guardar la lista', description: `${msg}. Por favor, intentá nuevamente.`, variant: 'destructive' });
+              } finally {
+                setIsSavingLlevar(false);
+              }
+            }}
+            disabled={isSavingLlevar}
+          >
+            {isSavingLlevar && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Guardar lista
+          </Button>
+        </CardFooter>
+      </Card>
 
       {/* Bank Accounts Editor */}
       <Card>

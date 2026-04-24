@@ -3,9 +3,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, updateGuestExperienceStats } from '@/app/actions/fiesta/fiesta.actions';
 import { updateGuestRsvp } from '@/app/actions/fiesta/invitados.actions';
-import type { FiestaEnPlanificacion, Invitado, PerfilInvitado, GuestPortalSettings, RsvpStatus, DietaryRestriction } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, PerfilInvitado, GuestPortalSettings, RsvpStatus, DietaryRestriction, GuestExperienceSettings } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,8 +18,11 @@ import {
   Navigation, Images, Globe, MapPin, Music, Gift, QrCode,
   Instagram, Facebook, Phone,
   Utensils, ChevronDown, ChevronUp, Plus, Trash2, Clock, CalendarCheck,
+  ExternalLink, Sparkles, MessageCircle,
 } from 'lucide-react';
+import { InvitadoQR } from '@/components/invitados/InvitadoQR';
 import { useToast } from '@/hooks/use-toast';
+import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
 
 // ─── Config helpers ───────────────────────────────────────────────────────────
 
@@ -103,6 +106,7 @@ export default function InvitadoPage() {
   const [alergias, setAlergias] = useState('');
   const [songs, setSongs] = useState<string[]>(['', '', '']);
   const [mensaje, setMensaje] = useState('');
+  const [accesibilidad, setAccesibilidad] = useState(false);
 
   const load = useCallback(async () => {
     if (!fiestaId || !invitadoId) return;
@@ -121,7 +125,14 @@ export default function InvitadoPage() {
       setAlergias(inv.alergiasEspecificas ?? '');
       setSongs(initializeSongSlots(inv.cancionesDJ));
       setMensaje(inv.mensaje ?? '');
+      setAccesibilidad(inv.requiereAccesibilidad ?? false);
       if (inv.rsvp && inv.rsvp !== 'Pendiente') setSaved(true);
+      // Track that user opened the experience
+      if (!inv.guestExperienceStats?.openedAt) {
+        updateGuestExperienceStats(fiestaId, inv.id, { openedAt: new Date().toISOString() }).catch(err => {
+          console.error('[GuestStats] Failed to track openedAt:', err);
+        });
+      }
     } catch {
       setError('No se pudo cargar el evento.');
     } finally {
@@ -161,6 +172,7 @@ export default function InvitadoPage() {
       alergiasEspecificas: alergias.trim(),
       cancionesDJ: filteredSongs,
       mensaje: mensaje.trim() || undefined,
+      requiereAccesibilidad: accesibilidad,
     });
     if (result.success) {
       setSaved(true);
@@ -230,6 +242,13 @@ export default function InvitadoPage() {
   const pageCls = customBg
     ? 'min-h-screen'
     : 'min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-black';
+
+  // Guest experience / AK branding settings (applied after colors are resolved)
+  const ges: GuestExperienceSettings = {
+    ...defaultGuestExperienceSettings,
+    accentColor,
+    ...(fiesta.guestExperienceSettings ?? {}),
+  };
 
   const invitacionUrl = fiesta.invitacionSlug
     ? `${typeof window !== 'undefined' ? window.location.origin : ''}/invitacion/${fiesta.invitacionSlug}`
@@ -509,6 +528,27 @@ export default function InvitadoPage() {
           />
         </Section>
 
+        {/* 6. Accessibility */}
+        <Section title="Necesidades de accesibilidad" icon={Accessibility}>
+          <button
+            type="button"
+            onClick={() => setAccesibilidad(v => !v)}
+            className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all
+              ${accesibilidad ? 'border-green-400 bg-green-50' : 'border-slate-200 bg-white hover:border-green-200'}`}
+          >
+            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0
+              ${accesibilidad ? 'bg-green-500 border-green-500' : 'border-slate-300'}`}>
+              {accesibilidad && <CheckCircle2 className="w-4 h-4 text-white" />}
+            </div>
+            <div>
+              <p className={`text-sm font-semibold ${accesibilidad ? 'text-green-800' : 'text-slate-700'}`}>
+                Necesito asistencia de accesibilidad
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">Silla de ruedas, rampa, acompañante, etc.</p>
+            </div>
+          </button>
+        </Section>
+
         {/* Submit button */}
         <Button
           onClick={handleSubmit}
@@ -632,64 +672,145 @@ export default function InvitadoPage() {
           </div>
         )}
 
+        {/* ── QR de entrada ─────────────────────────────── */}
+        {gps.showCheckin && (
+          <div className="space-y-2">
+            <p className="text-xs font-black uppercase tracking-wider text-center"
+              style={{ color: customBg ? accentColor : '#c4b5fd' }}>
+              Tu código QR de acceso
+            </p>
+            <InvitadoQR
+              invitado={invitado}
+              fiestaId={fiestaId}
+              nombreEvento={config?.nombreEvento}
+              size={180}
+            />
+          </div>
+        )}
+
       </main>
 
-      <footer className="py-8 text-center">
-        <div className="max-w-md mx-auto px-4">
-          <div
-            className="p-6 rounded-2xl border"
-            style={{
-              background: customBg
-                ? `${accentColor}18`
-                : 'linear-gradient(135deg, rgba(109,40,217,0.4), rgba(67,56,202,0.4))',
-              borderColor: customBg ? `${accentColor}40` : 'rgba(139,92,246,0.2)',
-            }}
-          >
-            <p
-              className="text-sm font-black mb-0.5"
-              style={{ color: customBg ? accentColor : '#fcd34d' }}
+      {/* ── AK Producciones branding / CTA ──────────────── */}
+      {ges.showAkBranding && (
+        <footer className="py-8">
+          <div className="max-w-md mx-auto px-4 space-y-4">
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px" style={{ backgroundColor: customBg ? `${accentColor}40` : 'rgba(139,92,246,0.2)' }} />
+              <Sparkles className="w-4 h-4 shrink-0" style={{ color: customBg ? accentColor : '#a78bfa' }} />
+              <div className="flex-1 h-px" style={{ backgroundColor: customBg ? `${accentColor}40` : 'rgba(139,92,246,0.2)' }} />
+            </div>
+            {/* Branding card */}
+            <div
+              className="rounded-2xl border p-6 space-y-4"
+              style={{
+                background: customBg ? `${accentColor}10` : 'linear-gradient(135deg,rgba(109,40,217,0.25),rgba(67,56,202,0.25))',
+                borderColor: customBg ? `${accentColor}30` : 'rgba(139,92,246,0.15)',
+              }}
             >
-              ✨ AK Producciones Eventos
-            </p>
-            <p
-              className="text-xs mb-3 opacity-70"
-              style={{ color: customBg ? accentColor : '#ddd6fe' }}
-            >
-              Salto, Uruguay · Organizamos momentos únicos
-            </p>
-            <div className="flex items-center justify-center gap-4 mt-1">
-              <a
-                href="https://www.instagram.com/akproduccioneseventos"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
-                style={{ color: customBg ? accentColor : '#c4b5fd' }}
-              >
-                <Instagram className="w-3.5 h-3.5" />
-                Instagram
-              </a>
-              <a
-                href="https://www.facebook.com/akproduccioneseventos"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
-                style={{ color: customBg ? accentColor : '#c4b5fd' }}
-              >
-                <Facebook className="w-3.5 h-3.5" />
-                Facebook
-              </a>
-              <a
-                href="tel:+59899000000"
-                className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
-                style={{ color: customBg ? accentColor : '#c4b5fd' }}
-              >
-                <Phone className="w-3.5 h-3.5" />
-                Contacto
-              </a>
+              <div className="text-center">
+                <p className="text-base font-black" style={{ color: customBg ? accentColor : '#fcd34d' }}>
+                  ✨ {ges.ctaTitle}
+                </p>
+                <p className="text-xs mt-1.5 leading-relaxed" style={{ color: customBg ? accentColor : '#ddd6fe', opacity: 0.8 }}>
+                  {ges.ctaText}
+                </p>
+              </div>
+              {/* CTA Buttons */}
+              {ges.showLandingCta && (
+                <div className="grid grid-cols-1 gap-2">
+                  {ges.landingUrl && (
+                    <a
+                      href={ges.landingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => updateGuestExperienceStats(fiestaId, invitadoId, { clickedLanding: true })}
+                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all active:scale-95"
+                      style={{ backgroundColor: customBg ? accentColor : '#7c3aed', color: '#fff' }}
+                    >
+                      <Globe className="w-4 h-4" />
+                      Ver nuestros servicios
+                      <ExternalLink className="w-3 h-3 opacity-60" />
+                    </a>
+                  )}
+                  {/* WhatsApp + Simulator row */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {ges.whatsappNumber && (
+                      <a
+                        href={`https://wa.me/${ges.whatsappNumber}?text=${encodeURIComponent('Hola, me interesa organizar un evento con AK Producciones!')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => updateGuestExperienceStats(fiestaId, invitadoId, { clickedWhatsapp: true })}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all active:scale-95 bg-green-500 text-white"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        WhatsApp
+                      </a>
+                    )}
+                    <a
+                      href="/simulador"
+                      onClick={() => updateGuestExperienceStats(fiestaId, invitadoId, { clickedSimulator: true })}
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all active:scale-95 border"
+                      style={{
+                        borderColor: customBg ? accentColor : 'rgba(139,92,246,0.4)',
+                        color: customBg ? accentColor : '#c4b5fd',
+                      }}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Simular presupuesto
+                    </a>
+                  </div>
+                </div>
+              )}
+              {/* Social links */}
+              <div className="flex items-center justify-center gap-4 pt-1">
+                {ges.instagramUrl && (
+                  <a
+                    href={ges.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => updateGuestExperienceStats(fiestaId, invitadoId, { clickedInstagram: true })}
+                    className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
+                    style={{ color: customBg ? accentColor : '#c4b5fd' }}
+                  >
+                    <Instagram className="w-3.5 h-3.5" />
+                    Instagram
+                  </a>
+                )}
+                {ges.facebookUrl && (
+                  <a
+                    href={ges.facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
+                    style={{ color: customBg ? accentColor : '#c4b5fd' }}
+                  >
+                    <Facebook className="w-3.5 h-3.5" />
+                    Facebook
+                  </a>
+                )}
+                {ges.tiktokUrl && (
+                  <a
+                    href={ges.tiktokUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
+                    style={{ color: customBg ? accentColor : '#c4b5fd' }}
+                  >
+                    <Music className="w-3.5 h-3.5" />
+                    TikTok
+                  </a>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
+      {!ges.showAkBranding && (
+        <footer className="py-6 text-center text-xs text-slate-500 opacity-50">
+          <p>AK Producciones Eventos · Salto, Uruguay</p>
+        </footer>
+      )}
     </div>
   );
 }
