@@ -214,8 +214,9 @@ function LiveEventDashboardContent() {
                 </AnimatePresence>
 
                 <Tabs defaultValue="operaciones" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 bg-slate-900 h-16 p-1 rounded-2xl border border-white/5 mb-8">
+                    <TabsList className="grid w-full grid-cols-4 bg-slate-900 h-16 p-1 rounded-2xl border border-white/5 mb-8">
                         <TabsTrigger value="operaciones" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Panel de Comando</TabsTrigger>
+                        <TabsTrigger value="modos" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Modos</TabsTrigger>
                         <TabsTrigger value="retorno" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Logística Inversa</TabsTrigger>
                         <TabsTrigger value="invitados" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Check-in Invitados</TabsTrigger>
                     </TabsList>
@@ -305,6 +306,89 @@ function LiveEventDashboardContent() {
                                 </Card>
                             </div>
                         </div>
+                    </TabsContent>
+
+                    {/* ── Modos Operativos ── */}
+                    <TabsContent value="modos" className="space-y-6">
+                      {/* Semáforo Operativo */}
+                      <Card className="bg-slate-900/80 border-white/5 shadow-2xl rounded-[2.5rem] overflow-hidden">
+                        <CardHeader className="bg-white/5 border-b border-white/5 p-6">
+                          <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-3 text-white">🚦 Semáforo Operativo</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {(() => {
+                              const staffTotal = (fiesta.personalAsignado || []).length;
+                              const staffPresentes = Object.values(fiesta.liveState?.staffCheckIn || {}).filter(s => (s as { llego?: boolean }).llego).length;
+                              const checkInPct = totalConfirmados > 0 ? Math.round((asistentesPresentes / totalConfirmados) * 100) : 0;
+                              const proveedoresTotal = (fiesta.liveState?.entregas || []).length;
+                              const proveedoresOk = (fiesta.liveState?.entregas || []).filter(e => e.llego).length;
+                              const semaforos = [
+                                { label: 'Personal', ok: staffPresentes >= staffTotal && staffTotal > 0, parcial: staffPresentes > 0, detalle: `${staffPresentes}/${staffTotal} presentes` },
+                                { label: 'Proveedores', ok: proveedoresOk >= proveedoresTotal && proveedoresTotal > 0, parcial: proveedoresOk > 0, detalle: `${proveedoresOk}/${proveedoresTotal} llegaron` },
+                                { label: 'Check-in', ok: checkInPct >= 80, parcial: checkInPct >= 30, detalle: `${checkInPct}% de confirmados` },
+                              ];
+                              return semaforos.map(s => (
+                                <div key={s.label} className={cn(
+                                  'p-6 rounded-3xl border-2 text-center space-y-3',
+                                  s.ok ? 'bg-emerald-500/10 border-emerald-500/30' : s.parcial ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30'
+                                )}>
+                                  <div className={cn('text-5xl')}>{s.ok ? '🟢' : s.parcial ? '🟡' : '🔴'}</div>
+                                  <p className="font-black text-white uppercase tracking-widest text-xs">{s.label}</p>
+                                  <p className={cn('text-sm font-bold', s.ok ? 'text-emerald-400' : s.parcial ? 'text-amber-400' : 'text-red-400')}>{s.detalle}</p>
+                                </div>
+                              ));
+                            })()}
+                          </div>
+                          {saldoPendiente > 0 && (
+                            <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center gap-3">
+                              <span className="text-2xl">💰</span>
+                              <div>
+                                <p className="text-xs font-black uppercase tracking-widest text-amber-400">Saldo por cobrar</p>
+                                <p className="font-black text-white">{new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(saldoPendiente)}</p>
+                              </div>
+                            </div>
+                          )}
+                          {totalCeliacosPresentes > 0 && (
+                            <div className="mt-3 p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-center gap-3">
+                              <span className="text-2xl">⚠️</span>
+                              <div>
+                                <p className="text-xs font-black uppercase tracking-widest text-blue-400">Alerta celíacos</p>
+                                <p className="font-black text-white">{totalCeliacosPresentes} celíacos en salón — verificar menús</p>
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Role-based quick views */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { id: 'coordinador', label: 'Modo Coordinador', emoji: '🎯', desc: 'Vista completa: itinerario, personal, proveedores, incidentes' },
+                          { id: 'portero', label: 'Modo Portero', emoji: '🚪', desc: 'Acceso rápido a Check-in de invitados' },
+                          { id: 'utilero', label: 'Modo Utilero', emoji: '📦', desc: 'Retorno de materiales y logística inversa' },
+                          { id: 'mobile', label: 'Modo Móvil', emoji: '📱', desc: 'Vista compacta para dispositivos pequeños' },
+                        ].map(mode => (
+                          <a
+                            key={mode.id}
+                            href={mode.id === 'portero'
+                              ? `/evento/accesos/${fiestaId}`
+                              : mode.id === 'utilero'
+                              ? `/fiestas/nueva/carga-operativa/retorno?fiestaId=${fiestaId}`
+                              : `#`
+                            }
+                            className="block p-5 rounded-3xl border border-white/10 bg-slate-800/50 hover:bg-slate-800 hover:border-white/20 transition-all"
+                          >
+                            <div className="flex items-start gap-4">
+                              <span className="text-3xl">{mode.emoji}</span>
+                              <div>
+                                <p className="font-black text-white text-sm">{mode.label}</p>
+                                <p className="text-xs text-slate-500 mt-0.5">{mode.desc}</p>
+                              </div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
                     </TabsContent>
 
                     <TabsContent value="retorno" className="space-y-8">

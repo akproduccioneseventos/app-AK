@@ -30,6 +30,16 @@ import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const FONT_OPTIONS = ['Playfair Display', 'Dancing Script', 'Montserrat', 'Georgia', 'Arial'] as const;
+
+// Aesthetic presets for quick styling
+const AESTHETIC_PRESETS = [
+  { id: 'elegante-dorado',   label: 'Elegante dorado',     color: '#c9a96e', bg: '#fdf8f0', emoji: '✨' },
+  { id: 'xv-celeste',        label: 'XV celeste',           color: '#4fa7cc', bg: '#f0f8ff', emoji: '👑' },
+  { id: 'boda-blanco-dorado', label: 'Boda blanco/dorado', color: '#b8960c', bg: '#fffdf5', emoji: '💍' },
+  { id: 'neon',              label: 'Neón',                 color: '#e040fb', bg: '#1a0033', emoji: '🪩' },
+  { id: 'corporativo',       label: 'Corporativo',          color: '#1e3a5f', bg: '#f5f7fa', emoji: '🏢' },
+  { id: 'infantil',          label: 'Infantil',             color: '#ff6b9d', bg: '#fff0f6', emoji: '🎠' },
+] as const;
 const TITLE_SIZE_OPTIONS = ['small', 'medium', 'large', 'xlarge'] as const;
 const TABLE_SIZE_MAP: Record<NonNullable<NumerosMesaData['fontSize']>, string> = {
   small: '3rem',
@@ -602,6 +612,29 @@ function CarteleriaContent() {
                 </TabsList>
 
                 <TabsContent value="general" className="space-y-4">
+                  {/* Aesthetic presets */}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Presets estéticos</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {AESTHETIC_PRESETS.map(preset => (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => setPrimaryColor(preset.color)}
+                          className={cn(
+                            'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 text-xs font-semibold transition-all',
+                            primaryColor === preset.color
+                              ? 'border-primary ring-2 ring-primary/20'
+                              : 'border-slate-200 hover:border-slate-300'
+                          )}
+                          style={{ backgroundColor: preset.bg, color: preset.color }}
+                          title={preset.label}
+                        >
+                          <span>{preset.emoji}</span> {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label>Color principal</Label>
