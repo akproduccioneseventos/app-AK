@@ -93,7 +93,7 @@ export async function saveInvoice(
   }
 }
 
-export async function registerBookingDeposit(data: { fiestaId: string; amount: number; method: string; date: string }): Promise<{ success: boolean; error?: string }> {
+export async function registerBookingDeposit(data: { fiestaId: string; amount: number; method: string; date: string }): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
   try {
     const [fiesta, allInvoices] = await Promise.all([
       readData<any>(`fiestas/${data.fiestaId}.json`, null),
@@ -144,7 +144,7 @@ export async function registerBookingDeposit(data: { fiestaId: string; amount: n
     // Link invoice to fiesta
     await addInvoiceId(data.fiestaId, invoiceResult.id);
 
-    return { success: true };
+    return { success: true, invoiceId: invoiceResult.id };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

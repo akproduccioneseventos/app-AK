@@ -83,7 +83,7 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
       }
     }
 
-    return { success: true };
+    return { success: true, invoiceId: depositResult.invoiceId };
   } catch (error: any) {
     return { success: false, error: error.message ?? 'Error desconocido al registrar la seña.' };
   }
