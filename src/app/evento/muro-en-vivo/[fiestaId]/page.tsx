@@ -111,10 +111,22 @@ export default function MuroEnVivoPage() {
       const enrichedConnections = connections.filter(c => c.isConnected);
       if (brand) {
         if (brand.instagramHandle && !enrichedConnections.some(c => c.platform === 'Instagram')) {
-          enrichedConnections.push({ platform: 'Instagram', isConnected: true, username: brand.instagramHandle, profileUrl: `https://instagram.com/${brand.instagramHandle.replace('@', '')}` } as any);
+          const brandInstagram: SocialConnection = {
+            platform: 'Instagram',
+            isConnected: true,
+            username: brand.instagramHandle,
+            profileUrl: `https://instagram.com/${brand.instagramHandle.replace('@', '')}`,
+          };
+          enrichedConnections.push(brandInstagram);
         }
         if (brand.facebookHandle && !enrichedConnections.some(c => c.platform === 'Facebook')) {
-          enrichedConnections.push({ platform: 'Facebook', isConnected: true, username: brand.facebookHandle, profileUrl: `https://facebook.com/${brand.facebookHandle}` } as any);
+          const brandFacebook: SocialConnection = {
+            platform: 'Facebook',
+            isConnected: true,
+            username: brand.facebookHandle,
+            profileUrl: `https://facebook.com/${brand.facebookHandle}`,
+          };
+          enrichedConnections.push(brandFacebook);
         }
       }
       setSocialConnections(enrichedConnections);

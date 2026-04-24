@@ -110,7 +110,7 @@ function MuroSocialContent() {
   const [globalLibrary, setGlobalLibrary] = useState<ScreenMediaAsset[]>([]);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [brand, setBrand] = useState<SocialGalleryBrand>({});
+  const [akBrandSettings, setAkBrandSettings] = useState<SocialGalleryBrand>({});
   const [isSavingBrand, setIsSavingBrand] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -137,7 +137,7 @@ function MuroSocialContent() {
         ...(fiestaData.socialGallerySettings || {}),
       }));
       if (fiestaData.socialGallerySettings?.brand) {
-        setBrand(fiestaData.socialGallerySettings.brand);
+        setAkBrandSettings(fiestaData.socialGallerySettings.brand);
       }
       const globalAssets = await getGlobalScreenMediaLibrary();
       setGlobalLibrary(globalAssets);
@@ -254,7 +254,7 @@ function MuroSocialContent() {
   const handleSaveBrand = async () => {
     if (!fiestaId) return;
     setIsSavingBrand(true);
-    const result = await updateScreenBrand(fiestaId, brand);
+    const result = await updateScreenBrand(fiestaId, akBrandSettings);
     setIsSavingBrand(false);
     if (result.success) {
       toast({ title: 'Marca AK guardada ✓', description: 'El branding se actualizó en la pantalla en vivo.' });
@@ -598,35 +598,35 @@ function MuroSocialContent() {
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Logo URL</Label>
-                <Input value={brand.logoUrl ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, logoUrl: e.target.value }))} placeholder="https://..." />
+                <Input value={akBrandSettings.logoUrl ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, logoUrl: e.target.value }))} placeholder="https://..." />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Nombre de la empresa</Label>
-                <Input value={brand.companyName ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, companyName: e.target.value }))} placeholder="AK Producciones" />
+                <Input value={akBrandSettings.companyName ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, companyName: e.target.value }))} placeholder="AK Producciones" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Instagram</Label>
-                <Input value={brand.instagramHandle ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, instagramHandle: e.target.value }))} placeholder="@akproducciones" />
+                <Input value={akBrandSettings.instagramHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, instagramHandle: e.target.value }))} placeholder="@akproducciones" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Facebook</Label>
-                <Input value={brand.facebookHandle ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, facebookHandle: e.target.value }))} placeholder="akproducciones" />
+                <Input value={akBrandSettings.facebookHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, facebookHandle: e.target.value }))} placeholder="akproducciones" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">TikTok</Label>
-                <Input value={brand.tiktokHandle ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, tiktokHandle: e.target.value }))} placeholder="@akproducciones" />
+                <Input value={akBrandSettings.tiktokHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, tiktokHandle: e.target.value }))} placeholder="@akproducciones" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">WhatsApp</Label>
-                <Input value={brand.whatsappNumber ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, whatsappNumber: e.target.value }))} placeholder="59899000000" />
+                <Input value={akBrandSettings.whatsappNumber ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, whatsappNumber: e.target.value }))} placeholder="59899000000" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Landing URL</Label>
-                <Input value={brand.landingUrl ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, landingUrl: e.target.value }))} placeholder="https://akproducciones.uy" />
+                <Input value={akBrandSettings.landingUrl ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, landingUrl: e.target.value }))} placeholder="https://akproducciones.uy" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Texto CTA</Label>
-                <Input value={brand.ctaText ?? ''} onChange={(e) => setBrand((prev) => ({ ...prev, ctaText: e.target.value }))} placeholder="Pedí tu presupuesto" />
+                <Input value={akBrandSettings.ctaText ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, ctaText: e.target.value }))} placeholder="Pedí tu presupuesto" />
               </div>
             </div>
             <Button onClick={handleSaveBrand} disabled={isSavingBrand} className="w-full sm:w-auto">

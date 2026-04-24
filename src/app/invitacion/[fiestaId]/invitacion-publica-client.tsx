@@ -63,6 +63,11 @@ const DEFAULT_SECTION_ORDER: Record<InvitacionSectionId, number> = {
   footer: 12,
 };
 
+/**
+ * Returns whether a section should be visible based on the sectionsConfig.
+ * Sections not explicitly listed in sectionsConfig default to visible=true
+ * (opt-in hiding rather than opt-in showing).
+ */
 export function isSectionVisible(
   sectionId: InvitacionSectionId,
   sectionsConfig?: InvitacionSectionConfig[]
