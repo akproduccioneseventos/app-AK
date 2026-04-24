@@ -181,9 +181,16 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       };
 
       // Delete orphaned documents (those that no longer exist in the array)
+      // Safety guard: never delete existing documents when the incoming array is empty.
+      // An empty array on a non-empty collection almost always indicates a partial write
+      // or an unintended call — deleting all docs in that scenario would cause data loss.
       const existingSnapshot = await db.collection(collectionName).get();
       const existingIds = new Set(existingSnapshot.docs.map((d: FirebaseFirestore.QueryDocumentSnapshot) => d.id));
       const newIds = new Set(data.map(getItemDocId).filter((id): id is string => Boolean(id)));
+      if (data.length === 0 && existingIds.size > 0) {
+        logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada para prevenir pérdida de datos. (${existingIds.size} documentos existentes conservados)`);
+        return;
+      }
       const toDelete = [...existingIds].filter((id: string) => !newIds.has(id));
       if (toDelete.length > 0) {
         for (let i = 0; i < toDelete.length; i += batchSize) {

@@ -5,15 +5,26 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
-// Firebase config — public values only (no secrets).
-// These mirror the values in src/lib/firebase/config.ts.
+// Firebase public config — estos valores son públicos (NO son secretos).
+//
+// Los service workers son archivos estáticos descargados directamente por el browser.
+// No tienen acceso a process.env ni a variables inyectadas por Next.js/webpack.
+// Por eso los valores de config de Firebase deben estar aquí de forma literal.
+//
+// ▶ Para configurar los valores reales:
+//   1. Ir a https://console.firebase.google.com/project/presupuestador-ak-producciones/settings/general
+//   2. En "Tus apps" → app web → "Configuración del SDK de Firebase"
+//   3. Reemplazar apiKey, messagingSenderId y appId con los valores reales.
+//      Estos valores son PÚBLICOS y seguros de incluir en el código fuente.
+//
+// authDomain, projectId y storageBucket ya son correctos para este proyecto.
 const firebaseConfig = {
-  apiKey: self.FIREBASE_API_KEY || 'dummy-key-for-firestore',
-  authDomain: self.FIREBASE_AUTH_DOMAIN || 'presupuestador-ak-producciones.firebaseapp.com',
-  projectId: self.FIREBASE_PROJECT_ID || 'presupuestador-ak-producciones',
-  storageBucket: self.FIREBASE_STORAGE_BUCKET || 'presupuestador-ak-producciones.firebasestorage.app',
-  messagingSenderId: self.FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: self.FIREBASE_APP_ID || '',
+  apiKey: 'REEMPLAZAR-CON-FIREBASE-API-KEY',
+  authDomain: 'presupuestador-ak-producciones.firebaseapp.com',
+  projectId: 'presupuestador-ak-producciones',
+  storageBucket: 'presupuestador-ak-producciones.firebasestorage.app',
+  messagingSenderId: 'REEMPLAZAR-CON-MESSAGING-SENDER-ID',
+  appId: 'REEMPLAZAR-CON-APP-ID',
 };
 
 firebase.initializeApp(firebaseConfig);

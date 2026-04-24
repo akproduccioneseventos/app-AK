@@ -40,6 +40,10 @@ async function readLocalJsonFallback<T>(normalizedFilePath: string): Promise<T |
  * Reads data from Firestore. Returns defaultValue if not found or on error.
  */
 export async function readData<T>(filePath: string, defaultValue: T): Promise<T> {
+  // Guard against path traversal and absolute paths (mirrors writeData protection).
+  if (filePath.includes('..') || filePath.startsWith('/')) {
+    throw new Error('Invalid data file path');
+  }
   const normalizedFilePath = filePath.replace(/\\/g, '/');
   try {
     const data = await readFromFirestore(normalizedFilePath);

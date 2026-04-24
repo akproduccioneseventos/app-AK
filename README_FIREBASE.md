@@ -2,28 +2,31 @@
 
 ## Descripción General
 
-La app AK Producciones utiliza Firebase Firestore como base de datos principal, con un sistema **dual-write** que mantiene sincronizados los archivos JSON locales y Firestore. Esto permite:
+La app AK Producciones utiliza **Firebase Firestore como única fuente de verdad** para todos los datos. Los archivos JSON en `src/data/` son solo una semilla inicial y un fallback de emergencia de lectura; **nunca se escriben en producción**.
 
-- **Desarrollo local** con emuladores de Firebase (sin necesidad de credenciales reales)
-- **Producción** conectada al proyecto real `presupuestador-ak-producciones`
-- **Fallback automático** a JSON si Firestore no está disponible
+- **Producción / App Hosting**: Firestore es la base de datos principal. El deploy se realiza via Firebase App Hosting (`apphosting.yaml`).
+- **Desarrollo local**: Se pueden usar emuladores de Firebase (sin necesidad de credenciales reales).
+- **Fallback de lectura**: Si Firestore no responde, `readData` puede leer JSON local como contingencia. Esto solo debe ocurrir en desarrollo o ante fallas temporales; nunca en producción estable.
 
 ---
 
 ## Arquitectura
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  App Next.js                     │
-│                                                  │
-│  writeData()  ──┬──► JSON local (src/data/)      │
-│                 │                                │
-│                 └──► Firestore (dual-write)      │
-│                                                  │
-│  readData()   ──┬──► Firestore (si disponible)   │
-│                 └──► JSON local (fallback)        │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                     App Next.js                      │
+│                                                      │
+│  writeData()  ──────────────► Firestore (único)      │
+│                               (si falla → error)     │
+│                                                      │
+│  readData()   ──┬──► Firestore (fuente principal)    │
+│                 └──► JSON local (fallback lectura)   │
+│                      (solo si Firestore = null)      │
+└─────────────────────────────────────────────────────┘
 ```
+
+> ⚠️ El fallback JSON es de solo lectura. Sirve como contingencia para no romper
+> la UI durante fallas temporales de Firestore. Nunca se escriben datos en JSON.
 
 ### Archivos clave
 
@@ -33,10 +36,10 @@ La app AK Producciones utiliza Firebase Firestore como base de datos principal, 
 | `src/lib/firebase/server.ts` | Firebase Admin SDK (server-side) |
 | `src/lib/firebase/firestore.ts` | Helpers CRUD para Firestore |
 | `src/lib/firebase/index.ts` | Re-exports centralizados |
-| `src/lib/firebase-sync.ts` | Sincronización dual-write |
-| `src/lib/data-service.ts` | Servicio de datos principal (JSON + sync) |
-| `src/lib/data-service-firebase.ts` | Servicio de datos con lectura Firebase-first |
+| `src/lib/firebase-sync.ts` | Sincronización JSON → Firestore |
+| `src/lib/data-service.ts` | Servicio de datos principal |
 | `src/scripts/migrate-to-firebase.ts` | Script de migración JSON → Firestore |
+| `apphosting.yaml` | Configuración de deploy (Firebase App Hosting) |
 
 ---
 
@@ -238,7 +241,7 @@ firebase deploy --only firestore:rules
 - Si usa emuladores, verificar que `FIRESTORE_EMULATOR_HOST` esté configurado
 
 ### "Firestore sync failed"
-- El dual-write falla silenciosamente sin romper la operación JSON
+- El guardado en Firestore lanzará un error — no hay escritura silenciosa a JSON
 - Verificar conexión a emuladores o credenciales de producción
 
 ### Los datos no aparecen en Firestore

@@ -50,8 +50,8 @@ export async function requestAndSaveFcmToken(userId?: string): Promise<string | 
 
     if (!token) return null;
 
-    // Persist the token in Firestore for server-side send operations
-    await saveFcmTokenToFirestore(token, userId);
+    // Persist the token via Server Action (Admin SDK) to avoid Firestore client-side rules block.
+    await saveTokenViaServerAction(token, userId);
 
     return token;
   } catch {
@@ -60,24 +60,15 @@ export async function requestAndSaveFcmToken(userId?: string): Promise<string | 
 }
 
 /**
- * Save an FCM token to the `fcm_tokens` Firestore collection.
+ * Persiste un token FCM llamando al Server Action correspondiente.
+ * El acceso directo a Firestore desde el cliente está bloqueado por las reglas
+ * de seguridad (`allow read, write: if false;`), por eso se delega al servidor.
  */
-async function saveFcmTokenToFirestore(token: string, userId?: string): Promise<void> {
+async function saveTokenViaServerAction(token: string, userId?: string): Promise<void> {
   try {
-    const { db } = await import('./config');
-    if (!db) return;
-
-    const { doc, setDoc, serverTimestamp } = await import('firebase/firestore');
-    await setDoc(
-      doc(db, 'fcm_tokens', token),
-      {
-        token,
-        userId: userId ?? null,
-        userAgent: navigator.userAgent,
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
+    const { saveFcmToken } = await import('@/app/actions/fcm-tokens');
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
+    await saveFcmToken(token, userId, userAgent);
   } catch {
     // Non-critical — ignore errors silently
   }
