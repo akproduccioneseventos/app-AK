@@ -5,24 +5,27 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
-// Firebase public config — estos son valores públicos (no secretos).
-// Los service workers son archivos estáticos: no tienen acceso a process.env
-// ni a variables inyectadas dinámicamente como self.FIREBASE_*.
-// Los valores aquí son los mismos que en src/lib/firebase/config.ts y son
-// seguros para estar en código público (son visibles en cualquier app web).
+// Firebase public config — estos valores son públicos (NO son secretos).
+//
+// Los service workers son archivos estáticos descargados directamente por el browser.
+// No tienen acceso a process.env ni a variables inyectadas por Next.js/webpack.
+// Por eso los valores de config de Firebase deben estar aquí de forma literal.
+//
+// ▶ Para configurar los valores reales:
+//   1. Ir a https://console.firebase.google.com/project/presupuestador-ak-producciones/settings/general
+//   2. En "Tus apps" → app web → "Configuración del SDK de Firebase"
+//   3. Reemplazar apiKey, messagingSenderId y appId con los valores reales.
+//      Estos valores son PÚBLICOS y seguros de incluir en el código fuente.
+//
+// authDomain, projectId y storageBucket ya son correctos para este proyecto.
 const firebaseConfig = {
-  apiKey: 'AIzaSyDummy-replace-with-real-value-from-firebase-console',
+  apiKey: 'REEMPLAZAR-CON-FIREBASE-API-KEY',
   authDomain: 'presupuestador-ak-producciones.firebaseapp.com',
   projectId: 'presupuestador-ak-producciones',
   storageBucket: 'presupuestador-ak-producciones.firebasestorage.app',
-  messagingSenderId: '',
-  appId: '',
+  messagingSenderId: 'REEMPLAZAR-CON-MESSAGING-SENDER-ID',
+  appId: 'REEMPLAZAR-CON-APP-ID',
 };
-
-// IMPORTANTE: Reemplazar los valores de apiKey, messagingSenderId y appId
-// con los valores reales del proyecto Firebase.
-// Obtenerlos en: https://console.firebase.google.com/project/presupuestador-ak-producciones/settings/general
-// Estos valores son públicos y seguros de incluir en el código fuente del SW.
 
 firebase.initializeApp(firebaseConfig);
 

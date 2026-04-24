@@ -12,6 +12,7 @@
  */
 
 import { dbAdmin } from '@/lib/firebase/server';
+import admin from 'firebase-admin';
 
 export interface SaveFcmTokenResult {
   success: boolean;
@@ -45,7 +46,7 @@ export async function saveFcmToken(
         token,
         userId: userId ?? null,
         userAgent: userAgent ?? null,
-        updatedAt: new Date().toISOString(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
     );

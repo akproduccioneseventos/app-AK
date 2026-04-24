@@ -35,13 +35,15 @@ const PUBLIC_PATH_PREFIXES = [
 // con una ruta privada (/evento/ sin nada más, por ejemplo).
 const PUBLIC_EXACT_PATHS = new Set(['/evento', '/evento/']);
 
+// Regex para páginas de vista de presupuesto que pueden ser públicas con token.
+const BUDGET_VIEW_REGEX = /^\/presupuestos\/[^/]+\/ver\/?$/;
+
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_EXACT_PATHS.has(pathname)) return true;
   if (PUBLIC_PATH_PREFIXES.some(prefix => pathname.startsWith(prefix))) return true;
 
   // Presupuestos con token de compartir
-  const budgetViewRegex = /^\/presupuestos\/[^/]+\/ver\/?$/;
-  if (budgetViewRegex.test(pathname)) return true; // token se valida en el componente
+  if (BUDGET_VIEW_REGEX.test(pathname)) return true; // token se valida en el componente
 
   // PDFs / resúmenes imprimibles con token
   if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) return true;
