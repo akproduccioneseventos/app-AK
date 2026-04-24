@@ -14,7 +14,6 @@ import {
   CalendarDays,
   CheckCircle2,
   XCircle,
-  HelpCircle,
   UtensilsCrossed,
   Clock,
   ChevronRight,
@@ -81,7 +80,7 @@ function rsvpIcon(rsvp: Invitado['rsvp']) {
   switch (rsvp) {
     case 'Confirmado': return <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />;
     case 'Rechazado':  return <XCircle       className="w-4 h-4 text-red-400  shrink-0" />;
-    default:          return <HelpCircle    className="w-4 h-4 text-slate-400 shrink-0" />;
+    default:          return <Activity      className="w-4 h-4 text-slate-400 shrink-0" />;
   }
 }
 
@@ -584,37 +583,22 @@ export default function PortalClientePage() {
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-3 text-sm text-slate-700">
-                {fiesta.clientPortalSettings?.checklist?.items && fiesta.clientPortalSettings.checklist.items.length > 0 ? (
-                  <div className="space-y-2">
-                    {fiesta.clientPortalSettings.checklist.items.map((item: any, idx: number) => (
-                      <div key={idx} className="flex items-start gap-2 p-2.5 bg-teal-50 rounded-xl border border-teal-100">
-                        {item.completado ? (
-                          <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                        ) : (
-                          <HelpCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                        )}
-                        <span className={item.completado ? 'line-through text-slate-400' : ''}>{item.texto}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {[
-                      'Documentación personal (DNI/CI)',
-                      'Lista final de invitados confirmados',
-                      'Fotos para el video de vida',
-                      'Lista de canciones especiales',
-                      'Confirmación de menú y restricciones alimentarias',
-                      'Seña o primer pago pendiente',
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <PackageCheck className="w-4 h-4 text-teal-500 shrink-0" />
-                        <span>{item}</span>
-                      </div>
-                    ))}
-                    <p className="text-xs text-slate-400 pt-1">Tu organizador puede actualizar esta lista con elementos específicos para tu evento.</p>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  {[
+                    'Documentación personal (DNI/CI)',
+                    'Lista final de invitados confirmados',
+                    'Fotos para el video de vida',
+                    'Lista de canciones especiales',
+                    'Confirmación de menú y restricciones alimentarias',
+                    'Seña o primer pago pendiente',
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                      <PackageCheck className="w-4 h-4 text-teal-500 shrink-0" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                  <p className="text-xs text-slate-400 pt-1">Tu organizador puede actualizar esta lista con elementos específicos para tu evento.</p>
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
