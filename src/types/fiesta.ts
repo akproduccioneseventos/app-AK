@@ -56,6 +56,8 @@ export interface Invitado {
   requiereAccesibilidad?: boolean;
   /** 0-100 readiness score reflecting how complete the guest's event preparation data is */
   readinessScore?: number;
+  /** Secure token for QR-based access control (preferred over raw guestId) */
+  guestAccessToken?: string;
 }
 
 // --- MENU MESA ---
@@ -421,6 +423,36 @@ export interface InvitacionDigitalCronograma {
 
 export type InvitacionPlantillaId = 'EleganteDorado' | 'ModernoMinimalista' | 'RomanticoFloral' | 'FiestaVibrante' | 'Grazia' | 'Allegria';
 
+export type InvitacionSectionId =
+  | 'hero'
+  | 'bienvenida'
+  | 'contador'
+  | 'cronograma'
+  | 'ubicacion'
+  | 'dressCode'
+  | 'galeria'
+  | 'regalos'
+  | 'rsvp'
+  | 'muroSocial'
+  | 'ctaAk'
+  | 'footer';
+
+export interface InvitacionTypographyConfig {
+  heroTitleMobile?: string;
+  heroTitleDesktop?: string;
+  sectionTitle?: string;
+  body?: string;
+  button?: string;
+  lineHeight?: string;
+  spacing?: string;
+}
+
+export interface InvitacionSectionConfig {
+  id: InvitacionSectionId;
+  visible: boolean;
+  order: number;
+}
+
 export interface InvitacionDigitalConfig {
   // Basic data
   nombreHomenajeada: string;
@@ -475,6 +507,19 @@ export interface InvitacionDigitalConfig {
   // Social portal
   portalSocialActivo: boolean;
   hashtagEvento?: string;
+
+  // Typography configuration
+  typography?: InvitacionTypographyConfig;
+
+  // Section visibility and ordering
+  sectionsConfig?: InvitacionSectionConfig[];
+
+  // AK Marketing CTA section
+  ctaAkActivo?: boolean;
+  ctaAkTitulo?: string;
+  ctaAkTexto?: string;
+  ctaAkLandingUrl?: string;
+  ctaAkWhatsapp?: string;
 }
 
 export interface InvitacionDigitalData {
@@ -663,6 +708,19 @@ export interface SocialGallerySettings {
   sorteoGanadores?: string[];
   screenMode?: ScreenModeSettings;
   screenMediaLibrary?: ScreenMediaAsset[];
+  /** Real AK branding shown on the giant screen */
+  brand?: SocialGalleryBrand;
+}
+
+export interface SocialGalleryBrand {
+  logoUrl?: string;
+  companyName?: string;
+  instagramHandle?: string;
+  facebookHandle?: string;
+  tiktokHandle?: string;
+  whatsappNumber?: string;
+  landingUrl?: string;
+  ctaText?: string;
 }
 
 export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';

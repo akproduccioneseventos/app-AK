@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { InvitacionDigitalConfig, InvitacionDigitalCronograma } from '@/types/fiesta';
+import type { DietaryRestriction, InvitacionDigitalConfig, InvitacionDigitalCronograma } from '@/types/fiesta';
 import type { SocialConnection } from '@/types/settings';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
@@ -57,8 +57,15 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
 // ---------- RSVP FORM ----------
 function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) {
   const [nombre, setNombre] = useState('');
+  const [contacto, setContacto] = useState('');
+  const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado' | 'Tal vez'>('Confirmado');
   const [personas, setPersonas] = useState('1');
+  const [acompanantes, setAcompanantes] = useState('');
+  const [dietaryRestriction, setDietaryRestriction] = useState<DietaryRestriction>('Ninguna');
+  const [alergiasEspecificas, setAlergiasEspecificas] = useState('');
+  const [cancion, setCancion] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [requiereAccesibilidad, setRequiereAccesibilidad] = useState(false);
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -69,11 +76,22 @@ function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) 
     setIsSubmitting(true);
     setError('');
     try {
+      const companionNames = acompanantes
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      const cancionesDJ = cancion.trim() ? [cancion.trim()] : [];
       const result = await submitPublicRsvp(fiestaId, {
         nombre: nombre.trim(),
-        asistencia: 'Confirmado',
-        dietaryRestriction: 'Ninguna',
-        cancionesDJ: [],
+        contacto: contacto.trim() || undefined,
+        asistencia,
+        partySize: parseInt(personas, 10) || 1,
+        companionNames: companionNames.length > 0 ? companionNames : undefined,
+        dietaryRestriction,
+        alergiasEspecificas: alergiasEspecificas.trim() || undefined,
+        cancionesDJ,
+        mensaje: mensaje.trim() || undefined,
+        requiereAccesibilidad,
       });
       if (result.success) {
         setSent(true);
@@ -87,14 +105,25 @@ function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) 
     }
   };
 
+  const asistenciaOptions: { value: 'Confirmado' | 'Rechazado' | 'Tal vez'; label: string; emoji: string }[] = [
+    { value: 'Confirmado', label: 'Confirmo asistencia', emoji: '✅' },
+    { value: 'Tal vez', label: 'Tal vez asisto', emoji: '🤔' },
+    { value: 'Rechazado', label: 'No puedo asistir', emoji: '❌' },
+  ];
+
   if (sent) {
+    const confirmLabels: Record<string, string> = {
+      Confirmado: '¡Hasta pronto!',
+      'Tal vez': '¡Gracias por avisarnos!',
+      Rechazado: 'Te vamos a extrañar.',
+    };
     return (
       <div className="text-center py-8 space-y-3">
         <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--inv-secondary)' }}>
           <Check className="w-8 h-8" style={{ color: 'var(--inv-primary)' }} />
         </div>
-        <h3 className="text-xl font-semibold">¡Confirmado!</h3>
-        <p className="text-gray-500">Gracias por confirmar tu asistencia, {nombre}.</p>
+        <h3 className="text-xl font-semibold">¡Listo, {nombre}!</h3>
+        <p className="text-gray-500">{confirmLabels[asistencia] ?? 'Gracias por responder.'}</p>
       </div>
     );
   }
@@ -102,25 +131,116 @@ function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
       {texto && <p className="text-center text-gray-600 mb-6">{texto}</p>}
+
+      {/* Nombre */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Tu nombre</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
         <Input value={nombre} onChange={e => setNombre(e.target.value)} required placeholder="Nombre completo" className="rounded-xl border-gray-200" />
       </div>
+
+      {/* Contacto */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">¿Cuántas personas?</label>
-        <Input type="number" min="1" max="10" value={personas} onChange={e => setPersonas(e.target.value)} className="rounded-xl border-gray-200" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono / WhatsApp (opcional)</label>
+        <Input value={contacto} onChange={e => setContacto(e.target.value)} placeholder="099 000 000" className="rounded-xl border-gray-200" />
       </div>
+
+      {/* Asistencia */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje (opcional)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">¿Vas a asistir?</label>
+        <div className="grid grid-cols-3 gap-2">
+          {asistenciaOptions.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setAsistencia(opt.value)}
+              className={cn(
+                'rounded-xl py-2 px-1 text-xs font-semibold border-2 transition-all',
+                asistencia === opt.value
+                  ? 'border-current text-white shadow-md'
+                  : 'border-gray-200 text-gray-600 bg-white'
+              )}
+              style={asistencia === opt.value ? { backgroundColor: 'var(--inv-primary)', borderColor: 'var(--inv-primary)' } : {}}
+            >
+              <span className="block text-base mb-0.5">{opt.emoji}</span>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {asistencia !== 'Rechazado' && (
+        <>
+          {/* Cantidad personas */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">¿Cuántas personas venís?</label>
+            <Input type="number" min="1" max="20" value={personas} onChange={e => setPersonas(e.target.value)} className="rounded-xl border-gray-200" />
+          </div>
+
+          {/* Acompañantes */}
+          {parseInt(personas, 10) > 1 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nombres de acompañantes (separados por coma)</label>
+              <Input value={acompanantes} onChange={e => setAcompanantes(e.target.value)} placeholder="María, Carlos, Lucía..." className="rounded-xl border-gray-200" />
+            </div>
+          )}
+
+          {/* Dieta */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Restricción alimentaria</label>
+            <select
+              value={dietaryRestriction}
+              onChange={e => setDietaryRestriction(e.target.value as typeof dietaryRestriction)}
+              className="w-full rounded-xl border border-gray-200 p-2.5 text-sm bg-white focus:outline-none focus:ring-2"
+              style={{ '--tw-ring-color': 'var(--inv-primary)' } as React.CSSProperties}
+            >
+              <option value="Ninguna">Sin restricciones</option>
+              <option value="Celiaco">Celíaco/a</option>
+              <option value="Vegetariano">Vegetariano/a</option>
+              <option value="Vegano">Vegano/a</option>
+              <option value="Otro">Otra (especificar)</option>
+            </select>
+          </div>
+
+          {(dietaryRestriction === 'Otro' || dietaryRestriction === 'Celiaco') && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">¿Qué alergia o restricción tenés?</label>
+              <Input value={alergiasEspecificas} onChange={e => setAlergiasEspecificas(e.target.value)} placeholder="Ej: alergia al maní, sin lactosa..." className="rounded-xl border-gray-200" />
+            </div>
+          )}
+
+          {/* Canción */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sugerencia de canción al DJ (opcional)</label>
+            <Input value={cancion} onChange={e => setCancion(e.target.value)} placeholder="Artista - Canción..." className="rounded-xl border-gray-200" />
+          </div>
+
+          {/* Accesibilidad */}
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
+            <input
+              type="checkbox"
+              id="accesibilidad"
+              checked={requiereAccesibilidad}
+              onChange={e => setRequiereAccesibilidad(e.target.checked)}
+              className="w-4 h-4 rounded"
+            />
+            <label htmlFor="accesibilidad" className="text-sm text-gray-700">Necesito asistencia de accesibilidad (movilidad reducida, etc.)</label>
+          </div>
+        </>
+      )}
+
+      {/* Mensaje */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje para la familia (opcional)</label>
         <textarea
           value={mensaje}
           onChange={e => setMensaje(e.target.value)}
           className="w-full rounded-xl border border-gray-200 p-3 text-sm resize-none focus:outline-none focus:ring-2"
           style={{ '--tw-ring-color': 'var(--inv-primary)' } as React.CSSProperties}
           rows={3}
-          placeholder="Deja un mensaje para los anfitriones..."
+          placeholder="Dejá un mensaje especial..."
         />
       </div>
+
       {error && <p className="text-sm text-red-500 text-center">{error}</p>}
       <Button
         type="submit"
@@ -128,7 +248,7 @@ function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) 
         className="w-full rounded-xl h-12 text-base font-semibold text-white shadow-lg"
         style={{ backgroundColor: 'var(--inv-primary)' }}
       >
-        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirmar Asistencia'}
+        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Enviar Confirmación'}
       </Button>
     </form>
   );
@@ -592,7 +712,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             </p>
           )}
           <a
-            href={`/evento/muro-en-vivo/${fiestaId}`}
+            href={`/evento/social/${fiestaId}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"

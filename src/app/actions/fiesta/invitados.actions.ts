@@ -279,12 +279,25 @@ export async function submitPublicRsvp(
   fiestaId: string,
   submission: {
     nombre: string;
-    asistencia: 'Confirmado' | 'Rechazado';
+    contacto?: string;
+    asistencia: 'Confirmado' | 'Rechazado' | 'Tal vez';
+    partySize?: number;
+    companionNames?: string[];
     dietaryRestriction: DietaryRestriction;
+    alergiasEspecificas?: string;
     cancionesDJ: string[];
+    mensaje?: string;
+    requiereAccesibilidad?: boolean;
   }
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   let savedInvitado: Invitado | undefined;
+
+  // Normalise dietary restriction to valid type
+  const dietary: DietaryRestriction = (['Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'] as DietaryRestriction[]).includes(submission.dietaryRestriction as DietaryRestriction)
+    ? (submission.dietaryRestriction as DietaryRestriction)
+    : 'Ninguna';
+
+  const rsvpStatus: RsvpStatus = submission.asistencia === 'Tal vez' ? 'Tal vez' : submission.asistencia;
 
   const result = await updateFiestaData(fiestaId, data => {
     const currentInvitados = data.invitados || [];
@@ -295,10 +308,16 @@ export async function submitPublicRsvp(
     if (existingIndex > -1) {
       savedInvitado = {
         ...currentInvitados[existingIndex],
-        rsvp: submission.asistencia,
-        dietaryRestriction: submission.dietaryRestriction,
-        cancionesDJ: submission.cancionesDJ,
-        isCeliac: submission.dietaryRestriction === 'Celiaco',
+        rsvp: rsvpStatus,
+        contacto: submission.contacto ?? currentInvitados[existingIndex].contacto,
+        partySize: submission.partySize ?? currentInvitados[existingIndex].partySize,
+        companionNames: submission.companionNames ?? currentInvitados[existingIndex].companionNames,
+        dietaryRestriction: dietary,
+        alergiasEspecificas: submission.alergiasEspecificas ?? currentInvitados[existingIndex].alergiasEspecificas,
+        cancionesDJ: submission.cancionesDJ.length > 0 ? submission.cancionesDJ : currentInvitados[existingIndex].cancionesDJ,
+        mensaje: submission.mensaje ?? currentInvitados[existingIndex].mensaje,
+        requiereAccesibilidad: submission.requiereAccesibilidad ?? currentInvitados[existingIndex].requiereAccesibilidad,
+        isCeliac: dietary === 'Celiaco',
       };
       currentInvitados[existingIndex] = savedInvitado;
       return { ...data, invitados: [...currentInvitados] };
@@ -306,11 +325,17 @@ export async function submitPublicRsvp(
       savedInvitado = {
         id: `inv_rsvp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         nombre: submission.nombre.trim(),
-        rsvp: submission.asistencia,
+        rsvp: rsvpStatus,
         categoria: 'Adulto',
-        dietaryRestriction: submission.dietaryRestriction,
+        contacto: submission.contacto,
+        partySize: submission.partySize,
+        companionNames: submission.companionNames,
+        dietaryRestriction: dietary,
+        alergiasEspecificas: submission.alergiasEspecificas,
         cancionesDJ: submission.cancionesDJ,
-        isCeliac: submission.dietaryRestriction === 'Celiaco',
+        mensaje: submission.mensaje,
+        requiereAccesibilidad: submission.requiereAccesibilidad,
+        isCeliac: dietary === 'Celiaco',
       };
       return { ...data, invitados: [...currentInvitados, savedInvitado] };
     }
