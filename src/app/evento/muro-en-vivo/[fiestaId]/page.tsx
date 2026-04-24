@@ -3,11 +3,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { getSocialPosts } from '@/app/actions/social-gallery';
-import type { SocialGalleryPost } from '@/types/social-gallery';
+import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { getActivePoll } from '@/app/actions/social-interactive';
+import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { ScreenPlaylistItem, SocialGallerySettings } from '@/types/fiesta';
@@ -52,6 +52,7 @@ export default function MuroEnVivoPage() {
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
+  const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
@@ -61,13 +62,14 @@ export default function MuroEnVivoPage() {
   const fetchData = useCallback(async () => {
     if (!fiestaId) return;
     try {
-      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections] = await Promise.all([
+      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections, dedicationsData] = await Promise.all([
         getSocialPosts(fiestaId),
         getFiestaById(fiestaId),
         getActivePoll(fiestaId),
         getCompanyInfo(),
         getInvoiceTemplateSettings(),
         getSocialConnections(),
+        getDedications(fiestaId),
       ]);
 
       const sorted = [...fetchedPosts].sort(
@@ -98,6 +100,7 @@ export default function MuroEnVivoPage() {
       } else {
         setActivePoll(null);
       }
+      setHighlightedDedications((dedicationsData ?? []).filter(d => d.highlighted));
       setCompanyMarketingText(
         companyInfo?.companyName
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
@@ -265,6 +268,17 @@ export default function MuroEnVivoPage() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {highlightedDedications.length > 0 && !activePoll && (
+        <div className="absolute left-6 top-20 z-30 w-[32vw] max-w-sm space-y-3">
+          {highlightedDedications.slice(0, 3).map(d => (
+            <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+              <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
+              <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
+            </div>
+          ))}
         </div>
       )}
 

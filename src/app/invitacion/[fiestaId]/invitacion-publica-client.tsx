@@ -123,7 +123,7 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
 }
 
 // ---------- RSVP FORM ----------
-function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) {
+function RsvpSection({ fiestaId, texto, typography }: { fiestaId: string; texto?: string; typography?: InvitacionTypographyConfig }) {
   const [nombre, setNombre] = useState('');
   const [contacto, setContacto] = useState('');
   const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado' | 'Tal vez'>('Confirmado');
@@ -313,7 +313,7 @@ function RsvpSection({ fiestaId, texto }: { fiestaId: string; texto?: string }) 
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-xl h-12 text-base font-semibold text-white shadow-lg"
+        className={cn('w-full rounded-xl h-12 font-semibold text-white shadow-lg', getButtonTextClass(typography))}
         style={{ backgroundColor: 'var(--inv-primary)' }}
       >
         {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Enviar Confirmación'}
@@ -339,14 +339,14 @@ function CopyButton({ text }: { text: string }) {
 }
 
 // ---------- SECTION WRAPPER ----------
-const Section: React.FC<{ children: React.ReactNode; className?: string; id?: string }> = ({ children, className, id }) => (
+const Section: React.FC<{ children: React.ReactNode; className?: string; id?: string; typography?: InvitacionTypographyConfig }> = ({ children, className, id, typography }) => (
   <motion.section
     id={id}
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: '-50px' }}
     transition={{ duration: 0.6, ease: 'easeOut' }}
-    className={cn('px-4 sm:px-8 py-8 sm:py-16', className)}
+    className={cn('px-4 sm:px-8', getSectionSpacingClass(typography), className)}
   >
     {children}
   </motion.section>
@@ -505,7 +505,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   };
 
   addSectionEntry('bienvenida', !!config.textoBienvenida, (
-    <Section key="bienvenida" id="bienvenida" className="text-center max-w-2xl mx-auto">
+    <Section key="bienvenida" id="bienvenida" className="text-center max-w-2xl mx-auto" typography={config.typography}>
       <div className="w-16 h-px mx-auto mb-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
       {isEditorMode && onConfigChange ? (
         <EditableText
@@ -514,14 +514,14 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
           className="text-lg sm:text-xl text-gray-600 leading-relaxed border-gray-400 text-gray-700"
         />
       ) : (
-        <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">{config.textoBienvenida}</p>
+        <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 leading-relaxed')}>{config.textoBienvenida}</p>
       )}
       <div className="w-16 h-px mx-auto mt-8" style={{ backgroundColor: 'var(--inv-primary)' }} />
     </Section>
   ));
 
   addSectionEntry('contador', config.contadorActivo && !!config.fechaEvento, (
-    <Section key="contador" className={cn('text-center', styles.sectionAltBg)}>
+    <Section key="contador" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
       <h2 className={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         Faltan...
       </h2>
@@ -530,7 +530,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ));
 
   addSectionEntry('cronograma', !!hasCronograma, (
-    <Section key="cronograma" className="max-w-lg mx-auto">
+    <Section key="cronograma" className="max-w-lg mx-auto" typography={config.typography}>
       <h2 className={cn(getSectionTitleClass(config.typography), 'text-center mb-10', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         Cronograma
       </h2>
@@ -541,7 +541,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             <div className="absolute left-1.5 top-1 w-5 h-5 rounded-full border-2 bg-white" style={{ borderColor: 'var(--inv-primary)' }} />
             <div className="flex items-baseline gap-3">
               <span className="text-sm font-bold whitespace-nowrap" style={{ color: 'var(--inv-primary)' }}>{item.hora}</span>
-              <span className="text-gray-700">
+              <span className={cn(getBodyTextClass(config.typography), 'text-gray-700')}>
                 {item.icono ? `${item.icono} ` : ''}
                 {item.actividad}
               </span>
@@ -553,20 +553,20 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ));
 
   addSectionEntry('ubicacion', hasLocation, (
-    <Section key="ubicacion" className={cn('text-center', styles.sectionAltBg)}>
+    <Section key="ubicacion" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
       <MapPin className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
       <h2 className={cn(getSectionTitleClass(config.typography), 'mb-2', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         {config.nombreSalon || 'Ubicación'}
       </h2>
       {config.direccionSalon && (
-        <p className="text-gray-600 mb-6">{config.direccionSalon}</p>
+        <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 mb-6')}>{config.direccionSalon}</p>
       )}
       {config.linkMaps && (
         <a
           href={config.linkMaps}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
+          className={cn('inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105', getButtonTextClass(config.typography))}
           style={{ backgroundColor: 'var(--inv-primary)' }}
         >
           <MapPin className="w-4 h-4" />
@@ -577,7 +577,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ));
 
   addSectionEntry('dressCode', hasDressCode, (
-    <Section key="dressCode" className="text-center max-w-lg mx-auto">
+    <Section key="dressCode" className="text-center max-w-lg mx-auto" typography={config.typography}>
       <Shirt className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
       <h2 className={cn(getSectionTitleClass(config.typography), 'mb-4', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         Dress Code
@@ -590,17 +590,17 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       {config.dressCode.colorSugerido && (
         <div className="mt-6 flex items-center justify-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-gray-200 shadow-inner" style={{ backgroundColor: config.dressCode.colorSugerido }} />
-          <span className="text-sm text-gray-600">Color sugerido</span>
+          <span className={cn(getBodyTextClass(config.typography), 'text-gray-600')}>Color sugerido</span>
         </div>
       )}
       {config.dressCode.restricciones && (
-        <p className="mt-4 text-sm text-gray-500 italic">⚠ {config.dressCode.restricciones}</p>
+        <p className={cn(getBodyTextClass(config.typography), 'mt-4 text-gray-500 italic')}>⚠ {config.dressCode.restricciones}</p>
       )}
     </Section>
   ));
 
   addSectionEntry('galeria', hasGallery, (
-    <Section key="galeria" className={styles.sectionAltBg}>
+    <Section key="galeria" className={styles.sectionAltBg} typography={config.typography}>
       <h2 className={cn(getSectionTitleClass(config.typography), 'text-center mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         Galería
       </h2>
@@ -616,7 +616,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ));
 
   addSectionEntry('regalos', hasGifts, (
-    <Section key="regalos" className="max-w-lg mx-auto">
+    <Section key="regalos" className="max-w-lg mx-auto" typography={config.typography}>
       <div className="text-center mb-8">
         {(config.regalos.tipo === 'dinero' || config.regalos.tipo === 'ambos')
           ? <CreditCard className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
@@ -688,23 +688,23 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ));
 
   addSectionEntry('rsvp', config.rsvpActivo, (
-    <Section key="rsvp" className={cn('max-w-lg mx-auto', styles.sectionAltBg)} id="rsvp">
+    <Section key="rsvp" className={cn('max-w-lg mx-auto', styles.sectionAltBg)} id="rsvp" typography={config.typography}>
       <Users className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
       <h2 className={cn(getSectionTitleClass(config.typography), 'text-center mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         Confirmar Asistencia
       </h2>
-      <RsvpSection fiestaId={fiestaId} texto={config.rsvpTexto} />
+      <RsvpSection fiestaId={fiestaId} texto={config.rsvpTexto} typography={config.typography} />
     </Section>
   ));
 
   addSectionEntry('muroSocial', hasSocialPortal, (
-    <Section key="muroSocial" className="text-center">
+    <Section key="muroSocial" className="text-center" typography={config.typography}>
       <Camera className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
       <h2 className={cn(getSectionTitleClass(config.typography), 'mb-4', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         ¡Compartí tus fotos!
       </h2>
       {config.hashtagEvento && (
-        <p className="text-lg font-semibold mb-6" style={{ color: 'var(--inv-accent)' }}>
+        <p className={cn(getBodyTextClass(config.typography), 'font-semibold mb-6')} style={{ color: 'var(--inv-accent)' }}>
           {config.hashtagEvento}
         </p>
       )}
@@ -712,7 +712,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         href={`/evento/social/${fiestaId}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105"
+        className={cn('inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition-transform hover:scale-105', getButtonTextClass(config.typography))}
         style={{ backgroundColor: 'var(--inv-primary)' }}
       >
         <Camera className="w-4 h-4" />

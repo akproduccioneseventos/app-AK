@@ -6,8 +6,10 @@ import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer } from '@/app/actions/customers'; 
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
 import { createNotification } from './notifications';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import * as logger from '@/lib/logger';
 
@@ -311,6 +313,61 @@ export async function checkDuplicatePhone(phone: string): Promise<{ duplicate: C
     return { duplicate: found };
 }
 
+export async function registerContractDeposit(params: {
+  presupuesto: Presupuesto;
+  monto: number;
+  referencia?: string;
+}): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
+  const { presupuesto, monto, referencia } = params;
+  const now = new Date().toISOString();
+  const pagoId = `pago_senia_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+  const newPago: PagoCliente = {
+    id: pagoId,
+    fecha: now,
+    monto,
+    metodoPago: 'Efectivo',
+    referencia: referencia ?? 'Seña registrada al firmar contrato',
+  };
+
+  const updatedPagosCliente = [...(presupuesto.pagosCliente ?? []), newPago];
+  const totalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado ?? 0;
+  const totalPagado = updatedPagosCliente.reduce((acc, p) => acc + (p.monto || 0), 0);
+  const saldo = Math.max(0, totalConDescuento - totalPagado);
+
+  const updatedPresupuesto: Presupuesto = {
+    ...presupuesto,
+    pagosCliente: updatedPagosCliente,
+    senia: (presupuesto.senia ?? 0) + monto,
+    saldo,
+  };
+
+  // Sync invoice payments if invoice exists
+  if (presupuesto.invoiceId) {
+    try {
+      const invoice = await getInvoiceById(presupuesto.invoiceId);
+      if (invoice) {
+        const invoicePayment = {
+          id: pagoId,
+          paymentDate: now,
+          amount: monto,
+          method: 'Efectivo' as const,
+          notes: referencia ?? 'Seña registrada al firmar contrato',
+        };
+        const updatedInvoice = {
+          ...invoice,
+          payments: [...(invoice.payments ?? []), invoicePayment],
+        };
+        await saveInvoice(updatedInvoice);
+      }
+    } catch (e) {
+      logger.warn('[registerContractDeposit] Error syncing invoice payments', e);
+    }
+  }
+
+  return { updatedPresupuesto, pagoId };
+}
+
 export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
     const leadId = formData.get('leadId') as string;
@@ -395,7 +452,34 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       notes: `Firma registrada al confirmar contratación. CI: ${ci || 'N/D'}. Domicilio: ${address || 'N/D'}.`,
     };
 
-    // 4. Create Fiesta con datos del formulario y registro de firma
+    const now = new Date().toISOString();
+
+    // 3. Update Presupuesto FIRST with form data, set estado='Aceptado'
+    const presupuestoWithFormData: Presupuesto = {
+      ...presupuesto,
+      estado: 'Aceptado',
+      clienteNombre: finalName,
+      clienteContacto: finalPhone || presupuesto.clienteContacto,
+      salonFiestas: finalSalon,
+      eventoFecha: finalFechaEvento || presupuesto.eventoFecha,
+      fechaFirmaContrato: now,
+    };
+
+    // 4. Register deposit via registerContractDeposit
+    let finalPresupuesto = presupuestoWithFormData;
+    if (formMontoSenia !== undefined && formMontoSenia > 0) {
+      const { updatedPresupuesto } = await registerContractDeposit({
+        presupuesto: presupuestoWithFormData,
+        monto: formMontoSenia,
+        referencia: 'Seña registrada al firmar contrato',
+      });
+      finalPresupuesto = updatedPresupuesto;
+    }
+
+    // 5. Save the fully updated presupuesto
+    await updatePresupuesto(finalPresupuesto);
+
+    // 6. Create Fiesta using updated presupuesto data
     const newFiesta: FiestaEnPlanificacion = {
       ...initialFiestaActualData,
       id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -415,36 +499,10 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     newFiesta.modulosContratados = { ...defaultModulosContratados };
     await saveFiesta(newFiesta);
 
-    // 5. Sync from budget
+    // 7. Sync from budget (now uses fresh data)
     await syncFiestaFromBudget(newFiesta.id);
 
-    // 6. Update Presupuesto with overridden data and signature date, including deposit
-    const now = new Date().toISOString();
-    const updatedPagosCliente = [...(presupuesto.pagosCliente || [])];
-    if (formMontoSenia !== undefined && formMontoSenia > 0) {
-      updatedPagosCliente.push({
-        id: `pago_senia_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        fecha: now,
-        monto: formMontoSenia,
-        metodoPago: 'Efectivo' as const,
-        referencia: 'Seña registrada al firmar contrato',
-      });
-    }
-    const totalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-    const totalPagado = updatedPagosCliente.reduce((acc, p) => acc + (p.monto || 0), 0);
-    await updatePresupuesto({
-      ...presupuesto,
-      estado: 'Aceptado',
-      clienteNombre: finalName,
-      clienteContacto: finalPhone || presupuesto.clienteContacto,
-      salonFiestas: finalSalon,
-      eventoFecha: finalFechaEvento || presupuesto.eventoFecha,
-      ...(formMontoSenia !== undefined ? { senia: formMontoSenia, saldo: Math.max(0, totalConDescuento - totalPagado) } : {}),
-      pagosCliente: updatedPagosCliente,
-      fechaFirmaContrato: now,
-    });
-
-    // 7. Update lead: move to conversion stage, add timeline events, link contract
+    // 8. Update lead: move to conversion stage, add timeline events, link contract
     {
       const currentLeads = await getCrmLeads();
       const leadIdx = currentLeads.findIndex(l => l.id === leadId);
