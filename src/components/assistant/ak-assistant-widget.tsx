@@ -314,7 +314,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
             <Check className="h-4 w-4 text-green-600 shrink-0" />
             <span className="text-xs text-green-800 font-medium">Empleado {action.data?.nombre} registrado</span>
           </div>
-          <Link href="/empresa/empleados" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          <Link href="/empleados" className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
         </div>
       );
     }
@@ -537,6 +537,21 @@ export function AKAssistantWidget() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast({ title: 'Archivo muy grande', description: 'El archivo no puede superar 10 MB.', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast({ title: 'Tipo de archivo no permitido', description: 'Solo se admiten imágenes (JPEG, PNG, GIF, WebP) y archivos PDF.', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataUri = ev.target?.result as string;

@@ -930,18 +930,18 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         });
         actionResult = empResult;
         if (empResult.success) {
-          finalResponse = `✅ Empleado **${d.nombre || 'nuevo'}** registrado correctamente. Podés verlo en [/empresa/empleados](/empresa/empleados).`;
+          finalResponse = `✅ Empleado **${d.nombre || 'nuevo'}** registrado correctamente. Podés verlo en [/empleados](/empleados).`;
         } else {
-          finalResponse = `❌ No se pudo registrar el empleado: ${(empResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /empresa/empleados.`;
+          finalResponse = `❌ No se pudo registrar el empleado: ${(empResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /empleados.`;
         }
       } catch (e: any) {
         logger.error('[Asistente AK] Error en create_employee:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo registrar el empleado. Intentá de nuevo o ingresalo manualmente desde [/empresa/empleados](/empresa/empleados).`;
+        finalResponse = `❌ No se pudo registrar el empleado. Intentá de nuevo o ingresalo manualmente desde [/empleados](/empleados).`;
       }
     } else if (result.action?.type === 'create_employee') {
       actionResult = { success: false, error: 'Falta información del empleado.' };
-      finalResponse = `⚠️ Falta información del empleado. Proporcioná al menos el nombre, o ingresalo manualmente desde [/empresa/empleados](/empresa/empleados).`;
+      finalResponse = `⚠️ Falta información del empleado. Proporcioná al menos el nombre, o ingresalo manualmente desde [/empleados](/empleados).`;
     } else if (result.action?.type === 'create_supplier' && result.action.data) {
       const d = result.action.data;
       try {

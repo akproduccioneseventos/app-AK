@@ -97,6 +97,7 @@ export interface Presupuesto {
   source?: PresupuestoSource;
   pagosCliente?: PagoCliente[]; // Detailed client payment records
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real (e.g. 15 → Precio de Lista)
+  modoDescuentoPromocional?: boolean; // When true the discount is a visual/promotional markdown (no real cost change)
   senia?: number; // Monto de la seña acordada
   saldo?: number; // Saldo restante a pagar
   ajusteAnualPorcentaje?: number; // Porcentaje de ajuste anual pactado

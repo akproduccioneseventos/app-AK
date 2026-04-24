@@ -23,12 +23,20 @@ import {
   Image as ImageIcon,
   Heart,
   Zap,
+  BookHeart,
+  PackageCheck,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago } from '@/types/fiesta';
 import NextImage from 'next/image';
@@ -91,6 +99,7 @@ export default function PortalClientePage() {
   const [authError, setAuthError]     = useState<string | null>(null);
   const [isLoading, setIsLoading]     = useState(true);
   const [pageError, setPageError]     = useState<string | null>(null);
+  const [openSections, setOpenSections] = useState<string[]>(['resumen']);
 
   // seating edit state
   const [editingId, setEditingId]         = useState<string | null>(null);
@@ -304,47 +313,7 @@ export default function PortalClientePage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-
-        {/* ── Event Summary ─────────────────────────────────── */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base font-black">
-              <CalendarDays className="w-5 h-5 text-purple-600" /> Resumen del Evento
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid sm:grid-cols-2 gap-4 text-sm">
-              <div className="space-y-3">
-                <InfoRow label="Evento"    value={config.nombreEvento} />
-                <InfoRow label="Tipo"      value={config.tipoCelebracion} />
-                <InfoRow label="Fecha"     value={formatDate(config.fechaEvento)} />
-                <InfoRow label="Horario"   value={config.horaInicio && config.horaFin ? `${config.horaInicio} – ${config.horaFin}` : config.horaInicio ?? '—'} />
-              </div>
-              <div className="space-y-3">
-                {config.nombreLugar && (
-                  <InfoRow label="Salón" value={config.nombreLugar} icon={<MapPin className="w-3.5 h-3.5 text-slate-400" />} />
-                )}
-                {config.direccionLugar && (
-                  <InfoRow label="Dirección" value={config.direccionLugar} />
-                )}
-                <InfoRow label="Invitados" value={`${config.invitadosEstimados} personas`} icon={<Users className="w-3.5 h-3.5 text-slate-400" />} />
-                {(config.protagonista1Nombre || config.protagonista2Nombre) && (
-                  <InfoRow
-                    label="Protagonistas"
-                    value={[config.protagonista1Nombre, config.protagonista2Nombre].filter(Boolean).join(' & ')}
-                  />
-                )}
-              </div>
-            </div>
-            {config.notesAdicionales && (
-              <div className="mt-4 p-3 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100">
-                <span className="font-semibold text-slate-700">Notas: </span>
-                {config.notesAdicionales}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
         {/* ── Progreso del Evento ──────────────────────── */}
         <EventProgressBar fiesta={fiesta} />
@@ -377,7 +346,7 @@ export default function PortalClientePage() {
             : isXV
             ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web'
             : 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web';
-          const emoji = isBoda ? '��' : isXV ? '👑' : '🎉';
+          const emoji = isBoda ? <BookHeart className="w-6 h-6 text-rose-500" /> : isXV ? '👑' : '🎉';
           const label = isBoda ? 'Ver Catálogo Completo de Bodas' : isXV ? 'Ver Catálogo Completo de XV Años' : 'Ver Catálogo Completo de Fiestas';
           return (
             <a href={canvaUrl} target="_blank" rel="noopener noreferrer" className="block">
@@ -505,10 +474,10 @@ export default function PortalClientePage() {
             pendientes.push({ texto: 'Confirmar menú', emoji: '🍽️', href: '#catering' });
           }
           if (progress.areas.musica.status === 'gris' || progress.areas.musica.status === 'amarillo') {
-            pendientes.push({ texto: 'Cargar lista de canciones', emoji: '🎵', href: '#musica' });
+            pendientes.push({ texto: 'Cargar lista de canciones', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica` });
           }
           if (!fiesta.videoVida?.photosUploaded) {
-            pendientes.push({ texto: 'Subir fotos para video de vida', emoji: '📷', href: '#video-vida' });
+            pendientes.push({ texto: 'Subir fotos para video de vida', emoji: '📷', href: `/portal-cliente/${fiestaId}/fotos-video` });
           }
           const pendientesRsvp = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
           if (pendientesRsvp.length > 0) {
@@ -520,6 +489,18 @@ export default function PortalClientePage() {
           }
 
           if (pendientes.length === 0) return null;
+
+          const handlePendienteClick = (href: string) => {
+            if (href.startsWith('/')) {
+              window.location.href = href;
+            } else if (href.startsWith('#')) {
+              const sectionId = href.slice(1);
+              setOpenSections(prev => prev.includes(sectionId) ? prev : [...prev, sectionId]);
+              setTimeout(() => {
+                document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+              }, 200);
+            }
+          };
 
           return (
             <Card className="border-amber-100 bg-gradient-to-br from-amber-50/80 to-orange-50/60">
@@ -538,7 +519,7 @@ export default function PortalClientePage() {
                       key={idx}
                       type="button"
                       className="w-full flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-amber-100 text-sm cursor-pointer hover:bg-white transition-colors text-left"
-                      onClick={() => item.href && document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' })}
+                      onClick={() => item.href && handlePendienteClick(item.href)}
                     >
                       <span className="text-xl shrink-0">{item.emoji}</span>
                       <span className="flex-1 font-semibold text-slate-700">{item.texto}</span>
@@ -551,252 +532,334 @@ export default function PortalClientePage() {
           );
         })()}
 
-        {/* ── Financials ────────────────────────────────────── */}
-        {showFinancials && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base font-black">
-              <DollarSign className="w-5 h-5 text-green-600" /> Estado Financiero
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Summary row */}
-            <div className="grid grid-cols-3 gap-3">
-              <FinancialStat label="Total"    value={formatCurrency(totalCost)}  color="text-slate-900" />
-              <FinancialStat label="Pagado"   value={formatCurrency(totalPaid)}  color="text-green-700" />
-              <FinancialStat label="Saldo"    value={formatCurrency(balance)}    color={balance > 0 ? 'text-red-600' : 'text-green-700'} />
-            </div>
-            {/* Progress bar */}
-            {totalCost > 0 && (
-              <div>
-                <div className="flex justify-between text-xs text-slate-500 mb-1">
-                  <span>Progreso de pagos</span>
-                  <span>{Math.round((totalPaid / totalCost) * 100)}%</span>
+        {/* ── Secciones plegables ──────────────────────── */}
+        <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-3">
+
+          {/* ── Resumen del Evento ──────────────────────── */}
+          <AccordionItem value="resumen" id="resumen" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+              <span className="flex items-center gap-2 text-base font-black">
+                <CalendarDays className="w-5 h-5 text-purple-600" /> Resumen del Evento
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="px-5 pb-5">
+              <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-3">
+                  <InfoRow label="Evento"    value={config.nombreEvento} />
+                  <InfoRow label="Tipo"      value={config.tipoCelebracion} />
+                  <InfoRow label="Fecha"     value={formatDate(config.fechaEvento)} />
+                  <InfoRow label="Horario"   value={config.horaInicio && config.horaFin ? `${config.horaInicio} – ${config.horaFin}` : config.horaInicio ?? '—'} />
                 </div>
-                <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-green-500 transition-all"
-                    style={{ width: `${Math.min(100, (totalPaid / totalCost) * 100)}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            {/* Cuotas table */}
-            {cuotas.length > 0 ? (
-              <div className="space-y-2">
-                <p className="text-xs font-black uppercase tracking-wider text-slate-500">Detalle de cuotas</p>
-                {cuotas.map(cuota => (
-                  <div key={cuota.id} className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-slate-800 truncate">{cuota.descripcion}</p>
-                      <p className="text-xs text-slate-500">Vence: {formatDate(cuota.fechaVencimiento)}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="font-black text-slate-900">{formatCurrency(cuota.monto)}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cuotaStatusColor(cuota.estado)}`}>
-                        {cuotaStatusLabel(cuota.estado)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-400 text-center py-4">No hay plan de pagos cargado aún.</p>
-            )}
-          </CardContent>
-        </Card>
-        )}
-
-        {/* ── RSVP Tracker ─────────────────────────────────── */}
-        {showInvitados && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base font-black">
-              <Users className="w-5 h-5 text-blue-600" /> Lista de Invitados (RSVP)
-            </CardTitle>
-            <CardDescription>
-              Confirmados: <strong>{confirmed.length}</strong> · No asisten: <strong>{declined.length}</strong> · Pendientes: <strong>{pending.length}</strong>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {invitados.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-4">Todavía no hay invitados cargados.</p>
-            ) : (
-              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                {[...confirmed, ...declined, ...pending].map(inv => (
-                  <div key={inv.id} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                    {rsvpIcon(inv.rsvp)}
-                    <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
-                    {inv.categoria && (
-                      <Badge variant="outline" className="text-xs shrink-0">{inv.categoria}</Badge>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        )}
-
-        {/* ── Seating Plan ─────────────────────────────────── */}
-        {showInvitados && confirmed.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-black">
-                <MapPin className="w-5 h-5 text-orange-500" /> Plan de Mesas
-              </CardTitle>
-              <CardDescription>Asigná los invitados confirmados a sus mesas.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {confirmed.map(inv => (
-                  <div key={inv.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                    <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
-                    {editingId === inv.id ? (
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Input
-                          className="h-7 w-20 text-xs"
-                          placeholder="N° mesa"
-                          value={editingTable}
-                          onChange={e => setEditingTable(e.target.value)}
-                          autoFocus
-                          onKeyDown={e => { if (e.key === 'Enter') handleSaveTable(inv); if (e.key === 'Escape') setEditingId(null); }}
-                        />
-                        <Button size="sm" className="h-7 px-2 text-xs" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
-                          {isSavingSeat ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'}
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEditingId(null)}>✕</Button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => { setEditingId(inv.id); setEditingTable(inv.tableNumber ?? ''); }}
-                        className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 font-semibold shrink-0"
-                      >
-                        {inv.tableNumber ? `Mesa ${inv.tableNumber}` : <span className="text-slate-400">Sin mesa</span>}
-                        <ChevronRight className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ── Catering / Timeline ──────────────────────────── */}
-        {(showCatering || showTimeline) && (
-        <div className="grid sm:grid-cols-2 gap-6">
-          {showCatering && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-black">
-                <UtensilsCrossed className="w-5 h-5 text-amber-600" /> Catering
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-slate-600 space-y-2">
-              {fiesta.modulosContratados?.catering ? (
-                <>
-                  <p className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" /> Servicio de catering incluido</p>
-                  <p className="text-xs text-slate-400 mt-1">Tu menú personalizado fue coordinado con el equipo de AK Producciones.</p>
-                </>
-              ) : (
-                <p className="text-slate-400">Catering no contratado en este paquete.</p>
-              )}
-            </CardContent>
-          </Card>
-          )}
-
-          {showTimeline && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-black">
-                <Clock className="w-5 h-5 text-purple-600" /> Cronograma
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-2">
-              {(fiesta.programa ?? []).length > 0 ? (
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {(fiesta.programa ?? []).map((item, i) => (
-                    <div key={i} className="flex gap-3 items-start">
-                      <span className="text-xs font-black text-purple-600 shrink-0 pt-0.5">{item.hora}</span>
-                      <span className="text-slate-700">{item.titulo}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-slate-400">El cronograma aún no está cargado.</p>
-              )}
-            </CardContent>
-          </Card>
-          )}
-        </div>
-        )}
-
-        {/* ── Decoración Preview ───────────────────────────── */}
-        {hasDecorationPreview && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-black">
-                <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
-              </CardTitle>
-              {fiesta.decoracion?.tema && (
-                <CardDescription>Tema: <strong>{fiesta.decoracion.tema}</strong></CardDescription>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Color palette */}
-              {fiesta.decoracion?.paletaColores && (
-                <div className="space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Paleta de Colores</p>
-                  <div className="flex gap-3 items-center">
-                    {Object.entries(fiesta.decoracion.paletaColores).map(([key, color]) => (
-                      <div key={key} className="flex flex-col items-center gap-1">
-                        <div className="w-10 h-10 rounded-2xl border-2 border-white shadow-lg" style={{ backgroundColor: color as string }} />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">{key === 'primary' ? 'Principal' : key === 'secondary' ? 'Secundario' : 'Acento'}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 3D Preview */}
-              {fiesta.decoracion?.salonPreview3dUrl && (
-                <div className="space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500">Vista del Salón</p>
-                  <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-sm" style={{ aspectRatio: '16/9' }}>
-                    <NextImage
-                      src={fiesta.decoracion.salonPreview3dUrl}
-                      alt="Vista 3D del salón"
-                      fill
-                      className="object-cover"
+                <div className="space-y-3">
+                  {config.nombreLugar && (
+                    <InfoRow label="Salón" value={config.nombreLugar} icon={<MapPin className="w-3.5 h-3.5 text-slate-400" />} />
+                  )}
+                  {config.direccionLugar && (
+                    <InfoRow label="Dirección" value={config.direccionLugar} />
+                  )}
+                  <InfoRow label="Invitados" value={`${config.invitadosEstimados} personas`} icon={<Users className="w-3.5 h-3.5 text-slate-400" />} />
+                  {(config.protagonista1Nombre || config.protagonista2Nombre) && (
+                    <InfoRow
+                      label="Protagonistas"
+                      value={[config.protagonista1Nombre, config.protagonista2Nombre].filter(Boolean).join(' & ')}
                     />
-                  </div>
+                  )}
+                </div>
+              </div>
+              {config.notesAdicionales && (
+                <div className="mt-4 p-3 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100">
+                  <span className="font-semibold text-slate-700">Notas: </span>
+                  {config.notesAdicionales}
                 </div>
               )}
+            </AccordionContent>
+          </AccordionItem>
 
-              {/* Moodboard */}
-              {fiesta.decoracion?.moodboardItems && fiesta.decoracion.moodboardItems.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <Heart className="w-3.5 h-3.5 text-rose-500" /> Inspiración / Moodboard
-                  </p>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {fiesta.decoracion.moodboardItems.slice(0, 8).map(item => (
-                      <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
-                        <NextImage src={item.url} alt="inspiración" fill className="object-cover" />
-                        {item.likedByClient && (
-                          <div className="absolute top-1 right-1 bg-rose-500 text-white p-0.5 rounded-full shadow">
-                            <Heart className="w-2.5 h-2.5 fill-current" />
-                          </div>
+          {/* ── Lo que el cliente debe llevar ───────────── */}
+          <AccordionItem value="llevar" id="llevar" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+              <span className="flex items-center gap-2 text-base font-black">
+                <PackageCheck className="w-5 h-5 text-teal-600" /> Lo que el cliente debe llevar
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="px-5 pb-5">
+              <div className="space-y-3 text-sm text-slate-700">
+                {fiesta.clientPortalSettings?.checklist?.items && fiesta.clientPortalSettings.checklist.items.length > 0 ? (
+                  <div className="space-y-2">
+                    {fiesta.clientPortalSettings.checklist.items.map((item: any, idx: number) => (
+                      <div key={idx} className="flex items-start gap-2 p-2.5 bg-teal-50 rounded-xl border border-teal-100">
+                        {item.completado ? (
+                          <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                        ) : (
+                          <HelpCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                         )}
+                        <span className={item.completado ? 'line-through text-slate-400' : ''}>{item.texto}</span>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <div className="space-y-2">
+                    {[
+                      'Documentación personal (DNI/CI)',
+                      'Lista final de invitados confirmados',
+                      'Fotos para el video de vida',
+                      'Lista de canciones especiales',
+                      'Confirmación de menú y restricciones alimentarias',
+                      'Seña o primer pago pendiente',
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <PackageCheck className="w-4 h-4 text-teal-500 shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                    <p className="text-xs text-slate-400 pt-1">Tu organizador puede actualizar esta lista con elementos específicos para tu evento.</p>
+                  </div>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* ── Estado Financiero / Pagos ────────────────── */}
+          {showFinancials && (
+            <AccordionItem value="pagos" id="pagos" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+                <span className="flex items-center gap-2 text-base font-black">
+                  <DollarSign className="w-5 h-5 text-green-600" /> Estado Financiero
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 space-y-6">
+                <div className="grid grid-cols-3 gap-3">
+                  <FinancialStat label="Total"    value={formatCurrency(totalCost)}  color="text-slate-900" />
+                  <FinancialStat label="Pagado"   value={formatCurrency(totalPaid)}  color="text-green-700" />
+                  <FinancialStat label="Saldo"    value={formatCurrency(balance)}    color={balance > 0 ? 'text-red-600' : 'text-green-700'} />
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                {totalCost > 0 && (
+                  <div>
+                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                      <span>Progreso de pagos</span>
+                      <span>{Math.round((totalPaid / totalCost) * 100)}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-green-500 transition-all"
+                        style={{ width: `${Math.min(100, (totalPaid / totalCost) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {cuotas.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Detalle de cuotas</p>
+                    {cuotas.map(cuota => (
+                      <div key={cuota.id} className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-800 truncate">{cuota.descripcion}</p>
+                          <p className="text-xs text-slate-500">Vence: {formatDate(cuota.fechaVencimiento)}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-black text-slate-900">{formatCurrency(cuota.monto)}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cuotaStatusColor(cuota.estado)}`}>
+                            {cuotaStatusLabel(cuota.estado)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-400 text-center py-4">No hay plan de pagos cargado aún.</p>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {/* ── Invitados ────────────────────────────────── */}
+          {showInvitados && (
+            <AccordionItem value="invitados" id="invitados" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+                <span className="flex items-center gap-2 text-base font-black">
+                  <Users className="w-5 h-5 text-blue-600" /> Invitados
+                  <span className="ml-1 text-xs font-normal text-slate-500">
+                    {confirmed.length} confirmados · {pending.length} pendientes
+                  </span>
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 space-y-5">
+                {/* RSVP Tracker */}
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+                    Estado RSVP — Confirmados: {confirmed.length} · No asisten: {declined.length} · Pendientes: {pending.length}
+                  </p>
+                  {invitados.length === 0 ? (
+                    <p className="text-sm text-slate-400 text-center py-4">Todavía no hay invitados cargados.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                      {[...confirmed, ...declined, ...pending].map(inv => (
+                        <div key={inv.id} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                          {rsvpIcon(inv.rsvp)}
+                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                          {inv.categoria && (
+                            <Badge variant="outline" className="text-xs shrink-0">{inv.categoria}</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Seating Plan */}
+                {confirmed.length > 0 && (
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-orange-500" /> Plan de Mesas
+                    </p>
+                    <div className="space-y-2">
+                      {confirmed.map(inv => (
+                        <div key={inv.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                          {editingId === inv.id ? (
+                            <div className="flex items-center gap-2 shrink-0">
+                              <Input
+                                className="h-7 w-20 text-xs"
+                                placeholder="N° mesa"
+                                value={editingTable}
+                                onChange={e => setEditingTable(e.target.value)}
+                                autoFocus
+                                onKeyDown={e => { if (e.key === 'Enter') handleSaveTable(inv); if (e.key === 'Escape') setEditingId(null); }}
+                              />
+                              <Button size="sm" className="h-7 px-2 text-xs" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
+                                {isSavingSeat ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'}
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEditingId(null)}>✕</Button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => { setEditingId(inv.id); setEditingTable(inv.tableNumber ?? ''); }}
+                              className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 font-semibold shrink-0"
+                            >
+                              {inv.tableNumber ? `Mesa ${inv.tableNumber}` : <span className="text-slate-400">Sin mesa</span>}
+                              <ChevronRight className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {/* ── Menú y Cronograma ────────────────────────── */}
+          {(showCatering || showTimeline) && (
+            <AccordionItem value="catering" id="catering" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+                <span className="flex items-center gap-2 text-base font-black">
+                  <UtensilsCrossed className="w-5 h-5 text-amber-600" /> Menú e Itinerario
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  {showCatering && (
+                    <div id="menu" className="space-y-2 text-sm text-slate-600">
+                      <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <UtensilsCrossed className="w-3.5 h-3.5 text-amber-500" /> Catering
+                      </p>
+                      {fiesta.modulosContratados?.catering ? (
+                        <>
+                          <p className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" /> Servicio de catering incluido</p>
+                          <p className="text-xs text-slate-400 mt-1">Tu menú personalizado fue coordinado con el equipo de AK Producciones.</p>
+                        </>
+                      ) : (
+                        <p className="text-slate-400">Catering no contratado en este paquete.</p>
+                      )}
+                    </div>
+                  )}
+                  {showTimeline && (
+                    <div id="itinerario" className="space-y-2 text-sm">
+                      <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-purple-500" /> Cronograma
+                      </p>
+                      {(fiesta.programa ?? []).length > 0 ? (
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {(fiesta.programa ?? []).map((item, i) => (
+                            <div key={i} className="flex gap-3 items-start">
+                              <span className="text-xs font-black text-purple-600 shrink-0 pt-0.5">{item.hora}</span>
+                              <span className="text-slate-700">{item.titulo}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-slate-400">El cronograma aún no está cargado.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {/* ── Decoración ───────────────────────────────── */}
+          {hasDecorationPreview && (
+            <AccordionItem value="decoracion" id="decoracion" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+                <span className="flex items-center gap-2 text-base font-black">
+                  <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
+                  {fiesta.decoracion?.tema && (
+                    <span className="ml-1 text-xs font-normal text-slate-500">Tema: {fiesta.decoracion.tema}</span>
+                  )}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 space-y-4">
+                {fiesta.decoracion?.paletaColores && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Paleta de Colores</p>
+                    <div className="flex gap-3 items-center">
+                      {Object.entries(fiesta.decoracion.paletaColores).map(([key, color]) => (
+                        <div key={key} className="flex flex-col items-center gap-1">
+                          <div className="w-10 h-10 rounded-2xl border-2 border-white shadow-lg" style={{ backgroundColor: color as string }} />
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">{key === 'primary' ? 'Principal' : key === 'secondary' ? 'Secundario' : 'Acento'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {fiesta.decoracion?.salonPreview3dUrl && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Vista del Salón</p>
+                    <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-sm" style={{ aspectRatio: '16/9' }}>
+                      <NextImage
+                        src={fiesta.decoracion.salonPreview3dUrl}
+                        alt="Vista 3D del salón"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+                {fiesta.decoracion?.moodboardItems && fiesta.decoracion.moodboardItems.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                      <Heart className="w-3.5 h-3.5 text-rose-500" /> Inspiración / Moodboard
+                    </p>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {fiesta.decoracion.moodboardItems.slice(0, 8).map(item => (
+                        <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
+                          <NextImage src={item.url} alt="inspiración" fill className="object-cover" />
+                          {item.likedByClient && (
+                            <div className="absolute top-1 right-1 bg-rose-500 text-white p-0.5 rounded-full shadow">
+                              <Heart className="w-2.5 h-2.5 fill-current" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+        </Accordion>
 
       </main>
 
