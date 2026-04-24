@@ -53,6 +53,9 @@ import {
   ClipboardList,
   DollarSign,
   Image,
+  TrendingUp,
+  AlertTriangle,
+  PartyPopper,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -65,7 +68,7 @@ import { Input } from '@/components/ui/input';
 import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientMenuChangeRequest } from '@/app/actions/fiesta/portal.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
-import { calculateMenuSimulationTotals, resolveMenuUnitPrices } from '@/lib/portal-menu-simulator';
+import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
 import { CateringSimulator } from '@/components/portal/CateringSimulator';
 
 interface PublicPortalViewProps {
@@ -195,6 +198,31 @@ function resolveBebidasItems(settings: FiestaEnPlanificacion['clientPortalSettin
   });
 }
 
+/** Maximum number of additional guests the simulator allows in a single request */
+const MAX_GUEST_DELTA = 200;
+
+/** Pick a representative Lucide icon based on itinerary item title keywords */
+function getItineraryIcon(titulo: string): React.ElementType {
+  const t = titulo.toLowerCase();
+  if (t.includes('música') || t.includes('musica') || t.includes('baile') || t.includes('vals') || t.includes('dj') || t.includes('show'))
+    return Music;
+  if (t.includes('cena') || t.includes('comida') || t.includes('menú') || t.includes('brindis') || t.includes('cocktail') || t.includes('cóctel'))
+    return Utensils;
+  if (t.includes('foto') || t.includes('video') || t.includes('filmación') || t.includes('fotografia'))
+    return Camera;
+  if (t.includes('torta') || t.includes('postre') || t.includes('cumpleaños'))
+    return Gift;
+  if (t.includes('entrada') || t.includes('llegada') || t.includes('recepción') || t.includes('ingreso'))
+    return Users;
+  if (t.includes('bienvenida') || t.includes('apertura') || t.includes('inicio') || t.includes('ceremonia'))
+    return Sparkles;
+  if (t.includes('cierre') || t.includes('despedida') || t.includes('fin') || t.includes('egreso'))
+    return Heart;
+  if (t.includes('vestimenta') || t.includes('dress') || t.includes('traje') || t.includes('vestido'))
+    return Shirt;
+  return Clock;
+}
+
 export default function PublicPortalView({
   fiesta,
   companyContact,
@@ -204,6 +232,14 @@ export default function PublicPortalView({
   const topMenuId = 'menu-principal-vip';
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
   const countdown = useCountdown(config.fechaEvento);
+
+  // Dynamic event color — reads from event config or decoration palette
+  const eventColor =
+    config.primaryColor ||
+    fiesta.invitacionConfig?.colorPrincipal ||
+    fiesta.invitacionDigital?.cabecera?.paletaColores?.primary ||
+    fiesta.decoracion?.paletaColores?.primary ||
+    '#7c3aed';
 
   // Interactive Checklist state
   const [checklist, setChecklist] = useState<ClientTarea[]>(fiesta.clientChecklist ?? []);
@@ -272,6 +308,9 @@ export default function PublicPortalView({
 
   // FAQ accordion state
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
+
+  // Itinerary accordion state
+  const [openProgramaIds, setOpenProgramaIds] = useState<Set<string>>(new Set());
 
   const handleToggleTask = async (taskId: string) => {
     const previous = checklist;
@@ -370,6 +409,10 @@ export default function PublicPortalView({
   const limiteAumento = settings?.simuladorInvitados?.maxIncreasePercent ?? simConfig?.limiteAumentoPorcentaje ?? 30;
   const maxDeltaAdult = Math.floor(Math.max(1, adultosBase || invitadosContratados) * (limiteAumento / 100));
   const maxDeltaKids = Math.floor(Math.max(1, ninosAdolescentesBase || invitadosContratados) * (limiteAumento / 100));
+  // Effective limits: prefer admin-configured percentage, fall back to absolute MAX_GUEST_DELTA
+  const effectiveMaxAdult = maxDeltaAdult || MAX_GUEST_DELTA;
+  const effectiveMaxKids = maxDeltaKids || MAX_GUEST_DELTA;
+  // Legacy catering simulator totals (kept for the CateringSimulator component still in use)
   const simulationTotals = calculateMenuSimulationTotals({
     adultosDelta: adultDelta,
     ninosAdolescentesDelta: kidsDelta,
@@ -377,6 +420,10 @@ export default function PublicPortalView({
     kidsUnitPrice: kidsUnit,
     currentTotal: totalCosto,
   });
+  // Real budget-synced simulation — used by the new guest simulator and submission handler
+  const guestSim = presupuesto
+    ? simulateGuestCostImpact({ presupuesto, adultDelta, kidsDelta })
+    : null;
 
   // Drink calculator
   const calcBebidas = settings?.calculadoraBebidas;
@@ -403,11 +450,14 @@ export default function PublicPortalView({
     if (!fiesta.id || (adultDelta <= 0 && kidsDelta <= 0)) return;
     setSimRequestLoading(true);
     try {
+      // Prefer real budget-synced impact; fall back to legacy estimate for events without items
+      const montoAdicional = guestSim ? guestSim.impacto : simulationTotals.aumentoTotal;
+      const nuevoTotalEstimado = guestSim ? guestSim.costoNuevo : simulationTotals.nuevoTotal;
       await submitClientMenuChangeRequest(fiesta.id, {
         adultosDelta: adultDelta,
         ninosAdolescentesDelta: kidsDelta,
-        montoAdicional: simulationTotals.aumentoTotal,
-        nuevoTotalEstimado: simulationTotals.nuevoTotal,
+        montoAdicional,
+        nuevoTotalEstimado,
         notaCliente: simRequestNote,
       });
       setAdultDelta(0);
@@ -439,28 +489,28 @@ export default function PublicPortalView({
   const sectionsWithContent = new Set(['fotografiaYFilmacion', 'listaRegalos']);
   const remainingVisibleSections = visibleSections.filter(s => !sectionsWithContent.has(s.id));
 
-  // Home screen section cards
+  // Home screen section cards — ordered by client priority
   const homeSections = [
-    { id: 'overview', label: 'Resumen', emoji: '🏠', color: 'from-violet-500 to-purple-600', desc: 'Cuenta regresiva y alertas', icon: Home },
-    { id: 'pagos', label: 'Pagos y Saldo', emoji: '💰', color: 'from-emerald-500 to-teal-600', desc: 'Estado de cuenta e informar pago', icon: DollarSign, visible: settings?.pagos?.visible && !!presupuesto },
-    { id: 'presupuesto', label: 'Presupuesto', emoji: '📊', color: 'from-blue-500 to-cyan-600', desc: 'Desglose de servicios contratados', icon: FileText, visible: settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 },
-    { id: 'checklist', label: 'Checklist', emoji: '✅', color: 'from-amber-500 to-orange-500', desc: 'Tareas pendientes de tu evento', icon: ClipboardList, visible: settings?.checklist?.visible && checklist.length > 0 },
+    { id: 'overview', label: 'Mi Evento', emoji: '🏠', color: 'from-violet-500 to-purple-600', desc: 'Cuenta regresiva y detalles', icon: Home, priority: true },
+    { id: 'itinerario', label: 'Itinerario', emoji: '📅', color: 'from-indigo-500 to-violet-600', desc: 'Programa del evento', icon: Calendar, visible: settings?.itinerario?.visible && programa.length > 0, priority: true },
+    { id: 'pagos', label: 'Pagos y Saldo', emoji: '💰', color: 'from-emerald-500 to-teal-600', desc: 'Estado de cuenta e informar pago', icon: DollarSign, visible: settings?.pagos?.visible && !!presupuesto, priority: true },
+    { id: 'simulador-invitados', label: 'Simular Invitados', emoji: '👥', color: 'from-purple-500 to-indigo-600', desc: 'Simulá cambios en el costo', icon: TrendingUp, visible: !!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0, priority: true },
+    { id: 'checklist', label: 'Checklist', emoji: '✅', color: 'from-amber-500 to-orange-500', desc: 'Tareas pendientes', icon: ClipboardList, visible: settings?.checklist?.visible && checklist.length > 0 },
     { id: 'menu', label: 'Menú y Comidas', emoji: '🍽️', color: 'from-rose-500 to-pink-600', desc: 'Menú, bebidas y dress code', icon: Utensils, visible: settings?.menu?.visible },
+    { id: 'presupuesto', label: 'Presupuesto', emoji: '📊', color: 'from-blue-500 to-cyan-600', desc: 'Desglose de servicios contratados', icon: FileText, visible: settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 },
     { id: 'musica', label: 'Música', emoji: '🎵', color: 'from-fuchsia-500 to-purple-600', desc: 'Canciones y preferencias musicales', icon: Music, visible: settings?.musica?.visible && !!musica },
-    { id: 'fotografia', label: 'Fotos y Video', emoji: '📸', color: 'from-sky-500 to-blue-600', desc: 'Servicios fotográficos y regalos', icon: Camera, visible: settings?.fotografiaYFilmacion?.visible },
-    { id: 'moodboard', label: 'Moodboard', emoji: '🎨', color: 'from-pink-500 to-rose-600', desc: 'Inspiración y estética del evento', icon: Palette, visible: settings?.moodboard?.visible && moodboardItems.length > 0 },
+    { id: 'fotografia', label: 'Fotos y Video', emoji: '📸', color: 'from-sky-500 to-blue-600', desc: 'Servicios fotográficos', icon: Camera, visible: settings?.fotografiaYFilmacion?.visible },
+    { id: 'simulador-catering', label: 'Cambio de Menú', emoji: '🍴', color: 'from-orange-500 to-amber-600', desc: 'Solicitar cambios de menú', icon: Utensils, visible: !!presupuesto && invitadosContratados > 0 },
+    { id: 'moodboard', label: 'Moodboard', emoji: '🎨', color: 'from-pink-500 to-rose-600', desc: 'Inspiración y estética', icon: Palette, visible: settings?.moodboard?.visible && moodboardItems.length > 0 },
     { id: 'documentos', label: 'Documentos', emoji: '📄', color: 'from-slate-500 to-gray-600', desc: 'Contrato y documentación', icon: FileSignature, visible: settings?.contrato?.visible || settings?.documentos?.visible },
     { id: 'ubicacion', label: 'Ubicación', emoji: '📍', color: 'from-green-500 to-emerald-600', desc: 'Dirección y cómo llegar', icon: MapPin, visible: settings?.ubicacion?.visible && !!celebracion },
-    { id: 'itinerario', label: 'Itinerario', emoji: '📅', color: 'from-indigo-500 to-violet-600', desc: 'Programa del evento', icon: Calendar, visible: settings?.itinerario?.visible && programa.length > 0 },
-    { id: 'simulador-catering', label: 'Simulador Catering', emoji: '🍴', color: 'from-orange-500 to-amber-600', desc: 'Solicitar cambios de menú', icon: Utensils, visible: !!presupuesto && invitadosContratados > 0 },
-    { id: 'simulador-invitados', label: 'Simulador Invitados', emoji: '👥', color: 'from-purple-500 to-indigo-600', desc: 'Simular cambios en la cantidad', icon: Users, visible: settings?.simuladorInvitados?.visible && invitadosContratados > 0 },
     { id: 'faq', label: 'Preguntas Frecuentes', emoji: '❓', color: 'from-teal-500 to-cyan-600', desc: 'Dudas y consultas comunes', icon: HelpCircle, visible: settings?.faq?.visible && faqItems.length > 0 },
     { id: 'notas', label: 'Notas Compartidas', emoji: '📝', color: 'from-yellow-500 to-amber-500', desc: 'Anotaciones y comentarios', icon: MessageSquare, visible: settings?.notasCliente?.visible },
     { id: 'regalos', label: 'Lista de Regalos', emoji: '🎁', color: 'from-red-500 to-rose-600', desc: 'Lista de deseos y regalos', icon: Gift, visible: settings?.listaRegalos?.visible },
   ].filter(s => s.visible !== false);
 
   const sectionTitles: Record<string, string> = {
-    overview: 'Resumen del Evento',
+    overview: 'Mi Evento',
     pagos: 'Pagos y Saldo',
     presupuesto: 'Presupuesto',
     checklist: 'Checklist',
@@ -470,8 +520,8 @@ export default function PublicPortalView({
     moodboard: 'Moodboard',
     documentos: 'Documentos',
     ubicacion: 'Ubicación',
-    itinerario: 'Itinerario',
-    'simulador-catering': 'Simulador de Catering',
+    itinerario: 'Itinerario del Evento',
+    'simulador-catering': 'Solicitar Cambio de Menú',
     'simulador-invitados': 'Simulador de Invitados',
     faq: 'Preguntas Frecuentes',
     notas: 'Notas Compartidas',
@@ -482,14 +532,19 @@ export default function PublicPortalView({
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
       {/* HOME Hero - VIP Styling (only shown on home screen) */}
       {activeSection === null && (
-      <div className="relative bg-gradient-to-br from-violet-900 via-primary to-violet-700 text-primary-foreground px-4 pb-10 pt-12 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+      <div
+        className="relative text-white px-4 pb-10 pt-12 overflow-hidden"
+        style={{ background: `linear-gradient(135deg, ${eventColor}ee 0%, ${eventColor}99 50%, #1e1b4b 100%)` }}
+      >
+        {/* Decorative background stars */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
           <Star className="absolute top-6 right-8 w-20 h-20 text-yellow-300 rotate-12" />
           <Star className="absolute bottom-4 left-6 w-12 h-12 text-yellow-300 -rotate-12" />
           <Sparkles className="absolute top-12 left-12 w-8 h-8 text-yellow-200 rotate-45" />
         </div>
-        <div className="relative max-w-lg mx-auto text-center space-y-3">
-          <div className="flex items-center justify-center gap-2 flex-wrap">
+        <div className="relative max-w-lg mx-auto">
+          {/* Badges row */}
+          <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30 hover:bg-white/20">
               {companyName}
             </Badge>
@@ -498,49 +553,89 @@ export default function PublicPortalView({
               PORTAL VIP
             </Badge>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black leading-tight tracking-tight">
-            {config.nombreEvento || 'Tu Evento Especial'}
-          </h1>
-          {config.protagonista1Nombre && (
-            <p className="text-lg font-medium opacity-90">
-              ✨ {config.protagonista1Nombre}
-              {config.protagonista2Nombre && ` & ${config.protagonista2Nombre}`}
-            </p>
-          )}
-          {eventDate && (
-            <div className="flex items-center justify-center gap-2 opacity-90">
-              <Calendar className="w-4 h-4" />
-              <span className="text-sm font-medium capitalize">{eventDate}</span>
+
+          {/* Protagonist photo + event name layout */}
+          {config.protagonistaFotoUrl ? (
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="relative">
+                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/40 shadow-2xl ring-4 ring-white/20">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={config.protagonistaFotoUrl}
+                    alt={config.protagonista1Nombre || config.nombreEvento}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1 shadow-lg">
+                  <Crown className="w-3.5 h-3.5 text-black" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-lg">
+                  {config.nombreEvento || 'Tu Evento Especial'}
+                </h1>
+                {config.protagonista1Nombre && (
+                  <p className="text-xl font-bold opacity-95">
+                    ✨ {config.protagonista1Nombre}
+                    {config.protagonista2Nombre && ` & ${config.protagonista2Nombre}`}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center space-y-2">
+              <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-lg">
+                {config.nombreEvento || 'Tu Evento Especial'}
+              </h1>
+              {config.protagonista1Nombre && (
+                <p className="text-xl font-bold opacity-95">
+                  ✨ {config.protagonista1Nombre}
+                  {config.protagonista2Nombre && ` & ${config.protagonista2Nombre}`}
+                </p>
+              )}
             </div>
           )}
-          {config.horaInicio && (
-            <div className="flex items-center justify-center gap-2 opacity-80">
-              <Clock className="w-4 h-4" />
-              <span className="text-sm">
-                {config.horaInicio}
-                {config.horaFin ? ` — ${config.horaFin}` : ''}
+
+          {/* Event meta info */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-sm text-white/85">
+            {config.tipoCelebracion && (
+              <span className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1 font-semibold text-xs">
+                <PartyPopper className="w-3.5 h-3.5" />
+                {config.tipoCelebracion}
               </span>
-            </div>
-          )}
-          {config.nombreLugar && (
-            <div className="flex items-center justify-center gap-2 opacity-80">
-              <MapPin className="w-4 h-4" />
-              <span className="text-sm">{config.nombreLugar}</span>
-            </div>
-          )}
-          {config.invitadosEstimados > 0 && (
-            <div className="flex items-center justify-center gap-2 opacity-80">
-              <Users className="w-4 h-4" />
-              <span className="text-sm">{config.invitadosEstimados} invitados</span>
-            </div>
-          )}
+            )}
+            {eventDate && (
+              <span className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1 font-semibold text-xs">
+                <Calendar className="w-3.5 h-3.5" />
+                <span className="capitalize">{eventDate}</span>
+              </span>
+            )}
+            {config.horaInicio && (
+              <span className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1 font-semibold text-xs">
+                <Clock className="w-3.5 h-3.5" />
+                {config.horaInicio}{config.horaFin ? ` — ${config.horaFin}` : ''}
+              </span>
+            )}
+            {config.nombreLugar && (
+              <span className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1 font-semibold text-xs">
+                <MapPin className="w-3.5 h-3.5" />
+                {config.nombreLugar}
+              </span>
+            )}
+            {config.invitadosEstimados > 0 && (
+              <span className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1 font-semibold text-xs">
+                <Users className="w-3.5 h-3.5" />
+                {config.invitadosEstimados} invitados
+              </span>
+            )}
+          </div>
         </div>
       </div>
       )}
 
       {/* SECTION Header (back button, shown when a section is active) */}
       {activeSection !== null && (
-        <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10 px-4 py-3">
+        <div className="sticky top-0 z-50 border-b border-white/10 px-4 py-3 backdrop-blur-md" style={{ backgroundColor: `${eventColor}cc` }}>
           <div className="max-w-lg mx-auto flex items-center gap-3">
             <button
               onClick={() => setActiveSection(null)}
@@ -581,7 +676,7 @@ export default function PublicPortalView({
           )}
           {/* Countdown on home */}
           {config.fechaEvento && countdown && !countdown.isPast && (
-            <div className="bg-gradient-to-br from-violet-600/80 to-purple-800/80 backdrop-blur rounded-3xl p-5 text-white text-center border border-white/10">
+            <div className="backdrop-blur rounded-3xl p-5 text-white text-center border border-white/10" style={{ background: `linear-gradient(135deg, ${eventColor}cc, ${eventColor}88)` }}>
               <p className="text-xs uppercase tracking-widest font-bold opacity-70 mb-3">🎉 ¡Faltan para tu evento!</p>
               <div className="grid grid-cols-4 gap-2">
                 <CountdownUnit value={countdown.days} label="Días" />
@@ -592,27 +687,28 @@ export default function PublicPortalView({
             </div>
           )}
           {countdown?.isPast && (
-            <div className="bg-gradient-to-br from-violet-600/80 to-purple-800/80 backdrop-blur rounded-3xl p-6 text-white text-center border border-white/10">
+            <div className="backdrop-blur rounded-3xl p-6 text-white text-center border border-white/10" style={{ background: `linear-gradient(135deg, ${eventColor}cc, ${eventColor}88)` }}>
               <p className="text-2xl font-black">🎉 ¡Tu evento ya fue!</p>
               <p className="text-sm opacity-70 mt-1">¡Esperamos que haya sido increíble!</p>
             </div>
           )}
           {/* Section cards grid */}
           <div>
-            <p className="text-white/50 text-xs uppercase tracking-widest font-bold mb-3 px-1">Secciones</p>
+            <p className="text-white/50 text-xs uppercase tracking-widest font-bold mb-3 px-1">Accesos rápidos</p>
             <div className="grid grid-cols-2 gap-3">
               {homeSections.map((section) => {
                 const SectionIcon = section.icon;
+                const isPriority = 'priority' in section && section.priority === true;
                 return (
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`relative overflow-hidden rounded-2xl p-4 text-left bg-gradient-to-br ${section.color} shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform`}
+                    className={`relative overflow-hidden rounded-2xl text-left bg-gradient-to-br ${section.color} shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform ${isPriority ? 'p-5' : 'p-4'}`}
                   >
                     <div className="flex flex-col gap-2">
-                      <span className="text-2xl leading-none">{section.emoji}</span>
+                      <span className={`${isPriority ? 'text-3xl' : 'text-2xl'} leading-none`}>{section.emoji}</span>
                       <div>
-                        <p className="text-white font-bold text-sm leading-tight">{section.label}</p>
+                        <p className={`text-white font-bold leading-tight ${isPriority ? 'text-base' : 'text-sm'}`}>{section.label}</p>
                         <p className="text-white/70 text-xs mt-0.5 leading-tight line-clamp-2">{section.desc}</p>
                       </div>
                     </div>
@@ -662,8 +758,8 @@ export default function PublicPortalView({
 
         {/* Countdown */}
         {activeSection === 'overview' && config.fechaEvento && countdown && !countdown.isPast && (
-          <Card className="shadow-xl border-0 rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-violet-700 text-white">
-            <CardContent className="pt-5 pb-5">
+          <Card className="shadow-xl border-0 rounded-3xl overflow-hidden text-white">
+            <CardContent className="pt-5 pb-5" style={{ background: `linear-gradient(135deg, ${eventColor}, ${eventColor}cc)` }}>
               <p className="text-center text-xs uppercase tracking-widest font-bold opacity-80 mb-3">
                 🎉 ¡Faltan para tu evento!
               </p>
@@ -678,8 +774,8 @@ export default function PublicPortalView({
         )}
 
         {activeSection === 'overview' && countdown?.isPast && (
-          <Card className="shadow-xl border-0 rounded-3xl bg-primary text-primary-foreground">
-            <CardContent className="py-6 text-center">
+          <Card className="shadow-xl border-0 rounded-3xl text-white">
+            <CardContent className="py-6 text-center" style={{ backgroundColor: eventColor }}>
               <p className="text-2xl font-black">🎉 ¡Tu evento ya fue!</p>
               <p className="text-sm opacity-80 mt-1">¡Esperamos que haya sido increíble!</p>
             </CardContent>
@@ -1183,146 +1279,244 @@ export default function PublicPortalView({
           </div>
         )}
 
-        {/* Guest Simulator */}
-        {activeSection === 'simulador-invitados' && settings?.simuladorInvitados?.visible && invitadosContratados > 0 && (
+        {/* ── NEW: Simulador de Invitados Sincronizado con Presupuesto Real ── */}
+        {activeSection === 'simulador-invitados' && !!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 && (
           <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-            <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-primary/5">
+            <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                Simulador de Menús (Sincronizado)
+                <TrendingUp className="w-5 h-5" style={{ color: eventColor }} />
+                Simulador de Invitados
               </CardTitle>
-              <p className="text-xs text-muted-foreground">Simulá agregados por Menú Adultos y Menú Niños/Adolescentes.</p>
+              <p className="text-xs text-muted-foreground">Calculá el impacto real en el costo si sumás más invitados. Sincronizado con tu presupuesto.</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="rounded-xl border bg-muted/30 p-3 space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">Menú Adultos</p>
-                  <p className="text-xs text-muted-foreground">Base: {adultosBase} · Precio unitario: {formatCurrency(adultUnit)}</p>
-                  <div className="flex items-center justify-between gap-3">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
+              {/* Input controls */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                    <Users className="w-3 h-3" /> Adultos a agregar
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
                       onClick={() => setAdultDelta((d) => Math.max(0, d - 1))}
                       disabled={adultDelta <= 0}
                     >
                       <MinusCircle className="w-4 h-4" />
-                    </Button>
-                    <p className="text-2xl font-black">+{adultDelta}</p>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
-                      onClick={() => setAdultDelta((d) => Math.min(maxDeltaAdult, d + 1))}
-                      disabled={adultDelta >= maxDeltaAdult}
+                    </button>
+                    <p className="text-2xl font-black tabular-nums">+{adultDelta}</p>
+                    <button
+                      className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
+                      onClick={() => setAdultDelta((d) => Math.min(effectiveMaxAdult, d + 1))}
+                      disabled={adultDelta >= (effectiveMaxAdult)}
                     >
                       <PlusCircle className="w-4 h-4" />
-                    </Button>
+                    </button>
                   </div>
+                  <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxAdult}</p>
                 </div>
-                <div className="rounded-xl border bg-muted/30 p-3 space-y-2">
-                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">Menú Niños/Adolescentes</p>
-                  <p className="text-xs text-muted-foreground">Base: {ninosAdolescentesBase} · Precio unitario: {formatCurrency(kidsUnit)}</p>
-                  <div className="flex items-center justify-between gap-3">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
+                <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                    <Users className="w-3 h-3" /> Niños/Adolesc. a agregar
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
                       onClick={() => setKidsDelta((d) => Math.max(0, d - 1))}
                       disabled={kidsDelta <= 0}
                     >
                       <MinusCircle className="w-4 h-4" />
-                    </Button>
-                    <p className="text-2xl font-black">+{kidsDelta}</p>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-10 w-10 rounded-full"
-                      onClick={() => setKidsDelta((d) => Math.min(maxDeltaKids, d + 1))}
-                      disabled={kidsDelta >= maxDeltaKids}
+                    </button>
+                    <p className="text-2xl font-black tabular-nums">+{kidsDelta}</p>
+                    <button
+                      className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
+                      onClick={() => setKidsDelta((d) => Math.min(effectiveMaxKids, d + 1))}
+                      disabled={kidsDelta >= (effectiveMaxKids)}
                     >
                       <PlusCircle className="w-4 h-4" />
-                    </Button>
+                    </button>
                   </div>
+                  <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxKids}</p>
                 </div>
               </div>
 
-              {(adultDelta > 0 || kidsDelta > 0) && (
-                <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm space-y-1">
-                  <p className="font-bold text-primary">{simConfig?.textoAumento || 'Resumen del cambio solicitado'}</p>
-                  <p className="text-muted-foreground text-xs">
-                    Adultos (+{adultDelta}): <strong>{formatCurrency(simulationTotals.aumentoAdultos)}</strong>
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Niños/Adolescentes (+{kidsDelta}): <strong>{formatCurrency(simulationTotals.aumentoKids)}</strong>
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Aumento total: <strong className="text-primary">{formatCurrency(simulationTotals.aumentoTotal)}</strong>
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Nuevo total estimado: <strong className="text-primary">{formatCurrency(simulationTotals.nuevoTotal)}</strong>
-                  </p>
-                </div>
-              )}
-
-              {(adultDelta > 0 || kidsDelta > 0) && (
-                <div className="space-y-2">
-                  <Textarea
-                    value={simRequestNote}
-                    onChange={(e) => setSimRequestNote(e.target.value)}
-                    placeholder="Nota opcional para el equipo AK (ej: confirmar nuevo menú infantil)."
-                    rows={3}
-                    className="rounded-xl"
-                  />
-                  <Button className="w-full rounded-xl" onClick={handleSubmitMenuRequest} disabled={simRequestLoading}>
-                    {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-                    Enviar solicitud de cambio
-                  </Button>
-                </div>
-              )}
-
-              {adultDelta === 0 && kidsDelta === 0 && (
-                <p className="text-center text-xs text-muted-foreground">
-                  Ajustá valores por menú y enviá una solicitud. Estado inicial: pendiente de aprobación.
-                </p>
-              )}
-
-              {menuChangeRequests.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Solicitudes recientes</p>
-                  {menuChangeRequests.slice(-3).reverse().map((request) => (
-                    <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
-                        <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
+              {/* Budget-synced simulation results */}
+              {guestSim && (() => {
+                const sim = guestSim;
+                const hasChanges = adultDelta > 0 || kidsDelta > 0;
+                return (
+                  <>
+                    {/* Current vs new guests summary */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl border bg-slate-50 p-3 text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Invitados actuales</p>
+                        <p className="text-2xl font-black">{sim.totalActual}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {sim.adultosActuales} adultos · {sim.ninosActuales} menores
+                        </p>
                       </div>
-                      <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
+                      <div className="rounded-2xl border p-3 text-center" style={{ borderColor: hasChanges ? `${eventColor}60` : undefined, backgroundColor: hasChanges ? `${eventColor}08` : '#f8fafc' }}>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Nuevos invitados totales</p>
+                        <p className="text-2xl font-black" style={{ color: hasChanges ? eventColor : undefined }}>{sim.totalNuevo}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {sim.adultosNuevos} adultos · {sim.ninosNuevos} menores
+                        </p>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    {/* Cost impact */}
+                    {hasChanges && (
+                      <div className="space-y-2">
+                        {/* Fixed services — don't change */}
+                        {sim.serviciosFijos.length > 0 && (
+                          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-slate-400" /> Servicios fijos (no cambian)
+                            </p>
+                            <div className="space-y-1">
+                              {sim.serviciosFijos.slice(0, 4).map((s, i) => (
+                                <div key={i} className="flex justify-between items-center text-xs">
+                                  <span className="text-slate-600 truncate flex-1">{s.nombre}</span>
+                                  <span className="text-slate-500 shrink-0 ml-2 font-medium">{formatCurrency(s.costo)}</span>
+                                </div>
+                              ))}
+                              {sim.serviciosFijos.length > 4 && (
+                                <p className="text-xs text-slate-400">+{sim.serviciosFijos.length - 4} más...</p>
+                              )}
+                            </div>
+                            <div className="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs font-bold">
+                              <span className="text-slate-600">Total fijo</span>
+                              <span className="text-slate-700">{formatCurrency(sim.costosFijosActuales)}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Variable services — change with guests */}
+                        {sim.serviciosVariables.length > 0 && (
+                          <div className="rounded-2xl border p-3" style={{ borderColor: `${eventColor}30`, backgroundColor: `${eventColor}06` }}>
+                            <p className="text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-1" style={{ color: eventColor }}>
+                              <TrendingUp className="w-3 h-3" /> Servicios por persona (cambian)
+                            </p>
+                            <div className="space-y-1">
+                              {sim.serviciosVariables.slice(0, 5).map((s, i) => (
+                                <div key={i} className="flex justify-between items-center text-xs gap-2">
+                                  <span className="text-slate-600 truncate flex-1">{s.nombre}</span>
+                                  <span className="text-slate-400 shrink-0">{formatCurrency(s.costoActual)}</span>
+                                  <span className="text-[10px] text-slate-400">→</span>
+                                  <span className="shrink-0 font-bold" style={{ color: eventColor }}>{formatCurrency(s.costoNuevo)}</span>
+                                </div>
+                              ))}
+                              {sim.serviciosVariables.length > 5 && (
+                                <p className="text-xs text-slate-400">+{sim.serviciosVariables.length - 5} más...</p>
+                              )}
+                            </div>
+                            <div className="mt-2 pt-2 border-t flex justify-between text-xs font-bold" style={{ borderColor: `${eventColor}20` }}>
+                              <span className="text-slate-600">Impacto variable</span>
+                              <span style={{ color: eventColor }}>+{formatCurrency(sim.costoVariableNuevo - sim.costoVariableActual)}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Grand total summary */}
+                        <div className="rounded-2xl p-4 text-white" style={{ background: `linear-gradient(135deg, ${eventColor}, ${eventColor}cc)` }}>
+                          <div className="grid grid-cols-2 gap-3 text-center">
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Total actual</p>
+                              <p className="text-xl font-black">{formatCurrency(sim.costoActual)}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Nuevo total estimado</p>
+                              <p className="text-xl font-black">{formatCurrency(sim.costoNuevo)}</p>
+                            </div>
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-white/20 text-center">
+                            <p className="text-[10px] uppercase tracking-widest opacity-80">Impacto estimado</p>
+                            <p className="text-2xl font-black mt-0.5">
+                              {sim.impacto >= 0 ? '+' : ''}{formatCurrency(sim.impacto)}
+                            </p>
+                            {sim.impacto > 0 && (adultDelta + kidsDelta) > 0 && (
+                              <p className="text-[11px] opacity-80 mt-1">
+                                ≈ {formatCurrency(Math.round(sim.impacto / (adultDelta + kidsDelta)))} por invitado adicional
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 flex items-start gap-2">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                          <p className="text-xs text-amber-700">Esta es una estimación basada en el presupuesto. El monto final lo confirma el equipo AK.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {!hasChanges && (
+                      <p className="text-center text-xs text-muted-foreground py-2">
+                        Ajustá las cantidades para ver el impacto estimado en el costo de tu evento.
+                      </p>
+                    )}
+
+                    {/* Request note and send button */}
+                    {hasChanges && (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={simRequestNote}
+                          onChange={(e) => setSimRequestNote(e.target.value)}
+                          placeholder="Nota opcional para el equipo (ej: son invitados de última hora de la mesa 5)."
+                          rows={2}
+                          className="rounded-xl text-sm"
+                        />
+                        <Button
+                          className="w-full rounded-xl font-bold"
+                          style={{ backgroundColor: eventColor, borderColor: eventColor }}
+                          onClick={handleSubmitMenuRequest}
+                          disabled={simRequestLoading}
+                        >
+                          {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                          Enviar solicitud al equipo AK
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Previous requests */}
+                    {menuChangeRequests.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Solicitudes recientes</p>
+                        {menuChangeRequests.slice(-3).reverse().map((request) => (
+                          <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
+                            <div>
+                              <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
+                              <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
+                            </div>
+                            <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
         )}
 
-        {/* Drink Calculator */}
+        {/* What the client must bring ("Lo que debe traer el cliente") */}
         {activeSection === 'simulador-invitados' && calcBebidas?.visible && invitados > 0 && (
           <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
-            <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-sky-50">
+            <CardHeader className="pb-2 bg-gradient-to-r from-amber-50 to-orange-50">
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <GlassWater className="w-5 h-5 text-blue-600" />
-                Calculadora de Bebidas y Extras
+                <GlassWater className="w-5 h-5 text-amber-600" />
+                Lo que debés traer
               </CardTitle>
-              <p className="text-xs text-muted-foreground">Estimación para {invitados} invitados</p>
+              <p className="text-xs text-muted-foreground">Elementos a tu cargo para {invitados} invitados</p>
             </CardHeader>
             <CardContent className="pt-4 space-y-3">
               {bebidasItems.some(b => b.clienteLleva && b.visible) ? (
-                <p className="text-xs text-blue-700 font-medium bg-blue-50 rounded-xl px-3 py-2">
-                  🎉 Según tu contrato, vos traés estos ítems para {invitados} personas:
+                <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+                  📋 Según tu contrato, vos te encargás de estos ítems para {invitados} personas:
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground bg-muted/40 rounded-xl px-3 py-2">
-                  Estimación de bebidas y extras para {invitados} invitados:
+                  Estimación de cantidades para {invitados} invitados:
                 </p>
               )}
               <div className="space-y-2">
@@ -1332,19 +1526,19 @@ export default function PublicPortalView({
                     const { bg, border, text } = getColorClasses(item.color);
                     const cantidad = Math.round(invitados * item.cantidadPorPersona * 10) / 10;
                     return (
-                      <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl ${bg} border ${border}`}>
+                      <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl ${item.clienteLleva ? 'bg-amber-50 border border-amber-200' : `${bg} border ${border}`}`}>
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">{item.emoji}</span>
                           <div>
                             <p className="font-bold text-sm">{item.nombre}</p>
                             <p className="text-xs text-muted-foreground">
                               {item.cantidadPorPersona} {item.unidad} por persona
-                              {item.clienteLleva && <span className="ml-1 font-semibold text-amber-600">· Vos traés</span>}
+                              {item.clienteLleva && <span className="ml-1 font-bold text-amber-700">· ✋ Vos traés</span>}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`text-2xl font-black ${text}`}>{cantidad}</p>
+                          <p className={`text-2xl font-black ${item.clienteLleva ? 'text-amber-700' : text}`}>{cantidad}</p>
                           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.unidad}</p>
                         </div>
                       </div>
@@ -1358,35 +1552,60 @@ export default function PublicPortalView({
         {/* Event Schedule / Itinerary */}
         {activeSection === 'itinerario' && settings?.itinerario?.visible && programa.length > 0 && (
           <Card id="seccion-itinerario" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                Cronograma del Evento
+                <Calendar className="w-5 h-5" style={{ color: eventColor }} />
+                Itinerario del Evento
               </CardTitle>
-              <p className="text-xs text-muted-foreground">Así va a ser tu noche</p>
+              <p className="text-xs text-muted-foreground">Hacé click en cada momento para ver los detalles</p>
             </CardHeader>
-            <CardContent className="pt-2 pb-4">
+            <CardContent className="pt-3 pb-4">
               <div className="relative pl-6">
-                <div className="absolute left-2.5 top-3 bottom-3 w-0.5 bg-primary/20 rounded-full" />
+                <div className="absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full" style={{ backgroundColor: `${eventColor}40` }} />
                 <div className="space-y-0">
-                  {programa.map((item) => (
-                    <div key={item.id} className="relative flex items-start gap-4 py-3">
-                      <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full bg-primary flex items-center justify-center shadow-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                            {item.hora}
-                          </span>
-                          <span className="font-semibold text-sm">{item.titulo}</span>
+                  {programa.map((item) => {
+                    const isOpen = openProgramaIds.has(item.id);
+                    const toggleItem = () => setOpenProgramaIds(prev => {
+                      const next = new Set(prev);
+                      if (next.has(item.id)) next.delete(item.id);
+                      else next.add(item.id);
+                      return next;
+                    });
+                    const ItemIcon = getItineraryIcon(item.titulo || '');
+                    return (
+                      <div key={item.id} className="relative flex items-start gap-4 py-2">
+                        <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
+                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
                         </div>
-                        {item.descripcion && (
-                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.descripcion}</p>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <button
+                            className="w-full flex items-center gap-2 py-1 text-left"
+                            onClick={toggleItem}
+                          >
+                            <div className="flex items-center gap-2 flex-1 flex-wrap">
+                              <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: eventColor }}>
+                                {item.hora}
+                              </span>
+                              <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                              <span className="font-semibold text-sm">{item.titulo}</span>
+                            </div>
+                            {item.descripcion && (
+                              isOpen
+                                ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            )}
+                          </button>
+                          {isOpen && item.descripcion && (
+                            <div className="mt-1 mb-2 pl-1">
+                              <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
+                                {item.descripcion}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </CardContent>

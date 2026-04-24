@@ -994,6 +994,20 @@ export interface ListaMusicaPortal {
   fechaActualizacion?: string;
 }
 
+export interface GuestPortalSettings {
+  showMural: boolean;
+  showFotos: boolean;
+  showInvitacionWeb: boolean;
+  showMesaAsignada: boolean;
+  showItinerario: boolean;
+  showMusica: boolean;
+  showRegalos: boolean;
+  showCheckin: boolean;
+  welcomeMessage?: string;
+  customBgColor?: string;
+  customAccentColor?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   invitacionSlug?: string;
@@ -1054,6 +1068,7 @@ export interface FiestaEnPlanificacion {
   mediaLibrary?: MediaLibraryItem[];
   cateringChangeRequests?: CateringChangeRequest[];
   socialScreenConfig?: SocialScreenConfig;
+  guestPortalSettings?: GuestPortalSettings;
 }
 
 export interface ContratoFirmaInfo {

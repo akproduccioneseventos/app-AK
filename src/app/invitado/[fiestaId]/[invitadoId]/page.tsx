@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateGuestRsvp } from '@/app/actions/fiesta/invitados.actions';
-import type { FiestaEnPlanificacion, Invitado, PerfilInvitado, RsvpStatus, DietaryRestriction } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, PerfilInvitado, GuestPortalSettings, RsvpStatus, DietaryRestriction } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,8 +15,9 @@ import { Label } from '@/components/ui/label';
 import {
   Loader2, AlertTriangle, Send, CheckCircle2, XCircle, HelpCircle,
   Star, Accessibility, Crown, Users, User, Map, CloudRain, ParkingCircle,
-  Navigation, Music, Utensils, ChevronDown, ChevronUp, Plus, Trash2,
-  Clock, CalendarCheck,
+  Navigation, Images, Globe, MapPin, Music, Gift, QrCode,
+  Instagram, Facebook, Phone,
+  Utensils, ChevronDown, ChevronUp, Plus, Trash2, Clock, CalendarCheck,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -203,15 +205,70 @@ export default function InvitadoPage() {
   const isVip = perfil === 'VIP';
   const isAccesibilidad = perfil === 'Necesidades Especiales' || invitado.requiereAccesibilidad;
 
+  // Guest portal settings (what the admin has configured as visible)
+  const gps: GuestPortalSettings = {
+    showMural: true,
+    showFotos: true,
+    showInvitacionWeb: true,
+    showMesaAsignada: true,
+    showItinerario: true,
+    showMusica: true,
+    showRegalos: false,
+    showCheckin: false,
+    ...(fiesta.guestPortalSettings ?? {}),
+  };
+
+  // Validate custom colors from admin settings
+  const accentRaw = gps.customAccentColor || '';
+  const accentColor = /^#[0-9A-Fa-f]{3,8}$/.test(accentRaw) ? accentRaw : '#7c3aed';
+  const bgRaw = gps.customBgColor || '';
+  const customBg = /^#[0-9A-Fa-f]{3,8}$/.test(bgRaw) ? bgRaw : null;
+
+  const headerBg = customBg ? { backgroundColor: accentColor } : undefined;
+  const headerCls = customBg ? '' : 'bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900';
+  const pageBg = customBg ? { backgroundColor: customBg } : undefined;
+  const pageCls = customBg
+    ? 'min-h-screen'
+    : 'min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-black';
+
+  const invitacionUrl = fiesta.invitacionSlug
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/invitacion/${fiesta.invitacionSlug}`
+    : `${typeof window !== 'undefined' ? window.location.origin : ''}/invitacion/${fiestaId}`;
+
+  const quickLinks = [
+    gps.showInvitacionWeb && {
+      icon: Globe, label: 'Invitación', color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100',
+      href: invitacionUrl, external: true,
+    },
+    gps.showMural && {
+      icon: Images, label: 'Muro', color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100',
+      href: `/evento/muro-en-vivo/${fiestaId}`, external: true,
+    },
+    gps.showMusica && {
+      icon: Music, label: 'Canciones', color: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-100',
+      href: `/portal-cliente/${fiestaId}/musica`, external: false,
+    },
+    gps.showRegalos && {
+      icon: Gift, label: 'Regalos', color: 'text-rose-600', bg: 'bg-rose-50 border-rose-100',
+      href: `/portal-cliente/${fiestaId}/regalos`, external: false,
+    },
+    gps.showCheckin && {
+      icon: QrCode, label: 'Check-in', color: 'text-teal-600', bg: 'bg-teal-50 border-teal-100',
+      href: `/evento/accesos/${fiestaId}`, external: false,
+    },
+  ].filter(Boolean) as Array<{
+    icon: React.ElementType; label: string; color: string; bg: string; href: string; external: boolean;
+  }>;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-black">
+    <div className={pageCls} style={pageBg}>
 
       {/* Header */}
-      <header className="bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900 border-b border-purple-700/30 shadow-2xl sticky top-0 z-40">
+      <header className={`${headerCls} border-b border-purple-700/30 shadow-2xl sticky top-0 z-40`} style={headerBg}>
         <div className="max-w-md mx-auto px-4 h-16 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-black text-white truncate">{config?.nombreEvento ?? 'Evento'}</p>
-            <p className="text-xs text-purple-200">{config?.tipoCelebracion}</p>
+            <p className="text-xs text-purple-200 opacity-80">{config?.tipoCelebracion}</p>
           </div>
           {diasRestantes !== null && diasRestantes >= 0 && (
             <Badge variant="outline" className="text-amber-300 border-amber-400/50 bg-amber-500/20 shrink-0 font-bold">
@@ -222,6 +279,42 @@ export default function InvitadoPage() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-6 space-y-4">
+
+        {/* Welcome message from admin */}
+        {gps.welcomeMessage && (
+          <div className="rounded-2xl border text-center px-5 py-4 bg-white/90 shadow-sm">
+            <p className="text-sm text-slate-600 italic">{gps.welcomeMessage}</p>
+          </div>
+        )}
+
+        {/* Quick Links (controlled by guestPortalSettings) */}
+        {quickLinks.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {quickLinks.map(({ icon: Icon, label, color, bg, href, external }) =>
+              external ? (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`rounded-2xl border p-3 flex flex-col items-center gap-1.5 text-center transition-transform hover:scale-105 active:scale-95 shadow-sm bg-white ${bg}`}
+                >
+                  <Icon className={`w-6 h-6 ${color}`} />
+                  <span className={`text-[11px] font-bold ${color}`}>{label}</span>
+                </a>
+              ) : (
+                <Link
+                  key={label}
+                  href={href}
+                  className={`rounded-2xl border p-3 flex flex-col items-center gap-1.5 text-center transition-transform hover:scale-105 active:scale-95 shadow-sm bg-white ${bg}`}
+                >
+                  <Icon className={`w-6 h-6 ${color}`} />
+                  <span className={`text-[11px] font-bold ${color}`}>{label}</span>
+                </Link>
+              ),
+            )}
+          </div>
+        )}
 
         {/* Welcome */}
         <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-white via-slate-50 to-purple-50">
@@ -543,9 +636,57 @@ export default function InvitadoPage() {
 
       <footer className="py-8 text-center">
         <div className="max-w-md mx-auto px-4">
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-900/40 to-indigo-900/40 backdrop-blur border border-purple-500/20">
-            <p className="text-sm font-bold text-amber-300 mb-1">✨ AK Producciones Eventos</p>
-            <p className="text-xs text-purple-200">Salto, Uruguay</p>
+          <div
+            className="p-6 rounded-2xl border"
+            style={{
+              background: customBg
+                ? `${accentColor}18`
+                : 'linear-gradient(135deg, rgba(109,40,217,0.4), rgba(67,56,202,0.4))',
+              borderColor: customBg ? `${accentColor}40` : 'rgba(139,92,246,0.2)',
+            }}
+          >
+            <p
+              className="text-sm font-black mb-0.5"
+              style={{ color: customBg ? accentColor : '#fcd34d' }}
+            >
+              ✨ AK Producciones Eventos
+            </p>
+            <p
+              className="text-xs mb-3 opacity-70"
+              style={{ color: customBg ? accentColor : '#ddd6fe' }}
+            >
+              Salto, Uruguay · Organizamos momentos únicos
+            </p>
+            <div className="flex items-center justify-center gap-4 mt-1">
+              <a
+                href="https://www.instagram.com/akproduccioneseventos"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
+                style={{ color: customBg ? accentColor : '#c4b5fd' }}
+              >
+                <Instagram className="w-3.5 h-3.5" />
+                Instagram
+              </a>
+              <a
+                href="https://www.facebook.com/akproduccioneseventos"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
+                style={{ color: customBg ? accentColor : '#c4b5fd' }}
+              >
+                <Facebook className="w-3.5 h-3.5" />
+                Facebook
+              </a>
+              <a
+                href="tel:+59899000000"
+                className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
+                style={{ color: customBg ? accentColor : '#c4b5fd' }}
+              >
+                <Phone className="w-3.5 h-3.5" />
+                Contacto
+              </a>
+            </div>
           </div>
         </div>
       </footer>
