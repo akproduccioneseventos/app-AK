@@ -11,6 +11,7 @@
  */
 
 import type { ToolResult } from '../tool-registry';
+import * as logger from '@/lib/logger';
 
 // ── Tipos de entrada (reflejo de los schemas Zod del tool-registry) ───────────
 
@@ -119,7 +120,7 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
       return { success: false, error: result.error || 'No se pudo agendar la cita.', message: result.error || 'No se pudo agendar la cita.' };
     }
     const { createNotification } = await import('@/app/actions/notifications');
-    await createNotification({ titulo: 'Cita agendada', mensaje: `Cita con ${existing.name}${input.followUpDate ? ` para el ${input.followUpDate}` : ''}`, tipo: 'exito', href: '/contabilidad/crm' }).catch(() => {});
+    await createNotification({ titulo: 'Cita agendada', mensaje: `Cita con ${existing.name}${input.followUpDate ? ` para el ${input.followUpDate}` : ''}`, tipo: 'exito', href: '/contabilidad/crm' }).catch((notifErr: unknown) => { logger.warn('[Asistente AK] No se pudo enviar notificación:', (notifErr as Error)?.message); });
     return {
       success: true,
       message: `Cita agendada con ${existing.name}${input.followUpDate ? ` para el ${input.followUpDate}` : ''}${input.time ? ` a las ${input.time}` : ''}.`,
@@ -158,7 +159,7 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
   }
 
   const { createNotification } = await import('@/app/actions/notifications');
-  await createNotification({ titulo: 'Cita agendada', mensaje: `Nuevo prospecto ${leadResult.lead!.name} creado y cita agendada`, tipo: 'exito', href: '/contabilidad/crm' }).catch(() => {});
+  await createNotification({ titulo: 'Cita agendada', mensaje: `Nuevo prospecto ${leadResult.lead!.name} creado y cita agendada`, tipo: 'exito', href: '/contabilidad/crm' }).catch((notifErr: unknown) => { logger.warn('[Asistente AK] No se pudo enviar notificación:', (notifErr as Error)?.message); });
 
   return {
     success: true,
@@ -234,7 +235,7 @@ export async function executeCrearPresupuesto(input: CrearPresupuestoInput): Pro
   const catalogNote = manualCount > 0 ? ` (${manualCount} ítem(s) no encontrado(s) en catálogo — marcado(s) como manual/asistente)` : '';
 
   const { createNotification } = await import('@/app/actions/notifications');
-  await createNotification({ titulo: 'Presupuesto creado', mensaje: `Presupuesto para ${input.clienteNombre} creado desde el asistente`, tipo: 'exito', href: `/presupuestos/${result.id}/ver` }).catch(() => {});
+  await createNotification({ titulo: 'Presupuesto creado', mensaje: `Presupuesto para ${input.clienteNombre} creado desde el asistente`, tipo: 'exito', href: `/presupuestos/${result.id}/ver` }).catch((notifErr: unknown) => { logger.warn('[Asistente AK] No se pudo enviar notificación:', (notifErr as Error)?.message); });
 
   return {
     success: true,
@@ -356,7 +357,7 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
   const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(input.monto);
 
   const { createNotification } = await import('@/app/actions/notifications');
-  await createNotification({ titulo: 'Pago registrado', mensaje: `Pago de ${montoFmt} registrado para presupuesto ${presupuestoId}`, tipo: 'exito', href: `/presupuestos/${presupuestoId}/ver` }).catch(() => {});
+  await createNotification({ titulo: 'Pago registrado', mensaje: `Pago de ${montoFmt} registrado para presupuesto ${presupuestoId}`, tipo: 'exito', href: `/presupuestos/${presupuestoId}/ver` }).catch((notifErr: unknown) => { logger.warn('[Asistente AK] No se pudo enviar notificación:', (notifErr as Error)?.message); });
 
   return {
     success: true,
