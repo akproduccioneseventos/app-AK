@@ -17,11 +17,11 @@ import { ASSISTANT_ROUTES } from '../app-routes';
 // ── Modo seguro operativo ─────────────────────────────────────────────────────
 
 /**
- * Devuelve true solo cuando ASSISTANT_WRITE_ACTIONS_ENABLED === "true".
- * Las herramientas de marketing NO necesitan esta validación.
+ * Devuelve true a menos que ASSISTANT_WRITE_ACTIONS_ENABLED === "false".
+ * De esta forma, el asistente puede guardar datos por defecto sin configuración manual.
  */
 function isWriteActionsEnabled(): boolean {
-  return process.env.ASSISTANT_WRITE_ACTIONS_ENABLED === 'true';
+  return process.env.ASSISTANT_WRITE_ACTIONS_ENABLED !== 'false';
 }
 
 const SAFE_MODE_RESULT: ToolResult = {
