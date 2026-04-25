@@ -364,8 +364,9 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
 
     // If multiple candidates, require explicit presupuestoId to avoid registering the wrong payment.
     if (candidates.length > 1) {
+      const MAX_CANDIDATES_TO_DISPLAY = 5;
       const listado = candidates
-        .slice(0, 5)
+        .slice(0, MAX_CANDIDATES_TO_DISPLAY)
         .map(p => `#${p.numero} (${p.estado}, $${p.totalConDescuento ?? p.costoTotalEstimado})`)
         .join(', ');
       return {

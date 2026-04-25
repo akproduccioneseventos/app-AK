@@ -44,7 +44,12 @@ const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
 
 const requiredVars = { apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId };
 const missingVars = Object.entries(requiredVars)
-  .filter(([, v]) => !v || v.startsWith('REEMPLAZAR-CON'))
+  .filter(([, v]) => {
+    if (!v) return true;
+    // Detect placeholder values that were never replaced (e.g. 'REEMPLAZAR-CON-FIREBASE-API-KEY')
+    const PLACEHOLDER_PREFIX = 'REEMPLAZAR-CON';
+    return v.startsWith(PLACEHOLDER_PREFIX);
+  })
   .map(([k]) => k);
 
 let content;
