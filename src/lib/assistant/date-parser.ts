@@ -16,6 +16,9 @@ export interface ParsedDateTime {
   raw?: string;
 }
 
+/** Number of milliseconds in one week */
+const MILLISECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
+
 const MESES: Record<string, string> = {
   enero: '01', febrero: '02', marzo: '03', abril: '04',
   mayo: '05', junio: '06', julio: '07', agosto: '08',
@@ -97,7 +100,7 @@ export function parseDateTimeUY(text: string, referenceDate?: Date): ParsedDateT
       if (m) {
         const isNextWeek = !!(m[1]); // "próximo" or "siguiente" forces at least 7 days away
         let target = nextWeekday(idx, now);
-        if (isNextWeek && target.getTime() - now.getTime() < 7 * 24 * 60 * 60 * 1000) {
+        if (isNextWeek && target.getTime() - now.getTime() < MILLISECONDS_IN_WEEK) {
           // If "próximo sábado" and the next sábado is less than a week away,
           // skip to the one after (truly "next" week)
           target.setDate(target.getDate() + 7);

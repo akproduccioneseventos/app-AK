@@ -550,7 +550,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       </h2>
       <div className="relative">
         <div className="absolute left-4 top-0 bottom-0 w-0.5" style={{ backgroundColor: 'var(--inv-secondary)' }} />
-        {(config.cronograma as InvitacionDigitalCronograma[] ?? []).map((item, i) => (
+        {(config.cronograma as InvitacionDigitalCronograma[] | undefined ?? []).map((item, i) => (
           <div key={i} className="relative pl-12 pb-8 last:pb-0">
             <div className="absolute left-1.5 top-1 w-5 h-5 rounded-full border-2 bg-white" style={{ borderColor: 'var(--inv-primary)' }} />
             <div className="flex items-baseline gap-3">

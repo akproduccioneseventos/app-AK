@@ -4,6 +4,7 @@
 import React, { useState, useCallback, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -333,6 +334,7 @@ function ImportarPresupuestoContent() {
     : 0;
   const cantidadRegalos = parsed ? parsed.items.filter(it => it.esRegalo).length : 0;
   const diferenciaAudit = total > 0 ? total - sumaItemsCobrados : 0;
+  // Tolerance of 1 peso to absorb rounding differences from integer-format totals
   const auditConDiferencia = total > 0 && Math.abs(diferenciaAudit) > 1;
   const canSave = !auditConDiferencia || auditAceptado;
 
@@ -533,7 +535,7 @@ function ImportarPresupuestoContent() {
 
             {/* Auditoría de totales */}
             {total > 0 && (
-              <div className={`rounded-xl border-2 p-4 space-y-3 ${auditConDiferencia ? 'border-amber-400 bg-amber-50' : 'border-emerald-300 bg-emerald-50'}`} data-testid="audit-panel">
+              <div className={cn('rounded-xl border-2 p-4 space-y-3', auditConDiferencia ? 'border-amber-400 bg-amber-50' : 'border-emerald-300 bg-emerald-50')} data-testid="audit-panel">
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1">
                   {auditConDiferencia
                     ? <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />

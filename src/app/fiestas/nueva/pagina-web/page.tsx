@@ -107,8 +107,9 @@ function PaginaWebPageContent() {
       const baseData = cloneDeep(defaultInvitacionDigitalData);
       const savedData = (data as any)?.invitacionDigital || data;
       const mergedData = merge(baseData, savedData);
-      // Ensure secciones is always a valid array after merge (it may be corrupted or null from old data)
-      if (!Array.isArray(mergedData.secciones) || mergedData.secciones.length === 0) {
+      // Ensure secciones is always a valid array after merge
+      // (it may be null/non-array from corrupted or very old saved data)
+      if (!Array.isArray(mergedData.secciones)) {
         mergedData.secciones = cloneDeep(defaultInvitacionDigitalData.secciones);
       }
       

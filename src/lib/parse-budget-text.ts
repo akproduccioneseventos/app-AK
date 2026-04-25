@@ -204,6 +204,11 @@ function parseFreeFormLine(
 }
 
 /**
+ * Keywords in item names that indicate a gift/bonus with no charge.
+ */
+const GIFT_KEYWORD_PATTERN = /regalo|bonificado|incluido|sin costo/i;
+
+/**
  * Main parser. Accepts the full pasted text and returns a ParsedBudget.
  */
 export function parseBudgetText(text: string): ParsedBudget {
@@ -235,7 +240,7 @@ export function parseBudgetText(text: string): ParsedBudget {
     // or the item name mentions regalo/bonificado/incluido sin costo.
     const esRegaloByDiscount = currentDiscount >= 100;
     const esRegaloByBlock = inRegalosBlock;
-    const esRegaloByName = /regalo|bonificado|incluido|sin costo/i.test(currentItemName);
+    const esRegaloByName = GIFT_KEYWORD_PATTERN.test(currentItemName);
     const esRegalo = esRegaloByDiscount || esRegaloByBlock || esRegaloByName;
     const precioUnitario = currentUnitPrice;
     items.push({
@@ -410,7 +415,7 @@ export function parseBudgetText(text: string): ParsedBudget {
       if (freeLine && (freeLine.total > 0 || freeLine.precioUnitario > 0)) {
         flushItem(); // flush any pending structured item
         const nombre = freeLine.nombre || currentItemName || `Ítem ${items.length + 1}`;
-        const esRegalo = inRegalosBlock || /regalo|bonificado|incluido|sin costo/i.test(nombre);
+        const esRegalo = inRegalosBlock || GIFT_KEYWORD_PATTERN.test(nombre);
         items.push({
           idServicioCatalogo: `imported_${items.length}`,
           nombreServicio: nombre,
