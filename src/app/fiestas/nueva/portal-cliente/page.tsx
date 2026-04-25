@@ -285,7 +285,6 @@ function ClientPortalConfigContent() {
     setFaqItems(prev => prev.filter(f => f.id !== id));
   };
 
-  const portalLink = typeof window !== 'undefined' ? `${window.location.origin}/portal?fiestaId=${fiestaId}` : '';
   const publicPortalLink =
     typeof window !== 'undefined' && portalSettings.accessKey
       ? `${window.location.origin}/portal/c/${portalSettings.accessKey}`
