@@ -263,7 +263,7 @@ export default function MuroEnVivoPage() {
       )}
 
       {isLoaded && activeScreenItem?.type === 'video' && (
-        <ScreenMediaSlide item={activeScreenItem} />
+        <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
       )}
 
       {isLoaded && activeScreenItem?.type === 'redes' && (
@@ -375,11 +375,18 @@ function renderMarqueeText(text: string) {
   ));
 }
 
-function ScreenMediaSlide({ item }: { item: ScreenPlaylistItem }) {
+function ScreenMediaSlide({ item, fallbackPosts }: { item: ScreenPlaylistItem; fallbackPosts: SocialGalleryPost[] }) {
   if (!item.mediaUrl) {
+    // No media uploaded: show mural if there are posts, otherwise a placeholder
+    if (fallbackPosts.length > 0) {
+      return <MasonryLayout posts={fallbackPosts} />;
+    }
     return (
-      <div className="absolute inset-0 flex items-center justify-center text-white/70 text-2xl font-bold">
-        Cargá un video o imagen para esta diapositiva
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+        <div className="text-8xl opacity-20">🎬</div>
+        <p className="text-white/40 text-lg tracking-widest uppercase text-center">
+          Subí un video o imagen<br />para esta diapositiva
+        </p>
       </div>
     );
   }

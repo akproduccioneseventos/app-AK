@@ -250,6 +250,7 @@ function ImportarPresupuestoContent() {
   const [crearFiesta, setCrearFiesta] = useState(true);
   const [eventoFechaOverride, setEventoFechaOverride] = useState('');
   const [senaManual, setSenaManual] = useState('');
+  const [auditAceptado, setAuditAceptado] = useState(false);
 
   const handleParseText = useCallback(() => {
     if (!texto.trim()) {
@@ -260,6 +261,7 @@ function ImportarPresupuestoContent() {
     try {
       const result = parseBudgetText(texto);
       setParsed(result);
+      setAuditAceptado(false);
       if (result.eventoFecha) {
         setEventoFechaOverride(new Date(result.eventoFecha).toISOString().split('T')[0]);
       }
@@ -321,6 +323,18 @@ function ImportarPresupuestoContent() {
     ? parseFloat(senaManual.replace(/\./g, '').replace(',', '.')) || 0
     : Math.round(total * senaPct / 100);
   const saldo = total - senaCalculada;
+
+  // ── Audit calculations ────────────────────────────────────────────────────
+  const sumaItemsCobrados = parsed
+    ? parsed.items.filter(it => !it.esRegalo).reduce((s, it) => s + it.precioUnitario * it.cantidad, 0)
+    : 0;
+  const sumaRegalos = parsed
+    ? parsed.items.filter(it => it.esRegalo).reduce((s, it) => s + it.precioUnitario * it.cantidad, 0)
+    : 0;
+  const cantidadRegalos = parsed ? parsed.items.filter(it => it.esRegalo).length : 0;
+  const diferenciaAudit = total > 0 ? total - sumaItemsCobrados : 0;
+  const auditConDiferencia = total > 0 && Math.abs(diferenciaAudit) > 1;
+  const canSave = !auditConDiferencia || auditAceptado;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -516,6 +530,58 @@ function ImportarPresupuestoContent() {
                 onCheckedChange={setCrearFiesta}
               />
             </div>
+
+            {/* Auditoría de totales */}
+            {total > 0 && (
+              <div className={`rounded-xl border-2 p-4 space-y-3 ${auditConDiferencia ? 'border-amber-400 bg-amber-50' : 'border-emerald-300 bg-emerald-50'}`} data-testid="audit-panel">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1">
+                  {auditConDiferencia
+                    ? <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    : <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  }
+                  Auditoría de totales
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Total declarado</span>
+                    <span className="font-bold" data-testid="audit-total-declarado">{formatCurrency(total)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Suma ítems cobrados</span>
+                    <span className="font-bold" data-testid="audit-suma-cobrados">{formatCurrency(sumaItemsCobrados)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Regalos ({cantidadRegalos} ítem{cantidadRegalos !== 1 ? 's' : ''})</span>
+                    <span className="font-bold text-emerald-700" data-testid="audit-suma-regalos">{formatCurrency(sumaRegalos)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Diferencia</span>
+                    <span className={`font-black ${auditConDiferencia ? 'text-amber-600' : 'text-emerald-600'}`} data-testid="audit-diferencia">
+                      {auditConDiferencia ? formatCurrency(diferenciaAudit) : '✓ $0'}
+                    </span>
+                  </div>
+                </div>
+                {auditConDiferencia ? (
+                  <div className="flex items-start gap-2 pt-2 border-t border-amber-200">
+                    <input
+                      type="checkbox"
+                      id="audit-aceptado"
+                      data-testid="audit-aceptado-checkbox"
+                      checked={auditAceptado}
+                      onChange={e => setAuditAceptado(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-amber-600"
+                    />
+                    <label htmlFor="audit-aceptado" className="text-xs text-amber-800 cursor-pointer">
+                      Guardar igual, acepto que existe una diferencia de {formatCurrency(Math.abs(diferenciaAudit))} entre el total declarado y la suma de ítems.
+                    </label>
+                  </div>
+                ) : (
+                  <p className="text-xs text-emerald-700 pt-2 border-t border-emerald-200">
+                    ✓ Los totales coinciden. El presupuesto es consistente.
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -533,7 +599,7 @@ function ImportarPresupuestoContent() {
           <Button
             data-testid="btn-importar-guardar"
             onClick={handleImport}
-            disabled={isSaving || !parsed.clienteNombre}
+            disabled={isSaving || !parsed.clienteNombre || !canSave}
             className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold"
           >
             {isSaving ? (

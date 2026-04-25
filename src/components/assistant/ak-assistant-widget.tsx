@@ -224,9 +224,10 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
   }
 
   if (action.type === 'navigate' && action.data?.href) {
+    const safeHref = action.data.href.startsWith('/') ? action.data.href : `/${action.data.href}`;
     return (
       <div className="mt-2">
-        <Link href={action.data.href} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
+        <Link href={safeHref} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
           Ir ahí <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
@@ -603,7 +604,9 @@ export function AKAssistantWidget() {
               break;
             case 'navigate':
               if (actionData?.href) {
-                router.push(actionData.href);
+                // Ensure href is always absolute (starts with /) to avoid double-path issues
+                const navHref = actionData.href.startsWith('/') ? actionData.href : `/${actionData.href}`;
+                router.push(navHref);
               }
               break;
             case 'create_budget':

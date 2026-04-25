@@ -107,6 +107,10 @@ function PaginaWebPageContent() {
       const baseData = cloneDeep(defaultInvitacionDigitalData);
       const savedData = (data as any)?.invitacionDigital || data;
       const mergedData = merge(baseData, savedData);
+      // Ensure secciones is always a valid array after merge (it may be corrupted or null from old data)
+      if (!Array.isArray(mergedData.secciones) || mergedData.secciones.length === 0) {
+        mergedData.secciones = cloneDeep(defaultInvitacionDigitalData.secciones);
+      }
       
       if (fiestaId && data && (data as any).configuracion) {
           const config = (data as any).configuracion;
@@ -164,9 +168,9 @@ function PaginaWebPageContent() {
     const { active, over } = event;
     if (over && active.id !== over.id) {
         setInvitacionData(prev => {
-            const oldIndex = prev.secciones.findIndex(s => s.id === active.id);
-            const newIndex = prev.secciones.findIndex(s => s.id === over.id);
-            return { ...prev, secciones: arrayMove(prev.secciones, oldIndex, newIndex) };
+            const oldIndex = (prev.secciones ?? []).findIndex(s => s.id === active.id);
+            const newIndex = (prev.secciones ?? []).findIndex(s => s.id === over.id);
+            return { ...prev, secciones: arrayMove(prev.secciones ?? [], oldIndex, newIndex) };
         });
     }
   };
@@ -183,12 +187,12 @@ function PaginaWebPageContent() {
     const defaultSeccion = defaultInvitacionDigitalData.secciones.find(s => s.tipo === tipo);
     if (defaultSeccion) {
       const newSeccion = { ...cloneDeep(defaultSeccion), id: `${tipo}_${Date.now()}` };
-      handleUpdate({ secciones: [...invitacionData.secciones, newSeccion] });
+      handleUpdate({ secciones: [...(invitacionData.secciones ?? []), newSeccion] });
     }
   };
 
   const removeSection = (idToRemove: string) => {
-    handleUpdate({ secciones: invitacionData.secciones.filter(s => s.id !== idToRemove) });
+    handleUpdate({ secciones: (invitacionData.secciones ?? []).filter(s => s.id !== idToRemove) });
     if(selectedSectionId === idToRemove) setSelectedSectionId(null);
   };
   
@@ -517,7 +521,7 @@ function PaginaWebPageContent() {
                   />
                 ) : (
                   <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-                      <SortableContext items={invitacionData.secciones.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                      <SortableContext items={(invitacionData.secciones ?? []).map(s => s.id)} strategy={verticalListSortingStrategy}>
                           {renderTemplate()}
                       </SortableContext>
                   </DndContext>
