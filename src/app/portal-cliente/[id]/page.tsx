@@ -37,7 +37,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { getFiestaById, updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import NextImage from 'next/image';
 import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -131,9 +131,16 @@ export default function PortalClientePage() {
         setPageError('El portal de este evento no está habilitado o el evento no existe.');
       } else {
         setFiesta(data);
-        setDebeLlevarItems(data.clienteDebeLlevar && data.clienteDebeLlevar.length > 0
-          ? data.clienteDebeLlevar
-          : defaultClienteDebeLlevar);
+        // Priority: clientePortalExperience > clienteDebeLlevar > default
+        const portalExpItems = data.clientePortalExperience?.clienteDebeLlevar;
+        const rootItems = data.clienteDebeLlevar;
+        setDebeLlevarItems(
+          (portalExpItems && portalExpItems.length > 0)
+            ? portalExpItems
+            : (rootItems && rootItems.length > 0)
+              ? rootItems
+              : defaultClienteDebeLlevar
+        );
         const storedKey = sessionStorage.getItem(sessionKey);
         if (storedKey === data.clientPortalSettings.accessKey) {
           setIsAuth(true);
@@ -284,12 +291,30 @@ export default function PortalClientePage() {
   const invitados = fiesta.invitados ?? [];
   const plan      = fiesta.planDePagos;
   const portalSettings = fiesta.clientPortalSettings;
+  const portalExp: ClientePortalExperience = fiesta.clientePortalExperience ?? {};
+
+  // clientePortalExperience overrides
+  const heroImageUrl   = portalExp.heroImageUrl   ?? config.protagonistaFotoUrl;
+  const primaryColor   = portalExp.primaryColor   ?? config.primaryColor;
+  const welcomeMsg     = portalExp.welcomeMessage;
+  const organizerMsg   = portalExp.organizerMessage;
+  const simplicityMode = portalExp.simplicityMode ?? false;
+
+  // ── Render helpers (computed early so visibility logic can use them) ──
+  const hasDecorationPreview = !!(fiesta.decoracion && (
+    fiesta.decoracion.salonPreview3dUrl ||
+    fiesta.decoracion.paletaColores ||
+    (fiesta.decoracion.moodboardItems && fiesta.decoracion.moodboardItems.length > 0)
+  ));
 
   // Module visibility helpers — default true when no settings configured (backward compatible)
-  const showFinancials = portalSettings?.pagos?.visible ?? true;
-  const showInvitados  = portalSettings?.invitados?.visible ?? true;
-  const showCatering   = portalSettings?.menu?.visible ?? true;
-  const showTimeline   = portalSettings?.itinerario?.visible ?? true;
+  // In simplicityMode: only show essentials (financials, invitados, video-vida, llevar)
+  const showFinancials = simplicityMode ? true : (portalSettings?.pagos?.visible ?? true);
+  const showInvitados  = simplicityMode ? true : (portalSettings?.invitados?.visible ?? true);
+  const showCatering   = simplicityMode ? false : (portalSettings?.menu?.visible ?? true);
+  const showTimeline   = simplicityMode ? false : (portalSettings?.itinerario?.visible ?? true);
+  const showDecoration = simplicityMode ? false : hasDecorationPreview;
+  const showVideoVida  = true; // always show: prompts to upload if needed
 
   // ── Financials ───────────────────────────────────────────────
   const cuotas      = plan?.cuotas ?? [];
@@ -319,13 +344,6 @@ export default function PortalClientePage() {
     .sort((a, b) => b.checkInTimestamp!.localeCompare(a.checkInTimestamp!))
     .slice(0, 10);
 
-  // ── Render ───────────────────────────────────────────────────
-  const hasDecorationPreview = !!(fiesta.decoracion && (
-    fiesta.decoracion.salonPreview3dUrl ||
-    fiesta.decoracion.paletaColores ||
-    (fiesta.decoracion.moodboardItems && fiesta.decoracion.moodboardItems.length > 0)
-  ));
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       {/* Header */}
@@ -345,14 +363,14 @@ export default function PortalClientePage() {
       </header>
 
       {/* ── Hero / Protagonist Card ──────────────────────── */}
-      {config.protagonistaFotoUrl && (
+      {heroImageUrl && (
         <div
           className="relative w-full overflow-hidden"
-          style={{ minHeight: 220, background: config.primaryColor ? `${config.primaryColor}22` : 'linear-gradient(135deg,#6d28d9 0%,#db2777 100%)' }}
+          style={{ minHeight: 220, background: primaryColor ? `${primaryColor}22` : 'linear-gradient(135deg,#6d28d9 0%,#db2777 100%)' }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
           <NextImage
-            src={config.protagonistaFotoUrl}
+            src={heroImageUrl}
             alt={config.protagonista1Nombre ?? 'Protagonista'}
             fill
             className="object-cover object-top opacity-80"
@@ -376,10 +394,29 @@ export default function PortalClientePage() {
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
+        {/* ── Mensaje de Bienvenida personalizado ──────── */}
+        {welcomeMsg && (
+          <div className="rounded-2xl p-4 text-center border border-purple-100 bg-purple-50/60">
+            <p className="text-sm font-semibold text-purple-800">{welcomeMsg}</p>
+          </div>
+        )}
+
+        {/* ── Mensaje del Organizador ───────────────────── */}
+        {organizerMsg && (
+          <div className="rounded-2xl p-4 border border-amber-100 bg-amber-50/60 flex gap-3 items-start">
+            <span className="text-2xl shrink-0">💬</span>
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-amber-700 mb-1">Mensaje de tu Organizador</p>
+              <p className="text-sm text-amber-900">{organizerMsg}</p>
+            </div>
+          </div>
+        )}
+
         {/* ── Progreso del Evento ──────────────────────── */}
         <EventProgressBar fiesta={fiesta} />
 
-        {/* ── Feature Navigation Cards ─────────────────── */}
+        {/* ── Feature Navigation Cards (hidden in simplicityMode) ─── */}
+        {!simplicityMode && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
@@ -396,6 +433,7 @@ export default function PortalClientePage() {
             </a>
           ))}
         </div>
+        )}
 
         {/* ── Catálogo Canva contextual ─────────────── */}
         {(() => {
@@ -850,12 +888,17 @@ export default function PortalClientePage() {
                       <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-purple-500" /> Cronograma
                       </p>
-                      {(fiesta.programa ?? []).length > 0 ? (
+                      {(fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false).length > 0 ? (
                         <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {(fiesta.programa ?? []).map((item, i) => (
+                          {(fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false).map((item, i) => (
                             <div key={i} className="flex gap-3 items-start">
                               <span className="text-xs font-black text-purple-600 shrink-0 pt-0.5">{item.hora}</span>
-                              <span className="text-slate-700">{item.titulo}</span>
+                              <div>
+                                <span className="text-slate-700">{item.titulo}</span>
+                                {item.descripcionCliente && (
+                                  <p className="text-xs text-slate-400 mt-0.5">{item.descripcionCliente}</p>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -869,8 +912,61 @@ export default function PortalClientePage() {
             </AccordionItem>
           )}
 
+          {/* ── Video de Vida ────────────────────────────── */}
+          <AccordionItem
+            data-testid="portal-video-vida"
+            value="video-vida"
+            id="video-vida"
+            className="border rounded-2xl overflow-hidden bg-white shadow-sm"
+          >
+            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+              <span className="flex items-center gap-2 text-base font-black">
+                <span className="text-xl">🎬</span> Video de Vida
+                {fiesta.videoVida?.photosUploaded
+                  ? <Badge className="ml-1 bg-green-100 text-green-700 border-0 text-xs">Fotos enviadas ✓</Badge>
+                  : <Badge className="ml-1 bg-amber-100 text-amber-700 border-0 text-xs">Pendiente</Badge>
+                }
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="px-5 pb-5 space-y-3">
+              <p className="text-sm text-slate-600">
+                El video de vida es uno de los momentos más especiales de tu fiesta.
+                Necesitamos tus fotos y canciones favoritas para crearlo.
+              </p>
+              {fiesta.videoVida?.photosUploaded ? (
+                <div className="flex items-center gap-2 p-3 bg-green-50 rounded-xl border border-green-100 text-sm text-green-700">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                  <span className="font-semibold">¡Fotos recibidas! Tu organizador está trabajando en el video.</span>
+                </div>
+              ) : (
+                <a
+                  href={`/portal-cliente/${fiestaId}/fotos-video`}
+                  className="flex items-center justify-between p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50 text-sm hover:bg-amber-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">📷</span>
+                    <span className="font-semibold text-amber-800">Subir fotos para video de vida</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-amber-500 shrink-0" />
+                </a>
+              )}
+              {!fiesta.musica?.sugerenciasInvitados && !fiesta.musica?.playlistFiesta && (
+                <a
+                  href={`/portal-cliente/${fiestaId}/musica`}
+                  className="flex items-center justify-between p-3.5 rounded-xl border-2 border-blue-200 bg-blue-50 text-sm hover:bg-blue-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🎵</span>
+                    <span className="font-semibold text-blue-800">Cargar lista de canciones</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-blue-500 shrink-0" />
+                </a>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+
           {/* ── Decoración ───────────────────────────────── */}
-          {hasDecorationPreview && (
+          {showDecoration && (
             <AccordionItem value="decoracion" id="decoracion" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
               <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
                 <span className="flex items-center gap-2 text-base font-black">
@@ -948,6 +1044,7 @@ export default function PortalClientePage() {
             href={`https://wa.me/${waNumber}?text=${waText}`}
             target="_blank"
             rel="noopener noreferrer"
+            data-testid="necesito-ayuda-btn"
             className="fixed bottom-6 right-4 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-green-500 hover:bg-green-600 text-white font-black shadow-2xl text-sm transition-all active:scale-95"
             aria-label="Contactar al organizador por WhatsApp"
           >
