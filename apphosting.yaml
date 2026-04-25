@@ -16,17 +16,7 @@ env:
       - RUNTIME
       - BUILD
 
-  # ── Firebase client public variables ──────────────────────────────────────
-  # These are PUBLIC values (not secrets). They are required by:
-  #   - src/lib/firebase/config.ts (Firestore client)
-  #   - src/lib/firebase/messaging.ts (FCM / push notifications)
-  #   - scripts/generate-firebase-messaging-sw.mjs (service worker generation at build time)
-  #
-  # Values derivable from the project ID are stored inline (value:).
-  # The remaining values (API key, sender ID, app ID, VAPID key) must be set
-  # in the Firebase App Hosting console under Environment variables for this backend.
-  # They are NOT stored in Secret Manager — they are public Firebase client identifiers.
-  # ─────────────────────────────────────────────────────────────────────────
+  # ── Firebase project identifiers (derivable from project ID) ─────────────
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "presupuestador-ak-producciones"
     availability:
@@ -39,22 +29,6 @@ env:
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: "presupuestador-ak-producciones.firebasestorage.app"
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_VAPID_KEY
     availability:
       - BUILD
       - RUNTIME
