@@ -378,46 +378,36 @@ function ClientPortalConfigContent() {
                 </div>
                 <p className="text-xs text-muted-foreground">Usá un enlace legible (ej: cliente-vip-nombre-evento) o generá uno sugerido con el botón 🔄.</p>
                 {portalSettings.enabled && (
-                  <p className="text-xs text-muted-foreground">Comparte esta contraseña con tu cliente para que pueda acceder a su portal en: <a href={portalLink} target="_blank" rel="noopener noreferrer" className="underline">{portalLink}</a></p>
+                  <p className="text-xs text-muted-foreground">Este valor actúa como contraseña de acceso. El enlace oficial para compartir con el cliente está abajo.</p>
                 )}
               </div>
               {portalSettings.enabled && (
                 <div className="space-y-4 animate-in fade-in-20">
-                  <div className="space-y-2">
-                    <Label>Enlace para compartir con el cliente</Label>
-                    <div className="flex items-center gap-2">
-                      <Input value={portalLink} readOnly/>
-                      <Button type="button" size="icon" variant="outline" onClick={() => { navigator.clipboard.writeText(portalLink); toast({title: "Enlace copiado"}); }}><ClipboardCopy className="w-4 h-4"/></Button>
-                    </div>
-                  </div>
                   {publicPortalLink && (
-                    <>
-                      <Separator />
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Share2 className="w-4 h-4 text-primary" />
-                          <h4 className="text-sm font-semibold">Compartir Portal Público</h4>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Este enlace lleva directamente al portal de tu cliente sin necesidad de contraseña. Compártelo con seguridad.
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Input value={publicPortalLink} readOnly className="text-xs" />
-                          <Button type="button" size="icon" variant="outline" onClick={handleCopyPublicLink}>
-                            <ClipboardCopy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
-                          onClick={handleShareWhatsApp}
-                        >
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Enviar por WhatsApp
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Share2 className="w-4 h-4 text-primary" />
+                        <Label>Enlace para compartir con el cliente</Label>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Este es el enlace oficial para compartir con el cliente. Lleva directamente al portal sin necesidad de contraseña.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Input value={publicPortalLink} readOnly className="text-xs" />
+                        <Button type="button" size="icon" variant="outline" onClick={handleCopyPublicLink}>
+                          <ClipboardCopy className="w-4 h-4" />
                         </Button>
                       </div>
-                    </>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
+                        onClick={handleShareWhatsApp}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Enviar por WhatsApp
+                      </Button>
+                    </div>
                   )}
                   <Separator/>
                    <h4 className="text-md font-medium pt-2">Módulos Visibles para el Cliente</h4>

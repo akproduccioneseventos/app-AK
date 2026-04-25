@@ -131,15 +131,12 @@ export default function PortalClientePage() {
         setPageError('El portal de este evento no está habilitado o el evento no existe.');
       } else {
         setFiesta(data);
-        // Priority: clientePortalExperience > clienteDebeLlevar > default
-        const portalExpItems = data.clientePortalExperience?.clienteDebeLlevar;
+        // Use clienteDebeLlevar as the single source of truth
         const rootItems = data.clienteDebeLlevar;
         setDebeLlevarItems(
-          (portalExpItems && portalExpItems.length > 0)
-            ? portalExpItems
-            : (rootItems && rootItems.length > 0)
-              ? rootItems
-              : defaultClienteDebeLlevar
+          (rootItems && rootItems.length > 0)
+            ? rootItems
+            : defaultClienteDebeLlevar
         );
         const storedKey = sessionStorage.getItem(sessionKey);
         if (storedKey === data.clientPortalSettings.accessKey) {
