@@ -22,17 +22,17 @@ interface Props {
 // ─── Typography helpers ───────────────────────────────────────────────────────
 
 export function getHeroTitleClass(typography?: InvitacionTypographyConfig): string {
-  const mobile = typography?.heroTitleMobile || 'text-4xl sm:text-6xl';
-  const desktop = typography?.heroTitleDesktop || 'lg:text-8xl';
+  const mobile = typography?.heroTitleMobile || 'text-3xl sm:text-5xl';
+  const desktop = typography?.heroTitleDesktop || 'lg:text-7xl';
   return `${mobile} ${desktop}`;
 }
 
 export function getSectionTitleClass(typography?: InvitacionTypographyConfig): string {
-  return typography?.sectionTitle || 'text-2xl sm:text-3xl';
+  return typography?.sectionTitle || 'text-xl sm:text-3xl';
 }
 
 export function getBodyTextClass(typography?: InvitacionTypographyConfig): string {
-  return typography?.body || 'text-base';
+  return typography?.body || 'text-sm sm:text-base';
 }
 
 export function getButtonTextClass(typography?: InvitacionTypographyConfig): string {
@@ -494,13 +494,27 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   type SectionEntry = { id: InvitacionSectionId; order: number; el: React.ReactNode };
   const sectionEntries: SectionEntry[] = [];
 
+  const PLACEHOLDER_EL = (id: string) => (
+    <Section key={`${id}-placeholder`} className="text-center max-w-lg mx-auto" typography={config.typography}>
+      <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 italic')}>
+        Esta información estará disponible próximamente.
+      </p>
+    </Section>
+  );
+
   const addSectionEntry = (
     id: InvitacionSectionId,
     condition: boolean,
-    el: React.ReactNode
+    el: React.ReactNode,
+    showPlaceholder = false
   ) => {
     if (!isSectionVisible(id, config.sectionsConfig)) return;
-    if (!condition) return;
+    if (!condition) {
+      if (showPlaceholder) {
+        sectionEntries.push({ id, order: getSectionOrder(id, config.sectionsConfig), el: PLACEHOLDER_EL(id) });
+      }
+      return;
+    }
     sectionEntries.push({ id, order: getSectionOrder(id, config.sectionsConfig), el });
   };
 
@@ -550,7 +564,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         ))}
       </div>
     </Section>
-  ));
+  ), true);
 
   addSectionEntry('ubicacion', hasLocation, (
     <Section key="ubicacion" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
@@ -574,7 +588,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         </a>
       )}
     </Section>
-  ));
+  ), true);
 
   addSectionEntry('dressCode', hasDressCode, (
     <Section key="dressCode" className="text-center max-w-lg mx-auto" typography={config.typography}>
@@ -597,7 +611,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         <p className={cn(getBodyTextClass(config.typography), 'mt-4 text-gray-500 italic')}>⚠ {config.dressCode.restricciones}</p>
       )}
     </Section>
-  ));
+  ), true);
 
   addSectionEntry('galeria', hasGallery, (
     <Section key="galeria" className={styles.sectionAltBg} typography={config.typography}>
@@ -613,7 +627,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         ))}
       </div>
     </Section>
-  ));
+  ), true);
 
   addSectionEntry('regalos', hasGifts, (
     <Section key="regalos" className="max-w-lg mx-auto" typography={config.typography}>
@@ -685,7 +699,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         </div>
       )}
     </Section>
-  ));
+  ), true);
 
   addSectionEntry('rsvp', config.rsvpActivo, (
     <Section key="rsvp" className={cn('max-w-lg mx-auto', styles.sectionAltBg)} id="rsvp" typography={config.typography}>
@@ -716,7 +730,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         style={{ backgroundColor: 'var(--inv-primary)' }}
       >
         <Camera className="w-4 h-4" />
-        Ir al Mural Social
+        Subir foto al Muro Social
       </a>
     </Section>
   ));

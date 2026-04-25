@@ -34,6 +34,13 @@ export async function uploadSocialPost(formData: FormData): Promise<{ success: b
   const momentTag = (formData.get('momentTag') as string) || undefined;
 
   if (!fiestaId || !file) return { success: false, error: "Faltan datos (ID de fiesta o archivo)." };
+
+  if (!file.type.startsWith('image/')) {
+    return { success: false, error: 'Solo se aceptan archivos de imagen.' };
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    return { success: false, error: 'El archivo no puede superar los 10MB.' };
+  }
   
   const allPosts = await getMetadata();
   const fiestaData = await getFiestaById(fiestaId);

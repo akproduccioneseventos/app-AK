@@ -253,7 +253,7 @@ export default function MuroEnVivoPage() {
           <div className="text-8xl opacity-20">📸</div>
           <div className="text-center space-y-2">
             <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Muro Social</p>
-            <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí</p>
+            <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí.</p>
           </div>
         </div>
       )}

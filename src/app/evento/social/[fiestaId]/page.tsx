@@ -181,6 +181,16 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [isCreatingPoll, setIsCreatingPoll] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [votedPollId, setVotedPollId] = useState<string | null>(null);
+
+  // Restore hasVoted/votedPollId from localStorage on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem(`votedPoll_${params.fiestaId}`);
+    if (stored) {
+      setHasVoted(true);
+      setVotedPollId(stored);
+    }
+  }, [params.fiestaId]);
   
   const [authorName, setAuthorName] = useState('');
   const [tempAuthorName, setTempAuthorName] = useState('');
@@ -439,6 +449,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     if (result.success) {
       setHasVoted(true);
       setVotedPollId(pollId);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`votedPoll_${params.fiestaId}`, pollId);
+      }
       await fetchData(false);
     } else {
       toast({ title: 'Error', description: result.error, variant: 'destructive' });
@@ -580,10 +593,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             </div>
             <div className="min-w-0">
                 <h1 className="text-xl font-black font-headline text-slate-800 truncate">
-                    {localSettings.title || fiesta?.configuracion.nombreEvento || 'Mural Social'}
+                    {localSettings.title || fiesta?.configuracion.nombreEvento || 'Muro Social'}
                 </h1>
                 <p className="text-xs font-medium text-slate-400 truncate uppercase tracking-tighter">
-                    {localSettings.subtitle || 'Comparte tus fotos favoritas'}
+                    {localSettings.subtitle || 'Subí tus fotos y participá en vivo'}
                 </p>
             </div>
           </div>
@@ -656,10 +669,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         <DialogFooter><Button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full h-12 rounded-xl text-lg font-bold">{isSavingSettings ? <Loader2 className="animate-spin mr-2"/> : <Save className="w-5 h-5 mr-2"/>}Guardar Ajustes</Button></DialogFooter>
                     </DialogContent>
                  </Dialog>
-                 <ShareLinkDialog relativePath={`/evento/social/${params.fiestaId}`} title="Compartir Mural" description="Usa este código para que los invitados se unan.">
+                 <ShareLinkDialog relativePath={`/evento/social/${params.fiestaId}`} title="Muro Social · Link para invitados" description="Compartí este link para que los invitados suban fotos y participen.">
                     <Button variant="outline" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><Share2 className="w-5 h-5 text-slate-600"/></Button>
                 </ShareLinkDialog>
-                 <Button variant="outline" onClick={() => setProjectionMode(true)} className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
+                 <Button variant="outline" onClick={() => window.open(`/evento/muro-en-vivo/${params.fiestaId}`, '_blank')} title="Abrir pantalla gigante" aria-label="Abrir pantalla gigante" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
               </>
             )}
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-11 w-11 rounded-2xl"><RefreshCw className={`w-5 h-5 text-slate-400 ${isLoading ? 'animate-spin' : ''}`}/></Button>
@@ -667,8 +680,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         </div>
         {isAdminView && (
           <div className="bg-amber-50 border-y border-amber-100 p-2.5 flex justify-center items-center gap-6 overflow-x-auto">
-            <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest whitespace-nowrap">MODO ADMINISTRADOR</span>
-            <div className="flex gap-2">
+            <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest whitespace-nowrap">MODO ADMINISTRADOR · MURO SOCIAL</span>
+            <div className="flex gap-2 flex-wrap">
+                <a href={`/evento/social/${params.fiestaId}`} target="_blank" rel="noopener noreferrer" aria-label="Abrir vista de invitados del Muro Social"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">📱 INVITADOS</Button></a>
+                <a href={`/evento/muro-en-vivo/${params.fiestaId}`} target="_blank" rel="noopener noreferrer" aria-label="Abrir pantalla gigante del Muro Social"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">🖥 PANTALLA GIGANTE</Button></a>
                 <Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100" onClick={handleDownloadChat}><Download className="w-3 h-3 mr-1.5"/>CHAT</Button>
                 <a href={`/api/social-gallery/${params.fiestaId}/download`} download><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100"><Download className="w-3 h-3 mr-1.5"/>FOTOS</Button></a>
                 <AlertDialog>
