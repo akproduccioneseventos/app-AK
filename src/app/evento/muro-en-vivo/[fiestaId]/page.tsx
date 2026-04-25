@@ -119,29 +119,43 @@ export default function MuroEnVivoPage() {
       const brand = fiestaData?.socialGallerySettings?.brand;
       setCompanyName(brand?.companyName || companyInfo?.companyName || 'AK Producciones');
       setCompanyLogoUrl(brand?.logoUrl || templateSettings?.logoUrl || null);
-      // Enrich social connections with brand data when available
-      const enrichedConnections = connections.filter(c => c.isConnected);
-      if (brand) {
-        if (brand.instagramHandle?.trim() && !enrichedConnections.some(c => c.platform === 'Instagram')) {
-          const brandInstagram: SocialConnection = {
-            platform: 'Instagram',
-            isConnected: true,
-            username: brand.instagramHandle,
-            profileUrl: `https://instagram.com/${brand.instagramHandle.replace('@', '')}`,
-          };
-          enrichedConnections.push(brandInstagram);
-        }
-        if (brand.facebookHandle?.trim() && !enrichedConnections.some(c => c.platform === 'Facebook')) {
-          const brandFacebook: SocialConnection = {
-            platform: 'Facebook',
-            isConnected: true,
-            username: brand.facebookHandle,
-            profileUrl: `https://facebook.com/${brand.facebookHandle}`,
-          };
-          enrichedConnections.push(brandFacebook);
-        }
+      // Build social connections: brand has priority; global connections are used only as fallback
+      // for platforms not covered by brand.
+      const brandConnections: SocialConnection[] = [];
+      if (brand?.instagramHandle?.trim()) {
+        brandConnections.push({
+          platform: 'Instagram',
+          isConnected: true,
+          username: brand.instagramHandle,
+          profileUrl: `https://instagram.com/${brand.instagramHandle.replace('@', '')}`,
+        });
       }
-      setSocialConnections(enrichedConnections);
+      if (brand?.facebookHandle?.trim()) {
+        brandConnections.push({
+          platform: 'Facebook',
+          isConnected: true,
+          username: brand.facebookHandle,
+          profileUrl: `https://facebook.com/${brand.facebookHandle}`,
+        });
+      }
+      if (brand?.tiktokHandle?.trim()) {
+        brandConnections.push({
+          platform: 'TikTok',
+          isConnected: true,
+          username: brand.tiktokHandle,
+        });
+      }
+      if (brand?.whatsappNumber?.trim()) {
+        brandConnections.push({
+          platform: 'WhatsApp',
+          isConnected: true,
+          phoneNumber: brand.whatsappNumber,
+        });
+      }
+      // Add global connections only for platforms not already covered by brand
+      const coveredPlatforms = new Set(brandConnections.map(c => c.platform));
+      const globalFallbacks = connections.filter(c => c.isConnected && !coveredPlatforms.has(c.platform));
+      setSocialConnections([...brandConnections, ...globalFallbacks]);
     } catch (_) {
       // Silent fail for projection wall
     } finally {
@@ -403,14 +417,14 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
       ? 'from-slate-900 via-slate-800 to-slate-900'
       : 'from-neutral-900 via-amber-900 to-neutral-900';
 
-  // Brand has priority over template; template is the fallback for screen-specific overrides.
+  // Brand has priority over template; template provides screen-specific overrides only when brand lacks the value.
   // If neither brand nor template has a value, omit the row entirely (no generic placeholders).
-  const instagramHandle = template?.instagramHandle?.trim() || brand?.instagramHandle?.trim();
-  const tiktokHandle = template?.tiktokHandle?.trim() || brand?.tiktokHandle?.trim();
-  const whatsappHandle = template?.whatsappHandle?.trim() || brand?.whatsappNumber?.trim();
-  const facebookHandle = template?.facebookHandle?.trim() || brand?.facebookHandle?.trim();
+  const instagramHandle = brand?.instagramHandle?.trim() || template?.instagramHandle?.trim();
+  const tiktokHandle = brand?.tiktokHandle?.trim() || template?.tiktokHandle?.trim();
+  const whatsappHandle = brand?.whatsappNumber?.trim() || template?.whatsappHandle?.trim();
+  const facebookHandle = brand?.facebookHandle?.trim() || template?.facebookHandle?.trim();
   const landingUrl = brand?.landingUrl?.trim() || template?.qrUrl?.trim();
-  const ctaText = template?.ctaText?.trim() || brand?.ctaText?.trim();
+  const ctaText = brand?.ctaText?.trim() || template?.ctaText?.trim();
 
   const rows = [
     instagramHandle ? `Instagram: ${instagramHandle}` : null,
