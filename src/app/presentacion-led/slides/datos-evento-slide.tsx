@@ -246,7 +246,7 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => onClientDataChange({ ...clientData, tieneSalon: true, salon: tieneSalon === true ? clientData.salon : '' })}
+                onClick={() => onClientDataChange({ ...clientData, tieneSalon: true })}
                 className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
                   tieneSalon === true
                     ? 'border-emerald-400 bg-emerald-500/20 text-white'
