@@ -5,3 +5,7 @@
 // Used for __tests__/testing-library.js
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+
+// Enable write actions in tests by default so executor tests pass.
+// Safe-mode tests explicitly override this in their own beforeEach/afterEach.
+process.env.ASSISTANT_WRITE_ACTIONS_ENABLED = 'true';

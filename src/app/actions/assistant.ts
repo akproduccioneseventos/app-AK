@@ -596,10 +596,16 @@ ${aiSettings.dynamicBusinessRules ? `\nREGLAS DE NEGOCIO DINÁMICAS (prioridad a
 ${aiSettings.lessonsLearned ? `\nLECCIONES APRENDIDAS Y CORRECCIONES:\n${aiSettings.lessonsLearned}` : ''}
 ${aiSettings.appFunctionalityContext ? `\nCONTEXTO FUNCIONAL ESCANEADO DE LA APP:\n${aiSettings.appFunctionalityContext}` : ''}
 ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.length > 0
-  ? `\nBASE DE CONOCIMIENTO EMPRESARIAL (documentos cargados):\n${aiSettings.knowledgeDocuments
-      .slice(0, 8)
-      .map((doc: AssistantKnowledgeDocument) => `- ${doc.name || 'Documento'}:\n${(doc.content || '').slice(0, KNOWLEDGE_DOC_CONTEXT_MAX_CHARS)}`)
-      .join('\n\n')}`
+  ? (() => {
+      const readDocs = aiSettings.knowledgeDocuments
+        .filter((doc: AssistantKnowledgeDocument) => (doc.content || '').trim().length > 0)
+        .slice(0, 8);
+      return readDocs.length > 0
+        ? `\nBASE DE CONOCIMIENTO EMPRESARIAL (documentos leídos):\n${readDocs
+            .map((doc: AssistantKnowledgeDocument) => `- ${doc.name || 'Documento'}:\n${(doc.content || '').slice(0, KNOWLEDGE_DOC_CONTEXT_MAX_CHARS)}`)
+            .join('\n\n')}`
+        : '';
+    })()
   : ''}
 `;
 

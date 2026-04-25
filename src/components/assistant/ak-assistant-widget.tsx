@@ -146,9 +146,10 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
 
   if (action.type === 'create_budget') {
     if (action.result?.success) {
-      const itemCount: number = action.result.itemCount ?? 0;
-      const total: number = action.result.total ?? 0;
-      const href: string = action.result.href || (action.result.id ? `/presupuestos/${action.result.id}/ver` : '');
+      const itemCount: number = action.result.itemCount ?? action.result.data?.itemCount ?? 0;
+      const total: number = action.result.total ?? action.result.data?.total ?? 0;
+      const presId = action.result.id ?? action.result.data?.presupuestoId;
+      const href: string = action.result.href ?? action.result.data?.href ?? (presId ? `/presupuestos/${presId}/ver` : '');
       return budgetResultCard(
         itemCount, total, href, undefined,
         `⚠️ Borrador creado sin servicios para ${action.data?.clienteNombre}`,
@@ -156,26 +157,27 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
       );
     }
     if (action.result && !action.result.success) {
-      return errorCard(action.result.error || 'No se pudo crear el presupuesto.');
+      return errorCard(action.result.error || action.result.message || 'No se pudo crear el presupuesto.');
     }
   }
 
   if (action.type === 'create_customer') {
     if (action.result?.success) {
+      const clienteId = action.result.id ?? action.result.data?.clienteId;
       return (
         <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4 text-green-600 shrink-0" />
             <span className="text-xs text-green-800 font-medium">Cliente {action.data?.name} ingresado</span>
           </div>
-          {action.result.id && (
-            <Link href={`/customers/${action.result.id}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          {clienteId && (
+            <Link href={`/customers/${clienteId}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
           )}
         </div>
       );
     }
     if (action.result && !action.result.success) {
-      return errorCard(action.result.error || 'No se pudo guardar el cliente.');
+      return errorCard(action.result.error || action.result.message || 'No se pudo guardar el cliente.');
     }
   }
 
@@ -233,30 +235,33 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
 
   if (action.type === 'import_budget_from_image') {
     if (action.result?.success) {
-      const itemCount: number = action.result.itemCount ?? 0;
-      const total: number = action.result.total ?? 0;
-      const href: string = action.result.href || (action.result.id ? `/presupuestos/${action.result.id}/ver` : '');
+      const itemCount: number = action.result.itemCount ?? action.result.data?.itemCount ?? 0;
+      const total: number = action.result.total ?? action.result.data?.total ?? 0;
+      const presId = action.result.id ?? action.result.data?.presupuestoId;
+      const href: string = action.result.href ?? action.result.data?.href ?? (presId ? `/presupuestos/${presId}/ver` : '');
+      const fiestaId = action.result.fiestaId ?? action.result.data?.fiestaId;
       return budgetResultCard(
-        itemCount, total, href, action.result.fiestaId,
+        itemCount, total, href, fiestaId,
         `⚠️ Borrador importado sin servicios para ${action.data?.clienteNombre}`,
         'Importado'
       );
     }
     if (action.result && !action.result.success) {
-      return errorCard(action.result.error || 'No se pudo importar el presupuesto.');
+      return errorCard(action.result.error || action.result.message || 'No se pudo importar el presupuesto.');
     }
   }
 
   if (action.type === 'register_payment') {
     if (action.result?.success) {
+      const presupuestoId = action.result.presupuestoId ?? action.result.data?.presupuestoId;
       return (
         <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4 text-green-600 shrink-0" />
             <span className="text-xs text-green-800 font-medium">Pago de ${action.data?.monto?.toLocaleString('es-UY')} registrado</span>
           </div>
-          {action.result.presupuestoId && (
-            <Link href={`/presupuestos/${action.result.presupuestoId}/ver`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          {presupuestoId && (
+            <Link href={`/presupuestos/${presupuestoId}/ver`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
           )}
         </div>
       );
@@ -264,7 +269,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     if (action.result && !action.result.success) {
       return (
         <div className="mt-2 p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2">
-          <span className="text-xs text-red-700">{action.result.error || 'No se pudo registrar el pago.'}</span>
+          <span className="text-xs text-red-700">{action.result.error || action.result.message || 'No se pudo registrar el pago.'}</span>
         </div>
       );
     }
@@ -342,54 +347,57 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
 
   if (action.type === 'create_event') {
     if (action.result?.success) {
+      const fiestaId = action.result.fiestaId ?? action.result.data?.fiestaId;
       return (
         <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 space-y-1">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4 text-green-600 shrink-0" />
             <span className="text-xs text-green-800 font-medium">Evento creado para {action.data?.clienteNombre}</span>
           </div>
-          {action.result.fiestaId && (
-            <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
+          {fiestaId && (
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 block">Ver evento →</Link>
           )}
         </div>
       );
     }
     if (action.result && !action.result.success) {
-      return errorCard(action.result.error || 'No se pudo crear el evento.');
+      return errorCard(action.result.error || action.result.message || 'No se pudo crear el evento.');
     }
   }
 
   if (action.type === 'update_event') {
     if (action.result?.success) {
+      const fiestaId = action.result.fiestaId ?? action.result.data?.fiestaId;
       return (
         <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4 text-green-600 shrink-0" />
             <span className="text-xs text-green-800 font-medium">Evento actualizado</span>
           </div>
-          {action.result.fiestaId && (
-            <Link href={`/fiestas/nueva?fiestaId=${action.result.fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
+          {fiestaId && (
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="text-xs text-green-700 underline hover:text-green-900 shrink-0">Ver →</Link>
           )}
         </div>
       );
     }
     if (action.result && !action.result.success) {
-      return errorCard(action.result.error || 'No se pudo actualizar el evento.');
+      return errorCard(action.result.error || action.result.message || 'No se pudo actualizar el evento.');
     }
   }
 
   if (action.type === 'generate_contract') {
     if (action.result?.success) {
+      const contractHref = action.result.href ?? action.result.data?.href ?? '/fiestas/nueva/gestion-documental/contrato-servicio';
       return (
         <div className="mt-2">
-          <Link href={action.result.href || '/fiestas/nueva/gestion-documental/contrato-servicio'} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
+          <Link href={contractHref} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
             Ver contrato <ChevronRight className="h-3 w-3" />
           </Link>
         </div>
       );
     }
     if (action.result && !action.result.success) {
-      return errorCard(action.result.error || 'No se pudo generar el contrato.');
+      return errorCard(action.result.error || action.result.message || 'No se pudo generar el contrato.');
     }
   }
 
@@ -419,7 +427,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     );
   }
 
-  if (action.type === 'schedule_meeting' || (action.type === 'create_lead' && action.result?.leadId)) {
+  if (action.type === 'schedule_meeting' || (action.type === 'create_lead' && (action.result?.leadId ?? action.result?.data?.leadId))) {
     if (action.result?.success) {
       return (
         <div className="mt-2 p-2.5 rounded-xl bg-green-50 border border-green-200 flex items-center justify-between gap-2">
@@ -434,7 +442,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
       );
     }
     if (action.result && !action.result.success) {
-      return errorCard(action.result.error || 'No se pudo agendar la cita.');
+      return errorCard(action.result.error || action.result.message || 'No se pudo agendar la cita.');
     }
   }
 
@@ -449,7 +457,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     'schedule_meeting', 'create_lead',
   ];
   if (backendActionTypes.includes(action.type) && action.result && !action.result.success) {
-    return errorCard(action.result.error || 'No se pudo completar la acción. Intentá de nuevo o hacelo manualmente.');
+    return errorCard(action.result.error || action.result.message || 'No se pudo completar la acción. Intentá de nuevo o hacelo manualmente.');
   }
 
   return null;

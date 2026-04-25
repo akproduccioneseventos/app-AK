@@ -619,3 +619,22 @@ export async function testGeminiConnection(): Promise<{ ok: boolean; error?: str
     return { ok: false, error: error?.message || String(error) };
   }
 }
+
+
+export interface AssistantOperationalStatus {
+  writeActionsEnabled: boolean;
+  toolCount: number;
+  geminiKeyConfigured: boolean;
+}
+
+export async function getAssistantOperationalStatus(): Promise<AssistantOperationalStatus> {
+  const { TOOL_REGISTRY } = await import('@/lib/assistant/tool-registry');
+  const geminiKeyConfigured = Boolean(
+    process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY
+  );
+  return {
+    writeActionsEnabled: process.env.ASSISTANT_WRITE_ACTIONS_ENABLED === 'true',
+    toolCount: TOOL_REGISTRY.length,
+    geminiKeyConfigured,
+  };
+}
