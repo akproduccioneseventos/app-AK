@@ -365,7 +365,9 @@ export default function MuroEnVivoPage() {
         </div>
       </div>
 
+      {/* Overlay display priority: sorteo winner (z-50) > active moment (z-40) > poll (z-30) > dedications/comments (z-30) */}
       <AnimatePresence>
+        {/* Active moment overlay — only shown when no sorteo winner is active */}
         {activeMoment && !activeSorteoWinner && (
           <motion.div
             key={activeMoment.timestamp}

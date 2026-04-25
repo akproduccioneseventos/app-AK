@@ -154,12 +154,15 @@ function MuroSocialContent() {
       if (fiestaData.socialGallerySettings?.brand) {
         setAkBrandSettings(fiestaData.socialGallerySettings.brand);
       }
-      const [globalAssets, pollData] = await Promise.all([
-        getGlobalScreenMediaLibrary(),
-        getActivePoll(fiestaId),
-      ]);
+      const globalAssets = await getGlobalScreenMediaLibrary();
       setGlobalLibrary(globalAssets);
-      setActivePoll(pollData);
+      // Load active poll independently to avoid blocking the main data load
+      try {
+        const pollData = await getActivePoll(fiestaId);
+        setActivePoll(pollData);
+      } catch {
+        setActivePoll(null);
+      }
       // Load photo count for admin status panel
       try {
         const posts = await getSocialPosts(fiestaId);

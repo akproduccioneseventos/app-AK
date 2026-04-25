@@ -238,11 +238,14 @@ export async function triggerSorteoWinner(
   fiestaId: string,
   winner: string
 ): Promise<{ success: boolean; error?: string }> {
+  const MAX_SORTEO_HISTORY = 50;
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
     const previousWinners = settings.sorteoGanadores ?? [];
+    // Keep only the last MAX_SORTEO_HISTORY winners to prevent unbounded growth
+    const updatedWinners = [...previousWinners, winner].slice(-MAX_SORTEO_HISTORY);
     await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
@@ -250,7 +253,7 @@ export async function triggerSorteoWinner(
         activeSorteoWinner: winner,
         activeSorteoTimestamp: new Date().toISOString(),
         activeGame: 'sorteo',
-        sorteoGanadores: [...previousWinners, winner],
+        sorteoGanadores: updatedWinners,
       },
     });
     return { success: true };
