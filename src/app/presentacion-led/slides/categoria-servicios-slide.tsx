@@ -124,7 +124,7 @@ function ServicioCard({
   const [imgFailed, setImgFailed] = useState(false);
   const specs = getCatalogSpecsForService(servicio.categoria, servicio.nombre);
   const price = mostrarPrecios ? formatPrice(servicio) : null;
-  const showPhoto = fotoUrl && !imgFailed;
+  const showPhoto = fotoUrl != null && isSafeHttpsUrl(fotoUrl) && !imgFailed;
 
   return (
     <div

@@ -117,7 +117,7 @@ export function MenuSlide({
                       )}
                     >
                       {/* Per-menu photo */}
-                      {photoUrl ? (
+                      {photoUrl && isSafeHttpsUrl(photoUrl) ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={photoUrl}
