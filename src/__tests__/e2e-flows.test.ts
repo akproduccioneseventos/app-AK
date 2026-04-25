@@ -107,7 +107,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const REF = new Date('2026-04-15T12:00:00.000Z');
 
-function makeFiesta(overrides: { id?: string; clienteNombre?: string; fechaEvento?: string } = {}): FiestaEnPlanificacion {
+function makeFiesta(overrides: { id?: string; clienteNombre?: string; fechaEvento?: string; contratoDatos?: Record<string, unknown> } = {}): FiestaEnPlanificacion {
   return {
     id: overrides.id || 'fiesta_test',
     configuracion: {
@@ -122,6 +122,7 @@ function makeFiesta(overrides: { id?: string; clienteNombre?: string; fechaEvent
       presupuestoEstimado: 0,
       notesAdicionales: '',
     },
+    contratoDatos: overrides.contratoDatos || {},
     personalAsignado: [],
   } as FiestaEnPlanificacion;
 }
