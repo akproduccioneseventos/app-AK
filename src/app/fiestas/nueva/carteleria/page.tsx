@@ -17,7 +17,7 @@ import {
   GlassWater, Utensils, Hash, Info,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData, LayoutElement } from '@/types/fiesta';
 import { getFiestaById, updateCartaTragos, updateMenuMesa, updateNumerosMesa } from '@/app/actions/fiesta/fiesta.actions';
 import { updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -30,6 +30,16 @@ import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const FONT_OPTIONS = ['Playfair Display', 'Dancing Script', 'Montserrat', 'Georgia', 'Arial'] as const;
+
+// Aesthetic presets for quick styling
+const AESTHETIC_PRESETS = [
+  { id: 'elegante-dorado',   label: 'Elegante dorado',     color: '#c9a96e', bg: '#fdf8f0', emoji: '✨' },
+  { id: 'xv-celeste',        label: 'XV celeste',           color: '#4fa7cc', bg: '#f0f8ff', emoji: '👑' },
+  { id: 'boda-blanco-dorado', label: 'Boda blanco/dorado', color: '#b8960c', bg: '#fffdf5', emoji: '💍' },
+  { id: 'neon',              label: 'Neón',                 color: '#e040fb', bg: '#1a0033', emoji: '🪩' },
+  { id: 'corporativo',       label: 'Corporativo',          color: '#1e3a5f', bg: '#f5f7fa', emoji: '🏢' },
+  { id: 'infantil',          label: 'Infantil',             color: '#ff6b9d', bg: '#fff0f6', emoji: '🎠' },
+] as const;
 const TITLE_SIZE_OPTIONS = ['small', 'medium', 'large', 'xlarge'] as const;
 const TABLE_SIZE_MAP: Record<NonNullable<NumerosMesaData['fontSize']>, string> = {
   small: '3rem',
@@ -77,6 +87,10 @@ const formatDate = (dateString?: string) => {
     return dateString;
   }
 };
+
+/** Extrae los elementos de tipo mesa de la lista de elementos del diseño de salón */
+const filterTableElements = (salonElements: LayoutElement[]) =>
+  salonElements.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
 
 // ---------------------------------------------------------------------------
 // QR Card (Social Wall) – 10×15 cm card
@@ -351,6 +365,13 @@ function CarteleriaContent() {
       setFechaEventoOverride(fiestaData.configuracion.fechaEvento || '');
       setTipoCelebracionOverride(fiestaData.configuracion.tipoCelebracion || '');
       setQrSubtitle(fiestaData.configuracion.carteleriaQrTexto || DEFAULT_QR_TEXT);
+
+      // Auto-pull table count from salon layout elements
+      const salonElements = fiestaData.decoracion?.salonElements ?? [];
+      const tableElements = filterTableElements(salonElements);
+      if (tableElements.length > 0) {
+        setNumMesas(tableElements.length);
+      }
     } catch (e: unknown) {
       setError('No se pudo cargar la información del evento.');
       toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error desconocido', variant: 'destructive' });
@@ -454,6 +475,13 @@ function CarteleriaContent() {
   const tableFontFamily = numerosMesa.fontFamily || cartaTragos.fontFamily || 'Playfair Display';
   const activeCardLayout = CARD_LAYOUT_PRESETS.find(layout => layout.value === cardLayout) || CARD_LAYOUT_PRESETS[0];
 
+  // Check if table count was auto-derived from salon layout
+  const salonTableCount = (() => {
+    const els = fiesta.decoracion?.salonElements ?? [];
+    const tableEls = filterTableElements(els);
+    return tableEls.length > 0 ? tableEls.length : null;
+  })();
+
   // Build table-number pages: 2 cards per A4 sheet
   const tableNumbers = Array.from({ length: numMesas }, (_, i) => i + 1);
   const tablePages: number[][] = [];
@@ -468,6 +496,20 @@ function CarteleriaContent() {
       map.get(mesa)?.push(invitado.nombre);
     }
     return Array.from(map.entries()).sort((a, b) => sortTableLabels(a[0], b[0]));
+  })();
+
+  // Enrich table labels with salon element names when available
+  const salonTableLabels = (() => {
+    const els = fiesta.decoracion?.salonElements ?? [];
+    const tableEls = filterTableElements(els);
+    const labelMap = new Map<string, string>();
+    tableEls.forEach((el, idx) => {
+      const num = String(idx + 1);
+      if (el.name && el.name.toLowerCase() !== 'mesa') {
+        labelMap.set(num, el.name);
+      }
+    });
+    return labelMap;
   })();
   const FIXED_PAGES_COUNT = 3 + (showWelcomePoster ? 1 : 0) + (showSeatingPlan ? 1 : 0); // carta + menu + qr + opcionales
   const totalPages = FIXED_PAGES_COUNT + tablePages.length;
@@ -524,7 +566,12 @@ function CarteleriaContent() {
           </div>
           {/* Number of tables */}
           <div className="flex flex-col gap-1">
-            <Label className="text-[10px] uppercase font-bold text-muted-foreground">N° de Mesas</Label>
+            <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+              N° de Mesas
+              {salonTableCount != null && (
+                <span className="ml-1 text-green-600 normal-case font-normal">(del diseño)</span>
+              )}
+            </Label>
             <Input
               type="number"
               min={1}
@@ -551,6 +598,18 @@ function CarteleriaContent() {
         </div>
       </div>
 
+      {/* Auto-pull notice */}
+      {salonTableCount != null && (
+        <div className="print:hidden mx-4 mt-3">
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Se detectaron <strong>{salonTableCount} mesas</strong> en el Diseño de Salón y se usaron automáticamente. Podés ajustar el número manualmente si necesitás.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       <Sheet open={isEditorOpen} onOpenChange={setIsEditorOpen}>
         <SheetContent side="right" className="w-[96vw] sm:max-w-2xl p-0">
           <div className="h-full flex flex-col">
@@ -571,6 +630,29 @@ function CarteleriaContent() {
                 </TabsList>
 
                 <TabsContent value="general" className="space-y-4">
+                  {/* Aesthetic presets */}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Presets estéticos</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {AESTHETIC_PRESETS.map(preset => (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => setPrimaryColor(preset.color)}
+                          className={cn(
+                            'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 text-xs font-semibold transition-all',
+                            primaryColor === preset.color
+                              ? 'border-primary ring-2 ring-primary/20'
+                              : 'border-slate-200 hover:border-slate-300'
+                          )}
+                          style={{ backgroundColor: preset.bg, color: preset.color }}
+                          title={preset.label}
+                        >
+                          <span>{preset.emoji}</span> {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label>Color principal</Label>
@@ -972,7 +1054,9 @@ function CarteleriaContent() {
               <div className="flex-1 p-8 overflow-hidden">
                 {invitadosPorMesa.length > 0 ? (
                   <div className="columns-2 gap-5 text-sm">
-                    {invitadosPorMesa.map(([mesa, nombres]) => (
+                    {invitadosPorMesa.map(([mesa, nombres]) => {
+                      const mesaLabel = salonTableLabels.get(mesa);
+                      return (
                       <div
                         key={`mesa-plan-${mesa}`}
                         className="rounded-xl border-l-4 bg-slate-50 px-4 py-3 mb-4 break-inside-avoid"
@@ -988,7 +1072,7 @@ function CarteleriaContent() {
                           >
                             {mesa}
                           </span>
-                          Mesa {mesa}
+                          {mesaLabel ? `${mesaLabel} (Mesa ${mesa})` : `Mesa ${mesa}`}
                         </p>
                         <ul className="space-y-0.5 text-slate-700">
                           {nombres.map((nombre, index) => (
@@ -999,7 +1083,8 @@ function CarteleriaContent() {
                           ))}
                         </ul>
                       </div>
-                    ))}
+                    );
+                    })}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-full text-slate-400 text-sm">

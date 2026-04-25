@@ -100,6 +100,7 @@ function ItinerarioContent() {
   const [templates, setTemplates] = useState<ItineraryTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
+  const [clientViewMode, setClientViewMode] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -298,7 +299,12 @@ function ItinerarioContent() {
               </div>
             </div>
             <div className="space-y-1"><Label htmlFor="item-titulo">Título*</Label><Input id="item-titulo" value={currentItem?.titulo || ''} onChange={(e) => setCurrentItem(p => p ? {...p, titulo: e.target.value} : null)} required /></div>
-            <div className="space-y-1"><Label htmlFor="item-desc">Descripción (Opcional)</Label><Textarea id="item-desc" value={currentItem?.descripcion || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)} rows={3} /></div>
+            <div className="space-y-1"><Label htmlFor="item-desc">Descripción interna (solo organizador)</Label><Textarea id="item-desc" value={currentItem?.descripcion || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)} rows={2} placeholder="Notas operativas (no visibles para el cliente)" /></div>
+            <div className="space-y-1"><Label htmlFor="item-desc-cliente">Descripción para el cliente (opcional)</Label><Textarea id="item-desc-cliente" value={currentItem?.descripcionCliente || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcionCliente: e.target.value} : null)} rows={2} placeholder="Texto visible en el portal del cliente" /></div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="item-visible-cliente" checked={currentItem?.visibleParaCliente !== false} onChange={(e) => setCurrentItem(p => p ? {...p, visibleParaCliente: e.target.checked} : null)} className="w-4 h-4 rounded border-slate-300" />
+              <Label htmlFor="item-visible-cliente" className="font-normal text-sm">Visible en portal del cliente</Label>
+            </div>
             <DialogFooter className="pt-3">
               <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
               <Button type="submit">Guardar Momento</Button>
@@ -313,12 +319,51 @@ function ItinerarioContent() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Cronograma de la Fiesta</h1>
         </div>
         <div className="flex gap-2">
+            <Button
+              variant={clientViewMode ? 'default' : 'secondary'}
+              size="sm"
+              onClick={() => setClientViewMode(v => !v)}
+            >
+              <Eye className="w-4 h-4 mr-2"/>{clientViewMode ? 'Vista Interna' : 'Vista Cliente'}
+            </Button>
             <Link href={`/fiestas/nueva/itinerario/pdf?fiestaId=${fiestaId}`}>
               <Button variant="secondary" size="sm"><Eye className="w-4 h-4 mr-2"/>Vista Previa / PDF</Button>
             </Link>
             <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
+
+      {/* ── Vista Cliente: cronograma simplificado ─── */}
+      {clientViewMode && (
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Eye className="w-5 h-5 text-primary" />
+            <p className="font-black text-primary uppercase tracking-widest text-sm">Vista del Cliente</p>
+            <span className="text-xs text-slate-500 ml-1">— Así verá el cliente su cronograma en el Portal VIP</span>
+          </div>
+          {programa.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-4">No hay momentos cargados aún.</p>
+          ) : (
+            <div className="space-y-3">
+              {programa.filter(item => item.visibleParaCliente !== false).map(item => {
+                const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
+                return (
+                  <div key={item.id} className="flex gap-3 items-start p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                    <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-black text-sm text-primary">{item.hora}</p>
+                      <p className="font-semibold text-slate-800">{item.titulo}</p>
+                      {item.descripcionCliente && <p className="text-xs text-slate-500 mt-0.5">{item.descripcionCliente}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       <Card>
         <CardHeader>

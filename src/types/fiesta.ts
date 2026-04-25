@@ -373,6 +373,8 @@ export interface ProgramaEventoItem {
   hora: string; 
   titulo: string;
   descripcion?: string;
+  descripcionCliente?: string;
+  visibleParaCliente?: boolean;
   icono?: string; 
   completado?: boolean;
 }
@@ -1092,14 +1094,37 @@ export interface GuestExperienceSettings {
   enabled: boolean;
   showAkBranding: boolean;
   showLandingCta: boolean;
+  showSocialCta: boolean;
+  showBudgetSimulatorCta: boolean;
   landingUrl?: string;
-  whatsappNumber?: string;
+  simulatorUrl?: string;
   instagramUrl?: string;
   facebookUrl?: string;
   tiktokUrl?: string;
+  /** Full WhatsApp URL, e.g. https://wa.me/59898355530 */
+  whatsappUrl?: string;
+  /** @deprecated Use whatsappUrl instead. Kept for legacy QR links. */
+  whatsappNumber?: string;
   ctaTitle?: string;
   ctaText?: string;
+  ctaDescription?: string;
   accentColor?: string;
+  /** Whether guests can suggest songs via RSVP form */
+  allowSongSuggestions: boolean;
+  /** Whether guests can upload photos */
+  allowPhotoUpload: boolean;
+  /** Whether guests can access a persistent guest portal */
+  allowGuestPortal: boolean;
+}
+
+// --- CLIENTE PORTAL EXPERIENCE ---
+export interface ClientePortalExperience {
+  heroImageUrl?: string;
+  primaryColor?: string;
+  welcomeMessage?: string;
+  organizerMessage?: string;
+  simplicityMode?: boolean;
+  clienteDebeLlevar?: ClienteDebeLlevarItem[];
 }
 
 export interface FiestaEnPlanificacion {
@@ -1165,6 +1190,7 @@ export interface FiestaEnPlanificacion {
   guestPortalSettings?: GuestPortalSettings;
   clienteDebeLlevar?: ClienteDebeLlevarItem[];
   guestExperienceSettings?: GuestExperienceSettings;
+  clientePortalExperience?: ClientePortalExperience;
 }
 
 export interface ContratoFirmaInfo {

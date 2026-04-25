@@ -800,6 +800,43 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         <React.Fragment key={id}>{el}</React.Fragment>
       ))}
 
+      {/* ============= AK PRODUCCIONES CTA ============= */}
+      {config.ctaAkActivo && (
+        <Section className="text-center bg-gradient-to-br from-purple-900 to-indigo-900 text-white" id="ctaAk">
+          <div className="space-y-4 max-w-md mx-auto">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-300">✨ AK Producciones Eventos</p>
+            <h2 className={cn('text-2xl sm:text-3xl font-bold', styles.fontHeading)}>
+              {config.ctaAkTitulo || '¿Te gustó esta experiencia?'}
+            </h2>
+            <p className="text-sm sm:text-base text-white/80">
+              {config.ctaAkTexto || 'Esto es parte del servicio integral de AK Producciones Eventos. Organizamos tu próximo evento con la misma dedicación y elegancia.'}
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
+              {config.ctaAkLandingUrl && (
+                <a
+                  href={config.ctaAkLandingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-purple-900 font-bold text-sm hover:bg-white/90 transition-colors shadow-lg"
+                >
+                  Ver servicios
+                </a>
+              )}
+              {config.ctaAkWhatsapp && (
+                <a
+                  href={`https://wa.me/${config.ctaAkWhatsapp.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-500 text-white font-bold text-sm hover:bg-green-400 transition-colors shadow-lg"
+                >
+                  <MessageCircle className="w-4 h-4" /> WhatsApp
+                </a>
+              )}
+            </div>
+          </div>
+        </Section>
+      )}
+
       {/* ============= FOOTER ============= */}
       <footer className="py-12 text-center" style={{ backgroundColor: 'var(--inv-primary)', color: 'white' }}>
         <Heart className="w-6 h-6 mx-auto mb-3 opacity-80" />

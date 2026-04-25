@@ -30,10 +30,11 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 
-function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDelete }: {
+function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQuantityChange, onDelete }: {
     item: CargaOperativaItem;
     categoryId: string;
     onToggle: (categoryId: string, itemId: string) => void;
+    onToggleRetornado: (categoryId: string, itemId: string) => void;
     onQuantityChange: (categoryId: string, itemId: string, quantity: string) => void;
     onDelete: (categoryId: string, itemId: string) => void;
 }) {
@@ -47,13 +48,24 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
         )}>
             <div className="flex items-start gap-3 flex-grow min-w-0">
                 <div {...attributes} {...listeners} className="cursor-grab pt-1 text-muted-foreground hover:text-primary"><GripVertical className="w-5 h-5"/></div>
-                <Checkbox
-                  id={`item-cargado-${item.id}`}
-                  checked={item.cargado}
-                  onCheckedChange={() => onToggle(categoryId, item.id)}
-                  className="mt-1 flex-shrink-0 h-5 w-5"
-                  aria-label={`Marcar ${item.nombre} como cargado`}
-                />
+                <div className="flex flex-col gap-1.5 mt-1">
+                  <Checkbox
+                    id={`item-cargado-${item.id}`}
+                    checked={item.cargado}
+                    onCheckedChange={() => onToggle(categoryId, item.id)}
+                    className="flex-shrink-0 h-5 w-5"
+                    aria-label={`Marcar ${item.nombre} como cargado`}
+                  />
+                  {item.cargado && (
+                    <Checkbox
+                      id={`item-retornado-${item.id}`}
+                      checked={!!item.retornado}
+                      onCheckedChange={() => onToggleRetornado(categoryId, item.id)}
+                      className="flex-shrink-0 h-5 w-5 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                      aria-label={`Marcar ${item.nombre} como retornado`}
+                    />
+                  )}
+                </div>
                 <div className="flex-grow min-w-0">
                   <div className="flex items-center gap-2">
                     <Label htmlFor={`item-cargado-${item.id}`} className={cn("font-bold text-sm truncate", item.cargado && "line-through text-muted-foreground")}>{item.nombre}</Label>
@@ -74,6 +86,14 @@ function SortableCargaItem({ item, categoryId, onToggle, onQuantityChange, onDel
                         </TooltipProvider>
                     )}
                   </div>
+                  {item.cargado && (
+                    <p
+                      className={cn("text-[10px] font-semibold", item.retornado ? "text-orange-500" : "text-slate-400")}
+                      aria-label={item.retornado ? `${item.nombre} retornado` : `${item.nombre} pendiente de retorno`}
+                    >
+                      {item.retornado ? 'Retornado' : 'Pendiente de retorno'}
+                    </p>
+                  )}
                   {item.notas && <p className={cn("text-[10px] italic", item.cargado ? "text-muted-foreground/60" : "text-muted-foreground/80")}>Nota: {item.notas}</p>}
                 </div>
               </div>
@@ -409,6 +429,17 @@ function ListaDeCargaOperativaContent() {
       ),
     }));
   };
+
+  const toggleItemRetornado = (categoryId: string, itemId: string) => {
+    setListaDeCarga(prev => ({
+      ...prev,
+      categorias: (prev.categorias || []).map(cat =>
+        cat.id === categoryId
+          ? { ...cat, items: (cat.items || []).map(item => item.id === itemId ? { ...item, retornado: !item.retornado } : item) }
+          : cat
+      ),
+    }));
+  };
   
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
     setListaDeCarga(prev => ({
@@ -464,12 +495,14 @@ function ListaDeCargaOperativaContent() {
       return listaDeCarga.categorias.reduce((sum, cat) => sum + cat.items.filter(i => i.hasConflict).length, 0);
   }, [listaDeCarga]);
 
-  const { totalItems, completedItems, progressPercentage } = useMemo(() => {
+  const { totalItems, completedItems, progressPercentage, retornadoItems, retornadoPercentage } = useMemo(() => {
       const allItems = listaDeCarga.categorias.flatMap(cat => cat.items);
       const total = allItems.length;
       const completed = allItems.filter(i => i.cargado).length;
+      const retornado = allItems.filter(i => i.retornado).length;
       const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-      return { totalItems: total, completedItems: completed, progressPercentage: pct };
+      const retPct = completed > 0 ? Math.round((retornado / completed) * 100) : 0;
+      return { totalItems: total, completedItems: completed, progressPercentage: pct, retornadoItems: retornado, retornadoPercentage: retPct };
   }, [listaDeCarga]);
 
   if (isLoading) {
@@ -517,16 +550,30 @@ function ListaDeCargaOperativaContent() {
       {/* Progress Bar */}
       {totalItems > 0 && (
         <Card className="rounded-2xl shadow-sm border-slate-100">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-black uppercase tracking-wider text-slate-600">Progreso de Carga</span>
-              <span className="text-2xl font-black text-primary">{progressPercentage}%</span>
+          <CardContent className="p-5 space-y-3">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-black uppercase tracking-wider text-slate-600">Progreso de Carga</span>
+                <span className="text-2xl font-black text-primary">{progressPercentage}%</span>
+              </div>
+              <Progress value={progressPercentage} className="h-3 rounded-full" />
+              <p className="text-xs text-slate-400 mt-2 font-medium">
+                {completedItems} de {totalItems} ítems cargados
+                {progressPercentage === 100 ? ' · ¡Todo listo!' : ''}
+              </p>
             </div>
-            <Progress value={progressPercentage} className="h-3 rounded-full" />
-            <p className="text-xs text-slate-400 mt-2 font-medium">
-              {completedItems} de {totalItems} ítems cargados
-              {progressPercentage === 100 ? ' · ¡Todo listo!' : ''}
-            </p>
+            {completedItems > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-orange-600">Retorno de materiales</span>
+                  <span className="text-sm font-black text-orange-500">{retornadoPercentage}%</span>
+                </div>
+                <Progress value={retornadoPercentage} className="h-2 rounded-full [&>div]:bg-orange-400" />
+                <p className="text-xs text-orange-400 mt-1 font-medium">
+                  {retornadoItems} de {completedItems} ítems retornados
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -584,6 +631,7 @@ function ListaDeCargaOperativaContent() {
                                         item={item}
                                         categoryId={category.id}
                                         onToggle={toggleItemCargado}
+                                        onToggleRetornado={toggleItemRetornado}
                                         onQuantityChange={handleItemQuantityChange}
                                         onDelete={handleDeleteItem}
                                     />
