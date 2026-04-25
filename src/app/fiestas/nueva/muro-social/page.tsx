@@ -1,18 +1,20 @@
 'use client';
 
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, GripVertical, Loader2, Pause, Play, Plus, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Upload } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Gamepad2, GripVertical, Loader2, Pause, Play, Plus, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Upload, X, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { getSocialPosts } from '@/app/actions/social-gallery';
-import type { FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
+import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import {
@@ -26,13 +28,78 @@ import {
   updateLedMessage,
   triggerLiveMoment,
   updateScreenBrand,
+  launchGame,
+  clearActiveGame,
 } from '@/app/actions/fiesta/screen-mode.actions';
+
+const ADMIN_REFRESH_INTERVAL_MS = 3000;
 
 const QUICK_MOMENTS = [
   { id: 'llegada-agasajados', nombre: 'Llegada de los agasajados', emoji: '🎉' },
   { id: 'corte-torta', nombre: 'Corte de Torta', emoji: '🎂' },
   { id: 'inicio-baile', nombre: 'Inicio del Baile', emoji: '🕺' },
 ];
+
+/** Predefined game templates operators can launch with one click */
+const GAME_TEMPLATES: Array<{
+  type: ActiveGameType;
+  label: string;
+  emoji: string;
+  title: string;
+  subtitle?: string;
+  options?: Array<{ id: string; text: string; emoji?: string }>;
+  description: string;
+}> = [
+  {
+    type: 'baileLibre',
+    label: '¡Baile libre!',
+    emoji: '🕺',
+    title: '¡BAILE LIBRE!',
+    subtitle: '¡Que empiece la fiesta!',
+    description: 'Pantalla completa con animación de baile',
+  },
+  {
+    type: 'siONo',
+    label: 'Sí o No',
+    emoji: '🤔',
+    title: '¿Sí o No?',
+    subtitle: '¡Los invitados deciden!',
+    options: [{ id: 'si', text: 'Sí ✅' }, { id: 'no', text: 'No ❌' }],
+    description: 'Pregunta con opciones Sí / No',
+  },
+  {
+    type: 'verdadODesafio',
+    label: 'Verdad o Desafío',
+    emoji: '🎯',
+    title: 'VERDAD O DESAFÍO',
+    subtitle: '¿Qué elegís?',
+    options: [{ id: 'verdad', text: 'Verdad 💬', emoji: '💬' }, { id: 'desafio', text: 'Desafío 🔥', emoji: '🔥' }],
+    description: 'Clásico juego de fiesta',
+  },
+  {
+    type: 'trivia',
+    label: 'Trivia',
+    emoji: '🧠',
+    title: 'TRIVIA DEL EVENTO',
+    subtitle: '¿Quién conoce más a los festejados?',
+    description: 'Pregunta de trivia con opciones',
+  },
+  {
+    type: 'encuesta',
+    label: 'Encuesta rápida',
+    emoji: '📊',
+    title: 'ENCUESTA',
+    description: 'Encuesta personalizada',
+  },
+  {
+    type: 'preguntaAbierta',
+    label: 'Pregunta',
+    emoji: '💬',
+    title: '¿Y VOS QUÉ DECÍS?',
+    description: 'Muestra una pregunta en pantalla',
+  },
+];
+
 
 const DEFAULT_SCREEN_PLAYLIST: ScreenPlaylistItem[] = [
   { id: 'item_video', type: 'video', title: 'Video publicitario', durationSeconds: 20, enabled: true, layout: 'auto' },
@@ -114,6 +181,34 @@ function MuroSocialContent() {
   const [akBrandSettings, setAkBrandSettings] = useState<SocialGalleryBrand>({});
   const [isSavingBrand, setIsSavingBrand] = useState(false);
   const [postCount, setPostCount] = useState<number | null>(null);
+  const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
+  const [isLaunchingGame, setIsLaunchingGame] = useState(false);
+  const [gameCustomTitle, setGameCustomTitle] = useState('');
+  const [gameCustomSubtitle, setGameCustomSubtitle] = useState('');
+  const [gameCustomOptions, setGameCustomOptions] = useState('');
+  const [selectedGameTemplate, setSelectedGameTemplate] = useState<typeof GAME_TEMPLATES[number] | null>(null);
+  const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Lightweight auto-refresh: refreshes just the status data without showing a spinner
+  const refreshStatus = useCallback(async () => {
+    if (!fiestaId) return;
+    try {
+      const fiestaData = await getFiestaById(fiestaId);
+      if (!fiestaData) return;
+      const sg = fiestaData.socialGallerySettings;
+      if (sg) {
+        setSettings(withScreenDefaults({
+          ...sg,
+        }));
+        setActiveGame(sg.activeGame ?? null);
+      }
+      const posts = await getSocialPosts(fiestaId);
+      setPostCount(posts.length);
+    } catch (error) {
+      // Silent fail during background refresh — log for debugging
+      console.error('[MuroSocial] Background refresh failed:', error);
+    }
+  }, [fiestaId]);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -141,6 +236,7 @@ function MuroSocialContent() {
       if (fiestaData.socialGallerySettings?.brand) {
         setAkBrandSettings(fiestaData.socialGallerySettings.brand);
       }
+      setActiveGame(fiestaData.socialGallerySettings?.activeGame ?? null);
       const globalAssets = await getGlobalScreenMediaLibrary();
       setGlobalLibrary(globalAssets);
       // Load photo count for admin status panel
@@ -158,6 +254,15 @@ function MuroSocialContent() {
   }, [fiestaId, router, toast]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Auto-refresh admin status panel
+  useEffect(() => {
+    if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+    refreshIntervalRef.current = setInterval(refreshStatus, ADMIN_REFRESH_INTERVAL_MS);
+    return () => {
+      if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+    };
+  }, [refreshStatus]);
 
   const socialWallLink = useMemo(() => {
     if (!fiestaId || typeof window === 'undefined') return '';
@@ -201,6 +306,56 @@ function MuroSocialContent() {
       await loadData();
     } else {
       toast({ title: 'Error al disparar momento', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleLaunchGame = async (template: typeof GAME_TEMPLATES[number]) => {
+    if (!fiestaId) return;
+    setIsLaunchingGame(true);
+    // If user filled in a custom title, use it; otherwise use template defaults
+    const title = (selectedGameTemplate?.type === template.type && gameCustomTitle.trim())
+      ? gameCustomTitle.trim()
+      : template.title;
+    const subtitle = (selectedGameTemplate?.type === template.type && gameCustomSubtitle.trim())
+      ? gameCustomSubtitle.trim()
+      : template.subtitle;
+    let options = template.options;
+    if (selectedGameTemplate?.type === template.type && gameCustomOptions.trim()) {
+      options = gameCustomOptions
+        .split('\n')
+        .map((o, i) => ({ id: `opt_${i}`, text: o.trim() }))
+        .filter(o => o.text);
+    }
+    const game: Omit<ActiveGameData, 'launchedAt'> = {
+      type: template.type,
+      title,
+      ...(subtitle ? { subtitle } : {}),
+      ...(options && options.length > 0 ? { options } : {}),
+    };
+    const result = await launchGame(fiestaId, game);
+    setIsLaunchingGame(false);
+    if (result.success) {
+      toast({ title: `Juego lanzado: ${template.label} 🎮`, description: 'Aparece en la pantalla gigante ahora.' });
+      setSelectedGameTemplate(null);
+      setGameCustomTitle('');
+      setGameCustomSubtitle('');
+      setGameCustomOptions('');
+      await refreshStatus();
+    } else {
+      toast({ title: 'Error al lanzar juego', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleClearGame = async () => {
+    if (!fiestaId) return;
+    setIsLaunchingGame(true);
+    const result = await clearActiveGame(fiestaId);
+    setIsLaunchingGame(false);
+    if (result.success) {
+      toast({ title: 'Juego detenido ⏹', description: 'La pantalla volvió al modo normal.' });
+      await refreshStatus();
+    } else {
+      toast({ title: 'Error al detener juego', description: result.error, variant: 'destructive' });
     }
   };
 
@@ -395,6 +550,11 @@ function MuroSocialContent() {
                   ? ` · ítem ${(settings.screenMode.currentItemIndex ?? 0) + 1}/${settings.screenMode.playlist.filter(i => i.enabled).length}`
                   : ''}
               </span>
+              {activeGame && (
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium text-xs bg-violet-100 text-violet-800 border border-violet-200">
+                  🎮 Juego: {activeGame.title}
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -672,6 +832,132 @@ function MuroSocialContent() {
 
         <Card className="lg:col-span-2">
           <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Gamepad2 className="w-4 h-4 text-violet-500" />
+              Panel de Juegos
+              {activeGame && (
+                <Badge className="ml-2 bg-green-500 text-white text-xs">● En pantalla</Badge>
+              )}
+            </CardTitle>
+            <CardDescription>
+              Lanzá juegos interactivos a la pantalla gigante con un clic. Los invitados participan en tiempo real.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Active game banner */}
+            {activeGame && (
+              <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-green-300 bg-green-50 px-4 py-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-2xl">🎮</span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-green-800 truncate">Juego activo en pantalla</p>
+                    <p className="text-xs text-green-600 truncate">{activeGame.title}</p>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 border border-green-300 text-xs hidden sm:flex">
+                    {activeGame.type}
+                  </Badge>
+                </div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleClearGame}
+                  disabled={isLaunchingGame}
+                  className="shrink-0"
+                >
+                  {isLaunchingGame ? <Loader2 className="w-4 h-4 animate-spin" /> : <Square className="w-4 h-4 mr-1" />}
+                  Detener
+                </Button>
+              </div>
+            )}
+
+            {/* Game templates grid */}
+            <div className="grid sm:grid-cols-3 gap-2">
+              {GAME_TEMPLATES.map((template) => (
+                <div key={template.type} className="space-y-0">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGameTemplate(
+                      selectedGameTemplate?.type === template.type ? null : template
+                    )}
+                    className={`w-full rounded-xl border-2 p-3 text-left transition-all hover:shadow-md ${
+                      selectedGameTemplate?.type === template.type
+                        ? 'border-violet-400 bg-violet-50'
+                        : 'border-border bg-white hover:border-violet-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{template.emoji}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold text-slate-800 truncate">{template.label}</p>
+                        <p className="text-xs text-muted-foreground truncate">{template.description}</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Selected game customization + launch */}
+            {selectedGameTemplate && (
+              <div className="rounded-xl border-2 border-violet-200 bg-violet-50 p-4 space-y-3">
+                <p className="text-sm font-bold text-violet-800 flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Personalizar: {selectedGameTemplate.label}
+                </p>
+                <div className="space-y-1">
+                  <Label className="text-xs">Título en pantalla</Label>
+                  <Input
+                    value={gameCustomTitle}
+                    onChange={(e) => setGameCustomTitle(e.target.value)}
+                    placeholder={selectedGameTemplate.title}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Subtítulo (opcional)</Label>
+                  <Input
+                    value={gameCustomSubtitle}
+                    onChange={(e) => setGameCustomSubtitle(e.target.value)}
+                    placeholder={selectedGameTemplate.subtitle ?? 'Texto adicional…'}
+                  />
+                </div>
+                {selectedGameTemplate.options !== undefined && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">Opciones (una por línea, dejar vacío para usar las predeterminadas)</Label>
+                    <Textarea
+                      value={gameCustomOptions}
+                      onChange={(e) => setGameCustomOptions(e.target.value)}
+                      placeholder={selectedGameTemplate.options.map(o => o.text).join('\n')}
+                      rows={3}
+                    />
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleLaunchGame(selectedGameTemplate)}
+                    disabled={isLaunchingGame}
+                    className="flex-1 bg-violet-600 hover:bg-violet-700"
+                  >
+                    {isLaunchingGame ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+                    Lanzar a pantalla gigante
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => { setSelectedGameTemplate(null); setGameCustomTitle(''); setGameCustomSubtitle(''); setGameCustomOptions(''); }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground">
+              💡 Los juegos aparecen en pantalla en tiempo real (~2 s). Si tenés un ítem de tipo "Juego" en la playlist, el juego activo se muestra a pantalla completa en ese slot.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
             <CardTitle className="text-base">Disparador rápido de momentos</CardTitle>
             <CardDescription>Interrumpe temporalmente la proyección con anuncio a pantalla completa.</CardDescription>
           </CardHeader>
@@ -696,3 +982,4 @@ export default function MuroSocialPage() {
     </Suspense>
   );
 }
+

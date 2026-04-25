@@ -10,12 +10,12 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import type { ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
+import type { ActiveGameData, ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 
-const REFRESH_INTERVAL_MS = 5000;
+const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
 const FRESH_POST_POLAROID_DURATION_MS = 20000;
 const MARQUEE_REPEAT_COUNT = 3;
@@ -30,6 +30,7 @@ type PollData = { id: string; question: string; options: { id: string; text: str
 function isVideoUrl(url: string) {
   return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 }
+
 
 export default function MuroEnVivoPage() {
   const params = useParams();
@@ -52,6 +53,7 @@ export default function MuroEnVivoPage() {
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
+  const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
   const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
   const [highlightedComments, setHighlightedComments] = useState<{ postId: string; comment: SocialComment }[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -95,6 +97,8 @@ export default function MuroEnVivoPage() {
         const momentIsFresh =
           latestMoment && Date.now() - new Date(latestMoment.timestamp).getTime() < MOMENT_DISPLAY_DURATION_MS;
         setActiveMoment(momentIsFresh ? latestMoment : null);
+        // Sync active game
+        setActiveGame(fiestaData.socialGallerySettings.activeGame ?? null);
       }
       if (pollData) {
         setActivePoll({ id: pollData.id, question: pollData.question, options: pollData.options });
@@ -248,7 +252,7 @@ export default function MuroEnVivoPage() {
         </div>
       )}
 
-      {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes') && posts.length === 0 && (
+      {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego') && posts.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
           <div className="text-8xl opacity-20">📸</div>
           <div className="text-center space-y-2">
@@ -258,8 +262,22 @@ export default function MuroEnVivoPage() {
         </div>
       )}
 
-      {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural' || activeScreenItem.type === 'juego') && posts.length > 0 && (
+      {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
         <MasonryLayout posts={posts} />
+      )}
+
+      {isLoaded && activeScreenItem?.type === 'juego' && (
+        activeGame
+          ? <GameSlide game={activeGame} posts={posts} />
+          : posts.length > 0
+            ? <MasonryLayout posts={posts} />
+            : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+                <div className="text-9xl">🎮</div>
+                <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Zona de juegos</p>
+                <p className="text-white/30 text-base">El operador activará el juego en breve…</p>
+              </div>
+            )
       )}
 
       {isLoaded && activeScreenItem?.type === 'video' && (
@@ -270,7 +288,15 @@ export default function MuroEnVivoPage() {
         <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
       )}
 
-      {activePoll && settings.showPolls && (
+      {/* Active game overlay — shown on all slide types when a game is active */}
+      {activeGame && activeScreenItem?.type !== 'juego' && (
+        <div className={GAME_OVERLAY_CLASS}>
+          <GameOverlayContent game={activeGame} />
+        </div>
+      )}
+
+      {/* Poll overlay — shown when there is an active poll and no active game overlay */}
+      {activePoll && settings.showPolls && !activeGame && (
         <div className={GAME_OVERLAY_CLASS}>
           <p className="mb-3 text-center text-base font-black tracking-[0.35em] text-yellow-300 uppercase">Juego en Vivo</p>
           <h2 className="mb-5 text-center text-4xl font-black leading-tight text-white">{activePoll.question}</h2>
@@ -563,3 +589,120 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
     </motion.div>
   );
 }
+
+// ─────────────────────────── GAME COMPONENTS ───────────────────────────
+
+const GAME_TYPE_META: Record<string, { emoji: string; label: string; bg: string }> = {
+  siONo:           { emoji: '🤔', label: '¿Sí o No?',           bg: 'from-violet-900 via-indigo-900 to-purple-900' },
+  trivia:          { emoji: '🧠', label: 'Trivia',               bg: 'from-blue-900 via-cyan-900 to-teal-900' },
+  encuesta:        { emoji: '📊', label: 'Encuesta',             bg: 'from-amber-900 via-orange-900 to-red-900' },
+  baileLibre:      { emoji: '🕺', label: '¡Baile libre!',        bg: 'from-fuchsia-900 via-pink-900 to-rose-900' },
+  verdadODesafio:  { emoji: '🎯', label: 'Verdad o Desafío',     bg: 'from-green-900 via-emerald-900 to-teal-900' },
+  preguntaAbierta: { emoji: '💬', label: 'Pregunta abierta',     bg: 'from-slate-800 via-slate-900 to-neutral-900' },
+};
+
+const MAX_GAME_OPTIONS_PER_ROW = 2;
+
+/** Full-screen game slide for 'juego' playlist items */
+function GameSlide({ game, posts }: { game: ActiveGameData; posts: SocialGalleryPost[] }) {
+  const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: 'from-slate-900 to-slate-800' };
+
+  // baileLibre: show a fun full-screen dance overlay with photo wall behind
+  if (game.type === 'baileLibre') {
+    return (
+      <div className="absolute inset-0">
+        {posts.length > 0 && <MasonryLayout posts={posts} />}
+        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-6">
+          <motion.div
+            initial={{ scale: 0.8 }}
+            animate={{ scale: [1, 1.08, 0.96, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, repeatType: 'loop' }}
+            className="text-[14vw] leading-none"
+          >
+            {meta.emoji}
+          </motion.div>
+          <h1 className="text-[8vw] font-black uppercase text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] text-center">
+            {game.title}
+          </h1>
+          {game.subtitle && (
+            <p className="text-[3vw] text-white/70 font-semibold text-center max-w-4xl">{game.subtitle}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${meta.bg}`}>
+      <div className="w-full max-w-5xl px-12 text-center">
+        <motion.p
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 text-base font-black tracking-[0.5em] text-yellow-300 uppercase"
+        >
+          {meta.emoji} {meta.label}
+        </motion.p>
+        <motion.h1
+          key={game.title}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-[5.5vw] font-black leading-tight text-white mb-8"
+        >
+          {game.title}
+        </motion.h1>
+        {game.subtitle && (
+          <p className="text-[2.5vw] text-white/70 font-semibold mb-10">{game.subtitle}</p>
+        )}
+        {game.options && game.options.length > 0 && (
+          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(game.options.length, MAX_GAME_OPTIONS_PER_ROW)}, 1fr)` }}>
+            {game.options.map((option, idx) => (
+              <motion.div
+                key={option.id}
+                initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + idx * 0.1 }}
+                className="rounded-3xl border-2 border-white/30 bg-white/10 px-8 py-5 backdrop-blur-sm"
+              >
+                <p className="text-[2.8vw] font-black text-white">
+                  {option.emoji && <span className="mr-3">{option.emoji}</span>}
+                  {option.text}
+                </p>
+                {option.votes !== undefined && option.votes > 0 && (
+                  <p className="mt-1 text-yellow-300 text-[1.8vw] font-bold">{option.votes} votos</p>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Compact overlay shown when a game is active on non-juego slides */
+function GameOverlayContent({ game }: { game: ActiveGameData }) {
+  const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: '' };
+  return (
+    <>
+      <p className="mb-3 text-center text-sm font-black tracking-[0.35em] text-yellow-300 uppercase">
+        {meta.emoji} {meta.label}
+      </p>
+      <h2 className="mb-4 text-center text-3xl font-black leading-tight text-white">{game.title}</h2>
+      {game.subtitle && (
+        <p className="mb-4 text-center text-lg text-white/70">{game.subtitle}</p>
+      )}
+      {game.options && game.options.length > 0 && (
+        <div className="space-y-2">
+          {game.options.map((option) => (
+            <div key={option.id} className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white text-xl font-bold">
+              {option.emoji && <span className="mr-2">{option.emoji}</span>}
+              {option.text}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
