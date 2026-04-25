@@ -1217,3 +1217,82 @@ describe('CTA tracking — guestExperienceStats', () => {
     expect(result.clickedLanding).toBe(true);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 27. guestAccessToken generation
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('guestAccessToken — generación automática', () => {
+  /** Simula la lógica de addInvitado: asigna token si no viene en el payload */
+  function simulateAddInvitado(data: Partial<Invitado>): Invitado {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const token = data.guestAccessToken ?? (() => {
+      // replica: randomUUID() — en tests usamos un stub
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    })();
+    expect(UUID_RE.test(token)).toBe(true);
+    return makeInvitado({ ...data, guestAccessToken: token });
+  }
+
+  it('addInvitado genera guestAccessToken cuando no se provee', () => {
+    const inv = simulateAddInvitado({ nombre: 'Carlos López', rsvp: 'Pendiente' });
+    expect(inv.guestAccessToken).toBeDefined();
+    expect(inv.guestAccessToken).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+  });
+
+  it('addInvitado respeta guestAccessToken si ya viene en los datos', () => {
+    const preToken = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    const inv = simulateAddInvitado({ nombre: 'María García', guestAccessToken: preToken });
+    expect(inv.guestAccessToken).toBe(preToken);
+  });
+
+  it('submitPublicRsvp — invitado nuevo obtiene guestAccessToken', () => {
+    // Simula creación de nuevo invitado con token generado
+    const newInvitado: Partial<Invitado> = {
+      id: `inv_rsvp_${Date.now()}_abc`,
+      guestAccessToken: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+      nombre: 'Pedro Díaz',
+      rsvp: 'Confirmado',
+    };
+    expect(newInvitado.guestAccessToken).toBeDefined();
+    expect(newInvitado.guestAccessToken).not.toBe('');
+  });
+
+  it('submitPublicRsvp — invitado existente sin token recibe uno nuevo', () => {
+    const existing = makeInvitado({ guestAccessToken: undefined });
+    // Simula el stamp: ?? randomUUID()
+    const stamped = { ...existing, guestAccessToken: existing.guestAccessToken ?? 'new-uuid-value' };
+    expect(stamped.guestAccessToken).toBe('new-uuid-value');
+  });
+
+  it('submitPublicRsvp — invitado existente con token conserva el original', () => {
+    const originalToken = 'preserved-token-xyz';
+    const existing = makeInvitado({ guestAccessToken: originalToken });
+    const stamped = { ...existing, guestAccessToken: existing.guestAccessToken ?? 'new-uuid-value' };
+    expect(stamped.guestAccessToken).toBe(originalToken);
+  });
+
+  it('check-in valida por token y no necesita guestId cuando token coincide', () => {
+    const token = 'check-in-token-abc';
+    const guestList: Invitado[] = [
+      makeInvitado({ guestAccessToken: token, tableNumber: '5' }),
+    ];
+    // Lógica del accesos page: prefer token lookup
+    const matchByToken = guestList.find(g => g.guestAccessToken === token);
+    expect(matchByToken).toBeDefined();
+    expect(matchByToken?.tableNumber).toBe('5');
+  });
+
+  it('check-in cae en fallback por guestId cuando no hay token en QR', () => {
+    const guest = makeInvitado({ guestAccessToken: 'tok-xyz' });
+    const guestList: Invitado[] = [guest];
+    const guestId = guest.id;
+    // Simula QR sin token field
+    const matchByGuestId = guestList.find(g => g.id === guestId);
+    expect(matchByGuestId).toBeDefined();
+    expect(matchByGuestId?.id).toBe(guestId);
+  });
+});

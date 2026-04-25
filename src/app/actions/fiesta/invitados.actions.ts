@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'crypto';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
@@ -37,7 +38,11 @@ export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
 export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) {
   let nuevoInvitado: Invitado | null = null;
   const result = await updateFiestaData(fiestaId, data => {
-    nuevoInvitado = { ...nuevoInvitadoData, id: `inv_${Date.now()}` };
+    nuevoInvitado = {
+      ...nuevoInvitadoData,
+      id: `inv_${Date.now()}`,
+      guestAccessToken: nuevoInvitadoData.guestAccessToken ?? randomUUID(),
+    };
     const invitados = [...(data.invitados || []), nuevoInvitado];
     return { ...data, invitados };
   });
@@ -310,6 +315,8 @@ export async function submitPublicRsvp(
     if (existingIndex > -1) {
       savedInvitado = {
         ...currentInvitados[existingIndex],
+        // Stamp a token if the existing invitado doesn't have one yet
+        guestAccessToken: currentInvitados[existingIndex].guestAccessToken ?? randomUUID(),
         rsvp: rsvpStatus,
         contacto: submission.contacto ?? currentInvitados[existingIndex].contacto,
         partySize: submission.partySize ?? currentInvitados[existingIndex].partySize,
@@ -326,6 +333,7 @@ export async function submitPublicRsvp(
     } else {
       savedInvitado = {
         id: `inv_rsvp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        guestAccessToken: randomUUID(),
         nombre: submission.nombre.trim(),
         rsvp: rsvpStatus,
         categoria: 'Adulto',
