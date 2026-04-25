@@ -87,7 +87,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
         visible: true,
         titulo: { text: 'Lista de Regalos', style: defaultTitleStyle },
         texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: defaultTextStyle },
-        datosBancarios: 'Banco Itaú\nC.A. Pesos: 1234567\nTitular: Juan Pérez',
+        datosBancarios: '',
         items: [] 
       } 
     },
@@ -157,7 +157,7 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
     visible: true,
     titulo: { text: 'Lista de Regalos', style: defaultTitleStyle },
     texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: defaultTextStyle },
-    datosBancarios: 'Banco Itaú\nC.A. Pesos: 1234567\nTitular: Juan Pérez',
+    datosBancarios: '',
     items: [],
   },
   dressCode: {

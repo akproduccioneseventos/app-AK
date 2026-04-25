@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import { getSocialPosts } from '@/app/actions/social-gallery';
 import type { FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
@@ -112,6 +113,7 @@ function MuroSocialContent() {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [akBrandSettings, setAkBrandSettings] = useState<SocialGalleryBrand>({});
   const [isSavingBrand, setIsSavingBrand] = useState(false);
+  const [postCount, setPostCount] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -141,6 +143,13 @@ function MuroSocialContent() {
       }
       const globalAssets = await getGlobalScreenMediaLibrary();
       setGlobalLibrary(globalAssets);
+      // Load photo count for admin status panel
+      try {
+        const posts = await getSocialPosts(fiestaId);
+        setPostCount(posts.length);
+      } catch {
+        setPostCount(null);
+      }
     } catch (e: any) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
     } finally {
@@ -365,6 +374,31 @@ function MuroSocialContent() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
+        {/* Admin status panel */}
+        <Card className="lg:col-span-2 bg-muted/40">
+          <CardContent className="pt-4 pb-3">
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-xs">Estado del muro</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-background border px-3 py-1 font-mono text-xs">
+                ID: {fiestaId}
+              </span>
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium text-xs ${settings.enabled ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>
+                <span className={`w-2 h-2 rounded-full ${settings.enabled ? 'bg-green-500' : 'bg-red-500'}`} />
+                Muro {settings.enabled ? 'activo' : 'inactivo'}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-background border px-3 py-1 font-medium text-xs">
+                📸 {postCount === null ? '…' : postCount} foto{postCount !== 1 ? 's' : ''}
+              </span>
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium text-xs ${settings.screenMode?.isPlaying ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}`}>
+                {settings.screenMode?.isPlaying ? '▶ Pantalla reproduciendo' : '⏸ Pantalla pausada'}
+                {settings.screenMode?.playlist?.length
+                  ? ` · ítem ${(settings.screenMode.currentItemIndex ?? 0) + 1}/${settings.screenMode.playlist.filter(i => i.enabled).length}`
+                  : ''}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Link y QR del Muro</CardTitle>
