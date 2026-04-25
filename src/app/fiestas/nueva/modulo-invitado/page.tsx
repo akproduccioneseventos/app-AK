@@ -191,7 +191,7 @@ function GuestModuleContent() {
             <div>
               <h1 className="font-headline text-xl font-bold text-slate-800 flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
-                Módulo del Invitado
+                Portal del Invitado
               </h1>
               <p className="text-xs text-muted-foreground">{nombreEvento}</p>
             </div>
@@ -209,6 +209,30 @@ function GuestModuleContent() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+
+        {/* Intro */}
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold text-slate-800">Portal del Invitado</h2>
+          <p className="text-sm text-muted-foreground">Configurá qué ve cada invitado en su portal personal.</p>
+        </div>
+
+        {/* Official link info */}
+        {fiestaId && (
+          <Card className="border-2 border-purple-100 bg-purple-50">
+            <CardContent className="pt-4 space-y-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-purple-600">Link oficial del Portal del Invitado</p>
+              <p className="text-xs text-slate-600">
+                El link oficial para compartir con cada invitado sigue el formato:
+              </p>
+              <code className="block text-xs bg-white border border-purple-100 rounded-xl px-3 py-2 text-purple-800 font-mono">
+                {typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app'}/portal-invitado/{fiestaId}/[guestId]
+              </code>
+              <p className="text-xs text-slate-500">
+                La ruta anterior <code className="text-purple-700">/invitacion/{fiestaId}/invitado/[guestId]</code> sigue funcionando por compatibilidad.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Controls */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -27,10 +27,11 @@ import {
   Music,
   UtensilsCrossed,
   Heart,
+  Navigation,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
-import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, GuestPortalSettings } from '@/types/fiesta';
 import { Button } from '@/components/ui/button';
 import QRCodeStylized from 'qrcode.react';
 
@@ -40,6 +41,17 @@ const DIETARY_LABELS: Record<string, string> = {
   Vegetariano: '🥗 Menú vegetariano',
   Vegano: '🌱 Menú vegano',
   Otro: '⚠️ Menú especial',
+};
+
+const DEFAULT_GPS: GuestPortalSettings = {
+  showMural: true,
+  showFotos: true,
+  showInvitacionWeb: true,
+  showMesaAsignada: true,
+  showItinerario: true,
+  showMusica: true,
+  showRegalos: false,
+  showCheckin: true,
 };
 
 function GuestPortalContent() {
@@ -65,8 +77,8 @@ function GuestPortalContent() {
       const found = (data.invitados ?? []).find((i: Invitado) => i.id === guestId);
       if (!found) throw new Error('Invitado no encontrado.');
       setGuest(found);
-    } catch (e: any) {
-      setLoadError(e.message || 'No se pudo cargar tu información.');
+    } catch (e: unknown) {
+      setLoadError((e instanceof Error ? e.message : null) || 'No se pudo cargar tu información.');
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +118,7 @@ function GuestPortalContent() {
 
   const config = fiesta.configuracion;
   const guestExp = fiesta.guestExperienceSettings;
+  const gps: GuestPortalSettings = { ...DEFAULT_GPS, ...(fiesta.guestPortalSettings ?? {}) };
   const showAkCta = guestExp?.enabled && guestExp?.showAkBranding;
 
   // If portal is explicitly disabled, show a friendly message
@@ -113,7 +126,7 @@ function GuestPortalContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col items-center justify-center p-8 text-center gap-6">
         <span className="text-5xl">🔒</span>
-        <h2 className="text-xl font-bold text-slate-700">El pase digital todavía no está habilitado.</h2>
+        <h2 className="text-xl font-bold text-slate-700">El Portal del Invitado todavía no está habilitado.</h2>
         <p className="text-sm text-slate-400">El organizador activará tu pase próximamente.<br />Intentá nuevamente más tarde.</p>
       </div>
     );
@@ -134,23 +147,29 @@ function GuestPortalContent() {
   const dietLabel = guest.dietaryRestriction && guest.dietaryRestriction !== 'Ninguna'
     ? (DIETARY_LABELS[guest.dietaryRestriction] || guest.dietaryRestriction)
     : null;
+  const mapsUrl = config?.direccionLugar
+    ? `https://maps.google.com/?q=${encodeURIComponent(config.direccionLugar)}`
+    : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col items-center py-10 px-4 gap-6">
-      {/* Header */}
+      {/* Header — 1. Portal del Invitado, 2. Nombre del evento, 3. Nombre del invitado */}
       <div className="text-center space-y-1">
-        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Tu pase digital</p>
-        <h1 className="text-2xl font-black text-slate-900">{config?.nombreEvento}</h1>
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Portal del Invitado</p>
+        <h1 className="text-2xl font-black text-slate-900">{config?.nombreEvento || 'Tu evento'}</h1>
         <p className="text-base font-semibold text-slate-600">Hola, <strong>{guest.nombre}</strong> 👋</p>
+        {gps.welcomeMessage && (
+          <p className="text-sm text-slate-500 italic mt-1">{gps.welcomeMessage}</p>
+        )}
       </div>
 
-      {/* QR */}
-      {guest.rsvp === 'Confirmado' && (
+      {/* 4. QR de entrada */}
+      {gps.showCheckin && guest.rsvp === 'Confirmado' && (
         <div
           data-testid="guest-portal-qr"
           className="w-full max-w-xs bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 flex flex-col items-center gap-4"
         >
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Pase de entrada</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Tu pase de entrada</p>
           <QRCodeStylized id="qr-guest-portal" value={qrValue} size={200} level="H" />
           <p className="text-xs text-slate-400 text-center">
             Mostrá este QR en la entrada del evento.<br />
@@ -161,11 +180,18 @@ function GuestPortalContent() {
           </Button>
         </div>
       )}
+      {gps.showCheckin && guest.rsvp !== 'Confirmado' && (
+        <div
+          data-testid="guest-portal-qr-pending"
+          className="w-full max-w-xs bg-slate-50 rounded-3xl border border-slate-100 p-6 text-center"
+        >
+          <p className="text-sm text-slate-500">Tu QR de entrada estará disponible una vez que confirmes tu asistencia.</p>
+        </div>
+      )}
 
-      {/* Event Details */}
       <div className="w-full max-w-xs space-y-3">
-        {/* Mesa */}
-        {guest.tableNumber && (
+        {/* 5. Mesa asignada */}
+        {gps.showMesaAsignada && guest.tableNumber && (
           <div
             data-testid="guest-portal-table"
             className="flex items-center gap-3 bg-purple-50 border border-purple-100 rounded-2xl p-4"
@@ -177,12 +203,21 @@ function GuestPortalContent() {
             </div>
           </div>
         )}
+        {gps.showMesaAsignada && !guest.tableNumber && (
+          <div className="flex items-center gap-3 bg-purple-50 border border-purple-100 rounded-2xl p-4">
+            <span className="text-2xl">🪑</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-purple-500">Mesa asignada</p>
+              <p className="text-sm text-purple-500">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
 
-        {/* Lugar y fecha */}
+        {/* 6. Fecha y lugar */}
         {(config?.nombreLugar || fecha) && (
           <div className="flex items-start gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-4">
             <MapPin className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
-            <div>
+            <div className="flex-1 min-w-0">
               {config?.nombreLugar && <p className="font-semibold text-slate-800">{config.nombreLugar}</p>}
               {config?.direccionLugar && <p className="text-xs text-slate-500">{config.direccionLugar}</p>}
               {fecha && (
@@ -195,7 +230,23 @@ function GuestPortalContent() {
           </div>
         )}
 
-        {/* Dress Code */}
+        {/* 7. Cómo llegar */}
+        {mapsUrl && (
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl p-4 hover:bg-blue-100 transition-colors"
+          >
+            <Navigation className="w-5 h-5 text-blue-500 shrink-0" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-blue-500">Cómo llegar</p>
+              <p className="text-sm font-semibold text-blue-800">Ver en Google Maps →</p>
+            </div>
+          </a>
+        )}
+
+        {/* 8. Dress Code */}
         {dressCode && dressCode.tipo && dressCode.tipo !== 'casual' && (
           <div
             data-testid="guest-portal-dresscode"
@@ -214,7 +265,7 @@ function GuestPortalContent() {
           </div>
         )}
 
-        {/* Restricción alimentaria */}
+        {/* 9. Menú especial */}
         {dietLabel && (
           <div
             data-testid="guest-portal-dietary"
@@ -242,8 +293,66 @@ function GuestPortalContent() {
           </div>
         )}
 
-        {/* Canciones sugeridas */}
-        {guest.cancionesDJ && guest.cancionesDJ.length > 0 && (
+        {/* 10. Muro social (si habilitado) */}
+        {gps.showMural && (
+          <a
+            href={`/evento/social/${fiestaId}`}
+            className="flex items-start gap-3 bg-violet-50 border border-violet-100 rounded-2xl p-4 hover:bg-violet-100 transition-colors"
+          >
+            <span className="text-2xl">📸</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Muro social</p>
+              <p className="text-sm font-semibold text-violet-800">Subir foto al Muro Social →</p>
+            </div>
+          </a>
+        )}
+
+        {/* Galería de fotos (si habilitado) */}
+        {gps.showFotos && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+            <span className="text-2xl">🖼️</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Galería de fotos</p>
+              <p className="text-sm text-amber-700">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Programa del evento / Itinerario (si habilitado) */}
+        {gps.showItinerario && (
+          <div className="flex items-start gap-3 bg-pink-50 border border-pink-100 rounded-2xl p-4">
+            <span className="text-2xl">📋</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-pink-500 mb-1">Programa del evento</p>
+              <p className="text-sm text-pink-700">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de regalos (si habilitado) */}
+        {gps.showRegalos && (
+          <div className="flex items-start gap-3 bg-rose-50 border border-rose-100 rounded-2xl p-4">
+            <span className="text-2xl">🎁</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-rose-500 mb-1">Lista de regalos</p>
+              <p className="text-sm text-rose-700">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Invitación web (si habilitado) */}
+        {gps.showInvitacionWeb && (
+          <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-2xl p-4">
+            <span className="text-2xl">💌</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-blue-500 mb-1">Invitación web</p>
+              <p className="text-sm text-blue-700">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {/* 11. Canciones sugeridas (si habilitado) */}
+        {gps.showMusica && guest.cancionesDJ && guest.cancionesDJ.length > 0 && (
           <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-100 rounded-2xl p-4">
             <Music className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
             <div>
@@ -253,6 +362,15 @@ function GuestPortalContent() {
                   <li key={i} className="text-sm text-indigo-800 font-medium">🎵 {song}</li>
                 ))}
               </ul>
+            </div>
+          </div>
+        )}
+        {gps.showMusica && (!guest.cancionesDJ || guest.cancionesDJ.length === 0) && (
+          <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-100 rounded-2xl p-4">
+            <Music className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-1">Canciones sugeridas</p>
+              <p className="text-sm text-indigo-600">Esta información estará disponible próximamente.</p>
             </div>
           </div>
         )}
@@ -269,7 +387,7 @@ function GuestPortalContent() {
         )}
       </div>
 
-      {/* AK Producciones CTA */}
+      {/* 12. AK Producciones CTA */}
       {showAkCta && (
         <div
           data-testid="guest-portal-ak-cta"
@@ -282,7 +400,7 @@ function GuestPortalContent() {
             {guestExp?.ctaTitle || '¿Te gustó esta experiencia?'}
           </p>
           <p className="text-xs text-slate-500">
-            {guestExp?.ctaDescription || guestExp?.ctaText || 'Organizamos tu próximo evento con la misma dedicación y amor por los detalles.'}
+            {guestExp?.ctaDescription || guestExp?.ctaText || 'AK Producciones puede organizar tu próximo evento.'}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
             {guestExp?.instagramUrl && guestExp?.showSocialCta && (

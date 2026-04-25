@@ -200,6 +200,12 @@ function PaginaWebPageContent() {
 
   const activeSlug = normalizeInvitationSlug(slugInput || fiesta?.invitacionSlug || fiestaId || '');
   const slugUrl = activeSlug ? getFullLink('/i/[fiestaId]').replace(`/i/${fiestaId}`, `/i/${activeSlug}`) : '';
+
+  const getPublicInvitationLink = (hash?: string) => {
+    const base = slugUrl || getFullLink('/invitacion/[fiestaId]');
+    return hash ? `${base}#${hash}` : base;
+  };
+
   const slugPrefixLabel = useMemo(() => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     if (!baseUrl) return 'tu-app.com/i/';
@@ -377,14 +383,10 @@ function PaginaWebPageContent() {
                   </Button>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-muted-foreground">Enlace por ID (fallback)</Label>
-                <div className="flex items-center gap-2">
-                  <Input value={getFullLink('/invitacion/[fiestaId]')} readOnly className="h-9 text-xs bg-slate-50 rounded-xl" />
-                  <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/invitacion/[fiestaId]'))}>
-                    <ClipboardCopy className="h-4 w-4" />
-                  </Button>
-                </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-muted-foreground">Link técnico de respaldo</Label>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">Solo para uso interno o compatibilidad.</p>
+                <Input value={getFullLink('/invitacion/[fiestaId]')} readOnly className="h-9 text-xs bg-slate-50 rounded-xl text-muted-foreground" />
               </div>
             </div>
           )}
@@ -410,11 +412,11 @@ function PaginaWebPageContent() {
                   <Card className="p-4 border-none shadow-sm rounded-2xl bg-white">
                     <Label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 block">Lista de Regalos</Label>
                     <div className="flex items-center space-x-2">
-                      <Input value={getFullLink('/evento/actual', 'regalos')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
-                      <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                      <Input value={getPublicInvitationLink('regalos')} readOnly className="h-10 text-xs bg-slate-50 border-none rounded-xl" />
+                      <Button size="icon" variant="secondary" className="rounded-xl h-10 w-10 shrink-0" onClick={() => handleCopyToClipboard(getPublicInvitationLink('regalos'))}><ClipboardCopy className="h-4 w-4" /></Button>
                     </div>
                     <div className="text-center mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <QRCodeStylized id="qr-regalos" value={getFullLink('/evento/actual', 'regalos')} size={100} level="M" />
+                      <QRCodeStylized id="qr-regalos" value={getPublicInvitationLink('regalos')} size={100} level="M" />
                       <Button size="sm" variant="link" className="text-xs mt-2" onClick={() => downloadQR('qr-regalos', 'qr-regalos')}><Download className="w-3 h-3 mr-1"/>Descargar</Button>
                     </div>
                   </Card>
@@ -472,7 +474,7 @@ function PaginaWebPageContent() {
             <Button variant="outline" className="rounded-xl font-bold h-9" onClick={() => setTemplateGalleryOpen(true)}>
               <Sparkles className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Cambiar Plantilla</span>
             </Button>
-            <Link href={fiestaId ? `/evento/actual?fiestaId=${fiestaId}` : '#'} target="_blank" className="hidden xs:block">
+            <Link href={fiestaId ? (slugUrl || getFullLink('/invitacion/[fiestaId]')) : '#'} target="_blank" className="hidden xs:block">
               <Button variant="outline" className="rounded-xl font-bold h-9"><Eye className="w-4 h-4 mr-2"/>Ver Real</Button>
             </Link>
            <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold h-9 shadow-lg shadow-primary/20">
