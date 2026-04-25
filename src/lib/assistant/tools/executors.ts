@@ -409,6 +409,7 @@ export async function executeGenerarContrato(input: GenerarContratoInput): Promi
   }
 
   const { getAllFiestas, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
+  const { updateContratoFiestaActual } = await import('@/app/actions/fiesta-actual');
   const allFiestas = await getAllFiestas();
 
   let fiestaId = input.fiestaId;
@@ -438,7 +439,8 @@ export async function executeGenerarContrato(input: GenerarContratoInput): Promi
     return { success: false, error: 'Evento no encontrado.', message: 'Evento no encontrado.' };
   }
 
-  const contractUpdate = {
+  // Save contratoDatos (financial terms) into fiesta
+  const contratoUpdate = {
     ...fiesta,
     contratoDatos: {
       ...(fiesta.contratoDatos || {}),
@@ -450,15 +452,44 @@ export async function executeGenerarContrato(input: GenerarContratoInput): Promi
     },
   };
 
-  const result = await saveFiesta(contractUpdate);
-  if (!result?.success) {
-    return { success: false, error: 'No se pudo guardar el contrato.', message: 'No se pudo guardar el contrato.' };
+  const savedFiesta = await saveFiesta(contratoUpdate);
+  if (!savedFiesta?.success) {
+    return { success: false, error: 'No se pudo guardar el contrato.', message: 'No se pudo guardar los datos del contrato.' };
+  }
+
+  // Generate and persist the contract text + mark contratoGenerado via updateContratoFiestaActual
+  const clienteNombre = fiesta.configuracion?.clienteNombre || input.clienteNombre || 'el cliente';
+  const fechaEvento = fiesta.configuracion?.fechaEvento || '';
+  const seniaFmt = input.senia != null
+    ? new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(input.senia)
+    : 'pendiente';
+  const contratoTexto = [
+    `CONTRATO DE SERVICIOS — AK Producciones Eventos`,
+    `Cliente: ${clienteNombre}`,
+    fechaEvento ? `Fecha del evento: ${fechaEvento.slice(0, 10)}` : '',
+    input.senia != null ? `Seña: ${seniaFmt}` : '',
+    input.saldo != null ? `Saldo: ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(input.saldo)}` : '',
+    input.ajusteAnualPorcentaje ? `Ajuste anual: ${input.ajusteAnualPorcentaje}%` : '',
+    input.fechaFirmaContrato ? `Fecha firma: ${input.fechaFirmaContrato}` : '',
+    input.clausulas ? `Cláusulas adicionales: ${input.clausulas}` : '',
+    `Generado por Asistente AK — ${new Date().toISOString()}`,
+  ].filter(Boolean).join('\n');
+
+  try {
+    await updateContratoFiestaActual(fiestaId, contratoTexto, 'servicios', 'asistente-ak');
+  } catch (updateErr: any) {
+    // updateContratoFiestaActual failed — contratoDatos was saved but text not persisted
+    return {
+      success: false,
+      error: updateErr?.message || 'No se pudo generar el texto del contrato.',
+      message: `Datos del contrato guardados, pero no se pudo generar el documento. Abrí el contrato manualmente en [/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}](/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}).`,
+    };
   }
 
   return {
     success: true,
-    message: `Contrato generado para el evento. Podés verlo en /fiestas/nueva/${fiestaId}/contrato.`,
-    data: { fiestaId, href: `/fiestas/nueva/${fiestaId}/contrato` },
+    message: `Contrato generado y guardado para ${clienteNombre}. Podés verlo en [/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}](/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}).`,
+    data: { fiestaId, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}` },
   };
 }
 

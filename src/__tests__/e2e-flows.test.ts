@@ -61,6 +61,25 @@ jest.mock('@/app/actions/servicios-empresa', () => ({
   saveServicioEmpresa: jest.fn(),
 }));
 
+jest.mock('@/app/actions/marketing', () => ({
+  getMarketingTemplates: jest.fn().mockResolvedValue([]),
+  saveMarketingTemplate: jest.fn().mockResolvedValue({ success: true }),
+  getMarketingChecklist: jest.fn().mockResolvedValue([]),
+  saveMarketingChecklist: jest.fn().mockResolvedValue({ success: true }),
+}));
+
+jest.mock('@/app/actions/fiesta-actual', () => ({
+  updateContratoFiestaActual: jest.fn().mockResolvedValue({ success: true }),
+}));
+
+jest.mock('@/ai/flows/marketing-agent-flow', () => ({
+  chatWithMarketingAgent: jest.fn().mockResolvedValue({
+    content: 'Contenido generado de prueba',
+    platform: 'instagram',
+    tipo: 'post',
+  }),
+}));
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Imports
 // ─────────────────────────────────────────────────────────────────────────────
@@ -681,5 +700,241 @@ describe('Libro Mayor — desglose mensual', () => {
     const summary = calculateFinancialLedger([presPendiente], []);
     expect(summary.ventasTotales).toBe(0);
     expect(summary.presupuestosAceptadosSinFactura).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. Marketing tools — real implementations
+// ─────────────────────────────────────────────────────────────────────────────
+
+import {
+  crearPublicacionMarketingTool,
+  guardarIdeaMarketingTool,
+  agregarTareaMarketingTool,
+} from '@/lib/assistant/tool-registry';
+
+describe('Marketing tools — ejecutores reales', () => {
+  it('guardarIdeaMarketing guarda una idea y devuelve success=true', async () => {
+    const { saveMarketingTemplate } = await import('@/app/actions/marketing');
+    (saveMarketingTemplate as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await guardarIdeaMarketingTool.execute({
+      titulo: 'Campaña XV primavera 2026',
+      descripcion: 'Contenido para captar clientes de XV años en primavera',
+      tags: ['xv', 'primavera'],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('Campaña XV primavera 2026');
+    expect(saveMarketingTemplate).toHaveBeenCalledTimes(1);
+    expect(saveMarketingTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ nombre: 'Campaña XV primavera 2026' })
+    );
+  });
+
+  it('guardarIdeaMarketing retorna error si saveMarketingTemplate falla', async () => {
+    const { saveMarketingTemplate } = await import('@/app/actions/marketing');
+    (saveMarketingTemplate as jest.Mock).mockResolvedValueOnce({ success: false, error: 'Error de escritura' });
+
+    const result = await guardarIdeaMarketingTool.execute({
+      titulo: 'Idea fallida',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeTruthy();
+  });
+
+  it('agregarTareaMarketing agrega tarea al checklist y devuelve success=true', async () => {
+    const { getMarketingChecklist, saveMarketingChecklist } = await import('@/app/actions/marketing');
+    (getMarketingChecklist as jest.Mock).mockResolvedValueOnce([]);
+    (saveMarketingChecklist as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await agregarTareaMarketingTool.execute({
+      titulo: 'Publicar en Instagram',
+      descripcion: 'Foto del salón decorado',
+      fechaLimite: '2026-05-01',
+      prioridad: 'alta',
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('Publicar en Instagram');
+    expect(saveMarketingChecklist).toHaveBeenCalledTimes(1);
+    expect(saveMarketingChecklist).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ tarea: expect.stringContaining('Publicar en Instagram') })
+      ])
+    );
+  });
+
+  it('agregarTareaMarketing retorna error si saveMarketingChecklist falla', async () => {
+    const { getMarketingChecklist, saveMarketingChecklist } = await import('@/app/actions/marketing');
+    (getMarketingChecklist as jest.Mock).mockResolvedValueOnce([]);
+    (saveMarketingChecklist as jest.Mock).mockResolvedValueOnce({ success: false, error: 'Error guardar' });
+
+    const result = await agregarTareaMarketingTool.execute({
+      titulo: 'Tarea fallida',
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('crearPublicacionMarketing llama a chatWithMarketingAgent y devuelve contenido', async () => {
+    const { chatWithMarketingAgent } = await import('@/ai/flows/marketing-agent-flow');
+    (chatWithMarketingAgent as jest.Mock).mockResolvedValueOnce({
+      content: '¡XV años espectaculares! 🎉',
+      platform: 'instagram',
+      tipo: 'post',
+    });
+
+    const result = await crearPublicacionMarketingTool.execute({
+      platform: 'instagram',
+      eventoTipo: 'XV años',
+      descripcion: 'Generá contenido para XV años',
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('XV años espectaculares');
+    expect(chatWithMarketingAgent).toHaveBeenCalledTimes(1);
+    expect(chatWithMarketingAgent).toHaveBeenCalledWith(
+      expect.objectContaining({ platform: 'instagram', eventType: 'XV años' })
+    );
+  });
+
+  it('crearPublicacionMarketing retorna error si chatWithMarketingAgent lanza excepción', async () => {
+    const { chatWithMarketingAgent } = await import('@/ai/flows/marketing-agent-flow');
+    (chatWithMarketingAgent as jest.Mock).mockRejectedValueOnce(new Error('API key inválida'));
+
+    const result = await crearPublicacionMarketingTool.execute({
+      descripcion: 'Contenido que fallará',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('/marketing');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. generarContrato — usa updateContratoFiestaActual (contratoServicioTexto)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { executeGenerarContrato } from '@/lib/assistant/tools/executors';
+
+describe('executeGenerarContrato — usa motor real de contrato', () => {
+  it('guarda contratoServicioTexto y contratoGenerado cuando todos los datos están presentes', async () => {
+    const { getAllFiestas, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
+    const { updateContratoFiestaActual } = await import('@/app/actions/fiesta-actual');
+
+    (getAllFiestas as jest.Mock).mockResolvedValueOnce([
+      makeFiesta({ id: 'f_contrato', clienteNombre: 'Carla Muñoz', fechaEvento: '2026-11-01' }),
+    ]);
+    (saveFiesta as jest.Mock).mockResolvedValueOnce({ success: true, id: 'f_contrato' });
+    (updateContratoFiestaActual as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await executeGenerarContrato({
+      clienteNombre: 'Carla Muñoz',
+      senia: 20000,
+      saldo: 80000,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('Carla Muñoz');
+    // Must call updateContratoFiestaActual to persist contratoServicioTexto/contratoGenerado
+    expect(updateContratoFiestaActual).toHaveBeenCalledTimes(1);
+    expect(updateContratoFiestaActual).toHaveBeenCalledWith(
+      'f_contrato',
+      expect.stringContaining('CONTRATO DE SERVICIOS'),
+      'servicios',
+      'asistente-ak',
+    );
+  });
+
+  it('NO confirma éxito si updateContratoFiestaActual lanza error', async () => {
+    const { getAllFiestas, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
+    const { updateContratoFiestaActual } = await import('@/app/actions/fiesta-actual');
+
+    (getAllFiestas as jest.Mock).mockResolvedValueOnce([
+      makeFiesta({ id: 'f_err', clienteNombre: 'Roberto Sosa', fechaEvento: '2026-10-10' }),
+    ]);
+    (saveFiesta as jest.Mock).mockResolvedValueOnce({ success: true });
+    (updateContratoFiestaActual as jest.Mock).mockRejectedValueOnce(new Error('Firestore caído'));
+
+    const result = await executeGenerarContrato({
+      clienteNombre: 'Roberto Sosa',
+      senia: 15000,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('f_err');
+  });
+
+  it('falla si no se provee ni fiestaId ni clienteNombre', async () => {
+    const result = await executeGenerarContrato({});
+    expect(result.success).toBe(false);
+  });
+
+  it('falla si no se encuentra el evento', async () => {
+    const { getAllFiestas } = await import('@/app/actions/fiesta/fiesta.actions');
+    (getAllFiestas as jest.Mock).mockResolvedValueOnce([]);
+
+    const result = await executeGenerarContrato({ clienteNombre: 'Nadie' });
+    expect(result.success).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. Auditor de presupuesto — cálculos con catalog matching
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('executeCrearPresupuesto — catalog matching', () => {
+  it('usa precio del catálogo cuando encuentra servicio coincidente', async () => {
+    const { savePresupuesto } = await import('@/app/actions/presupuestos');
+    const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
+
+    (getServiciosEmpresa as jest.Mock).mockResolvedValueOnce([
+      { id: 'svc_dj', nombre: 'DJ', precioVenta: 55000, categoria: 'Sonido' },
+    ]);
+    (savePresupuesto as jest.Mock).mockResolvedValueOnce({ success: true, id: 'pres_cat_1' });
+
+    const result = await executeCrearPresupuesto({
+      clienteNombre: 'Valentina',
+      servicios: [{ nombre: 'DJ', cantidad: 1, precioUnitario: 30000 }], // catalog price should override
+    });
+
+    expect(result.success).toBe(true);
+    // savePresupuesto called with catalog price (55000), not the input price (30000)
+    expect(savePresupuesto).toHaveBeenCalledWith(
+      expect.objectContaining({
+        itemsPresupuestados: expect.arrayContaining([
+          expect.objectContaining({ idServicioCatalogo: 'svc_dj', precioUnitario: 55000 }),
+        ]),
+      }),
+      expect.any(Object),
+    );
+  });
+
+  it('marca item como manual/asistente si no está en catálogo', async () => {
+    const { savePresupuesto } = await import('@/app/actions/presupuestos');
+    const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
+
+    (getServiciosEmpresa as jest.Mock).mockResolvedValueOnce([
+      { id: 'svc_dj', nombre: 'DJ', precioVenta: 55000, categoria: 'Sonido' },
+    ]);
+    (savePresupuesto as jest.Mock).mockResolvedValueOnce({ success: true, id: 'pres_cat_2' });
+
+    const result = await executeCrearPresupuesto({
+      clienteNombre: 'Lucas',
+      servicios: [{ nombre: 'Servicio inventado', cantidad: 1, precioUnitario: 10000 }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(savePresupuesto).toHaveBeenCalledWith(
+      expect.objectContaining({
+        itemsPresupuestados: expect.arrayContaining([
+          expect.objectContaining({ nota: 'manual/asistente' }),
+        ]),
+      }),
+      expect.any(Object),
+    );
+    expect(result.message).toContain('manual/asistente');
   });
 });

@@ -218,35 +218,116 @@ export const consultarDisponibilidadTool: AKTool<z.infer<typeof consultarDisponi
   errorMsg: (r) => r.message,
 };
 
-// Marketing tools: executed via dedicated Marketing Agent (not via direct backend calls)
-//
-// TODO (Fase 4): Implementar conexión real con el Agente Marketing AK para:
-//   - crearPublicacionMarketing → chatWithMarketingAgent({ request, platform, contentType })
-//   - guardarIdeaMarketing       → guardar en colección ideas-marketing en Firestore
-//   - agregarTareaMarketing      → guardar en colección tareas-marketing en Firestore
-// Mientras tanto, estas herramientas responden con un mensaje de redirección al agente.
-// Estado: PENDIENTE — Fase 3 incompleta para herramientas de marketing.
-const marketingNotImplemented = async (_input: unknown): Promise<ToolResult> => ({
-  success: false,
-  error: 'Usar el Agente Marketing AK',
-  message: 'Esta acción requiere el Agente Marketing AK. Abrí el agente de marketing para generar contenido.',
-});
+// Marketing tools: connected to chatWithMarketingAgent (AI content generation)
+// and marketing.ts (persistence of ideas and tasks).
+
+async function executeCrearPublicacionMarketing(
+  input: z.infer<typeof crearPublicacionSchema>
+): Promise<ToolResult> {
+  try {
+    const { chatWithMarketingAgent } = await import('@/ai/flows/marketing-agent-flow');
+    const marketingResult = await chatWithMarketingAgent({
+      request: input.descripcion || `Generá contenido de marketing para ${input.eventoTipo || 'un evento'}`,
+      context: `Tipo de evento: ${input.eventoTipo || 'general'}. Tono: ${input.tono || 'profesional y cercano'}.`,
+      platform: input.platform,
+      contentType: input.tono,
+      eventType: input.eventoTipo,
+    });
+    return {
+      success: true,
+      message: marketingResult.content,
+      data: { platform: marketingResult.platform, tipo: marketingResult.tipo },
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err?.message || 'No se pudo generar el contenido de marketing.',
+      message: `⚠️ No pude generar el contenido en este momento. Intentá de nuevo o crealo manualmente desde [/marketing](/marketing).`,
+    };
+  }
+}
+
+async function executeGuardarIdeaMarketing(
+  input: z.infer<typeof guardarIdeaSchema>
+): Promise<ToolResult> {
+  try {
+    const { saveMarketingTemplate } = await import('@/app/actions/marketing');
+    const id = `idea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const template = {
+      id,
+      nombre: input.titulo,
+      tags: input.tags || [],
+      tipo: 'XV' as const,
+      objetivo: 'captacion' as const,
+      estilo: 'elegante' as const,
+      contenido: {
+        ig_corto: input.descripcion || '',
+        ig_largo: '',
+        historias: '',
+        tiktok: '',
+        whatsapp: '',
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const result = await saveMarketingTemplate(template);
+    if (!result.success) {
+      return { success: false, error: result.error || 'No se pudo guardar la idea.', message: result.error || 'No se pudo guardar la idea.' };
+    }
+    return {
+      success: true,
+      message: `Idea "${input.titulo}" guardada en marketing. Podés verla en [/marketing](/marketing).`,
+      data: { id, href: '/marketing' },
+    };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error al guardar idea.', message: 'No se pudo guardar la idea de marketing.' };
+  }
+}
+
+async function executeAgregarTareaMarketing(
+  input: z.infer<typeof agregarTareaSchema>
+): Promise<ToolResult> {
+  try {
+    const { getMarketingChecklist, saveMarketingChecklist } = await import('@/app/actions/marketing');
+    const checklist = await getMarketingChecklist();
+    const id = `tarea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const nuevaTarea = {
+      id,
+      dia: input.fechaLimite || new Date().toISOString().slice(0, 10),
+      tarea: input.titulo + (input.descripcion ? ` — ${input.descripcion}` : ''),
+      canal: 'general',
+      estado: 'pendiente' as const,
+      semana: input.prioridad || 'media',
+    };
+    const result = await saveMarketingChecklist([nuevaTarea, ...checklist]);
+    if (!result.success) {
+      return { success: false, error: result.error || 'No se pudo agregar la tarea.', message: result.error || 'No se pudo agregar la tarea.' };
+    }
+    return {
+      success: true,
+      message: `Tarea "${input.titulo}" agregada al plan de marketing. Podés verla en [/marketing](/marketing).`,
+      data: { id, href: '/marketing' },
+    };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error al agregar tarea.', message: 'No se pudo agregar la tarea de marketing.' };
+  }
+}
 
 export const crearPublicacionMarketingTool: AKTool<z.infer<typeof crearPublicacionSchema>> = {
   nombre: 'crearPublicacionMarketing',
   descripcion:
-    'Genera contenido de marketing para redes sociales. Exclusivo del Agente Marketing AK.',
+    'Genera contenido de marketing para redes sociales usando el Agente Marketing AK.',
   schema: crearPublicacionSchema,
-  execute: marketingNotImplemented,
+  execute: executeCrearPublicacionMarketing,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
 
 export const guardarIdeaMarketingTool: AKTool<z.infer<typeof guardarIdeaSchema>> = {
   nombre: 'guardarIdeaMarketing',
-  descripcion: 'Guarda una idea de marketing para futura referencia.',
+  descripcion: 'Guarda una idea de marketing en el plan de marketing.',
   schema: guardarIdeaSchema,
-  execute: marketingNotImplemented,
+  execute: executeGuardarIdeaMarketing,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -255,7 +336,7 @@ export const agregarTareaMarketingTool: AKTool<z.infer<typeof agregarTareaSchema
   nombre: 'agregarTareaMarketing',
   descripcion: 'Agrega una tarea al plan de marketing.',
   schema: agregarTareaSchema,
-  execute: marketingNotImplemented,
+  execute: executeAgregarTareaMarketing,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
