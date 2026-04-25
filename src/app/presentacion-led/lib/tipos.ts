@@ -7,10 +7,11 @@ export interface ClientData {
   fechaEvento: string;
   tipoFiesta: string;
   cantidadInvitados: string;
+  invitadosAdultos: string;
   invitadosAdolescentes: string;
   duracionHoras: string;
+  tieneSalon?: boolean;
   salon: string;
-  ciudad: string;
 }
 
 export interface ResourceSummary {

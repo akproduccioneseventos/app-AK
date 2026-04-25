@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, User, CalendarDays, PartyPopper, Users, Building2, MapPin, Clock3 } from 'lucide-react';
+import { ChevronRight, User, CalendarDays, PartyPopper, Users, Building2, Clock3 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { SlideLayout } from '../components/slide-layout';
 import { TIPOS_FIESTA } from '../lib/contenido-por-tipo';
@@ -42,7 +42,7 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
     && clientData.tipoFiesta
     && clientData.fechaEvento
     && Number(clientData.cantidadInvitados) > 0
-    && Number(clientData.duracionHoras) > 0,
+    && clientData.duracionHoras !== '',
   );
 
   useEffect(() => {
@@ -65,6 +65,8 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
     [clientData.fechaEvento, fechaOcupada, fechasBloqueadas],
   );
 
+  const tieneSalon = clientData.tieneSalon;
+
   return (
     <SlideLayout overflowScroll>
       <motion.div
@@ -85,6 +87,7 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
         </div>
 
         <div className="space-y-5 bg-white/5 border border-white/10 rounded-2xl p-6">
+          {/* Nombre */}
           <div className="space-y-2">
             <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
               <User className="w-4 h-4" /> Nombre del festejado/a o pareja
@@ -100,22 +103,24 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
             />
           </div>
 
+          {/* Tipo de fiesta */}
           <div className="space-y-2">
             <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
               <PartyPopper className="w-4 h-4" /> Tipo de fiesta
             </Label>
             <select
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
+              className="w-full bg-slate-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
               value={clientData.tipoFiesta}
               aria-invalid={showValidation && !clientData.tipoFiesta}
               aria-describedby={showValidation && !clientData.tipoFiesta ? validationMessageId : undefined}
               onChange={e => onClientDataChange({ ...clientData, tipoFiesta: e.target.value })}
             >
-              <option value="">Seleccioná el tipo de evento...</option>
-              {TIPOS_FIESTA.map(t => <option key={t} value={t}>{t}</option>)}
+              <option value="" className="bg-slate-800 text-white/60">Seleccioná el tipo de evento...</option>
+              {TIPOS_FIESTA.map(t => <option key={t} value={t} className="bg-slate-800 text-white">{t}</option>)}
             </select>
           </div>
 
+          {/* Fecha */}
           <div className="space-y-2">
             <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
               <CalendarDays className="w-4 h-4" /> Fecha del evento
@@ -160,9 +165,10 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
             )}
           </div>
 
+          {/* Cantidad total de invitados */}
           <div className="space-y-2">
             <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <Users className="w-4 h-4" /> Cantidad de invitados (aprox.)
+              <Users className="w-4 h-4" /> Cantidad de invitados (total)
             </Label>
             <input
               type="number"
@@ -175,11 +181,25 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
               onChange={e => onClientDataChange({ ...clientData, cantidadInvitados: e.target.value })}
             />
           </div>
-          
+
+          {/* Adultos / Niños y adolescentes */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-                <Users className="w-4 h-4" /> Invitados adolescentes
+                <Users className="w-4 h-4" /> Invitados adultos
+              </Label>
+              <input
+                type="number"
+                min="0"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
+                placeholder="Ej: 100"
+                value={clientData.invitadosAdultos}
+                onChange={e => onClientDataChange({ ...clientData, invitadosAdultos: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+                <Users className="w-4 h-4" /> Invitados niños y adolescentes
               </Label>
               <input
                 type="number"
@@ -190,55 +210,88 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
                 onChange={e => onClientDataChange({ ...clientData, invitadosAdolescentes: e.target.value })}
               />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-                <Clock3 className="w-4 h-4" /> Duración (horas) *
-              </Label>
-              <select
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base [color-scheme:dark]"
-                value={clientData.duracionHoras}
-                aria-invalid={showValidation && !(Number(clientData.duracionHoras) > 0)}
-                aria-describedby={showValidation && !(Number(clientData.duracionHoras) > 0) ? validationMessageId : undefined}
-                onChange={e => onClientDataChange({ ...clientData, duracionHoras: e.target.value })}
-              >
-                <option value="">Seleccionar...</option>
-                {Array.from({ length: 10 }).map((_, idx) => {
-                  const hour = idx + 3;
-                  return (
-                    <option key={hour} value={String(hour)}>
-                      {hour} horas
-                    </option>
-                  );
-                })}
-              </select>
+          {/* Duración */}
+          <div className="space-y-2">
+            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
+              <Clock3 className="w-4 h-4" /> Duración de la fiesta *
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: '3', label: 'Menos de 4 horas' },
+                { value: '5', label: 'Más de 4 horas' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onClientDataChange({ ...clientData, duracionHoras: opt.value })}
+                  className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
+                    clientData.duracionHoras === opt.value
+                      ? 'border-indigo-400 bg-indigo-500/20 text-white'
+                      : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-2">
+          {/* Lugar de la fiesta */}
+          <div className="space-y-3">
             <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <Building2 className="w-4 h-4" /> Salón o lugar (si ya lo sabe)
+              <Building2 className="w-4 h-4" /> Lugar de la fiesta
             </Label>
-            <input
-              type="text"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
-              placeholder="Ej: Salón La Toscana"
-              value={clientData.salon}
-              onChange={e => onClientDataChange({ ...clientData, salon: e.target.value })}
-            />
-          </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => onClientDataChange({ ...clientData, tieneSalon: true })}
+                className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
+                  tieneSalon === true
+                    ? 'border-emerald-400 bg-emerald-500/20 text-white'
+                    : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                🏛️ Tengo salón
+              </button>
+              <button
+                type="button"
+                onClick={() => onClientDataChange({ ...clientData, tieneSalon: false, salon: '' })}
+                className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
+                  tieneSalon === false
+                    ? 'border-amber-400 bg-amber-500/20 text-white'
+                    : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                🔍 No tengo salón
+              </button>
+            </div>
 
-          <div className="space-y-2">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <MapPin className="w-4 h-4" /> Ciudad
-            </Label>
-            <input
-              type="text"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
-              placeholder="Ej: Salto"
-              value={clientData.ciudad}
-              onChange={e => onClientDataChange({ ...clientData, ciudad: e.target.value })}
-            />
+            {tieneSalon === true && (
+              <input
+                type="text"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-base"
+                placeholder="Nombre del salón"
+                value={clientData.salon}
+                onChange={e => onClientDataChange({ ...clientData, salon: e.target.value })}
+              />
+            )}
+
+            {tieneSalon === false && (
+              <button
+                type="button"
+                onClick={() => onClientDataChange({ ...clientData, salon: clientData.salon === 'Club Uruguay' ? '' : 'Club Uruguay' })}
+                className={`w-full rounded-xl border-2 px-4 py-3 text-left transition-all ${
+                  clientData.salon === 'Club Uruguay'
+                    ? 'border-emerald-400 bg-emerald-500/20'
+                    : 'border-white/20 bg-white/5 hover:bg-white/10'
+                }`}
+              >
+                <p className="text-white font-bold text-sm">🏆 Club Uruguay</p>
+                <p className="text-white/60 text-xs mt-0.5">Salón disponible — hacé click para seleccionar</p>
+              </button>
+            )}
           </div>
         </div>
 
@@ -261,7 +314,7 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
           </button>
           {showValidation && !hasRequiredFields && (
             <p id={validationMessageId} className="text-amber-300 text-sm mt-2 text-center">
-              Completá nombre, tipo, fecha, invitados y horas para continuar.
+              Completá nombre, tipo, fecha, invitados y duración para continuar.
             </p>
           )}
         </motion.div>
@@ -269,3 +322,4 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
     </SlideLayout>
   );
 }
+

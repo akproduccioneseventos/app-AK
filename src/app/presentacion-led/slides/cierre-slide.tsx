@@ -30,10 +30,10 @@ interface CierreSlideProps {
     fechaEvento: string;
     tipoFiesta: string;
     cantidadInvitados: string;
+    invitadosAdultos: string;
     invitadosAdolescentes: string;
     duracionHoras: string;
     salon: string;
-    ciudad: string;
   };
   selectedTeenMenuName?: string | null;
   resourceSummary?: ResourceSummary;
@@ -114,11 +114,11 @@ export function CierreSlide({
                 <p className="text-white/80"><span className="text-white/50">Nombre:</span> {clientData.nombre || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Tipo:</span> {clientData.tipoFiesta || tipoFiesta || '—'}</p>
                 <p className="text-white/80"><span className="text-white/50">Fecha:</span> {clientData.fechaEvento || '—'}</p>
-                <p className="text-white/80"><span className="text-white/50">Invitados:</span> {clientData.cantidadInvitados || '—'}</p>
-                <p className="text-white/80"><span className="text-white/50">Adolescentes:</span> {clientData.invitadosAdolescentes || '0'}</p>
-                <p className="text-white/80"><span className="text-white/50">Horas:</span> {clientData.duracionHoras || '—'}</p>
-                <p className="text-white/80"><span className="text-white/50">Salón:</span> {clientData.salon || '—'}</p>
-                <p className="text-white/80"><span className="text-white/50">Ciudad:</span> {clientData.ciudad || '—'}</p>
+                <p className="text-white/80"><span className="text-white/50">Total invitados:</span> {clientData.cantidadInvitados || '—'}</p>
+                {clientData.invitadosAdultos && <p className="text-white/80"><span className="text-white/50">Adultos:</span> {clientData.invitadosAdultos}</p>}
+                {clientData.invitadosAdolescentes && <p className="text-white/80"><span className="text-white/50">Niños/Adol.:</span> {clientData.invitadosAdolescentes}</p>}
+                <p className="text-white/80"><span className="text-white/50">Duración:</span> {clientData.duracionHoras === '3' ? 'Menos de 4 horas' : clientData.duracionHoras === '5' ? 'Más de 4 horas' : clientData.duracionHoras || '—'}</p>
+                {clientData.salon && <p className="text-white/80"><span className="text-white/50">Salón:</span> {clientData.salon}</p>}
               </div>
             </div>
 
@@ -161,18 +161,6 @@ export function CierreSlide({
                 {selectedTeenMenuName && (
                   <p className="text-white/70 text-sm mt-1">Menú adolescente: {selectedTeenMenuName}</p>
                 )}
-              </div>
-            )}
-
-            {resourceSummary && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-2">Recursos calculados</p>
-                <div className="grid grid-cols-2 gap-2 text-sm text-white/80">
-                  <p>Mozos: {resourceSummary.mozos}</p>
-                  <p>Mesas: {resourceSummary.mesas}</p>
-                  <p>Vajilla: {resourceSummary.vajilla}</p>
-                  <p>Mantelería: {resourceSummary.manteleria}</p>
-                </div>
               </div>
             )}
 

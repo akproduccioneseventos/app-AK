@@ -85,7 +85,7 @@ export function MenuAdolescenteSlide({
           disabled={!canContinue}
           className="mt-6 w-full h-14 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-600 hover:from-violet-600 hover:to-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-lg transition-all flex items-center justify-center gap-2"
         >
-          Continuar al cálculo automático
+        Continuar
           <ChevronRight className="h-5 w-5" />
         </button>
       </div>
