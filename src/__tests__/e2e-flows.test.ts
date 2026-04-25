@@ -92,6 +92,7 @@ import {
   executeRegistrarPago,
   executeCrearEvento,
   executeConsultarDisponibilidad,
+  executeGenerarContrato,
 } from '@/lib/assistant/tools/executors';
 
 import { detectIntent } from '@/lib/assistant/intent-router';
@@ -818,8 +819,6 @@ describe('Marketing tools — ejecutores reales', () => {
 // 9. generarContrato — usa updateContratoFiestaActual (contratoServicioTexto)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { executeGenerarContrato } from '@/lib/assistant/tools/executors';
-
 describe('executeGenerarContrato — usa motor real de contrato', () => {
   it('guarda contratoServicioTexto y contratoGenerado cuando todos los datos están presentes', async () => {
     const { getAllFiestas, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
@@ -1038,5 +1037,226 @@ describe('executeGenerarContrato — URL apunta a ruta existente', () => {
       expect(href).toContain('contrato-servicio');
       expect(href).not.toContain('contrato-digital');
     }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. Correcciones de rutas del asistente
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { ASSISTANT_ROUTES } from '@/lib/assistant/app-routes';
+
+describe('Rutas del asistente — correcciones de rutas rotas', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('executeCrearCliente devuelve href /customers (no /clientes)', async () => {
+    const { saveCustomer } = await import('@/app/actions/customers');
+    (saveCustomer as jest.Mock).mockResolvedValueOnce({ success: true, id: 'cust_route_1' });
+
+    const result = await executeCrearCliente({ name: 'Juan Pérez' });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.href).toBe(ASSISTANT_ROUTES.customers);
+    expect(result.data?.href).not.toBe('/clientes');
+  });
+
+  it('executeCrearProspecto devuelve href /contabilidad/crm (no /crm)', async () => {
+    const { addCrmLead } = await import('@/app/actions/crm');
+    (addCrmLead as jest.Mock).mockResolvedValueOnce({
+      success: true,
+      lead: { id: 'lead_route_1', name: 'María García' },
+    });
+
+    const result = await executeCrearProspecto({ name: 'María García' });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.href).toBe(ASSISTANT_ROUTES.crm);
+    expect(result.data?.href).not.toBe('/crm');
+  });
+
+  it('executeCrearProspecto duplicado devuelve href /contabilidad/crm', async () => {
+    const { addCrmLead } = await import('@/app/actions/crm');
+    (addCrmLead as jest.Mock).mockResolvedValueOnce({
+      success: false,
+      error: 'Duplicado',
+      duplicate: { id: 'lead_dup_route', name: 'María García' },
+    });
+
+    const result = await executeCrearProspecto({ name: 'María García' });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.href).toBe(ASSISTANT_ROUTES.crm);
+    expect(result.data?.href).not.toBe('/crm');
+  });
+
+  it('executeCrearEvento NO devuelve href /fiestas (ruta inexistente)', async () => {
+    const { saveCustomer } = await import('@/app/actions/customers');
+    const { createNewFiestaForCustomer } = await import('@/app/actions/fiesta/fiesta.actions');
+    (saveCustomer as jest.Mock).mockResolvedValueOnce({ success: true, id: 'cust_ev_route' });
+    (createNewFiestaForCustomer as jest.Mock).mockResolvedValueOnce({ success: true, fiestaId: 'fiesta_ev_route' });
+
+    const result = await executeCrearEvento({
+      clienteNombre: 'Laura Suárez',
+      eventoTipo: 'Boda',
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.href).not.toBe('/fiestas');
+    // Should be the planner route with fiestaId
+    expect(result.data?.href).toContain('fiestaId=fiesta_ev_route');
+    expect(result.data?.fiestaId).toBe('fiesta_ev_route');
+  });
+
+  it('executeCrearEvento sin fiestaId confirmado devuelve success=false con warning', async () => {
+    const { saveCustomer } = await import('@/app/actions/customers');
+    const { createNewFiestaForCustomer } = await import('@/app/actions/fiesta/fiesta.actions');
+    (saveCustomer as jest.Mock).mockResolvedValueOnce({ success: true, id: 'cust_ev_nof' });
+    (createNewFiestaForCustomer as jest.Mock).mockResolvedValueOnce({ success: false, error: 'Error al crear fiesta' });
+
+    const result = await executeCrearEvento({
+      clienteNombre: 'Pedro Ruiz',
+      eventoTipo: 'Cumpleaños',
+    });
+
+    expect(result.success).toBe(false);
+    // Message should not use positive success tone about the event
+    expect(result.message).not.toMatch(/evento.*creado exitosamente|creado.*evento exitosamente/i);
+  });
+
+  it('executeGenerarContrato devuelve ruta con contrato-servicio y fiestaId', async () => {
+    const { getAllFiestas, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
+    const { updateContratoFiestaActual } = await import('@/app/actions/fiesta-actual');
+
+    (getAllFiestas as jest.Mock).mockResolvedValueOnce([
+      makeFiesta({ id: 'f_contrato_1', clienteNombre: 'Rosa Vargas', fechaEvento: '2026-10-10' }),
+    ]);
+    (saveFiesta as jest.Mock).mockResolvedValueOnce({ success: true });
+    (updateContratoFiestaActual as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await executeGenerarContrato({ clienteNombre: 'Rosa Vargas', senia: 10000, saldo: 40000 });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.href).toBe(ASSISTANT_ROUTES.contract('f_contrato_1'));
+    expect(result.data?.href).toContain('contrato-servicio');
+    expect(result.data?.href).toContain('fiestaId=f_contrato_1');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. Pagos — lógica de ambigüedad y filtrado de estados
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('executeRegistrarPago — filtrado y ambigüedad', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('no registra pago si hay más de un presupuesto para el mismo cliente', async () => {
+    const { getPresupuestos } = await import('@/app/actions/presupuestos');
+    (getPresupuestos as jest.Mock).mockReset();
+    (getPresupuestos as jest.Mock).mockResolvedValueOnce([
+      makePresupuesto({ id: 'p_amb_1', clienteNombre: 'Carlos Fuentes', estado: 'Enviado', timestamp: '2026-01-01T00:00:00.000Z' }),
+      makePresupuesto({ id: 'p_amb_2', clienteNombre: 'Carlos Fuentes', estado: 'Aceptado', timestamp: '2026-02-01T00:00:00.000Z' }),
+    ]);
+
+    const result = await executeRegistrarPago({ monto: 5000, clienteNombre: 'Carlos Fuentes' });
+
+    expect(result.success).toBe(false);
+    expect(result.message).toMatch(/más de un presupuesto|ambig/i);
+  });
+
+  it('ignora presupuestos Rechazados al buscar por cliente', async () => {
+    const { getPresupuestos, addPagoToPresupuesto } = await import('@/app/actions/presupuestos');
+    (getPresupuestos as jest.Mock).mockReset();
+    (addPagoToPresupuesto as jest.Mock).mockReset();
+    (getPresupuestos as jest.Mock).mockResolvedValueOnce([
+      makePresupuesto({ id: 'p_rech', clienteNombre: 'Alicia Torres', estado: 'Rechazado', timestamp: '2026-01-01T00:00:00.000Z' }),
+      makePresupuesto({ id: 'p_acep', clienteNombre: 'Alicia Torres', estado: 'Aceptado', timestamp: '2026-02-01T00:00:00.000Z' }),
+    ]);
+    (addPagoToPresupuesto as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await executeRegistrarPago({ monto: 5000, clienteNombre: 'Alicia Torres' });
+
+    expect(result.success).toBe(true);
+    // Should have used the Aceptado budget, not the Rechazado one
+    expect(addPagoToPresupuesto).toHaveBeenCalledWith('p_acep', expect.any(Object));
+  });
+
+  it('ignora presupuestos Cancelados y devuelve error si no hay candidatos válidos', async () => {
+    const { getPresupuestos } = await import('@/app/actions/presupuestos');
+    (getPresupuestos as jest.Mock).mockReset();
+    (getPresupuestos as jest.Mock).mockResolvedValueOnce([
+      makePresupuesto({ id: 'p_can', clienteNombre: 'Beatriz Luna', estado: 'Cancelado', timestamp: '2026-01-01T00:00:00.000Z' }),
+    ]);
+
+    const result = await executeRegistrarPago({ monto: 5000, clienteNombre: 'Beatriz Luna' });
+
+    expect(result.success).toBe(false);
+    expect(result.message).toMatch(/no se encontr|indicá/i);
+  });
+
+  it('pide presupuestoId si hay ambigüedad — no registra automáticamente', async () => {
+    const { getPresupuestos, addPagoToPresupuesto } = await import('@/app/actions/presupuestos');
+    (getPresupuestos as jest.Mock).mockReset();
+    (getPresupuestos as jest.Mock).mockResolvedValueOnce([
+      makePresupuesto({ id: 'p_x1', clienteNombre: 'Diego Herrera', estado: 'Aceptado', timestamp: '2026-01-01T00:00:00.000Z' }),
+      makePresupuesto({ id: 'p_x2', clienteNombre: 'Diego Herrera', estado: 'Enviado', timestamp: '2026-03-01T00:00:00.000Z' }),
+    ]);
+
+    const result = await executeRegistrarPago({ monto: 10000, clienteNombre: 'Diego Herrera' });
+
+    expect(result.success).toBe(false);
+    expect(addPagoToPresupuesto).not.toHaveBeenCalled();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. Asistente — tono de respuesta cuando la herramienta falla
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Tono de respuesta del asistente cuando la herramienta falla', () => {
+  const SUCCESS_WORDS = /\b(listo|creado|registrado|generado|exitoso|exitosamente)\b/i;
+
+  it('executeCrearCliente con error no usa tono de éxito', async () => {
+    const { saveCustomer } = await import('@/app/actions/customers');
+    (saveCustomer as jest.Mock).mockResolvedValueOnce({ success: false, error: 'Error de base de datos' });
+
+    const result = await executeCrearCliente({ name: 'Norma Soto' });
+
+    expect(result.success).toBe(false);
+    expect(result.message).not.toMatch(SUCCESS_WORDS);
+  });
+
+  it('executeCrearProspecto con error no usa tono de éxito', async () => {
+    const { addCrmLead } = await import('@/app/actions/crm');
+    (addCrmLead as jest.Mock).mockResolvedValueOnce({ success: false, error: 'Error interno' });
+
+    const result = await executeCrearProspecto({ name: 'Norma Soto' });
+
+    expect(result.success).toBe(false);
+    expect(result.message).not.toMatch(SUCCESS_WORDS);
+  });
+
+  it('executeCrearEvento con error no usa tono de éxito', async () => {
+    const { saveCustomer } = await import('@/app/actions/customers');
+    (saveCustomer as jest.Mock).mockResolvedValueOnce({ success: false, error: 'Error al guardar' });
+
+    const result = await executeCrearEvento({ clienteNombre: 'Ana María' });
+
+    expect(result.success).toBe(false);
+    expect(result.message).not.toMatch(SUCCESS_WORDS);
+  });
+
+  it('executeRegistrarPago con error no usa tono de éxito', async () => {
+    const { addPagoToPresupuesto } = await import('@/app/actions/presupuestos');
+    (addPagoToPresupuesto as jest.Mock).mockReset();
+    (addPagoToPresupuesto as jest.Mock).mockResolvedValueOnce({ success: false, error: 'Presupuesto no encontrado' });
+
+    const result = await executeRegistrarPago({ presupuestoId: 'pres_fake', monto: 5000 });
+
+    expect(result.success).toBe(false);
+    expect(result.message).not.toMatch(SUCCESS_WORDS);
   });
 });

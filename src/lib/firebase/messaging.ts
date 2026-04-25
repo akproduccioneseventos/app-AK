@@ -9,7 +9,7 @@ let messagingInstance: Messaging | null = null;
 
 /**
  * Lazily initialize and return the FCM Messaging instance.
- * Returns null if FCM is not supported in this environment.
+ * Returns null if FCM is not supported or not configured in this environment.
  */
 async function getMessagingInstance(): Promise<Messaging | null> {
   if (typeof window === 'undefined' || !app) return null;
@@ -18,10 +18,18 @@ async function getMessagingInstance(): Promise<Messaging | null> {
   try {
     const { getMessaging, isSupported } = await import('firebase/messaging');
     const supported = await isSupported();
-    if (!supported) return null;
+    if (!supported) {
+      if (process.env.NODE_ENV === 'development') {
+        console.info('[FCM] Not supported in this browser/environment.');
+      }
+      return null;
+    }
     messagingInstance = getMessaging(app);
     return messagingInstance;
-  } catch {
+  } catch (err: unknown) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[FCM] getMessagingInstance failed:', (err as Error)?.message);
+    }
     return null;
   }
 }
@@ -31,6 +39,11 @@ async function getMessagingInstance(): Promise<Messaging | null> {
  * Returns the token string on success, or null if permission was denied / not supported.
  */
 export async function requestAndSaveFcmToken(userId?: string): Promise<string | null> {
+  // Guard: Notification API must exist (not available in SSR or some browsers)
+  if (typeof Notification === 'undefined') return null;
+  // Guard: Service Worker must be available
+  if (typeof navigator === 'undefined' || !navigator.serviceWorker) return null;
+
   try {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') return null;
@@ -54,7 +67,10 @@ export async function requestAndSaveFcmToken(userId?: string): Promise<string | 
     await saveTokenViaServerAction(token, userId);
 
     return token;
-  } catch {
+  } catch (err: unknown) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[FCM] requestAndSaveFcmToken failed:', (err as Error)?.message);
+    }
     return null;
   }
 }
