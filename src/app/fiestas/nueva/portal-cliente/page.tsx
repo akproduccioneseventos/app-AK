@@ -9,10 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem } from '@/types/fiesta';
-import { getFiestaById, updatePortalSettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
+import { getFiestaById, updatePortalSettingsFiestaActual, updateClientePortalExperienceFiestaActual } from '@/app/actions/fiesta-actual';
 import { updateFaqPortal } from '@/app/actions/fiesta/portal.actions';
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
@@ -48,13 +48,13 @@ const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessK
     { id: 'videoVida', label: 'Carga de Fotos para Video' },
     { id: 'listaRegalos', label: 'Ver Lista de Regalos' },
     { id: 'documentos', label: 'Documentos' },
-    { id: 'notasCliente', label: 'Notas Compartidas' },
+    { id: 'notasCliente', label: 'Mensajes y observaciones' },
     { id: 'invitados', label: 'Lista de Invitados y Asignación de Mesas' },
     { id: 'paginaPublica', label: 'Acceso a Página Pública' },
     { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video' },
     { id: 'pagos', label: 'Mostrar Pagos y Saldo' },
-    { id: 'simuladorInvitados', label: 'Simulador de Invitados (+/-)' },
-    { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas y Extras' },
+    { id: 'simuladorInvitados', label: 'Agregar invitados o servicios' },
+    { id: 'calculadoraBebidas', label: 'Bebidas y extras' },
     { id: 'moodboard', label: 'Moodboard / Galería de Inspiración' },
     { id: 'contrato', label: 'Contrato y Documentos' },
     { id: 'serviciosContratados', label: '¿Qué estoy contratando? (Servicios)' },
@@ -62,7 +62,7 @@ const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessK
     { id: 'menu', label: 'Menú del Evento' },
     { id: 'cartaTragos', label: 'Carta de Tragos' },
     { id: 'dressCode', label: 'Dress Code' },
-    { id: 'faq', label: 'Preguntas Frecuentes (FAQ)' },
+    { id: 'faq', label: 'Preguntas frecuentes' },
     { id: 'informarPago', label: '💳 Informar Pago (Portal VIP)' },
 ];
 
@@ -75,6 +75,10 @@ function ClientPortalConfigContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Portal experience (cover photo, color, welcome message)
+  const [portalExperience, setPortalExperience] = useState<ClientePortalExperience>({});
+  const [isSavingExperience, setIsSavingExperience] = useState(false);
 
   // FAQ editor state
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
@@ -106,6 +110,7 @@ function ClientPortalConfigContent() {
       setPortalSettings(settings);
       setFaqItems(fiestaData.faqPortal ?? defaultFaq);
       setCuentasBancarias(settings.cuentasBancarias?.length ? settings.cuentasBancarias : cuentasEmpresa);
+      setPortalExperience(fiestaData.clientePortalExperience ?? {});
 
       // Resolve drink items with backward compat
       const calc = settings.calculadoraBebidas;
@@ -169,6 +174,23 @@ function ClientPortalConfigContent() {
       toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
     } finally {
       setIsSavingFaq(false);
+    }
+  };
+
+  const handleSaveExperience = async () => {
+    if (!fiestaId) return;
+    setIsSavingExperience(true);
+    try {
+      const result = await updateClientePortalExperienceFiestaActual(fiestaId, portalExperience);
+      if (result.success) {
+        toast({ title: "Personalización guardada", description: "El diseño del portal fue actualizado." });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: "Error al Guardar", description: e.message, variant: "destructive" });
+    } finally {
+      setIsSavingExperience(false);
     }
   };
 
@@ -536,6 +558,82 @@ function ClientPortalConfigContent() {
             </Button>
           </CardFooter>
         </Card>
+
+      {/* Portal Experience / Personalization Card */}
+      {portalSettings.enabled && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <Palette className="w-5 h-5 text-purple-500" />
+              Personalización de la Portada
+            </CardTitle>
+            <CardDescription>Configurá la imagen de portada, color principal y mensajes que verá el cliente al ingresar a su portal.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="hero-url">URL de imagen de portada</Label>
+              <Input
+                id="hero-url"
+                placeholder="https://... (URL pública de la foto)"
+                value={portalExperience.heroImageUrl ?? ''}
+                onChange={e => setPortalExperience(p => ({ ...p, heroImageUrl: e.target.value || undefined }))}
+              />
+              <p className="text-xs text-muted-foreground">Dejá vacío para usar la foto del/de la protagonista del evento.</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="primary-color">Color principal del portal</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  id="primary-color"
+                  type="color"
+                  value={portalExperience.primaryColor ?? '#7c3aed'}
+                  onChange={e => setPortalExperience(p => ({ ...p, primaryColor: e.target.value }))}
+                  className="h-9 w-16 rounded border cursor-pointer"
+                />
+                <Input
+                  value={portalExperience.primaryColor ?? ''}
+                  onChange={e => setPortalExperience(p => ({ ...p, primaryColor: e.target.value || undefined }))}
+                  placeholder="#7c3aed"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="welcome-msg">Mensaje de bienvenida</Label>
+              <Textarea
+                id="welcome-msg"
+                placeholder="Ej: ¡Hola! Estamos muy contentos de organizar tu fiesta. 🎉"
+                value={portalExperience.welcomeMessage ?? ''}
+                onChange={e => setPortalExperience(p => ({ ...p, welcomeMessage: e.target.value || undefined }))}
+                rows={2}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="organizer-msg">Mensaje del organizador (aparece como nota resaltada)</Label>
+              <Textarea
+                id="organizer-msg"
+                placeholder="Ej: Recordá que el día del evento tenés que traer..."
+                value={portalExperience.organizerMessage ?? ''}
+                onChange={e => setPortalExperience(p => ({ ...p, organizerMessage: e.target.value || undefined }))}
+                rows={2}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="simplicity-mode"
+                checked={portalExperience.simplicityMode ?? false}
+                onCheckedChange={v => setPortalExperience(p => ({ ...p, simplicityMode: v }))}
+              />
+              <Label htmlFor="simplicity-mode">Modo simplificado (solo info esencial: pagos, invitados, llevar)</Label>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleSaveExperience} disabled={isSavingExperience}>
+              {isSavingExperience && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>} Guardar Personalización
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
 
       {/* Drink Calculator Editor */}
       {portalSettings.enabled && (

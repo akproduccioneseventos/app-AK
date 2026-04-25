@@ -232,10 +232,12 @@ export default function PublicPortalView({
 }: PublicPortalViewProps) {
   const topMenuId = 'menu-principal-vip';
   const { configuracion: config, clientPortalSettings: settings } = fiesta;
+  const portalExperience = fiesta.clientePortalExperience ?? {};
   const countdown = useCountdown(config.fechaEvento);
 
-  // Dynamic event color — reads from event config or decoration palette
+  // Dynamic event color — clientePortalExperience.primaryColor has highest priority
   const eventColor =
+    portalExperience.primaryColor ||
     config.primaryColor ||
     fiesta.invitacionConfig?.colorPrincipal ||
     fiesta.invitacionDigital?.cabecera?.paletaColores?.primary ||
@@ -559,8 +561,22 @@ export default function PublicPortalView({
       {activeSection === null && (
       <div
         className="relative text-white px-4 pb-10 pt-12 overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${eventColor}ee 0%, ${eventColor}99 50%, #1e1b4b 100%)` }}
+        style={{
+          background: portalExperience.heroImageUrl
+            ? `linear-gradient(to bottom, ${eventColor}cc 0%, #1e1b4b 100%)`
+            : `linear-gradient(135deg, ${eventColor}ee 0%, ${eventColor}99 50%, #1e1b4b 100%)`,
+        }}
       >
+        {/* Hero background image when configured */}
+        {portalExperience.heroImageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={portalExperience.heroImageUrl}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
+          />
+        )}
         {/* Decorative background stars */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <Star className="absolute top-6 right-8 w-20 h-20 text-yellow-300 rotate-12" />
@@ -715,6 +731,18 @@ export default function PublicPortalView({
             <div className="backdrop-blur rounded-3xl p-6 text-white text-center border border-white/10" style={{ background: `linear-gradient(135deg, ${eventColor}cc, ${eventColor}88)` }}>
               <p className="text-2xl font-black">🎉 ¡Tu evento ya fue!</p>
               <p className="text-sm opacity-70 mt-1">¡Esperamos que haya sido increíble!</p>
+            </div>
+          )}
+          {/* Welcome and organizer messages from clientePortalExperience */}
+          {portalExperience.welcomeMessage && (
+            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-3 text-white text-sm font-medium">
+              💬 {portalExperience.welcomeMessage}
+            </div>
+          )}
+          {portalExperience.organizerMessage && (
+            <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 backdrop-blur-sm px-4 py-3 text-amber-100 text-sm">
+              <span className="font-black uppercase tracking-wider text-xs text-amber-300 block mb-1">📌 Nota del organizador</span>
+              {portalExperience.organizerMessage}
             </div>
           )}
           {/* Section cards grid */}

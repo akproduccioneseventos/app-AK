@@ -550,7 +550,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       </h2>
       <div className="relative">
         <div className="absolute left-4 top-0 bottom-0 w-0.5" style={{ backgroundColor: 'var(--inv-secondary)' }} />
-        {(config.cronograma as InvitacionDigitalCronograma[]).map((item, i) => (
+        {(config.cronograma as InvitacionDigitalCronograma[] | undefined ?? []).map((item, i) => (
           <div key={i} className="relative pl-12 pb-8 last:pb-0">
             <div className="absolute left-1.5 top-1 w-5 h-5 rounded-full border-2 bg-white" style={{ borderColor: 'var(--inv-primary)' }} />
             <div className="flex items-baseline gap-3">
@@ -619,7 +619,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         Galería
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 max-w-3xl mx-auto">
-        {config.galeriaFotos.map((url, i) => (
+        {(config.galeriaFotos ?? []).map((url, i) => (
           <div key={i} className="aspect-square rounded-xl overflow-hidden shadow-md">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
@@ -863,7 +863,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
           {config.fechaEvento && ` · ${formatDate(config.fechaEvento)}`}
         </p>
         {(() => {
-          const displayedSocials = socialConnections.filter(c => c.isConnected && c.platform !== 'WhatsApp');
+          const displayedSocials = (socialConnections ?? []).filter(c => c.isConnected && c.platform !== 'WhatsApp');
           if (displayedSocials.length === 0) return null;
           return (
             <div className="flex justify-center gap-4 mt-6">

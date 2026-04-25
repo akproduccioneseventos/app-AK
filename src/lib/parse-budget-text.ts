@@ -6,6 +6,82 @@
 
 import type { ItemPresupuestado } from '@/types/presupuesto';
 
+/**
+ * Exact-match set of label lines that appear in AK Producciones budget headers/footers
+ * and must NEVER be treated as service/item names.
+ */
+const SKIP_LINES_EXACT = new Set([
+  'número de cliente', 'nº de cliente', 'numero de cliente', 'n° de cliente',
+  'número de documento', 'nº de documento', 'numero de documento', 'n° de documento',
+  'página', 'pagina',
+  'fecha', 'fecha del evento', 'fecha del presupuesto',
+  'válido hasta', 'valido hasta', 'validez',
+  'cliente',
+  'hora inicio', 'hora de inicio',
+  'invitados',
+  'tipo evento', 'tipo de evento',
+  'salón', 'salon', 'lugar',
+  'artículo', 'articulo',
+  'cantidad',
+  'unidad',
+  'precio', 'precio unitario',
+  'desc.%', 'desc %', 'descuento',
+  'importe total', 'importe', 'valor', 'total',
+  'otros',
+  'logo',
+  'presupuesto', 'presupuesto para fiestas o eventos',
+  'condiciones de reserva', 'condiciones',
+  'notas y observaciones', 'notas', 'observaciones',
+  'por la empresa', 'por la empresa:', 'firma',
+  'tec. alexander knuth', 'alexander knuth',
+  'ak producciones', 'ak producciones eventos',
+  'artículos', 'servicios', 'ítems', 'items',
+]);
+
+/**
+ * Prefix-match patterns for lines that are header/footer metadata.
+ * If a lowercased line STARTS WITH any of these, skip it.
+ * These cover both bare labels and labels followed by a value (e.g. "Número de cliente: 1235").
+ */
+const SKIP_LINE_PREFIXES = [
+  // Document header identifiers with values
+  'número de cliente:', 'nº de cliente:', 'numero de cliente:', 'n° de cliente:',
+  'número de documento:', 'nº de documento:', 'numero de documento:', 'n° de documento:',
+  'nro. de cliente:', 'nro. de documento:',
+  'página:', 'pagina:',
+  'válido hasta:', 'valido hasta:', 'validez:',
+  'hora inicio:', 'hora de inicio:',
+  'invitados:',
+  'tipo evento:', 'tipo de evento:',
+  'salón:', 'salon:', 'lugar:',
+  // Contact/company metadata
+  'presupuesto para',
+  'condición:', 'condicion:',
+  'tel:', 'telefono:', 'teléfono:', 'celular:', 'cel:',
+  'email:', 'e-mail:', 'correo:',
+  'www.', 'http', '@',
+  'dirección:', 'direccion:', 'domicilio:',
+  'cuit:', 'rut:', 'r.u.t.', 'ruc:',
+  'banco:', 'cuenta:', 'alias:', 'cbu:',
+];
+
+/**
+ * Returns true if the line should be completely ignored as a potential item name.
+ */
+function shouldSkipLine(line: string): boolean {
+  const lower = line.toLowerCase().trim();
+  if (!lower) return true;
+  if (SKIP_LINES_EXACT.has(lower)) return true;
+  for (const prefix of SKIP_LINE_PREFIXES) {
+    if (lower.startsWith(prefix)) return true;
+  }
+  // Lines that are all dashes, equals, or asterisks (dividers)
+  if (/^[-=*_]{2,}$/.test(lower)) return true;
+  // Lines that are just numbers (e.g. page numbers)
+  if (/^\d+$/.test(lower)) return true;
+  return false;
+}
+
 export interface ParsedBudget {
   clienteNombre: string;
   eventoFecha: string; // ISO string, may be approximate
@@ -136,6 +212,11 @@ function parseFreeFormLine(
 }
 
 /**
+ * Keywords in item names that indicate a gift/bonus with no charge.
+ */
+const GIFT_KEYWORD_PATTERN = /regalo|bonificado|incluido|sin costo/i;
+
+/**
  * Main parser. Accepts the full pasted text and returns a ParsedBudget.
  */
 export function parseBudgetText(text: string): ParsedBudget {
@@ -153,6 +234,8 @@ export function parseBudgetText(text: string): ParsedBudget {
 
   // Extract header fields (before DETALLE DE ARTÍCULOS)
   let inItems = false;
+  // Whether the current items block is a "Regalos exclusivos incluidos" block
+  let inRegalosBlock = false;
   let currentItemName = '';
   let currentQty = 0;
   let currentUnitPrice = 0;
@@ -161,7 +244,12 @@ export function parseBudgetText(text: string): ParsedBudget {
 
   const flushItem = () => {
     if (!currentItemName) return;
-    const esRegalo = currentDiscount >= 100;
+    // An item is a gift if: discount = 100%, or we're in the regalos block,
+    // or the item name mentions regalo/bonificado/incluido sin costo.
+    const esRegaloByDiscount = currentDiscount >= 100;
+    const esRegaloByBlock = inRegalosBlock;
+    const esRegaloByName = GIFT_KEYWORD_PATTERN.test(currentItemName);
+    const esRegalo = esRegaloByDiscount || esRegaloByBlock || esRegaloByName;
     const precioUnitario = currentUnitPrice;
     items.push({
       idServicioCatalogo: `imported_${items.length}`,
@@ -190,7 +278,10 @@ export function parseBudgetText(text: string): ParsedBudget {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const lower = line.toLowerCase();
+    const lower = line.toLowerCase().trim();
+
+    // Always skip pure metadata/header/footer labels
+    if (shouldSkipLine(line)) continue;
 
     // Detect header info
     if (!inItems) {
@@ -230,17 +321,27 @@ export function parseBudgetText(text: string): ParsedBudget {
         continue;
       }
 
+      // Detect total declared in header area — be specific to avoid false positives
+      if (
+        lower.match(/^total\s*:/) ||
+        lower.includes('importe total del presupuesto') ||
+        lower.includes('total del presupuesto') ||
+        lower.match(/^total a pagar\s*:/)
+      ) {
+        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
+        if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
+        continue;
+      }
+
       // Detect start of items section
       if (
+        lower.includes('detalle del presupuesto') ||
         lower.includes('detalle de artículos') ||
         lower.includes('detalle de articulos') ||
-        lower.startsWith('artículos') ||
-        lower.startsWith('articulos') ||
-        lower.includes('servicios incluidos') ||
-        lower.includes('ítems') ||
-        lower.startsWith('items')
+        lower.includes('servicios incluidos')
       ) {
         inItems = true;
+        inRegalosBlock = false;
         continue;
       }
 
@@ -261,11 +362,42 @@ export function parseBudgetText(text: string): ParsedBudget {
 
     // Parse items (structured format with field labels)
     if (inItems) {
-      // Total line
-      if (lower.includes('importe total') || lower.includes('total general') || lower.match(/^total\s*:/)) {
+      // Detect "Regalos exclusivos incluidos" sub-section
+      if (
+        lower.includes('regalos exclusivos incluidos') ||
+        lower.includes('regalos incluidos') ||
+        lower.includes('bonificaciones incluidas')
+      ) {
+        flushItem();
+        inRegalosBlock = true;
+        continue;
+      }
+
+      // Total declaration inside items area.
+      // IMPORTANT: Only treat as the document total for explicit multi-word phrases
+      // ("importe total del presupuesto", "total a pagar", "total general") or a
+      // standalone "total: ..." that is NOT inside an active item block.
+      // "Importe total: $X" by itself is the item's own total (treated as Importe:).
+      const isDocumentTotalLine =
+        lower.includes('importe total del presupuesto') ||
+        lower.includes('total del presupuesto') ||
+        lower.includes('total general') ||
+        lower.match(/^total a pagar\s*:/) !== null ||
+        lower.match(/^total\s*:/) !== null;
+
+      if (isDocumentTotalLine) {
+        flushItem();
         const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
         if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
         inItems = false;
+        continue;
+      }
+
+      // "Importe total: $X" within an item block — treat as the item's importe (last field)
+      if (lower.startsWith('importe total:')) {
+        const val = line.replace(/^importe total:\s*/i, '');
+        currentImporte = cleanNumber(val);
+        flushItem();
         continue;
       }
 
@@ -307,13 +439,14 @@ export function parseBudgetText(text: string): ParsedBudget {
       if (freeLine && (freeLine.total > 0 || freeLine.precioUnitario > 0)) {
         flushItem(); // flush any pending structured item
         const nombre = freeLine.nombre || currentItemName || `Ítem ${items.length + 1}`;
+        const esRegalo = inRegalosBlock || GIFT_KEYWORD_PATTERN.test(nombre);
         items.push({
           idServicioCatalogo: `imported_${items.length}`,
           nombreServicio: nombre,
           cantidad: freeLine.cantidad,
           precioUnitario: freeLine.precioUnitario,
           precioUnitarioPresupuesto: freeLine.precioUnitario,
-          esRegalo: false,
+          esRegalo,
           calculationMethod: 'fijo',
         } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
         currentItemName = '';

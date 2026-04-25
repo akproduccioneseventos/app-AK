@@ -16,6 +16,9 @@ export interface ParsedDateTime {
   raw?: string;
 }
 
+/** Number of milliseconds in one week */
+const MILLISECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
+
 const MESES: Record<string, string> = {
   enero: '01', febrero: '02', marzo: '03', abril: '04',
   mayo: '05', junio: '06', julio: '07', agosto: '08',
@@ -92,9 +95,18 @@ export function parseDateTimeUY(text: string, referenceDate?: Date): ParsedDateT
   // ── 3. Día de la semana ────────────────────────────────────────────────────
   if (!result.date) {
     for (const [dia, idx] of Object.entries(DIAS_SEMANA)) {
-      if (new RegExp(`\\b${dia}\\b`).test(lower)) {
-        const target = nextWeekday(idx, now);
+      const diaRegex = new RegExp(`\\b(próximo|proximo|siguiente)?\\s*${dia}\\b`);
+      const m = lower.match(diaRegex);
+      if (m) {
+        const isNextWeek = !!(m[1]); // "próximo" or "siguiente" forces at least 7 days away
+        let target = nextWeekday(idx, now);
+        if (isNextWeek && target.getTime() - now.getTime() < MILLISECONDS_IN_WEEK) {
+          // If "próximo sábado" and the next sábado is less than a week away,
+          // skip to the one after (truly "next" week)
+          target.setDate(target.getDate() + 7);
+        }
         result.date = toIsoDate(target.getFullYear(), target.getMonth() + 1, target.getDate());
+        result.raw = result.raw ?? m[0];
         break;
       }
     }
