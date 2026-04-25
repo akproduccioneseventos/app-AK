@@ -185,9 +185,14 @@ describe('sendAssistantMessage — create_lead fallback with minimal scheduling 
     expect(mockAddCrmLead).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'Norma',
+        // executeAgendarCita encodes the time in the notes field
+        notes: expect.stringContaining('11'),
       }),
     );
     expect(res.response).toContain('Cita agendada');
+    // Action result must reflect the tool execution, not a direct CRM response
+    expect(res.action?.type).toBe('schedule_meeting');
+    expect(res.action?.result?.success).toBe(true);
   });
 
   it('accepts a single uppercase name as minimal lead data', async () => {
@@ -235,6 +240,12 @@ describe('sendAssistantMessage — scheduling via intent router (create_event pa
 
     expect(res.success).toBe(true);
     expect(res.response).toContain('Cita agendada');
+    // Confirm CRM was called via the tool (not directly from assistant.ts)
+    expect(mockAddCrmLead).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Norma' }),
+    );
+    // Action type must be schedule_meeting, not create_lead
+    expect(res.action?.type).toBe('schedule_meeting');
   });
 });
 
