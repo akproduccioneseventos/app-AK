@@ -51,7 +51,7 @@ const DEFAULT_GPS: GuestPortalSettings = {
   showItinerario: true,
   showMusica: true,
   showRegalos: false,
-  showCheckin: false,
+  showCheckin: true,
 };
 
 function GuestPortalContent() {
@@ -295,11 +295,58 @@ function GuestPortalContent() {
 
         {/* 10. Muro social (si habilitado) */}
         {gps.showMural && (
-          <div className="flex items-start gap-3 bg-violet-50 border border-violet-100 rounded-2xl p-4">
+          <a
+            href={`/evento/social/${fiestaId}`}
+            className="flex items-start gap-3 bg-violet-50 border border-violet-100 rounded-2xl p-4 hover:bg-violet-100 transition-colors"
+          >
             <span className="text-2xl">📸</span>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Muro social</p>
-              <p className="text-sm text-violet-700">Esta información estará disponible próximamente.</p>
+              <p className="text-sm font-semibold text-violet-800">Subir foto al Muro Social →</p>
+            </div>
+          </a>
+        )}
+
+        {/* Galería de fotos (si habilitado) */}
+        {gps.showFotos && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+            <span className="text-2xl">🖼️</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Galería de fotos</p>
+              <p className="text-sm text-amber-700">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Programa del evento / Itinerario (si habilitado) */}
+        {gps.showItinerario && (
+          <div className="flex items-start gap-3 bg-pink-50 border border-pink-100 rounded-2xl p-4">
+            <span className="text-2xl">📋</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-pink-500 mb-1">Programa del evento</p>
+              <p className="text-sm text-pink-700">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de regalos (si habilitado) */}
+        {gps.showRegalos && (
+          <div className="flex items-start gap-3 bg-rose-50 border border-rose-100 rounded-2xl p-4">
+            <span className="text-2xl">🎁</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-rose-500 mb-1">Lista de regalos</p>
+              <p className="text-sm text-rose-700">Esta información estará disponible próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Invitación web (si habilitado) */}
+        {gps.showInvitacionWeb && (
+          <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-2xl p-4">
+            <span className="text-2xl">💌</span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-blue-500 mb-1">Invitación web</p>
+              <p className="text-sm text-blue-700">Esta información estará disponible próximamente.</p>
             </div>
           </div>
         )}
