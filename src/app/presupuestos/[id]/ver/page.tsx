@@ -13,6 +13,7 @@ import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextI
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
+import type { AuditResult } from '@/lib/commercial-flow/budget-audit';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
 import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
@@ -24,6 +25,7 @@ import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfo } 
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
+import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -121,6 +123,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [clientPagoMetodo, setClientPagoMetodo] = useState<MetodoPago>('Transferencia Bancaria');
   const [clientPagoReferencia, setClientPagoReferencia] = useState('');
   const [clientPagoComprobante, setClientPagoComprobante] = useState<string | undefined>(undefined);
+
+  // Budget audit state
+  const [isAuditing, setIsAuditing] = useState(false);
+  const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
+  const [showAudit, setShowAudit] = useState(false);
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) return;
@@ -231,6 +238,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   }, [presupuesto, adjustmentPct]);
 
   const handlePrint = () => window.print();
+
+  const handleAudit = () => {
+    if (!presupuesto) return;
+    setIsAuditing(true);
+    try {
+      const result = auditPresupuestoTotals(presupuesto);
+      setAuditResult(result);
+      setShowAudit(true);
+    } finally {
+      setIsAuditing(false);
+    }
+  };
 
   const eventStartTime = useMemo(() => {
     if (!presupuesto) return '';
@@ -491,6 +510,17 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               <Button onClick={handlePrint} size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest" variant="secondary">
                 <Printer className="mr-1.5 h-3.5 w-3.5"/>Imprimir
               </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleAudit}
+                disabled={isAuditing}
+                className="rounded-xl text-xs font-bold uppercase tracking-widest border-violet-200 text-violet-700 hover:bg-violet-50 print:hidden"
+                data-testid="btn-auditar-presupuesto"
+              >
+                {isAuditing ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin"/> : <ShieldCheck className="mr-1.5 h-3.5 w-3.5"/>}
+                Auditar
+              </Button>
               {!isBorrador && (
                 <Link href={`/presupuestos/${presupuestoId}/estado-de-cuenta`}>
                   <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest">
@@ -546,6 +576,74 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         </div>
 
         <div className="max-w-3xl mx-auto space-y-8 px-2 sm:px-4 print:px-0">
+
+            {/* AUDIT PANEL — shown when user clicks "Auditar presupuesto" */}
+            {showAudit && auditResult && (
+              <div className="print:hidden bg-white rounded-2xl shadow-lg p-5 space-y-4 border border-violet-100" data-testid="audit-panel">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-violet-600" />
+                    <h3 className="font-black text-slate-800 text-base uppercase tracking-tight">Auditoría del Presupuesto</h3>
+                  </div>
+                  <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-slate-400" onClick={() => setShowAudit(false)}>
+                    Cerrar
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                  <div className="bg-slate-50 rounded-xl p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Subtotal ítems</p>
+                    <p className="font-black text-slate-800">{formatCurrency(auditResult.subtotalItems)}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-xl p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Regalos</p>
+                    <p className="font-black text-slate-800">{formatCurrency(auditResult.subtotalRegalos)}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-xl p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Descuento</p>
+                    <p className="font-black text-slate-800">{formatCurrency(auditResult.descuentoCalculado)}</p>
+                  </div>
+                  <div className="bg-violet-50 rounded-xl p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-1">Total a pagar</p>
+                    <p className="font-black text-violet-800">{formatCurrency(auditResult.totalReal)}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-xl p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Seña</p>
+                    <p className="font-black text-slate-800">{formatCurrency(presupuesto.senia)}</p>
+                  </div>
+                  <div className="bg-amber-50 rounded-xl p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Saldo pendiente</p>
+                    <p className="font-black text-amber-800">{formatCurrency(Math.max(0, auditResult.saldoPendiente))}</p>
+                  </div>
+                  <div className="bg-emerald-50 rounded-xl p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1">Total pagos</p>
+                    <p className="font-black text-emerald-800">{formatCurrency(auditResult.totalPagosRegistrados)}</p>
+                  </div>
+                  <div className={`rounded-xl p-3 col-span-2 ${auditResult.esConsistente ? 'bg-emerald-50' : 'bg-rose-50'}`}>
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: auditResult.esConsistente ? '#059669' : '#dc2626' }}>Estado</p>
+                    <p className={`font-black text-sm ${auditResult.esConsistente ? 'text-emerald-800' : 'text-rose-800'}`}>
+                      {auditResult.esConsistente ? '✅ Consistente' : '⚠️ Hay inconsistencias'}
+                    </p>
+                  </div>
+                </div>
+                {auditResult.observaciones.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Advertencias</p>
+                    {auditResult.observaciones.map((obs, i) => (
+                      <div
+                        key={i}
+                        className={`text-xs p-3 rounded-xl border ${
+                          obs.severidad === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' :
+                          obs.severidad === 'advertencia' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+                          'bg-slate-50 border-slate-200 text-slate-600'
+                        }`}
+                      >
+                        <span className="font-bold">{obs.campo}: </span>{obs.mensaje}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* SANITY CHECK BANNER — shown when estado is 'Pendiente Verificación' */}
             {presupuesto.estado === 'Pendiente Verificación' && (

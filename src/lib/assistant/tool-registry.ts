@@ -16,6 +16,16 @@
  */
 
 import { z } from 'zod';
+import {
+  executeAgendarCita,
+  executeCrearPresupuesto,
+  executeCrearCliente,
+  executeCrearProspecto,
+  executeRegistrarPago,
+  executeCrearEvento,
+  executeGenerarContrato,
+  executeConsultarDisponibilidad,
+} from './tools/executors';
 
 // ── Tipos base ───────────────────────────────────────────────────────────────
 
@@ -120,6 +130,7 @@ const guardarIdeaSchema = z.object({
   titulo: z.string().min(1, 'El título es obligatorio'),
   descripcion: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  eventoTipo: z.string().optional(),
 });
 
 const agregarTareaSchema = z.object({
@@ -134,13 +145,19 @@ const navegarSchema = z.object({
   label: z.string().optional(),
 });
 
-// ── Placeholder execute (implementación real provista por assistant.ts) ───────
+// ── Constantes de mapeo ───────────────────────────────────────────────────────
 
-const notImplemented = async (_input: unknown): Promise<ToolResult> => ({
-  success: false,
-  error: 'Usar el dispatcher de assistant.ts',
-  message: 'Usar el dispatcher de assistant.ts',
-});
+/** Mapea los valores de eventoTipo del intent-router a los tipos de MarketingTemplate. */
+const TIPO_EVENTO_MAP: Record<string, 'XV' | 'Boda' | 'Cumple'> = {
+  XV: 'XV',
+  'XV años': 'XV',
+  XV_ANOS: 'XV',
+  Boda: 'Boda',
+  Casamiento: 'Boda',
+  Cumple: 'Cumple',
+  Cumpleaños: 'Cumple',
+  Cumpleanos: 'Cumple',
+};
 
 // ── Herramientas ─────────────────────────────────────────────────────────────
 
@@ -148,7 +165,7 @@ export const crearPresupuestoTool: AKTool<z.infer<typeof crearPresupuestoSchema>
   nombre: 'crearPresupuesto',
   descripcion: 'Crea un nuevo presupuesto de evento para un cliente con servicios y precios.',
   schema: crearPresupuestoSchema,
-  execute: notImplemented,
+  execute: executeCrearPresupuesto,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -157,7 +174,7 @@ export const crearClienteTool: AKTool<z.infer<typeof crearClienteSchema>> = {
   nombre: 'crearCliente',
   descripcion: 'Registra un nuevo cliente en el sistema.',
   schema: crearClienteSchema,
-  execute: notImplemented,
+  execute: executeCrearCliente,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -166,7 +183,7 @@ export const crearProspectoTool: AKTool<z.infer<typeof crearProspectoSchema>> = 
   nombre: 'crearProspecto',
   descripcion: 'Registra un nuevo prospecto/lead en el CRM.',
   schema: crearProspectoSchema,
-  execute: notImplemented,
+  execute: executeCrearProspecto,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -175,7 +192,7 @@ export const agendarCitaTool: AKTool<z.infer<typeof agendarCitaSchema>> = {
   nombre: 'agendarCita',
   descripcion: 'Agenda una cita o reunión con un prospecto. Crea o actualiza el registro en CRM.',
   schema: agendarCitaSchema,
-  execute: notImplemented,
+  execute: executeAgendarCita,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -184,7 +201,7 @@ export const registrarPagoTool: AKTool<z.infer<typeof registrarPagoSchema>> = {
   nombre: 'registrarPago',
   descripcion: 'Registra un pago sobre un presupuesto existente.',
   schema: registrarPagoSchema,
-  execute: notImplemented,
+  execute: executeRegistrarPago,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -193,7 +210,7 @@ export const crearEventoTool: AKTool<z.infer<typeof crearEventoSchema>> = {
   nombre: 'crearEvento',
   descripcion: 'Crea un nuevo evento/fiesta en planificación para un cliente.',
   schema: crearEventoSchema,
-  execute: notImplemented,
+  execute: executeCrearEvento,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -202,7 +219,7 @@ export const generarContratoTool: AKTool<z.infer<typeof generarContratoSchema>> 
   nombre: 'generarContrato',
   descripcion: 'Genera y guarda los datos del contrato para un evento.',
   schema: generarContratoSchema,
-  execute: notImplemented,
+  execute: executeGenerarContrato,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -211,26 +228,122 @@ export const consultarDisponibilidadTool: AKTool<z.infer<typeof consultarDisponi
   nombre: 'consultarDisponibilidad',
   descripcion: 'Consulta si hay eventos agendados para una fecha determinada.',
   schema: consultarDisponibilidadSchema,
-  execute: notImplemented,
+  execute: executeConsultarDisponibilidad,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
 
+// Marketing tools: connected to chatWithMarketingAgent (AI content generation)
+// and marketing.ts (persistence of ideas and tasks).
+
+async function executeCrearPublicacionMarketing(
+  input: z.infer<typeof crearPublicacionSchema>
+): Promise<ToolResult> {
+  try {
+    const { chatWithMarketingAgent } = await import('@/ai/flows/marketing-agent-flow');
+    const marketingResult = await chatWithMarketingAgent({
+      request: input.descripcion || `Generá contenido de marketing para ${input.eventoTipo || 'un evento'}`,
+      context: `Tipo de evento: ${input.eventoTipo || 'general'}. Tono: ${input.tono || 'profesional y cercano'}.`,
+      platform: input.platform,
+      contentType: input.tono,
+      eventType: input.eventoTipo,
+    });
+    return {
+      success: true,
+      message: marketingResult.content,
+      data: { platform: marketingResult.platform, tipo: marketingResult.tipo },
+    };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: (err as Error)?.message || 'No se pudo generar el contenido de marketing.',
+      message: `⚠️ No pude generar el contenido en este momento. Intentá de nuevo o crealo manualmente desde [/marketing](/marketing).`,
+    };
+  }
+}
+
+async function executeGuardarIdeaMarketing(
+  input: z.infer<typeof guardarIdeaSchema>
+): Promise<ToolResult> {
+  try {
+    const { saveMarketingTemplate } = await import('@/app/actions/marketing');
+    const id = `idea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const tipoTemplate: 'XV' | 'Boda' | 'Cumple' = TIPO_EVENTO_MAP[input.eventoTipo ?? ''] ?? 'XV';
+    const template = {
+      id,
+      nombre: input.titulo,
+      tags: input.tags || [],
+      tipo: tipoTemplate,
+      objetivo: 'captacion' as const,
+      estilo: 'elegante' as const,
+      contenido: {
+        ig_corto: input.descripcion || '',
+        ig_largo: '',
+        historias: '',
+        tiktok: '',
+        whatsapp: '',
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const result = await saveMarketingTemplate(template);
+    if (!result.success) {
+      return { success: false, error: result.error || 'No se pudo guardar la idea.', message: result.error || 'No se pudo guardar la idea.' };
+    }
+    return {
+      success: true,
+      message: `Idea "${input.titulo}" guardada en marketing. Podés verla en [/marketing](/marketing).`,
+      data: { id, href: '/marketing' },
+    };
+  } catch (err: unknown) {
+    return { success: false, error: (err as Error)?.message || 'Error al guardar idea.', message: 'No se pudo guardar la idea de marketing.' };
+  }
+}
+
+async function executeAgregarTareaMarketing(
+  input: z.infer<typeof agregarTareaSchema>
+): Promise<ToolResult> {
+  try {
+    const { getMarketingChecklist, saveMarketingChecklist } = await import('@/app/actions/marketing');
+    const checklist = await getMarketingChecklist();
+    const id = `tarea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const nuevaTarea = {
+      id,
+      dia: input.fechaLimite || new Date().toISOString().slice(0, 10),
+      tarea: input.titulo + (input.descripcion ? ` — ${input.descripcion}` : ''),
+      canal: 'general',
+      estado: 'pendiente' as const,
+      semana: input.prioridad || 'media',
+    };
+    const result = await saveMarketingChecklist([nuevaTarea, ...checklist]);
+    if (!result.success) {
+      return { success: false, error: result.error || 'No se pudo agregar la tarea.', message: result.error || 'No se pudo agregar la tarea.' };
+    }
+    return {
+      success: true,
+      message: `Tarea "${input.titulo}" agregada al plan de marketing. Podés verla en [/marketing](/marketing).`,
+      data: { id, href: '/marketing' },
+    };
+  } catch (err: unknown) {
+    return { success: false, error: (err as Error)?.message || 'Error al agregar tarea.', message: 'No se pudo agregar la tarea de marketing.' };
+  }
+}
+
 export const crearPublicacionMarketingTool: AKTool<z.infer<typeof crearPublicacionSchema>> = {
   nombre: 'crearPublicacionMarketing',
   descripcion:
-    'Genera contenido de marketing para redes sociales. Exclusivo del Agente Marketing AK.',
+    'Genera contenido de marketing para redes sociales usando el Agente Marketing AK.',
   schema: crearPublicacionSchema,
-  execute: notImplemented,
+  execute: executeCrearPublicacionMarketing,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
 
 export const guardarIdeaMarketingTool: AKTool<z.infer<typeof guardarIdeaSchema>> = {
   nombre: 'guardarIdeaMarketing',
-  descripcion: 'Guarda una idea de marketing para futura referencia.',
+  descripcion: 'Guarda una idea de marketing en el plan de marketing.',
   schema: guardarIdeaSchema,
-  execute: notImplemented,
+  execute: executeGuardarIdeaMarketing,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };
@@ -239,7 +352,7 @@ export const agregarTareaMarketingTool: AKTool<z.infer<typeof agregarTareaSchema
   nombre: 'agregarTareaMarketing',
   descripcion: 'Agrega una tarea al plan de marketing.',
   schema: agregarTareaSchema,
-  execute: notImplemented,
+  execute: executeAgregarTareaMarketing,
   successMsg: (r) => r.message,
   errorMsg: (r) => r.message,
 };

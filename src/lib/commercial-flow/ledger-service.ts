@@ -112,6 +112,14 @@ export function calculateFinancialLedger(
 /**
  * Versión asíncrona que carga los datos desde los servicios.
  * Usada por dashboard.ts.
+ *
+ * TODO (Fase 4) — Conectar reportes/flujo de caja: PENDIENTE
+ * Las páginas de reportes y flujo de caja deben usar getFinancialLedger() o
+ * calculateFinancialLedger() en lugar de recalcular los totales localmente.
+ * Archivos a actualizar:
+ *   - src/app/(app)/reportes/page.tsx (o equivalente)
+ *   - src/app/(app)/contabilidad/flujo-de-caja/page.tsx (o equivalente)
+ * Estado: PENDIENTE — Fase 3 incompleta para integración de ledger en reportes.
  */
 export async function getFinancialLedger(): Promise<LedgerSummary> {
   const { getPresupuestos } = await import('@/app/actions/presupuestos');

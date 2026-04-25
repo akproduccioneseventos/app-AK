@@ -165,7 +165,6 @@ describe('detectIntent — schedule_meeting', () => {
 
   it('returns none for non-scheduling messages', () => {
     expect(detectIntent('Hola', REF).type).toBe('none');
-    expect(detectIntent('Creame un presupuesto para María', REF).type).toBe('none');
     expect(detectIntent('NORMA', REF).type).toBe('none');
   });
 

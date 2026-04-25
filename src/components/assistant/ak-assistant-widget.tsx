@@ -382,7 +382,7 @@ function ActionResultCard({ action }: { action: { type: string; data?: any; resu
     if (action.result?.success) {
       return (
         <div className="mt-2">
-          <Link href={action.result.href || '/fiestas/nueva/gestion-documental/contrato-digital'} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
+          <Link href={action.result.href || '/fiestas/nueva/gestion-documental/contrato-servicio'} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition-colors">
             Ver contrato <ChevronRight className="h-3 w-3" />
           </Link>
         </div>

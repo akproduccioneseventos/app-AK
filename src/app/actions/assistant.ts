@@ -18,6 +18,7 @@ import type { Customer } from '@/types/customer';
 import * as logger from '@/lib/logger';
 import { detectIntent } from '@/lib/assistant/intent-router';
 import { parseDateTimeUY } from '@/lib/assistant/date-parser';
+import { getTool } from '@/lib/assistant/tool-registry';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
 const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
@@ -461,8 +462,8 @@ export async function sendAssistantMessage(
                     action: { type: 'schedule_meeting', data: intent.data, result: { success: true, leadId: leadResult.duplicate.id } },
                   };
                 }
-              } catch (schedErr: any) {
-                logger.error('[Asistente AK] Intent router: error al actualizar cita duplicada:', schedErr.message);
+              } catch (schedErr: unknown) {
+                logger.error('[Asistente AK] Intent router: error al actualizar cita duplicada:', (schedErr as Error).message);
               }
             }
             return {
@@ -473,8 +474,81 @@ export async function sendAssistantMessage(
           }
           // addCrmLead devolvió error — fall through a Gemini para que maneje el caso
           logger.warn('[Asistente AK] Intent router: addCrmLead falló, delegando a Gemini:', leadResult.error);
-        } catch (intentErr: any) {
-          logger.error('[Asistente AK] Intent router: error inesperado, delegando a Gemini:', intentErr.message);
+        } catch (intentErr: unknown) {
+          logger.error('[Asistente AK] Intent router: error inesperado, delegando a Gemini:', (intentErr as Error).message);
+        }
+      }
+
+      // ── create_budget via TOOL_REGISTRY ────────────────────────────────────
+      if (intent.type === 'create_budget' && intent.confidence === 'high' && intent.data.name) {
+        logger.info('[Asistente AK] Intent router: create_budget via TOOL_REGISTRY', { name: intent.data.name });
+        const tool = getTool('crearPresupuesto');
+        if (tool) {
+          const toolInput = {
+            clienteNombre: intent.data.name,
+            eventoTipo: intent.data.eventoTipo,
+            eventoFecha: intent.data.followUpDate,
+            invitados: intent.data.invitados,
+          };
+          try {
+            const toolResult = await tool.execute(toolInput);
+            const icon = toolResult.success ? '✅' : '❌';
+            return {
+              success: true,
+              response: `${icon} ${toolResult.message}`,
+              action: { type: 'create_budget', data: toolInput, result: toolResult },
+            };
+          } catch (intentErr: unknown) {
+            logger.error('[Asistente AK] Intent router create_budget error, delegando a Gemini:', (intentErr as Error).message);
+          }
+        }
+      }
+
+      // ── create_lead via TOOL_REGISTRY ───────────────────────────────────────
+      if (intent.type === 'create_lead' && intent.confidence === 'high' && intent.data.name) {
+        logger.info('[Asistente AK] Intent router: create_lead via TOOL_REGISTRY', { name: intent.data.name });
+        const tool = getTool('crearProspecto');
+        if (tool) {
+          const toolInput = {
+            name: intent.data.name,
+            partyType: intent.data.eventoTipo,
+            followUpDate: intent.data.followUpDate,
+          };
+          try {
+            const toolResult = await tool.execute(toolInput);
+            const icon = toolResult.success ? '✅' : '❌';
+            return {
+              success: true,
+              response: `${icon} ${toolResult.message}`,
+              action: { type: 'create_lead', data: toolInput, result: toolResult },
+            };
+          } catch (intentErr: unknown) {
+            logger.error('[Asistente AK] Intent router create_lead error, delegando a Gemini:', (intentErr as Error).message);
+          }
+        }
+      }
+
+      // ── register_payment via TOOL_REGISTRY ──────────────────────────────────
+      if (intent.type === 'register_payment' && intent.confidence === 'high' && intent.data.monto) {
+        logger.info('[Asistente AK] Intent router: register_payment via TOOL_REGISTRY', { monto: intent.data.monto });
+        const tool = getTool('registrarPago');
+        if (tool) {
+          const toolInput = {
+            monto: intent.data.monto,
+            metodoPago: intent.data.metodoPago as 'Efectivo' | 'Transferencia' | 'Tarjeta' | 'Cheque' | 'Otro' | undefined,
+            clienteNombre: intent.data.name,
+          };
+          try {
+            const toolResult = await tool.execute(toolInput);
+            const icon = toolResult.success ? '✅' : '❌';
+            return {
+              success: true,
+              response: `${icon} ${toolResult.message}`,
+              action: { type: 'register_payment', data: toolInput, result: toolResult },
+            };
+          } catch (intentErr: unknown) {
+            logger.error('[Asistente AK] Intent router register_payment error, delegando a Gemini:', (intentErr as Error).message);
+          }
         }
       }
     }
@@ -590,9 +664,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo guardar el cliente: ${customerResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /customers/new.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_customer:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_customer:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo guardar el cliente. Intentá de nuevo o ingresalo manualmente desde [/customers/new](/customers/new).`;
       }
     } else if (result.action?.type === 'create_customer') {
@@ -675,9 +749,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_budget:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_budget:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo crear el presupuesto. Intentá de nuevo o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'create_budget') {
@@ -740,8 +814,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             `\nPodés completarlo manualmente en [/presupuestos/nuevo](/presupuestos/nuevo) o volver a pegarlo con esos datos incluidos.`,
           ].filter(Boolean).join('\n');
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en parser local create_budget:', e.message);
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en parser local create_budget:', (e as Error).message);
         actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
         finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Proporcioná nombre del cliente, tipo de evento y servicios, o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
@@ -866,9 +940,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo importar el presupuesto. Intentá de nuevo o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en import_budget_from_image:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en import_budget_from_image:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo importar el presupuesto. Intentá de nuevo o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'import_budget_from_image') {
@@ -876,35 +950,27 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       finalResponse = `⚠️ No pude leer el archivo automáticamente. Probá con una imagen más clara o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
     } else if (result.action?.type === 'register_payment' && result.action.data) {
       const d = result.action.data;
-      try {
-        let presupuestoId = d.presupuestoId;
-        if (!presupuestoId && d.clienteNombre) {
-          const found = presupuestos
-            .filter(p => ['Aceptado', 'Facturado'].includes(p.estado) && p.clienteNombre.toLowerCase().includes(d.clienteNombre.toLowerCase()))
-            .sort((a, b) => new Date(b.eventoFecha || 0).getTime() - new Date(a.eventoFecha || 0).getTime());
-          presupuestoId = found[0]?.id;
-        }
-        if (!presupuestoId) {
-          actionResult = { success: false, error: 'No se encontró el presupuesto para ese cliente.' };
-          finalResponse = `❌ No se pudo registrar el pago: No se encontró el presupuesto para ese cliente. Buscalo manualmente en /presupuestos.`;
-        } else {
-          const pagoResult = await addPagoToPresupuesto(presupuestoId, {
-            fecha: new Date().toISOString(),
+      // Route through TOOL_REGISTRY — only confirm success if the tool returns success=true
+      const tool = getTool('registrarPago');
+      if (tool) {
+        try {
+          const toolInput = {
+            presupuestoId: d.presupuestoId,
+            clienteNombre: d.clienteNombre,
             monto: Number(d.monto) || 0,
-            metodoPago: d.metodoPago || 'Efectivo',
+            metodoPago: d.metodoPago as 'Efectivo' | 'Transferencia' | 'Tarjeta' | 'Cheque' | 'Otro' | undefined,
             referencia: d.referencia,
-          });
-          actionResult = { success: pagoResult.success, presupuestoId, error: pagoResult.error };
-          if (pagoResult.success) {
-            const monto = Number(d.monto) || 0;
-            finalResponse = `✅ Pago de **$${monto.toLocaleString('es-UY')}** registrado correctamente (${d.metodoPago || 'Efectivo'}). Podés ver el presupuesto en [/presupuestos/${presupuestoId}/ver](/presupuestos/${presupuestoId}/ver).`;
-          } else {
-            finalResponse = `❌ No se pudo registrar el pago: ${pagoResult.error || 'Error desconocido'}. Intentá de nuevo o registralo manualmente.`;
-          }
+          };
+          const toolResult = await tool.execute(toolInput);
+          actionResult = toolResult;
+          finalResponse = toolResult.success ? `✅ ${toolResult.message}` : `❌ ${toolResult.message}`;
+        } catch (e: unknown) {
+          logger.error('[Asistente AK] Error en register_payment (TOOL_REGISTRY):', (e as Error).message);
+          actionResult = { success: false, error: (e as Error).message };
+          finalResponse = `❌ No se pudo registrar el pago. Intentá de nuevo o registralo manualmente desde [/presupuestos](/presupuestos).`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en register_payment:', e.message);
-        actionResult = { success: false, error: e.message };
+      } else {
+        actionResult = { success: false, error: 'Herramienta registrarPago no disponible.' };
         finalResponse = `❌ No se pudo registrar el pago. Intentá de nuevo o registralo manualmente desde [/presupuestos](/presupuestos).`;
       }
     } else if (result.action?.type === 'register_payment') {
@@ -955,9 +1021,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo crear la factura: ${(invoiceResult as any).error || 'Error desconocido'}. Intentá de nuevo o creala manualmente desde /invoices/new.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_invoice:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_invoice:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo crear la factura. Intentá de nuevo o creala manualmente desde [/invoices/new](/invoices/new).`;
       }
     } else if (result.action?.type === 'create_invoice') {
@@ -981,9 +1047,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo actualizar el precio: ${updated.error || 'Error desconocido'}. Intentá de nuevo.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en update_service_price:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en update_service_price:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo actualizar el precio. Intentá de nuevo o hacelo manualmente desde [/empresa/servicios](/empresa/servicios).`;
       }
     } else if (result.action?.type === 'update_service_price') {
@@ -1003,9 +1069,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo registrar el empleado: ${(empResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /empleados.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_employee:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_employee:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo registrar el empleado. Intentá de nuevo o ingresalo manualmente desde [/empleados](/empleados).`;
       }
     } else if (result.action?.type === 'create_employee') {
@@ -1030,9 +1096,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo registrar el proveedor: ${(provResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /proveedores.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_supplier:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_supplier:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo registrar el proveedor. Intentá de nuevo o ingresalo manualmente desde [/proveedores](/proveedores).`;
       }
     } else if (result.action?.type === 'create_supplier') {
@@ -1046,66 +1112,66 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         followUpDate: result.action?.data?.followUpDate || fallbackLead.followUpDate,
         notes: result.action?.data?.notes || fallbackLead.notes,
       };
-      try {
-        if (!d.name) {
-          actionResult = { success: false, error: 'Falta información del prospecto.' };
-          finalResponse = `⚠️ Falta información del prospecto. Proporcioná al menos el nombre, o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
-        } else {
-          const leadResult = await addCrmLead({
-            name: d.name,
-            phone: d.phone,
-            email: d.email,
-            partyType: d.partyType,
-            followUpDate: d.followUpDate,
-            guestCount: d.guestCount != null ? (Number(d.guestCount) || undefined) : undefined,
-            notes: d.notes,
-            budgetSource: 'manual',
-          });
-          actionResult = leadResult;
-          if (leadResult.success && leadResult.lead) {
-            const nombre = d.name;
-            const id = leadResult.lead.id;
-            const dateMsg = d.followUpDate ? ` para el **${d.followUpDate}**` : '';
-            const isSchedulingContext = QUICK_MEETING_REGEX.test(message);
-            finalResponse = isSchedulingContext
-              ? `✅ Cita agendada para **${nombre}**${dateMsg}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`
-              : `✅ Prospecto **${nombre}** registrado en el CRM${id ? ` (ID: ${id})` : ''}. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
-          } else if (leadResult.duplicate) {
-            // Duplicate found — if this was a scheduling request and we have a date, save the meeting on the existing lead
-            if (d.followUpDate && QUICK_MEETING_REGEX.test(message)) {
-              try {
-                const stages = await getCrmStages();
-                const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
-                const scheduleResult = await scheduleCrmMeeting(
-                  leadResult.duplicate.id,
-                  d.followUpDate,
-                  d.notes ? `Cita: ${d.notes}` : undefined
-                );
-                if (meetingStage && scheduleResult.success) {
-                  await moveCrmLead(leadResult.duplicate.id, meetingStage.id, d.followUpDate);
-                }
-                actionResult = { success: scheduleResult.success, leadId: leadResult.duplicate.id };
-                if (scheduleResult.success) {
-                  finalResponse = `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${d.followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
-                } else {
-                  finalResponse = `❌ No se pudo guardar la cita: ${scheduleResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala en [/contabilidad/crm](/contabilidad/crm).`;
-                }
-              } catch (e: any) {
-                logger.error('[Asistente AK] Error al actualizar cita en lead duplicado:', e.message);
-                actionResult = { success: false, error: e.message };
-                finalResponse = `❌ No se pudo guardar la cita. Podés actualizarla manualmente en [/contabilidad/crm](/contabilidad/crm).`;
-              }
+      // When Gemini provides a name, route through TOOL_REGISTRY (crearProspecto).
+      // Only confirm success if the tool returns success=true.
+      if (d.name) {
+        const tool = getTool('crearProspecto');
+        if (tool) {
+          try {
+            const toolInput = {
+              name: d.name,
+              phone: d.phone,
+              email: d.email,
+              partyType: d.partyType,
+              followUpDate: d.followUpDate,
+              notes: d.notes,
+              guestCount: d.guestCount != null ? (Number(d.guestCount) || undefined) : undefined,
+            };
+            const toolResult = await tool.execute(toolInput);
+            actionResult = toolResult;
+            if (toolResult.success) {
+              const isSchedulingContext = QUICK_MEETING_REGEX.test(message);
+              finalResponse = isSchedulingContext
+                ? `✅ Cita agendada para **${d.name}**${d.followUpDate ? ` para el **${d.followUpDate}**` : ''}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`
+                : `✅ ${toolResult.message}`;
             } else {
-              finalResponse = `⚠️ Ya existe un prospecto con ese nombre: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+              finalResponse = `❌ ${toolResult.message}`;
             }
-          } else {
-            finalResponse = `❌ No se pudo registrar el prospecto: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /contabilidad/crm.`;
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error en create_lead (TOOL_REGISTRY):', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
+            finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
+          }
+        } else {
+          // Fallback: direct addCrmLead if tool is unavailable
+          try {
+            const leadResult = await addCrmLead({
+              name: d.name,
+              phone: d.phone,
+              email: d.email,
+              partyType: d.partyType,
+              followUpDate: d.followUpDate,
+              guestCount: d.guestCount != null ? (Number(d.guestCount) || undefined) : undefined,
+              notes: d.notes,
+              budgetSource: 'manual',
+            });
+            actionResult = leadResult;
+            if (leadResult.success && leadResult.lead) {
+              finalResponse = `✅ Prospecto **${d.name}** registrado en el CRM. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            } else if (leadResult.duplicate) {
+              finalResponse = `⚠️ Ya existe un prospecto con ese nombre: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
+            } else {
+              finalResponse = `❌ No se pudo registrar el prospecto: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /contabilidad/crm.`;
+            }
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error en create_lead fallback:', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
+            finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_lead:', e.message);
-        actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
+      } else {
+        actionResult = { success: false, error: 'Falta información del prospecto.' };
+        finalResponse = `⚠️ Falta información del prospecto. Proporcioná al menos el nombre, o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
     } else if (result.action?.type === 'schedule_meeting') {
       const d = result.action.data || {};
@@ -1160,9 +1226,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             }
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en schedule_meeting:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en schedule_meeting:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo agendar la cita. Intentá de nuevo o actualizala manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
     } else if (result.action?.type === 'create_event' && result.action.data) {
@@ -1187,9 +1253,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             } else {
               finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
             }
-          } catch (e: any) {
-            logger.error('[Asistente AK] Error al reconducir create_event(data) a create_lead:', e.message);
-            actionResult = { success: false, error: e.message };
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error al reconducir create_event(data) a create_lead:', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
             finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
           }
           return {
@@ -1234,9 +1300,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo crear el evento: ${fiestaResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_event:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_event:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo crear el evento. Intentá de nuevo o crealo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'create_event') {
@@ -1257,9 +1323,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           } else {
             finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
           }
-        } catch (e: any) {
-          logger.error('[Asistente AK] Error al reconducir create_event a create_lead:', e.message);
-          actionResult = { success: false, error: e.message };
+        } catch (e: unknown) {
+          logger.error('[Asistente AK] Error al reconducir create_event a create_lead:', (e as Error).message);
+          actionResult = { success: false, error: (e as Error).message };
           finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
         }
       } else {
@@ -1299,9 +1365,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo actualizar el evento: ${saveResult.error || 'Error desconocido'}. Intentá de nuevo.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en update_event:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en update_event:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo actualizar el evento. Intentá de nuevo o hacelo manualmente desde [/fiestas](/fiestas).`;
       }
     } else if (result.action?.type === 'update_event') {
@@ -1330,23 +1396,23 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           };
           const updatedFiesta = { ...fiesta, contratoDatos };
           await saveFiesta(updatedFiesta);
-          actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}` };
-          finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}).`;
+          actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}` };
+          finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}).`;
         } else if (d.fiestaId) {
           actionResult = { success: false, error: 'No se encontró el evento.' };
           finalResponse = `❌ No se pudo generar el contrato: No se encontró el evento. Verificalo en /fiestas/nueva.`;
         } else {
-          actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-digital' };
-          finalResponse = `✅ Podés generar el contrato en [contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital). Seleccioná el evento desde ahí.`;
+          actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-servicio' };
+          finalResponse = `✅ Podés generar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio). Seleccioná el evento desde ahí.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en generate_contract:', e.message);
-        actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo generar el contrato. Intentá de nuevo o hacelo manualmente desde [/fiestas/nueva/gestion-documental/contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital).`;
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en generate_contract:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
+        finalResponse = `❌ No se pudo generar el contrato. Intentá de nuevo o hacelo manualmente desde [/fiestas/nueva/gestion-documental/contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio).`;
       }
     } else if (result.action?.type === 'generate_contract') {
       actionResult = { success: false, error: 'Falta información para generar el contrato.' };
-      finalResponse = `⚠️ Falta información para generar el contrato. Proporcioná el cliente o evento, o generalo manualmente desde [/fiestas/nueva/gestion-documental/contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital).`;
+      finalResponse = `⚠️ Falta información para generar el contrato. Proporcioná el cliente o evento, o generalo manualmente desde [/fiestas/nueva/gestion-documental/contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio).`;
     } else if (result.action?.type === 'check_availability' && result.action.data) {
       const d = result.action.data;
       try {
@@ -1371,9 +1437,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           const nombres = eventosEnFecha.map(f => f.configuracion?.nombreEvento || f.configuracion?.clienteNombre || 'Evento').join(', ');
           finalResponse = `⚠️ La fecha **${fecha}** ya tiene **${eventosEnFecha.length} evento(s)** agendado(s): ${nombres}. Verificá antes de comprometerte.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en check_availability:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en check_availability:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo verificar la disponibilidad. Intentá de nuevo o revisá el calendario en [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'check_availability') {
@@ -1396,8 +1462,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         });
         actionResult = { success: true, content: marketingResult.content, platform: marketingResult.platform };
         finalResponse = marketingResult.content;
-      } catch (marketingError: any) {
-        logger.error('[Agente Marketing] Error:', marketingError?.message);
+      } catch (marketingError: unknown) {
+        logger.error('[Agente Marketing] Error:', (marketingError as Error)?.message);
         actionResult = { success: false, error: 'No se pudo generar el contenido de marketing.' };
         finalResponse = `⚠️ No pude generar el contenido en este momento. Intentá de nuevo o crealo manualmente desde [/marketing](/marketing).`;
       }
@@ -1419,13 +1485,13 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       response: finalResponse,
       action: result.action ? { ...result.action, result: actionResult } as any : undefined,
     };
-  } catch (error: any) {
-    const errorMessage: string = error?.message || String(error);
+  } catch (error: unknown) {
+    const errorMessage: string = (error as Error)?.message || String(error);
     logger.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
 
     // Output schema validation failure (Zod): Gemini returned null for an optional field.
     // This is a schema mismatch issue, not an API error.
-    if (error?.name === 'ZodError') {
+    if ((error as Error)?.name === 'ZodError') {
       logger.error('[Asistente AK] Output schema validation error (Zod):', errorMessage);
       return {
         success: false,
