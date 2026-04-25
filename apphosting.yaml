@@ -16,26 +16,7 @@ env:
       - RUNTIME
       - BUILD
 
-  # ── Firebase client variables ─────────────────────────────────────────────
-  # Required by:
-  #   - src/lib/firebase/config.ts (Firestore client)
-  #   - src/lib/firebase/messaging.ts (FCM / push notifications)
-  #   - scripts/generate-firebase-messaging-sw.mjs (service worker generation at build time)
-  #
-  # Values that can be derived from the project ID are stored inline (value:).
-  # Values that are project-specific credentials are stored in Google Secret Manager (secret:).
-  #
-  # To create the required secrets in Google Secret Manager, run:
-  #   gcloud secrets create firebase-api-key --data-file=- <<< "YOUR_API_KEY"
-  #   gcloud secrets create firebase-messaging-sender-id --data-file=- <<< "YOUR_SENDER_ID"
-  #   gcloud secrets create firebase-app-id --data-file=- <<< "YOUR_APP_ID"
-  #   gcloud secrets create firebase-vapid-key --data-file=- <<< "YOUR_VAPID_KEY"
-  #
-  # Values are obtained from Firebase Console → Project Settings → General → Your apps → SDK setup.
-  # VAPID key: Firebase Console → Project Settings → Cloud Messaging → Web Push certificates.
-  # ─────────────────────────────────────────────────────────────────────────
-
-  # ── Derivable from project ID (safe to store as value) ──────────────────
+  # ── Firebase project identifiers (derivable from project ID) ─────────────
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "presupuestador-ak-producciones"
     availability:
@@ -48,31 +29,6 @@ env:
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: "presupuestador-ak-producciones.firebasestorage.app"
-    availability:
-      - BUILD
-      - RUNTIME
-
-  # ── Project-specific credentials (stored in Google Secret Manager) ───────
-  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    secret: firebase-api-key
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    secret: firebase-messaging-sender-id
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    secret: firebase-app-id
-    availability:
-      - BUILD
-      - RUNTIME
-
-  # ── FCM Web Push VAPID key ────────────────────────────────────────────────
-  # Obtain from Firebase Console → Project Settings → Cloud Messaging → Web push certificates.
-  - variable: NEXT_PUBLIC_FIREBASE_VAPID_KEY
-    secret: firebase-vapid-key
     availability:
       - BUILD
       - RUNTIME
