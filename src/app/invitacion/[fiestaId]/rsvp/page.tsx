@@ -309,9 +309,9 @@ function RsvpFormContent() {
                       <Instagram className="w-3.5 h-3.5" /> Instagram
                     </a>
                   )}
-                  {guestExp?.whatsappNumber && (
+                  {(guestExp?.whatsappUrl || guestExp?.whatsappNumber) && (
                     <a
-                      href={`https://wa.me/${guestExp.whatsappNumber.replace(/\D/g, '')}`}
+                      href={guestExp.whatsappUrl ?? `https://wa.me/${(guestExp.whatsappNumber ?? '').replace(/\D/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-green-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"

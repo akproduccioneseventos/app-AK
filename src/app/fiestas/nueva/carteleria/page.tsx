@@ -1072,7 +1072,7 @@ function CarteleriaContent() {
                           >
                             {mesa}
                           </span>
-                          Mesa {mesaLabel ? `${mesaLabel} (${mesa})` : mesa}
+                          {mesaLabel ? `${mesaLabel} (Mesa ${mesa})` : `Mesa ${mesa}`}
                         </p>
                         <ul className="space-y-0.5 text-slate-700">
                           {nombres.map((nombre, index) => (
