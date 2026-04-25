@@ -13,6 +13,7 @@ import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextI
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
+import type { AuditResult } from '@/lib/commercial-flow/budget-audit';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
 import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
@@ -125,7 +126,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   // Budget audit state
   const [isAuditing, setIsAuditing] = useState(false);
-  const [auditResult, setAuditResult] = useState<import('@/lib/commercial-flow/budget-audit').AuditResult | null>(null);
+  const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [showAudit, setShowAudit] = useState(false);
 
   const fetchPresupuestoAndSettings = useCallback(async () => {

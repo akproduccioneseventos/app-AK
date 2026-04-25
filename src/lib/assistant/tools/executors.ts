@@ -506,11 +506,11 @@ export async function executeGenerarContrato(input: GenerarContratoInput): Promi
 
   try {
     await updateContratoFiestaActual(fiestaId, contratoTexto, 'servicios', 'asistente-ak');
-  } catch (updateErr: any) {
+  } catch (updateErr: unknown) {
     // updateContratoFiestaActual failed — contratoDatos was saved but text not persisted
     return {
       success: false,
-      error: updateErr?.message || 'No se pudo generar el texto del contrato.',
+      error: (updateErr as Error)?.message || 'No se pudo generar el texto del contrato.',
       message: `Datos del contrato guardados, pero no se pudo generar el documento. Abrí el contrato manualmente en [/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}).`,
     };
   }
