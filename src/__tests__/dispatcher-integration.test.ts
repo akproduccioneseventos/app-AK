@@ -338,12 +338,12 @@ describe('Dispatcher — Gemini action.type pasa por TOOL_REGISTRY', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 6. Safe mode — ASSISTANT_WRITE_ACTIONS_ENABLED apagado
+// 6. Safe mode — ASSISTANT_WRITE_ACTIONS_ENABLED explícitamente apagado
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('Modo seguro — ASSISTANT_WRITE_ACTIONS_ENABLED desactivado', () => {
+describe('Modo seguro — ASSISTANT_WRITE_ACTIONS_ENABLED = false', () => {
   beforeEach(() => {
-    delete process.env.ASSISTANT_WRITE_ACTIONS_ENABLED;
+    process.env.ASSISTANT_WRITE_ACTIONS_ENABLED = 'false';
   });
 
   afterEach(() => {
@@ -411,16 +411,20 @@ describe('Modo seguro — ASSISTANT_WRITE_ACTIONS_ENABLED desactivado', () => {
   });
 });
 
-describe('Modo seguro — ASSISTANT_WRITE_ACTIONS_ENABLED activo', () => {
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Por defecto — ASSISTANT_WRITE_ACTIONS_ENABLED habilitado (o undefined)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Modo por defecto — escritura activa', () => {
   beforeEach(() => {
-    process.env.ASSISTANT_WRITE_ACTIONS_ENABLED = 'true';
+    delete process.env.ASSISTANT_WRITE_ACTIONS_ENABLED;
   });
 
   afterEach(() => {
     delete process.env.ASSISTANT_WRITE_ACTIONS_ENABLED;
   });
 
-  it('con modo operativo activo, create_budget ejecuta savePresupuesto', async () => {
+  it('con modo operativo activo (por defecto), create_budget ejecuta savePresupuesto', async () => {
     mockSavePresupuesto.mockResolvedValueOnce({
       success: true,
       id: 'pres_enabled_1',
