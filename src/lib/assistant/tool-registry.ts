@@ -254,13 +254,18 @@ async function executeGuardarIdeaMarketing(
   try {
     const { saveMarketingTemplate } = await import('@/app/actions/marketing');
     const id = `idea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    // Map eventoTipo to MarketingTemplate.tipo; default to 'XV' when not provided
-    const tipoMap: Record<string, 'XV' | 'Boda' | 'Cumple'> = { XV: 'XV', Boda: 'Boda', Cumple: 'Cumple' };
+    // Map input eventoTipo (from schema enum) to MarketingTemplate.tipo
+    const TIPO_MAP: Record<string, 'XV' | 'Boda' | 'Cumple'> = {
+      XV: 'XV',
+      Boda: 'Boda',
+      Cumple: 'Cumple',
+    };
+    const tipoTemplate: 'XV' | 'Boda' | 'Cumple' = TIPO_MAP[input.eventoTipo ?? ''] ?? 'XV';
     const template = {
       id,
       nombre: input.titulo,
       tags: input.tags || [],
-      tipo: (input.eventoTipo ? (tipoMap[input.eventoTipo] ?? 'XV') : 'XV') as 'XV' | 'Boda' | 'Cumple',
+      tipo: tipoTemplate,
       objetivo: 'captacion' as const,
       estilo: 'elegante' as const,
       contenido: {

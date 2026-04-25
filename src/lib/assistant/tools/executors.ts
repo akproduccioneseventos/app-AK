@@ -341,12 +341,13 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
     };
   }
 
-  const metodo = (METODO_PAGO_MAP[input.metodoPago ?? ''] ?? 'Efectivo') as 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'Cheque' | 'Tarjeta' | 'Otro';
+  type MetodoPagoInterno = 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'Cheque' | 'Tarjeta' | 'Otro';
+  const metodo: MetodoPagoInterno = (METODO_PAGO_MAP[input.metodoPago ?? ''] as MetodoPagoInterno | undefined) ?? 'Efectivo';
 
   const result = await addPagoToPresupuesto(presupuestoId, {
     fecha: new Date().toISOString().slice(0, 10),
     monto: input.monto,
-    metodoPago: metodo || 'Efectivo',
+    metodoPago: metodo,
     referencia: input.referencia,
     estadoPago: 'confirmado',
   });
