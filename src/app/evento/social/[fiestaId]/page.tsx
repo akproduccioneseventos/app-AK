@@ -672,7 +672,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                  <ShareLinkDialog relativePath={`/evento/social/${params.fiestaId}`} title="Muro Social · Link para invitados" description="Compartí este link para que los invitados suban fotos y participen.">
                     <Button variant="outline" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><Share2 className="w-5 h-5 text-slate-600"/></Button>
                 </ShareLinkDialog>
-                 <Button variant="outline" onClick={() => window.open(`/evento/muro-en-vivo/${params.fiestaId}`, '_blank')} title="Abrir pantalla gigante" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
+                 <Button variant="outline" onClick={() => window.open(`/evento/muro-en-vivo/${params.fiestaId}`, '_blank')} title="Abrir pantalla gigante" aria-label="Abrir pantalla gigante" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
               </>
             )}
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-11 w-11 rounded-2xl"><RefreshCw className={`w-5 h-5 text-slate-400 ${isLoading ? 'animate-spin' : ''}`}/></Button>
@@ -682,8 +682,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           <div className="bg-amber-50 border-y border-amber-100 p-2.5 flex justify-center items-center gap-6 overflow-x-auto">
             <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest whitespace-nowrap">MODO ADMINISTRADOR · MURO SOCIAL</span>
             <div className="flex gap-2 flex-wrap">
-                <a href={`/evento/social/${params.fiestaId}`} target="_blank" rel="noopener noreferrer"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">📱 INVITADOS</Button></a>
-                <a href={`/evento/muro-en-vivo/${params.fiestaId}`} target="_blank" rel="noopener noreferrer"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">🖥 PANTALLA GIGANTE</Button></a>
+                <a href={`/evento/social/${params.fiestaId}`} target="_blank" rel="noopener noreferrer" aria-label="Abrir vista de invitados del Muro Social"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">📱 INVITADOS</Button></a>
+                <a href={`/evento/muro-en-vivo/${params.fiestaId}`} target="_blank" rel="noopener noreferrer" aria-label="Abrir pantalla gigante del Muro Social"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">🖥 PANTALLA GIGANTE</Button></a>
                 <Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100" onClick={handleDownloadChat}><Download className="w-3 h-3 mr-1.5"/>CHAT</Button>
                 <a href={`/api/social-gallery/${params.fiestaId}/download`} download><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100"><Download className="w-3 h-3 mr-1.5"/>FOTOS</Button></a>
                 <AlertDialog>
