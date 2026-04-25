@@ -130,7 +130,7 @@ const guardarIdeaSchema = z.object({
   titulo: z.string().min(1, 'El título es obligatorio'),
   descripcion: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  eventoTipo: z.enum(['XV', 'Boda', 'Cumple']).optional(),
+  eventoTipo: z.string().optional(),
 });
 
 const agregarTareaSchema = z.object({
@@ -254,11 +254,16 @@ async function executeGuardarIdeaMarketing(
   try {
     const { saveMarketingTemplate } = await import('@/app/actions/marketing');
     const id = `idea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    // Map input eventoTipo (from schema enum) to MarketingTemplate.tipo
+    // Map input eventoTipo (from intent-router or free text) to MarketingTemplate.tipo
     const TIPO_MAP: Record<string, 'XV' | 'Boda' | 'Cumple'> = {
       XV: 'XV',
+      'XV años': 'XV',
+      'XV_ANOS': 'XV',
       Boda: 'Boda',
+      Casamiento: 'Boda',
       Cumple: 'Cumple',
+      Cumpleaños: 'Cumple',
+      Cumpleanos: 'Cumple',
     };
     const tipoTemplate: 'XV' | 'Boda' | 'Cumple' = TIPO_MAP[input.eventoTipo ?? ''] ?? 'XV';
     const template = {
