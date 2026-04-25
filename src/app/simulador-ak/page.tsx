@@ -907,7 +907,7 @@ export default function SimuladorAKPage() {
                 <>
                   <span className="text-white/60 text-xs">Precio estimado:</span>
                   <Badge className="bg-amber-500 text-white text-xs px-2">aprox.</Badge>
-                  <span className="text-white font-black text-sm">{formatCurrency(roughEstimate!)}</span>
+                  <span className="text-white font-black text-sm">{formatCurrency(roughEstimate ?? 0)}</span>
                 </>
               )}
             </motion.div>
@@ -1097,10 +1097,7 @@ function StepClientInfo({
           <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Nombre y apellido</Label>
           <Input
             value={state.nombre}
-            onChange={e => {
-              onChange('nombre', e.target.value);
-              onChange('apellido', '');
-            }}
+            onChange={e => onChange('nombre', e.target.value)}
             placeholder="Tu nombre y apellido"
             className="bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl h-12 focus:border-violet-400"
           />
@@ -1401,7 +1398,11 @@ function StepPackage({
 
   return (
     <StepCard title="¿Cómo te imaginás tu fiesta?" icon={<Star className="w-6 h-6" />}>
-      <p className="text-violet-300 text-xs -mt-2 mb-1">Compará los 3 paquetes y elegí el que más se ajuste a tu evento</p>
+      <p className="text-violet-300 text-xs -mt-2 mb-1">
+        {hasDynamic
+          ? `Compará ${dynamicPaquetes.length > 1 ? `los ${dynamicPaquetes.length}` : 'el'} paquete${dynamicPaquetes.length !== 1 ? 's' : ''} y elegí el que más se ajuste a tu evento`
+          : `Compará los ${staticOptions.length} paquetes y elegí el que más se ajuste a tu evento`}
+      </p>
       <div className="grid grid-cols-1 gap-3">
         {hasDynamic ? (
           dynamicPaquetes.map((pkg) => {
