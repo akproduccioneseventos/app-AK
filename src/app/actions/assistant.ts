@@ -1396,23 +1396,23 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           };
           const updatedFiesta = { ...fiesta, contratoDatos };
           await saveFiesta(updatedFiesta);
-          actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}` };
-          finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiesta.id}).`;
+          actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}` };
+          finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}).`;
         } else if (d.fiestaId) {
           actionResult = { success: false, error: 'No se encontró el evento.' };
           finalResponse = `❌ No se pudo generar el contrato: No se encontró el evento. Verificalo en /fiestas/nueva.`;
         } else {
-          actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-digital' };
-          finalResponse = `✅ Podés generar el contrato en [contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital). Seleccioná el evento desde ahí.`;
+          actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-servicio' };
+          finalResponse = `✅ Podés generar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio). Seleccioná el evento desde ahí.`;
         }
       } catch (e: any) {
         logger.error('[Asistente AK] Error en generate_contract:', e.message);
         actionResult = { success: false, error: e.message };
-        finalResponse = `❌ No se pudo generar el contrato. Intentá de nuevo o hacelo manualmente desde [/fiestas/nueva/gestion-documental/contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital).`;
+        finalResponse = `❌ No se pudo generar el contrato. Intentá de nuevo o hacelo manualmente desde [/fiestas/nueva/gestion-documental/contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio).`;
       }
     } else if (result.action?.type === 'generate_contract') {
       actionResult = { success: false, error: 'Falta información para generar el contrato.' };
-      finalResponse = `⚠️ Falta información para generar el contrato. Proporcioná el cliente o evento, o generalo manualmente desde [/fiestas/nueva/gestion-documental/contrato-digital](/fiestas/nueva/gestion-documental/contrato-digital).`;
+      finalResponse = `⚠️ Falta información para generar el contrato. Proporcioná el cliente o evento, o generalo manualmente desde [/fiestas/nueva/gestion-documental/contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio).`;
     } else if (result.action?.type === 'check_availability' && result.action.data) {
       const d = result.action.data;
       try {

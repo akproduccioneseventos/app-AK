@@ -939,3 +939,104 @@ describe('executeCrearPresupuesto — catalog matching', () => {
     expect(result.message).toContain('manual/asistente');
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. Notificaciones reales — cita, presupuesto, pago
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Notificaciones reales en executors', () => {
+  it('executeAgendarCita llama a createNotification cuando lead ya existe', async () => {
+    const { createNotification } = await import('@/app/actions/notifications');
+    const { getCrmLeads, scheduleCrmMeeting } = await import('@/app/actions/crm');
+
+    (getCrmLeads as jest.Mock).mockResolvedValueOnce([{ id: 'lead_1', name: 'Ana García' }]);
+    (scheduleCrmMeeting as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await executeAgendarCita({ name: 'Ana García', followUpDate: '2026-06-01' });
+    expect(result.success).toBe(true);
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo: 'exito', titulo: 'Cita agendada' })
+    );
+  });
+
+  it('executeAgendarCita llama a createNotification cuando se crea prospecto nuevo', async () => {
+    const { createNotification } = await import('@/app/actions/notifications');
+    const { getCrmLeads, addCrmLead, scheduleCrmMeeting } = await import('@/app/actions/crm');
+
+    (getCrmLeads as jest.Mock).mockResolvedValueOnce([]);
+    (addCrmLead as jest.Mock).mockResolvedValueOnce({ success: true, lead: { id: 'lead_new', name: 'Pedro López' } });
+    (scheduleCrmMeeting as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await executeAgendarCita({ name: 'Pedro López', followUpDate: '2026-06-15' });
+    expect(result.success).toBe(true);
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo: 'exito', titulo: 'Cita agendada' })
+    );
+  });
+
+  it('executeCrearPresupuesto llama a createNotification al crear presupuesto exitosamente', async () => {
+    const { createNotification } = await import('@/app/actions/notifications');
+    const { savePresupuesto } = await import('@/app/actions/presupuestos');
+    const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
+
+    (getServiciosEmpresa as jest.Mock).mockResolvedValueOnce([]);
+    (savePresupuesto as jest.Mock).mockResolvedValueOnce({ success: true, id: 'pres_notif_1' });
+
+    const result = await executeCrearPresupuesto({
+      clienteNombre: 'Rosa Martínez',
+      servicios: [{ nombre: 'Decoración', cantidad: 1, precioUnitario: 20000 }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo: 'exito', titulo: 'Presupuesto creado' })
+    );
+  });
+
+  it('executeRegistrarPago llama a createNotification al registrar pago exitosamente', async () => {
+    const { createNotification } = await import('@/app/actions/notifications');
+    const { getPresupuestos, addPagoToPresupuesto } = await import('@/app/actions/presupuestos');
+
+    (getPresupuestos as jest.Mock).mockResolvedValueOnce([
+      makePresupuesto({ id: 'pres_pay_notif', clienteNombre: 'Roberto Pérez', totalConDescuento: 80000 }),
+    ]);
+    (addPagoToPresupuesto as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await executeRegistrarPago({
+      presupuestoId: 'pres_pay_notif',
+      monto: 40000,
+      metodoPago: 'Efectivo',
+    });
+
+    expect(result.success).toBe(true);
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo: 'exito', titulo: 'Pago registrado' })
+    );
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. executeGenerarContrato — enlace apunta a contrato-servicio existente
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('executeGenerarContrato — URL apunta a ruta existente', () => {
+  it('el href resultado apunta a gestion-documental/contrato-servicio', async () => {
+    const { getAllFiestas, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
+    const { updateContratoFiestaActual } = await import('@/app/actions/fiesta-actual');
+
+    (getAllFiestas as jest.Mock).mockResolvedValueOnce([
+      makeFiesta({ id: 'f_url_check', clienteNombre: 'Susana Ríos', fechaEvento: '2026-12-20' }),
+    ]);
+    (saveFiesta as jest.Mock).mockResolvedValueOnce({ success: true });
+    (updateContratoFiestaActual as jest.Mock).mockResolvedValueOnce({ success: true });
+
+    const result = await executeGenerarContrato({ clienteNombre: 'Susana Ríos' });
+
+    expect(result.success).toBe(true);
+    if (result.success && result.data?.href) {
+      const href = result.data.href as string;
+      expect(href).toContain('contrato-servicio');
+      expect(href).not.toContain('contrato-digital');
+    }
+  });
+});

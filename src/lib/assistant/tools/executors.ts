@@ -118,9 +118,8 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
     if (!result.success) {
       return { success: false, error: result.error || 'No se pudo agendar la cita.', message: result.error || 'No se pudo agendar la cita.' };
     }
-    // TODO (Fase 4 — Notificaciones): enviar notificación 'cita agendada'
-    // const { createNotification } = await import('@/app/actions/notifications');
-    // await createNotification({ titulo: 'Cita agendada', mensaje: `Cita con ${existing.name} para el ${input.followUpDate}`, tipo: 'exito', href: '/contabilidad/crm' });
+    const { createNotification } = await import('@/app/actions/notifications');
+    await createNotification({ titulo: 'Cita agendada', mensaje: `Cita con ${existing.name}${input.followUpDate ? ` para el ${input.followUpDate}` : ''}`, tipo: 'exito', href: '/contabilidad/crm' }).catch(() => {});
     return {
       success: true,
       message: `Cita agendada con ${existing.name}${input.followUpDate ? ` para el ${input.followUpDate}` : ''}${input.time ? ` a las ${input.time}` : ''}.`,
@@ -158,9 +157,8 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
     return { success: false, error: leadResult.error || 'No se pudo crear el prospecto.', message: leadResult.error || 'No se pudo crear el prospecto.' };
   }
 
-  // TODO (Fase 4 — Notificaciones): enviar notificación 'cita agendada'
-  // const { createNotification } = await import('@/app/actions/notifications');
-  // await createNotification({ titulo: 'Cita agendada', mensaje: `Nuevo prospecto ${leadResult.lead!.name} creado y cita agendada`, tipo: 'exito', href: '/contabilidad/crm' });
+  const { createNotification } = await import('@/app/actions/notifications');
+  await createNotification({ titulo: 'Cita agendada', mensaje: `Nuevo prospecto ${leadResult.lead!.name} creado y cita agendada`, tipo: 'exito', href: '/contabilidad/crm' }).catch(() => {});
 
   return {
     success: true,
@@ -235,9 +233,8 @@ export async function executeCrearPresupuesto(input: CrearPresupuestoInput): Pro
   const manualCount = items.filter((i: { nota?: string }) => i.nota === 'manual/asistente').length;
   const catalogNote = manualCount > 0 ? ` (${manualCount} ítem(s) no encontrado(s) en catálogo — marcado(s) como manual/asistente)` : '';
 
-  // TODO (Fase 4 — Notificaciones): enviar notificación 'presupuesto creado'
-  // const { createNotification } = await import('@/app/actions/notifications');
-  // await createNotification({ titulo: 'Presupuesto creado', mensaje: `Presupuesto para ${input.clienteNombre} creado desde el asistente`, tipo: 'exito', href: `/presupuestos/${result.id}/ver` });
+  const { createNotification } = await import('@/app/actions/notifications');
+  await createNotification({ titulo: 'Presupuesto creado', mensaje: `Presupuesto para ${input.clienteNombre} creado desde el asistente`, tipo: 'exito', href: `/presupuestos/${result.id}/ver` }).catch(() => {});
 
   return {
     success: true,
@@ -358,9 +355,8 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
 
   const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(input.monto);
 
-  // TODO (Fase 4 — Notificaciones): enviar notificación 'pago registrado'
-  // const { createNotification } = await import('@/app/actions/notifications');
-  // await createNotification({ titulo: 'Pago registrado', mensaje: `Pago de ${montoFmt} registrado para presupuesto ${presupuestoId}`, tipo: 'exito', href: `/presupuestos/${presupuestoId}/ver` });
+  const { createNotification } = await import('@/app/actions/notifications');
+  await createNotification({ titulo: 'Pago registrado', mensaje: `Pago de ${montoFmt} registrado para presupuesto ${presupuestoId}`, tipo: 'exito', href: `/presupuestos/${presupuestoId}/ver` }).catch(() => {});
 
   return {
     success: true,
@@ -483,14 +479,14 @@ export async function executeGenerarContrato(input: GenerarContratoInput): Promi
     return {
       success: false,
       error: updateErr?.message || 'No se pudo generar el texto del contrato.',
-      message: `Datos del contrato guardados, pero no se pudo generar el documento. Abrí el contrato manualmente en [/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}](/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}).`,
+      message: `Datos del contrato guardados, pero no se pudo generar el documento. Abrí el contrato manualmente en [/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}).`,
     };
   }
 
   return {
     success: true,
-    message: `Contrato generado y guardado para ${clienteNombre}. Podés verlo en [/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}](/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}).`,
-    data: { fiestaId, href: `/fiestas/nueva/gestion-documental/contrato-digital?fiestaId=${fiestaId}` },
+    message: `Contrato generado y guardado para ${clienteNombre}. Podés verlo en [/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}).`,
+    data: { fiestaId, href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}` },
   };
 }
 

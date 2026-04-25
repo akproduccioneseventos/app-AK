@@ -64,6 +64,11 @@ jest.mock('@/app/actions/servicios-empresa', () => ({
 jest.mock('@/app/actions/empleados', () => ({ saveEmpleado: jest.fn() }));
 jest.mock('@/app/actions/proveedores', () => ({ saveProveedor: jest.fn() }));
 
+jest.mock('@/app/actions/notifications', () => ({
+  createNotification: jest.fn().mockResolvedValue({ success: true }),
+  getNotifications: jest.fn().mockResolvedValue([]),
+}));
+
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   createNewFiestaForCustomer: jest.fn().mockResolvedValue({ success: true, fiestaId: 'fiesta_1' }),
   getAllFiestas: jest.fn().mockResolvedValue([]),
