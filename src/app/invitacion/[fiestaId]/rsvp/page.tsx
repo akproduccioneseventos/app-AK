@@ -37,8 +37,14 @@ function RsvpFormContent() {
 
   // Form state
   const [nombre, setNombre] = useState('');
+  const [contacto, setContacto] = useState('');
   const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado'>('Confirmado');
+  const [partySize, setPartySize] = useState(1);
+  const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [dietary, setDietary] = useState<DietaryRestriction>('Ninguna');
+  const [alergiasEspecificas, setAlergiasEspecificas] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const [requiereAccesibilidad, setRequiereAccesibilidad] = useState(false);
   const [songs, setSongs] = useState(['', '', '']);
 
   const loadFiesta = useCallback(async () => {
@@ -66,6 +72,14 @@ function RsvpFormContent() {
     setSongs(prev => prev.map((s, i) => (i === index ? value : s)));
   };
 
+  const handleCompanionChange = (index: number, value: string) => {
+    setCompanionNames(prev => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!nombre.trim()) {
@@ -76,9 +90,15 @@ function RsvpFormContent() {
     try {
       const result = await submitPublicRsvp(fiestaId, {
         nombre: nombre.trim(),
+        contacto: contacto.trim() || undefined,
         asistencia,
+        partySize: partySize > 1 ? partySize : undefined,
+        companionNames: companionNames.filter(n => n.trim()).length > 0 ? companionNames.filter(n => n.trim()) : undefined,
         dietaryRestriction: dietary,
+        alergiasEspecificas: alergiasEspecificas.trim() || undefined,
         cancionesDJ: songs.filter(s => s.trim()),
+        mensaje: mensaje.trim() || undefined,
+        requiereAccesibilidad: requiereAccesibilidad || undefined,
       });
       if (result.success && result.invitado) {
         setConfirmedGuest(result.invitado);
@@ -360,6 +380,21 @@ function RsvpFormContent() {
                 />
               </div>
 
+              {/* Contacto / Teléfono */}
+              <div className="space-y-2">
+                <Label htmlFor="contacto" className="flex items-center gap-2 font-semibold text-slate-700">
+                  📞 Teléfono de contacto <span className="text-xs font-normal text-slate-400">(opcional)</span>
+                </Label>
+                <Input
+                  id="contacto"
+                  value={contacto}
+                  onChange={e => setContacto(e.target.value)}
+                  placeholder="Ej: 099 123 456"
+                  className="h-12 rounded-xl text-base"
+                  type="tel"
+                />
+              </div>
+
               {/* Asistencia */}
               <div className="space-y-3">
                 <Label className="font-semibold text-slate-700">¿Vas a asistir?</Label>
@@ -414,6 +449,62 @@ function RsvpFormContent() {
                       </label>
                     ))}
                   </RadioGroup>
+                  {dietary === 'Otro' && (
+                    <Input
+                      value={alergiasEspecificas}
+                      onChange={e => setAlergiasEspecificas(e.target.value)}
+                      placeholder="Describí tu restricción o alergia específica"
+                      className="h-11 rounded-xl text-sm mt-2"
+                    />
+                  )}
+                  {dietary !== 'Ninguna' && dietary !== 'Otro' && (
+                    <Input
+                      value={alergiasEspecificas}
+                      onChange={e => setAlergiasEspecificas(e.target.value)}
+                      placeholder="¿Alguna alergia específica? (opcional)"
+                      className="h-11 rounded-xl text-sm mt-2"
+                    />
+                  )}
+                </motion.div>
+              )}
+
+              {/* Cantidad de personas y acompañantes */}
+              {asistencia === 'Confirmado' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="space-y-3"
+                >
+                  <Label className="flex items-center gap-2 font-semibold text-slate-700">
+                    <Users className="w-4 h-4 text-primary" /> ¿Cuántos van? (incluyéndote)
+                  </Label>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPartySize(p => Math.max(1, p - 1))}
+                      className="w-12 h-12 rounded-xl border-2 border-slate-200 font-bold text-lg hover:border-primary transition-colors"
+                    >−</button>
+                    <span className="flex-1 text-center text-2xl font-black text-slate-800">{partySize}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPartySize(p => p + 1)}
+                      className="w-12 h-12 rounded-xl border-2 border-slate-200 font-bold text-lg hover:border-primary transition-colors"
+                    >+</button>
+                  </div>
+                  {partySize > 1 && (
+                    <div className="space-y-2 pt-1">
+                      <p className="text-xs text-slate-400">Nombres de acompañantes (opcional)</p>
+                      {Array.from({ length: partySize - 1 }).map((_, i) => (
+                        <Input
+                          key={i}
+                          value={companionNames[i] ?? ''}
+                          onChange={e => handleCompanionChange(i, e.target.value)}
+                          placeholder={`Acompañante ${i + 1}`}
+                          className="h-11 rounded-xl text-sm"
+                        />
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
 
@@ -437,6 +528,47 @@ function RsvpFormContent() {
                       className="h-11 rounded-xl text-sm"
                     />
                   ))}
+                </motion.div>
+              )}
+
+              {/* Mensaje / dedicatoria */}
+              {asistencia === 'Confirmado' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="mensaje" className="flex items-center gap-2 font-semibold text-slate-700">
+                    💌 Dedicatoria o mensaje <span className="text-xs font-normal text-slate-400">(opcional)</span>
+                  </Label>
+                  <textarea
+                    id="mensaje"
+                    value={mensaje}
+                    onChange={e => setMensaje(e.target.value)}
+                    placeholder="Dejá un mensaje para el festejado/a…"
+                    rows={3}
+                    className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </motion.div>
+              )}
+
+              {/* Accesibilidad */}
+              {asistencia === 'Confirmado' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                >
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={requiereAccesibilidad}
+                      onChange={e => setRequiereAccesibilidad(e.target.checked)}
+                      className="w-5 h-5 rounded border-slate-300 text-primary"
+                    />
+                    <span className="text-sm font-medium text-slate-700">
+                      ♿ Necesito asistencia especial / accesibilidad
+                    </span>
+                  </label>
                 </motion.div>
               )}
             </CardContent>

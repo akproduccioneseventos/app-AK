@@ -345,3 +345,32 @@ export async function submitPublicRsvp(
 
   return { ...result, invitado: savedInvitado };
 }
+
+// ─── Guest CTA click tracking ──────────────────────────────────────────────
+
+type GuestCtaStat = 'clickedWhatsapp' | 'clickedInstagram' | 'clickedLanding' | 'clickedSimulator';
+
+/**
+ * Records a CTA click in the guest's guestExperienceStats.
+ * Called fire-and-forget from the client portal — errors are swallowed on the caller side.
+ */
+export async function trackGuestCtaClick(
+  fiestaId: string,
+  guestId: string,
+  stat: GuestCtaStat
+): Promise<{ success: boolean }> {
+  const result = await updateFiestaData(fiestaId, data => {
+    const invitados = (data.invitados || []).map(inv => {
+      if (inv.id !== guestId) return inv;
+      return {
+        ...inv,
+        guestExperienceStats: {
+          ...(inv.guestExperienceStats ?? {}),
+          [stat]: true,
+        },
+      };
+    });
+    return { ...data, invitados };
+  });
+  return { success: result.success };
+}

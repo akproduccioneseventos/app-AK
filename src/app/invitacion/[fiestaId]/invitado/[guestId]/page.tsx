@@ -29,6 +29,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 import { Button } from '@/components/ui/button';
 import QRCodeStylized from 'qrcode.react';
@@ -107,8 +108,23 @@ function GuestPortalContent() {
   const guestExp = fiesta.guestExperienceSettings;
   const showAkCta = guestExp?.enabled && guestExp?.showAkBranding;
 
+  // If portal is explicitly disabled, show a friendly message
+  if (guestExp && guestExp.allowGuestPortal === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col items-center justify-center p-8 text-center gap-6">
+        <span className="text-5xl">🔒</span>
+        <h2 className="text-xl font-bold text-slate-700">El pase digital todavía no está habilitado.</h2>
+        <p className="text-sm text-slate-400">El organizador activará tu pase próximamente.<br />Intentá nuevamente más tarde.</p>
+      </div>
+    );
+  }
+
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app';
-  const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${guest.id}`;
+  // Prefer guestAccessToken for a secure QR; fall back to guestId for legacy compatibility
+  const accessParam = guest.guestAccessToken
+    ? `token=${guest.guestAccessToken}&guestId=${guest.id}`
+    : `guestId=${guest.id}`;
+  const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&${accessParam}`;
 
   const fecha = config?.fechaEvento
     ? new Date(config.fechaEvento).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -269,23 +285,25 @@ function GuestPortalContent() {
             {guestExp?.ctaDescription || guestExp?.ctaText || 'Organizamos tu próximo evento con la misma dedicación y amor por los detalles.'}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-            {guestExp?.instagramUrl && (
+            {guestExp?.instagramUrl && guestExp?.showSocialCta && (
               <a
                 href={guestExp.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="guest-portal-cta-instagram"
+                onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedInstagram').catch(() => {})}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
               >
                 <Instagram className="w-3.5 h-3.5" /> Instagram
               </a>
             )}
-            {guestExp?.whatsappNumber && (
+            {(guestExp?.whatsappUrl || guestExp?.whatsappNumber) && guestExp?.showSocialCta && (
               <a
-                href={`https://wa.me/${guestExp.whatsappNumber.replace(/\D/g, '')}`}
+                href={guestExp.whatsappUrl ?? `https://wa.me/${(guestExp.whatsappNumber ?? '').replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="guest-portal-cta-whatsapp"
+                onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedWhatsapp').catch(() => {})}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-green-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
               >
                 <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
@@ -297,6 +315,7 @@ function GuestPortalContent() {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="guest-portal-cta-landing"
+                onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedLanding').catch(() => {})}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold hover:opacity-90 transition-opacity"
               >
                 <ExternalLink className="w-3.5 h-3.5" /> Ver servicios
@@ -308,6 +327,7 @@ function GuestPortalContent() {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="guest-portal-cta-simulator"
+                onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedSimulator').catch(() => {})}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
               >
                 💰 Simular presupuesto

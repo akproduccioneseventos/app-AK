@@ -1094,24 +1094,27 @@ export interface GuestExperienceSettings {
   enabled: boolean;
   showAkBranding: boolean;
   showLandingCta: boolean;
-  showSocialCta?: boolean;
-  showBudgetSimulatorCta?: boolean;
+  showSocialCta: boolean;
+  showBudgetSimulatorCta: boolean;
   landingUrl?: string;
   simulatorUrl?: string;
-  whatsappNumber?: string;
   instagramUrl?: string;
   facebookUrl?: string;
   tiktokUrl?: string;
+  /** Full WhatsApp URL, e.g. https://wa.me/59898355530 */
+  whatsappUrl?: string;
+  /** @deprecated Use whatsappUrl instead. Kept for legacy QR links. */
+  whatsappNumber?: string;
   ctaTitle?: string;
   ctaText?: string;
   ctaDescription?: string;
   accentColor?: string;
   /** Whether guests can suggest songs via RSVP form */
-  allowSongSuggestions?: boolean;
+  allowSongSuggestions: boolean;
   /** Whether guests can upload photos */
-  allowPhotoUpload?: boolean;
+  allowPhotoUpload: boolean;
   /** Whether guests can access a persistent guest portal */
-  allowGuestPortal?: boolean;
+  allowGuestPortal: boolean;
 }
 
 // --- CLIENTE PORTAL EXPERIENCE ---

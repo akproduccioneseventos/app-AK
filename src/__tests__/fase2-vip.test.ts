@@ -36,9 +36,13 @@ function makeGuestExperience(overrides: Partial<GuestExperienceSettings> = {}): 
     showLandingCta: true,
     showSocialCta: true,
     showBudgetSimulatorCta: true,
+    allowSongSuggestions: true,
+    allowPhotoUpload: false,
+    allowGuestPortal: true,
     landingUrl: 'https://ak-producciones.com',
     simulatorUrl: 'https://ak-producciones.com/simulador',
     whatsappNumber: '59898355530',
+    whatsappUrl: 'https://wa.me/59898355530',
     instagramUrl: 'https://instagram.com/akproducciones',
     ctaTitle: '¿Te gustó esta experiencia?',
     ctaText: 'Esto es parte del servicio integral de AK Producciones Eventos.',
@@ -845,22 +849,32 @@ describe('guestExperienceSettings — campos completos', () => {
       enabled: true,
       showAkBranding: true,
       showLandingCta: true,
+      showSocialCta: true,
+      showBudgetSimulatorCta: false,
+      allowSongSuggestions: true,
+      allowPhotoUpload: false,
+      allowGuestPortal: true,
     };
     expect(settings.enabled).toBe(true);
     expect(settings.showAkBranding).toBe(true);
     expect(settings.showLandingCta).toBe(true);
+    expect(settings.allowGuestPortal).toBe(true);
   });
 
-  it('campos opcionales son realmente opcionales', () => {
+  it('campos de URL son opcionales', () => {
     const settings: GuestExperienceSettings = {
       enabled: true,
       showAkBranding: false,
       showLandingCta: false,
+      showSocialCta: false,
+      showBudgetSimulatorCta: false,
+      allowSongSuggestions: false,
+      allowPhotoUpload: false,
+      allowGuestPortal: false,
     };
-    expect(settings.allowSongSuggestions).toBeUndefined();
-    expect(settings.allowPhotoUpload).toBeUndefined();
-    expect(settings.allowGuestPortal).toBeUndefined();
     expect(settings.ctaDescription).toBeUndefined();
+    expect(settings.landingUrl).toBeUndefined();
+    expect(settings.whatsappUrl).toBeUndefined();
   });
 
   it('todos los campos de URL son opcionales', () => {
@@ -868,30 +882,36 @@ describe('guestExperienceSettings — campos completos', () => {
       enabled: true,
       showAkBranding: true,
       showLandingCta: true,
+      showSocialCta: true,
+      showBudgetSimulatorCta: true,
+      allowSongSuggestions: true,
+      allowPhotoUpload: false,
+      allowGuestPortal: true,
       landingUrl: 'https://ak.uy',
       simulatorUrl: 'https://sim.ak.uy',
       instagramUrl: 'https://instagram.com/ak',
-      whatsappNumber: '59898355530',
+      whatsappUrl: 'https://wa.me/59898355530',
       ctaTitle: '¿Te gustó?',
       ctaDescription: 'Organizamos tu próximo evento',
     };
     expect(settings.landingUrl).toBe('https://ak.uy');
     expect(settings.ctaDescription).toBe('Organizamos tu próximo evento');
+    expect(settings.whatsappUrl).toBe('https://wa.me/59898355530');
   });
 
   it('CTA AK solo aparece cuando enabled Y showAkBranding son true', () => {
     const show = (s: GuestExperienceSettings) => s.enabled && s.showAkBranding;
-    expect(show({ enabled: true, showAkBranding: true, showLandingCta: false })).toBe(true);
-    expect(show({ enabled: false, showAkBranding: true, showLandingCta: false })).toBe(false);
-    expect(show({ enabled: true, showAkBranding: false, showLandingCta: false })).toBe(false);
+    expect(show(makeGuestExperience({ enabled: true, showAkBranding: true }))).toBe(true);
+    expect(show(makeGuestExperience({ enabled: false, showAkBranding: true }))).toBe(false);
+    expect(show(makeGuestExperience({ enabled: true, showAkBranding: false }))).toBe(false);
   });
 
   it('allowGuestPortal controla acceso al portal persistente', () => {
     const allowPortal = (s: GuestExperienceSettings) => s.allowGuestPortal !== false;
-    // Default (undefined) = allowed
-    expect(allowPortal({ enabled: true, showAkBranding: true, showLandingCta: false })).toBe(true);
+    // Default = allowed (true)
+    expect(allowPortal(makeGuestExperience({ allowGuestPortal: true }))).toBe(true);
     // Explicitly disabled
-    expect(allowPortal({ enabled: true, showAkBranding: true, showLandingCta: false, allowGuestPortal: false })).toBe(false);
+    expect(allowPortal(makeGuestExperience({ allowGuestPortal: false }))).toBe(false);
   });
 });
 
@@ -1016,5 +1036,184 @@ describe('Diseño salón → invitados → plan de mesas real', () => {
     expect(plan[0].label).toBe('Mesa principal (Mesa 1)');
     expect(plan[1].label).toBe('Mesa familia (Mesa 2)');
     expect(plan[0].nombres).toContain('Invitado A');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 23. QR usa guestAccessToken cuando existe
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('QR — guestAccessToken preferido sobre guestId', () => {
+  const baseUrl = 'https://app-ak.vercel.app';
+  const fiestaId = 'fiesta_abc';
+
+  function buildQrValue(guest: Pick<Invitado, 'id' | 'guestAccessToken'>) {
+    const accessParam = guest.guestAccessToken
+      ? `token=${guest.guestAccessToken}&guestId=${guest.id}`
+      : `guestId=${guest.id}`;
+    return `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&${accessParam}`;
+  }
+
+  it('usa token cuando guestAccessToken existe', () => {
+    const guest = makeInvitado({ guestAccessToken: 'tok_abc123' });
+    const qr = buildQrValue(guest);
+    expect(qr).toContain('token=tok_abc123');
+    expect(qr).toContain(`guestId=${guest.id}`);
+  });
+
+  it('usa solo guestId cuando no hay guestAccessToken (legado)', () => {
+    const guest = makeInvitado({ guestAccessToken: undefined });
+    const qr = buildQrValue(guest);
+    expect(qr).not.toContain('token=');
+    expect(qr).toContain(`guestId=${guest.id}`);
+  });
+
+  it('QR con token pasa verificación del control de acceso', () => {
+    const token = 'tok_secure99';
+    const guest = makeInvitado({ guestAccessToken: token });
+    // Simula la lógica del accesos page
+    const url = new URL(buildQrValue(guest));
+    const scannedToken = url.searchParams.get('token');
+    const scannedGuestId = url.searchParams.get('guestId');
+    const guests: Invitado[] = [guest];
+    const match = guests.find(g => g.guestAccessToken === scannedToken && g.id === scannedGuestId);
+    expect(match).toBeDefined();
+    expect(match?.id).toBe(guest.id);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 24. allowGuestPortal === false bloquea acceso al portal
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('allowGuestPortal — control de acceso al portal del invitado', () => {
+  it('portal accesible cuando allowGuestPortal es true', () => {
+    const settings = makeGuestExperience({ allowGuestPortal: true });
+    const portalEnabled = settings.allowGuestPortal !== false;
+    expect(portalEnabled).toBe(true);
+  });
+
+  it('portal bloqueado cuando allowGuestPortal es false', () => {
+    const settings = makeGuestExperience({ allowGuestPortal: false });
+    const portalEnabled = settings.allowGuestPortal !== false;
+    expect(portalEnabled).toBe(false);
+  });
+
+  it('whatsappUrl se prefiere sobre whatsappNumber para construcción del enlace', () => {
+    const settings = makeGuestExperience({
+      whatsappUrl: 'https://wa.me/59898355530?text=Hola',
+      whatsappNumber: '59898355530',
+    });
+    const href = settings.whatsappUrl ?? `https://wa.me/${(settings.whatsappNumber ?? '').replace(/\D/g, '')}`;
+    expect(href).toBe('https://wa.me/59898355530?text=Hola');
+  });
+
+  it('fallback a whatsappNumber cuando whatsappUrl no existe', () => {
+    const settings = makeGuestExperience({ whatsappUrl: undefined, whatsappNumber: '59898355530' });
+    const href = settings.whatsappUrl ?? `https://wa.me/${(settings.whatsappNumber ?? '').replace(/\D/g, '')}`;
+    expect(href).toBe('https://wa.me/59898355530');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 25. RSVP guarda todos los campos extra
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('RSVP — guardado de campos completos', () => {
+  it('submitPublicRsvp recibe contacto', () => {
+    const payload = {
+      nombre: 'Ana García',
+      contacto: '099 123 456',
+      asistencia: 'Confirmado' as const,
+      dietaryRestriction: 'Ninguna' as DietaryRestriction,
+      cancionesDJ: [],
+    };
+    expect(payload.contacto).toBe('099 123 456');
+  });
+
+  it('submitPublicRsvp recibe partySize y companionNames', () => {
+    const payload = {
+      nombre: 'Ana García',
+      asistencia: 'Confirmado' as const,
+      dietaryRestriction: 'Ninguna' as DietaryRestriction,
+      partySize: 3,
+      companionNames: ['Luis García', 'Marta García'],
+      cancionesDJ: [],
+    };
+    expect(payload.partySize).toBe(3);
+    expect(payload.companionNames).toHaveLength(2);
+  });
+
+  it('submitPublicRsvp recibe alergiasEspecificas', () => {
+    const payload = {
+      nombre: 'Ana García',
+      asistencia: 'Confirmado' as const,
+      dietaryRestriction: 'Otro' as DietaryRestriction,
+      alergiasEspecificas: 'Nueces, mariscos',
+      cancionesDJ: [],
+    };
+    expect(payload.alergiasEspecificas).toBe('Nueces, mariscos');
+  });
+
+  it('submitPublicRsvp recibe mensaje y requiereAccesibilidad', () => {
+    const payload = {
+      nombre: 'Ana García',
+      asistencia: 'Confirmado' as const,
+      dietaryRestriction: 'Ninguna' as DietaryRestriction,
+      mensaje: 'Felicitaciones!',
+      requiereAccesibilidad: true,
+      cancionesDJ: [],
+    };
+    expect(payload.mensaje).toBe('Felicitaciones!');
+    expect(payload.requiereAccesibilidad).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 26. CTA tracking — guestExperienceStats
+// ─────────────────────────────────────────────────────────────────────────────
+
+import type { GuestExperienceStats } from '@/types/fiesta';
+
+describe('CTA tracking — guestExperienceStats', () => {
+  type GuestCtaStat = 'clickedWhatsapp' | 'clickedInstagram' | 'clickedLanding' | 'clickedSimulator';
+
+  function applyCtaClick(stats: GuestExperienceStats | undefined, stat: GuestCtaStat): GuestExperienceStats {
+    return { ...(stats ?? {}), [stat]: true };
+  }
+
+  it('registra clickedWhatsapp', () => {
+    const result = applyCtaClick(undefined, 'clickedWhatsapp');
+    expect(result.clickedWhatsapp).toBe(true);
+  });
+
+  it('registra clickedInstagram', () => {
+    const result = applyCtaClick(undefined, 'clickedInstagram');
+    expect(result.clickedInstagram).toBe(true);
+  });
+
+  it('registra clickedLanding', () => {
+    const result = applyCtaClick(undefined, 'clickedLanding');
+    expect(result.clickedLanding).toBe(true);
+  });
+
+  it('registra clickedSimulator', () => {
+    const result = applyCtaClick(undefined, 'clickedSimulator');
+    expect(result.clickedSimulator).toBe(true);
+  });
+
+  it('preserva stats existentes al agregar nuevo click', () => {
+    const existing: GuestExperienceStats = { clickedWhatsapp: true };
+    const result = applyCtaClick(existing, 'clickedInstagram');
+    expect(result.clickedWhatsapp).toBe(true);
+    expect(result.clickedInstagram).toBe(true);
+  });
+
+  it('openedAt no se sobreescribe al registrar click', () => {
+    const ts = '2025-01-01T20:00:00Z';
+    const existing: GuestExperienceStats = { openedAt: ts };
+    const result = applyCtaClick(existing, 'clickedLanding');
+    expect(result.openedAt).toBe(ts);
+    expect(result.clickedLanding).toBe(true);
   });
 });
