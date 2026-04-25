@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Camera, GripVertical, Loader2, Pause, Play, Plus, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Upload } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, GripVertical, Loader2, Pause, Play, Plus, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,10 +11,21 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGallerySettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
-import { getGlobalScreenMediaLibrary, uploadScreenMediaAsset } from '@/app/actions/fiesta/screen-mode.actions';
+import {
+  getGlobalScreenMediaLibrary,
+  uploadScreenMediaAsset,
+  playScreenPlaylist,
+  pauseScreenPlaylist,
+  nextScreenItem,
+  prevScreenItem,
+  setScreenLoop,
+  updateLedMessage,
+  triggerLiveMoment,
+  updateScreenBrand,
+} from '@/app/actions/fiesta/screen-mode.actions';
 
 const QUICK_MOMENTS = [
   { id: 'llegada-agasajados', nombre: 'Llegada de los agasajados', emoji: '🎉' },
@@ -95,9 +106,12 @@ function MuroSocialContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingLed, setIsSavingLed] = useState(false);
+  const [isPlayAction, setIsPlayAction] = useState(false);
   const [globalLibrary, setGlobalLibrary] = useState<ScreenMediaAsset[]>([]);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [akBrandSettings, setAkBrandSettings] = useState<SocialGalleryBrand>({});
+  const [isSavingBrand, setIsSavingBrand] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -122,6 +136,9 @@ function MuroSocialContent() {
         ledMarqueeText: '',
         ...(fiestaData.socialGallerySettings || {}),
       }));
+      if (fiestaData.socialGallerySettings?.brand) {
+        setAkBrandSettings(fiestaData.socialGallerySettings.brand);
+      }
       const globalAssets = await getGlobalScreenMediaLibrary();
       setGlobalLibrary(globalAssets);
     } catch (e: any) {
@@ -157,10 +174,11 @@ function MuroSocialContent() {
   const saveLedText = async () => {
     if (!fiestaId) return;
     setIsSavingLed(true);
-    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, settings);
+    const result = await updateLedMessage(fiestaId, settings.ledMarqueeText ?? '');
     setIsSavingLed(false);
     if (result.success) {
       toast({ title: 'Cartel LED enviado ✓', description: 'El texto se actualizó en la pantalla en vivo.' });
+      await loadData();
     } else {
       toast({ title: 'Error al enviar cartel LED', description: result.error, variant: 'destructive' });
     }
@@ -168,19 +186,81 @@ function MuroSocialContent() {
 
   const triggerMoment = async (momentToTrigger: (typeof QUICK_MOMENTS)[number]) => {
     if (!fiestaId) return;
-    const updatedSettings: SocialGallerySettings = {
-      ...settings,
-      momentosActivos: [
-        ...(settings.momentosActivos ?? []).filter((m) => m.id !== momentToTrigger.id),
-        { ...momentToTrigger, timestamp: new Date().toISOString() },
-      ],
-    };
-    setSettings(updatedSettings);
-    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
+    const result = await triggerLiveMoment(fiestaId, { id: momentToTrigger.id, nombre: momentToTrigger.nombre, emoji: momentToTrigger.emoji });
     if (result.success) {
       toast({ title: `Momento lanzado: ${momentToTrigger.nombre}` });
+      await loadData();
     } else {
       toast({ title: 'Error al disparar momento', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handlePlay = async () => {
+    if (!fiestaId) return;
+    setIsPlayAction(true);
+    const result = await playScreenPlaylist(fiestaId);
+    setIsPlayAction(false);
+    if (result.success) {
+      toast({ title: 'Reproducción iniciada ▶' });
+      await loadData();
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handlePause = async () => {
+    if (!fiestaId) return;
+    setIsPlayAction(true);
+    const result = await pauseScreenPlaylist(fiestaId);
+    setIsPlayAction(false);
+    if (result.success) {
+      toast({ title: 'Pausa ⏸' });
+      await loadData();
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleNext = async () => {
+    if (!fiestaId) return;
+    const result = await nextScreenItem(fiestaId);
+    if (result.success) {
+      await loadData();
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handlePrev = async () => {
+    if (!fiestaId) return;
+    const result = await prevScreenItem(fiestaId);
+    if (result.success) {
+      await loadData();
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleLoopChange = async (checked: boolean) => {
+    if (!fiestaId) return;
+    setSettings((prev) => withScreenDefaults({ ...prev, screenMode: { ...(prev.screenMode ?? {}), loop: checked } as SocialGallerySettings['screenMode'] }));
+    const result = await setScreenLoop(fiestaId, checked);
+    if (!result.success) {
+      toast({ title: 'Error al cambiar loop', description: result.error, variant: 'destructive' });
+      await loadData();
+    }
+  };
+
+  const handleSaveBrand = async () => {
+    if (!fiestaId) return;
+    setIsSavingBrand(true);
+    const result = await updateScreenBrand(fiestaId, akBrandSettings);
+    setIsSavingBrand(false);
+    if (result.success) {
+      toast({ title: 'Marca AK guardada ✓', description: 'El branding se actualizó en la pantalla en vivo.' });
+      await loadData();
+    } else {
+      toast({ title: 'Error al guardar marca', description: result.error, variant: 'destructive' });
     }
   };
 
@@ -401,37 +481,30 @@ function MuroSocialContent() {
               <Button
                 type="button"
                 variant={settings.screenMode?.isPlaying ? 'default' : 'outline'}
-                onClick={() => setSettings((prev) => withScreenDefaults({ ...prev, screenMode: { ...(prev.screenMode ?? {}), isPlaying: true } as SocialGallerySettings['screenMode'] }))}
+                onClick={handlePlay}
+                disabled={isPlayAction}
               >
-                <Play className="w-4 h-4 mr-2" />Play
+                {isPlayAction ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Play className="w-4 h-4 mr-2" />}Play
               </Button>
               <Button
                 type="button"
                 variant={!settings.screenMode?.isPlaying ? 'default' : 'outline'}
-                onClick={() => setSettings((prev) => withScreenDefaults({ ...prev, screenMode: { ...(prev.screenMode ?? {}), isPlaying: false } as SocialGallerySettings['screenMode'] }))}
+                onClick={handlePause}
+                disabled={isPlayAction}
               >
-                <Pause className="w-4 h-4 mr-2" />Pause
+                {isPlayAction ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Pause className="w-4 h-4 mr-2" />}Pause
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setSettings((prev) => withScreenDefaults({
-                  ...prev,
-                  screenMode: { ...(prev.screenMode ?? {}), currentItemIndex: Math.max(0, (prev.screenMode?.currentItemIndex ?? 0) - 1) } as SocialGallerySettings['screenMode'],
-                }))}
+                onClick={handlePrev}
               >
                 <SkipBack className="w-4 h-4 mr-2" />Prev
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setSettings((prev) => withScreenDefaults({
-                  ...prev,
-                  screenMode: {
-                    ...(prev.screenMode ?? {}),
-                    currentItemIndex: Math.min((prev.screenMode?.playlist?.length ?? 1) - 1, (prev.screenMode?.currentItemIndex ?? 0) + 1),
-                  } as SocialGallerySettings['screenMode'],
-                }))}
+                onClick={handleNext}
               >
                 <SkipForward className="w-4 h-4 mr-2" />Next
               </Button>
@@ -441,9 +514,7 @@ function MuroSocialContent() {
               <span className="text-sm font-medium flex items-center gap-2"><RotateCcw className="w-4 h-4" />Loop</span>
               <Switch
                 checked={settings.screenMode?.loop ?? true}
-                onCheckedChange={(checked) =>
-                  setSettings((prev) => withScreenDefaults({ ...prev, screenMode: { ...(prev.screenMode ?? {}), loop: checked } as SocialGallerySettings['screenMode'] }))
-                }
+                onCheckedChange={handleLoopChange}
               />
             </div>
 
@@ -515,6 +586,53 @@ function MuroSocialContent() {
               <p className="text-xs text-muted-foreground">La biblioteca global incluye medios de otras fiestas para reutilizar.</p>
               <p className="text-xs text-muted-foreground">Templates redes incluidos: Neón, VIP elegante y Minimal (editable por handles/QR en playlist tipo redes).</p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2"><Building2 className="w-4 h-4" />Marca AK en Pantalla</CardTitle>
+            <CardDescription>Configurá el branding de AK Producciones que se muestra en la pantalla gigante y el muro en vivo.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Logo URL</Label>
+                <Input value={akBrandSettings.logoUrl ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, logoUrl: e.target.value }))} placeholder="https://..." />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Nombre de la empresa</Label>
+                <Input value={akBrandSettings.companyName ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, companyName: e.target.value }))} placeholder="AK Producciones" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Instagram</Label>
+                <Input value={akBrandSettings.instagramHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, instagramHandle: e.target.value }))} placeholder="@akproducciones" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Facebook</Label>
+                <Input value={akBrandSettings.facebookHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, facebookHandle: e.target.value }))} placeholder="akproducciones" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">TikTok</Label>
+                <Input value={akBrandSettings.tiktokHandle ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, tiktokHandle: e.target.value }))} placeholder="@akproducciones" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">WhatsApp</Label>
+                <Input value={akBrandSettings.whatsappNumber ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, whatsappNumber: e.target.value }))} placeholder="59899000000" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Landing URL</Label>
+                <Input value={akBrandSettings.landingUrl ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, landingUrl: e.target.value }))} placeholder="https://akproducciones.uy" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Texto CTA</Label>
+                <Input value={akBrandSettings.ctaText ?? ''} onChange={(e) => setAkBrandSettings((prev) => ({ ...prev, ctaText: e.target.value }))} placeholder="Pedí tu presupuesto" />
+              </div>
+            </div>
+            <Button onClick={handleSaveBrand} disabled={isSavingBrand} className="w-full sm:w-auto">
+              {isSavingBrand ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Guardar Marca AK
+            </Button>
           </CardContent>
         </Card>
 

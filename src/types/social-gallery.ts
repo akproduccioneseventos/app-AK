@@ -4,6 +4,7 @@ export interface SocialComment {
   authorName: string;
   text: string;
   timestamp: string; // ISO Date String
+  highlighted?: boolean;
 }
 
 export interface SocialGalleryPost {
@@ -51,6 +52,7 @@ export interface Dedication {
   message: string;
   authorName: string;
   timestamp: string;
+  highlighted?: boolean;
 }
 
 export interface SorteoParticipant {

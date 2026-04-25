@@ -168,6 +168,21 @@ export async function addDedication(
   }
 }
 
+export async function highlightDedication(
+  fiestaId: string,
+  dedicationId: string,
+  highlighted: boolean
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const dedications = await getDedications(fiestaId);
+    const updated = dedications.map(d => d.id === dedicationId ? { ...d, highlighted } : d);
+    await writeData(dedicationsFile(fiestaId), updated);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
 // ─────────────────────────── SORTEO / PARTICIPANTES REDES ───────────────────────────
 
 export async function addSorteoParticipanteRedes(
