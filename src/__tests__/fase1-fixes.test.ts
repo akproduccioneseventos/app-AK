@@ -33,8 +33,8 @@ import type { CrmTimelineEventType } from '@/types/crm';
 describe('getHeroTitleClass', () => {
   it('returns default classes when no typography config provided', () => {
     const cls = getHeroTitleClass(undefined);
-    expect(cls).toContain('text-4xl');
-    expect(cls).toContain('lg:text-8xl');
+    expect(cls).toContain('text-3xl');
+    expect(cls).toContain('lg:text-7xl');
   });
 
   it('uses custom mobile class when provided', () => {
@@ -62,7 +62,7 @@ describe('getHeroTitleClass', () => {
 
 describe('getSectionTitleClass', () => {
   it('returns default class when no config', () => {
-    expect(getSectionTitleClass(undefined)).toContain('text-2xl');
+    expect(getSectionTitleClass(undefined)).toContain('text-xl');
   });
 
   it('returns custom class when configured', () => {
@@ -72,8 +72,8 @@ describe('getSectionTitleClass', () => {
 });
 
 describe('getBodyTextClass', () => {
-  it('returns default text-base when no config', () => {
-    expect(getBodyTextClass(undefined)).toBe('text-base');
+  it('returns default text-sm sm:text-base when no config', () => {
+    expect(getBodyTextClass(undefined)).toBe('text-sm sm:text-base');
   });
 
   it('uses custom body class', () => {
