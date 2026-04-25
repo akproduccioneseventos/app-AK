@@ -382,6 +382,18 @@ describe('Modo seguro — ASSISTANT_WRITE_ACTIONS_ENABLED desactivado', () => {
     expect(res.response).not.toContain('✅');
   });
 
+  it('schedule_meeting no crea lead ni cita y responde modo seguro', async () => {
+    const res = await sendAssistantMessage(
+      'Agenda a Norma para mañana a las 11',
+      [],
+    );
+
+    expect(res.success).toBe(true);
+    expect(mockAddCrmLead).not.toHaveBeenCalled();
+    expect(res.response).toMatch(/desactivad[ao]|configuraci[oó]n|manualmente/i);
+    expect(res.response).not.toContain('✅');
+  });
+
   it('generate_social_post sí funciona cuando el modo operativo está apagado', async () => {
     mockChat.mockResolvedValueOnce({
       response: 'Acá va tu post de Instagram 🎉',

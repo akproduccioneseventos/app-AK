@@ -424,58 +424,26 @@ export async function sendAssistantMessage(
     if (!imageDataUri) {
       const intent = detectIntent(message);
       if (intent.type === 'schedule_meeting' && intent.confidence === 'high' && intent.data.name) {
-        logger.info('[Asistente AK] Intent router: schedule_meeting detectado sin Gemini', { name: intent.data.name });
-        try {
-          const leadResult = await addCrmLead({
+        logger.info('[Asistente AK] Intent router: schedule_meeting via TOOL_REGISTRY', { name: intent.data.name });
+        const tool = getTool('agendarCita');
+        if (tool) {
+          const toolInput = {
             name: intent.data.name,
             followUpDate: intent.data.followUpDate,
+            time: intent.data.time,
             notes: intent.data.notes,
-            budgetSource: 'manual',
-          });
-          if (leadResult.success && leadResult.lead) {
-            const dateMsg = intent.data.followUpDate ? ` para el **${intent.data.followUpDate}**` : '';
-            const timeMsg = intent.data.time ? ` a las **${intent.data.time}**` : '';
+          };
+          try {
+            const toolResult = await tool.execute(toolInput);
+            const icon = toolResult.success ? '✅' : '❌';
             return {
               success: true,
-              response: `✅ Cita agendada para **${intent.data.name}**${dateMsg}${timeMsg}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`,
-              action: { type: 'create_lead', data: intent.data, result: leadResult },
+              response: `${icon} ${toolResult.message}`,
+              action: { type: 'schedule_meeting', data: toolInput, result: toolResult },
             };
-          } else if (leadResult.duplicate) {
-            // Prospecto duplicado — intentar agendar la reunión en el existente
-            if (intent.data.followUpDate) {
-              try {
-                const stages = await getCrmStages();
-                const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || (stages.length > 1 ? stages[1] : stages[0]);
-                const scheduleResult = await scheduleCrmMeeting(
-                  leadResult.duplicate.id,
-                  intent.data.followUpDate,
-                  intent.data.notes,
-                );
-                if (meetingStage && scheduleResult.success) {
-                  await moveCrmLead(leadResult.duplicate.id, meetingStage.id, intent.data.followUpDate);
-                }
-                if (scheduleResult.success) {
-                  const timeMsg = intent.data.time ? ` a las **${intent.data.time}**` : '';
-                  return {
-                    success: true,
-                    response: `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${intent.data.followUpDate}**${timeMsg}. Podés verla en [/contabilidad/crm](/contabilidad/crm).`,
-                    action: { type: 'schedule_meeting', data: intent.data, result: { success: true, leadId: leadResult.duplicate.id } },
-                  };
-                }
-              } catch (schedErr: unknown) {
-                logger.error('[Asistente AK] Intent router: error al actualizar cita duplicada:', (schedErr as Error).message);
-              }
-            }
-            return {
-              success: true,
-              response: `⚠️ Ya existe un prospecto con ese nombre: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`,
-              action: { type: 'create_lead', data: intent.data, result: leadResult },
-            };
+          } catch (intentErr: unknown) {
+            logger.error('[Asistente AK] Intent router schedule_meeting error, delegando a Gemini:', (intentErr as Error).message);
           }
-          // addCrmLead devolvió error — fall through a Gemini para que maneje el caso
-          logger.warn('[Asistente AK] Intent router: addCrmLead falló, delegando a Gemini:', leadResult.error);
-        } catch (intentErr: unknown) {
-          logger.error('[Asistente AK] Intent router: error inesperado, delegando a Gemini:', (intentErr as Error).message);
         }
       }
 
@@ -1149,31 +1117,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
           }
         } else {
-          // Fallback: direct addCrmLead if tool is unavailable
-          try {
-            const leadResult = await addCrmLead({
-              name: d.name,
-              phone: d.phone,
-              email: d.email,
-              partyType: d.partyType,
-              followUpDate: d.followUpDate,
-              guestCount: d.guestCount != null ? (Number(d.guestCount) || undefined) : undefined,
-              notes: d.notes,
-              budgetSource: 'manual',
-            });
-            actionResult = leadResult;
-            if (leadResult.success && leadResult.lead) {
-              finalResponse = `✅ Prospecto **${d.name}** registrado en el CRM. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
-            } else if (leadResult.duplicate) {
-              finalResponse = `⚠️ Ya existe un prospecto con ese nombre: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
-            } else {
-              finalResponse = `❌ No se pudo registrar el prospecto: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /contabilidad/crm.`;
-            }
-          } catch (e: unknown) {
-            logger.error('[Asistente AK] Error en create_lead fallback:', (e as Error).message);
-            actionResult = { success: false, error: (e as Error).message };
-            finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
-          }
+          // Tool not available — fail safely rather than bypassing safe mode with direct call
+          actionResult = { success: false, error: 'Herramienta crearProspecto no disponible.' };
+          finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
         }
       } else {
         actionResult = { success: false, error: 'Falta información del prospecto.' };
@@ -1184,58 +1130,35 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       const fallbackLead = parseLeadFromMessage(message, history);
       const name: string = d.name || fallbackLead.name || '';
       const followUpDate: string = d.followUpDate || fallbackLead.followUpDate || '';
-      try {
-        if (!name) {
-          actionResult = { success: false, error: 'Falta el nombre del prospecto.' };
-          finalResponse = `⚠️ Indicá el nombre de la persona para agendar la cita, o buscala en [/contabilidad/crm](/contabilidad/crm).`;
-        } else if (!followUpDate) {
-          actionResult = { success: false, error: 'Falta la fecha/hora de la cita.' };
-          finalResponse = `⚠️ Indicá la fecha y hora de la cita para **${name}**.`;
-        } else {
-          // Find existing lead by name
-          const allLeads = await getCrmLeads();
-          const existingLead = findLeadByName(allLeads, name);
-          if (existingLead) {
-            const stages = await getCrmStages();
-            const meetingStage = stages.find(s => s.name.toLowerCase().includes('agend')) || stages[1];
-            const scheduleResult = await scheduleCrmMeeting(existingLead.id, followUpDate, d.notes);
-            if (meetingStage && scheduleResult.success) {
-              await moveCrmLead(existingLead.id, meetingStage.id, followUpDate);
-            }
-            actionResult = { success: scheduleResult.success, leadId: existingLead.id };
-            if (scheduleResult.success) {
-              finalResponse = `✅ Cita agendada para **${existingLead.name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
-            } else {
-              finalResponse = `❌ No se pudo agendar la cita: ${scheduleResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala en [/contabilidad/crm](/contabilidad/crm).`;
-            }
-          } else {
-            // Lead not found — create it with the meeting date
-            const leadResult = await addCrmLead({
+      if (!name) {
+        actionResult = { success: false, error: 'Falta el nombre del prospecto.' };
+        finalResponse = `⚠️ Indicá el nombre de la persona para agendar la cita, o buscala en [/contabilidad/crm](/contabilidad/crm).`;
+      } else if (!followUpDate) {
+        actionResult = { success: false, error: 'Falta la fecha/hora de la cita.' };
+        finalResponse = `⚠️ Indicá la fecha y hora de la cita para **${name}**.`;
+      } else {
+        const tool = getTool('agendarCita');
+        if (tool) {
+          try {
+            const toolInput = {
               name,
               phone: d.phone,
               followUpDate,
+              time: d.time,
               notes: d.notes,
-              budgetSource: 'manual',
-            });
-            actionResult = leadResult;
-            if (leadResult.success && leadResult.lead) {
-              finalResponse = `✅ Cita agendada para **${name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`;
-            } else if (leadResult.duplicate) {
-              // Edge case: duplicate found now — schedule on it
-              const scheduleResult = await scheduleCrmMeeting(leadResult.duplicate.id, followUpDate, d.notes);
-              actionResult = { success: scheduleResult.success, leadId: leadResult.duplicate.id };
-              finalResponse = scheduleResult.success
-                ? `✅ Cita actualizada para **${leadResult.duplicate.name}** el **${followUpDate}**. Podés verla en [/contabilidad/crm](/contabilidad/crm).`
-                : `❌ No se pudo agendar la cita. Actualizala manualmente en [/contabilidad/crm](/contabilidad/crm).`;
-            } else {
-              finalResponse = `❌ No se pudo agendar la cita: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o actualizala manualmente en [/contabilidad/crm](/contabilidad/crm).`;
-            }
+            };
+            const toolResult = await tool.execute(toolInput);
+            actionResult = toolResult;
+            finalResponse = toolResult.success ? `✅ ${toolResult.message}` : `❌ ${toolResult.message}`;
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error en schedule_meeting (TOOL_REGISTRY):', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
+            finalResponse = `❌ No se pudo agendar la cita. Intentá de nuevo o actualizala manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
           }
+        } else {
+          actionResult = { success: false, error: 'Herramienta agendarCita no disponible.' };
+          finalResponse = `❌ No se pudo agendar la cita. Intentá de nuevo o actualizala manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
         }
-      } catch (e: unknown) {
-        logger.error('[Asistente AK] Error en schedule_meeting:', (e as Error).message);
-        actionResult = { success: false, error: (e as Error).message };
-        finalResponse = `❌ No se pudo agendar la cita. Intentá de nuevo o actualizala manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
     } else if (result.action?.type === 'create_event' && result.action.data) {
       const d = result.action.data;
@@ -1243,25 +1166,27 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       if (shouldTreatAsMeeting) {
         const fallbackLead = parseLeadFromMessage(message, history);
         if (fallbackLead.name) {
-          try {
-            const leadResult = await addCrmLead({
-              name: fallbackLead.name,
-              phone: d.clientePhone,
-              followUpDate: fallbackLead.followUpDate || d.eventoFecha,
-              notes: fallbackLead.notes,
-              budgetSource: 'manual',
-            });
-            actionResult = leadResult;
-            if (leadResult.success && leadResult.lead) {
-              finalResponse = `✅ Reunión/cita registrada para **${fallbackLead.name}** en el CRM. Podés verla en [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
-            } else if (leadResult.duplicate) {
-              finalResponse = `⚠️ Ya existe un prospecto con ese teléfono: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
-            } else {
-              finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+          const meetingTool = getTool('agendarCita');
+          if (meetingTool) {
+            try {
+              const toolInput = {
+                name: fallbackLead.name,
+                phone: d.clientePhone,
+                followUpDate: fallbackLead.followUpDate || d.eventoFecha,
+                notes: fallbackLead.notes,
+              };
+              const toolResult = await meetingTool.execute(toolInput);
+              actionResult = toolResult;
+              finalResponse = toolResult.success
+                ? `✅ Reunión/cita registrada para **${fallbackLead.name}** en el CRM. Podés verla en [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`
+                : `❌ ${toolResult.message}`;
+            } catch (e: unknown) {
+              logger.error('[Asistente AK] Error al reconducir create_event(data) a agendarCita:', (e as Error).message);
+              actionResult = { success: false, error: (e as Error).message };
+              finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
             }
-          } catch (e: unknown) {
-            logger.error('[Asistente AK] Error al reconducir create_event(data) a create_lead:', (e as Error).message);
-            actionResult = { success: false, error: (e as Error).message };
+          } else {
+            actionResult = { success: false, error: 'Herramienta agendarCita no disponible.' };
             finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
           }
           return {
@@ -1314,29 +1239,31 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
     } else if (result.action?.type === 'create_event') {
       const fallbackLead = parseLeadFromMessage(message, history);
       if (fallbackLead.name) {
-        try {
-          const leadResult = await addCrmLead({
-            name: fallbackLead.name,
-            followUpDate: fallbackLead.followUpDate,
-            notes: fallbackLead.notes,
-            budgetSource: 'manual',
-          });
-          actionResult = leadResult;
-          if (leadResult.success && leadResult.lead) {
-            finalResponse = `✅ Reunión/cita registrada para **${fallbackLead.name}** en el CRM. Podés verla en [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
-          } else if (leadResult.duplicate) {
-            finalResponse = `⚠️ Ya existe un prospecto con ese teléfono: **${leadResult.duplicate.name}**. Podés verlo en [/contabilidad/crm](/contabilidad/crm).`;
-          } else {
-            finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
+        const meetingTool = getTool('agendarCita');
+        if (meetingTool) {
+          try {
+            const toolInput = {
+              name: fallbackLead.name,
+              followUpDate: fallbackLead.followUpDate,
+              notes: fallbackLead.notes,
+            };
+            const toolResult = await meetingTool.execute(toolInput);
+            actionResult = toolResult;
+            finalResponse = toolResult.success
+              ? `✅ Reunión/cita registrada para **${fallbackLead.name}** en el CRM. Podés verla en [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`
+              : `❌ ${toolResult.message}`;
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error al reconducir create_event a agendarCita:', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
+            finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
           }
-        } catch (e: unknown) {
-          logger.error('[Asistente AK] Error al reconducir create_event a create_lead:', (e as Error).message);
-          actionResult = { success: false, error: (e as Error).message };
+        } else {
+          actionResult = { success: false, error: 'Herramienta agendarCita no disponible.' };
           finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
         }
       } else {
         actionResult = { success: false, error: 'Falta información del evento.' };
-        finalResponse = `⚠️ Falta información del evento. Si querés agendar una cita rápida indicá al menos el nombre (ej: “Norma a las 11”) y lo registro en CRM automáticamente.`;
+        finalResponse = `⚠️ Falta información del evento. Si querés agendar una cita rápida indicá al menos el nombre (ej: "Norma a las 11") y lo registro en CRM automáticamente.`;
       }
     } else if (result.action?.type === 'update_event' && result.action.data) {
       const d = result.action.data;
