@@ -9,7 +9,7 @@ import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fies
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
 import { createNotification } from './notifications';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
+import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import * as logger from '@/lib/logger';
 
@@ -317,8 +317,10 @@ export async function registerContractDeposit(params: {
   presupuesto: Presupuesto;
   monto: number;
   referencia?: string;
+  // TODO(Fase 3): accept metodoPago from form when the booking flow collects it.
+  metodoPago?: MetodoPago;
 }): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
-  const { presupuesto, monto, referencia } = params;
+  const { presupuesto, monto, referencia, metodoPago } = params;
   const now = new Date().toISOString();
   const pagoId = `pago_senia_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
@@ -326,7 +328,7 @@ export async function registerContractDeposit(params: {
     id: pagoId,
     fecha: now,
     monto,
-    metodoPago: 'Efectivo',
+    metodoPago: metodoPago ?? 'Efectivo',
     referencia: referencia ?? 'Seña registrada al firmar contrato',
   };
 
@@ -347,11 +349,17 @@ export async function registerContractDeposit(params: {
     try {
       const invoice = await getInvoiceById(presupuesto.invoiceId);
       if (invoice) {
+        // Map MetodoPago to the narrower set accepted by Invoice.Payment.method
+        const invoiceMethod: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro' =
+          newPago.metodoPago === 'Transferencia Bancaria' ? 'Transferencia'
+          : newPago.metodoPago === 'Tarjeta' ? 'Tarjeta'
+          : newPago.metodoPago === 'Efectivo' ? 'Efectivo'
+          : 'Otro';
         const invoicePayment = {
           id: pagoId,
           paymentDate: now,
           amount: monto,
-          method: 'Efectivo' as const,
+          method: invoiceMethod,
           notes: referencia ?? 'Seña registrada al firmar contrato',
         };
         const updatedInvoice = {
@@ -383,6 +391,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const formSalon = (formData.get('salon') as string)?.trim() || undefined;
     const formFechaEvento = (formData.get('eventoFecha') as string)?.trim() || undefined;
     const formMontoSenia = formData.get('montoSenia') ? parseFloat(formData.get('montoSenia') as string) : undefined;
+    const formMetodoPago = (formData.get('metodoPago') as MetodoPago | null) ?? undefined;
     const formCompanyName = (formData.get('companyName') as string)?.trim() || undefined;
     const formTaxId = (formData.get('taxId') as string)?.trim() || undefined;
 
@@ -472,6 +481,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
         presupuesto: presupuestoWithFormData,
         monto: formMontoSenia,
         referencia: 'Seña registrada al firmar contrato',
+        metodoPago: formMetodoPago,
       });
       finalPresupuesto = updatedPresupuesto;
     }

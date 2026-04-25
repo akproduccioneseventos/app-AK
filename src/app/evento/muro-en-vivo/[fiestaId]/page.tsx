@@ -3,14 +3,14 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { getSocialPosts } from '@/app/actions/social-gallery';
-import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
+import type { SocialGalleryPost, Dedication, SocialComment } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import type { ScreenPlaylistItem, SocialGallerySettings } from '@/types/fiesta';
+import type { ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
@@ -53,6 +53,7 @@ export default function MuroEnVivoPage() {
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
   const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
+  const [highlightedComments, setHighlightedComments] = useState<{ postId: string; comment: SocialComment }[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
@@ -101,6 +102,14 @@ export default function MuroEnVivoPage() {
         setActivePoll(null);
       }
       setHighlightedDedications((dedicationsData ?? []).filter(d => d.highlighted));
+      // Extract highlighted comments from all posts
+      const hComments: { postId: string; comment: SocialComment }[] = [];
+      for (const p of sorted) {
+        for (const c of (p.comments ?? [])) {
+          if (c.highlighted) hComments.push({ postId: p.id, comment: c });
+        }
+      }
+      setHighlightedComments(hComments);
       setCompanyMarketingText(
         companyInfo?.companyName
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
@@ -244,7 +253,7 @@ export default function MuroEnVivoPage() {
       )}
 
       {isLoaded && activeScreenItem?.type === 'redes' && (
-        <SocialTemplateSlide item={activeScreenItem} eventName={eventName} />
+        <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
       )}
 
       {activePoll && settings.showPolls && (
@@ -277,6 +286,17 @@ export default function MuroEnVivoPage() {
             <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
               <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
               <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {highlightedComments.length > 0 && !activePoll && highlightedDedications.length === 0 && (
+        <div className="absolute left-6 top-20 z-30 w-[32vw] max-w-sm space-y-3">
+          {highlightedComments.slice(0, 3).map(({ postId, comment }) => (
+            <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+              <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
+              <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
             </div>
           ))}
         </div>
@@ -374,7 +394,7 @@ function ScreenMediaSlide({ item }: { item: ScreenPlaylistItem }) {
   );
 }
 
-function SocialTemplateSlide({ item, eventName }: { item: ScreenPlaylistItem; eventName: string }) {
+function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistItem; eventName: string; brand?: SocialGalleryBrand }) {
   const template = item.socialTemplate;
   const templateClass =
     template?.templateId === 'neon'
@@ -383,26 +403,44 @@ function SocialTemplateSlide({ item, eventName }: { item: ScreenPlaylistItem; ev
       ? 'from-slate-900 via-slate-800 to-slate-900'
       : 'from-neutral-900 via-amber-900 to-neutral-900';
 
+  // Brand has priority over template; template is the fallback for screen-specific overrides.
+  // If neither brand nor template has a value, omit the row entirely (no generic placeholders).
+  const instagramHandle = template?.instagramHandle?.trim() || brand?.instagramHandle?.trim();
+  const tiktokHandle = template?.tiktokHandle?.trim() || brand?.tiktokHandle?.trim();
+  const whatsappHandle = template?.whatsappHandle?.trim() || brand?.whatsappNumber?.trim();
+  const facebookHandle = template?.facebookHandle?.trim() || brand?.facebookHandle?.trim();
+  const landingUrl = brand?.landingUrl?.trim() || template?.qrUrl?.trim();
+  const ctaText = template?.ctaText?.trim() || brand?.ctaText?.trim();
+
   const rows = [
-    template?.showInstagram ? `Instagram: ${template.instagramHandle || '@akproducciones'}` : null,
-    template?.showTikTok ? `TikTok: ${template.tiktokHandle || '@akproducciones'}` : null,
-    template?.showWhatsApp ? `WhatsApp: ${template.whatsappHandle || '098 355 530'}` : null,
-    template?.showFacebook ? `Facebook: ${template.facebookHandle || 'AK Producciones'}` : null,
+    instagramHandle ? `Instagram: ${instagramHandle}` : null,
+    tiktokHandle ? `TikTok: ${tiktokHandle}` : null,
+    whatsappHandle ? `WhatsApp: ${whatsappHandle}` : null,
+    facebookHandle ? `Facebook: ${facebookHandle}` : null,
   ].filter(Boolean) as string[];
 
   return (
     <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${templateClass}`}>
-      <div className="text-center text-white px-8">
-        <p className="text-sm uppercase tracking-[0.4em] opacity-70 mb-3">{eventName || 'AK Producciones'}</p>
+      <div className="text-center text-white px-8 max-w-3xl w-full">
+        {eventName && (
+          <p className="text-sm uppercase tracking-[0.4em] opacity-70 mb-3">{eventName}</p>
+        )}
         <h2 className="text-6xl font-black mb-5">Redes Sociales</h2>
-        <p className="text-2xl font-semibold mb-4">{template?.ctaText || 'Seguinos y compartí tus fotos'}</p>
-        <div className="space-y-1 text-2xl">
-          {rows.map((row) => (
-            <p key={row}>{row}</p>
-          ))}
-        </div>
-        {template?.qrUrl && (
-          <p className="mt-6 text-lg opacity-80">QR: {template.qrUrl}</p>
+        {ctaText && (
+          <p className="text-2xl font-semibold mb-4">{ctaText}</p>
+        )}
+        {rows.length > 0 && (
+          <div className="space-y-1 text-2xl mb-4">
+            {rows.map((row) => (
+              <p key={row}>{row}</p>
+            ))}
+          </div>
+        )}
+        {landingUrl && (
+          <div className="mt-6 inline-block rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-sm">
+            <p className="text-sm uppercase tracking-widest opacity-70 mb-1">Visitanos en</p>
+            <p className="text-lg font-bold break-all">{landingUrl}</p>
+          </div>
         )}
       </div>
     </div>

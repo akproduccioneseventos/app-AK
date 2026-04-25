@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
+import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication } from '@/app/actions/social-interactive';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
@@ -60,12 +60,13 @@ const PostCard: React.FC<{
   onLike: (postId: string) => void; 
   onComment: (postId: string, text: string) => Promise<void>; 
   onDelete?: (postId: string) => void;
+  onHighlightComment?: (postId: string, commentId: string, highlighted: boolean) => Promise<void>;
   isAdminView: boolean;
   authorName: string;
   accentColor: string;
   allowLikes: boolean;
   allowComments: boolean;
-}> = ({ post, onLike, onComment, onDelete, isAdminView, authorName, accentColor, allowLikes, allowComments }) => {
+}> = ({ post, onLike, onComment, onDelete, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments }) => {
   const [commentText, setCommentText] = useState('');
   
   const handleCommentSubmit = async (e: FormEvent) => {
@@ -129,9 +130,20 @@ const PostCard: React.FC<{
             <div className="w-full pt-3 border-t border-slate-100 space-y-3">
                 <div className="max-h-32 overflow-y-auto space-y-2 pr-2 text-sm scrollbar-hide">
                     {post.comments.length > 0 ? post.comments.map(c => (
-                        <div key={c.id} className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                            <span className="font-black text-slate-700 text-xs mr-1">{c.authorName}:</span> 
-                            <span className="text-slate-600 leading-relaxed">{c.text}</span>
+                        <div key={c.id} className={cn("flex items-start gap-1.5 rounded-xl border p-2.5", c.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50 border-slate-100/50")}>
+                            <div className="flex-1 min-w-0">
+                                <span className="font-black text-slate-700 text-xs mr-1">{c.authorName}:</span> 
+                                <span className="text-slate-600 leading-relaxed">{c.text}</span>
+                            </div>
+                            {isAdminView && onHighlightComment && (
+                                <button
+                                    onClick={() => onHighlightComment(post.id, c.id, !c.highlighted)}
+                                    className={cn("flex-shrink-0 p-1 rounded-lg transition-colors", c.highlighted ? "text-amber-500 hover:text-amber-600" : "text-slate-300 hover:text-amber-400")}
+                                    title={c.highlighted ? 'Quitar destacado' : 'Destacar comentario'}
+                                >
+                                    <Star className="w-3.5 h-3.5" fill={c.highlighted ? 'currentColor' : 'none'} />
+                                </button>
+                            )}
                         </div>
                     )) : <p className="text-xs text-muted-foreground text-center py-2 italic">Sin comentarios aún...</p>}
                 </div>
@@ -452,6 +464,15 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     }
   };
 
+  const handleHighlightComment = async (postId: string, commentId: string, highlighted: boolean) => {
+    const result = await highlightComment(postId, commentId, highlighted);
+    if (result.success) {
+      await fetchData(false);
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
   const handleDelete = async (postId: string) => {
     await deleteSocialPost(postId);
     toast({ title: "Foto eliminada" });
@@ -684,6 +705,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       onComment={handleComment}
                       isAdminView={isAdminView}
                       onDelete={handleDelete}
+                      onHighlightComment={isAdminView ? handleHighlightComment : undefined}
                       authorName={authorName}
                       accentColor={accentColor}
                       allowLikes={Boolean(localSettings.allowLikes)}

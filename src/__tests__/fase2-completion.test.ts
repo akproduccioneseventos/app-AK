@@ -15,7 +15,7 @@
  * 11. Dedication type has the highlighted optional field
  */
 
-import type { SocialPoll, Dedication } from '@/types/social-gallery';
+import type { SocialPoll, Dedication, SocialComment } from '@/types/social-gallery';
 import type { Presupuesto } from '@/types/presupuesto';
 
 // ─── Mock data-service ────────────────────────────────────────────────────────
@@ -55,8 +55,14 @@ jest.mock('@/app/actions/notifications', () => ({
   createNotification: jest.fn().mockResolvedValue(undefined),
 }));
 
+// ─── Mock social-gallery (for highlightComment) ───────────────────────────────
+jest.mock('@/app/actions/social-gallery', () => ({
+  highlightComment: jest.fn(),
+}));
+
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
+import { highlightComment } from '@/app/actions/social-gallery';
 import {
   createPoll,
   votePoll,
@@ -387,6 +393,54 @@ describe('Dedication type', () => {
     expect(highlighted.highlighted).toBe(true);
 
     const unhighlighted: Dedication = { ...d, highlighted: false };
+    expect(unhighlighted.highlighted).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// highlightComment
+// ─────────────────────────────────────────────────────────────────────────────
+
+const mockHighlightComment = highlightComment as jest.MockedFunction<typeof highlightComment>;
+
+describe('highlightComment', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('(12) returns success when called', async () => {
+    mockHighlightComment.mockResolvedValue({ success: true });
+    const result = await highlightComment('post_1', 'comment_1', true);
+    expect(result.success).toBe(true);
+    expect(mockHighlightComment).toHaveBeenCalledWith('post_1', 'comment_1', true);
+  });
+
+  it('(13) can toggle highlighted off', async () => {
+    mockHighlightComment.mockResolvedValue({ success: true });
+    const result = await highlightComment('post_1', 'comment_1', false);
+    expect(result.success).toBe(true);
+    expect(mockHighlightComment).toHaveBeenCalledWith('post_1', 'comment_1', false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Type-level test: SocialComment.highlighted
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('SocialComment type', () => {
+  it('(14) has optional highlighted field', () => {
+    const c: SocialComment = {
+      id: 'comment_type_test',
+      authorName: 'Test User',
+      text: 'Test comment',
+      timestamp: new Date().toISOString(),
+    };
+    expect(c.highlighted).toBeUndefined();
+
+    const highlighted: SocialComment = { ...c, highlighted: true };
+    expect(highlighted.highlighted).toBe(true);
+
+    const unhighlighted: SocialComment = { ...c, highlighted: false };
     expect(unhighlighted.highlighted).toBe(false);
   });
 });

@@ -511,7 +511,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         <EditableText
           value={config.textoBienvenida || ''}
           onChange={(value) => onConfigChange({ ...config, textoBienvenida: value })}
-          className="text-lg sm:text-xl text-gray-600 leading-relaxed border-gray-400 text-gray-700"
+          className="text-lg sm:text-xl text-gray-600 leading-relaxed border-gray-400"
         />
       ) : (
         <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 leading-relaxed')}>{config.textoBienvenida}</p>
