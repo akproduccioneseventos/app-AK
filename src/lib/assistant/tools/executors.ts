@@ -12,6 +12,7 @@
 
 import type { ToolResult } from '../tool-registry';
 import * as logger from '@/lib/logger';
+import { ASSISTANT_ROUTES } from '../app-routes';
 
 // ── Helper de notificación ────────────────────────────────────────────────────
 
@@ -294,8 +295,8 @@ export async function executeCrearCliente(input: CrearClienteInput): Promise<Too
 
   return {
     success: true,
-    message: `Cliente ${input.name} registrado exitosamente.`,
-    data: { clienteId: result.id, href: `/clientes` },
+    message: `Cliente ${input.name} registrado exitosamente. Podés verlo en Clientes.`,
+    data: { clienteId: result.id, href: ASSISTANT_ROUTES.customers },
   };
 }
 
@@ -321,8 +322,8 @@ export async function executeCrearProspecto(input: CrearProspectoInput): Promise
     if (result.duplicate) {
       return {
         success: true,
-        message: `Ya existe un prospecto con ese nombre: ${result.duplicate.name}. Podés verlo en /crm.`,
-        data: { leadId: result.duplicate.id, duplicate: true, href: `/crm` },
+        message: `Ya existe un prospecto con ese nombre: ${result.duplicate.name}. Podés verlo en el CRM.`,
+        data: { leadId: result.duplicate.id, duplicate: true, href: ASSISTANT_ROUTES.crm },
       };
     }
     return { success: false, error: result.error || 'No se pudo registrar el prospecto.', message: result.error || 'No se pudo registrar el prospecto.' };
@@ -330,8 +331,8 @@ export async function executeCrearProspecto(input: CrearProspectoInput): Promise
 
   return {
     success: true,
-    message: `Prospecto ${result.lead!.name} registrado en el CRM.`,
-    data: { leadId: result.lead!.id, href: `/crm` },
+    message: `Prospecto ${result.lead!.name} registrado en el CRM. Podés verlo en Clientes potenciales.`,
+    data: { leadId: result.lead!.id, href: ASSISTANT_ROUTES.crm },
   };
 }
 
@@ -350,11 +351,36 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
   if (!presupuestoId && input.clienteNombre) {
     const presupuestos = await getPresupuestos();
     const clienteNorm = input.clienteNombre.toLowerCase();
-    const found = presupuestos
+
+    // Exclude budgets that are rejected or cancelled — they should not receive payments.
+    const ESTADOS_INVALIDOS = ['Rechazado', 'Cancelado'];
+    // Preferred states — prioritize these over drafts or unconfirmed ones.
+    const ESTADOS_PRIORITARIOS = ['Aceptado', 'Facturado', 'Enviado'];
+
+    const candidates = presupuestos
       .filter(p => p.clienteNombre.toLowerCase().includes(clienteNorm))
+      .filter(p => !ESTADOS_INVALIDOS.includes(p.estado))
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    if (found.length > 0) {
-      presupuestoId = found[0].id;
+
+    // If multiple candidates, require explicit presupuestoId to avoid registering the wrong payment.
+    if (candidates.length > 1) {
+      const MAX_CANDIDATES_TO_DISPLAY = 5;
+      const listado = candidates
+        .slice(0, MAX_CANDIDATES_TO_DISPLAY)
+        .map(p => `#${p.numero} (${p.estado}, $${p.totalConDescuento ?? p.costoTotalEstimado})`)
+        .join(', ');
+      return {
+        success: false,
+        error: `Se encontraron ${candidates.length} presupuestos para "${input.clienteNombre}": ${listado}. Indicá el ID o número de presupuesto para evitar un pago ambiguo.`,
+        message: `⚠️ Hay más de un presupuesto posible para "${input.clienteNombre}": ${listado}. Por favor indicá el número o ID exacto del presupuesto.`,
+      };
+    }
+
+    // Prefer a budget in a priority state
+    const prioritario = candidates.find(p => ESTADOS_PRIORITARIOS.includes(p.estado));
+    const chosen = prioritario ?? candidates[0];
+    if (chosen) {
+      presupuestoId = chosen.id;
     }
   }
 
@@ -405,7 +431,9 @@ export async function executeCrearEvento(input: CrearEventoInput): Promise<ToolR
   }
 
   const { saveCustomer } = await import('@/app/actions/customers');
+  const { createNewFiestaForCustomer } = await import('@/app/actions/fiesta/fiesta.actions');
 
+  // Create customer first (skip automatic fiesta creation so we can capture the fiestaId directly)
   const result = await saveCustomer({
     name: input.clienteNombre.trim(),
     phone: input.clientePhone,
@@ -413,16 +441,37 @@ export async function executeCrearEvento(input: CrearEventoInput): Promise<ToolR
     partyDate: input.eventoFecha,
     guestCount: input.invitados,
     venueName: input.venueName,
-  }, { skipFiestaCreation: false });
+  }, { skipFiestaCreation: true });
 
   if (!result.success) {
     return { success: false, error: result.error || 'No se pudo crear el evento.', message: result.error || 'No se pudo crear el evento.' };
   }
 
+  // Now create the fiesta explicitly so we get the fiestaId back
+  const fiestaResult = await createNewFiestaForCustomer({
+    id: result.id!,
+    name: input.clienteNombre.trim(),
+    partyDate: input.eventoFecha,
+    partyType: input.eventoTipo,
+    venueName: input.venueName,
+    guestCount: input.invitados,
+  });
+
+  if (!fiestaResult.success || !fiestaResult.fiestaId) {
+    // Customer was created but we couldn't confirm the event — partial success
+    return {
+      success: false,
+      error: fiestaResult.error || 'Cliente creado, pero no se pudo confirmar el evento.',
+      message: `⚠️ Cliente ${input.clienteNombre} registrado, pero no pude confirmar la creación del evento. Podés verlo en [Clientes](${ASSISTANT_ROUTES.customers}).`,
+    };
+  }
+
+  const plannerHref = ASSISTANT_ROUTES.planner(fiestaResult.fiestaId);
+
   return {
     success: true,
-    message: `Evento para ${input.clienteNombre} creado. Podés verlo en /fiestas.`,
-    data: { clienteId: result.id, href: `/fiestas` },
+    message: `Evento para ${input.clienteNombre} creado exitosamente. Podés planificarlo en [Planificador de Fiestas](${plannerHref}).`,
+    data: { clienteId: result.id, fiestaId: fiestaResult.fiestaId, href: plannerHref },
   };
 }
 

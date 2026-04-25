@@ -26,6 +26,14 @@ if (apiKey && apiKey !== 'dummy-key-for-firestore') {
   } catch (error: any) {
     console.error('❌ Firebase client initialization error:', error.message);
   }
+} else if (process.env.NODE_ENV === 'development') {
+  // Warn in development so developers know Firebase is not configured.
+  // In production this is intentionally silent to avoid breaking the UI.
+  console.warn(
+    '⚠️ [Firebase] NEXT_PUBLIC_FIREBASE_API_KEY is not set. ' +
+    'Firestore client and FCM will be disabled. ' +
+    'Set the NEXT_PUBLIC_FIREBASE_* variables to enable Firebase features.'
+  );
 }
 
 export { app, db };
