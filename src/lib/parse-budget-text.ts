@@ -1,7 +1,10 @@
 /**
  * Utility to parse a pasted AK Producciones budget text into structured data.
- * Supports the format used in the Vana Rodríguez case and similar exports,
- * plus free-form lines like "Hielo — 2.000 UYU", "5 x 400 UYU", "100k", etc.
+ *
+ * Important business rule for AK:
+ * - Labels, columns and administrative fields from a copied PDF/table are NOT services.
+ * - The declared total must be detected as the real total to pay, not added as an item.
+ * - Regalos/bonificados are saved as items but never add to the total.
  */
 
 import type { ItemPresupuestado } from '@/types/presupuesto';
@@ -20,13 +23,16 @@ export interface ParsedBudget {
   warnings: string[];
 }
 
+function normalizeText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
 /**
- * Parse a numeric string that may include:
- * - "$" currency prefix
- * - "." or " " as thousand separators
- * - "," as decimal separator
- * - "UYU" / "USD" / "$U" / "U$S" currency suffixes
- * - "k" / "K" suffix meaning × 1000
+ * Parse a numeric string that may include currency, thousands, decimals or k suffix.
  */
 function cleanNumber(raw: string): number {
   let s = raw
@@ -37,50 +43,38 @@ function cleanNumber(raw: string): number {
     .replace(/U\$S/gi, '')
     .trim();
 
-  // Handle "100k" / "2.5k"
   const kMatch = s.match(/^([\d.,\s]+)[kK]$/);
   if (kMatch) {
     const base = kMatch[1].replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
     return (parseFloat(base) || 0) * 1000;
   }
 
-  // Remove spaces used as thousand separators ("2 000" → "2000")
   s = s.replace(/\s/g, '');
-  // Remove dots used as thousand separators only when followed by 3 digits and no comma
-  // Rule: if there's no comma and a dot followed by exactly 3 digits at end → thousand separator
   if (!s.includes(',') && /\.\d{3}$/.test(s)) {
     s = s.replace(/\./g, '');
   } else {
-    // Otherwise: dots are thousand separators, comma is decimal
     s = s.replace(/\./g, '').replace(',', '.');
   }
   return parseFloat(s) || 0;
 }
 
-/**
- * Parses a date like "Mayo 2026" or "09/05/26" or "09/05/2026" to ISO string.
- * Returns empty string if unparseable.
- */
 function parseEventDate(raw: string): string {
   if (!raw) return '';
+  const clean = raw.trim();
 
   const monthNames: Record<string, number> = {
     enero: 0, febrero: 1, marzo: 2, abril: 3, mayo: 4, junio: 5,
-    julio: 6, agosto: 7, septiembre: 8, octubre: 9, noviembre: 10, diciembre: 11,
+    julio: 6, agosto: 7, septiembre: 8, setiembre: 8, octubre: 9, noviembre: 10, diciembre: 11,
   };
 
-  // "Mayo 2026" → first day of month
-  const monthYearMatch = raw.match(/^([a-záéíóúüñ]+)\s+(\d{4})$/i);
+  const monthYearMatch = clean.match(/^([a-záéíóúüñ]+)\s+(\d{4})$/i);
   if (monthYearMatch) {
     const month = monthNames[monthYearMatch[1].toLowerCase()];
     const year = parseInt(monthYearMatch[2], 10);
-    if (month !== undefined) {
-      return new Date(year, month, 1).toISOString();
-    }
+    if (month !== undefined) return new Date(year, month, 1).toISOString();
   }
 
-  // "09/05/26" or "09/05/2026"
-  const dmyMatch = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+  const dmyMatch = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2}|\d{4})$/);
   if (dmyMatch) {
     const day = parseInt(dmyMatch[1], 10);
     const month = parseInt(dmyMatch[2], 10) - 1;
@@ -89,164 +83,253 @@ function parseEventDate(raw: string): string {
     return new Date(year, month, day).toISOString();
   }
 
+  const longDateMatch = clean.match(/^(\d{1,2})\s+de\s+([a-záéíóúüñ]+)\s+de\s+(\d{4})$/i);
+  if (longDateMatch) {
+    const day = parseInt(longDateMatch[1], 10);
+    const month = monthNames[longDateMatch[2].toLowerCase()];
+    const year = parseInt(longDateMatch[3], 10);
+    if (month !== undefined) return new Date(year, month, day).toISOString();
+  }
+
   return '';
 }
 
-/**
- * Try to parse a free-form line into an item.
- * Supports patterns like:
- *   "Hielo — 2.000 UYU"                → name + price
- *   "5 x 400 UYU"                      → qty × unitPrice (inferred name from next context)
- *   "Mozos (6) — $17.400"              → name with qty in parentheses
- *   "Servicio de DJ: $8.000"           → name: price
- *   "15% de descuento en Decoración"   → discount hint (not an item, just noted)
- * Returns null if the line doesn't look like an item.
- */
-function parseFreeFormLine(
-  line: string,
-): { nombre: string; cantidad: number; precioUnitario: number; descuento: number; total: number } | null {
-  // Separators: em dash (—), en dash (–), colon, or " - "
-  const sepMatch = line.match(/^(.+?)(?:\s*[—–]\s*|\s*:\s*|\s+-\s+)(\$?[\d.,\s]+[kK]?\s*(?:UYU|USD|\$U|U\$S)?)$/i);
-  if (sepMatch) {
-    const namePart = sepMatch[1].trim();
-    const pricePart = sepMatch[2].trim();
-    const price = cleanNumber(pricePart);
-    if (price > 0 && namePart.length > 0) {
-      // Check if name contains qty in parens: "Mozos (6)"
-      const qtyInName = namePart.match(/^(.+?)\s*\((\d+)\)$/);
-      if (qtyInName) {
-        const qty = parseInt(qtyInName[2], 10);
-        return { nombre: qtyInName[1].trim(), cantidad: qty, precioUnitario: price / qty, descuento: 0, total: price };
-      }
-      return { nombre: namePart, cantidad: 1, precioUnitario: price, descuento: 0, total: price };
-    }
-  }
-
-  // "5 x 400 UYU" or "5x400"
-  const qtyTimesPrice = line.match(/^(\d+)\s*[xX]\s*([\d.,\s]+[kK]?\s*(?:UYU|USD|\$U|U\$S)?)$/i);
-  if (qtyTimesPrice) {
-    const qty = parseInt(qtyTimesPrice[1], 10);
-    const unitPrice = cleanNumber(qtyTimesPrice[2]);
-    if (qty > 0 && unitPrice > 0) {
-      return { nombre: '', cantidad: qty, precioUnitario: unitPrice, descuento: 0, total: qty * unitPrice };
-    }
-  }
-
-  return null;
+function looksLikeDate(value: string): boolean {
+  return !!parseEventDate(value) || /\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\b/i.test(value);
 }
 
-/**
- * Main parser. Accepts the full pasted text and returns a ParsedBudget.
- */
+function extractFirstNumber(line: string): number {
+  const match = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
+  return match ? cleanNumber(match[1]) : 0;
+}
+
+function isStartOfItems(line: string): boolean {
+  const lower = normalizeText(line);
+  return (
+    lower.includes('detalle de articulos') ||
+    lower.includes('detalle del presupuesto') ||
+    lower.includes('detalle de presupuesto') ||
+    lower.startsWith('articulos') ||
+    lower.startsWith('items') ||
+    lower.includes('servicios incluidos') ||
+    lower.includes('detalle de servicios')
+  );
+}
+
+function isGiftSection(line: string): boolean {
+  const lower = normalizeText(line);
+  return lower.includes('regalos') || lower.includes('bonificados') || lower.includes('incluidos sin costo');
+}
+
+function isKnownCategory(line: string): boolean {
+  const lower = normalizeText(line);
+  const categories = [
+    'personal y servicio',
+    'vajilla, manteleria y mesa buffet',
+    'vajilla manteleria y mesa buffet',
+    'catering',
+    'servicios tecnicos y fotografia',
+    'bebidas',
+    'torta y mesa de postres',
+    'regalos exclusivos incluidos',
+    'otros',
+    'condiciones de reserva',
+    'notas y observaciones',
+    'carteleria y material impreso',
+  ];
+  return categories.includes(lower);
+}
+
+function isAdministrativeLine(line: string): boolean {
+  const lower = normalizeText(line).replace(/:$/, '');
+  const exact = new Set([
+    'logo', 'presupuesto', 'cliente', 'pagina', 'fecha', 'valido hasta', 'valido hasta',
+    'nº de cliente', 'no de cliente', 'numero de cliente', 'nº de documento', 'no de documento',
+    'numero de documento', 'fecha evento', 'hora inicio', 'invitados', 'tipo evento', 'salon',
+    'articulo', 'cantidad', 'unidad', 'precio', 'desc.%', 'desc', 'importe total',
+    'precio unitario', 'valor', 'total', 'por la empresa', 'tec. alexander knuth',
+    'ak producciones', 'sr. alexander knuth', 'salto, 50000 salto',
+  ]);
+  if (exact.has(lower)) return true;
+  if (lower.includes('akproduccionessalto@gmail.com')) return true;
+  if (lower.includes('akproduccioneseventos.com')) return true;
+  if (lower.startsWith('el presupuesto es valido')) return true;
+  if (lower.startsWith('para asegurar el presupuesto')) return true;
+  if (lower.startsWith('seña correspondiente')) return true;
+  if (lower.startsWith('sena correspondiente')) return true;
+  if (lower.startsWith('saldo restante')) return true;
+  if (lower.startsWith('precios 2026')) return true;
+  return false;
+}
+
+function isUnsafeItemName(name: string): boolean {
+  const lower = normalizeText(name).replace(/:$/, '');
+  return [
+    'cantidad', 'precio unitario', 'importe total', 'valor', 'total', 'numero de cliente',
+    'nº de cliente', 'numero de documento', 'nº de documento', 'pagina', 'fecha',
+  ].includes(lower);
+}
+
+function parsePercent(raw: string): number {
+  const match = raw.match(/(\d+(?:[.,]\d+)?)\s*%/);
+  return match ? parseFloat(match[1].replace(',', '.')) : 0;
+}
+
+function parseFreeFormLine(line: string): { nombre: string; cantidad: number; precioUnitario: number; total: number } | null {
+  if (isAdministrativeLine(line)) return null;
+  const sepMatch = line.match(/^(.+?)(?:\s*[—–]\s*|\s+-\s+)(\$?[\d.,\s]+[kK]?\s*(?:UYU|USD|\$U|U\$S)?)$/i);
+  if (!sepMatch) return null;
+  const nombre = sepMatch[1].trim();
+  if (!nombre || isUnsafeItemName(nombre)) return null;
+  const total = cleanNumber(sepMatch[2]);
+  if (total <= 0) return null;
+  return { nombre, cantidad: 1, precioUnitario: total, total };
+}
+
 export function parseBudgetText(text: string): ParsedBudget {
   const warnings: string[] = [];
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
   let clienteNombre = '';
   let eventoFechaRaw = '';
   let eventoFecha = '';
-  let eventoTipo = 'Otro';
+  let eventoTipo = 'Fiesta/Evento';
   let salonFiestas = '';
   let totalDeclarado = 0;
   let senaCondicion = 20;
+  let invitadosHeader = 0;
+
   const items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] = [];
 
-  // Extract header fields (before DETALLE DE ARTÍCULOS)
   let inItems = false;
+  let inGiftSection = false;
   let currentItemName = '';
   let currentQty = 0;
   let currentUnitPrice = 0;
   let currentDiscount = 0;
-  let currentImporte = 0;
+  let currentImporte = Number.NaN;
 
-  const flushItem = () => {
-    if (!currentItemName) return;
-    const esRegalo = currentDiscount >= 100;
-    const precioUnitario = currentUnitPrice;
-    items.push({
-      idServicioCatalogo: `imported_${items.length}`,
-      nombreServicio: currentItemName,
-      cantidad: currentQty || 1,
-      precioUnitario,
-      precioUnitarioPresupuesto: precioUnitario,
-      esRegalo,
-      calculationMethod: 'fijo',
-    } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
-    // Ensure the stored unit price produces the declared importe when multiplied by qty.
-    // recalcularCostoItem for 'fijo' = precioUnitario * cantidad.
-    if (currentImporte > 0 && !esRegalo && currentQty > 0) {
-      items[items.length - 1].precioUnitario = currentImporte / currentQty;
-      items[items.length - 1].precioUnitarioPresupuesto = currentImporte / currentQty;
-    } else if (esRegalo) {
-      items[items.length - 1].precioUnitario = currentUnitPrice;
-      items[items.length - 1].precioUnitarioPresupuesto = currentUnitPrice;
-    }
+  const resetCurrent = () => {
     currentItemName = '';
     currentQty = 0;
     currentUnitPrice = 0;
     currentDiscount = 0;
-    currentImporte = 0;
+    currentImporte = Number.NaN;
   };
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const lower = line.toLowerCase();
+  const flushItem = () => {
+    const name = currentItemName.trim();
+    if (!name || isUnsafeItemName(name) || isAdministrativeLine(name) || isKnownCategory(name)) {
+      resetCurrent();
+      return;
+    }
 
-    // Detect header info
+    const qty = currentQty > 0 ? currentQty : 1;
+    const declaredTotal = Number.isFinite(currentImporte) ? currentImporte : (currentUnitPrice * qty);
+    const esRegalo = inGiftSection || currentDiscount >= 100 || declaredTotal === 0;
+    const unitForBudget = esRegalo
+      ? currentUnitPrice
+      : declaredTotal > 0
+        ? declaredTotal / qty
+        : currentUnitPrice;
+
+    items.push({
+      idServicioCatalogo: `imported_${items.length}`,
+      nombreServicio: name,
+      cantidad: qty,
+      precioUnitario: unitForBudget,
+      precioUnitarioPresupuesto: unitForBudget,
+      esRegalo,
+      calculationMethod: 'fijo',
+    } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
+
+    resetCurrent();
+  };
+
+  for (const line of lines) {
+    const lower = normalizeText(line);
+
+    // Header / general data, valid anywhere.
+    if (lower.startsWith('cliente:')) {
+      clienteNombre = line.replace(/^cliente:\s*/i, '').trim();
+      continue;
+    }
+    if (lower.startsWith('nombre:') && !clienteNombre) {
+      clienteNombre = line.replace(/^nombre:\s*/i, '').trim();
+      continue;
+    }
+    if (lower.startsWith('evento:')) {
+      const value = line.replace(/^evento:\s*/i, '').trim();
+      if (looksLikeDate(value)) {
+        eventoFechaRaw = value;
+        eventoFecha = parseEventDate(value);
+      } else {
+        eventoTipo = value || eventoTipo;
+      }
+      continue;
+    }
+    if (lower.startsWith('tipo evento:') || lower.startsWith('tipo de evento:')) {
+      eventoTipo = line.replace(/^(tipo evento|tipo de evento):\s*/i, '').trim() || eventoTipo;
+      continue;
+    }
+    if (lower.startsWith('fecha del evento:')) {
+      eventoFechaRaw = line.replace(/^fecha del evento:\s*/i, '').trim();
+      eventoFecha = parseEventDate(eventoFechaRaw);
+      continue;
+    }
+    if (lower.startsWith('fecha:') && !eventoFechaRaw) {
+      const value = line.replace(/^fecha:\s*/i, '').trim();
+      if (looksLikeDate(value)) {
+        eventoFechaRaw = value;
+        eventoFecha = parseEventDate(value);
+      }
+      continue;
+    }
+    if (lower.startsWith('invitados:')) {
+      invitadosHeader = Math.max(0, Math.round(extractFirstNumber(line)));
+      continue;
+    }
+    if (lower.startsWith('salon:') || lower.startsWith('salón:') || lower.startsWith('lugar:')) {
+      salonFiestas = line.replace(/^(sal[oó]n|lugar):\s*/i, '').trim();
+      continue;
+    }
+
+    const senaPctMatch = line.match(/(\d+)%.*se[ñn]a/i) || line.match(/se[ñn]a.*(\d+)%/i);
+    if (senaPctMatch) {
+      senaCondicion = parseInt(senaPctMatch[1], 10);
+      continue;
+    }
+
+    if (isStartOfItems(line)) {
+      inItems = true;
+      continue;
+    }
+
+    if (isGiftSection(line)) {
+      inItems = true;
+      inGiftSection = true;
+      continue;
+    }
+
+    // End/summary area. Do not let totals become services.
+    if (lower.includes('importe total del presupuesto') || lower.includes('total a pagar')) {
+      flushItem();
+      const amount = extractFirstNumber(line);
+      if (amount > 0) totalDeclarado = amount;
+      inItems = false;
+      continue;
+    }
+    if (lower.match(/^total\s*:/)) {
+      flushItem();
+      const amount = extractFirstNumber(line);
+      if (amount > 0) totalDeclarado = amount;
+      inItems = false;
+      continue;
+    }
+
     if (!inItems) {
-      if (lower.startsWith('cliente:')) {
-        clienteNombre = line.replace(/^cliente:\s*/i, '').trim();
-        continue;
-      }
-      if (lower.startsWith('nombre:') && !clienteNombre) {
-        clienteNombre = line.replace(/^nombre:\s*/i, '').trim();
-        continue;
-      }
-      if (lower.startsWith('fecha del evento:')) {
-        eventoFechaRaw = line.replace(/^fecha del evento:\s*/i, '').trim();
-        eventoFecha = parseEventDate(eventoFechaRaw);
-        continue;
-      }
-      if (lower.startsWith('fecha:') && !eventoFechaRaw) {
-        eventoFechaRaw = line.replace(/^fecha:\s*/i, '').trim();
-        eventoFecha = parseEventDate(eventoFechaRaw);
-        continue;
-      }
-      if (lower.startsWith('tipo de evento:') || lower.startsWith('evento:')) {
-        eventoTipo = line.replace(/^(tipo de evento|evento):\s*/i, '').trim() || 'Otro';
-        continue;
-      }
-      if (lower.startsWith('salón:') || lower.startsWith('salon:') || lower.startsWith('lugar:')) {
-        salonFiestas = line.replace(/^(sal[oó]n|lugar):\s*/i, '').trim();
-        continue;
-      }
-      if (lower.includes('20%') && (lower.includes('seña') || lower.includes('sena'))) {
-        senaCondicion = 20;
-        continue;
-      }
-      const senaPctMatch = line.match(/(\d+)%.*se[ñn]a/i) || line.match(/se[ñn]a.*(\d+)%/i);
-      if (senaPctMatch) {
-        senaCondicion = parseInt(senaPctMatch[1], 10);
-        continue;
-      }
-
-      // Detect start of items section
-      if (
-        lower.includes('detalle de artículos') ||
-        lower.includes('detalle de articulos') ||
-        lower.startsWith('artículos') ||
-        lower.startsWith('articulos') ||
-        lower.includes('servicios incluidos') ||
-        lower.includes('ítems') ||
-        lower.startsWith('items')
-      ) {
-        inItems = true;
-        continue;
-      }
-
-      // Free-form item line before formal section header — try to parse
       const freeLine = parseFreeFormLine(line);
-      if (freeLine && freeLine.total > 0 && freeLine.nombre) {
+      if (freeLine) {
         items.push({
           idServicioCatalogo: `imported_${items.length}`,
           nombreServicio: freeLine.nombre,
@@ -257,109 +340,98 @@ export function parseBudgetText(text: string): ParsedBudget {
           calculationMethod: 'fijo',
         } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
       }
+      continue;
     }
 
-    // Parse items (structured format with field labels)
-    if (inItems) {
-      // Total line
-      if (lower.includes('importe total') || lower.includes('total general') || lower.match(/^total\s*:/)) {
-        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
-        if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
-        inItems = false;
-        continue;
-      }
+    if (isAdministrativeLine(line)) continue;
+    if (isKnownCategory(line)) continue;
 
-      if (lower.startsWith('cantidad:')) {
-        const val = line.replace(/^cantidad:\s*/i, '');
-        currentQty = parseFloat(val.replace(/\./g, '').replace(',', '.')) || 1;
-        continue;
-      }
-      if (lower.startsWith('precio unitario:')) {
-        const val = line.replace(/^precio unitario:\s*/i, '');
-        if (val.toLowerCase().includes('no figura') || val.toLowerCase().includes('ilegible')) {
-          currentUnitPrice = 0;
-          warnings.push(`Precio unitario no legible para "${currentItemName}"`);
-        } else {
-          currentUnitPrice = cleanNumber(val);
-        }
-        continue;
-      }
-      if (lower.startsWith('descuento:')) {
-        const val = line.replace(/^descuento:\s*/i, '').replace('%', '');
-        if (val.toLowerCase().includes('no figura') || val.toLowerCase().includes('ilegible')) {
-          currentDiscount = 0;
-          warnings.push(`Descuento no legible para "${currentItemName}"`);
-        } else {
-          currentDiscount = parseFloat(val) || 0;
-        }
-        continue;
-      }
-      if (lower.startsWith('importe:')) {
-        const val = line.replace(/^importe:\s*/i, '');
-        currentImporte = cleanNumber(val);
-        // Flush item when we've collected importe (last field)
+    if (lower.startsWith('cantidad:')) {
+      currentQty = extractFirstNumber(line) || 1;
+      continue;
+    }
+    if (lower.startsWith('precio unitario:') || lower.startsWith('valor:')) {
+      currentUnitPrice = extractFirstNumber(line);
+      continue;
+    }
+    if (lower.startsWith('descuento:')) {
+      currentDiscount = parsePercent(line) || extractFirstNumber(line);
+      continue;
+    }
+    if (/^\d+(?:[.,]\d+)?\s*%\s+de\s+descuento/i.test(line)) {
+      // Usually comes after the importe line in AK text. Keep it as note only.
+      if (currentItemName && !Number.isFinite(currentImporte)) currentDiscount = parsePercent(line);
+      continue;
+    }
+    if (lower.startsWith('importe total:') || lower.startsWith('importe:')) {
+      currentImporte = extractFirstNumber(line);
+      flushItem();
+      continue;
+    }
+
+    const freeLine = parseFreeFormLine(line);
+    if (freeLine) {
+      flushItem();
+      items.push({
+        idServicioCatalogo: `imported_${items.length}`,
+        nombreServicio: freeLine.nombre,
+        cantidad: freeLine.cantidad,
+        precioUnitario: freeLine.precioUnitario,
+        precioUnitarioPresupuesto: freeLine.precioUnitario,
+        esRegalo: false,
+        calculationMethod: 'fijo',
+      } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
+      continue;
+    }
+
+    // Remaining meaningful lines are service names.
+    if (line && !line.match(/^[-=*]+$/)) {
+      if (currentItemName && (currentQty > 0 || currentUnitPrice > 0 || Number.isFinite(currentImporte))) {
         flushItem();
-        continue;
       }
-
-      // Free-form item lines inside the items section
-      const freeLine = parseFreeFormLine(line);
-      if (freeLine && (freeLine.total > 0 || freeLine.precioUnitario > 0)) {
-        flushItem(); // flush any pending structured item
-        const nombre = freeLine.nombre || currentItemName || `Ítem ${items.length + 1}`;
-        items.push({
-          idServicioCatalogo: `imported_${items.length}`,
-          nombreServicio: nombre,
-          cantidad: freeLine.cantidad,
-          precioUnitario: freeLine.precioUnitario,
-          precioUnitarioPresupuesto: freeLine.precioUnitario,
-          esRegalo: false,
-          calculationMethod: 'fijo',
-        } as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>);
-        currentItemName = '';
-        continue;
-      }
-
-      // Inline discount note: "15% de descuento" — note as warning and skip
-      const discountNote = line.match(/(\d+)%\s+de\s+descuento/i);
-      if (discountNote && !currentItemName) {
-        warnings.push(`Nota de descuento detectada: "${line}" — aplicar manualmente.`);
-        continue;
-      }
-
-      // Lines that don't match field patterns are item names.
-      if (line && !line.match(/^[-=*]+$/)) {
-        if (!currentItemName) {
-          currentItemName = line;
-        } else if (currentQty > 0 || currentUnitPrice > 0 || currentImporte > 0) {
-          flushItem();
-          currentItemName = line;
-        }
+      if (!isUnsafeItemName(line) && !isAdministrativeLine(line) && !isKnownCategory(line)) {
+        currentItemName = line;
       }
     }
   }
 
-  // Flush last item
   flushItem();
 
-  // Determine event type from items if not set
-  if (eventoTipo === 'Otro' || !eventoTipo) {
-    eventoTipo = 'Fiesta/Evento';
+  const sumaItemsCobrados = Math.round(items
+    .filter(it => !it.esRegalo)
+    .reduce((sum, it) => sum + ((it.precioUnitarioPresupuesto ?? it.precioUnitario ?? 0) * (it.cantidad || 1)), 0));
+
+  if (totalDeclarado <= 0 && sumaItemsCobrados > 0) {
+    totalDeclarado = sumaItemsCobrados;
+    warnings.push('No se detectó total declarado. Se usó la suma de ítems cobrados.');
   }
 
-  // Infer invitados from items
-  const invCandidates = items
-    .filter(it => it.cantidad >= 50 && it.cantidad <= 500)
-    .map(it => it.cantidad);
-  const invitadosCantidad = invCandidates.length > 0 ? Math.max(...invCandidates) : 0;
+  const diff = Math.round(totalDeclarado - sumaItemsCobrados);
+  if (totalDeclarado > 0 && Math.abs(diff) > 1) {
+    warnings.push(`La suma de ítems cobrados (${sumaItemsCobrados.toLocaleString('es-UY')}) no coincide con el total declarado (${totalDeclarado.toLocaleString('es-UY')}). Diferencia: ${diff.toLocaleString('es-UY')}.`);
+  }
 
+  const invCandidates = items
+    .filter(it => !it.esRegalo && it.cantidad >= 50 && it.cantidad <= 500)
+    .map(it => it.cantidad);
+  const invitadosCantidad = invitadosHeader > 0
+    ? invitadosHeader
+    : invCandidates.length > 0
+      ? Math.max(...invCandidates)
+      : 0;
+
+  const garbageItems = items.filter(it => isUnsafeItemName(it.nombreServicio)).length;
+  if (garbageItems > 0) {
+    warnings.push(`Se ignoraron ${garbageItems} líneas que parecían etiquetas de tabla, no servicios.`);
+  }
   if (!clienteNombre) warnings.push('No se encontró el nombre del cliente en el texto. Se usará "Cliente" como nombre provisional.');
   if (!eventoFecha) warnings.push(`Fecha del evento "${eventoFechaRaw}" no pudo parsearse automáticamente. Revisá y ajustá manualmente.`);
-  if (items.length === 0) warnings.push('No se detectaron ítems en el texto. Verificá el formato.');
+  if (items.length === 0) warnings.push('No se detectaron ítems reales en el texto. Verificá el formato.');
 
   const notas = [
     'Importado desde texto pegado.',
     eventoFechaRaw ? `Fecha original: ${eventoFechaRaw}` : '',
+    `Auditoría importador: suma ítems cobrados $${sumaItemsCobrados.toLocaleString('es-UY')} / total declarado $${totalDeclarado.toLocaleString('es-UY')}`,
   ].filter(Boolean).join(' ');
 
   return {
