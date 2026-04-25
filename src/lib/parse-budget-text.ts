@@ -328,7 +328,7 @@ export function parseBudgetText(text: string): ParsedBudget {
         lower.includes('total del presupuesto') ||
         lower.match(/^total a pagar\s*:/)
       ) {
-        const totalMatch = line.match(/[$$]?\s*([\d.,\s]+[kK]?)/);
+        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
         if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
         continue;
       }
@@ -387,7 +387,7 @@ export function parseBudgetText(text: string): ParsedBudget {
 
       if (isDocumentTotalLine) {
         flushItem();
-        const totalMatch = line.match(/[$$]?\s*([\d.,\s]+[kK]?)/);
+        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
         if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
         inItems = false;
         continue;

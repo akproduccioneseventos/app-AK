@@ -93,7 +93,7 @@ export async function savePresupuesto(
   // When preserveTotal is true (e.g. when importing from text with a declared total),
   // honour the caller-provided totalConDescuento instead of recalculating from items,
   // so the saved value exactly matches what the user approved in the audit screen.
-  const finalTotal = options?.preserveTotal && presupuestoData.totalConDescuento > 0
+  const finalTotal = options?.preserveTotal && presupuestoData.totalConDescuento != null
     ? presupuestoData.totalConDescuento
     : Math.round(totalConDescuento);
 
