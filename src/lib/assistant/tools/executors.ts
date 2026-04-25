@@ -112,8 +112,8 @@ const METODO_PAGO_MAP: Record<string, string> = {
 
 /**
  * Agenda una cita con un prospecto.
- * Si el lead ya existe → usa scheduleCrmMeeting.
- * Si es nuevo → crea el lead con addCrmLead.
+ * Si el lead ya existe → agenda la reunión con scheduleCrmMeeting.
+ * Si es nuevo → crea el lead con addCrmLead y luego agenda la reunión.
  */
 export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolResult> {
   if (!input.name?.trim()) {
@@ -254,7 +254,7 @@ export async function executeCrearPresupuesto(input: CrearPresupuestoInput): Pro
     return { success: false, error: result.error || 'No se pudo crear el presupuesto.', message: result.error || 'No se pudo crear el presupuesto.' };
   }
 
-  const manualCount = items.filter((i: { nota?: string }) => i.nota === 'manual/asistente').length;
+  const manualCount = items.filter((i) => i.nota === 'manual/asistente').length;
   const catalogNote = manualCount > 0 ? ` (${manualCount} ítem(s) no encontrado(s) en catálogo — marcado(s) como manual/asistente)` : '';
 
   await enviarNotificacion({

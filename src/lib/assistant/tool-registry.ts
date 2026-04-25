@@ -145,6 +145,20 @@ const navegarSchema = z.object({
   label: z.string().optional(),
 });
 
+// ── Constantes de mapeo ───────────────────────────────────────────────────────
+
+/** Mapea los valores de eventoTipo del intent-router a los tipos de MarketingTemplate. */
+const TIPO_EVENTO_MAP: Record<string, 'XV' | 'Boda' | 'Cumple'> = {
+  XV: 'XV',
+  'XV años': 'XV',
+  XV_ANOS: 'XV',
+  Boda: 'Boda',
+  Casamiento: 'Boda',
+  Cumple: 'Cumple',
+  Cumpleaños: 'Cumple',
+  Cumpleanos: 'Cumple',
+};
+
 // ── Herramientas ─────────────────────────────────────────────────────────────
 
 export const crearPresupuestoTool: AKTool<z.infer<typeof crearPresupuestoSchema>> = {
@@ -254,18 +268,7 @@ async function executeGuardarIdeaMarketing(
   try {
     const { saveMarketingTemplate } = await import('@/app/actions/marketing');
     const id = `idea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    // Map input eventoTipo (from intent-router or free text) to MarketingTemplate.tipo
-    const TIPO_MAP: Record<string, 'XV' | 'Boda' | 'Cumple'> = {
-      XV: 'XV',
-      'XV años': 'XV',
-      'XV_ANOS': 'XV',
-      Boda: 'Boda',
-      Casamiento: 'Boda',
-      Cumple: 'Cumple',
-      Cumpleaños: 'Cumple',
-      Cumpleanos: 'Cumple',
-    };
-    const tipoTemplate: 'XV' | 'Boda' | 'Cumple' = TIPO_MAP[input.eventoTipo ?? ''] ?? 'XV';
+    const tipoTemplate: 'XV' | 'Boda' | 'Cumple' = TIPO_EVENTO_MAP[input.eventoTipo ?? ''] ?? 'XV';
     const template = {
       id,
       nombre: input.titulo,
