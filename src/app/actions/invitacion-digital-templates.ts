@@ -56,6 +56,13 @@ export interface InvitacionDigitalTemplate extends InvitacionDigitalData {
 
 const TEMPLATES_FILE = 'invitacion-digital-templates.json';
 
+function safeTemplateList(value: unknown): InvitacionDigitalTemplate[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((template): template is InvitacionDigitalTemplate => {
+    return !!template && typeof template === 'object' && typeof (template as InvitacionDigitalTemplate).id === 'string';
+  });
+}
+
 const defaultGraziaTemplate: InvitacionDigitalTemplate = {
     ...defaultInvitacionDigitalData,
     id: 'tpl_grazia_default',
@@ -110,21 +117,22 @@ const builtInTemplates: InvitacionDigitalTemplate[] = [
 ];
 
 export async function getInvitationTemplates(): Promise<InvitacionDigitalTemplate[]> {
-  const savedTemplates = await readData<InvitacionDigitalTemplate[]>(TEMPLATES_FILE, []);
+  const savedTemplates = safeTemplateList(await readData<unknown>(TEMPLATES_FILE, []));
   const savedIds = new Set(savedTemplates.map(t => t.id));
 
-  // Include built-in templates that haven't been saved/edited by the user
+  // Include built-in templates that haven't been saved/edited by the user.
+  // Never assume the stored JSON is valid: if it is undefined/corrupted, keep the editor alive.
   const mergedTemplates = [
     ...builtInTemplates.filter(t => !savedIds.has(t.id)),
     ...savedTemplates,
   ];
 
-  return mergedTemplates.sort((a, b) => a.name.localeCompare(b.name));
+  return mergedTemplates.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 }
 
 /** Reads only the user-saved templates from the JSON file (excludes built-ins). */
 async function readSavedTemplates(): Promise<InvitacionDigitalTemplate[]> {
-  return readData<InvitacionDigitalTemplate[]>(TEMPLATES_FILE, []);
+  return safeTemplateList(await readData<unknown>(TEMPLATES_FILE, []));
 }
 
 export async function saveInvitationTemplate(
