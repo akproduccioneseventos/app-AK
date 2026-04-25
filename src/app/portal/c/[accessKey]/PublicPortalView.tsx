@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import {
   Calendar,
@@ -66,6 +66,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientMenuChangeRequest } from '@/app/actions/fiesta/portal.actions';
+import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
 import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
@@ -312,6 +313,28 @@ export default function PublicPortalView({
   // Itinerary accordion state
   const [openProgramaIds, setOpenProgramaIds] = useState<Set<string>>(new Set());
 
+  // clienteDebeLlevar state
+  const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(fiesta.clienteDebeLlevar ?? []);
+  const [isSavingDebeLlevar, setIsSavingDebeLlevar] = useState(false);
+
+  const handleToggleDebeLlevar = async (itemId: string) => {
+    const previous = debeLlevarItems;
+    const updated = debeLlevarItems.map(item =>
+      item.id === itemId
+        ? { ...item, completado: !item.completado, estado: (!item.completado ? 'enviado' : 'pendiente') as ClienteDebeLlevarItem['estado'] }
+        : item
+    );
+    setDebeLlevarItems(updated);
+    setIsSavingDebeLlevar(true);
+    try {
+      await updateClienteDebeLlevar(fiesta.id, updated);
+    } catch {
+      setDebeLlevarItems(previous);
+    } finally {
+      setIsSavingDebeLlevar(false);
+    }
+  };
+
   const handleToggleTask = async (taskId: string) => {
     const previous = checklist;
     const newChecklist = checklist.map(t =>
@@ -496,6 +519,7 @@ export default function PublicPortalView({
     { id: 'pagos', label: 'Pagos y Saldo', emoji: '💰', color: 'from-emerald-500 to-teal-600', desc: 'Estado de cuenta e informar pago', icon: DollarSign, visible: settings?.pagos?.visible && !!presupuesto, priority: true },
     { id: 'simulador-invitados', label: 'Simular Invitados', emoji: '👥', color: 'from-purple-500 to-indigo-600', desc: 'Simulá cambios en el costo', icon: TrendingUp, visible: !!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0, priority: true },
     { id: 'checklist', label: 'Checklist', emoji: '✅', color: 'from-amber-500 to-orange-500', desc: 'Tareas pendientes', icon: ClipboardList, visible: settings?.checklist?.visible && checklist.length > 0 },
+    { id: 'debeLlevar', label: 'Lo que tenés que llevar', emoji: '📦', color: 'from-teal-500 to-emerald-600', desc: 'Ítems a preparar para el evento', icon: Package, visible: debeLlevarItems.length > 0 },
     { id: 'menu', label: 'Menú y Comidas', emoji: '🍽️', color: 'from-rose-500 to-pink-600', desc: 'Menú, bebidas y dress code', icon: Utensils, visible: settings?.menu?.visible },
     { id: 'presupuesto', label: 'Presupuesto', emoji: '📊', color: 'from-blue-500 to-cyan-600', desc: 'Desglose de servicios contratados', icon: FileText, visible: settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 },
     { id: 'musica', label: 'Música', emoji: '🎵', color: 'from-fuchsia-500 to-purple-600', desc: 'Canciones y preferencias musicales', icon: Music, visible: settings?.musica?.visible && !!musica },
@@ -526,6 +550,7 @@ export default function PublicPortalView({
     faq: 'Preguntas Frecuentes',
     notas: 'Notas Compartidas',
     regalos: 'Lista de Regalos',
+    debeLlevar: 'Lo que tenés que llevar',
   };
 
   return (
@@ -1748,6 +1773,60 @@ export default function PublicPortalView({
                   </div>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Lo que tenés que llevar */}
+        {activeSection === 'debeLlevar' && debeLlevarItems.length > 0 && (
+          <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Package className="w-5 h-5 text-teal-600" />
+                Lo que tenés que llevar
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {debeLlevarItems.filter(i => i.completado).length} de {debeLlevarItems.length} ítems listos
+              </p>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-2">
+              {debeLlevarItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  disabled={isSavingDebeLlevar}
+                  onClick={() => handleToggleDebeLlevar(item.id)}
+                  className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${
+                    item.completado
+                      ? 'border-teal-200 bg-teal-50'
+                      : 'border-slate-100 bg-slate-50 hover:border-teal-200 hover:bg-teal-50/40'
+                  }`}
+                >
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                    item.completado ? 'border-teal-500 bg-teal-500' : 'border-slate-300 bg-white'
+                  }`}>
+                    {item.completado && <span className="text-white text-xs font-black">✓</span>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-semibold leading-snug ${item.completado ? 'line-through text-muted-foreground' : ''}`}>
+                      {item.texto}
+                      {item.obligatorio && <span className="ml-1 text-red-500 text-xs">*</span>}
+                    </p>
+                    {item.notas && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.notas}</p>
+                    )}
+                  </div>
+                  {item.completado && (
+                    <span className="text-[10px] font-bold text-teal-600 uppercase bg-teal-100 rounded-full px-2 py-0.5 shrink-0">
+                      {({ pendiente: 'Pendiente', enviado: 'Enviado', listo: 'Listo', revisado: 'En revisión' } as Record<string, string>)[item.estado ?? ''] ?? 'Hecho'}
+                    </span>
+                  )}
+                  {isSavingDebeLlevar && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />}
+                </button>
+              ))}
+              <p className="text-xs text-muted-foreground text-center pt-1">
+                Tocá cada ítem para marcarlo como listo
+              </p>
             </CardContent>
           </Card>
         )}
