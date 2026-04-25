@@ -104,6 +104,7 @@ export async function updatePagosProveedoresFiestaActual(fiestaId: string, pagos
 export async function updateClientChecklistFiestaActual(fiestaId: string, checklist: ClientTarea[]) { return await PortalModule.updateClientChecklist(fiestaId, checklist); }
 export async function updateClientNotesFiestaActual(fiestaId: string, notes: string) { return await PortalModule.updateClientNotes(fiestaId, notes); }
 export async function updatePortalSettingsFiestaActual(fiestaId: string, clientSettings: ClientPortalSettings) { return await PortalModule.updatePortalSettings(fiestaId, clientSettings); }
+export async function updateClientePortalExperienceFiestaActual(fiestaId: string, experience: import('@/types/fiesta').ClientePortalExperience) { return await PortalModule.updateClientePortalExperience(fiestaId, experience); }
 export async function updateSocialGallerySettingsFiestaActual(fiestaId: string, socialGallerySettings: SocialGallerySettings) { return await PortalModule.updateSocialGallerySettings(fiestaId, socialGallerySettings); }
 
 // --- MÚSICA Y REPOSTERÍA ---

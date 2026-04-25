@@ -95,6 +95,16 @@ export async function updatePortalSettings(
   });
 }
 
+export async function updateClientePortalExperience(
+  fiestaId: string,
+  experience: import('@/types/fiesta').ClientePortalExperience
+) {
+  return updateFiestaData(fiestaId, data => ({
+    ...data,
+    clientePortalExperience: { ...(data.clientePortalExperience ?? {}), ...experience },
+  }));
+}
+
 export async function updateFaqPortal(fiestaId: string, faqItems: import('@/types/fiesta').FaqItem[]) {
   return updateFiestaData(fiestaId, data => ({ ...data, faqPortal: faqItems }));
 }

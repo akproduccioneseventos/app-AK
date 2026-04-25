@@ -41,14 +41,22 @@ const SKIP_LINES_EXACT = new Set([
 /**
  * Prefix-match patterns for lines that are header/footer metadata.
  * If a lowercased line STARTS WITH any of these, skip it.
+ * These cover both bare labels and labels followed by a value (e.g. "Número de cliente: 1235").
  */
 const SKIP_LINE_PREFIXES = [
+  // Document header identifiers with values
+  'número de cliente:', 'nº de cliente:', 'numero de cliente:', 'n° de cliente:',
+  'número de documento:', 'nº de documento:', 'numero de documento:', 'n° de documento:',
+  'nro. de cliente:', 'nro. de documento:',
+  'página:', 'pagina:',
+  'válido hasta:', 'valido hasta:', 'validez:',
+  'hora inicio:', 'hora de inicio:',
+  'invitados:',
+  'tipo evento:', 'tipo de evento:',
+  'salón:', 'salon:', 'lugar:',
+  // Contact/company metadata
   'presupuesto para',
-  'condición:',
-  'condicion:',
-  'validez:',
-  'válido hasta:',
-  'valido hasta:',
+  'condición:', 'condicion:',
   'tel:', 'telefono:', 'teléfono:', 'celular:', 'cel:',
   'email:', 'e-mail:', 'correo:',
   'www.', 'http', '@',
@@ -313,13 +321,14 @@ export function parseBudgetText(text: string): ParsedBudget {
         continue;
       }
 
-      // Detect total declared in header area
+      // Detect total declared in header area — be specific to avoid false positives
       if (
-        lower.match(/^total\s*:?\s*\$/) ||
-        lower.match(/importe total del presupuesto/) ||
+        lower.match(/^total\s*:/) ||
+        lower.includes('importe total del presupuesto') ||
+        lower.includes('total del presupuesto') ||
         lower.match(/^total a pagar\s*:/)
       ) {
-        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
+        const totalMatch = line.match(/[$$]?\s*([\d.,\s]+[kK]?)/);
         if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
         continue;
       }
@@ -364,16 +373,31 @@ export function parseBudgetText(text: string): ParsedBudget {
         continue;
       }
 
-      // Total declaration inside items area
-      if (
-        lower.includes('importe total') ||
+      // Total declaration inside items area.
+      // IMPORTANT: Only treat as the document total for explicit multi-word phrases
+      // ("importe total del presupuesto", "total a pagar", "total general") or a
+      // standalone "total: ..." that is NOT inside an active item block.
+      // "Importe total: $X" by itself is the item's own total (treated as Importe:).
+      const isDocumentTotalLine =
+        lower.includes('importe total del presupuesto') ||
+        lower.includes('total del presupuesto') ||
         lower.includes('total general') ||
-        lower.match(/^total a pagar\s*:/) ||
-        lower.match(/^total\s*:\s*\$/)
-      ) {
-        const totalMatch = line.match(/\$?\s*([\d.,\s]+[kK]?)/);
+        lower.match(/^total a pagar\s*:/) !== null ||
+        lower.match(/^total\s*:/) !== null;
+
+      if (isDocumentTotalLine) {
+        flushItem();
+        const totalMatch = line.match(/[$$]?\s*([\d.,\s]+[kK]?)/);
         if (totalMatch) totalDeclarado = cleanNumber(totalMatch[1]);
         inItems = false;
+        continue;
+      }
+
+      // "Importe total: $X" within an item block — treat as the item's importe (last field)
+      if (lower.startsWith('importe total:')) {
+        const val = line.replace(/^importe total:\s*/i, '');
+        currentImporte = cleanNumber(val);
+        flushItem();
         continue;
       }
 

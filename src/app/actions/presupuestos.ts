@@ -62,7 +62,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
 
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
-  options?: { source?: PresupuestoSource, leadId?: string }
+  options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
   let presupuestos = await getPresupuestos();
   
@@ -90,6 +90,13 @@ export async function savePresupuesto(
     totalConDescuento = subtotalBruto - desc;
   }
 
+  // When preserveTotal is true (e.g. when importing from text with a declared total),
+  // honour the caller-provided totalConDescuento instead of recalculating from items,
+  // so the saved value exactly matches what the user approved in the audit screen.
+  const finalTotal = options?.preserveTotal && presupuestoData.totalConDescuento > 0
+    ? presupuestoData.totalConDescuento
+    : Math.round(totalConDescuento);
+
   const presupuestoId = `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const nuevoPresupuesto: Presupuesto = {
     ...presupuestoData,
@@ -97,7 +104,7 @@ export async function savePresupuesto(
     numero: nuevoNumero,
     itemsPresupuestados: validItems,
     costoTotalEstimado: subtotalBruto,
-    totalConDescuento: Math.round(totalConDescuento),
+    totalConDescuento: finalTotal,
     timestamp: new Date().toISOString(),
     estado: presupuestoData.estado || 'Enviado',
     leadId: options?.leadId,
@@ -443,7 +450,7 @@ export async function importarPresupuestoDesdeTexto(
     source: 'manual',
   };
 
-  const presupuestoResult = await savePresupuesto(budgetData, { source: 'manual' });
+  const presupuestoResult = await savePresupuesto(budgetData, { source: 'manual', preserveTotal: total > 0 });
   if (!presupuestoResult.success || !presupuestoResult.id) {
     return {
       success: false,
