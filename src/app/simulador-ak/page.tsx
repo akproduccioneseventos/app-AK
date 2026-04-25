@@ -113,6 +113,7 @@ type PriceStats = {
   subtotalVenta: number;
   totalFinal: number;
   descPromo: number;
+  ahorroRegalos: number;
   detallados: ServicioDetallado[];
 };
 
@@ -423,14 +424,33 @@ export default function SimuladorAKPage() {
       detallados.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, cantidad: qty, precioUnitario: unitPrice, costoTotal: total });
     });
     const descPromo = Math.round(totalRegular * DISCOUNT_RATE);
+    const ahorroRegalos = detallados.filter(d => d.esRegalo).reduce((acc, d) => acc + d.costoTotal, 0);
     const totalSinAjuste = totalRegular - descPromo;
     const eventYear = state.eventoFecha ? new Date(state.eventoFecha).getFullYear() : new Date().getFullYear();
     const currentYear = new Date().getFullYear();
     const aniosDif = Math.max(0, eventYear - currentYear);
     const annualMultiplier = 1 + ((annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) / 100);
     const totalFinal = Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
-    return { subtotalVenta: Math.round(totalRegular), totalFinal, descPromo, detallados };
+    return { subtotalVenta: Math.round(totalRegular), totalFinal, descPromo, ahorroRegalos, detallados };
   }, [config, state, allSimuladorServices, serviciosCatalogo, annualAdjustmentPercentage]);
+
+  // Rough price estimate for steps before package selection
+  const roughEstimate = useMemo<number | null>(() => {
+    if (priceStats) return null;
+    if (!state.eventoTipo || state.adultos < 10) return null;
+    const meta = EVENT_META[state.eventoTipo as EventType];
+    if (!meta) return null;
+    const base = meta.basePP * state.adultos + meta.fixed;
+    return Math.round(base * (1 - DISCOUNT_RATE));
+  }, [state.eventoTipo, state.adultos, priceStats]);
+
+  const recommendedDishIds = useMemo<Set<string>>(() => {
+    if (!config) return new Set();
+    const ids = new Set<string>();
+    config.platosVisibles?.forEach(p => { if (p.recommended) ids.add(p.id); });
+    config.recommendedDishIds?.forEach(id => ids.add(id));
+    return ids;
+  }, [config]);
 
   // ── Chat history management ───────────────────────────────────────────────
 
@@ -498,6 +518,59 @@ export default function SimuladorAKPage() {
     return (dynamicPaquetes || []).filter((pkg) => isPackageApplicableToEventType(pkg, tipo));
   }, [dynamicPaquetes, state.eventoTipo]);
 
+  // Helper to compute total final price for a given package (for side-by-side comparison)
+  const computePackageFinalPrice = useCallback((paqueteId: string): number | null => {
+    if (!config) return null;
+    const paquete = config.paquetes.find(p => p.id === paqueteId);
+    if (!paquete) return null;
+    const servMap = new Map<string, { servicio: ServicioEmpresa; esRegalo: boolean }>();
+    paquete.serviciosIncluidos.forEach(s => {
+      const serv = allSimuladorServices.find(os => os.id === s.id);
+      if (serv) servMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
+    });
+    [...state.selectedEntradas, state.selectedPrincipal, state.selectedInfantil].filter(Boolean).forEach((id) => {
+      const serv = allSimuladorServices.find(os => os.id === id);
+      if (serv) servMap.set(serv.id, { servicio: serv, esRegalo: false });
+    });
+    config.serviceDependencies?.forEach(dep => {
+      if (servMap.has(dep.triggerServiceId) && !servMap.has(dep.requiredServiceId)) {
+        const req = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
+        if (req) servMap.set(req.id, { servicio: req, esRegalo: false });
+      }
+    });
+    const clubCfg = { ...defaultClubUruguayConfig, ...(config.clubUruguayConfig || {}) };
+    if (state.tieneSalon === false && state.incluirClubUruguay && clubCfg.activo) {
+      const servicioClub = serviciosCatalogo.find((s) => s.id === 'serv_salon_club_uruguay');
+      if (servicioClub) {
+        servMap.set(servicioClub.id, {
+          servicio: { ...servicioClub, precioVenta: clubCfg.precio, precioBase: clubCfg.precio },
+          esRegalo: false,
+        });
+      }
+    }
+    let totalRegular = 0;
+    servMap.forEach(({ servicio, esRegalo }) => {
+      const { total } = getServicioCalculatedData(servicio, state.adultos, state.ninos);
+      if (!esRegalo) totalRegular += total;
+    });
+    const descPromo = Math.round(totalRegular * DISCOUNT_RATE);
+    const totalSinAjuste = totalRegular - descPromo;
+    const eventYear = state.eventoFecha ? new Date(state.eventoFecha).getFullYear() : new Date().getFullYear();
+    const aniosDif = Math.max(0, eventYear - new Date().getFullYear());
+    const annualMultiplier = 1 + ((annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) / 100);
+    return Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
+  }, [config, state, allSimuladorServices, serviciosCatalogo, annualAdjustmentPercentage]);
+
+  const allPackagePricesMap = useMemo<Record<string, number>>(() => {
+    if (!config || !availablePaquetes.length) return {};
+    const map: Record<string, number> = {};
+    availablePaquetes.forEach(pkg => {
+      const price = computePackageFinalPrice(pkg.id);
+      if (price !== null) map[pkg.id] = price;
+    });
+    return map;
+  }, [config, availablePaquetes, computePackageFinalPrice]);
+
   useEffect(() => {
     if (!state.paquete) return;
     if (!availablePaquetes.some((pkg) => pkg.id === state.paquete)) {
@@ -520,7 +593,6 @@ export default function SimuladorAKPage() {
       const saved: SimuladorState = JSON.parse(raw);
       return (
         saved.nombre.toLowerCase() === state.nombre.toLowerCase() &&
-        saved.apellido.toLowerCase() === state.apellido.toLowerCase() &&
         saved.telefono === state.telefono &&
         !!saved.generatedId
       );
@@ -782,6 +854,7 @@ export default function SimuladorAKPage() {
                     principalesDisponibles={principalesDisponibles}
                     menusNinoDisponibles={menusNinoDisponibles}
                     maxEntradas={maxEntradas}
+                    recommendedDishIds={recommendedDishIds}
                   />
                 )}
                 {state.step === 7 && (
@@ -793,6 +866,7 @@ export default function SimuladorAKPage() {
                     dynamicPaquetes={availablePaquetes}
                     packagePrices={priceStats}
                     allSimuladorServices={allSimuladorServices}
+                    allPackagePricesMap={allPackagePricesMap}
                   />
                 )}
                 {state.step === 8 && (
@@ -808,23 +882,34 @@ export default function SimuladorAKPage() {
                     rawWAMessage={decodeURIComponent(buildWAMessage())}
                     empresaPhone={empresaPhone}
                     annualAdjustmentPercentage={annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE}
+                    faqs={landingFaqs}
                   />
                 )}
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Mini price ticker (steps 6-8) */}
-          {state.step >= 5 && priceStats && (
+          {/* Mini price ticker (steps 3+) */}
+          {state.step >= 3 && (priceStats || roughEstimate) && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mt-5 flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-5 py-2.5 border border-white/20"
             >
               <TrendingDown className="w-4 h-4 text-green-400" />
-              <span className="text-white/60 text-xs">{formatCurrency(priceStats.subtotalVenta)}</span>
-              <Badge className="bg-green-500 text-white text-xs px-2">-{Math.round(DISCOUNT_RATE * 100)}%</Badge>
-              <span className="text-white font-black text-sm">{formatCurrency(priceStats.totalFinal)}</span>
+              {priceStats ? (
+                <>
+                  <span className="text-white/60 text-xs">{formatCurrency(priceStats.subtotalVenta)}</span>
+                  <Badge className="bg-green-500 text-white text-xs px-2">-{Math.round(DISCOUNT_RATE * 100)}%</Badge>
+                  <span className="text-white font-black text-sm">{formatCurrency(priceStats.totalFinal)}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-white/60 text-xs">Precio estimado:</span>
+                  <Badge className="bg-amber-500 text-white text-xs px-2">aprox.</Badge>
+                  <span className="text-white font-black text-sm">{formatCurrency(roughEstimate!)}</span>
+                </>
+              )}
             </motion.div>
           )}
         </div>
@@ -993,7 +1078,7 @@ function StepClientInfo({
   checkDuplicate: () => boolean;
 }) {
   const { toast } = useToast();
-  const canNext = state.nombre.trim().length > 1 && state.apellido.trim().length > 1 && state.telefono.trim().length >= 8;
+  const canNext = state.nombre.trim().length > 1 && state.telefono.trim().length >= 8;
 
   const handleNext = () => {
     if (checkDuplicate()) {
@@ -1009,20 +1094,14 @@ function StepClientInfo({
     <StepCard title="¿Cómo te llamás?" icon={<User className="w-6 h-6" />}>
       <div className="space-y-4">
         <div>
-          <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Nombre</Label>
+          <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Nombre y apellido</Label>
           <Input
             value={state.nombre}
-            onChange={e => onChange('nombre', e.target.value)}
-            placeholder="Tu nombre"
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl h-12 focus:border-violet-400"
-          />
-        </div>
-        <div>
-          <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-1.5 block">Apellido</Label>
-          <Input
-            value={state.apellido}
-            onChange={e => onChange('apellido', e.target.value)}
-            placeholder="Tu apellido"
+            onChange={e => {
+              onChange('nombre', e.target.value);
+              onChange('apellido', '');
+            }}
+            placeholder="Tu nombre y apellido"
             className="bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl h-12 focus:border-violet-400"
           />
         </div>
@@ -1299,7 +1378,7 @@ function StepSalon({
 // ─── Step: Package ────────────────────────────────────────────────────────────
 
 function StepPackage({
-  state, onChange, onNext, onPrev, dynamicPaquetes, packagePrices, allSimuladorServices,
+  state, onChange, onNext, onPrev, dynamicPaquetes, packagePrices, allSimuladorServices, allPackagePricesMap,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
@@ -1308,6 +1387,7 @@ function StepPackage({
   dynamicPaquetes?: PaqueteArmadoRapido[];
   packagePrices: PriceStats | null;
   allSimuladorServices: ServicioEmpresa[];
+  allPackagePricesMap?: Record<string, number>;
 }) {
   const canNext = !!state.paquete;
   const staticOptions: { value: PackageType; emoji: string }[] = [
@@ -1321,12 +1401,14 @@ function StepPackage({
 
   return (
     <StepCard title="¿Cómo te imaginás tu fiesta?" icon={<Star className="w-6 h-6" />}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <p className="text-violet-300 text-xs -mt-2 mb-1">Compará los 3 paquetes y elegí el que más se ajuste a tu evento</p>
+      <div className="grid grid-cols-1 gap-3">
         {hasDynamic ? (
           dynamicPaquetes.map((pkg) => {
             const includedServices = (pkg.serviciosIncluidos || [])
               .map((serviceRef) => allSimuladorServices.find((service) => service.id === serviceRef.id)?.nombre || serviceRef.id)
               .filter(Boolean);
+            const pkgPrice = allPackagePricesMap?.[pkg.id];
             return (
               <button
                 key={pkg.id}
@@ -1340,7 +1422,12 @@ function StepPackage({
               >
                 <span className="text-2xl">🎉</span>
                 <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-white font-bold">{pkg.nombre}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-white font-bold">{pkg.nombre}</p>
+                    {pkg.recommended && (
+                      <Badge className="bg-amber-500 text-white text-xs px-2">⭐ Más elegido</Badge>
+                    )}
+                  </div>
                   {pkg.descripcion && <p className="text-violet-300 text-xs">{pkg.descripcion}</p>}
                   {includedServices.length > 0 && (
                     <ul className="text-violet-200 text-xs mt-2 space-y-1">
@@ -1349,8 +1436,13 @@ function StepPackage({
                       ))}
                     </ul>
                   )}
-                  {state.paquete === pkg.id && packagePrices && (
-                    <p className="text-emerald-300 text-xs font-black uppercase tracking-wider">{formatCurrency(packagePrices.totalFinal)}</p>
+                  {pkgPrice !== undefined && (
+                    <p className={cn(
+                      'text-sm font-black uppercase tracking-wider mt-2',
+                      state.paquete === pkg.id ? 'text-emerald-300' : 'text-violet-300',
+                    )}>
+                      {formatCurrency(pkgPrice)}
+                    </p>
                   )}
                 </div>
                 {state.paquete === pkg.id && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
@@ -1360,6 +1452,7 @@ function StepPackage({
         ) : (
           staticOptions.map(opt => {
             const meta = PACKAGE_META[opt.value];
+            const pkgPrice = allPackagePricesMap?.[opt.value] ?? (state.paquete === opt.value && packagePrices ? packagePrices.totalFinal : undefined);
             return (
               <button
                 key={opt.value}
@@ -1373,15 +1466,22 @@ function StepPackage({
               >
                 <span className="text-2xl">{opt.emoji}</span>
                 <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-white font-bold">{meta.label}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-white font-bold">{meta.label}</p>
+                    {meta.recommended && (
+                      <Badge className="bg-amber-500 text-white text-xs px-2">⭐ Más elegido</Badge>
+                    )}
+                  </div>
                   <p className="text-violet-300 text-xs">{meta.description}</p>
-                  {state.paquete === opt.value && packagePrices && (
-                    <p className="text-emerald-300 text-xs font-black uppercase tracking-wider">{formatCurrency(packagePrices.totalFinal)}</p>
+                  {pkgPrice !== undefined && (
+                    <p className={cn(
+                      'text-sm font-black uppercase tracking-wider mt-2',
+                      state.paquete === opt.value ? 'text-emerald-300' : 'text-violet-300',
+                    )}>
+                      {formatCurrency(pkgPrice)}
+                    </p>
                   )}
                 </div>
-                {meta.recommended && (
-                  <Badge className="bg-amber-500 text-white text-xs absolute -top-2 right-3">Más elegido</Badge>
-                )}
                 {state.paquete === opt.value && <Check className="w-5 h-5 text-violet-400 flex-shrink-0" />}
               </button>
             );
@@ -1399,7 +1499,7 @@ function StepPackage({
 // ─── Step: Menus ─────────────────────────────────────────────────────────────
 
 function StepMenus({
-  state, onChange, onNext, onPrev, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, maxEntradas,
+  state, onChange, onNext, onPrev, entradasDisponibles, principalesDisponibles, menusNinoDisponibles, maxEntradas, recommendedDishIds,
 }: {
   state: SimuladorState;
   onChange: <K extends keyof SimuladorState>(k: K, v: SimuladorState[K]) => void;
@@ -1409,6 +1509,7 @@ function StepMenus({
   principalesDisponibles: ServicioEmpresa[];
   menusNinoDisponibles: ServicioEmpresa[];
   maxEntradas: number;
+  recommendedDishIds: Set<string>;
 }) {
   const requireEntradas = entradasDisponibles.length > 0;
   const requirePrincipal = principalesDisponibles.length > 0;
@@ -1427,6 +1528,21 @@ function StepMenus({
     onChange('selectedEntradas', [...state.selectedEntradas, id]);
   };
 
+  const DishButton = ({ s, selected, onClick }: { s: ServicioEmpresa; selected: boolean; onClick: () => void }) => (
+    <button
+      onClick={onClick}
+      className={cn('rounded-xl p-3 border text-left relative', selected ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
+    >
+      {recommendedDishIds.has(s.id) && (
+        <span className="absolute -top-2 right-2 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider rounded-full px-2 py-0.5 flex items-center gap-1">
+          <Star className="w-2.5 h-2.5" /> Recomendado
+        </span>
+      )}
+      <p className="text-white text-sm font-bold mt-1">{s.nombre}</p>
+      <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
+    </button>
+  );
+
   return (
     <StepCard title="Seleccioná los menús" icon={<Zap className="w-6 h-6" />}>
       <div className="space-y-5">
@@ -1434,14 +1550,7 @@ function StepMenus({
           <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Entradas ({maxEntradas})</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {entradasDisponibles.map(s => (
-              <button
-                key={s.id}
-                onClick={() => toggleEntrada(s.id)}
-                className={cn('rounded-xl p-3 border text-left', state.selectedEntradas.includes(s.id) ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
-              >
-                <p className="text-white text-sm font-bold">{s.nombre}</p>
-                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
-              </button>
+              <DishButton key={s.id} s={s} selected={state.selectedEntradas.includes(s.id)} onClick={() => toggleEntrada(s.id)} />
             ))}
           </div>
         </div>
@@ -1449,14 +1558,7 @@ function StepMenus({
           <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Plato principal</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {principalesDisponibles.map(s => (
-              <button
-                key={s.id}
-                onClick={() => onChange('selectedPrincipal', s.id)}
-                className={cn('rounded-xl p-3 border text-left', state.selectedPrincipal === s.id ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
-              >
-                <p className="text-white text-sm font-bold">{s.nombre}</p>
-                <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
-              </button>
+              <DishButton key={s.id} s={s} selected={state.selectedPrincipal === s.id} onClick={() => onChange('selectedPrincipal', s.id)} />
             ))}
           </div>
         </div>
@@ -1465,14 +1567,7 @@ function StepMenus({
             <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Menú infantil</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {menusNinoDisponibles.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => onChange('selectedInfantil', s.id)}
-                  className={cn('rounded-xl p-3 border text-left', state.selectedInfantil === s.id ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
-                >
-                  <p className="text-white text-sm font-bold">{s.nombre}</p>
-                  <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
-                </button>
+                <DishButton key={s.id} s={s} selected={state.selectedInfantil === s.id} onClick={() => onChange('selectedInfantil', s.id)} />
               ))}
             </div>
           </div>
@@ -1521,7 +1616,7 @@ function StepHours({
 // ─── Step: Conversion ────────────────────────────────────────────────────────
 
 function StepConversion({
-  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone, annualAdjustmentPercentage,
+  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone, annualAdjustmentPercentage, faqs,
 }: {
   state: SimuladorState;
   prices: PriceStats | null;
@@ -1534,15 +1629,18 @@ function StepConversion({
   rawWAMessage: string;
   empresaPhone: string;
   annualAdjustmentPercentage: number;
+  faqs: LandingFaqItem[];
 }) {
   const { toast } = useToast();
   const submitted = !!generatedId;
   const currentYear = new Date().getFullYear();
+  const [meetingAnswer, setMeetingAnswer] = useState<'si' | 'no' | null>(null);
+  const [faqOpenId, setFaqOpenId] = useState<string | null>(null);
 
   return (
     <StepCard title="Tu presupuesto está listo" icon={<PartyPopper className="w-6 h-6" />}>
       {/* Urgency */}
-      <div className="bg-orange-500/15 border border-orange-500/30 rounded-2xl p-4 flex items-start gap-3 mb-5">
+      <div className="bg-orange-500/15 border border-orange-500/30 rounded-2xl p-4 flex items-start gap-3">
         <Clock className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-orange-300 font-bold text-sm">Las fechas se reservan rápido</p>
@@ -1552,39 +1650,55 @@ function StepConversion({
 
       {/* Price breakdown */}
       {prices && (
-        <div className="bg-white/5 rounded-2xl p-4 space-y-2 mb-5">
-          <div className="flex justify-between text-sm">
-            <span className="text-violet-300">Valor de referencia</span>
-            <span className="text-white/50">{formatCurrency(prices.subtotalVenta)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-green-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Descuento</span>
-            <span className="text-green-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
-          </div>
-          <div className="border-t border-white/10 pt-2 flex justify-between">
-            <span className="text-white font-black">TOTAL FINAL</span>
-            <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
+        <div className="bg-white/5 rounded-2xl p-4 space-y-2">
+          <p className="text-violet-200 text-xs font-bold uppercase tracking-wider mb-2">Detalle del presupuesto</p>
+
+          {/* Service list */}
+          {prices.detallados.length > 0 && (
+            <ul className="space-y-1 mb-3">
+              {prices.detallados.map((item) => (
+                <li key={item.id} className="flex items-start justify-between gap-3 text-xs">
+                  <span className="text-white/80 flex items-center gap-1">
+                    {item.esRegalo && <Gift className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
+                    {item.nombre}
+                  </span>
+                  <span className={item.esRegalo ? 'text-emerald-300 font-bold whitespace-nowrap' : 'text-white/80 whitespace-nowrap'}>
+                    {item.esRegalo ? '¡Sin costo! 🎁' : formatCurrency(item.costoTotal)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="border-t border-white/10 pt-2 space-y-1.5">
+            <div className="flex justify-between text-sm">
+              <span className="text-violet-300">Subtotal servicios</span>
+              <span className="text-white/60">{formatCurrency(prices.subtotalVenta)}</span>
+            </div>
+            {prices.ahorroRegalos > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-emerald-400 flex items-center gap-1"><Gift className="w-3.5 h-3.5" /> Ahorro regalos incluidos</span>
+                <span className="text-emerald-400 font-bold">- {formatCurrency(prices.ahorroRegalos)}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm">
+              <span className="text-amber-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Bonificación especial (10%)</span>
+              <span className="text-amber-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
+            </div>
+            <div className="border-t border-white/10 pt-2 flex justify-between">
+              <span className="text-white font-black">TOTAL FINAL</span>
+              <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
+            </div>
           </div>
 
-          {prices.detallados.length > 0 && (
-            <div className="border-t border-white/10 pt-3 mt-3">
-              <p className="text-violet-200 text-xs font-bold uppercase tracking-wider mb-2">Servicios incluidos</p>
-              <ul className="space-y-1">
-                {prices.detallados.map((item) => (
-                  <li key={item.id} className="flex items-start justify-between gap-3 text-xs">
-                    <span className="text-white/80">• {item.nombre}</span>
-                    <span className={item.esRegalo ? 'text-emerald-300 font-bold' : 'text-white/80'}>
-                      {item.esRegalo ? 'Sin costo' : formatCurrency(item.costoTotal)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <div className="border-t border-white/10 pt-2 space-y-1 text-xs text-violet-300">
+            <p>💵 <strong className="text-white">Seña de $5.000</strong> para reservar la fecha</p>
+            <p>📋 <strong className="text-white">Validez:</strong> Este presupuesto tiene 30 días de validez</p>
+          </div>
         </div>
       )}
 
-      <div className="bg-blue-500/15 border border-blue-400/30 rounded-2xl p-4 mb-5">
+      <div className="bg-blue-500/15 border border-blue-400/30 rounded-2xl p-4">
         <p className="text-blue-100 text-sm">
           📅 <strong>Precios {currentYear}</strong> — Este presupuesto refleja los precios vigentes del año actual.
           Para eventos en años posteriores, se aplica un ajuste anual del <strong>{annualAdjustmentPercentage}%</strong> (configurable).
@@ -1637,20 +1751,6 @@ function StepConversion({
         </Button>
 
         <Button
-          variant="outline"
-          className="w-full border-white/20 text-white hover:bg-white/10 bg-transparent rounded-2xl h-12 font-bold"
-          onClick={() => {
-            const msg = encodeURIComponent(
-              `Hola ${state.nombre}! Quería coordinar una reunión para cerrar los detalles de tu evento. ¿Cuándo te vendría bien?`
-            );
-            window.open(`https://wa.me/${empresaPhone}?text=${msg}`, '_blank');
-          }}
-        >
-          <CalendarCheck className="w-5 h-5 mr-2" />
-          Agendar entrevista sin costo
-        </Button>
-
-        <Button
           variant="ghost"
           className="w-full text-violet-300 hover:text-white hover:bg-white/10 rounded-2xl h-10 text-sm"
           onClick={onPrint}
@@ -1660,13 +1760,66 @@ function StepConversion({
         </Button>
       </div>
 
-      <div className="mt-4 text-center">
-        <p className="text-violet-400 text-xs">
-          En una sola reunión ves todo y resolvés la fiesta completa 👍
+      {/* Call to Action: meeting question */}
+      <div className="bg-violet-500/15 border border-violet-400/30 rounded-2xl p-4 space-y-3">
+        <p className="text-white font-bold text-sm text-center">
+          🗓️ Vamos a agendar una reunión sin costo para resolver todos los detalles. ¿Te parece?
         </p>
+        {meetingAnswer === null ? (
+          <div className="flex gap-3 justify-center">
+            <Button
+              onClick={() => {
+                setMeetingAnswer('si');
+                const msg = encodeURIComponent(
+                  `Hola! Usé el simulador de AK Producciones y me gustaría agendar una reunión para cerrar los detalles de mi evento. Mi nombre es ${state.nombre}.`
+                );
+                window.open(`https://wa.me/${empresaPhone}?text=${msg}`, '_blank');
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl px-6 h-11"
+            >
+              <CalendarCheck className="w-4 h-4 mr-2" /> Sí, ¡quiero!
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setMeetingAnswer('no')}
+              className="border-white/20 text-white hover:bg-white/10 bg-transparent rounded-2xl px-6 h-11 font-bold"
+            >
+              Ahora no
+            </Button>
+          </div>
+        ) : meetingAnswer === 'si' ? (
+          <p className="text-emerald-300 text-sm font-bold text-center">¡Perfecto! Te esperamos 🎉 Nos ponemos en contacto en breve.</p>
+        ) : (
+          <p className="text-violet-300 text-sm text-center">
+            Sin problema. Siempre podés contactarnos cuando estés listo. 😊
+          </p>
+        )}
       </div>
 
-      <div className="mt-4">
+      {/* FAQ section */}
+      {faqs.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-violet-300 text-xs font-bold uppercase tracking-wider">Preguntas frecuentes</p>
+          {faqs.slice(0, 5).map(faq => (
+            <div key={faq.id} className="rounded-xl border border-white/10 overflow-hidden">
+              <button
+                onClick={() => setFaqOpenId(faqOpenId === faq.id ? null : faq.id)}
+                className="w-full flex items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white/80 hover:bg-white/5"
+              >
+                <span>{faq.question}</span>
+                <ChevronRight className={cn('w-4 h-4 text-violet-400 flex-shrink-0 transition-transform', faqOpenId === faq.id && 'rotate-90')} />
+              </button>
+              {faqOpenId === faq.id && (
+                <div className="px-4 pb-3 text-xs text-violet-200 leading-relaxed border-t border-white/10 pt-2">
+                  {faq.answer}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-2">
         <button onClick={onPrev} className="flex items-center gap-1.5 text-violet-400 hover:text-white text-sm transition-colors">
           <ArrowLeft className="w-4 h-4" /> Volver
         </button>
@@ -1762,10 +1915,17 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
             <tbody>
               {prices?.detallados?.map((s) => (
                 <tr key={s.id} className="border-t border-slate-200">
-                  <td className="px-3 py-2">{s.nombre}</td>
+                  <td className="px-3 py-2 font-medium">
+                    {s.nombre}
+                    {s.esRegalo && <span className="ml-1 text-emerald-600 text-xs font-bold">🎁 Regalo</span>}
+                  </td>
                   <td className="px-3 py-2 text-center">{s.cantidad}</td>
-                  <td className="px-3 py-2 text-right">{s.esRegalo ? 'Sin costo' : formatCurrency(s.precioUnitario)}</td>
-                  <td className="px-3 py-2 text-right font-semibold">{s.esRegalo ? 'Sin costo' : formatCurrency(s.costoTotal)}</td>
+                  <td className="px-3 py-2 text-right">
+                    {s.esRegalo ? <span className="line-through text-slate-400">{formatCurrency(s.precioUnitario)}</span> : formatCurrency(s.precioUnitario)}
+                  </td>
+                  <td className="px-3 py-2 text-right font-semibold">
+                    {s.esRegalo ? <span className="text-emerald-600 font-bold">Sin costo</span> : formatCurrency(s.costoTotal)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -1774,15 +1934,29 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
 
         {prices && (
           <div className="ml-auto mt-5 w-full max-w-sm space-y-1 text-sm">
-            <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(prices.subtotalVenta)}</span></div>
-            <div className="flex justify-between"><span>Descuento ({Math.round(DISCOUNT_RATE * 100)}%)</span><span>-{formatCurrency(prices.descPromo)}</span></div>
+            <div className="flex justify-between"><span>Subtotal servicios</span><span>{formatCurrency(prices.subtotalVenta)}</span></div>
+            {prices.ahorroRegalos > 0 && (
+              <div className="flex justify-between text-emerald-700 font-semibold">
+                <span>🎁 Ahorro regalos incluidos</span>
+                <span>- {formatCurrency(prices.ahorroRegalos)}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-amber-700 font-semibold">
+              <span>Bonificación especial ({Math.round(DISCOUNT_RATE * 100)}%)</span>
+              <span>- {formatCurrency(prices.descPromo)}</span>
+            </div>
             <div className="flex justify-between border-t border-slate-300 pt-2 font-black text-base">
               <span>Total final</span><span>{formatCurrency(prices.totalFinal)}</span>
             </div>
           </div>
         )}
 
-        <div className="mt-8 pt-4 border-t border-slate-200 text-xs text-slate-600">
+        <div className="mt-5 p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm space-y-1">
+          <p className="font-bold text-slate-700">💵 Seña de $5.000 para reservar la fecha.</p>
+          <p className="text-slate-500">📋 El presupuesto tiene 30 días de validez a partir de la fecha de generación.</p>
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-slate-200 text-xs text-slate-600">
           AK Producciones Eventos · WhatsApp 098 355 530 · Salto, Uruguay
         </div>
       </div>
