@@ -26,7 +26,7 @@ function isWriteActionsEnabled(): boolean {
 
 const SAFE_MODE_RESULT: ToolResult = {
   success: false,
-  error: 'Modo operativo desactivado.',
+  error: 'Modo operativo desactivado — configurá ASSISTANT_WRITE_ACTIONS_ENABLED=true para habilitar acciones de escritura.',
   message:
     'Acción operativa desactivada hasta completar configuración. Podés hacerlo manualmente desde el módulo correspondiente.',
 };
