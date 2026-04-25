@@ -744,6 +744,9 @@ export interface SocialGallerySettings {
   momentosActivos?: { id: string; nombre: string; emoji: string; timestamp: string }[];
   sorteoParticipantesRedes?: { nombre: string; timestamp: string }[];
   sorteoGanadores?: string[];
+  /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
+  activeSorteoWinner?: string;
+  activeSorteoTimestamp?: string;
   screenMode?: ScreenModeSettings;
   screenMediaLibrary?: ScreenMediaAsset[];
   /** Real AK branding shown on the giant screen */

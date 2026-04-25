@@ -70,20 +70,61 @@ function getCatalogSpecsForService(categoria?: string, nombre?: string): string[
   return [];
 }
 
+function findPhotoForService(
+  servicio: ServicioEmpresa,
+  catalogoFotos: CatalogoFoto[],
+  tipoFiesta: string,
+): string | null {
+  const safeFotos = catalogoFotos.filter(f => isSafeHttpsUrl(f.url));
+  const nombreLower = (servicio.nombre ?? '').toLowerCase();
+  const catLower = (servicio.categoria ?? '').toLowerCase();
+
+  // Try to match by service name first (most specific)
+  const byNombre = safeFotos.filter(f => {
+    const tituloLower = (f.titulo ?? '').toLowerCase();
+    return tituloLower && nombreLower && (
+      tituloLower.includes(nombreLower) || nombreLower.includes(tituloLower)
+    );
+  });
+
+  // Then by catalog categoria matching service name
+  const byCategoria = safeFotos.filter(f =>
+    f.categoriaServicio.toLowerCase() === catLower,
+  );
+
+  const candidates = byNombre.length > 0 ? byNombre : byCategoria;
+  if (candidates.length === 0) return null;
+
+  // Prefer photos matching the event type
+  if (tipoFiesta) {
+    const byTipo = candidates.filter(
+      f => f.tipoFiesta && f.tipoFiesta.toLowerCase() === tipoFiesta.toLowerCase(),
+    );
+    if (byTipo.length > 0) return byTipo[0].url;
+  }
+  const generic = candidates.filter(f => !f.tipoFiesta);
+  if (generic.length > 0) return generic[0].url;
+  return candidates[0].url;
+}
+
 function ServicioCard({
   servicio,
   isSelected,
   onToggle,
   mostrarPrecios,
+  fotoUrl,
 }: {
   servicio: ServicioEmpresa;
   isSelected: boolean;
   onToggle: () => void;
   mostrarPrecios: boolean;
+  fotoUrl?: string | null;
 }) {
   const [showSpecs, setShowSpecs] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
   const specs = getCatalogSpecsForService(servicio.categoria, servicio.nombre);
   const price = mostrarPrecios ? formatPrice(servicio) : null;
+  const showPhoto = fotoUrl != null && isSafeHttpsUrl(fotoUrl) && !imgFailed;
 
   return (
     <div
@@ -94,6 +135,23 @@ function ServicioCard({
           : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20',
       )}
     >
+      {showPhoto && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={fotoUrl!}
+          alt={servicio.nombre}
+          className="w-full h-36 object-cover"
+          onError={() => setImgFailed(true)}
+        />
+      )}
+      {!showPhoto && (
+        <div className="w-full h-28 bg-gradient-to-br from-slate-800/60 to-slate-700/40 flex items-center justify-center border-b border-white/10">
+          <div className="flex flex-col items-center gap-1 opacity-40">
+            <Camera className="h-6 w-6 text-white/60" />
+            <span className="text-white/50 text-xs">Sin foto</span>
+          </div>
+        </div>
+      )}
       <div className="p-4">
         <div className="flex items-start gap-3">
           {/* Select button */}
@@ -234,7 +292,7 @@ export function CategoriaServiciosSlide({
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Image placeholder */}
+          {/* Left: Category-level images (shown when multiple photos exist) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -290,7 +348,7 @@ export function CategoriaServiciosSlide({
             )}
           </motion.div>
 
-          {/* Right: Service cards */}
+          {/* Right: Service cards — each with its own photo */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -314,6 +372,7 @@ export function CategoriaServiciosSlide({
                     isSelected={selectedServices.includes(servicio.id)}
                     onToggle={() => onToggleSelect(servicio.id)}
                     mostrarPrecios={mostrarPrecios}
+                    fotoUrl={findPhotoForService(servicio, catalogoFotos, tipoFiesta)}
                   />
                 </motion.div>
               ))

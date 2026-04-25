@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Gamepad2, GripVertical, Loader2, Pause, Play, Plus, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Upload, X, Zap } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trophy, Upload, X, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,10 @@ import {
   updateScreenBrand,
   launchGame,
   clearActiveGame,
+  triggerSorteoWinner,
 } from '@/app/actions/fiesta/screen-mode.actions';
+import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
+import type { SocialPoll } from '@/types/social-gallery';
 
 const ADMIN_REFRESH_INTERVAL_MS = 3000;
 
@@ -210,6 +213,16 @@ function MuroSocialContent() {
     }
   }, [fiestaId]);
 
+  // Games state
+  const [activePoll, setActivePoll] = useState<SocialPoll | null>(null);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
+  const [isCreatingPoll, setIsCreatingPoll] = useState(false);
+  const [isClosingPoll, setIsClosingPoll] = useState(false);
+  const [isTriggeringSorteo, setIsTriggeringSorteo] = useState(false);
+  const [sorteoParticipants, setSorteoParticipants] = useState<string>('');
+  const [lastSorteoWinner, setLastSorteoWinner] = useState<string | null>(null);
+
   const loadData = useCallback(async () => {
     if (!fiestaId) {
       router.push('/eventos');
@@ -239,6 +252,13 @@ function MuroSocialContent() {
       setActiveGame(fiestaData.socialGallerySettings?.activeGame ?? null);
       const globalAssets = await getGlobalScreenMediaLibrary();
       setGlobalLibrary(globalAssets);
+      // Load active poll independently to avoid blocking the main data load
+      try {
+        const pollData = await getActivePoll(fiestaId);
+        setActivePoll(pollData);
+      } catch {
+        setActivePoll(null);
+      }
       // Load photo count for admin status panel
       try {
         const posts = await getSocialPosts(fiestaId);
@@ -474,6 +494,59 @@ function MuroSocialContent() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
       setUploadingMedia(false);
+    }
+  };
+
+  const handleCreateAndLaunchPoll = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fiestaId) return;
+    const opts = pollOptions.filter(o => o.trim());
+    if (!pollQuestion.trim() || opts.length < 2) return;
+    setIsCreatingPoll(true);
+    const result = await createPoll(fiestaId, pollQuestion.trim(), opts);
+    setIsCreatingPoll(false);
+    if (result.success) {
+      setActivePoll(result.poll ?? null);
+      setPollQuestion('');
+      setPollOptions(['', '']);
+      toast({ title: '¡Trivia lanzada en pantalla! 🎯', description: 'Los invitados ya pueden votar desde su celular.' });
+    } else {
+      toast({ title: 'Error al lanzar trivia', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleClosePoll = async () => {
+    if (!fiestaId || !activePoll) return;
+    setIsClosingPoll(true);
+    const result = await closePoll(fiestaId, activePoll.id);
+    setIsClosingPoll(false);
+    if (result.success) {
+      setActivePoll(null);
+      toast({ title: 'Trivia cerrada' });
+    } else {
+      toast({ title: 'Error al cerrar trivia', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleTriggerSorteo = async () => {
+    if (!fiestaId) return;
+    const participants = sorteoParticipants
+      .split('\n')
+      .map(p => p.trim())
+      .filter(Boolean);
+    if (participants.length === 0) {
+      toast({ title: 'Sin participantes', description: 'Ingresá los nombres de los participantes (uno por línea).', variant: 'destructive' });
+      return;
+    }
+    const winner = participants[Math.floor(Math.random() * participants.length)];
+    setIsTriggeringSorteo(true);
+    const result = await triggerSorteoWinner(fiestaId, winner);
+    setIsTriggeringSorteo(false);
+    if (result.success) {
+      setLastSorteoWinner(winner);
+      toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
+    } else {
+      toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
     }
   };
 
@@ -968,6 +1041,149 @@ function MuroSocialContent() {
                 {moment.emoji} {moment.nombre}
               </Button>
             ))}
+          </CardContent>
+        </Card>
+
+        {/* ── JUEGOS EN VIVO ── */}
+        <Card className="lg:col-span-2 border-2 border-purple-200 bg-purple-50/50">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Gamepad2 className="w-5 h-5 text-purple-600" />
+              Juegos en Vivo · Pantalla Gigante
+            </CardTitle>
+            <CardDescription>
+              Lanzá trivias, encuestas y sorteos que aparecen <strong>inmediatamente</strong> en la pantalla gigante.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Trivia / Encuesta */}
+            <div className="rounded-xl border border-purple-200 bg-white p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-purple-500" />
+                <p className="font-bold text-sm text-purple-900">Trivia / Encuesta</p>
+                {activePoll && (
+                  <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
+                    ● EN VIVO
+                  </span>
+                )}
+              </div>
+              {!activePoll ? (
+                <form onSubmit={handleCreateAndLaunchPoll} className="space-y-3">
+                  <Input
+                    value={pollQuestion}
+                    onChange={(e) => setPollQuestion(e.target.value)}
+                    placeholder="Pregunta de la trivia… ej: ¿Cuál es la canción favorita de los agasajados?"
+                  />
+                  <div className="space-y-2">
+                    {pollOptions.map((opt, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <Input
+                          value={opt}
+                          onChange={(e) => {
+                            const next = [...pollOptions];
+                            next[idx] = e.target.value;
+                            setPollOptions(next);
+                          }}
+                          placeholder={`Opción ${idx + 1}`}
+                        />
+                        {pollOptions.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => setPollOptions(prev => prev.filter((_, i) => i !== idx))}
+                            className="text-slate-400 hover:text-destructive"
+                          >
+                            <MinusCircle className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {pollOptions.length < 4 && (
+                      <button
+                        type="button"
+                        onClick={() => setPollOptions(prev => [...prev, ''])}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-600"
+                      >
+                        <PlusCircle className="w-4 h-4" /> Agregar opción
+                      </button>
+                    )}
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={isCreatingPoll || !pollQuestion.trim() || pollOptions.filter(o => o.trim()).length < 2}
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    {isCreatingPoll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+                    🎯 Lanzar Trivia en Pantalla
+                  </Button>
+                </form>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-lg bg-purple-50 border border-purple-200 p-3">
+                    <p className="font-semibold text-purple-900 text-sm mb-2">{activePoll.question}</p>
+                    <div className="space-y-1.5">
+                      {activePoll.options.map(opt => {
+                        const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
+                        const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
+                        return (
+                          <div key={opt.id} className="space-y-0.5">
+                            <div className="flex justify-between text-xs text-slate-600">
+                              <span>{opt.text}</span>
+                              <span className="font-bold">{pct}% ({opt.votes} votos)</span>
+                            </div>
+                            <div className="h-2 rounded-full bg-slate-200">
+                              <div className="h-full rounded-full bg-purple-500 transition-all" style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleClosePoll}
+                    disabled={isClosingPoll}
+                  >
+                    {isClosingPoll ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> : null}
+                    Cerrar Trivia
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Sorteo */}
+            <div className="rounded-xl border border-yellow-200 bg-white p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-yellow-500" />
+                <p className="font-bold text-sm text-yellow-900">Sorteo Sorpresa</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-slate-500">
+                  Ingresá los nombres de los participantes (uno por línea):
+                </Label>
+                <textarea
+                  className="w-full rounded-md border px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  placeholder={"Juan García\nMaría López\nPedro Martínez\n..."}
+                  value={sorteoParticipants}
+                  onChange={(e) => setSorteoParticipants(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  onClick={handleTriggerSorteo}
+                  disabled={isTriggeringSorteo || !sorteoParticipants.trim()}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white w-full"
+                >
+                  {isTriggeringSorteo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
+                  🎲 ¡Lanzar Sorteo en Pantalla!
+                </Button>
+                {lastSorteoWinner && (
+                  <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-center">
+                    <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-1">Último ganador</p>
+                    <p className="text-xl font-black text-yellow-900">🏆 {lastSorteoWinner}</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
