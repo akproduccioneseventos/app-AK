@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage } from '@/app/actions/social-gallery';
-import { addDedication, addSongRequest, getDedications, getSongRequests } from '@/app/actions/social-interactive';
-import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
+import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment } from '@/app/actions/social-gallery';
+import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication } from '@/app/actions/social-interactive';
+import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -29,7 +29,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -60,12 +60,13 @@ const PostCard: React.FC<{
   onLike: (postId: string) => void; 
   onComment: (postId: string, text: string) => Promise<void>; 
   onDelete?: (postId: string) => void;
+  onHighlightComment?: (postId: string, commentId: string, highlighted: boolean) => Promise<void>;
   isAdminView: boolean;
   authorName: string;
   accentColor: string;
   allowLikes: boolean;
   allowComments: boolean;
-}> = ({ post, onLike, onComment, onDelete, isAdminView, authorName, accentColor, allowLikes, allowComments }) => {
+}> = ({ post, onLike, onComment, onDelete, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments }) => {
   const [commentText, setCommentText] = useState('');
   
   const handleCommentSubmit = async (e: FormEvent) => {
@@ -129,9 +130,20 @@ const PostCard: React.FC<{
             <div className="w-full pt-3 border-t border-slate-100 space-y-3">
                 <div className="max-h-32 overflow-y-auto space-y-2 pr-2 text-sm scrollbar-hide">
                     {post.comments.length > 0 ? post.comments.map(c => (
-                        <div key={c.id} className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
-                            <span className="font-black text-slate-700 text-xs mr-1">{c.authorName}:</span> 
-                            <span className="text-slate-600 leading-relaxed">{c.text}</span>
+                        <div key={c.id} className={cn("flex items-start gap-1.5 rounded-xl border p-2.5", c.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50 border-slate-100/50")}>
+                            <div className="flex-1 min-w-0">
+                                <span className="font-black text-slate-700 text-xs mr-1">{c.authorName}:</span> 
+                                <span className="text-slate-600 leading-relaxed">{c.text}</span>
+                            </div>
+                            {isAdminView && onHighlightComment && (
+                                <button
+                                    onClick={() => onHighlightComment(post.id, c.id, !c.highlighted)}
+                                    className={cn("flex-shrink-0 p-1 rounded-lg transition-colors", c.highlighted ? "text-amber-500 hover:text-amber-600" : "text-slate-300 hover:text-amber-400")}
+                                    title={c.highlighted ? 'Quitar destacado' : 'Destacar comentario'}
+                                >
+                                    <Star className="w-3.5 h-3.5" fill={c.highlighted ? 'currentColor' : 'none'} />
+                                </button>
+                            )}
                         </div>
                     )) : <p className="text-xs text-muted-foreground text-center py-2 italic">Sin comentarios aún...</p>}
                 </div>
@@ -161,6 +173,14 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [newChatMessage, setNewChatMessage] = useState('');
   const [newSongRequest, setNewSongRequest] = useState('');
   const [newDedication, setNewDedication] = useState('');
+
+  // Poll state
+  const [activePoll, setActivePoll] = useState<SocialPoll | null>(null);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
+  const [isCreatingPoll, setIsCreatingPoll] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [votedPollId, setVotedPollId] = useState<string | null>(null);
   
   const [authorName, setAuthorName] = useState('');
   const [tempAuthorName, setTempAuthorName] = useState('');
@@ -210,7 +230,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
     if(showLoadingIndicator) setIsLoading(true);
     try {
-      const [fetchedPosts, fiestaData, fetchedChat, settingsData, socialConnections, fetchedSongRequests, fetchedDedications] = await Promise.all([
+      const [fetchedPosts, fiestaData, fetchedChat, settingsData, socialConnections, fetchedSongRequests, fetchedDedications, poll] = await Promise.all([
           getSocialPosts(params.fiestaId),
           getFiestaById(params.fiestaId),
           getChatMessages(params.fiestaId),
@@ -218,6 +238,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           getSocialConnections(),
           getSongRequests(params.fiestaId),
           getDedications(params.fiestaId),
+          getActivePoll(params.fiestaId),
       ]);
       setPosts(fetchedPosts);
       setFiesta(fiestaData);
@@ -227,6 +248,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setChatMessages(fetchedChat);
       setSongRequests(fetchedSongRequests);
       setDedications(fetchedDedications);
+      setActivePoll(poll);
       setCompanyLogoUrl(settingsData.logoUrl ?? null);
       setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
 
@@ -392,6 +414,64 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     }
   };
 
+
+  const handleCreatePoll = async (e: FormEvent) => {
+    e.preventDefault();
+    const opts = pollOptions.filter(o => o.trim());
+    if (!pollQuestion.trim() || opts.length < 2) return;
+    setIsCreatingPoll(true);
+    const filteredOptions = opts;
+    const result = await createPoll(params.fiestaId, pollQuestion.trim(), filteredOptions);
+    if (result.success) {
+      setPollQuestion('');
+      setPollOptions(['', '']);
+      await fetchData(false);
+      toast({ title: '¡Encuesta lanzada! 🎯' });
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+    setIsCreatingPoll(false);
+  };
+
+  const handleVotePoll = async (pollId: string, optionId: string) => {
+    if (hasVoted && votedPollId === pollId) return;
+    const result = await votePoll(params.fiestaId, pollId, optionId);
+    if (result.success) {
+      setHasVoted(true);
+      setVotedPollId(pollId);
+      await fetchData(false);
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleClosePoll = async (pollId: string) => {
+    const result = await closePoll(params.fiestaId, pollId);
+    if (result.success) {
+      await fetchData(false);
+      toast({ title: 'Encuesta cerrada' });
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleHighlightDedication = async (dedId: string, currentHighlighted: boolean) => {
+    const result = await highlightDedication(params.fiestaId, dedId, !currentHighlighted);
+    if (result.success) {
+      await fetchData(false);
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleHighlightComment = async (postId: string, commentId: string, highlighted: boolean) => {
+    const result = await highlightComment(postId, commentId, highlighted);
+    if (result.success) {
+      await fetchData(false);
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+  };
 
   const handleDelete = async (postId: string) => {
     await deleteSocialPost(postId);
@@ -625,6 +705,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       onComment={handleComment}
                       isAdminView={isAdminView}
                       onDelete={handleDelete}
+                      onHighlightComment={isAdminView ? handleHighlightComment : undefined}
                       authorName={authorName}
                       accentColor={accentColor}
                       allowLikes={Boolean(localSettings.allowLikes)}
@@ -694,9 +775,25 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                   </form>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {dedications.slice(-10).reverse().map((dedication) => (
-                      <div key={dedication.id} className="rounded-xl border bg-slate-50 px-3 py-2 text-sm">
-                        <p className="text-slate-700">{dedication.message}</p>
-                        <p className="text-xs text-slate-500 mt-1">— {dedication.authorName}</p>
+                      <div key={dedication.id} className={cn("rounded-xl border px-3 py-2 text-sm", dedication.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50")}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-slate-700">{dedication.message}</p>
+                            <p className="text-xs text-slate-500 mt-1">— {dedication.authorName}</p>
+                          </div>
+                          {isAdminView && (
+                            <button
+                              onClick={() => handleHighlightDedication(dedication.id, !!dedication.highlighted)}
+                              className={cn("flex-shrink-0 p-1 rounded-lg transition-colors", dedication.highlighted ? "text-amber-500 hover:text-amber-600" : "text-slate-300 hover:text-amber-400")}
+                              title={dedication.highlighted ? 'Quitar destacado' : 'Destacar'}
+                            >
+                              <Star className="w-4 h-4" fill={dedication.highlighted ? 'currentColor' : 'none'} />
+                            </button>
+                          )}
+                          {dedication.highlighted && !isAdminView && (
+                            <Star className="w-4 h-4 flex-shrink-0 text-amber-400 fill-current" />
+                          )}
+                        </div>
                       </div>
                     ))}
                     {dedications.length === 0 && <p className="text-xs text-slate-400">Todavía no hay dedicatorias.</p>}
@@ -705,6 +802,108 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
               </Card>
             )}
           </div>
+        )}
+
+        {/* Admin: Polls/Trivia management */}
+        {isAdminView && (
+          <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md border-l-4" style={{ borderLeftColor: accentColor }}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-slate-800">
+                <PlayCircle className="w-5 h-5" style={{ color: accentColor }} /> Encuestas / Trivia
+              </CardTitle>
+              <CardDescription>Lanza una encuesta en vivo para que los invitados voten.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <form onSubmit={handleCreatePoll} className="space-y-3">
+                <Input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)} placeholder="Pregunta de la encuesta..." />
+                <div className="space-y-2">
+                  {pollOptions.map((opt, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <Input value={opt} onChange={e => { const next = [...pollOptions]; next[idx] = e.target.value; setPollOptions(next); }} placeholder={`Opción ${idx + 1}`} />
+                      {pollOptions.length > 2 && (
+                        <button type="button" onClick={() => setPollOptions(prev => prev.filter((_, i) => i !== idx))} className="text-slate-400 hover:text-destructive">
+                          <MinusCircle className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {pollOptions.length < 4 && (
+                    <button type="button" onClick={() => setPollOptions(prev => [...prev, ''])} className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-600">
+                      <PlusCircle className="w-4 h-4" /> Agregar opción
+                    </button>
+                  )}
+                </div>
+                <Button type="submit" disabled={isCreatingPoll || !pollQuestion.trim() || pollOptions.filter(o => o.trim()).length < 2} style={{ backgroundColor: accentColor }}>
+                  {isCreatingPoll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlayCircle className="w-4 h-4 mr-2" />}
+                  Lanzar Encuesta
+                </Button>
+              </form>
+              {activePoll && (
+                <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-slate-700 text-sm">{activePoll.question}</p>
+                    <Button size="sm" variant="destructive" onClick={() => handleClosePoll(activePoll.id)}>Cerrar</Button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {activePoll.options.map(opt => {
+                      const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
+                      const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
+                      return (
+                        <div key={opt.id} className="space-y-0.5">
+                          <div className="flex justify-between text-xs text-slate-600">
+                            <span>{opt.text}</span><span className="font-bold">{pct}% ({opt.votes})</span>
+                          </div>
+                          <div className="h-2 rounded-full bg-slate-200"><div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: accentColor }} /></div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Guest: Active Poll Voting */}
+        {activePoll && !isAdminView && authorName && (
+          <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md max-w-lg mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-slate-800">
+                <PlayCircle className="w-5 h-5" style={{ color: accentColor }} /> Encuesta en Vivo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-lg font-bold text-slate-700">{activePoll.question}</p>
+              {hasVoted && votedPollId === activePoll.id ? (
+                <div className="space-y-3">
+                  {activePoll.options.map(opt => {
+                    const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
+                    const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
+                    return (
+                      <div key={opt.id} className="space-y-1">
+                        <div className="flex justify-between text-sm text-slate-600">
+                          <span className="font-medium">{opt.text}</span>
+                          <span className="font-bold" style={{ color: accentColor }}>{pct}%</span>
+                        </div>
+                        <div className="h-3 rounded-full bg-slate-100">
+                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: accentColor }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <p className="text-xs text-slate-400 text-center">¡Gracias por votar!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-2">
+                  {activePoll.options.map(opt => (
+                    <Button key={opt.id} variant="outline" className="h-12 rounded-xl text-left justify-start font-semibold" onClick={() => handleVotePoll(activePoll.id, opt.id)}>
+                      {opt.text}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
         
         {localSettings.chatEnabled && (

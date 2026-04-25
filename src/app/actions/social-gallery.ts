@@ -100,6 +100,28 @@ export async function addCommentToPost(postId: string, text: string, authorName:
     return { success: true, comment: newComment };
 }
 
+export async function highlightComment(
+  postId: string,
+  commentId: string,
+  highlighted: boolean
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const allPosts = await getMetadata();
+    const postIndex = allPosts.findIndex(p => p.id === postId);
+    if (postIndex === -1) return { success: false, error: 'Publicación no encontrada.' };
+    const commentIndex = allPosts[postIndex].comments.findIndex(c => c.id === commentId);
+    if (commentIndex === -1) return { success: false, error: 'Comentario no encontrado.' };
+    allPosts[postIndex].comments[commentIndex] = {
+      ...allPosts[postIndex].comments[commentIndex],
+      highlighted,
+    };
+    await writeMetadata(allPosts);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
 export async function deleteSocialPost(postId: string): Promise<{ success: boolean; error?: string }> {
   const allPosts = await getMetadata();
   const postToDelete = allPosts.find(p => p.id === postId);
