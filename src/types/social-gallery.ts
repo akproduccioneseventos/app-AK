@@ -4,6 +4,7 @@ export interface SocialComment {
   authorName: string;
   text: string;
   timestamp: string; // ISO Date String
+  highlighted?: boolean;
 }
 
 export interface SocialGalleryPost {
