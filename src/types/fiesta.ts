@@ -697,6 +697,32 @@ export interface ClientPortalSettings {
   cuentasBancarias?: CuentaBancaria[];
 }
 
+export type ActiveGameType =
+  | 'siONo'
+  | 'trivia'
+  | 'encuesta'
+  | 'baileLibre'
+  | 'verdadODesafio'
+  | 'preguntaAbierta';
+
+export interface ActiveGameOption {
+  id: string;
+  text: string;
+  emoji?: string;
+  votes?: number;
+}
+
+export interface ActiveGameData {
+  type: ActiveGameType;
+  title: string;
+  subtitle?: string;
+  options?: ActiveGameOption[];
+  correctOptionId?: string;
+  launchedAt: string;
+  /** Reference to a linked poll ID (for type 'encuesta') */
+  pollId?: string;
+}
+
 export interface SocialGallerySettings {
   enabled: boolean;
   title?: string;
@@ -721,12 +747,12 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
-  /** Active game being displayed on the giant screen */
-  activeGame?: 'poll' | 'sorteo' | null;
   screenMode?: ScreenModeSettings;
   screenMediaLibrary?: ScreenMediaAsset[];
   /** Real AK branding shown on the giant screen */
   brand?: SocialGalleryBrand;
+  /** Active game to display on the giant screen */
+  activeGame?: ActiveGameData;
 }
 
 export interface SocialGalleryBrand {

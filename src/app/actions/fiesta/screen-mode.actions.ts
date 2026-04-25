@@ -3,7 +3,7 @@
 import path from 'path';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
-import type { ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
+import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 
 function normalizeSocialSettings(settings?: SocialGallerySettings): SocialGallerySettings {
   return {
@@ -233,6 +233,45 @@ export async function getGlobalScreenMediaLibrary(): Promise<ScreenMediaAsset[]>
   return Array.from(dedup.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/** Lanza un juego en la pantalla gigante en tiempo real */
+export async function launchGame(
+  fiestaId: string,
+  game: Omit<ActiveGameData, 'launchedAt'>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const activeGame: ActiveGameData = { ...game, launchedAt: new Date().toISOString() };
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...normalizeSocialSettings(fiesta.socialGallerySettings),
+        activeGame,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al lanzar el juego.' };
+  }
+}
+
+/** Detiene el juego activo y lo elimina de la pantalla gigante */
+export async function clearActiveGame(
+  fiestaId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { activeGame: _removed, ...settingsWithoutGame } = settings;
+    await saveFiesta({ ...fiesta, socialGallerySettings: settingsWithoutGame });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al detener el juego.' };
+  }
+}
+
 /** Lanza un sorteo y muestra el ganador en la pantalla gigante */
 export async function triggerSorteoWinner(
   fiestaId: string,
@@ -252,33 +291,11 @@ export async function triggerSorteoWinner(
         ...settings,
         activeSorteoWinner: winner,
         activeSorteoTimestamp: new Date().toISOString(),
-        activeGame: 'sorteo',
         sorteoGanadores: updatedWinners,
       },
     });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al lanzar sorteo.' };
-  }
-}
-
-/** Lanza la encuesta activa como juego en la pantalla gigante */
-export async function activateGameOnScreen(
-  fiestaId: string,
-  gameType: 'poll' | 'sorteo' | null
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
-    await saveFiesta({
-      ...fiesta,
-      socialGallerySettings: {
-        ...normalizeSocialSettings(fiesta.socialGallerySettings),
-        activeGame: gameType,
-      },
-    });
-    return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al activar juego.' };
   }
 }
