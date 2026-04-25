@@ -15,8 +15,9 @@ import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 
-const REFRESH_INTERVAL_MS = 5000;
+const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
+const SORTEO_DISPLAY_DURATION_MS = 20000;
 const FRESH_POST_POLAROID_DURATION_MS = 20000;
 const MARQUEE_REPEAT_COUNT = 3;
 const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
@@ -52,6 +53,7 @@ export default function MuroEnVivoPage() {
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [activeMoment, setActiveMoment] = useState<MomentData | null>(null);
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
+  const [activeSorteoWinner, setActiveSorteoWinner] = useState<string | null>(null);
   const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
   const [highlightedComments, setHighlightedComments] = useState<{ postId: string; comment: SocialComment }[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -95,6 +97,14 @@ export default function MuroEnVivoPage() {
         const momentIsFresh =
           latestMoment && Date.now() - new Date(latestMoment.timestamp).getTime() < MOMENT_DISPLAY_DURATION_MS;
         setActiveMoment(momentIsFresh ? latestMoment : null);
+
+        // Sorteo winner display (TTL: SORTEO_DISPLAY_DURATION_MS)
+        const sorteoTs = fiestaData.socialGallerySettings.activeSorteoTimestamp;
+        const sorteoWinner = fiestaData.socialGallerySettings.activeSorteoWinner;
+        const sorteoIsFresh =
+          sorteoTs && sorteoWinner &&
+          Date.now() - new Date(sorteoTs).getTime() < SORTEO_DISPLAY_DURATION_MS;
+        setActiveSorteoWinner(sorteoIsFresh ? sorteoWinner : null);
       }
       if (pollData) {
         setActivePoll({ id: pollData.id, question: pollData.question, options: pollData.options });
@@ -250,15 +260,39 @@ export default function MuroEnVivoPage() {
 
       {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes') && posts.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-          <div className="text-8xl opacity-20">📸</div>
-          <div className="text-center space-y-2">
-            <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Muro Social</p>
-            <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí.</p>
+          {activeScreenItem?.type === 'juego' ? (
+            <>
+              <div className="text-9xl opacity-30">🎮</div>
+              <div className="text-center space-y-2">
+                <p className="text-white/60 text-3xl font-black tracking-widest uppercase">¡Hora de Jugar!</p>
+                <p className="text-white/40 text-base">Esperando que el organizador lance un juego...</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-8xl opacity-20">📸</div>
+              <div className="text-center space-y-2">
+                <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Muro Social</p>
+                <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí.</p>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {isLoaded && activeScreenItem?.type === 'juego' && posts.length > 0 && !activePoll && (
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-slate-950 to-indigo-900/60">
+          <MasonryLayout posts={posts} />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center space-y-2 bg-black/60 px-10 py-6 rounded-3xl backdrop-blur-sm">
+              <p className="text-6xl">🎮</p>
+              <p className="text-white/80 text-3xl font-black tracking-widest uppercase">¡Modo Juego!</p>
+            </div>
           </div>
         </div>
       )}
 
-      {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural' || activeScreenItem.type === 'juego') && posts.length > 0 && (
+      {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
         <MasonryLayout posts={posts} />
       )}
 
@@ -272,7 +306,7 @@ export default function MuroEnVivoPage() {
 
       {activePoll && settings.showPolls && (
         <div className={GAME_OVERLAY_CLASS}>
-          <p className="mb-3 text-center text-base font-black tracking-[0.35em] text-yellow-300 uppercase">Juego en Vivo</p>
+          <p className="mb-3 text-center text-base font-black tracking-[0.35em] text-yellow-300 uppercase">🎮 Juego en Vivo</p>
           <h2 className="mb-5 text-center text-4xl font-black leading-tight text-white">{activePoll.question}</h2>
           <div className="space-y-4">
             {activePoll.options.map((option) => {
@@ -332,7 +366,7 @@ export default function MuroEnVivoPage() {
       </div>
 
       <AnimatePresence>
-        {activeMoment && (
+        {activeMoment && !activeSorteoWinner && (
           <motion.div
             key={activeMoment.timestamp}
             initial={{ opacity: 0, scale: 0.92 }}
@@ -353,6 +387,43 @@ export default function MuroEnVivoPage() {
             <h1 className="text-7xl font-black uppercase text-white drop-shadow-[0_0_18px_rgba(255,255,255,0.3)]">
               {activeMoment.nombre}
             </h1>
+          </motion.div>
+        )}
+
+        {activeSorteoWinner && (
+          <motion.div
+            key={`sorteo-${activeSorteoWinner}`}
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.5, y: 40 }}
+              animate={{ scale: [0.8, 1.1, 1], y: 0 }}
+              transition={{ duration: 1.0 }}
+              className="mb-4 text-9xl"
+            >
+              🎉
+            </motion.div>
+            <p className="mb-2 text-sm font-black uppercase tracking-[0.6em] text-yellow-300">¡Ganador del Sorteo!</p>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(255,215,0,0.5)] px-8"
+            >
+              {activeSorteoWinner}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-6 text-xl font-bold text-yellow-200/80 tracking-widest"
+            >
+              🏆 ¡Felicitaciones! 🏆
+            </motion.p>
           </motion.div>
         )}
       </AnimatePresence>

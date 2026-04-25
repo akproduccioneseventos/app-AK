@@ -232,3 +232,50 @@ export async function getGlobalScreenMediaLibrary(): Promise<ScreenMediaAsset[]>
   }
   return Array.from(dedup.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
+
+/** Lanza un sorteo y muestra el ganador en la pantalla gigante */
+export async function triggerSorteoWinner(
+  fiestaId: string,
+  winner: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const previousWinners = settings.sorteoGanadores ?? [];
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        activeSorteoWinner: winner,
+        activeSorteoTimestamp: new Date().toISOString(),
+        activeGame: 'sorteo',
+        sorteoGanadores: [...previousWinners, winner],
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al lanzar sorteo.' };
+  }
+}
+
+/** Lanza la encuesta activa como juego en la pantalla gigante */
+export async function activateGameOnScreen(
+  fiestaId: string,
+  gameType: 'poll' | 'sorteo' | null
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...normalizeSocialSettings(fiesta.socialGallerySettings),
+        activeGame: gameType,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al activar juego.' };
+  }
+}
