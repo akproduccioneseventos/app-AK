@@ -102,6 +102,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Intent router: create_budget → TOOL_REGISTRY → crearPresupuesto
 // ─────────────────────────────────────────────────────────────────────────────
@@ -332,6 +333,106 @@ describe('Dispatcher — Gemini action.type pasa por TOOL_REGISTRY', () => {
       'pres_juan',
       expect.objectContaining({ monto: 20000 }),
     );
+    expect(res.response).toContain('✅');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. Safe mode — ASSISTANT_WRITE_ACTIONS_ENABLED apagado
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Modo seguro — ASSISTANT_WRITE_ACTIONS_ENABLED desactivado', () => {
+  beforeEach(() => {
+    delete process.env.ASSISTANT_WRITE_ACTIONS_ENABLED;
+  });
+
+  afterEach(() => {
+    delete process.env.ASSISTANT_WRITE_ACTIONS_ENABLED;
+  });
+
+  it('create_budget no ejecuta savePresupuesto y responde modo seguro', async () => {
+    const res = await sendAssistantMessage(
+      'Haceme un presupuesto para María XV años 100 invitados',
+      [],
+    );
+
+    expect(res.success).toBe(true);
+    // savePresupuesto was NOT called
+    expect(mockSavePresupuesto).not.toHaveBeenCalled();
+    // Response indicates action is disabled
+    expect(res.response).toMatch(/desactivad[ao]|configuraci[oó]n|manualmente/i);
+    // Must not contain success emoji
+    expect(res.response).not.toContain('✅');
+  });
+
+  it('register_payment no ejecuta addPagoToPresupuesto y responde modo seguro', async () => {
+    const { getPresupuestos } = require('@/app/actions/presupuestos');
+    (getPresupuestos as jest.Mock).mockResolvedValueOnce([
+      { id: 'pres_safe', clienteNombre: 'María López', timestamp: new Date().toISOString() },
+    ]);
+
+    const res = await sendAssistantMessage(
+      'Registrá un pago de 15000 pesos para María López',
+      [],
+    );
+
+    expect(res.success).toBe(true);
+    expect(mockAddPago).not.toHaveBeenCalled();
+    expect(res.response).toMatch(/desactivad[ao]|configuraci[oó]n|manualmente/i);
+    expect(res.response).not.toContain('✅');
+  });
+
+  it('schedule_meeting no crea lead ni cita y responde modo seguro', async () => {
+    const res = await sendAssistantMessage(
+      'Agenda a Norma para mañana a las 11',
+      [],
+    );
+
+    expect(res.success).toBe(true);
+    expect(mockAddCrmLead).not.toHaveBeenCalled();
+    expect(res.response).toMatch(/desactivad[ao]|configuraci[oó]n|manualmente/i);
+    expect(res.response).not.toContain('✅');
+  });
+
+  it('generate_social_post sí funciona cuando el modo operativo está apagado', async () => {
+    mockChat.mockResolvedValueOnce({
+      response: 'Acá va tu post de Instagram 🎉',
+      action: {
+        type: 'generate_social_post',
+        data: { content: 'Post de marketing generado para AK Producciones.' },
+      },
+    } as any);
+
+    const res = await sendAssistantMessage('Generame un post para Instagram', []);
+
+    expect(res.success).toBe(true);
+    // Marketing action passed through normally
+    expect(res.action?.type).toBe('generate_social_post');
+  });
+});
+
+describe('Modo seguro — ASSISTANT_WRITE_ACTIONS_ENABLED activo', () => {
+  beforeEach(() => {
+    process.env.ASSISTANT_WRITE_ACTIONS_ENABLED = 'true';
+  });
+
+  afterEach(() => {
+    delete process.env.ASSISTANT_WRITE_ACTIONS_ENABLED;
+  });
+
+  it('con modo operativo activo, create_budget ejecuta savePresupuesto', async () => {
+    mockSavePresupuesto.mockResolvedValueOnce({
+      success: true,
+      id: 'pres_enabled_1',
+    } as any);
+
+    const res = await sendAssistantMessage(
+      'Haceme un presupuesto para María XV años 100 invitados',
+      [],
+    );
+
+    expect(res.success).toBe(true);
+    expect(mockSavePresupuesto).toHaveBeenCalledTimes(1);
     expect(res.response).toContain('✅');
   });
 });

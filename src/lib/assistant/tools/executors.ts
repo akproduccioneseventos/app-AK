@@ -14,6 +14,23 @@ import type { ToolResult } from '../tool-registry';
 import * as logger from '@/lib/logger';
 import { ASSISTANT_ROUTES } from '../app-routes';
 
+// ── Modo seguro operativo ─────────────────────────────────────────────────────
+
+/**
+ * Devuelve true solo cuando ASSISTANT_WRITE_ACTIONS_ENABLED === "true".
+ * Las herramientas de marketing NO necesitan esta validación.
+ */
+function isWriteActionsEnabled(): boolean {
+  return process.env.ASSISTANT_WRITE_ACTIONS_ENABLED === 'true';
+}
+
+const SAFE_MODE_RESULT: ToolResult = {
+  success: false,
+  error: 'Modo operativo desactivado — configurá ASSISTANT_WRITE_ACTIONS_ENABLED=true para habilitar acciones de escritura.',
+  message:
+    'Acción operativa desactivada hasta completar configuración. Podés hacerlo manualmente desde el módulo correspondiente.',
+};
+
 // ── Helper de notificación ────────────────────────────────────────────────────
 
 async function enviarNotificacion(params: {
@@ -117,6 +134,7 @@ const METODO_PAGO_MAP: Record<string, string> = {
  * Si es nuevo → crea el lead con addCrmLead y luego agenda la reunión.
  */
 export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolResult> {
+  if (!isWriteActionsEnabled()) return SAFE_MODE_RESULT;
   if (!input.name?.trim()) {
     return { success: false, error: 'El nombre es obligatorio.', message: 'El nombre es obligatorio para agendar una cita.' };
   }
@@ -195,6 +213,7 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
 // ── crearPresupuesto ─────────────────────────────────────────────────────────
 
 export async function executeCrearPresupuesto(input: CrearPresupuestoInput): Promise<ToolResult> {
+  if (!isWriteActionsEnabled()) return SAFE_MODE_RESULT;
   if (!input.clienteNombre?.trim()) {
     return { success: false, error: 'El nombre del cliente es obligatorio.', message: 'El nombre del cliente es obligatorio para crear un presupuesto.' };
   }
@@ -275,6 +294,7 @@ export async function executeCrearPresupuesto(input: CrearPresupuestoInput): Pro
 // ── crearCliente ─────────────────────────────────────────────────────────────
 
 export async function executeCrearCliente(input: CrearClienteInput): Promise<ToolResult> {
+  if (!isWriteActionsEnabled()) return SAFE_MODE_RESULT;
   if (!input.name?.trim()) {
     return { success: false, error: 'El nombre es obligatorio.', message: 'El nombre del cliente es obligatorio.' };
   }
@@ -303,6 +323,7 @@ export async function executeCrearCliente(input: CrearClienteInput): Promise<Too
 // ── crearProspecto ───────────────────────────────────────────────────────────
 
 export async function executeCrearProspecto(input: CrearProspectoInput): Promise<ToolResult> {
+  if (!isWriteActionsEnabled()) return SAFE_MODE_RESULT;
   if (!input.name?.trim()) {
     return { success: false, error: 'El nombre es obligatorio.', message: 'El nombre del prospecto es obligatorio.' };
   }
@@ -339,6 +360,7 @@ export async function executeCrearProspecto(input: CrearProspectoInput): Promise
 // ── registrarPago ────────────────────────────────────────────────────────────
 
 export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<ToolResult> {
+  if (!isWriteActionsEnabled()) return SAFE_MODE_RESULT;
   if (!input.monto || input.monto <= 0) {
     return { success: false, error: 'El monto debe ser mayor a cero.', message: 'El monto del pago debe ser mayor a cero.' };
   }
@@ -426,6 +448,7 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
 // ── crearEvento ──────────────────────────────────────────────────────────────
 
 export async function executeCrearEvento(input: CrearEventoInput): Promise<ToolResult> {
+  if (!isWriteActionsEnabled()) return SAFE_MODE_RESULT;
   if (!input.clienteNombre?.trim()) {
     return { success: false, error: 'El nombre del cliente es obligatorio.', message: 'El nombre del cliente es obligatorio para crear el evento.' };
   }
@@ -478,6 +501,7 @@ export async function executeCrearEvento(input: CrearEventoInput): Promise<ToolR
 // ── generarContrato ──────────────────────────────────────────────────────────
 
 export async function executeGenerarContrato(input: GenerarContratoInput): Promise<ToolResult> {
+  if (!isWriteActionsEnabled()) return SAFE_MODE_RESULT;
   if (!input.fiestaId && !input.clienteNombre) {
     return {
       success: false,

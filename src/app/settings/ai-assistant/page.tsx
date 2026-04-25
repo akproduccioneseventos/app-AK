@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff, ShieldCheck, ShieldOff, Wrench, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext } from '@/app/actions/settings';
+import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext, getAssistantOperationalStatus, type AssistantOperationalStatus } from '@/app/actions/settings';
 
 type KnowledgeDocument = {
   id: string;
@@ -37,10 +37,14 @@ export default function AiAssistantSettingsPage() {
   const [lessonsLearned, setLessonsLearned] = useState('');
   const [appFunctionalityContext, setAppFunctionalityContext] = useState('');
   const [isScanningApp, setIsScanningApp] = useState(false);
+  const [operationalStatus, setOperationalStatus] = useState<AssistantOperationalStatus | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    getAiAssistantSettings().then((data) => {
+    Promise.all([
+      getAiAssistantSettings(),
+      getAssistantOperationalStatus(),
+    ]).then(([data, status]) => {
       setCustomInstructions(data.customInstructions || '');
       setOperationalInstructions(data.operationalInstructions || '');
       setSalesMarketingInstructions(data.salesMarketingInstructions || '');
@@ -49,6 +53,7 @@ export default function AiAssistantSettingsPage() {
       setAppFunctionalityContext(data.appFunctionalityContext || '');
       setKnowledgeDocuments(Array.isArray(data.knowledgeDocuments) ? data.knowledgeDocuments : []);
       setUpdatedAt(data.updatedAt || '');
+      setOperationalStatus(status);
       setIsLoading(false);
     });
   }, []);
@@ -253,6 +258,66 @@ export default function AiAssistantSettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {operationalStatus && (
+        <Card className="border-slate-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Bot className="w-4 h-4 text-violet-600" />
+              Estado real del Asistente AK
+            </CardTitle>
+            <CardDescription>
+              Diagnóstico del estado actual del asistente y sus componentes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                {operationalStatus.geminiKeyConfigured ? (
+                  <Wifi className="w-4 h-4 text-green-600 shrink-0" />
+                ) : (
+                  <WifiOff className="w-4 h-4 text-red-500 shrink-0" />
+                )}
+                <span className={operationalStatus.geminiKeyConfigured ? 'text-green-700' : 'text-red-600'}>
+                  Gemini: {operationalStatus.geminiKeyConfigured ? 'configurado' : 'no configurado'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {operationalStatus.writeActionsEnabled ? (
+                  <ShieldCheck className="w-4 h-4 text-green-600 shrink-0" />
+                ) : (
+                  <ShieldOff className="w-4 h-4 text-amber-500 shrink-0" />
+                )}
+                <span className={operationalStatus.writeActionsEnabled ? 'text-green-700' : 'text-amber-700'}>
+                  Modo operativo: {operationalStatus.writeActionsEnabled ? 'activo' : 'desactivado (solo lectura y marketing)'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Wrench className="w-4 h-4 text-slate-500 shrink-0" />
+                <span className="text-slate-700">
+                  Herramientas registradas: {operationalStatus.toolCount}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-500 shrink-0" />
+                <span className="text-slate-700">
+                  Documentos leídos: {knowledgeDocuments.filter(d => d.content.trim().length > 0).length}
+                  {' '}/ No leídos: {knowledgeDocuments.filter(d => !d.content.trim()).length}
+                </span>
+              </div>
+            </div>
+            {!operationalStatus.writeActionsEnabled && (
+              <div className="mt-3 flex gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800">
+                <ShieldOff className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>
+                  El modo operativo está desactivado. Para habilitar acciones de escritura (crear presupuesto, cliente, pago, evento, contrato),
+                  configurá la variable de entorno <span className="font-mono font-bold">ASSISTANT_WRITE_ACTIONS_ENABLED=true</span> en el servidor.
+                </span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

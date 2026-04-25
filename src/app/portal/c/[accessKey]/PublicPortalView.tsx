@@ -1818,7 +1818,7 @@ export default function PublicPortalView({
                   </div>
                   {item.completado && (
                     <span className="text-[10px] font-bold text-teal-600 uppercase bg-teal-100 rounded-full px-2 py-0.5 shrink-0">
-                      {{ enviado: 'Enviado', listo: 'Listo', revisado: 'En revisión' }[item.estado ?? ''] ?? 'Hecho'}
+                      {({ pendiente: 'Pendiente', enviado: 'Enviado', listo: 'Listo', revisado: 'En revisión' } as Record<string, string>)[item.estado ?? ''] ?? 'Hecho'}
                     </span>
                   )}
                   {isSavingDebeLlevar && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />}
