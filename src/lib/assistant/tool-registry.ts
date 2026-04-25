@@ -253,10 +253,10 @@ async function executeCrearPublicacionMarketing(
       message: marketingResult.content,
       data: { platform: marketingResult.platform, tipo: marketingResult.tipo },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return {
       success: false,
-      error: err?.message || 'No se pudo generar el contenido de marketing.',
+      error: (err as Error)?.message || 'No se pudo generar el contenido de marketing.',
       message: `⚠️ No pude generar el contenido en este momento. Intentá de nuevo o crealo manualmente desde [/marketing](/marketing).`,
     };
   }
@@ -295,8 +295,8 @@ async function executeGuardarIdeaMarketing(
       message: `Idea "${input.titulo}" guardada en marketing. Podés verla en [/marketing](/marketing).`,
       data: { id, href: '/marketing' },
     };
-  } catch (err: any) {
-    return { success: false, error: err?.message || 'Error al guardar idea.', message: 'No se pudo guardar la idea de marketing.' };
+  } catch (err: unknown) {
+    return { success: false, error: (err as Error)?.message || 'Error al guardar idea.', message: 'No se pudo guardar la idea de marketing.' };
   }
 }
 
@@ -324,8 +324,8 @@ async function executeAgregarTareaMarketing(
       message: `Tarea "${input.titulo}" agregada al plan de marketing. Podés verla en [/marketing](/marketing).`,
       data: { id, href: '/marketing' },
     };
-  } catch (err: any) {
-    return { success: false, error: err?.message || 'Error al agregar tarea.', message: 'No se pudo agregar la tarea de marketing.' };
+  } catch (err: unknown) {
+    return { success: false, error: (err as Error)?.message || 'Error al agregar tarea.', message: 'No se pudo agregar la tarea de marketing.' };
   }
 }
 

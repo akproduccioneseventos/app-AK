@@ -462,8 +462,8 @@ export async function sendAssistantMessage(
                     action: { type: 'schedule_meeting', data: intent.data, result: { success: true, leadId: leadResult.duplicate.id } },
                   };
                 }
-              } catch (schedErr: any) {
-                logger.error('[Asistente AK] Intent router: error al actualizar cita duplicada:', schedErr.message);
+              } catch (schedErr: unknown) {
+                logger.error('[Asistente AK] Intent router: error al actualizar cita duplicada:', (schedErr as Error).message);
               }
             }
             return {
@@ -474,8 +474,8 @@ export async function sendAssistantMessage(
           }
           // addCrmLead devolvió error — fall through a Gemini para que maneje el caso
           logger.warn('[Asistente AK] Intent router: addCrmLead falló, delegando a Gemini:', leadResult.error);
-        } catch (intentErr: any) {
-          logger.error('[Asistente AK] Intent router: error inesperado, delegando a Gemini:', intentErr.message);
+        } catch (intentErr: unknown) {
+          logger.error('[Asistente AK] Intent router: error inesperado, delegando a Gemini:', (intentErr as Error).message);
         }
       }
 
@@ -498,8 +498,8 @@ export async function sendAssistantMessage(
               response: `${icon} ${toolResult.message}`,
               action: { type: 'create_budget', data: toolInput, result: toolResult },
             };
-          } catch (intentErr: any) {
-            logger.error('[Asistente AK] Intent router create_budget error, delegando a Gemini:', intentErr.message);
+          } catch (intentErr: unknown) {
+            logger.error('[Asistente AK] Intent router create_budget error, delegando a Gemini:', (intentErr as Error).message);
           }
         }
       }
@@ -522,8 +522,8 @@ export async function sendAssistantMessage(
               response: `${icon} ${toolResult.message}`,
               action: { type: 'create_lead', data: toolInput, result: toolResult },
             };
-          } catch (intentErr: any) {
-            logger.error('[Asistente AK] Intent router create_lead error, delegando a Gemini:', intentErr.message);
+          } catch (intentErr: unknown) {
+            logger.error('[Asistente AK] Intent router create_lead error, delegando a Gemini:', (intentErr as Error).message);
           }
         }
       }
@@ -546,8 +546,8 @@ export async function sendAssistantMessage(
               response: `${icon} ${toolResult.message}`,
               action: { type: 'register_payment', data: toolInput, result: toolResult },
             };
-          } catch (intentErr: any) {
-            logger.error('[Asistente AK] Intent router register_payment error, delegando a Gemini:', intentErr.message);
+          } catch (intentErr: unknown) {
+            logger.error('[Asistente AK] Intent router register_payment error, delegando a Gemini:', (intentErr as Error).message);
           }
         }
       }
@@ -664,9 +664,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo guardar el cliente: ${customerResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /customers/new.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_customer:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_customer:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo guardar el cliente. Intentá de nuevo o ingresalo manualmente desde [/customers/new](/customers/new).`;
       }
     } else if (result.action?.type === 'create_customer') {
@@ -749,9 +749,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo crear el presupuesto: ${budgetResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente desde /presupuestos/nuevo.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_budget:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_budget:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo crear el presupuesto. Intentá de nuevo o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'create_budget') {
@@ -814,8 +814,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             `\nPodés completarlo manualmente en [/presupuestos/nuevo](/presupuestos/nuevo) o volver a pegarlo con esos datos incluidos.`,
           ].filter(Boolean).join('\n');
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en parser local create_budget:', e.message);
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en parser local create_budget:', (e as Error).message);
         actionResult = { success: false, error: 'No se pudieron extraer los datos del presupuesto.' };
         finalResponse = `⚠️ No se pudieron extraer los datos del presupuesto. Proporcioná nombre del cliente, tipo de evento y servicios, o crealo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
@@ -940,9 +940,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo importar el presupuesto. Intentá de nuevo o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en import_budget_from_image:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en import_budget_from_image:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo importar el presupuesto. Intentá de nuevo o cargalo manualmente desde [/presupuestos/nuevo](/presupuestos/nuevo).`;
       }
     } else if (result.action?.type === 'import_budget_from_image') {
@@ -964,9 +964,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           const toolResult = await tool.execute(toolInput);
           actionResult = toolResult;
           finalResponse = toolResult.success ? `✅ ${toolResult.message}` : `❌ ${toolResult.message}`;
-        } catch (e: any) {
-          logger.error('[Asistente AK] Error en register_payment (TOOL_REGISTRY):', e.message);
-          actionResult = { success: false, error: e.message };
+        } catch (e: unknown) {
+          logger.error('[Asistente AK] Error en register_payment (TOOL_REGISTRY):', (e as Error).message);
+          actionResult = { success: false, error: (e as Error).message };
           finalResponse = `❌ No se pudo registrar el pago. Intentá de nuevo o registralo manualmente desde [/presupuestos](/presupuestos).`;
         }
       } else {
@@ -1021,9 +1021,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo crear la factura: ${(invoiceResult as any).error || 'Error desconocido'}. Intentá de nuevo o creala manualmente desde /invoices/new.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_invoice:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_invoice:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo crear la factura. Intentá de nuevo o creala manualmente desde [/invoices/new](/invoices/new).`;
       }
     } else if (result.action?.type === 'create_invoice') {
@@ -1047,9 +1047,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo actualizar el precio: ${updated.error || 'Error desconocido'}. Intentá de nuevo.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en update_service_price:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en update_service_price:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo actualizar el precio. Intentá de nuevo o hacelo manualmente desde [/empresa/servicios](/empresa/servicios).`;
       }
     } else if (result.action?.type === 'update_service_price') {
@@ -1069,9 +1069,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo registrar el empleado: ${(empResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /empleados.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_employee:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_employee:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo registrar el empleado. Intentá de nuevo o ingresalo manualmente desde [/empleados](/empleados).`;
       }
     } else if (result.action?.type === 'create_employee') {
@@ -1096,9 +1096,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo registrar el proveedor: ${(provResult as any).error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /proveedores.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_supplier:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_supplier:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo registrar el proveedor. Intentá de nuevo o ingresalo manualmente desde [/proveedores](/proveedores).`;
       }
     } else if (result.action?.type === 'create_supplier') {
@@ -1137,9 +1137,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             } else {
               finalResponse = `❌ ${toolResult.message}`;
             }
-          } catch (e: any) {
-            logger.error('[Asistente AK] Error en create_lead (TOOL_REGISTRY):', e.message);
-            actionResult = { success: false, error: e.message };
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error en create_lead (TOOL_REGISTRY):', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
             finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
           }
         } else {
@@ -1163,9 +1163,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             } else {
               finalResponse = `❌ No se pudo registrar el prospecto: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresalo manualmente desde /contabilidad/crm.`;
             }
-          } catch (e: any) {
-            logger.error('[Asistente AK] Error en create_lead fallback:', e.message);
-            actionResult = { success: false, error: e.message };
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error en create_lead fallback:', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
             finalResponse = `❌ No se pudo registrar el prospecto. Intentá de nuevo o ingresalo manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
           }
         }
@@ -1226,9 +1226,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             }
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en schedule_meeting:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en schedule_meeting:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo agendar la cita. Intentá de nuevo o actualizala manualmente desde [/contabilidad/crm](/contabilidad/crm).`;
       }
     } else if (result.action?.type === 'create_event' && result.action.data) {
@@ -1253,9 +1253,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             } else {
               finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
             }
-          } catch (e: any) {
-            logger.error('[Asistente AK] Error al reconducir create_event(data) a create_lead:', e.message);
-            actionResult = { success: false, error: e.message };
+          } catch (e: unknown) {
+            logger.error('[Asistente AK] Error al reconducir create_event(data) a create_lead:', (e as Error).message);
+            actionResult = { success: false, error: (e as Error).message };
             finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
           }
           return {
@@ -1300,9 +1300,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         } else {
           finalResponse = `❌ No se pudo crear el evento: ${fiestaResult.error || 'Error desconocido'}. Intentá de nuevo o crealo manualmente.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en create_event:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en create_event:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo crear el evento. Intentá de nuevo o crealo manualmente desde [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'create_event') {
@@ -1323,9 +1323,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           } else {
             finalResponse = `❌ No se pudo registrar la reunión: ${leadResult.error || 'Error desconocido'}. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
           }
-        } catch (e: any) {
-          logger.error('[Asistente AK] Error al reconducir create_event a create_lead:', e.message);
-          actionResult = { success: false, error: e.message };
+        } catch (e: unknown) {
+          logger.error('[Asistente AK] Error al reconducir create_event a create_lead:', (e as Error).message);
+          actionResult = { success: false, error: (e as Error).message };
           finalResponse = `❌ No se pudo registrar la reunión. Intentá de nuevo o ingresala manualmente desde [/contabilidad/crm/agenda](/contabilidad/crm/agenda).`;
         }
       } else {
@@ -1365,9 +1365,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             finalResponse = `❌ No se pudo actualizar el evento: ${saveResult.error || 'Error desconocido'}. Intentá de nuevo.`;
           }
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en update_event:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en update_event:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo actualizar el evento. Intentá de nuevo o hacelo manualmente desde [/fiestas](/fiestas).`;
       }
     } else if (result.action?.type === 'update_event') {
@@ -1405,9 +1405,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           actionResult = { success: true, href: '/fiestas/nueva/gestion-documental/contrato-servicio' };
           finalResponse = `✅ Podés generar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio). Seleccioná el evento desde ahí.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en generate_contract:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en generate_contract:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo generar el contrato. Intentá de nuevo o hacelo manualmente desde [/fiestas/nueva/gestion-documental/contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio).`;
       }
     } else if (result.action?.type === 'generate_contract') {
@@ -1437,9 +1437,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
           const nombres = eventosEnFecha.map(f => f.configuracion?.nombreEvento || f.configuracion?.clienteNombre || 'Evento').join(', ');
           finalResponse = `⚠️ La fecha **${fecha}** ya tiene **${eventosEnFecha.length} evento(s)** agendado(s): ${nombres}. Verificá antes de comprometerte.`;
         }
-      } catch (e: any) {
-        logger.error('[Asistente AK] Error en check_availability:', e.message);
-        actionResult = { success: false, error: e.message };
+      } catch (e: unknown) {
+        logger.error('[Asistente AK] Error en check_availability:', (e as Error).message);
+        actionResult = { success: false, error: (e as Error).message };
         finalResponse = `❌ No se pudo verificar la disponibilidad. Intentá de nuevo o revisá el calendario en [/fiestas/nueva](/fiestas/nueva).`;
       }
     } else if (result.action?.type === 'check_availability') {
@@ -1462,8 +1462,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         });
         actionResult = { success: true, content: marketingResult.content, platform: marketingResult.platform };
         finalResponse = marketingResult.content;
-      } catch (marketingError: any) {
-        logger.error('[Agente Marketing] Error:', marketingError?.message);
+      } catch (marketingError: unknown) {
+        logger.error('[Agente Marketing] Error:', (marketingError as Error)?.message);
         actionResult = { success: false, error: 'No se pudo generar el contenido de marketing.' };
         finalResponse = `⚠️ No pude generar el contenido en este momento. Intentá de nuevo o crealo manualmente desde [/marketing](/marketing).`;
       }
@@ -1485,13 +1485,13 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       response: finalResponse,
       action: result.action ? { ...result.action, result: actionResult } as any : undefined,
     };
-  } catch (error: any) {
-    const errorMessage: string = error?.message || String(error);
+  } catch (error: unknown) {
+    const errorMessage: string = (error as Error)?.message || String(error);
     logger.error('[Asistente AK] Error en sendAssistantMessage:', errorMessage);
 
     // Output schema validation failure (Zod): Gemini returned null for an optional field.
     // This is a schema mismatch issue, not an API error.
-    if (error?.name === 'ZodError') {
+    if ((error as Error)?.name === 'ZodError') {
       logger.error('[Asistente AK] Output schema validation error (Zod):', errorMessage);
       return {
         success: false,
