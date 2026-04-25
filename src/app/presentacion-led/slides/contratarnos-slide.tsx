@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
+import { ImagePlaceholder } from '../components/image-placeholder';
 
 export function ContratarnosSlide({
   titulo,
@@ -33,6 +34,20 @@ export function ContratarnosSlide({
         >
           {mensaje}
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="max-w-sm mx-auto"
+        >
+          <ImagePlaceholder
+            id="contratarnos-foto"
+            label="Foto de contratación / forma de pago"
+            aspectRatio="16/9"
+          />
+        </motion.div>
+
         <motion.button
           type="button"
           onClick={onCtaAction}

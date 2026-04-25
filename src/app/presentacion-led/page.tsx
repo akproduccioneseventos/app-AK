@@ -29,7 +29,6 @@ import { SalonSlide } from './slides/salon-slide';
 import { CategoriaServiciosSlide } from './slides/categoria-servicios-slide';
 import { MenuSlide } from './slides/menu-slide';
 import { MenuAdolescenteSlide } from './slides/menu-adolescente-slide';
-import { RecursosSlide } from './slides/recursos-slide';
 import { RegalosSlide } from './slides/regalos-slide';
 import { CierreSlide } from './slides/cierre-slide';
 import { ContratarnosSlide } from './slides/contratarnos-slide';
@@ -144,7 +143,7 @@ export default function PresentacionLedPage() {
   const [entradasCount, setEntradasCount] = useState<1 | 2>(1);
   const [presentacionSettings, setPresentacionSettings] = useState<PresentacionLedSettings | null>(null);
   const [clientData, setClientData] = useState<ClientData>({
-    nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '', invitadosAdolescentes: '', duracionHoras: '', salon: '', ciudad: '',
+    nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '', invitadosAdultos: '', invitadosAdolescentes: '', duracionHoras: '', salon: '',
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -207,12 +206,17 @@ export default function PresentacionLedPage() {
     }
   }, [adolescentMenuOptions, selectedTeenMenuId]);
 
-  const dynamicSlides = useMemo<Array<{ type: 'menu-principal' | 'menu-adolescente' | 'recursos' | 'categoria'; categoria?: CategoriaServicio }>>(() => {
-    const categorySlides = categorias.filter((c) => !isMenuCategory(c));
+  const dynamicSlides = useMemo<Array<{ type: 'menu-principal' | 'menu-adolescente' | 'categoria'; categoria?: CategoriaServicio }>>(() => {
+    const categorySlides = categorias.filter((c) => {
+      if (isMenuCategory(c)) return false;
+      const n = normalizeCategory(c.nombre);
+      // Hide catering/personal from category slides (handled separately in menu flow)
+      if (n.includes('catering') || n.includes('gastronomia') || n.includes('personal')) return false;
+      return true;
+    });
     return [
       { type: 'menu-principal' },
       { type: 'menu-adolescente' },
-      { type: 'recursos' },
       ...categorySlides.map((categoria) => ({ type: 'categoria' as const, categoria })),
     ];
   }, [categorias]);
@@ -269,7 +273,7 @@ export default function PresentacionLedPage() {
     && clientData.tipoFiesta
     && clientData.fechaEvento
     && Number(clientData.cantidadInvitados) > 0
-    && Number(clientData.duracionHoras) > 0,
+    && clientData.duracionHoras !== '',
   );
   const canAdvanceFromTeenMenu = !requireTeenMenu || !!selectedTeenMenuId;
   const nextDisabled = (
@@ -285,7 +289,6 @@ export default function PresentacionLedPage() {
     if (isSalonSlide) return 'Nuestro Salón';
     if (currentDynamicSlide?.type === 'menu-principal') return 'Menú principal y entradas';
     if (currentDynamicSlide?.type === 'menu-adolescente') return 'Menú adolescente';
-    if (currentDynamicSlide?.type === 'recursos') return 'Cálculo automático';
     if (currentDynamicSlide?.type === 'categoria') return currentCategoria?.nombre ?? 'Servicios';
     if (isRegalosSlide) return 'Regalos';
     if (isCierreSlide) return 'Presupuesto';
@@ -321,10 +324,11 @@ export default function PresentacionLedPage() {
         fechaEvento: clientData.fechaEvento,
         tipoFiesta: clientData.tipoFiesta.slice(0, 100),
         cantidadInvitados: clientData.cantidadInvitados,
+        invitadosAdultos: clientData.invitadosAdultos,
         invitadosAdolescentes: clientData.invitadosAdolescentes,
         duracionHoras: clientData.duracionHoras,
+        tieneSalon: clientData.tieneSalon,
         salon: clientData.salon.slice(0, 200),
-        ciudad: clientData.ciudad.slice(0, 120),
       };
       sessionStorage.setItem('presentacion_cliente_data', JSON.stringify(safeClientData));
     }
@@ -518,6 +522,7 @@ export default function PresentacionLedPage() {
               selectedMenuId={selectedMenuId}
               entradasCount={entradasCount}
               adolescentesCount={adolescentCount}
+              catalogoFotos={catalogoFotos}
               onSelectMenu={setSelectedMenuId}
               onChangeEntradasCount={setEntradasCount}
               onNext={() => goToSlide(currentSlide + (requireTeenMenu ? NEXT_SLIDE_OFFSET : SKIP_TEEN_MENU_OFFSET))}
@@ -531,9 +536,6 @@ export default function PresentacionLedPage() {
               onSelect={setSelectedTeenMenuId}
               onNext={goNext}
             />
-          )}
-          {currentDynamicSlide?.type === 'recursos' && (
-            <RecursosSlide summary={resourceSummary} onNext={goNext} />
           )}
           {currentDynamicSlide?.type === 'categoria' && currentCategoria && (
             <CategoriaServiciosSlide
@@ -552,6 +554,7 @@ export default function PresentacionLedPage() {
             <RegalosSlide
               servicios={data.servicios}
               tipoFiesta={clientData.tipoFiesta}
+              catalogoFotos={catalogoFotos}
             />
           )}
           {isCierreSlide && (
