@@ -275,6 +275,31 @@ export async function rejectClientPayment(
   });
 }
 
+/**
+ * Allows a guest to update their own RSVP status from the client portal.
+ * Used when a confirmed guest needs to cancel (or change their status).
+ */
+export async function updatePortalGuestRsvp(
+  fiestaId: string,
+  invitadoId: string,
+  rsvp: import('@/types/fiesta').RsvpStatus
+): Promise<{ success: boolean; error?: string }> {
+  const result = await updateFiestaData(fiestaId, fiesta => {
+    const invitados = (fiesta.invitados ?? []).map(inv =>
+      inv.id === invitadoId ? { ...inv, rsvp } : inv
+    );
+    return { ...fiesta, invitados };
+  });
+  if (result.success) {
+    await createNotification({
+      mensaje: `🎟️ Un invitado actualizó su confirmación a "${rsvp}" desde el Portal VIP del evento (${fiestaId}).`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=invitados`,
+      icono: 'Users',
+    });
+  }
+  return result;
+}
+
     
 export async function saveTimeline(
   fiestaId: string,

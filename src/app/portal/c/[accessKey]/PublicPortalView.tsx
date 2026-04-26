@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, RsvpStatus } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import {
   Calendar,
@@ -65,7 +65,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientMenuChangeRequest } from '@/app/actions/fiesta/portal.actions';
+import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientMenuChangeRequest, updatePortalGuestRsvp } from '@/app/actions/fiesta/portal.actions';
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
@@ -315,6 +315,24 @@ export default function PublicPortalView({
   const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(fiesta.clienteDebeLlevar ?? []);
   const [isSavingDebeLlevar, setIsSavingDebeLlevar] = useState(false);
 
+  // Guest list RSVP state
+  const [invitados, setInvitados] = useState(fiesta.invitados ?? []);
+  const [updatingRsvpId, setUpdatingRsvpId] = useState<string | null>(null);
+
+  const handleUpdateGuestRsvp = async (invitadoId: string, rsvp: RsvpStatus) => {
+    setUpdatingRsvpId(invitadoId);
+    const previous = invitados;
+    setInvitados(prev => prev.map(inv => inv.id === invitadoId ? { ...inv, rsvp } : inv));
+    try {
+      const res = await updatePortalGuestRsvp(fiesta.id, invitadoId, rsvp);
+      if (!res.success) setInvitados(previous);
+    } catch {
+      setInvitados(previous);
+    } finally {
+      setUpdatingRsvpId(null);
+    }
+  };
+
   const handleToggleDebeLlevar = async (itemId: string) => {
     const previous = debeLlevarItems;
     const updated = debeLlevarItems.map(item =>
@@ -448,7 +466,7 @@ export default function PublicPortalView({
 
   // Drink calculator
   const calcBebidas = settings?.calculadoraBebidas;
-  const invitados = config.invitadosEstimados || 0;
+  const numInvitados = config.invitadosEstimados || 0;
   const bebidasItems = resolveBebidasItems(settings);
 
   // Moodboard and program
@@ -512,6 +530,12 @@ export default function PublicPortalView({
     listo: 'Listo',
     revisado: 'En revisión',
   };
+
+  // Guest RSVP stats
+  const guestConfirmados = invitados.filter(inv => inv.rsvp === 'Confirmado');
+  const guestPendientes = invitados.filter(inv => inv.rsvp === 'Pendiente' || inv.rsvp === 'Tal vez');
+  const guestCancelados = invitados.filter(inv => inv.rsvp === 'Rechazado');
+  const totalInvitadosConfirmados = guestConfirmados.reduce((sum, inv) => sum + (inv.partySize ?? 1), 0);
 
 
   return (
@@ -639,6 +663,40 @@ export default function PublicPortalView({
                   ⏳ Faltan <span className="tabular-nums">{countdown.days}</span> día{countdown.days !== 1 ? 's' : ''}
                 </p>
               ) : null}
+            </div>
+          )}
+
+          {/* Guest RSVP stats — only when there are registered guests */}
+          {invitados.length > 0 && (
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <button
+                className="flex items-center gap-1.5 rounded-2xl bg-emerald-500/25 border border-emerald-400/40 text-white text-xs font-bold px-3 py-2 hover:bg-emerald-500/35 transition-colors"
+                onClick={() => document.getElementById('seccion-invitados')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                <span>{guestConfirmados.length} confirmados</span>
+                {totalInvitadosConfirmados > guestConfirmados.length && (
+                  <span className="opacity-75">({totalInvitadosConfirmados} personas)</span>
+                )}
+              </button>
+              {guestPendientes.length > 0 && (
+                <button
+                  className="flex items-center gap-1.5 rounded-2xl bg-amber-500/25 border border-amber-400/40 text-white text-xs font-bold px-3 py-2 hover:bg-amber-500/35 transition-colors"
+                  onClick={() => document.getElementById('seccion-invitados')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <Clock className="w-3.5 h-3.5 text-amber-300" />
+                  {guestPendientes.length} sin confirmar
+                </button>
+              )}
+              {guestCancelados.length > 0 && (
+                <button
+                  className="flex items-center gap-1.5 rounded-2xl bg-red-500/20 border border-red-400/40 text-white text-xs font-bold px-3 py-2 hover:bg-red-500/30 transition-colors"
+                  onClick={() => document.getElementById('seccion-invitados')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <MinusCircle className="w-3.5 h-3.5 text-red-300" />
+                  {guestCancelados.length} cancelaron
+                </button>
+              )}
             </div>
           )}
 
@@ -1239,18 +1297,18 @@ export default function PublicPortalView({
                   )}
 
                   {/* Drink calculator */}
-                  {calcBebidas?.visible && invitados > 0 && (
+                  {calcBebidas?.visible && numInvitados > 0 && (
                     <div className="space-y-2">
                       <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
                         <GlassWater className="w-3.5 h-3.5" /> Calculadora de bebidas
                       </p>
                       {bebidasItems.some(b => b.clienteLleva && b.visible) ? (
                         <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
-                          📋 Según tu contrato, vos te encargás de estos ítems para {invitados} personas:
+                          📋 Según tu contrato, vos te encargás de estos ítems para {numInvitados} personas:
                         </p>
                       ) : (
                         <p className="text-xs text-muted-foreground bg-muted/40 rounded-xl px-3 py-2">
-                          Estimación de cantidades para {invitados} invitados:
+                          Estimación de cantidades para {numInvitados} invitados:
                         </p>
                       )}
                       <div className="space-y-2">
@@ -1258,7 +1316,7 @@ export default function PublicPortalView({
                           .filter(item => item.visible)
                           .map(item => {
                             const { bg, border, text } = getColorClasses(item.color);
-                            const cantidad = Math.round(invitados * item.cantidadPorPersona * 10) / 10;
+                            const cantidad = Math.round(numInvitados * item.cantidadPorPersona * 10) / 10;
                             return (
                               <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl ${item.clienteLleva ? 'bg-amber-50 border border-amber-200' : `${bg} border ${border}`}`}>
                                 <div className="flex items-center gap-3">
@@ -1293,6 +1351,100 @@ export default function PublicPortalView({
                       />
                     </div>
                   )}
+
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ── 5b. Invitados y mesas ── */}
+            {settings?.invitados?.visible && invitados.length > 0 && (
+              <Card id="seccion-invitados" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    Invitados y mesas
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">Estado de confirmación de tus invitados</p>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-4">
+
+                  {/* Summary stats */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3 text-center">
+                      <p className="text-2xl font-black text-emerald-700">{guestConfirmados.length}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mt-0.5">Confirmados</p>
+                      {totalInvitadosConfirmados > guestConfirmados.length && (
+                        <p className="text-[10px] text-emerald-500 mt-0.5">{totalInvitadosConfirmados} personas</p>
+                      )}
+                    </div>
+                    <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-center">
+                      <p className="text-2xl font-black text-amber-700">{guestPendientes.length}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 mt-0.5">Sin confirmar</p>
+                    </div>
+                    <div className="rounded-2xl border border-red-100 bg-red-50 p-3 text-center">
+                      <p className="text-2xl font-black text-red-700">{guestCancelados.length}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-red-600 mt-0.5">Cancelaron</p>
+                    </div>
+                  </div>
+
+                  {/* Guest list */}
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Lista de invitados</p>
+                    {invitados.map(inv => {
+                      const rsvpConfig: Record<RsvpStatus, { label: string; bg: string; text: string; border: string }> = {
+                        Confirmado: { label: 'Confirmado', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+                        Pendiente: { label: 'Pendiente', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+                        'Tal vez': { label: 'Tal vez', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+                        Rechazado: { label: 'No va', bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200' },
+                      };
+                      const cfg = rsvpConfig[inv.rsvp as RsvpStatus] ?? rsvpConfig.Pendiente;
+                      const isUpdating = updatingRsvpId === inv.id;
+                      return (
+                        <div key={inv.id} className={`flex items-center gap-3 p-3 rounded-2xl border ${cfg.border} ${cfg.bg}`}>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm leading-snug text-slate-800">{inv.nombre}</p>
+                            {inv.partySize && inv.partySize > 1 && (
+                              <p className="text-xs text-muted-foreground mt-0.5">Grupo de {inv.partySize} personas</p>
+                            )}
+                            {inv.tableNumber && (
+                              <p className="text-xs text-muted-foreground mt-0.5">Mesa {inv.tableNumber}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className={`text-[10px] font-bold uppercase rounded-full px-2 py-0.5 ${cfg.bg} ${cfg.text} border ${cfg.border}`}>
+                              {cfg.label}
+                            </span>
+                            {/* Cancel button for confirmed guests */}
+                            {inv.rsvp === 'Confirmado' && (
+                              <button
+                                type="button"
+                                disabled={isUpdating}
+                                onClick={() => handleUpdateGuestRsvp(inv.id, 'Rechazado')}
+                                className="text-[10px] font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-full px-2 py-0.5 transition-colors flex items-center gap-1"
+                                title="Cancelar confirmación"
+                              >
+                                {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <MinusCircle className="w-3 h-3" />}
+                                Cancelar
+                              </button>
+                            )}
+                            {/* Re-confirm button for cancelled guests */}
+                            {inv.rsvp === 'Rechazado' && (
+                              <button
+                                type="button"
+                                disabled={isUpdating}
+                                onClick={() => handleUpdateGuestRsvp(inv.id, 'Confirmado')}
+                                className="text-[10px] font-semibold text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 transition-colors flex items-center gap-1"
+                                title="Confirmar asistencia"
+                              >
+                                {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                                Confirmar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
                 </CardContent>
               </Card>
