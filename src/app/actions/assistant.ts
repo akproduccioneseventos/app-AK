@@ -22,7 +22,7 @@ import { getTool } from '@/lib/assistant/tool-registry';
 
 const DEFAULT_SERVICE_NAME = 'Servicio';
 const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
-const KNOWLEDGE_DOC_CONTEXT_MAX_CHARS = 1400; // Per-document cap to keep prompt context concise and performant.
+const KNOWLEDGE_DOC_CONTEXT_MAX_CHARS = 4000; // Per-document cap to keep prompt context concise and performant.
 type AssistantKnowledgeDocument = Awaited<ReturnType<typeof getAiAssistantSettings>>['knowledgeDocuments'][number];
 // Matches phrases like "Agenda a Norma a las 11" and extracts "Norma".
 const AGENDA_LEAD_NAME_REGEX =
@@ -302,10 +302,26 @@ function parseLeadFromMessage(text: string, history?: Array<{ role: 'user' | 'as
   const { date: parsedDate, time: parsedTime } = parseDateTimeUY(cleaned);
   // Fall back to budget text parser for date if the date parser didn't find one
   const parsed = parseBudgetFromText(cleaned);
-  const followUpDate = parsedDate || parsed.eventoFecha;
+  let followUpDate = parsedDate || parsed.eventoFecha;
 
   const notesArr: string[] = [];
   if (parsedTime) notesArr.push(`Hora solicitada: ${parsedTime}`);
+
+  // If no date found in the current message, search the conversation history for one.
+  // This enables multi-turn flows where the date was given in a previous message
+  // (e.g. user says "27 de abril 11 horas" then "juan" as the name reply).
+  if (!followUpDate && history && history.length > 0) {
+    for (const msg of [...history].reverse()) {
+      if (msg.role === 'user') {
+        const { date: histDate, time: histTime } = parseDateTimeUY(msg.content);
+        if (histDate || histTime) {
+          followUpDate = histDate;
+          if (histTime && !parsedTime) notesArr.push(`Hora solicitada: ${histTime}`);
+          break;
+        }
+      }
+    }
+  }
 
   return {
     name,
