@@ -17,6 +17,7 @@ export default function DJPage({ params }: { params: { fiestaId: string } }) {
   const [requests, setRequests] = useState<SongRequest[]>([]);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [showPlayed, setShowPlayed] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -36,8 +37,10 @@ export default function DJPage({ params }: { params: { fiestaId: string } }) {
       setRequests(sorted);
       setFiesta(fiestaData);
       setLastUpdated(new Date());
-    } catch {
-      // silent
+      setLoadError(false);
+    } catch (err) {
+      console.error('[DJPage] fetchData error:', err);
+      if (showLoader) setLoadError(true);
     } finally {
       if (showLoader) setIsLoading(false);
     }
@@ -128,6 +131,17 @@ export default function DJPage({ params }: { params: { fiestaId: string } }) {
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="h-20 rounded-2xl bg-zinc-800/50 animate-pulse" />
             ))}
+          </div>
+        ) : loadError ? (
+          <div className="text-center py-20 space-y-3">
+            <div className="text-5xl">⚠️</div>
+            <p className="font-bold text-red-400">Error al cargar los pedidos</p>
+            <button
+              onClick={() => fetchData(true)}
+              className="text-sm text-zinc-400 underline hover:text-zinc-200"
+            >
+              Reintentar
+            </button>
           </div>
         ) : displayed.length === 0 ? (
           <div className="text-center py-20 space-y-3">

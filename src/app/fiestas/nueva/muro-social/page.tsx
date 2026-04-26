@@ -1268,7 +1268,7 @@ function MuroSocialContent() {
               {/* Spinning wheel */}
               <div className="flex justify-center py-2">
                 <div className="relative w-36 h-36">
-                  {/* Pointer */}
+                  {/* Pointer — #eab308 = Tailwind yellow-500, matches border-yellow-400 theme */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 w-0 h-0"
                     style={{ borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '16px solid #eab308' }} />
                   {/* Wheel */}
