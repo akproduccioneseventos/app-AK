@@ -44,7 +44,7 @@ export const defaultGuestExperienceSettings: GuestExperienceSettings = {
   allowSongSuggestions: true,
   allowPhotoUpload: false,
   allowGuestPortal: true,
-  landingUrl: 'https://ak-producciones-fiestas-y-eventos.my.canva.site',
+  landingUrl: 'https://akproduccioneseventos.com',
   whatsappNumber: '59898355530',
   whatsappUrl: 'https://wa.me/59898355530',
   instagramUrl: 'https://www.instagram.com/akproduccioneseventos',
