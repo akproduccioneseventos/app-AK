@@ -231,13 +231,18 @@ function ClientPortalConfigContent() {
     }
   };
 
+  const MAX_HERO_IMAGE_SIZE_MB = 1;
+
   const handleHeroImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_HERO_IMAGE_SIZE_MB * 1024 * 1024) {
+      toast({ title: "Imagen demasiado grande", description: `La imagen debe pesar menos de ${MAX_HERO_IMAGE_SIZE_MB} MB. Reducí su tamaño antes de subirla.`, variant: "destructive" });
+      return;
+    }
     setIsUploadingHeroImage(true);
     const reader = new FileReader();
     reader.onloadend = () => {
-      // Store as data URI (base64) — admin can save this as the heroImageUrl
       setPortalExperience(p => ({ ...p, heroImageUrl: reader.result as string }));
       setIsUploadingHeroImage(false);
       toast({ title: "Imagen cargada", description: "Guardá la personalización para aplicar los cambios." });
@@ -699,7 +704,7 @@ function ClientPortalConfigContent() {
                     <Upload className="w-7 h-7 text-muted-foreground" />
                   )}
                   <span className="text-sm font-medium">Subir imagen desde PC</span>
-                  <span className="text-xs">JPG, PNG, WEBP — la imagen se usará como fondo de la portada</span>
+                  <span className="text-xs">JPG, PNG, WEBP · máximo 1 MB · se usará como fondo de la portada</span>
                 </button>
               )}
               <p className="text-xs text-muted-foreground">Si no hay imagen, se usa un degradado con el color principal del evento.</p>

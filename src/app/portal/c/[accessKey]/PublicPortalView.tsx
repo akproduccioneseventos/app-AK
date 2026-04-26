@@ -563,7 +563,7 @@ export default function PublicPortalView({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={config.protagonistaFotoUrl}
-                    alt={config.protagonista1Nombre || 'Protagonista del evento'}
+                    alt={config.protagonista1Nombre || displayEventName}
                     className="w-full h-full object-cover"
                   />
                 </div>
