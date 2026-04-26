@@ -33,6 +33,7 @@ import {
   triggerSorteoWinner,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
+import { getInvitados } from '@/app/actions/fiesta/invitados.actions';
 import type { SocialPoll } from '@/types/social-gallery';
 
 const ADMIN_REFRESH_INTERVAL_MS = 3000;
@@ -235,6 +236,10 @@ function MuroSocialContent() {
   const [isTriggeringSorteo, setIsTriggeringSorteo] = useState(false);
   const [sorteoParticipants, setSorteoParticipants] = useState<string>('');
   const [lastSorteoWinner, setLastSorteoWinner] = useState<string | null>(null);
+  // Spinning wheel state
+  const [sorteoIsSpinning, setSorteoIsSpinning] = useState(false);
+  const [sorteoWheelAngle, setSorteoWheelAngle] = useState(0);
+  const [sorteoPreviewWinner, setSorteoPreviewWinner] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -600,14 +605,42 @@ function MuroSocialContent() {
       return;
     }
     const winner = participants[Math.floor(Math.random() * participants.length)];
-    setIsTriggeringSorteo(true);
-    const result = await triggerSorteoWinner(fiestaId, winner);
-    setIsTriggeringSorteo(false);
-    if (result.success) {
-      setLastSorteoWinner(winner);
-      toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
-    } else {
-      toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
+    // Animate the wheel before saving to Firestore
+    setSorteoPreviewWinner(null);
+    setSorteoIsSpinning(true);
+    // Spin: random full rotations (5-8) plus the landing angle
+    const spinRotations = 5 + Math.floor(Math.random() * 4);
+    setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
+    // After animation (2.8s), persist to Firestore and reveal winner
+    setTimeout(async () => {
+      setSorteoIsSpinning(false);
+      setSorteoPreviewWinner(winner);
+      setIsTriggeringSorteo(true);
+      const result = await triggerSorteoWinner(fiestaId, winner);
+      setIsTriggeringSorteo(false);
+      if (result.success) {
+        setLastSorteoWinner(winner);
+        toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
+      } else {
+        toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
+      }
+    }, 2800);
+  };
+
+  const handleLoadInvitadosToSorteo = async () => {
+    if (!fiestaId) return;
+    try {
+      const invitados = await getInvitados(fiestaId);
+      // Use checked-in guests first; fall back to confirmed ones
+      const eligible = invitados.filter(inv => inv.checkedIn || inv.rsvp === 'Confirmado');
+      if (eligible.length === 0) {
+        toast({ title: 'Sin invitados confirmados', description: 'No hay invitados con check-in o confirmados aún.', variant: 'destructive' });
+        return;
+      }
+      setSorteoParticipants(eligible.map(inv => inv.nombre).join('\n'));
+      toast({ title: `${eligible.length} invitados cargados`, description: 'Lista lista para el sorteo.' });
+    } catch {
+      toast({ title: 'Error al cargar invitados', variant: 'destructive' });
     }
   };
 
@@ -746,9 +779,10 @@ function MuroSocialContent() {
                 />
               </div>
             ))}
-            <div className="sm:col-span-2 flex gap-2 pt-1">
+            <div className="sm:col-span-2 flex gap-2 pt-1 flex-wrap">
               <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Button></Link>
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank"><Button variant="outline">Abrir Pantalla</Button></Link>
+              <Link href={`/evento/dj/${fiestaId}`} target="_blank"><Button variant="outline">🎧 Panel DJ</Button></Link>
             </div>
           </CardContent>
         </Card>
@@ -1225,31 +1259,80 @@ function MuroSocialContent() {
             </div>
 
             {/* Sorteo */}
-            <div className="rounded-xl border border-yellow-200 bg-white p-4 space-y-3">
+            <div className="rounded-xl border border-yellow-200 bg-white p-4 space-y-4">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-yellow-500" />
                 <p className="font-bold text-sm text-yellow-900">Sorteo Sorpresa</p>
               </div>
+
+              {/* Spinning wheel */}
+              <div className="flex justify-center py-2">
+                <div className="relative w-36 h-36">
+                  {/* Pointer */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 w-0 h-0"
+                    style={{ borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '16px solid #eab308' }} />
+                  {/* Wheel */}
+                  <div
+                    className="w-36 h-36 rounded-full border-4 border-yellow-400 shadow-lg overflow-hidden flex items-center justify-center"
+                    style={{
+                      transform: `rotate(${sorteoWheelAngle}deg)`,
+                      transition: sorteoIsSpinning
+                        ? 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
+                        : 'none',
+                      background: 'conic-gradient(#fef9c3, #fde68a, #fbbf24, #f59e0b, #fef9c3, #fde68a, #fbbf24, #f59e0b)',
+                    }}
+                  >
+                    {/* AK logo center */}
+                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-inner border-2 border-yellow-300 z-10">
+                      <span className="text-lg font-black text-yellow-600 leading-none">AK</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Winner reveal */}
+              {sorteoPreviewWinner && !sorteoIsSpinning && (
+                <div className="rounded-lg bg-yellow-50 border-2 border-yellow-300 px-4 py-3 text-center animate-bounce-once">
+                  <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-1">🎉 ¡Ganador!</p>
+                  <p className="text-2xl font-black text-yellow-900">🏆 {sorteoPreviewWinner}</p>
+                </div>
+              )}
+
               <div className="space-y-2">
+                {/* Load from guest list */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadInvitadosToSorteo}
+                  className="w-full border-yellow-300 text-yellow-800 hover:bg-yellow-50"
+                >
+                  👥 Cargar lista de invitados (con check-in / confirmados)
+                </Button>
                 <Label className="text-xs text-slate-500">
-                  Ingresá los nombres de los participantes (uno por línea):
+                  Participantes — uno por línea (podés editar manualmente):
                 </Label>
                 <textarea
                   className="w-full rounded-md border px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   placeholder={"Juan García\nMaría López\nPedro Martínez\n..."}
                   value={sorteoParticipants}
-                  onChange={(e) => setSorteoParticipants(e.target.value)}
+                  onChange={(e) => { setSorteoParticipants(e.target.value); setSorteoPreviewWinner(null); }}
                 />
+                {sorteoParticipants.trim() && (
+                  <p className="text-xs text-slate-400">
+                    {sorteoParticipants.split('\n').map(p => p.trim()).filter(Boolean).length} participantes
+                  </p>
+                )}
                 <Button
                   type="button"
                   onClick={handleTriggerSorteo}
-                  disabled={isTriggeringSorteo || !sorteoParticipants.trim()}
+                  disabled={isTriggeringSorteo || sorteoIsSpinning || !sorteoParticipants.trim()}
                   className="bg-yellow-500 hover:bg-yellow-600 text-white w-full"
                 >
-                  {isTriggeringSorteo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
-                  🎲 ¡Lanzar Sorteo en Pantalla!
+                  {(isTriggeringSorteo || sorteoIsSpinning) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
+                  {sorteoIsSpinning ? '¡Girando la ruleta! 🎡' : '🎲 ¡Lanzar Sorteo en Pantalla!'}
                 </Button>
-                {lastSorteoWinner && (
+                {lastSorteoWinner && !sorteoIsSpinning && !sorteoPreviewWinner && (
                   <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-center">
                     <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-1">Último ganador</p>
                     <p className="text-xl font-black text-yellow-900">🏆 {lastSorteoWinner}</p>
