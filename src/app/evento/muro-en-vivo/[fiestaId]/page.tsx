@@ -18,6 +18,8 @@ import { Facebook, Instagram, MessageCircle, Music2, Maximize } from 'lucide-rea
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
 const SORTEO_DISPLAY_DURATION_MS = 20000;
+/** Window in which a sorteo spin animation is shown on the big screen (before the winner is revealed) */
+const SORTEO_SPIN_DISPLAY_DURATION_MS = 4000;
 const FRESH_POST_POLAROID_DURATION_MS = 20000;
 const MARQUEE_REPEAT_COUNT = 3;
 const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
@@ -114,7 +116,7 @@ export default function MuroEnVivoPage() {
 
         // Sorteo spin animation (shows wheel spinning on big screen)
         const spinTs = fiestaData.socialGallerySettings.sorteoSpinStartedAt;
-        const spinIsFresh = spinTs && Date.now() - new Date(spinTs).getTime() < 4000; // 4s window
+        const spinIsFresh = spinTs && Date.now() - new Date(spinTs).getTime() < SORTEO_SPIN_DISPLAY_DURATION_MS;
         if (spinIsFresh && !sorteoIsFresh) {
           setSorteoSpinActive(true);
           setSorteoSpinWheelAngle(prev => prev + 1800 + Math.floor(Math.random() * 720));

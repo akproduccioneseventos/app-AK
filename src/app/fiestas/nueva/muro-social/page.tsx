@@ -874,9 +874,14 @@ function MuroSocialContent() {
                   const url = `/evento/muro-en-vivo/${fiestaId}`;
                   const win = window.open(url, '_blank', 'noopener,noreferrer');
                   if (win) {
-                    win.addEventListener('load', () => {
+                    const requestFs = () => {
                       win.document.documentElement.requestFullscreen?.().catch(() => {});
-                    });
+                    };
+                    if (win.document.readyState === 'complete') {
+                      requestFs();
+                    } else {
+                      win.addEventListener('load', requestFs, { once: true });
+                    }
                   }
                 }}
               >

@@ -5,6 +5,11 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 
+/** Maximum allowed video upload size (bytes) — leaves headroom below the 20 MB Next.js bodySizeLimit */
+const MAX_VIDEO_UPLOAD_BYTES = 18 * 1024 * 1024;
+/** Maximum allowed image upload size (bytes) */
+const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 function normalizeSocialSettings(settings?: SocialGallerySettings): SocialGallerySettings {
   return {
     enabled: settings?.enabled ?? true,
@@ -189,10 +194,8 @@ export async function uploadScreenMediaAsset(
   try {
     if (!fiestaId || !file) return { success: false, error: 'Datos incompletos.' };
     // Explicit size check with a clear message (bodySizeLimit in next.config.js is 20MB)
-    const MAX_VIDEO_SIZE = 18 * 1024 * 1024; // 18 MB (leave some headroom)
-    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
     const isVideo = file.type.startsWith('video/');
-    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    const maxSize = isVideo ? MAX_VIDEO_UPLOAD_BYTES : MAX_IMAGE_UPLOAD_BYTES;
     if (file.size > maxSize) {
       return {
         success: false,
