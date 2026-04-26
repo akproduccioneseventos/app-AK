@@ -214,7 +214,7 @@ function GuestPortalContent() {
   const rsvpStatus = guest.rsvp;
   const rsvpBadge = rsvpStatus === 'Confirmado'
     ? { label: 'Confirmada ✓', color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/30' }
-    : rsvpStatus === 'Cancelado'
+    : rsvpStatus === 'Rechazado'
     ? { label: 'Cancelada ✗', color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/30' }
     : { label: 'Pendiente de confirmación', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/30' };
 
