@@ -59,6 +59,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/presentacion-led',
       '/evento/mi-mesa',
       '/evento/en-vivo',
+      '/evento/dj',
       '/invitado',
       '/portal-proveedor',
     ];
