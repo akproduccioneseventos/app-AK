@@ -511,6 +511,11 @@ export default function PublicPortalView({
     }
   };
 
+  const handleOpenInformarPago = () => {
+    setShowPagosPanel(false);
+    setShowPagoModal(true);
+  };
+
   // Event name display — use eventDisplayName override, fallback to config name
   const rawEventName = portalExperience.eventDisplayName || config.nombreEvento;
   const displayEventName =
@@ -2124,7 +2129,7 @@ export default function PublicPortalView({
                     </div>
                   ) : (
                     <Button
-                      onClick={() => { setShowPagosPanel(false); setShowPagoModal(true); }}
+                      onClick={handleOpenInformarPago}
                       className="w-full h-14 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-black text-base shadow-lg border-0"
                     >
                       <Upload className="w-5 h-5 mr-2" />
