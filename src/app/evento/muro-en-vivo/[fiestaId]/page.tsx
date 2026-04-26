@@ -610,14 +610,14 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
               {post.authorName}
             </span>
           </div>
-          {/* Slide counter dots */}
-          {posts.length > 1 && (
+          {/* Slide counter dots — only shown when posts fit within the dot limit */}
+          {posts.length > 1 && posts.length <= 12 && (
             <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
-              {posts.slice(0, Math.min(posts.length, 12)).map((_, i) => (
+              {posts.map((_, i) => (
                 <div
                   key={i}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === currentIndex % Math.min(posts.length, 12)
+                    i === currentIndex
                       ? 'w-6 bg-white'
                       : 'w-1.5 bg-white/40'
                   }`}
