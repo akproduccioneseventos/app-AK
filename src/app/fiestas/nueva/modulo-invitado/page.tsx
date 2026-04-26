@@ -219,16 +219,16 @@ function GuestModuleContent() {
         {/* Official link info */}
         {fiestaId && (
           <Card className="border-2 border-purple-100 bg-purple-50">
-            <CardContent className="pt-4 space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-purple-600">Link oficial del Portal del Invitado</p>
+            <CardContent className="pt-4 space-y-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-purple-600">Link del Portal del Invitado</p>
               <p className="text-xs text-slate-600">
-                El link oficial para compartir con cada invitado sigue el formato:
+                <strong>Cada invitado tiene su propio link único</strong> que se genera automáticamente al agregarlo a la lista de invitados. El link sigue este formato:
               </p>
-              <code className="block text-xs bg-white border border-purple-100 rounded-xl px-3 py-2 text-purple-800 font-mono">
-                {typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app'}/portal-invitado/{fiestaId}/[guestId]
+              <code className="block text-xs bg-white border border-purple-100 rounded-xl px-3 py-2 text-purple-800 font-mono break-all">
+                {typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app'}/portal-invitado/{fiestaId}/[id-del-invitado]
               </code>
-              <p className="text-xs text-slate-500">
-                La ruta anterior <code className="text-purple-700">/invitacion/{fiestaId}/invitado/[guestId]</code> sigue funcionando por compatibilidad.
+              <p className="text-xs text-slate-500 leading-relaxed">
+                📋 Para compartir los links, andá a la <strong>Lista de Invitados</strong> y copiá el link individual de cada invitado desde allí. No existe un link genérico — cada invitado accede con su propio link personalizado.
               </p>
             </CardContent>
           </Card>
