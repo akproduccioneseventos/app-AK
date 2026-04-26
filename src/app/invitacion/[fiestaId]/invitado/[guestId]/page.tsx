@@ -202,10 +202,10 @@ function GuestPortalContent() {
   const daysUntil = getDaysUntil(config?.fechaEvento);
 
   // Color acento del evento o dorado por defecto
-  const accentColor = fiesta.invitacionConfig?.colorPrincipal || config?.primaryColor || '#d4af37';
+  const accentColor = gps.customAccentColor || fiesta.invitacionConfig?.colorPrincipal || config?.primaryColor || '#d4af37';
 
-  // Imagen de fondo del hero
-  const heroImage = fiesta.invitacionConfig?.fotoPortada;
+  // Imagen de fondo del hero: portal cover has priority, then invitation cover
+  const heroImage = gps.coverImageUrl || fiesta.invitacionConfig?.fotoPortada;
 
   // Programa real (Bug 5)
   const hasPrograma = gps.showItinerario && fiesta.programa && fiesta.programa.length > 0;
@@ -219,7 +219,7 @@ function GuestPortalContent() {
     : { label: 'Pendiente de confirmación', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/30' };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center">
+    <div className="min-h-screen text-zinc-100 flex flex-col items-center" style={{ backgroundColor: gps.customBgColor || '#09090b' }}>
 
       {/* ─── HERO ─── */}
       <div className="relative w-full overflow-hidden" style={{ minHeight: '340px' }}>

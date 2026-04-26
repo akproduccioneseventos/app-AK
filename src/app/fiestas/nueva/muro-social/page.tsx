@@ -779,6 +779,16 @@ function MuroSocialContent() {
                 />
               </div>
             ))}
+            <div className="flex items-center justify-between rounded-lg border p-3 sm:col-span-2 bg-slate-950 text-white">
+              <div>
+                <span className="text-sm font-medium">🌙 Modo Oscuro (pantalla)</span>
+                <p className="text-xs text-slate-400 mt-0.5">Fondo negro o blanco para la pantalla gigante</p>
+              </div>
+              <Switch
+                checked={settings.screenDarkMode !== false}
+                onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, screenDarkMode: checked }))}
+              />
+            </div>
             <div className="sm:col-span-2 flex gap-2 pt-1 flex-wrap">
               <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Button></Link>
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank"><Button variant="outline">Abrir Pantalla</Button></Link>

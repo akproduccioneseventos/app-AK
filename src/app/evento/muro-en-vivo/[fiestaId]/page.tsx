@@ -227,12 +227,16 @@ export default function MuroEnVivoPage() {
     (activePoll !== null && settings.showPolls !== false && !activeGame);
 
   return (
-    <div className="fixed inset-0 bg-slate-950 overflow-hidden select-none flex flex-col">
+    <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'bg-slate-950' : 'bg-white'}`}>
       {/* Ambient gradient background */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
+      {settings.screenDarkMode !== false ? (
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
+      ) : (
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.05),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.05),transparent_60%)]" />
+      )}
 
       {/* Header bar — in flow so it doesn't float over content */}
-      <header className="relative z-20 shrink-0 flex items-center justify-between px-8 py-3 bg-slate-950/90 backdrop-blur-sm border-b border-white/10">
+      <header className={`relative z-20 shrink-0 flex items-center justify-between px-8 py-3 backdrop-blur-sm border-b ${settings.screenDarkMode !== false ? 'bg-slate-950/90 border-white/10' : 'bg-white/90 border-slate-200'}`}>
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
             <div className="relative h-8 w-20 overflow-hidden rounded bg-white/90 p-1">
@@ -240,10 +244,10 @@ export default function MuroEnVivoPage() {
             </div>
           )}
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-white/60 text-sm font-medium tracking-widest uppercase">En Vivo</span>
+          <span className={`text-sm font-medium tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/60' : 'text-slate-500'}`}>En Vivo</span>
         </div>
         {eventName && (
-          <span className="text-white/40 text-sm font-semibold tracking-wide">{eventName}</span>
+          <span className={`text-sm font-semibold tracking-wide ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>{eventName}</span>
         )}
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
       </header>
@@ -258,8 +262,8 @@ export default function MuroEnVivoPage() {
           {!isLoaded && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="space-y-4 text-center">
-                <div className="w-16 h-16 mx-auto rounded-full border-4 border-white/10 border-t-white/60 animate-spin" />
-                <p className="text-white/40 text-sm tracking-widest uppercase">Cargando muro…</p>
+                <div className={`w-16 h-16 mx-auto rounded-full border-4 animate-spin ${settings.screenDarkMode !== false ? 'border-white/10 border-t-white/60' : 'border-slate-200 border-t-slate-600'}`} />
+                <p className={`text-sm tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>Cargando muro…</p>
               </div>
             </div>
           )}
@@ -269,8 +273,8 @@ export default function MuroEnVivoPage() {
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
               <div className="text-8xl opacity-20">📸</div>
               <div className="text-center space-y-2">
-                <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Muro Social</p>
-                <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí.</p>
+                <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
+                <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
               </div>
             </div>
           )}
@@ -370,7 +374,7 @@ export default function MuroEnVivoPage() {
       {/* ── Bottom bar — in flow ── */}
       <div className="relative z-30 shrink-0">
         {socialConnections.length > 0 && (
-          <div className="flex items-center justify-center gap-6 border-t border-white/10 bg-black/70 px-6 py-2.5 backdrop-blur-sm">
+          <div className={`flex items-center justify-center gap-6 border-t px-6 py-2.5 backdrop-blur-sm ${settings.screenDarkMode !== false ? 'border-white/10 bg-black/70' : 'border-slate-200 bg-white/80'}`}>
             {socialConnections.map((connection) => {
               const Icon = connection.platform === 'Instagram'
                 ? Instagram
@@ -381,11 +385,11 @@ export default function MuroEnVivoPage() {
                 : MessageCircle;
               const handle = connection.username || connection.phoneNumber || '';
               return (
-                <div key={connection.platform} className="flex items-center gap-2 text-white/90">
-                  <Icon className="h-5 w-5 flex-shrink-0 text-white/70" />
+                <div key={connection.platform} className={`flex items-center gap-2 ${settings.screenDarkMode !== false ? 'text-white/90' : 'text-slate-700'}`}>
+                  <Icon className={`h-5 w-5 flex-shrink-0 ${settings.screenDarkMode !== false ? 'text-white/70' : 'text-slate-500'}`} />
                   <div className="flex flex-col leading-tight">
                     <span className="text-sm font-bold">{handle || connection.platform}</span>
-                    <span className="text-[10px] text-white/50 uppercase tracking-wider">Suscríbete</span>
+                    <span className={`text-[10px] uppercase tracking-wider ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Suscríbete</span>
                   </div>
                 </div>
               );

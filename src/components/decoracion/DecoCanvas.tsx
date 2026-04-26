@@ -176,6 +176,7 @@ interface DecoCanvasProps {
   fondoColor?: string;
   fondoImagenUrl?: string;
   showGrid?: boolean;
+  fullscreen?: boolean;
 }
 
 export default function DecoCanvas({
@@ -187,6 +188,7 @@ export default function DecoCanvas({
   fondoColor = '#F8F9FA',
   fondoImagenUrl,
   showGrid = false,
+  fullscreen = false,
 }: DecoCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
@@ -468,7 +470,7 @@ export default function DecoCanvas({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={fullscreen ? 'flex flex-col gap-2 h-full' : 'flex flex-col gap-2'}>
       {/* Zoom controls */}
       <div className="flex items-center gap-2">
         <Button type="button" variant="outline" size="icon" className="h-8 w-8" onClick={zoomOut} disabled={zoom <= 30}>
@@ -492,7 +494,7 @@ export default function DecoCanvas({
       <div
         ref={outerRef}
         className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100"
-        style={{ maxHeight: 620 }}
+        style={fullscreen ? { flex: 1, minHeight: 0 } : { maxHeight: 620 }}
       >
         <div style={{ transformOrigin: 'top left', transform: `scale(${zoom / 100})`, width: CANVAS_W, height: CANVAS_H }}>
           <div

@@ -13,12 +13,13 @@ import { Badge } from '@/components/ui/badge';
 import {
   ArrowLeft, Save, Loader2, Eye,
   Images, Globe, MapPin, Music, Gift, QrCode,
-  PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook,
+  PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook, Trash2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GuestPortalSettings, GuestExperienceSettings } from '@/types/fiesta';
 import { getFiestaById, updateGuestPortalSettings, updateGuestExperienceSettings } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
+import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 
 const DEFAULT_SETTINGS: GuestPortalSettings = {
   showMural: true,
@@ -304,6 +305,30 @@ function GuestModuleContent() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Foto de Portada</Label>
+                  <p className="text-xs text-muted-foreground">Imagen que aparece como fondo del hero del portal (quinceañera, pareja, etc.)</p>
+                  <UploadButton
+                    currentUrl={settings.coverImageUrl || undefined}
+                    onUrlChange={(url) => setSettings(prev => ({ ...prev, coverImageUrl: url }))}
+                    fiestaId={fiestaId || undefined}
+                    accept="image/*"
+                  />
+                  {settings.coverImageUrl && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <img src={settings.coverImageUrl} alt="Portada" className="w-20 h-12 object-cover rounded-lg border" />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-destructive"
+                        onClick={() => setSettings(prev => ({ ...prev, coverImageUrl: '' }))}
+                      >
+                        <Trash2 className="w-3 h-3 mr-1" /> Quitar
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1.5">
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Mensaje de Bienvenida</Label>
                   <Input
                     value={settings.welcomeMessage || ''}
@@ -326,10 +351,15 @@ function GuestModuleContent() {
               <CardContent>
                 <div className="mx-auto w-[200px] rounded-[24px] border-4 border-slate-700 shadow-xl overflow-hidden" style={{ height: '380px' }}>
                   <div className="w-full h-full flex flex-col overflow-hidden" style={{ backgroundColor: settings.customBgColor || '#f8f5ff' }}>
-                    {/* Mini header */}
-                    <div className="px-4 py-3 text-white text-center shrink-0" style={{ backgroundColor: accentColor }}>
-                      <p className="text-[9px] font-black uppercase tracking-widest opacity-80">Portal del Invitado</p>
-                      <p className="text-[11px] font-bold mt-0.5 truncate">{nombreEvento}</p>
+                    {/* Mini header / cover */}
+                    <div className="relative shrink-0" style={{ height: '80px' }}>
+                      {settings.coverImageUrl ? (
+                        <img src={settings.coverImageUrl} alt="Portada" className="absolute inset-0 w-full h-full object-cover" />
+                      ) : null}
+                      <div className="absolute inset-0 flex flex-col items-center justify-end pb-2 px-2 text-center" style={{ background: `linear-gradient(to bottom, ${accentColor}99, ${accentColor})` }}>
+                        <p className="text-[9px] font-black uppercase tracking-widest opacity-80 text-white">Portal del Invitado</p>
+                        <p className="text-[10px] font-bold mt-0.5 truncate text-white">{nombreEvento}</p>
+                      </div>
                     </div>
 
                     {/* Welcome */}
