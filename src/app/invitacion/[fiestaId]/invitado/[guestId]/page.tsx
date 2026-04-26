@@ -93,7 +93,10 @@ function GuestPortalContent() {
     try {
       const [data, connections] = await Promise.all([
         getFiestaById(fiestaId),
-        getSocialConnections().catch(() => [] as SocialConnection[]),
+        getSocialConnections().catch((err) => {
+          console.error('[GuestPortal] Failed to load social connections:', err);
+          return [] as SocialConnection[];
+        }),
       ]);
       if (!data) throw new Error('Evento no encontrado.');
       setFiesta(data);
@@ -506,7 +509,7 @@ function GuestPortalContent() {
               Programa del evento
             </p>
             <ul className="space-y-2">
-              {fiesta.programa!.map((item, i) => (
+              {(fiesta.programa ?? []).map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="text-xs font-mono text-zinc-500 pt-0.5 shrink-0 w-12">{item.hora}</span>
                   <div>
