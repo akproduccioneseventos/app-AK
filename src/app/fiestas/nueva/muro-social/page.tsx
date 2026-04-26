@@ -174,6 +174,10 @@ function MuroSocialContent() {
     },
     screenMediaLibrary: [],
   });
+  // Ref always reflects the latest settings value; used in async callbacks to avoid
+  // stale closure issues without relying on synchronous setState execution.
+  const settingsRef = useRef(settings);
+  useEffect(() => { settingsRef.current = settings; }, [settings]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingLed, setIsSavingLed] = useState(false);
@@ -341,16 +345,11 @@ function MuroSocialContent() {
    *  reverted by the background refreshStatus polling cycle. */
   const handleToggleSetting = useCallback(async (key: keyof SocialGallerySettings, checked: boolean) => {
     if (!fiestaId) return;
-    // Capture the latest settings via setter callback to avoid stale closure.
-    // React's setState updater runs synchronously, so latestSettings will be set
-    // before the await below.
-    let latestSettings: SocialGallerySettings | null = null;
-    setSettings((prev) => {
-      latestSettings = { ...prev, [key]: checked };
-      return latestSettings;
-    });
-    if (!latestSettings) return;
-    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, latestSettings);
+    // Apply optimistic update to local state
+    setSettings((prev) => ({ ...prev, [key]: checked }));
+    // Use the ref to get the current settings snapshot for Firestore (avoids stale closure)
+    const updatedSettings = { ...settingsRef.current, [key]: checked };
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
     if (!result.success) {
       toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
       // Revert on failure
@@ -503,24 +502,18 @@ function MuroSocialContent() {
   /** Auto-saves the enabled flag of a playlist item immediately to Firestore. */
   const handlePlaylistItemToggle = useCallback(async (itemId: string, enabled: boolean) => {
     if (!fiestaId) return;
-    // Optimistic update; capture the resulting state to avoid stale closure.
-    // React's setState updater runs synchronously, so updatedSettings will be set
-    // before the await below.
-    let updatedSettings: SocialGallerySettings | null = null;
-    setSettings((prev) => {
-      const updatedPlaylist = (prev.screenMode?.playlist ?? DEFAULT_SCREEN_PLAYLIST).map(
-        (item) => item.id === itemId ? { ...item, enabled } : item
-      );
-      updatedSettings = withScreenDefaults({
-        ...prev,
-        screenMode: {
-          ...(prev.screenMode ?? {}),
-          playlist: updatedPlaylist,
-        } as SocialGallerySettings['screenMode'],
-      });
-      return updatedSettings;
+    // Apply optimistic update to local state
+    const updatedPlaylist = (settingsRef.current.screenMode?.playlist ?? DEFAULT_SCREEN_PLAYLIST).map(
+      (item) => item.id === itemId ? { ...item, enabled } : item
+    );
+    const updatedSettings = withScreenDefaults({
+      ...settingsRef.current,
+      screenMode: {
+        ...(settingsRef.current.screenMode ?? {}),
+        playlist: updatedPlaylist,
+      } as SocialGallerySettings['screenMode'],
     });
-    if (!updatedSettings) return;
+    setSettings(updatedSettings);
     const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
     if (!result.success) {
       toast({ title: 'Error al guardar ítem', description: result.error, variant: 'destructive' });
