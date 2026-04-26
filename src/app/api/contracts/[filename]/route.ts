@@ -39,7 +39,7 @@ export async function GET(
   } catch (error) {
     console.error(`Error serving contract ${safeFilename}:`, error);
     // Differentiate between file not found and other errors
-    if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: unknown }).code === 'ENOENT') {
       return new NextResponse('Contract not found', { status: 404 });
     }
     return new NextResponse('Error serving file', { status: 500 });

@@ -47,7 +47,7 @@ export async function GET(
     return new NextResponse(fileBuffer, { status: 200, headers });
   } catch (error) {
     console.error(`Error serving payment proof ${safeFilename}:`, error);
-    if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: unknown }).code === 'ENOENT') {
       return new NextResponse('Payment proof not found', { status: 404 });
     }
     return new NextResponse('Error serving file', { status: 500 });

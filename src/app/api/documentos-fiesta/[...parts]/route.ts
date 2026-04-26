@@ -94,7 +94,7 @@ export async function GET(
     return new NextResponse(fileBuffer as BodyInit, { status: 200, headers });
   } catch (error) {
     console.error(`Error serving fiesta document ${safeFilename}:`, error);
-    if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: unknown }).code === 'ENOENT') {
       return new NextResponse('Document file not found', { status: 404 });
     }
     return new NextResponse('Error serving file', { status: 500 });
