@@ -1151,7 +1151,9 @@ export interface GuestExperienceSettings {
 // --- CLIENTE PORTAL EXPERIENCE ---
 export interface ClientePortalExperience {
   heroImageUrl?: string;
+  protagonistImageUrl?: string;
   primaryColor?: string;
+  eventDisplayName?: string;
   welcomeMessage?: string;
   organizerMessage?: string;
   simplicityMode?: boolean;
