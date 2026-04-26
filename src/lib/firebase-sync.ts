@@ -333,6 +333,53 @@ export async function readFromFirestore(filePath: string): Promise<any> {
 }
 
 /**
+ * Hard-delete a single document from a Firestore collection.
+ * Bypasses the empty-array safety guard in syncToFirestore.
+ * Use when you want to reliably remove a specific document (e.g. individual presupuesto delete).
+ */
+export async function forceDeleteDocFromFirestore(collectionName: string, docId: string): Promise<void> {
+  try {
+    const { dbAdmin } = await import('./firebase/server');
+    if (!dbAdmin) return;
+    await withRetry(() => dbAdmin.collection(collectionName).doc(docId).delete(), `force-delete doc: ${collectionName}/${docId}`);
+    if (isDev) {
+      logger.info(`🗑️ [Firebase Sync] "${collectionName}/${docId}" eliminado directamente.`);
+    }
+  } catch (error) {
+    logger.warn(`⚠️ [Firebase Sync] No se pudo eliminar "${collectionName}/${docId}":`, error);
+    throw error;
+  }
+}
+
+/**
+ * Hard-delete ALL documents from a Firestore collection.
+ * Bypasses the empty-array safety guard in syncToFirestore.
+ * Use only for intentional "reset all" operations.
+ */
+export async function forceDeleteCollectionFromFirestore(collectionName: string): Promise<{ deletedCount: number }> {
+  try {
+    const { dbAdmin } = await import('./firebase/server');
+    if (!dbAdmin) return { deletedCount: 0 };
+    const batchSize = 450;
+    const snapshot = await dbAdmin.collection(collectionName).get();
+    if (snapshot.empty) return { deletedCount: 0 };
+    const docs = snapshot.docs;
+    for (let i = 0; i < docs.length; i += batchSize) {
+      const batch = dbAdmin.batch();
+      docs.slice(i, i + batchSize).forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+        batch.delete(doc.ref);
+      });
+      await withRetry(() => batch.commit(), `force-delete-all: ${collectionName} (batch ${Math.floor(i / batchSize) + 1})`);
+    }
+    logger.info(`🗑️ [Firebase Sync] "${collectionName}" — ${docs.length} documento(s) eliminados directamente.`);
+    return { deletedCount: docs.length };
+  } catch (error) {
+    logger.warn(`⚠️ [Firebase Sync] No se pudo limpiar la colección "${collectionName}":`, error);
+    throw error;
+  }
+}
+
+/**
  * List all documents from a Firestore collection and return them as an array.
  * Omits the internal `_syncedAt` property from each document.
  */

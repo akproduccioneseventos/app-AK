@@ -763,17 +763,17 @@ export default function SimuladorAKPage() {
   // ── Layout ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex flex-col print:bg-white print:text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex flex-col print:bg-white print:text-slate-900 print:min-h-0 print:block">
 
-      {/* Print header */}
-      <div className="hidden print:block p-8">
+      {/* Print header — rendered first and only visible when printing */}
+      <div className="hidden print:block print:p-8">
         <PrintSummary state={state} prices={priceStats} />
       </div>
 
       <div className="print:hidden flex flex-col lg:flex-row flex-1 gap-0">
 
         {/* ── Left: Wizard ────────────────────────────────────────────────── */}
-        <div className="flex-1 flex flex-col items-center justify-start px-4 pt-8 pb-4 lg:pt-12 lg:pb-8 min-h-screen lg:min-h-0">
+        <div className="flex-1 flex flex-col items-center justify-start px-4 pt-8 pb-4 lg:pt-12 lg:pb-8 min-h-screen lg:min-h-0 print:min-h-0">
 
           {/* Brand */}
           <div className="flex items-center gap-2 mb-6 lg:mb-8">
@@ -1544,13 +1544,21 @@ function StepMenus({
     </button>
   );
 
+  // Sort recommended dishes first within each category
+  const sortRecommended = (list: ServicioEmpresa[]) =>
+    [...list].sort((a, b) => {
+      const aIsRecommended = recommendedDishIds.has(a.id) ? 0 : 1;
+      const bIsRecommended = recommendedDishIds.has(b.id) ? 0 : 1;
+      return aIsRecommended - bIsRecommended;
+    });
+
   return (
     <StepCard title="Seleccioná los menús" icon={<Zap className="w-6 h-6" />}>
       <div className="space-y-5">
         <div>
           <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Entradas ({maxEntradas})</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {entradasDisponibles.map(s => (
+            {sortRecommended(entradasDisponibles).map(s => (
               <DishButton key={s.id} s={s} selected={state.selectedEntradas.includes(s.id)} onClick={() => toggleEntrada(s.id)} />
             ))}
           </div>
@@ -1558,7 +1566,7 @@ function StepMenus({
         <div>
           <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Plato principal</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {principalesDisponibles.map(s => (
+            {sortRecommended(principalesDisponibles).map(s => (
               <DishButton key={s.id} s={s} selected={state.selectedPrincipal === s.id} onClick={() => onChange('selectedPrincipal', s.id)} />
             ))}
           </div>
@@ -1567,7 +1575,7 @@ function StepMenus({
           <div>
             <p className="text-violet-300 text-xs font-bold uppercase tracking-wide mb-2">Menú infantil</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {menusNinoDisponibles.map(s => (
+              {sortRecommended(menusNinoDisponibles).map(s => (
                 <DishButton key={s.id} s={s} selected={state.selectedInfantil === s.id} onClick={() => onChange('selectedInfantil', s.id)} />
               ))}
             </div>
@@ -1650,54 +1658,65 @@ function StepConversion({
       </div>
 
       {/* Price breakdown */}
-      {prices && (
-        <div className="bg-white/5 rounded-2xl p-4 space-y-2">
-          <p className="text-violet-200 text-xs font-bold uppercase tracking-wider mb-2">Detalle del presupuesto</p>
+      {prices && (() => {
+        // Sort: regular items by name, gifts at the bottom
+        const regular = [...prices.detallados].filter(d => !d.esRegalo).sort((a, b) => a.nombre.localeCompare(b.nombre));
+        const regalos = prices.detallados.filter(d => d.esRegalo);
+        const sorted = [...regular, ...regalos];
+        return (
+          <div className="bg-white/5 rounded-2xl p-4 space-y-2">
+            <p className="text-violet-200 text-xs font-bold uppercase tracking-wider mb-2">Detalle del presupuesto</p>
 
-          {/* Service list */}
-          {prices.detallados.length > 0 && (
-            <ul className="space-y-1 mb-3">
-              {prices.detallados.map((item) => (
-                <li key={item.id} className="flex items-start justify-between gap-3 text-xs">
-                  <span className="text-white/80 flex items-center gap-1">
-                    {item.esRegalo && <Gift className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
-                    {item.nombre}
-                  </span>
-                  <span className={item.esRegalo ? 'text-emerald-300 font-bold whitespace-nowrap' : 'text-white/80 whitespace-nowrap'}>
-                    {item.esRegalo ? '¡Sin costo! 🎁' : formatCurrency(item.costoTotal)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="border-t border-white/10 pt-2 space-y-1.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-violet-300">Subtotal servicios</span>
-              <span className="text-white/60">{formatCurrency(prices.subtotalVenta)}</span>
-            </div>
-            {prices.ahorroRegalos > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-emerald-400 flex items-center gap-1"><Gift className="w-3.5 h-3.5" /> Ahorro regalos incluidos</span>
-                <span className="text-emerald-400 font-bold">- {formatCurrency(prices.ahorroRegalos)}</span>
-              </div>
+            {/* Service list */}
+            {sorted.length > 0 && (
+              <ul className="space-y-1 mb-3">
+                {sorted.map((item) => (
+                  <li key={item.id} className="flex items-start justify-between gap-3 text-xs">
+                    <span className={cn('flex items-center gap-1', item.esRegalo ? 'text-emerald-300' : 'text-white/80')}>
+                      {item.esRegalo && <Gift className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
+                      {item.nombre}
+                    </span>
+                    <span className={item.esRegalo ? 'text-emerald-300 font-bold whitespace-nowrap' : 'text-white/80 whitespace-nowrap'}>
+                      {item.esRegalo ? (
+                        <span className="flex items-center gap-1">
+                          <span className="line-through text-white/40">{formatCurrency(item.costoTotal)}</span>
+                          <span>¡Sin costo! 🎁</span>
+                        </span>
+                      ) : formatCurrency(item.costoTotal)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
-            <div className="flex justify-between text-sm">
-              <span className="text-amber-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Bonificación especial (10%)</span>
-              <span className="text-amber-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
-            </div>
-            <div className="border-t border-white/10 pt-2 flex justify-between">
-              <span className="text-white font-black">TOTAL FINAL</span>
-              <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
-            </div>
-          </div>
 
-          <div className="border-t border-white/10 pt-2 space-y-1 text-xs text-violet-300">
-            <p>💵 <strong className="text-white">Seña de $5.000</strong> para reservar la fecha</p>
-            <p>📋 <strong className="text-white">Validez:</strong> Este presupuesto tiene 30 días de validez</p>
+            <div className="border-t border-white/10 pt-2 space-y-1.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-violet-300">Subtotal servicios</span>
+                <span className="text-white/60">{formatCurrency(prices.subtotalVenta)}</span>
+              </div>
+              {prices.ahorroRegalos > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-emerald-400 flex items-center gap-1"><Gift className="w-3.5 h-3.5" /> Ahorro regalos incluidos</span>
+                  <span className="text-emerald-400 font-bold">- {formatCurrency(prices.ahorroRegalos)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-amber-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Bonificación especial (10%)</span>
+                <span className="text-amber-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
+              </div>
+              <div className="border-t border-white/10 pt-2 flex justify-between">
+                <span className="text-white font-black">TOTAL FINAL</span>
+                <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 pt-2 space-y-1 text-xs text-violet-300">
+              <p>💵 <strong className="text-white">Seña de $5.000</strong> para reservar la fecha</p>
+              <p>📋 <strong className="text-white">Validez:</strong> Este presupuesto tiene 30 días de validez</p>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <div className="bg-blue-500/15 border border-blue-400/30 rounded-2xl p-4">
         <p className="text-blue-100 text-sm">
@@ -1748,7 +1767,7 @@ function StepConversion({
             });
           }}
         >
-          <Copy className="w-4 h-4 mr-2" /> Copiar mensaje
+          <Copy className="w-4 h-4 mr-2" /> Copiar mensaje de WhatsApp
         </Button>
 
         <Button
@@ -1914,7 +1933,10 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
               </tr>
             </thead>
             <tbody>
-              {prices?.detallados?.map((s) => (
+              {[...(prices?.detallados || [])].sort((a, b) => {
+                if (a.esRegalo === b.esRegalo) return a.nombre.localeCompare(b.nombre);
+                return a.esRegalo ? 1 : -1;
+              }).map((s) => (
                 <tr key={s.id} className="border-t border-slate-200">
                   <td className="px-3 py-2 font-medium">
                     {s.nombre}
