@@ -77,7 +77,7 @@ const modules: ModuleDefinition[] = [
 
   // 4. PRODUCCIÓN MULTIMEDIA
   { id: 'fotografia', title: "Foto y Video", href: "fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
-  { id: 'muroSocial', title: "Muro Social", href: "muro-social", icon: Image, description: "Fotos de invitados, link y QR del mural social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-cyan-100 text-cyan-700", badge: 'Invitado' },
+  { id: 'muroSocial', title: "Muro Social & Juegos", href: "muro-social", icon: Gamepad2, description: "Mural de fotos en vivo + juegos interactivos (trivia, sorteo, encuestas) para la pantalla gigante.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
   { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-rose-100 text-rose-600", badge: 'Invitado' },
   { id: 'postEvento', title: "Post-Evento", href: "post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-rose-100 text-rose-600", badge: 'Interno' },
 
@@ -129,7 +129,7 @@ const categoryMeta: Record<string, { icon: React.ElementType; color: string; des
   'CENTRO DE PRODUCCIÓN':              { icon: Settings2,       color: 'text-slate-700 bg-slate-100',   description: 'Configuración, tareas, reuniones, documentos y finanzas.' },
   'OPERATIVA Y LOGÍSTICA':             { icon: Truck,           color: 'text-amber-700 bg-amber-100',   description: 'Lista de carga, logística, proveedores y personal.' },
   'EXPERIENCIA DEL CLIENTE VIP':       { icon: KeyRound,        color: 'text-amber-600 bg-amber-50',    description: 'Portal VIP, itinerario, música, video de vida e invitados.' },
-  'PRODUCCIÓN MULTIMEDIA':             { icon: Camera,          color: 'text-purple-700 bg-purple-100', description: 'Foto, video, muro social y material del evento.' },
+  'PRODUCCIÓN MULTIMEDIA':             { icon: Camera,          color: 'text-purple-700 bg-purple-100', description: 'Foto, video, muro social, juegos interactivos y material del evento.' },
   'EXPERIENCIA DEL INVITADO VIP':      { icon: Globe,           color: 'text-blue-700 bg-blue-100',     description: 'Invitación web, portal, QR, check-in y mesas.' },
   'PANTALLA GIGANTE AK':               { icon: Tv,              color: 'text-indigo-700 bg-indigo-100', description: 'Evento en vivo, playlist, mission control y readiness.' },
   'DISEÑO, SALÓN Y AMBIENTACIÓN':      { icon: Palette,         color: 'text-pink-700 bg-pink-100',     description: 'Decoración, moodboard y ambientación del salón.' },

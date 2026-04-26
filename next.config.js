@@ -57,6 +57,14 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      // Firebase Storage — required for social-wall photos uploaded via Admin SDK.
+      // Public URLs are always https://storage.googleapis.com/{bucket}/{path}.
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
