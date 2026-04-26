@@ -64,6 +64,8 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'aprobaciones.json': 'aprobaciones',
   'incidentes.json': 'incidentes',
   'personal-recibos.json': 'personal_recibos',
+  // Social wall gallery posts (all events share one flat collection, filtered by fiestaId client-side)
+  'social-gallery/metadata.json': 'social_gallery_posts',
 };
 
 const CONFIG_FILES: Record<string, string> = {
@@ -223,16 +225,28 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
     }
 
     // Individual document file (e.g., fiestas/fiesta_xxx.json, archive/fiesta_archivada_xxx.json)
+    // Also handles per-event array files (e.g., social-interactive/{fiestaId}-polls.json,
+    // social-chat/{fiestaId}.json) that are not enumerable in FILE_TO_COLLECTION because their
+    // names are dynamic.  Arrays are stored in a { _arrayData: [...] } wrapper document so that
+    // Firestore (which does not support top-level arrays in documents) can persist them.
     const pathParts = normalizedPath.split('/');
-    if (pathParts.length === 2 && data && typeof data === 'object' && !Array.isArray(data)) {
+    if (pathParts.length === 2 && data && typeof data === 'object') {
       const [dir, filename] = pathParts;
       if (!filename.endsWith('.json')) return;
       const docId = filename.replace('.json', '');
-      const cleanData = sanitizeForFirestore(data) as Record<string, unknown>;
-      await withRetry(() => db.collection(dir).doc(docId).set({
-        ...cleanData,
-        _syncedAt: new Date().toISOString(),
-      }, { merge: true }), `doc: ${dir}/${docId}`);
+      if (Array.isArray(data)) {
+        const cleanItems = sanitizeForFirestore(data) as unknown[];
+        await withRetry(() => db.collection(dir).doc(docId).set({
+          _arrayData: cleanItems,
+          _syncedAt: new Date().toISOString(),
+        }), `doc-array: ${dir}/${docId}`);
+      } else {
+        const cleanData = sanitizeForFirestore(data) as Record<string, unknown>;
+        await withRetry(() => db.collection(dir).doc(docId).set({
+          ...cleanData,
+          _syncedAt: new Date().toISOString(),
+        }, { merge: true }), `doc: ${dir}/${docId}`);
+      }
     }
     if (isDev) {
       const target = FILE_TO_COLLECTION[normalizedPath] || CONFIG_FILES[normalizedPath] || normalizedPath;
@@ -300,7 +314,11 @@ export async function readFromFirestore(filePath: string): Promise<any> {
       const doc = await db.collection(dir).doc(docId).get();
       if (doc.exists) {
         const data = doc.data();
-        if (data) delete data._syncedAt;
+        if (data) {
+          delete data._syncedAt;
+          // Unwrap arrays that were stored with the _arrayData wrapper (see syncToFirestore)
+          if (Array.isArray(data._arrayData)) return data._arrayData;
+        }
         return data || null;
       }
     }
