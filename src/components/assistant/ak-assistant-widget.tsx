@@ -61,13 +61,12 @@ const QUICK_ACTIONS = [
 
 const SUGGESTED_CHIPS = [
   '📸 Importá un presupuesto desde foto',
-  '¿Cómo creo un presupuesto?',
+  '📋 Crea un presupuesto para María, XV años, 10/09/2026, 100 invitados',
   '¿Tengo pagos pendientes?',
   'Registrá una seña de $50.000',
   'Generame un post para Instagram',
   '¿Estoy libre el próximo sábado?',
   'Creame un empleado',
-  'Agregá un proveedor',
   'Enseñame a usar el CRM',
 ];
 
@@ -996,41 +995,14 @@ export function AKAssistantWidget() {
                         </button>
                       ))}
                     </div>
-                    {/* Capabilities info card */}
-                    <div className="ml-9 rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
-                      <button
-                        className="w-full flex items-center justify-between px-3 py-2 text-left text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
-                        onClick={() => setExpandedSection(s => s === 'capabilities' ? null : 'capabilities')}
-                      >
-                        <span>ℹ️ ¿Qué puede hacer el Asistente AK?</span>
-                        <ChevronRight className={cn('h-3.5 w-3.5 text-slate-400 transition-transform', expandedSection === 'capabilities' && 'rotate-90')} />
-                      </button>
-                      {expandedSection === 'capabilities' && (
-                        <div className="px-3 pb-3 space-y-2 border-t border-slate-100 pt-2">
-                          <div>
-                            <p className="text-[11px] font-bold text-emerald-700 mb-1">✅ Puede hacer:</p>
-                            <ul className="space-y-0.5 text-[11px] text-slate-600">
-                              <li>• Agendar reuniones y citas con clientes</li>
-                              <li>• Crear presupuestos desde texto o descripción</li>
-                              <li>• Importar presupuestos desde imágenes/PDF (con IA)</li>
-                              <li>• Crear/buscar clientes, empleados, proveedores</li>
-                              <li>• Registrar pagos y crear facturas</li>
-                              <li>• Crear y actualizar eventos/fiestas</li>
-                              <li>• Generar posts de redes y mensajes de WhatsApp</li>
-                              <li>• Responder consultas sobre el sistema y navegar</li>
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="text-[11px] font-bold text-rose-700 mb-1">❌ Limitaciones actuales:</p>
-                            <ul className="space-y-0.5 text-[11px] text-slate-500">
-                              <li>• No puede leer PDFs complejos con tablas sin visión de IA</li>
-                              <li>• Presupuestos complejos multi-servicio pueden necesitar ajuste manual</li>
-                              <li>• No puede acceder a datos de clientes sin nombre/teléfono</li>
-                              <li>• No puede enviar WhatsApp de forma autónoma (genera el texto)</li>
-                            </ul>
-                          </div>
-                        </div>
-                      )}
+                    {/* Budget quick-start hint */}
+                    <div className="ml-9 rounded-xl border border-indigo-100 bg-indigo-50/60 px-3 py-2.5 text-[11px] text-slate-600 space-y-1.5">
+                      <p className="font-semibold text-indigo-700">💡 Cómo crear un presupuesto:</p>
+                      <ul className="space-y-1 text-slate-600">
+                        <li>• <span className="font-medium">Desde texto:</span> pegá el detalle de servicios y precios directamente acá y lo proceso automáticamente.</li>
+                        <li>• <span className="font-medium">Desde imagen/PDF:</span> usá el botón 📎 para adjuntar el archivo.</li>
+                        <li>• <span className="font-medium">Dictado:</span> decime "Presupuesto para [cliente], [tipo de evento], [servicios y precios]".</li>
+                      </ul>
                     </div>
                   </div>
                 )}
