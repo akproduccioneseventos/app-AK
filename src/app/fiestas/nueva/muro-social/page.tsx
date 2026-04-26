@@ -192,7 +192,8 @@ function MuroSocialContent() {
   const [selectedGameTemplate, setSelectedGameTemplate] = useState<typeof GAME_TEMPLATES[number] | null>(null);
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Lightweight auto-refresh: refreshes just the status data without showing a spinner
+  // Lightweight auto-refresh: refreshes only status data (activeGame, postCount)
+  // WITHOUT overwriting user-editable settings state, which would revert unsaved changes.
   const refreshStatus = useCallback(async () => {
     if (!fiestaId) return;
     try {
@@ -200,10 +201,18 @@ function MuroSocialContent() {
       if (!fiestaData) return;
       const sg = fiestaData.socialGallerySettings;
       if (sg) {
-        setSettings(withScreenDefaults({
-          ...sg,
-        }));
+        // Only update active game — do NOT overwrite settings to prevent toggled/edited
+        // values from being reverted by the background refresh before the user saves.
         setActiveGame(sg.activeGame ?? null);
+        // Keep the screenMode playing/index badge in sync without touching user-edited fields
+        setSettings((prev) => ({
+          ...prev,
+          screenMode: {
+            ...(prev.screenMode ?? {}),
+            isPlaying: sg.screenMode?.isPlaying ?? prev.screenMode?.isPlaying ?? true,
+            currentItemIndex: sg.screenMode?.currentItemIndex ?? prev.screenMode?.currentItemIndex ?? 0,
+          } as SocialGallerySettings['screenMode'],
+        }));
       }
       const posts = await getSocialPosts(fiestaId);
       setPostCount(posts.length);
@@ -317,6 +326,34 @@ function MuroSocialContent() {
       toast({ title: 'Error al enviar cartel LED', description: result.error, variant: 'destructive' });
     }
   };
+
+  const saveMarketingText = async () => {
+    if (!fiestaId) return;
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, settings);
+    if (result.success) {
+      toast({ title: 'Texto de marketing actualizado ✓', description: 'El zócalo se actualizó en la pantalla en vivo.' });
+    } else {
+      toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  /** Auto-saves a single boolean toggle to Firestore immediately so it cannot be
+   *  reverted by the background refreshStatus polling cycle. */
+  const handleToggleSetting = useCallback(async (key: keyof SocialGallerySettings, checked: boolean) => {
+    if (!fiestaId) return;
+    // Capture the latest settings via setter callback to avoid stale closure
+    let latestSettings: SocialGallerySettings | undefined;
+    setSettings((prev) => {
+      latestSettings = { ...prev, [key]: checked };
+      return latestSettings;
+    });
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, latestSettings!);
+    if (!result.success) {
+      toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+      // Revert on failure
+      setSettings((prev) => ({ ...prev, [key]: !checked }));
+    }
+  }, [fiestaId, toast]);
 
   const triggerMoment = async (momentToTrigger: (typeof QUICK_MOMENTS)[number]) => {
     if (!fiestaId) return;
@@ -448,7 +485,7 @@ function MuroSocialContent() {
     }
   };
 
-  const handlePlaylistItemChange = (itemId: string, update: Partial<ScreenPlaylistItem>) => {
+  const handlePlaylistItemChange = useCallback((itemId: string, update: Partial<ScreenPlaylistItem>) => {
     setSettings((prev) => withScreenDefaults({
       ...prev,
       screenMode: {
@@ -458,7 +495,32 @@ function MuroSocialContent() {
         ),
       },
     }));
-  };
+  }, []);
+
+  /** Auto-saves the enabled flag of a playlist item immediately to Firestore. */
+  const handlePlaylistItemToggle = useCallback(async (itemId: string, enabled: boolean) => {
+    if (!fiestaId) return;
+    // Optimistic update; capture the resulting state to avoid stale closure
+    let updatedSettings: SocialGallerySettings | undefined;
+    setSettings((prev) => {
+      const updatedPlaylist = (prev.screenMode?.playlist ?? DEFAULT_SCREEN_PLAYLIST).map(
+        (item) => item.id === itemId ? { ...item, enabled } : item
+      );
+      updatedSettings = withScreenDefaults({
+        ...prev,
+        screenMode: {
+          ...(prev.screenMode ?? {}),
+          playlist: updatedPlaylist,
+        } as SocialGallerySettings['screenMode'],
+      });
+      return updatedSettings;
+    });
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings!);
+    if (!result.success) {
+      toast({ title: 'Error al guardar ítem', description: result.error, variant: 'destructive' });
+      handlePlaylistItemChange(itemId, { enabled: !enabled }); // Revert
+    }
+  }, [fiestaId, handlePlaylistItemChange, toast]);
 
   const reorderPlaylist = (startId: string, endId: string) => {
     setSettings((prev) => {
@@ -681,7 +743,7 @@ function MuroSocialContent() {
                 <span className="text-sm font-medium">{item.label}</span>
                 <Switch
                   checked={Boolean(settings[item.key as keyof SocialGallerySettings])}
-                  onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, [item.key]: checked }))}
+                  onCheckedChange={(checked) => handleToggleSetting(item.key as keyof SocialGallerySettings, checked)}
                 />
               </div>
             ))}
@@ -700,11 +762,23 @@ function MuroSocialContent() {
           <CardContent className="space-y-3">
             <div className="space-y-1">
               <Label>Zócalo de marketing (redes)</Label>
-              <Input
-                value={settings.marketingTickerText ?? ''}
-                onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerText: e.target.value }))}
-                placeholder={DEFAULT_MARKETING_TICKER_TEXT}
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={settings.marketingTickerText ?? ''}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerText: e.target.value }))}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveMarketingText(); } }}
+                  placeholder={DEFAULT_MARKETING_TICKER_TEXT}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={saveMarketingText}
+                  title="Enviar texto de marketing a pantalla ahora"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             <div className="space-y-1">
               <Label>Cartel LED / Mensaje pasante</Label>
@@ -820,7 +894,7 @@ function MuroSocialContent() {
                     <option value="portrait">9:16</option>
                   </select>
                   <div className="flex items-center gap-2">
-                    <Switch checked={item.enabled} onCheckedChange={(checked) => handlePlaylistItemChange(item.id, { enabled: checked })} />
+                    <Switch checked={item.enabled} onCheckedChange={(checked) => handlePlaylistItemToggle(item.id, checked)} />
                     <select
                       className="h-10 rounded-md border px-2 text-sm w-full"
                       value={item.mediaAssetId ?? ''}
