@@ -1,3 +1,4 @@
+import { isFileNotFoundError } from '@/lib/error-utils';
 
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -40,7 +41,7 @@ export async function GET(
     return new NextResponse(fileBuffer, { status: 200, headers });
   } catch (error) {
     console.error(`Error serving fiesta contract ${safeFilename}:`, error);
-    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: unknown }).code === 'ENOENT') {
+    if (isFileNotFoundError(error)) {
       return new NextResponse('Contract file not found', { status: 404 });
     }
     return new NextResponse('Error serving file', { status: 500 });
