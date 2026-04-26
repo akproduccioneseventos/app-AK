@@ -38,8 +38,7 @@ export async function GET(
     return new NextResponse(fileBuffer, { status: 200, headers });
   } catch (error) {
     console.error(`Error serving salon contract ${safeFilename}:`, error);
-    // @ts-ignore
-    if (error.code === 'ENOENT') {
+    if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
       return new NextResponse('Salon contract file not found', { status: 404 });
     }
     return new NextResponse('Error serving file', { status: 500 });
