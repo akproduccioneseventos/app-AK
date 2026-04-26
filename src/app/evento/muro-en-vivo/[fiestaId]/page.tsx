@@ -320,7 +320,7 @@ export default function MuroEnVivoPage() {
           {/* Comments overlay — left side, only shown when no side panel and no dedications */}
           {isLoaded && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && !hasSidePanel && (
             <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-3">
-              {highlightedComments.slice(0, 3).map(({ postId: _postId, comment }) => (
+              {highlightedComments.slice(0, 3).map(({ comment }) => (
                 <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
                   <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
                   <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
