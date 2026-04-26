@@ -33,6 +33,7 @@ import {
   clearActiveGame,
   triggerSorteoWinner,
   startSorteoSpinOnScreen,
+  getMuroParticipantesForSorteo,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
 import { getInvitados } from '@/app/actions/fiesta/invitados.actions';
@@ -219,6 +220,8 @@ function MuroSocialContent() {
             isPlaying: sg.screenMode?.isPlaying ?? prev.screenMode?.isPlaying ?? true,
             currentItemIndex: sg.screenMode?.currentItemIndex ?? prev.screenMode?.currentItemIndex ?? 0,
           } as SocialGallerySettings['screenMode'],
+          // Keep sorteo followers count current (read-only, not user-editable)
+          sorteoParticipantesRedes: sg.sorteoParticipantesRedes ?? prev.sorteoParticipantesRedes,
         }));
       }
       const posts = await getSocialPosts(fiestaId);
@@ -679,6 +682,33 @@ function MuroSocialContent() {
     } catch {
       toast({ title: 'Error al cargar invitados', variant: 'destructive' });
     }
+  };
+
+  const handleLoadMuroParticipantes = async () => {
+    if (!fiestaId) return;
+    const result = await getMuroParticipantesForSorteo(fiestaId);
+    if (result.success && result.participantes && result.participantes.length > 0) {
+      setSorteoParticipants(result.participantes.join('\n'));
+      setSorteoPreviewWinner(null);
+      toast({ title: `${result.participantes.length} participantes del muro cargados`, description: 'Solo se incluyen los que pusieron su nombre (no anónimos).' });
+    } else if (result.success) {
+      toast({ title: 'Sin participantes del muro', description: 'Nadie participó con nombre aún.', variant: 'destructive' });
+    } else {
+      toast({ title: 'Error al cargar participantes', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleLoadRedesSeguidores = () => {
+    const seguidores = (settings.sorteoParticipantesRedes ?? []);
+    // Deduplicate by name (case-insensitive)
+    const unique = Array.from(new Map(seguidores.map(s => [s.nombre.toLowerCase(), s.nombre])).values());
+    if (unique.length === 0) {
+      toast({ title: 'Sin seguidores registrados', description: 'Ningún invitado hizo clic en "Seguir" todavía.', variant: 'destructive' });
+      return;
+    }
+    setSorteoParticipants(unique.join('\n'));
+    setSorteoPreviewWinner(null);
+    toast({ title: `${unique.length} seguidores de redes cargados`, description: 'Solo los que hicieron clic en Seguir desde su celular.' });
   };
 
   const addPlaylistItem = (type: ScreenPlaylistItem['type']) => {
@@ -1525,16 +1555,40 @@ function MuroSocialContent() {
                     className="h-9 text-sm"
                   />
                 </div>
-                {/* Load from guest list */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLoadInvitadosToSorteo}
-                  className="w-full border-yellow-300 text-yellow-800 hover:bg-yellow-50"
-                >
-                  👥 Cargar lista de invitados (con check-in / confirmados)
-                </Button>
+                {/* Three sorteo participant type buttons */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 font-semibold">Cargar participantes desde:</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadInvitadosToSorteo}
+                    className="w-full border-yellow-300 text-yellow-800 hover:bg-yellow-50 justify-start text-left"
+                  >
+                    👥 <span className="font-bold ml-1">Todos los invitados</span>
+                    <span className="ml-1 text-yellow-600 font-normal">(confirmados / con check-in)</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadMuroParticipantes}
+                    className="w-full border-blue-300 text-blue-800 hover:bg-blue-50 justify-start text-left"
+                  >
+                    🎉 <span className="font-bold ml-1">Participantes del muro</span>
+                    <span className="ml-1 text-blue-600 font-normal">(pusieron su nombre, no anónimos)</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadRedesSeguidores}
+                    className="w-full border-pink-300 text-pink-800 hover:bg-pink-50 justify-start text-left"
+                  >
+                    📱 <span className="font-bold ml-1">Seguidores de redes</span>
+                    <span className="ml-1 text-pink-600 font-normal">({(settings.sorteoParticipantesRedes ?? []).length} hicieron clic en Seguir)</span>
+                  </Button>
+                </div>
                 <Label className="text-xs text-slate-500">
                   Participantes — uno por línea (podés editar manualmente):
                 </Label>

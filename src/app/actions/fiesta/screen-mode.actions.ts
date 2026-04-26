@@ -390,3 +390,82 @@ export async function updateLedConfig(
     return { success: false, error: error.message || 'Error al actualizar cartel LED.' };
   }
 }
+
+/**
+ * Registra que un invitado del muro social hizo clic en el botón de seguir en redes sociales.
+ * Se guarda en `sorteoParticipantesRedes` para poder usar esos participantes en el sorteo.
+ * Se ignoran los anónimos y las entradas duplicadas (mismo nombre + plataforma en la misma fiesta).
+ */
+export async function trackSocialFollowClick(
+  fiestaId: string,
+  authorName: string,
+  platform: 'instagram' | 'facebook' | 'tiktok'
+): Promise<{ success: boolean; error?: string }> {
+  if (!authorName || authorName.toLowerCase() === 'anónimo') {
+    return { success: true }; // Silently ignore anonymous users
+  }
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const existing = settings.sorteoParticipantesRedes ?? [];
+    // Avoid duplicates: same name + platform combo
+    const alreadyRegistered = existing.some(
+      p => p.nombre.toLowerCase() === authorName.toLowerCase() && (p as any).platform === platform
+    );
+    if (alreadyRegistered) return { success: true };
+    const updated = [
+      ...existing,
+      { nombre: authorName, timestamp: new Date().toISOString(), platform } as any,
+    ];
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al registrar seguidor.' };
+  }
+}
+
+/**
+ * Devuelve los nombres únicos (no anónimos) de invitados que interactuaron con el muro social
+ * (subieron fotos, enviaron mensajes de chat, dedicatorias o pedidos de canciones).
+ */
+export async function getMuroParticipantesForSorteo(
+  fiestaId: string
+): Promise<{ success: boolean; participantes?: string[]; error?: string }> {
+  try {
+    // Import social actions lazily to avoid circular dependencies
+    const { getSocialPosts } = await import('@/app/actions/social-gallery');
+    const { getDedications, getSongRequests } = await import('@/app/actions/social-interactive');
+    const { getChatMessages } = await import('@/app/actions/social-gallery');
+
+    const [posts, dedications, songRequests, chatMessages] = await Promise.all([
+      getSocialPosts(fiestaId).catch(() => []),
+      getDedications(fiestaId).catch(() => []),
+      getSongRequests(fiestaId).catch(() => []),
+      getChatMessages(fiestaId).catch(() => []),
+    ]);
+
+    const names = new Set<string>();
+    const isAnon = (n: string) => !n || n.toLowerCase() === 'anónimo' || n.toLowerCase() === 'anonimo';
+
+    for (const post of posts) {
+      if (!isAnon(post.authorName)) names.add(post.authorName.trim());
+    }
+    for (const d of dedications) {
+      if (!isAnon(d.authorName)) names.add(d.authorName.trim());
+    }
+    for (const s of songRequests) {
+      if (!isAnon(s.requestedBy)) names.add(s.requestedBy.trim());
+    }
+    for (const c of chatMessages) {
+      if (!isAnon(c.authorName)) names.add(c.authorName.trim());
+    }
+
+    return { success: true, participantes: Array.from(names).sort() };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al obtener participantes del muro.' };
+  }
+}

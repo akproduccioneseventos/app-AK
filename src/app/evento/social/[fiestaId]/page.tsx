@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, type FormEvent, useRef, type C
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication } from '@/app/actions/social-interactive';
-import { voteActiveGameOption } from '@/app/actions/fiesta/screen-mode.actions';
+import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
@@ -289,6 +289,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   
   const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [instagramUrl, setInstagramUrl] = useState<string | null>(null);
+  const [facebookUrl, setFacebookUrl] = useState<string | null>(null);
+  /** Platform keys the guest has already clicked "follow" on (stored in sessionStorage) */
+  const [followedPlatforms, setFollowedPlatforms] = useState<Set<string>>(new Set());
 
   // Custom Settings State (for Admin)
   const [localSettings, setLocalSettings] = useState<SocialGallerySettings>({
@@ -345,6 +349,21 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setActivePoll(poll);
       setCompanyLogoUrl(settingsData.logoUrl ?? null);
       setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
+      const igConn = socialConnections.find(c => c.platform === 'Instagram');
+      const fbConn = socialConnections.find(c => c.platform === 'Facebook');
+      // Use brand handle if set, otherwise fall back to company social connections
+      const brandIg = fiestaData?.socialGallerySettings?.brand?.instagramHandle;
+      const brandFb = fiestaData?.socialGallerySettings?.brand?.facebookHandle;
+      setInstagramUrl(
+        brandIg
+          ? `https://instagram.com/${brandIg.replace(/^@/, '')}`
+          : igConn?.profileUrl || null
+      );
+      setFacebookUrl(
+        brandFb
+          ? `https://facebook.com/${brandFb.replace(/^@/, '')}`
+          : fbConn?.profileUrl || null
+      );
 
     } catch (e) {
       toast({ title: "Error al cargar galería", variant: "destructive" });
@@ -367,6 +386,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             } else {
                 setIsNameModalOpen(true);
             }
+        }
+        // Restore platforms the guest already followed
+        const followedRaw = sessionStorage.getItem(`socialFollowed_${params.fiestaId}`);
+        if (followedRaw) {
+          try { setFollowedPlatforms(new Set(JSON.parse(followedRaw))); } catch {}
         }
     }
   }, [params.fiestaId]);
@@ -413,6 +437,22 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         sessionStorage.setItem(`socialWallAuthor_${params.fiestaId}`, tempAuthorName);
         setIsNameModalOpen(false);
     }
+  };
+
+  const handleFollowClick = (platform: 'instagram' | 'facebook', url: string) => {
+    // Open link in new tab
+    window.open(url, '_blank', 'noopener,noreferrer');
+    // Track click server-side (fire-and-forget)
+    if (authorName && authorName.toLowerCase() !== 'anónimo') {
+      trackSocialFollowClick(params.fiestaId, authorName, platform).catch(() => {});
+    }
+    // Mark as followed in sessionStorage and local state
+    setFollowedPlatforms(prev => {
+      const next = new Set(prev);
+      next.add(platform);
+      sessionStorage.setItem(`socialFollowed_${params.fiestaId}`, JSON.stringify(Array.from(next)));
+      return next;
+    });
   };
 
   const handleUploadSubmit = async (event: FormEvent) => {
@@ -925,6 +965,51 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         <p className="text-sm text-slate-400">Las funcionalidades se activarán pronto.</p>
                       </div>
                     )}
+
+                    {/* ── Social follow banner (shown when Instagram or Facebook is configured) ── */}
+                    {(instagramUrl || facebookUrl) && (
+                      <div className="mt-6 rounded-3xl border border-slate-100 bg-white shadow-md p-5 space-y-3">
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 text-center">Seguinos en redes 📲</p>
+                        <div className={`grid gap-3 ${instagramUrl && facebookUrl ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                          {instagramUrl && (
+                            <button
+                              onClick={() => handleFollowClick('instagram', instagramUrl)}
+                              className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white shadow-lg transition-transform active:scale-95"
+                              style={{ background: 'linear-gradient(135deg, #f43f5e, #ec4899, #a855f7)' }}
+                            >
+                              {followedPlatforms.has('instagram') ? (
+                                <><CheckCircle2 className="w-4 h-4 shrink-0" /> ¡Ya seguís!</>
+                              ) : (
+                                <><svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> Seguir en Instagram</>
+                              )}
+                            </button>
+                          )}
+                          {facebookUrl && (
+                            <button
+                              onClick={() => handleFollowClick('facebook', facebookUrl)}
+                              className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white shadow-lg transition-transform active:scale-95 bg-blue-600 hover:bg-blue-700"
+                            >
+                              {followedPlatforms.has('facebook') ? (
+                                <><CheckCircle2 className="w-4 h-4 shrink-0" /> ¡Ya seguís!</>
+                              ) : (
+                                <><svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Seguir en Facebook</>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        {!isAdminView && authorName && authorName.toLowerCase() !== 'anónimo' &&
+                         (followedPlatforms.has('instagram') || followedPlatforms.has('facebook')) && (
+                          <p className="text-[10px] text-center text-slate-400">
+                            ✅ ¡Gracias por seguirnos! Tu nombre queda registrado para participar en los sorteos de redes. 🎉
+                          </p>
+                        )}
+                        {!isAdminView && authorName && authorName.toLowerCase() === 'anónimo' && (
+                          <p className="text-[10px] text-center text-amber-500">
+                            ⚠️ Para participar en los sorteos de redes, ingresá tu nombre (no como Anónimo).
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </motion.div>
                 )}
 
@@ -1200,6 +1285,35 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
               </AnimatePresence>
             </main>
+
+            {/* ── Sticky social follow footer (shown in all sections when social links are configured) ── */}
+            {(instagramUrl || facebookUrl) && guestSection !== null && (
+              <div className="sticky bottom-0 z-10 bg-white/95 backdrop-blur-sm border-t border-slate-100 px-4 py-2.5 flex items-center gap-2 max-w-lg mx-auto w-full">
+                <span className="text-xs font-bold text-slate-400 shrink-0">Seguinos 📲</span>
+                <div className="flex gap-2 flex-1 justify-end">
+                  {instagramUrl && (
+                    <button
+                      onClick={() => handleFollowClick('instagram', instagramUrl)}
+                      className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
+                      style={{ background: followedPlatforms.has('instagram') ? '#22c55e' : 'linear-gradient(135deg, #f43f5e, #a855f7)' }}
+                    >
+                      {followedPlatforms.has('instagram') ? <CheckCircle2 className="w-3.5 h-3.5" /> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>}
+                      {followedPlatforms.has('instagram') ? '¡Seguido!' : 'Instagram'}
+                    </button>
+                  )}
+                  {facebookUrl && (
+                    <button
+                      onClick={() => handleFollowClick('facebook', facebookUrl)}
+                      className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
+                      style={{ backgroundColor: followedPlatforms.has('facebook') ? '#22c55e' : '#1d4ed8' }}
+                    >
+                      {followedPlatforms.has('facebook') ? <CheckCircle2 className="w-3.5 h-3.5" /> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>}
+                      {followedPlatforms.has('facebook') ? '¡Seguido!' : 'Facebook'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
