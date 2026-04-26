@@ -129,7 +129,6 @@ export async function addLikeToPost(
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   try {
     const db = await getDb();
-    const { firestore } = await import('firebase-admin');
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     // FieldValue.increment is a server-side atomic operation — never loses a like.
     await ref.update({ likes: admin.firestore.FieldValue.increment(1) });
