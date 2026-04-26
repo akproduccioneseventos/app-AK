@@ -18,6 +18,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import * as logger from '@/lib/logger';
+import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -239,6 +240,15 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
   } catch (writeError: any) {
     console.error("Error deleting presupuesto:", writeError);
     return { success: false, error: writeError.message || "Error al eliminar el presupuesto." };
+  }
+
+  // Explicitly delete the Firestore document to avoid it being restored on the next read
+  // (the empty-array safety guard in syncToFirestore can prevent orphan deletion when remaining is []).
+  try {
+    await forceDeleteDocFromFirestore('presupuestos', id);
+  } catch (e) {
+    // Non-fatal: the writeData above already updated the canonical list
+    console.warn('Could not force-delete presupuesto doc from Firestore:', e);
   }
 
   // Clean up CRM lead reference to avoid dangling pointer
@@ -694,8 +704,14 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
     const deletedIds = new Set(all.map(p => p.id));
     const deletedCount = all.length;
 
-    // Canonical wipe through data-service sync (handles Firestore cleanup by deleting orphan docs).
-    await writeData(PRESUPUESTOS_FILE, []);
+    // Directly delete all docs from Firestore — bypasses the empty-array safety guard
+    // in syncToFirestore that would otherwise prevent deletion of existing documents.
+    try {
+      await forceDeleteCollectionFromFirestore('presupuestos');
+    } catch (e) {
+      // Non-fatal: fall through to local JSON cleanup and CRM cleanup.
+      logger.warn('[Presupuestos] forceDeleteCollectionFromFirestore falló, se continúa con limpieza local:', e);
+    }
 
     // Keep local JSON fallbacks in sync so the UI doesn't resurrect deleted presupuestos.
     try {
