@@ -13,7 +13,7 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import type { ActiveGameData, ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
-import { Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, Music2, Maximize } from 'lucide-react';
 
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
@@ -249,7 +249,22 @@ export default function MuroEnVivoPage() {
         {eventName && (
           <span className={`text-sm font-semibold tracking-wide ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>{eventName}</span>
         )}
-        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          <button
+            onClick={() => {
+              if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen?.().catch(() => {});
+              } else {
+                document.exitFullscreen?.().catch(() => {});
+              }
+            }}
+            className={`p-1.5 rounded-lg transition-colors ${settings.screenDarkMode !== false ? 'text-white/40 hover:text-white/80 hover:bg-white/10' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'}`}
+            title="Pantalla completa"
+          >
+            <Maximize className="w-4 h-4" />
+          </button>
+        </div>
       </header>
 
       {/* Main content row — fills all space between header and bottom bar */}
@@ -396,9 +411,22 @@ export default function MuroEnVivoPage() {
             })}
           </div>
         )}
-        {settings.ledMarqueeText && (
-          <div className="overflow-hidden border-y border-fuchsia-300/40 bg-fuchsia-500/15 py-2">
-            <div className={`whitespace-nowrap text-2xl font-black uppercase tracking-wider text-fuchsia-200 ${LED_MARQUEE_ANIMATION_CLASS}`}>
+        {settings.ledMarqueeEnabled !== false && settings.ledMarqueeText && (
+          <div
+            className="overflow-hidden border-y py-2"
+            style={{
+              borderColor: settings.ledMarqueeBgColor
+                ? `${settings.ledMarqueeBgColor}60`
+                : 'rgba(217,70,239,0.4)',
+              backgroundColor: settings.ledMarqueeBgColor
+                ? `${settings.ledMarqueeBgColor}30`
+                : 'rgba(168,85,247,0.15)',
+            }}
+          >
+            <div
+              className={`whitespace-nowrap text-2xl font-black uppercase tracking-wider ${LED_MARQUEE_ANIMATION_CLASS}`}
+              style={{ color: settings.ledMarqueeColor || '#f0abfc' }}
+            >
               {renderMarqueeText(settings.ledMarqueeText)}
             </div>
           </div>
@@ -446,6 +474,19 @@ export default function MuroEnVivoPage() {
             transition={{ duration: 0.5 }}
             className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-center"
           >
+            {/* Confetti-like decorative elements */}
+            {['🎉', '🎊', '⭐', '✨', '🏆', '🎈'].map((e, i) => (
+              <motion.div
+                key={i}
+                className="absolute text-5xl pointer-events-none"
+                initial={{ opacity: 0, y: -20, x: (i - 2.5) * 120 }}
+                animate={{ opacity: [0, 1, 1, 0], y: [0, -60, -120, -200] }}
+                transition={{ delay: 0.3 + i * 0.1, duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
+                style={{ top: '30%', left: '50%' }}
+              >
+                {e}
+              </motion.div>
+            ))}
             <motion.div
               initial={{ scale: 0.5, y: 40 }}
               animate={{ scale: [0.8, 1.1, 1], y: 0 }}
@@ -463,6 +504,17 @@ export default function MuroEnVivoPage() {
             >
               {activeSorteoWinner}
             </motion.h1>
+            {settings.sorteoPremio && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.5 }}
+                className="mt-5 rounded-2xl border-2 border-yellow-400 bg-yellow-400/20 px-8 py-3 backdrop-blur-sm"
+              >
+                <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">🎁 Premio</p>
+                <p className="text-3xl font-black text-white">{settings.sorteoPremio}</p>
+              </motion.div>
+            )}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -632,12 +684,6 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
             unoptimized
             priority
           />
-          {/* Author name overlay */}
-          <div className="absolute bottom-16 left-0 right-0 flex items-end justify-center pb-2 pointer-events-none">
-            <span className="bg-black/60 text-white text-sm font-semibold px-5 py-1.5 rounded-full backdrop-blur-sm">
-              {post.authorName}
-            </span>
-          </div>
           {/* Slide counter dots — only shown when posts fit within the dot limit */}
           {posts.length > 1 && posts.length <= 12 && (
             <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
@@ -795,20 +841,54 @@ function GameSlide({ game, posts }: { game: ActiveGameData; posts: SocialGallery
     return (
       <div className="absolute inset-0">
         {posts.length > 0 && <MasonryLayout posts={posts} />}
-        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-6">
+        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-6 overflow-hidden">
+          {/* Pulsing colored lights */}
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full opacity-20 pointer-events-none"
+              style={{
+                width: `${200 + i * 80}px`,
+                height: `${200 + i * 80}px`,
+                background: ['#f43f5e', '#8b5cf6', '#06b6d4', '#f59e0b', '#10b981', '#ec4899'][i],
+                left: `${[10, 70, 40, 5, 80, 50][i]}%`,
+                top: `${[20, 15, 60, 70, 65, 40][i]}%`,
+              }}
+              animate={{ scale: [1, 1.4, 1], opacity: [0.15, 0.35, 0.15] }}
+              transition={{ duration: 1.5 + i * 0.3, repeat: Infinity, repeatType: 'loop', delay: i * 0.25 }}
+            />
+          ))}
+          {/* Floating emojis */}
+          {['🕺', '💃', '🎵', '🎶', '✨', '🔥', '💫', '🎉'].map((emoji, i) => (
+            <motion.div
+              key={emoji}
+              className="absolute text-4xl pointer-events-none"
+              style={{ left: `${10 + i * 11}%`, bottom: '-10%' }}
+              animate={{ y: [0, -1000] }}
+              transition={{ duration: 4 + (i % 3), repeat: Infinity, delay: i * 0.6, ease: 'linear' }}
+            >
+              {emoji}
+            </motion.div>
+          ))}
           <motion.div
             initial={{ scale: 0.8 }}
-            animate={{ scale: [1, 1.08, 0.96, 1] }}
-            transition={{ duration: 1.6, repeat: Infinity, repeatType: 'loop' }}
-            className="text-[14vw] leading-none"
+            animate={{ scale: [1, 1.08, 0.96, 1], rotate: [-3, 3, -3] }}
+            transition={{ duration: 1.2, repeat: Infinity, repeatType: 'loop' }}
+            className="text-[14vw] leading-none relative z-10"
           >
             {meta.emoji}
           </motion.div>
-          <h1 className="text-[8vw] font-black uppercase text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] text-center">
+          <h1 className="text-[8vw] font-black uppercase text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] text-center relative z-10">
             {game.title}
           </h1>
           {game.subtitle && (
-            <p className="text-[3vw] text-white/70 font-semibold text-center max-w-4xl">{game.subtitle}</p>
+            <motion.p
+              animate={{ opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="text-[3vw] text-white/80 font-semibold text-center max-w-4xl relative z-10"
+            >
+              {game.subtitle}
+            </motion.p>
           )}
         </div>
       </div>
@@ -839,23 +919,34 @@ function GameSlide({ game, posts }: { game: ActiveGameData; posts: SocialGallery
         )}
         {game.options && game.options.length > 0 && (
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(game.options.length, MAX_GAME_OPTIONS_PER_ROW)}, 1fr)` }}>
-            {game.options.map((option, idx) => (
-              <motion.div
-                key={option.id}
-                initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 + idx * 0.1 }}
-                className="rounded-3xl border-2 border-white/30 bg-white/10 px-8 py-5 backdrop-blur-sm"
-              >
-                <p className="text-[2.8vw] font-black text-white">
-                  {option.emoji && <span className="mr-3">{option.emoji}</span>}
-                  {option.text}
-                </p>
-                {option.votes !== undefined && option.votes > 0 && (
-                  <p className="mt-1 text-yellow-300 text-[1.8vw] font-bold">{option.votes} votos</p>
-                )}
-              </motion.div>
-            ))}
+            {game.options.map((option, idx) => {
+              const totalVotes = (game.options ?? []).reduce((s, o) => s + (o.votes ?? 0), 0);
+              const pct = totalVotes > 0 ? Math.round(((option.votes ?? 0) / totalVotes) * 100) : 0;
+              return (
+                <motion.div
+                  key={option.id}
+                  initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + idx * 0.1 }}
+                  className="rounded-3xl border-2 border-white/30 bg-white/10 px-8 py-5 backdrop-blur-sm overflow-hidden relative"
+                >
+                  {/* Progress bar background */}
+                  <div
+                    className="absolute inset-0 rounded-3xl bg-yellow-400/20 transition-all duration-700"
+                    style={{ width: `${pct}%` }}
+                  />
+                  <p className="text-[2.8vw] font-black text-white relative z-10">
+                    {option.emoji && <span className="mr-3">{option.emoji}</span>}
+                    {option.text}
+                  </p>
+                  {totalVotes > 0 && (
+                    <p className="mt-1 text-yellow-300 text-[1.8vw] font-black relative z-10">
+                      {pct}% · {option.votes ?? 0} votos
+                    </p>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -866,6 +957,7 @@ function GameSlide({ game, posts }: { game: ActiveGameData; posts: SocialGallery
 /** Compact overlay shown when a game is active on non-juego slides */
 function GameOverlayContent({ game }: { game: ActiveGameData }) {
   const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: '' };
+  const totalVotes = (game.options ?? []).reduce((s, o) => s + (o.votes ?? 0), 0);
   return (
     <>
       <p className="mb-3 text-center text-sm font-black tracking-[0.35em] text-yellow-300 uppercase">
@@ -876,13 +968,22 @@ function GameOverlayContent({ game }: { game: ActiveGameData }) {
         <p className="mb-4 text-center text-lg text-white/70">{game.subtitle}</p>
       )}
       {game.options && game.options.length > 0 && (
-        <div className="space-y-2">
-          {game.options.map((option) => (
-            <div key={option.id} className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white text-xl font-bold">
-              {option.emoji && <span className="mr-2">{option.emoji}</span>}
-              {option.text}
-            </div>
-          ))}
+        <div className="space-y-2 w-full">
+          {game.options.map((option) => {
+            const pct = totalVotes > 0 ? Math.round(((option.votes ?? 0) / totalVotes) * 100) : 0;
+            return (
+              <div key={option.id} className="relative rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white text-xl font-bold overflow-hidden">
+                <div className="absolute inset-0 bg-yellow-400/20 transition-all duration-700" style={{ width: `${pct}%` }} />
+                <div className="relative z-10 flex justify-between items-center">
+                  <span>
+                    {option.emoji && <span className="mr-2">{option.emoji}</span>}
+                    {option.text}
+                  </span>
+                  {totalVotes > 0 && <span className="text-yellow-300 text-sm font-black ml-2">{pct}%</span>}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </>

@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trophy, Upload, X, Zap } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ import {
   prevScreenItem,
   setScreenLoop,
   updateLedMessage,
+  updateLedConfig,
   triggerLiveMoment,
   updateScreenBrand,
   launchGame,
@@ -240,6 +241,8 @@ function MuroSocialContent() {
   const [sorteoIsSpinning, setSorteoIsSpinning] = useState(false);
   const [sorteoWheelAngle, setSorteoWheelAngle] = useState(0);
   const [sorteoPreviewWinner, setSorteoPreviewWinner] = useState<string | null>(null);
+  const [sorteoPremio, setSorteoPremio] = useState('');
+  const [uploadingCoverPhoto, setUploadingCoverPhoto] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -326,13 +329,44 @@ function MuroSocialContent() {
   const saveLedText = async () => {
     if (!fiestaId) return;
     setIsSavingLed(true);
-    const result = await updateLedMessage(fiestaId, settings.ledMarqueeText ?? '');
+    const result = await updateLedConfig(fiestaId, {
+      text: settings.ledMarqueeText ?? '',
+      enabled: settings.ledMarqueeEnabled !== false,
+      color: settings.ledMarqueeColor,
+      bgColor: settings.ledMarqueeBgColor,
+    });
     setIsSavingLed(false);
     if (result.success) {
       toast({ title: 'Cartel LED enviado ✓', description: 'El texto se actualizó en la pantalla en vivo.' });
       await loadData();
     } else {
       toast({ title: 'Error al enviar cartel LED', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleUploadCoverPhoto = async (file: File | null) => {
+    if (!fiestaId || !file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Solo se aceptan imágenes', variant: 'destructive' });
+      return;
+    }
+    setUploadingCoverPhoto(true);
+    try {
+      // Re-use uploadScreenMediaAsset but then set mobileControlCoverUrl to the uploaded URL
+      const res = await uploadScreenMediaAsset(fiestaId, file);
+      if (!res.success || !res.asset) throw new Error(res.error || 'No se pudo subir la imagen.');
+      const updated = { ...settingsRef.current, mobileControlCoverUrl: res.asset.url };
+      setSettings(updated);
+      const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+      if (result.success) {
+        toast({ title: 'Portada actualizada ✓' });
+      } else {
+        toast({ title: 'Error al guardar portada', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al subir portada', description: e.message, variant: 'destructive' });
+    } finally {
+      setUploadingCoverPhoto(false);
     }
   };
 
@@ -616,7 +650,7 @@ function MuroSocialContent() {
       setSorteoIsSpinning(false);
       setSorteoPreviewWinner(winner);
       setIsTriggeringSorteo(true);
-      const result = await triggerSorteoWinner(fiestaId, winner);
+      const result = await triggerSorteoWinner(fiestaId, winner, sorteoPremio.trim() || undefined);
       setIsTriggeringSorteo(false);
       if (result.success) {
         setLastSorteoWinner(winner);
@@ -752,6 +786,45 @@ function MuroSocialContent() {
                 </p>
               </div>
             </div>
+            {/* Cover photo for mobile control */}
+            <div className="space-y-1 pt-2 border-t">
+              <Label className="text-xs font-semibold flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5" />
+                Portada del control móvil (quinceañera / evento)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">Foto de portada que aparece en la pantalla de bienvenida del muro social para invitados.</p>
+              {settings.mobileControlCoverUrl && (
+                <div className="relative h-24 w-full rounded-lg overflow-hidden mb-2 border bg-slate-50">
+                  <img src={settings.mobileControlCoverUrl} alt="Portada" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  disabled={uploadingCoverPhoto}
+                  onChange={(e) => handleUploadCoverPhoto(e.target.files?.[0] ?? null)}
+                  className="flex-1 text-xs"
+                />
+                {uploadingCoverPhoto && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
+              </div>
+              {settings.mobileControlCoverUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-destructive hover:text-destructive"
+                  onClick={async () => {
+                    const updated = { ...settingsRef.current, mobileControlCoverUrl: undefined };
+                    setSettings(updated);
+                    await updateSocialGallerySettingsFiestaActual(fiestaId!, updated);
+                    toast({ title: 'Portada eliminada' });
+                  }}
+                >
+                  Quitar portada
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -786,12 +859,26 @@ function MuroSocialContent() {
               </div>
               <Switch
                 checked={settings.screenDarkMode !== false}
-                onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, screenDarkMode: checked }))}
+                onCheckedChange={(checked) => handleToggleSetting('screenDarkMode', checked)}
               />
             </div>
             <div className="sm:col-span-2 flex gap-2 pt-1 flex-wrap">
               <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Button></Link>
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank"><Button variant="outline">Abrir Pantalla</Button></Link>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const url = `/evento/muro-en-vivo/${fiestaId}`;
+                  const win = window.open(url, '_blank', 'noopener,noreferrer');
+                  if (win) {
+                    win.addEventListener('load', () => {
+                      win.document.documentElement.requestFullscreen?.().catch(() => {});
+                    });
+                  }
+                }}
+              >
+                <Maximize2 className="w-4 h-4 mr-2" />Pantalla Completa
+              </Button>
               <Link href={`/evento/dj/${fiestaId}`} target="_blank"><Button variant="outline">🎧 Panel DJ</Button></Link>
             </div>
           </CardContent>
@@ -823,8 +910,17 @@ function MuroSocialContent() {
                 </Button>
               </div>
             </div>
-            <div className="space-y-1">
-              <Label>Cartel LED / Mensaje pasante</Label>
+            <div className="space-y-2 rounded-lg border p-3 bg-slate-50">
+              <div className="flex items-center justify-between">
+                <Label className="font-semibold">Cartel LED / Mensaje pasante</Label>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <span>Activo</span>
+                  <Switch
+                    checked={settings.ledMarqueeEnabled !== false}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, ledMarqueeEnabled: checked }))}
+                  />
+                </div>
+              </div>
               <div className="flex gap-2">
                 <Input
                   value={settings.ledMarqueeText ?? ''}
@@ -843,7 +939,43 @@ function MuroSocialContent() {
                   {isSavingLed ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">Presioná Enter o el botón de envío para actualizar el texto en la pantalla en vivo inmediatamente.</p>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <Label className="text-xs">Color del texto</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={settings.ledMarqueeColor || '#f0abfc'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeColor: e.target.value }))}
+                      className="w-10 h-9 p-1 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.ledMarqueeColor || '#f0abfc'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeColor: e.target.value }))}
+                      placeholder="#f0abfc"
+                      className="flex-1 h-9 text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Color de fondo</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={settings.ledMarqueeBgColor || '#a855f7'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeBgColor: e.target.value }))}
+                      className="w-10 h-9 p-1 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.ledMarqueeBgColor || '#a855f7'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeBgColor: e.target.value }))}
+                      placeholder="#a855f7"
+                      className="flex-1 h-9 text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Presioná Enter o el botón de envío para actualizar el cartel en la pantalla en vivo inmediatamente.</p>
             </div>
           </CardContent>
         </Card>
@@ -963,11 +1095,12 @@ function MuroSocialContent() {
               <Label>Subir publicidad/media (PC) para esta fiesta</Label>
               <Input
                 type="file"
-                accept="video/*,image/*"
+                accept="video/mp4,video/webm,video/ogg,video/quicktime,video/*,image/*"
                 disabled={uploadingMedia}
                 onChange={(e) => handleUploadMedia(e.target.files?.[0] ?? null)}
               />
-              <p className="text-xs text-muted-foreground">La biblioteca global incluye medios de otras fiestas para reutilizar.</p>
+              {uploadingMedia && <p className="text-xs text-blue-600 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" />Subiendo archivo, aguardá…</p>}
+              <p className="text-xs text-muted-foreground">Soporta MP4, WebM, MOV, imágenes JPG/PNG/GIF. La biblioteca global incluye medios de otras fiestas para reutilizar.</p>
               <p className="text-xs text-muted-foreground">Templates redes incluidos: Neón, VIP elegante y Minimal (editable por handles/QR en playlist tipo redes).</p>
             </div>
           </CardContent>
@@ -1309,6 +1442,16 @@ function MuroSocialContent() {
               )}
 
               <div className="space-y-2">
+                {/* Prize configuration */}
+                <div className="space-y-1">
+                  <Label className="text-xs text-slate-500">Premio del sorteo (se muestra en pantalla)</Label>
+                  <Input
+                    value={sorteoPremio}
+                    onChange={(e) => setSorteoPremio(e.target.value)}
+                    placeholder="Ej: Una cena para dos, Pack de vinos…"
+                    className="h-9 text-sm"
+                  />
+                </div>
                 {/* Load from guest list */}
                 <Button
                   type="button"

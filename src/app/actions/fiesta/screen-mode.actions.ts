@@ -188,6 +188,18 @@ export async function uploadScreenMediaAsset(
 ): Promise<{ success: boolean; asset?: ScreenMediaAsset; error?: string }> {
   try {
     if (!fiestaId || !file) return { success: false, error: 'Datos incompletos.' };
+    // Explicit size check with a clear message (bodySizeLimit in next.config.js is 20MB)
+    const MAX_VIDEO_SIZE = 18 * 1024 * 1024; // 18 MB (leave some headroom)
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    if (file.size > maxSize) {
+      return {
+        success: false,
+        error: `El archivo es demasiado grande (${(file.size / 1024 / 1024).toFixed(1)} MB). Máximo permitido: ${(maxSize / 1024 / 1024).toFixed(0)} MB.`,
+      };
+    }
+
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 
@@ -200,7 +212,7 @@ export async function uploadScreenMediaAsset(
     const asset: ScreenMediaAsset = {
       id,
       url,
-      type: file.type.startsWith('video/') ? 'video' : 'image',
+      type: isVideo ? 'video' : 'image',
       sourceFiestaId: fiestaId,
       sourceFiestaNombre: fiesta.configuracion.nombreEvento,
       createdAt: new Date().toISOString(),
@@ -275,7 +287,8 @@ export async function clearActiveGame(
 /** Lanza un sorteo y muestra el ganador en la pantalla gigante */
 export async function triggerSorteoWinner(
   fiestaId: string,
-  winner: string
+  winner: string,
+  premio?: string
 ): Promise<{ success: boolean; error?: string }> {
   const MAX_SORTEO_HISTORY = 50;
   try {
@@ -292,10 +305,63 @@ export async function triggerSorteoWinner(
         activeSorteoWinner: winner,
         activeSorteoTimestamp: new Date().toISOString(),
         sorteoGanadores: updatedWinners,
+        ...(premio !== undefined ? { sorteoPremio: premio } : {}),
       },
     });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al lanzar sorteo.' };
+  }
+}
+
+/** Registra un voto en una opción del juego activo */
+export async function voteActiveGameOption(
+  fiestaId: string,
+  optionId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const activeGame = settings.activeGame;
+    if (!activeGame) return { success: false, error: 'No hay juego activo.' };
+    const updatedOptions = (activeGame.options ?? []).map(opt =>
+      opt.id === optionId ? { ...opt, votes: (opt.votes ?? 0) + 1 } : opt
+    );
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        activeGame: { ...activeGame, options: updatedOptions },
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al votar.' };
+  }
+}
+
+/** Actualiza la configuración del cartel LED (colores, habilitado) */
+export async function updateLedConfig(
+  fiestaId: string,
+  config: { text?: string; enabled?: boolean; color?: string; bgColor?: string }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        ...(config.text !== undefined ? { ledMarqueeText: config.text } : {}),
+        ...(config.enabled !== undefined ? { ledMarqueeEnabled: config.enabled } : {}),
+        ...(config.color !== undefined ? { ledMarqueeColor: config.color } : {}),
+        ...(config.bgColor !== undefined ? { ledMarqueeBgColor: config.bgColor } : {}),
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al actualizar cartel LED.' };
   }
 }
