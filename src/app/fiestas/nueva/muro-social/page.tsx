@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Download, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
-import { getSocialPosts } from '@/app/actions/social-gallery';
+import { getSocialPosts, clearGallery } from '@/app/actions/social-gallery';
 import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
@@ -247,6 +247,12 @@ function MuroSocialContent() {
   const [sorteoPreviewWinner, setSorteoPreviewWinner] = useState<string | null>(null);
   const [sorteoPremio, setSorteoPremio] = useState('');
   const [uploadingCoverPhoto, setUploadingCoverPhoto] = useState(false);
+  // Custom moments state
+  const [newMomentoNombre, setNewMomentoNombre] = useState('');
+  const [newMomentoEmoji, setNewMomentoEmoji] = useState('✨');
+  const [isSavingMomento, setIsSavingMomento] = useState(false);
+  // Download + clear state
+  const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -742,6 +748,78 @@ function MuroSocialContent() {
     }));
   };
 
+  const removePlaylistItem = (itemId: string) => {
+    setSettings((prev) => withScreenDefaults({
+      ...prev,
+      screenMode: {
+        ...(prev.screenMode ?? { enabled: true, loop: true, isPlaying: true, currentItemIndex: 0, playlist: [] }),
+        playlist: (prev.screenMode?.playlist ?? []).filter((item) => item.id !== itemId),
+      },
+    }));
+  };
+
+  const handleAddCustomMomento = async () => {
+    if (!fiestaId || !newMomentoNombre.trim()) return;
+    setIsSavingMomento(true);
+    const id = `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const newMomento = { id, nombre: newMomentoNombre.trim(), emoji: newMomentoEmoji.trim() || '✨' };
+    const updated = {
+      ...settingsRef.current,
+      customMomentos: [...(settingsRef.current.customMomentos ?? []), newMomento],
+    };
+    setSettings(updated);
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+    setIsSavingMomento(false);
+    if (result.success) {
+      setNewMomentoNombre('');
+      setNewMomentoEmoji('✨');
+      toast({ title: 'Momento añadido ✓' });
+    } else {
+      toast({ title: 'Error al guardar momento', description: result.error, variant: 'destructive' });
+      setSettings((prev) => ({ ...prev, customMomentos: (prev.customMomentos ?? []).filter((m) => m.id !== id) }));
+    }
+  };
+
+  const handleDeleteCustomMomento = async (momentoId: string) => {
+    if (!fiestaId) return;
+    const updated = {
+      ...settingsRef.current,
+      customMomentos: (settingsRef.current.customMomentos ?? []).filter((m) => m.id !== momentoId),
+    };
+    setSettings(updated);
+    await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+  };
+
+  const handleDownloadAndClearGallery = async () => {
+    if (!fiestaId) return;
+    setIsDownloadingAndClearing(true);
+    try {
+      const response = await fetch(`/api/social-gallery/${fiestaId}/download`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `galeria-social-${fiestaId}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        // Clear after successful download
+        await clearGallery(fiestaId);
+        setPostCount(0);
+        toast({ title: 'Descarga completada y galería limpiada ✓', description: 'El ZIP se descargó y todas las fotos fueron eliminadas.' });
+      } else {
+        const err = await response.json().catch(() => ({}));
+        toast({ title: 'Error al descargar', description: (err as any).error || 'No se pudo generar el ZIP.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsDownloadingAndClearing(false);
+    }
+  };
+
   if (isLoading || !fiesta) {
     return <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
@@ -918,6 +996,59 @@ function MuroSocialContent() {
                 <Maximize2 className="w-4 h-4 mr-2" />Pantalla Completa
               </Button>
               <Link href={`/evento/dj/${fiestaId}`} target="_blank"><Button variant="outline">🎧 Panel DJ</Button></Link>
+            </div>
+
+            {/* Photo limits config */}
+            <div className="sm:col-span-2 rounded-lg border p-3 space-y-3 bg-slate-50">
+              <p className="text-sm font-semibold">Límites de fotos</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Máx. fotos por evento</Label>
+                  <Input
+                    type="number"
+                    min={10}
+                    max={2000}
+                    value={settings.maxPhotos ?? 200}
+                    onChange={(e) => setSettings((prev) => ({ ...prev, maxPhotos: Number(e.target.value) || 200 }))}
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Máx. fotos por persona</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={settings.maxPhotosPerPerson ?? 10}
+                    onChange={(e) => setSettings((prev) => ({ ...prev, maxPhotosPerPerson: Number(e.target.value) || 10 }))}
+                    className="h-9"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Los cambios se guardan al presionar "Guardar" arriba.</p>
+            </div>
+
+            {/* Download + clear gallery */}
+            <div className="sm:col-span-2 rounded-lg border border-destructive/30 p-3 space-y-2 bg-red-50/40">
+              <p className="text-sm font-semibold text-destructive flex items-center gap-1.5">
+                <Download className="w-4 h-4" /> Descargar y limpiar galería
+              </p>
+              <p className="text-xs text-muted-foreground">Descarga un ZIP con todas las fotos del muro y después las elimina de Firebase para ahorrar espacio.</p>
+              <p className="text-xs font-semibold text-destructive">
+                📸 {postCount === null ? '…' : postCount} foto{postCount !== 1 ? 's' : ''} actualmente en el muro.
+              </p>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isDownloadingAndClearing || postCount === 0}
+                onClick={handleDownloadAndClearGallery}
+                className="w-full"
+              >
+                {isDownloadingAndClearing
+                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Descargando y limpiando…</>
+                  : <><Download className="w-4 h-4 mr-2" />Descargar ZIP y borrar fotos</>
+                }
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -1124,6 +1255,14 @@ function MuroSocialContent() {
                         <option key={asset.id} value={asset.id}>{asset.title || asset.id}</option>
                       ))}
                     </select>
+                    <button
+                      type="button"
+                      onClick={() => removePlaylistItem(item.id)}
+                      className="h-10 w-10 flex items-center justify-center rounded-md border border-transparent text-slate-400 hover:text-destructive hover:border-destructive/30 hover:bg-red-50 transition-colors shrink-0"
+                      title="Eliminar ítem"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -1322,13 +1461,63 @@ function MuroSocialContent() {
             <CardTitle className="text-base">Disparador rápido de momentos</CardTitle>
             <CardDescription>Interrumpe temporalmente la proyección con anuncio a pantalla completa.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {QUICK_MOMENTS.map((moment) => (
-              <Button key={moment.id} variant="secondary" onClick={() => triggerMoment(moment)}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                {moment.emoji} {moment.nombre}
-              </Button>
-            ))}
+          <CardContent className="space-y-4">
+            {/* Hardcoded quick moments */}
+            <div className="flex flex-wrap gap-2">
+              {QUICK_MOMENTS.map((moment) => (
+                <Button key={moment.id} variant="secondary" onClick={() => triggerMoment(moment)}>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {moment.emoji} {moment.nombre}
+                </Button>
+              ))}
+              {/* Custom moments */}
+              {(settings.customMomentos ?? []).map((moment) => (
+                <div key={moment.id} className="flex items-center gap-1">
+                  <Button variant="secondary" onClick={() => triggerMoment(moment)}>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {moment.emoji} {moment.nombre}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCustomMomento(moment.id)}
+                    className="h-7 w-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-destructive hover:bg-red-50 transition-colors"
+                    title="Eliminar momento"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add custom moment form */}
+            <div className="rounded-lg border border-dashed border-slate-200 p-3 space-y-2">
+              <p className="text-xs font-semibold text-slate-500">➕ Agregar momento personalizado</p>
+              <div className="flex gap-2">
+                <Input
+                  value={newMomentoEmoji}
+                  onChange={(e) => setNewMomentoEmoji(e.target.value)}
+                  placeholder="🎵"
+                  className="w-16 text-center text-lg h-9"
+                  maxLength={4}
+                />
+                <Input
+                  value={newMomentoNombre}
+                  onChange={(e) => setNewMomentoNombre(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomMomento(); } }}
+                  placeholder="Ej: Vals, Primer cotillón, Sorpresa…"
+                  className="flex-1 h-9"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!newMomentoNombre.trim() || isSavingMomento}
+                  onClick={handleAddCustomMomento}
+                  className="h-9"
+                >
+                  {isSavingMomento ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

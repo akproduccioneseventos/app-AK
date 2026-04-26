@@ -742,6 +742,8 @@ export interface SocialGallerySettings {
   accentColor?: string;
   chatEnabled?: boolean;
   maxPhotos?: number;
+  /** Maximum photos a single named author can upload per event (default: 10) */
+  maxPhotosPerPerson?: number;
   showAds?: boolean;
   showSongRequests?: boolean;
   showPolls?: boolean;
@@ -767,6 +769,8 @@ export interface SocialGallerySettings {
   screenDarkMode?: boolean;
   /** Cover photo URL shown on the mobile control/social wall entry screen */
   mobileControlCoverUrl?: string;
+  /** Custom event moments configured by the operator (merged with the hardcoded defaults) */
+  customMomentos?: Array<{ id: string; nombre: string; emoji: string }>;
 }
 
 export interface SocialGalleryBrand {

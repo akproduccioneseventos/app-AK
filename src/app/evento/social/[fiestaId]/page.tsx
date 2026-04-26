@@ -429,6 +429,17 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setUploadPreview(URL.createObjectURL(file));
     }
   };
+
+  /** Compute a SHA-256 hex digest of the file contents for duplicate detection. */
+  const computeImageHash = async (file: File): Promise<string | null> => {
+    try {
+      const buffer = await file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      return null;
+    }
+  };
   
   const handleSetAuthorName = (e: FormEvent) => {
     e.preventDefault();
@@ -459,10 +470,15 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     event.preventDefault();
     if (!fileToUpload || !localSettings.uploadsActive) return;
     setIsUploading(true);
+
+    // Compute image hash for duplicate detection
+    const imageHash = await computeImageHash(fileToUpload);
+
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
     formData.append('file', fileToUpload);
     formData.append('authorName', authorName || 'Anónimo');
+    if (imageHash) formData.append('imageHash', imageHash);
 
     const result = await uploadSocialPost(formData);
     if (result.success) {

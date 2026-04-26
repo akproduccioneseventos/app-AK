@@ -17,6 +17,8 @@ export interface SocialGalleryPost {
   comments: SocialComment[];
   dedication?: string;
   momentTag?: string;
+  /** SHA-256 hex hash of the image content — used to reject duplicate uploads */
+  imageHash?: string;
 }
 
 export interface ChatMessage {
