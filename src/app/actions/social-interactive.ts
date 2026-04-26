@@ -1,25 +1,69 @@
 
 'use server';
 
+/**
+ * Social Interactive actions — polls, song requests, dedications.
+ *
+ * All data is persisted directly to Firestore (bypassing the generic
+ * readData / writeData helpers) so that concurrent operations are safe:
+ *
+ *   • createPoll / getPolls / getActivePoll — individual poll documents
+ *   • votePoll — Firestore transaction (no votes are lost under concurrency)
+ *   • addSongRequest / voteSongRequest — FieldValue.increment (atomic)
+ *   • addDedication / highlightDedication — individual dedication documents
+ *
+ * Settings that live on the fiesta document (sorteo participants, momentos,
+ * activeGame) still use saveFiesta — those paths are low-frequency writes
+ * that don't have the 200-concurrent-user problem.
+ */
+
 import type { SocialPoll, SongRequest, Dedication, SorteoParticipant, FiestaMomento } from '@/types/social-gallery';
 import type { SocialGallerySettings } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
+import admin from 'firebase-admin';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import * as logger from '@/lib/logger';
 
-// File path helpers
-const pollsFile = (fiestaId: string) => `social-interactive/${fiestaId}-polls.json`;
-const songsFile = (fiestaId: string) => `social-interactive/${fiestaId}-songs.json`;
-const dedicationsFile = (fiestaId: string) => `social-interactive/${fiestaId}-dedications.json`;
+// Firestore collection names
+const POLLS_COLLECTION = 'social_polls';
+const SONGS_COLLECTION = 'social_song_requests';
+const DEDICATIONS_COLLECTION = 'social_dedications';
+
+/** Returns the Firestore Admin instance; throws if Firebase is not configured. */
+async function getDb(): Promise<FirebaseFirestore.Firestore> {
+  const { dbAdmin } = await import('@/lib/firebase/server');
+  if (!dbAdmin) throw new Error('Firestore no disponible.');
+  return dbAdmin;
+}
 
 // ─────────────────────────── POLLS ───────────────────────────
 
 export async function getPolls(fiestaId: string): Promise<SocialPoll[]> {
-  return readData<SocialPoll[]>(pollsFile(fiestaId), []);
+  try {
+    const db = await getDb();
+    const snapshot = await db
+      .collection(POLLS_COLLECTION)
+      .where('fiestaId', '==', fiestaId)
+      .get();
+    return snapshot.docs
+      .map(doc => doc.data() as SocialPoll)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } catch (e) {
+    logger.warn('[social-interactive] getPolls failed:', e);
+    return [];
+  }
 }
 
 export async function getActivePoll(fiestaId: string): Promise<SocialPoll | null> {
-  const polls = await getPolls(fiestaId);
-  return polls.find(p => p.active) ?? null;
+  try {
+    const db = await getDb();
+    const snapshot = await db
+      .collection(POLLS_COLLECTION)
+      .where('fiestaId', '==', fiestaId)
+      .get();
+    return snapshot.docs.map(doc => doc.data() as SocialPoll).find(p => p.active) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function createPoll(
@@ -28,9 +72,18 @@ export async function createPoll(
   options: string[]
 ): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
   try {
-    const polls = await getPolls(fiestaId);
-    // Deactivate any existing active poll
-    const updated = polls.map(p => ({ ...p, active: false }));
+    const db = await getDb();
+    // Deactivate any currently active poll for this event.
+    const activeSnap = await db
+      .collection(POLLS_COLLECTION)
+      .where('fiestaId', '==', fiestaId)
+      .get();
+    const deactivateBatch = db.batch();
+    activeSnap.docs
+      .filter(doc => (doc.data() as SocialPoll).active)
+      .forEach(doc => deactivateBatch.update(doc.ref, { active: false }));
+    await deactivateBatch.commit();
+
     const newPoll: SocialPoll = {
       id: `poll_${Date.now()}`,
       fiestaId,
@@ -39,8 +92,7 @@ export async function createPoll(
       createdAt: new Date().toISOString(),
       active: true,
     };
-    updated.push(newPoll);
-    await writeData(pollsFile(fiestaId), updated);
+    await db.collection(POLLS_COLLECTION).doc(newPoll.id).set(newPoll);
     return { success: true, poll: newPoll };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -53,24 +105,35 @@ export async function votePoll(
   optionId: string
 ): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
   try {
-    const polls = await getPolls(fiestaId);
-    const idx = polls.findIndex(p => p.id === pollId);
-    if (idx === -1) return { success: false, error: 'Encuesta no encontrada.' };
-    const optIdx = polls[idx].options.findIndex(o => o.id === optionId);
-    if (optIdx === -1) return { success: false, error: 'Opción no encontrada.' };
-    polls[idx].options[optIdx].votes += 1;
-    await writeData(pollsFile(fiestaId), polls);
-    return { success: true, poll: polls[idx] };
+    const db = await getDb();
+    const ref = db.collection(POLLS_COLLECTION).doc(pollId);
+    // Transaction guarantees that every concurrent vote is counted — no vote is lost.
+    const updatedPoll = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) throw new Error('Encuesta no encontrada.');
+      const data = snap.data() as SocialPoll;
+      if (data.fiestaId !== fiestaId) throw new Error('Encuesta no pertenece a este evento.');
+      const optIdx = data.options.findIndex(o => o.id === optionId);
+      if (optIdx === -1) throw new Error('Opción no encontrada.');
+      const updatedOptions = data.options.map(o =>
+        o.id === optionId ? { ...o, votes: o.votes + 1 } : o
+      );
+      tx.update(ref, { options: updatedOptions });
+      return { ...data, options: updatedOptions };
+    });
+    return { success: true, poll: updatedPoll };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
 
-export async function closePoll(fiestaId: string, pollId: string): Promise<{ success: boolean; error?: string }> {
+export async function closePoll(
+  fiestaId: string,
+  pollId: string
+): Promise<{ success: boolean; error?: string }> {
   try {
-    const polls = await getPolls(fiestaId);
-    const updated = polls.map(p => p.id === pollId ? { ...p, active: false } : p);
-    await writeData(pollsFile(fiestaId), updated);
+    const db = await getDb();
+    await db.collection(POLLS_COLLECTION).doc(pollId).update({ active: false });
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -80,8 +143,18 @@ export async function closePoll(fiestaId: string, pollId: string): Promise<{ suc
 // ─────────────────────────── SONG REQUESTS ───────────────────────────
 
 export async function getSongRequests(fiestaId: string): Promise<SongRequest[]> {
-  const all = await readData<SongRequest[]>(songsFile(fiestaId), []);
-  return all.sort((a, b) => b.votes - a.votes);
+  try {
+    const db = await getDb();
+    const snapshot = await db
+      .collection(SONGS_COLLECTION)
+      .where('fiestaId', '==', fiestaId)
+      .get();
+    return snapshot.docs
+      .map(doc => doc.data() as SongRequest)
+      .sort((a, b) => b.votes - a.votes);
+  } catch {
+    return [];
+  }
 }
 
 export async function addSongRequest(
@@ -90,7 +163,7 @@ export async function addSongRequest(
   requestedBy: string
 ): Promise<{ success: boolean; request?: SongRequest; error?: string }> {
   try {
-    const requests = await readData<SongRequest[]>(songsFile(fiestaId), []);
+    const db = await getDb();
     const newReq: SongRequest = {
       id: `song_${Date.now()}`,
       fiestaId,
@@ -100,8 +173,7 @@ export async function addSongRequest(
       played: false,
       votes: 1,
     };
-    requests.push(newReq);
-    await writeData(songsFile(fiestaId), requests);
+    await db.collection(SONGS_COLLECTION).doc(newReq.id).set(newReq);
     return { success: true, request: newReq };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -113,11 +185,11 @@ export async function voteSongRequest(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const requests = await readData<SongRequest[]>(songsFile(fiestaId), []);
-    const idx = requests.findIndex(r => r.id === requestId);
-    if (idx === -1) return { success: false, error: 'Pedido no encontrado.' };
-    requests[idx].votes += 1;
-    await writeData(songsFile(fiestaId), requests);
+    const db = await getDb();
+    // Atomic increment — concurrent votes are all counted.
+    await db.collection(SONGS_COLLECTION).doc(requestId).update({
+      votes: admin.firestore.FieldValue.increment(1),
+    });
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -129,11 +201,8 @@ export async function markSongPlayed(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const requests = await readData<SongRequest[]>(songsFile(fiestaId), []);
-    const idx = requests.findIndex(r => r.id === requestId);
-    if (idx === -1) return { success: false, error: 'Pedido no encontrado.' };
-    requests[idx].played = true;
-    await writeData(songsFile(fiestaId), requests);
+    const db = await getDb();
+    await db.collection(SONGS_COLLECTION).doc(requestId).update({ played: true });
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -143,7 +212,18 @@ export async function markSongPlayed(
 // ─────────────────────────── DEDICATIONS ───────────────────────────
 
 export async function getDedications(fiestaId: string): Promise<Dedication[]> {
-  return readData<Dedication[]>(dedicationsFile(fiestaId), []);
+  try {
+    const db = await getDb();
+    const snapshot = await db
+      .collection(DEDICATIONS_COLLECTION)
+      .where('fiestaId', '==', fiestaId)
+      .get();
+    return snapshot.docs
+      .map(doc => doc.data() as Dedication)
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  } catch {
+    return [];
+  }
 }
 
 export async function addDedication(
@@ -152,7 +232,7 @@ export async function addDedication(
   authorName: string
 ): Promise<{ success: boolean; dedication?: Dedication; error?: string }> {
   try {
-    const dedications = await getDedications(fiestaId);
+    const db = await getDb();
     const newDed: Dedication = {
       id: `ded_${Date.now()}`,
       fiestaId,
@@ -160,8 +240,7 @@ export async function addDedication(
       authorName,
       timestamp: new Date().toISOString(),
     };
-    dedications.push(newDed);
-    await writeData(dedicationsFile(fiestaId), dedications);
+    await db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).set(newDed);
     return { success: true, dedication: newDed };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -174,9 +253,8 @@ export async function highlightDedication(
   highlighted: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const dedications = await getDedications(fiestaId);
-    const updated = dedications.map(d => d.id === dedicationId ? { ...d, highlighted } : d);
-    await writeData(dedicationsFile(fiestaId), updated);
+    const db = await getDb();
+    await db.collection(DEDICATIONS_COLLECTION).doc(dedicationId).update({ highlighted });
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };

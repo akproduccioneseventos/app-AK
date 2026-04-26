@@ -64,8 +64,10 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'aprobaciones.json': 'aprobaciones',
   'incidentes.json': 'incidentes',
   'personal-recibos.json': 'personal_recibos',
-  // Social wall gallery posts (all events share one flat collection, filtered by fiestaId client-side)
-  'social-gallery/metadata.json': 'social_gallery_posts',
+  // NOTE: social-gallery/metadata.json, social-interactive/*, social-chat/* are
+  // intentionally absent.  Those actions now write directly to Firestore using
+  // the Admin SDK (see social-gallery.ts, social-interactive.ts) to guarantee
+  // atomicity under 200 concurrent users without a read-modify-write race.
 };
 
 const CONFIG_FILES: Record<string, string> = {
