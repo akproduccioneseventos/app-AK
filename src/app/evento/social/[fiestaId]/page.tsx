@@ -340,7 +340,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     fetchData();
     const interval = setInterval(() => {
         fetchData(false);
-    }, 5000); 
+    }, 2000); 
     return () => clearInterval(interval);
   }, [fetchData]);
   
@@ -756,7 +756,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         />
                       )}
 
-                      {localSettings.allowComments && posts.length > 0 && (
+                      {localSettings.allowComments !== false && posts.length > 0 && (
                         <GuestFeatureButton
                           icon={<MessageCircle className="w-8 h-8" />}
                           label="Comentar"
@@ -766,7 +766,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         />
                       )}
 
-                      {localSettings.chatEnabled && (
+                      {localSettings.chatEnabled !== false && (
                         <GuestFeatureButton
                           icon={<MessageSquare className="w-8 h-8" />}
                           label="Chat en Vivo"
@@ -776,7 +776,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         />
                       )}
 
-                      {localSettings.showSongRequests && (
+                      {localSettings.showSongRequests !== false && (
                         <GuestFeatureButton
                           icon={<Music className="w-8 h-8" />}
                           label="Pedir Canción"
@@ -786,7 +786,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         />
                       )}
 
-                      {localSettings.showDedications && (
+                      {localSettings.showDedications !== false && (
                         <GuestFeatureButton
                           icon={<Heart className="w-8 h-8" />}
                           label="Dedicatoria"
@@ -823,9 +823,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
                     {/* Empty state */}
                     {!localSettings.uploadsActive &&
-                     !localSettings.chatEnabled &&
-                     !localSettings.showSongRequests &&
-                     !localSettings.showDedications &&
+                     localSettings.chatEnabled === false &&
+                     localSettings.showSongRequests === false &&
+                     localSettings.showDedications === false &&
                      !activePoll &&
                      !localSettings.activeGame &&
                      posts.length === 0 && (
@@ -860,8 +860,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                             isAdminView={false}
                             authorName={authorName}
                             accentColor={accentColor}
-                            allowLikes={Boolean(localSettings.allowLikes)}
-                            allowComments={Boolean(localSettings.allowComments)}
+                            allowLikes={localSettings.allowLikes !== false}
+                            allowComments={localSettings.allowComments !== false}
                           />
                         ))}
                       </div>
@@ -1249,8 +1249,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       onHighlightComment={isAdminView ? handleHighlightComment : undefined}
                       authorName={authorName}
                       accentColor={accentColor}
-                      allowLikes={Boolean(localSettings.allowLikes)}
-                      allowComments={Boolean(localSettings.allowComments)}
+                      allowLikes={localSettings.allowLikes !== false}
+                      allowComments={localSettings.allowComments !== false}
                     />
                 ))}
             </AnimatePresence>
@@ -1269,9 +1269,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             </motion.div>
         )}
 
-        {(localSettings.showSongRequests || localSettings.showDedications) && (
+        {(localSettings.showSongRequests !== false || localSettings.showDedications !== false) && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {localSettings.showSongRequests && (
+            {localSettings.showSongRequests !== false && (
               <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-slate-800">
@@ -1299,7 +1299,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
               </Card>
             )}
 
-            {localSettings.showDedications && (
+            {localSettings.showDedications !== false && (
               <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-slate-800">
@@ -1405,49 +1405,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           </Card>
         )}
 
-        {/* Guest: Active Poll Voting */}
-        {activePoll && !isAdminView && authorName && (
-          <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md max-w-lg mx-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-slate-800">
-                <PlayCircle className="w-5 h-5" style={{ color: accentColor }} /> Encuesta en Vivo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-lg font-bold text-slate-700">{activePoll.question}</p>
-              {hasVoted && votedPollId === activePoll.id ? (
-                <div className="space-y-3">
-                  {activePoll.options.map(opt => {
-                    const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
-                    const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
-                    return (
-                      <div key={opt.id} className="space-y-1">
-                        <div className="flex justify-between text-sm text-slate-600">
-                          <span className="font-medium">{opt.text}</span>
-                          <span className="font-bold" style={{ color: accentColor }}>{pct}%</span>
-                        </div>
-                        <div className="h-3 rounded-full bg-slate-100">
-                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: accentColor }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <p className="text-xs text-slate-400 text-center">¡Gracias por votar!</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-2">
-                  {activePoll.options.map(opt => (
-                    <Button key={opt.id} variant="outline" className="h-12 rounded-xl text-left justify-start font-semibold" onClick={() => handleVotePoll(activePoll.id, opt.id)}>
-                      {opt.text}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+
         
-        {localSettings.chatEnabled && (
+        {localSettings.chatEnabled !== false && (
             <Card className="shadow-2xl border-none rounded-[1.5rem] overflow-hidden bg-white/90 backdrop-blur-md max-w-lg mx-auto">
                 <CardHeader className="p-4 border-b border-slate-100 flex flex-row items-center gap-3">
                     <div className="p-2 rounded-lg" style={{ backgroundColor: `${accentColor}15` }}>

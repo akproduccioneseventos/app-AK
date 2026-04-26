@@ -23,7 +23,7 @@ const MARQUEE_REPEAT_COUNT = 3;
 const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
 const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]';
 const GAME_OVERLAY_CLASS =
-  'absolute right-6 top-20 z-30 w-[38vw] max-w-3xl rounded-3xl border-2 border-yellow-300/70 bg-black/70 p-6 shadow-[0_0_60px_rgba(255,215,0,0.35)] backdrop-blur-md';
+  'w-full flex flex-col items-center justify-center gap-5';
 
 type MomentData = { id: string; nombre: string; emoji: string; timestamp: string };
 type PollData = { id: string; question: string; options: { id: string; text: string; votes: number }[] };
@@ -221,20 +221,25 @@ export default function MuroEnVivoPage() {
     return () => clearTimeout(timeout);
   }, [activeScreenItem, enabledPlaylist.length, settings.screenMode?.isPlaying, settings.screenMode?.loop, playlistTick]);
 
+  // Whether to show a right side panel (poll or game overlay)
+  const hasSidePanel =
+    (activeGame !== null && activeScreenItem?.type !== 'juego') ||
+    (activePoll !== null && settings.showPolls !== false && !activeGame);
+
   return (
-    <div className={`fixed inset-0 overflow-hidden select-none ${settings.screenDarkMode !== false ? 'bg-slate-950' : 'bg-white'}`}>
+    <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'bg-slate-950' : 'bg-white'}`}>
       {/* Ambient gradient background */}
       {settings.screenDarkMode !== false ? (
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
       ) : (
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.05),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.05),transparent_60%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.05),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.05),transparent_60%)]" />
       )}
 
-      {/* Header bar */}
-      <div className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 bg-gradient-to-b ${settings.screenDarkMode !== false ? 'from-slate-950/90 to-transparent' : 'from-white/90 to-transparent'}`}>
+      {/* Header bar — in flow so it doesn't float over content */}
+      <header className={`relative z-20 shrink-0 flex items-center justify-between px-8 py-3 backdrop-blur-sm border-b ${settings.screenDarkMode !== false ? 'bg-slate-950/90 border-white/10' : 'bg-white/90 border-slate-200'}`}>
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
-            <div className="relative h-10 w-24 overflow-hidden rounded bg-white/90 p-1">
+            <div className="relative h-8 w-20 overflow-hidden rounded bg-white/90 p-1">
               <NextImage src={companyLogoUrl} alt={`Logo de ${companyName}`} fill className="object-contain" />
             </div>
           )}
@@ -245,129 +250,152 @@ export default function MuroEnVivoPage() {
           <span className={`text-sm font-semibold tracking-wide ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>{eventName}</span>
         )}
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+      </header>
+
+      {/* Main content row — fills all space between header and bottom bar */}
+      <div className="relative flex-1 flex overflow-hidden">
+
+        {/* ── Left / main content pane ── */}
+        <div className="relative flex-1 overflow-hidden">
+
+          {/* Loading state */}
+          {!isLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="space-y-4 text-center">
+                <div className={`w-16 h-16 mx-auto rounded-full border-4 animate-spin ${settings.screenDarkMode !== false ? 'border-white/10 border-t-white/60' : 'border-slate-200 border-t-slate-600'}`} />
+                <p className={`text-sm tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>Cargando muro…</p>
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego') && posts.length === 0 && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+              <div className="text-8xl opacity-20">📸</div>
+              <div className="text-center space-y-2">
+                <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
+                <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Mural / photo slideshow */}
+          {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
+            <SlideshowLayout posts={posts} />
+          )}
+
+          {/* Juego slide */}
+          {isLoaded && activeScreenItem?.type === 'juego' && (
+            activeGame
+              ? <GameSlide game={activeGame} posts={posts} />
+              : posts.length > 0
+                ? <SlideshowLayout posts={posts} />
+                : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+                    <div className="text-9xl">🎮</div>
+                    <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Zona de juegos</p>
+                    <p className="text-white/30 text-base">El operador activará el juego en breve…</p>
+                  </div>
+                )
+          )}
+
+          {/* Video slide */}
+          {isLoaded && activeScreenItem?.type === 'video' && (
+            <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
+          )}
+
+          {/* Redes slide */}
+          {isLoaded && activeScreenItem?.type === 'redes' && (
+            <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
+          )}
+
+          {/* Dedications overlay — left side, only shown when no side panel */}
+          {isLoaded && highlightedDedications.length > 0 && !activePoll && !hasSidePanel && (
+            <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-3">
+              {highlightedDedications.slice(0, 3).map(d => (
+                <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+                  <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
+                  <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Comments overlay — left side, only shown when no side panel and no dedications */}
+          {isLoaded && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && !hasSidePanel && (
+            <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-3">
+              {highlightedComments.slice(0, 3).map(({ comment }) => (
+                <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+                  <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
+                  <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Right side panel: poll or game overlay ── */}
+        {hasSidePanel && isLoaded && (
+          <div className="w-[38%] shrink-0 flex flex-col items-center justify-center gap-5 p-6 bg-black/65 border-l border-white/10 backdrop-blur-md overflow-y-auto">
+            {/* Active game (when playlist is not on 'juego' slide) */}
+            {activeGame && activeScreenItem?.type !== 'juego' && (
+              <div className={GAME_OVERLAY_CLASS}>
+                <GameOverlayContent game={activeGame} />
+              </div>
+            )}
+            {/* Active poll */}
+            {activePoll && settings.showPolls !== false && !activeGame && (
+              <div className="w-full space-y-5">
+                <p className="text-center text-sm font-black tracking-[0.35em] text-yellow-300 uppercase">🎮 Juego en Vivo</p>
+                <h2 className="text-center text-3xl font-black leading-tight text-white">{activePoll.question}</h2>
+                <div className="space-y-4">
+                  {activePoll.options.map((option) => {
+                    const totalVotes = activePoll.options.reduce((acc, opt) => acc + opt.votes, 0);
+                    const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
+                    return (
+                      <div key={option.id} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-white">
+                          <span className="text-xl font-extrabold">{option.text}</span>
+                          <span className="text-2xl font-black text-yellow-300">{percentage}%</span>
+                        </div>
+                        <div className="h-6 rounded-full bg-white/20">
+                          <div className="h-full rounded-full bg-yellow-300 transition-all duration-500" style={{ width: `${percentage}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {socialConnections.length > 0 && (
-        <div className={`absolute top-16 right-6 z-30 flex flex-col gap-1.5 rounded-2xl border px-4 py-3 backdrop-blur-md min-w-[160px] ${settings.screenDarkMode !== false ? 'border-white/20 bg-black/50' : 'border-slate-200 bg-white/80'}`}>
-          {socialConnections.map((connection) => {
-            const Icon = connection.platform === 'Instagram'
-              ? Instagram
-              : connection.platform === 'Facebook'
-              ? Facebook
-              : connection.platform === 'TikTok'
-              ? Music2
-              : MessageCircle;
-            const handle = connection.username || connection.phoneNumber || '';
-            return (
-              <span key={connection.platform} className={`inline-flex items-center gap-2 text-sm ${settings.screenDarkMode !== false ? 'text-white/90' : 'text-slate-700'}`}>
-                <Icon className={`h-5 w-5 flex-shrink-0 ${settings.screenDarkMode !== false ? 'text-white/70' : 'text-slate-500'}`} />
-                <span className="font-semibold truncate max-w-[120px]">{handle || connection.platform}</span>
-              </span>
-            );
-          })}
-        </div>
-      )}
-
-      {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="space-y-4 text-center">
-            <div className={`w-16 h-16 mx-auto rounded-full border-4 animate-spin ${settings.screenDarkMode !== false ? 'border-white/10 border-t-white/60' : 'border-slate-200 border-t-slate-600'}`} />
-            <p className={`text-sm tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>Cargando muro…</p>
-          </div>
-        </div>
-      )}
-
-      {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego') && posts.length === 0 && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-          <div className="text-8xl opacity-20">📸</div>
-          <div className="text-center space-y-2">
-            <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
-            <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
-          </div>
-        </div>
-      )}
-
-      {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
-        <MasonryLayout posts={posts} />
-      )}
-
-      {isLoaded && activeScreenItem?.type === 'juego' && (
-        activeGame
-          ? <GameSlide game={activeGame} posts={posts} />
-          : posts.length > 0
-            ? <MasonryLayout posts={posts} />
-            : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-                <div className="text-9xl">🎮</div>
-                <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Zona de juegos</p>
-                <p className="text-white/30 text-base">El operador activará el juego en breve…</p>
-              </div>
-            )
-      )}
-
-      {isLoaded && activeScreenItem?.type === 'video' && (
-        <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
-      )}
-
-      {isLoaded && activeScreenItem?.type === 'redes' && (
-        <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
-      )}
-
-      {/* Active game overlay — shown on all slide types when a game is active */}
-      {activeGame && activeScreenItem?.type !== 'juego' && (
-        <div className={GAME_OVERLAY_CLASS}>
-          <GameOverlayContent game={activeGame} />
-        </div>
-      )}
-
-      {/* Poll overlay — shown when there is an active poll and no active game overlay */}
-      {activePoll && settings.showPolls && !activeGame && (
-        <div className={GAME_OVERLAY_CLASS}>
-          <p className="mb-3 text-center text-base font-black tracking-[0.35em] text-yellow-300 uppercase">🎮 Juego en Vivo</p>
-          <h2 className="mb-5 text-center text-4xl font-black leading-tight text-white">{activePoll.question}</h2>
-          <div className="space-y-4">
-            {activePoll.options.map((option) => {
-              const totalVotes = activePoll.options.reduce((acc, opt) => acc + opt.votes, 0);
-              const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
+      {/* ── Bottom bar — in flow ── */}
+      <div className="relative z-30 shrink-0">
+        {socialConnections.length > 0 && (
+          <div className={`flex items-center justify-center gap-6 border-t px-6 py-2.5 backdrop-blur-sm ${settings.screenDarkMode !== false ? 'border-white/10 bg-black/70' : 'border-slate-200 bg-white/80'}`}>
+            {socialConnections.map((connection) => {
+              const Icon = connection.platform === 'Instagram'
+                ? Instagram
+                : connection.platform === 'Facebook'
+                ? Facebook
+                : connection.platform === 'TikTok'
+                ? Music2
+                : MessageCircle;
+              const handle = connection.username || connection.phoneNumber || '';
               return (
-                <div key={option.id} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-white">
-                    <span className="text-2xl font-extrabold">{option.text}</span>
-                    <span className="text-3xl font-black text-yellow-300">{percentage}%</span>
-                  </div>
-                  <div className="h-7 rounded-full bg-white/20">
-                    <div className="h-full rounded-full bg-yellow-300 transition-all duration-500" style={{ width: `${percentage}%` }} />
+                <div key={connection.platform} className={`flex items-center gap-2 ${settings.screenDarkMode !== false ? 'text-white/90' : 'text-slate-700'}`}>
+                  <Icon className={`h-5 w-5 flex-shrink-0 ${settings.screenDarkMode !== false ? 'text-white/70' : 'text-slate-500'}`} />
+                  <div className="flex flex-col leading-tight">
+                    <span className="text-sm font-bold">{handle || connection.platform}</span>
+                    <span className={`text-[10px] uppercase tracking-wider ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Suscríbete</span>
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-      )}
-
-      {highlightedDedications.length > 0 && !activePoll && (
-        <div className="absolute left-6 top-20 z-30 w-[32vw] max-w-sm space-y-3">
-          {highlightedDedications.slice(0, 3).map(d => (
-            <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
-              <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
-              <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
-        <div className="absolute left-6 top-20 z-30 w-[32vw] max-w-sm space-y-3">
-          {highlightedComments.slice(0, 3).map(({ postId, comment }) => (
-            <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
-              <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
-              <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="absolute bottom-0 left-0 right-0 z-30 space-y-1">
+        )}
         {settings.ledMarqueeText && (
           <div className="overflow-hidden border-y border-fuchsia-300/40 bg-fuchsia-500/15 py-2">
             <div className={`whitespace-nowrap text-2xl font-black uppercase tracking-wider text-fuchsia-200 ${LED_MARQUEE_ANIMATION_CLASS}`}>
@@ -382,7 +410,7 @@ export default function MuroEnVivoPage() {
         </div>
       </div>
 
-      {/* Overlay display priority: sorteo winner (z-50) > active moment (z-40) > poll (z-30) > dedications/comments (z-30) */}
+      {/* ── Full-screen overlays (moment, sorteo) — still absolute/z-40+ ── */}
       <AnimatePresence>
         {/* Active moment overlay — only shown when no sorteo winner is active */}
         {activeMoment && !activeSorteoWinner && (
@@ -467,9 +495,9 @@ function renderMarqueeText(text: string) {
 
 function ScreenMediaSlide({ item, fallbackPosts }: { item: ScreenPlaylistItem; fallbackPosts: SocialGalleryPost[] }) {
   if (!item.mediaUrl) {
-    // No media uploaded: show mural if there are posts, otherwise a placeholder
+    // No media uploaded: show slideshow if there are posts, otherwise a placeholder
     if (fallbackPosts.length > 0) {
-      return <MasonryLayout posts={fallbackPosts} />;
+      return <SlideshowLayout posts={fallbackPosts} />;
     }
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
@@ -554,6 +582,79 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+const SLIDESHOW_DURATION_MS = 6000;
+
+function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const prevLengthRef = useRef(posts.length);
+
+  // When a new post arrives (length increases), jump to the newest photo (index 0)
+  useEffect(() => {
+    if (posts.length > prevLengthRef.current) {
+      setCurrentIndex(0);
+    }
+    prevLengthRef.current = posts.length;
+  }, [posts.length]);
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    if (posts.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % posts.length);
+    }, SLIDESHOW_DURATION_MS);
+    return () => clearInterval(timer);
+  }, [posts.length]);
+
+  if (posts.length === 0) return null;
+
+  const post = posts[currentIndex] ?? posts[0];
+
+  return (
+    <div className="absolute inset-0 bg-black">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={post.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: 'easeInOut' }}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          <NextImage
+            src={post.imageUrl}
+            alt={post.authorName}
+            fill
+            className="object-contain"
+            unoptimized
+            priority
+          />
+          {/* Author name overlay */}
+          <div className="absolute bottom-16 left-0 right-0 flex items-end justify-center pb-2 pointer-events-none">
+            <span className="bg-black/60 text-white text-sm font-semibold px-5 py-1.5 rounded-full backdrop-blur-sm">
+              {post.authorName}
+            </span>
+          </div>
+          {/* Slide counter dots — only shown when posts fit within the dot limit */}
+          {posts.length > 1 && posts.length <= 12 && (
+            <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
+              {posts.map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === currentIndex
+                      ? 'w-6 bg-white'
+                      : 'w-1.5 bg-white/40'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
