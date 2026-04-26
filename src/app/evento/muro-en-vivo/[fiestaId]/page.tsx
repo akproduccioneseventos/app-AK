@@ -555,7 +555,7 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
 }
 
 function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
-  const numCols = posts.length === 1 ? 1 : posts.length === 2 ? 2 : 3;
+  const numCols = Math.min(posts.length, 3);
 
   // For 1 or 2 posts use a simple non-scrolling layout; for 3+ use the scrolling masonry.
   if (numCols < 3) {
