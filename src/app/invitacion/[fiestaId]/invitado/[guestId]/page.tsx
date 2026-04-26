@@ -40,9 +40,9 @@ import QRCodeStylized from 'qrcode.react';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
-  Celiaco: '🌾 Sin gluten',
-  Vegetariano: '🥗 Vegetariano',
-  Vegano: '🌱 Vegano',
+  Celiaco: '🌾 Menú sin gluten',
+  Vegetariano: '🥗 Menú vegetariano',
+  Vegano: '🌱 Menú vegano',
   Otro: '⚠️ Menú especial',
 };
 
