@@ -222,12 +222,16 @@ export default function MuroEnVivoPage() {
   }, [activeScreenItem, enabledPlaylist.length, settings.screenMode?.isPlaying, settings.screenMode?.loop, playlistTick]);
 
   return (
-    <div className="fixed inset-0 bg-slate-950 overflow-hidden select-none">
+    <div className={`fixed inset-0 overflow-hidden select-none ${settings.screenDarkMode !== false ? 'bg-slate-950' : 'bg-white'}`}>
       {/* Ambient gradient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
+      {settings.screenDarkMode !== false ? (
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
+      ) : (
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.05),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.05),transparent_60%)]" />
+      )}
 
       {/* Header bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 bg-gradient-to-b from-slate-950/90 to-transparent">
+      <div className={`absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 bg-gradient-to-b ${settings.screenDarkMode !== false ? 'from-slate-950/90 to-transparent' : 'from-white/90 to-transparent'}`}>
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
             <div className="relative h-10 w-24 overflow-hidden rounded bg-white/90 p-1">
@@ -235,16 +239,16 @@ export default function MuroEnVivoPage() {
             </div>
           )}
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-white/60 text-sm font-medium tracking-widest uppercase">En Vivo</span>
+          <span className={`text-sm font-medium tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/60' : 'text-slate-500'}`}>En Vivo</span>
         </div>
         {eventName && (
-          <span className="text-white/40 text-sm font-semibold tracking-wide">{eventName}</span>
+          <span className={`text-sm font-semibold tracking-wide ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>{eventName}</span>
         )}
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
       </div>
 
       {socialConnections.length > 0 && (
-        <div className="absolute top-16 right-6 z-30 flex flex-col gap-1.5 rounded-2xl border border-white/20 bg-black/50 px-4 py-3 backdrop-blur-md min-w-[160px]">
+        <div className={`absolute top-16 right-6 z-30 flex flex-col gap-1.5 rounded-2xl border px-4 py-3 backdrop-blur-md min-w-[160px] ${settings.screenDarkMode !== false ? 'border-white/20 bg-black/50' : 'border-slate-200 bg-white/80'}`}>
           {socialConnections.map((connection) => {
             const Icon = connection.platform === 'Instagram'
               ? Instagram
@@ -255,8 +259,8 @@ export default function MuroEnVivoPage() {
               : MessageCircle;
             const handle = connection.username || connection.phoneNumber || '';
             return (
-              <span key={connection.platform} className="inline-flex items-center gap-2 text-sm text-white/90">
-                <Icon className="h-5 w-5 flex-shrink-0 text-white/70" />
+              <span key={connection.platform} className={`inline-flex items-center gap-2 text-sm ${settings.screenDarkMode !== false ? 'text-white/90' : 'text-slate-700'}`}>
+                <Icon className={`h-5 w-5 flex-shrink-0 ${settings.screenDarkMode !== false ? 'text-white/70' : 'text-slate-500'}`} />
                 <span className="font-semibold truncate max-w-[120px]">{handle || connection.platform}</span>
               </span>
             );
@@ -267,8 +271,8 @@ export default function MuroEnVivoPage() {
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="space-y-4 text-center">
-            <div className="w-16 h-16 mx-auto rounded-full border-4 border-white/10 border-t-white/60 animate-spin" />
-            <p className="text-white/40 text-sm tracking-widest uppercase">Cargando muro…</p>
+            <div className={`w-16 h-16 mx-auto rounded-full border-4 animate-spin ${settings.screenDarkMode !== false ? 'border-white/10 border-t-white/60' : 'border-slate-200 border-t-slate-600'}`} />
+            <p className={`text-sm tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>Cargando muro…</p>
           </div>
         </div>
       )}
@@ -277,8 +281,8 @@ export default function MuroEnVivoPage() {
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
           <div className="text-8xl opacity-20">📸</div>
           <div className="text-center space-y-2">
-            <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Muro Social</p>
-            <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí.</p>
+            <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
+            <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
           </div>
         </div>
       )}
