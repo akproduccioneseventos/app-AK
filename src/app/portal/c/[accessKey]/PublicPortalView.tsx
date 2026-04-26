@@ -266,6 +266,7 @@ export default function PublicPortalView({
   const [kidsDelta, setKidsDelta] = useState(0);
   const [simRequestNote, setSimRequestNote] = useState('');
   const [simRequestLoading, setSimRequestLoading] = useState(false);
+  const [simRequestSuccess, setSimRequestSuccess] = useState(false);
 
   // Moodboard liked state
   const [likedItems, setLikedItems] = useState<Set<string>>(
@@ -488,6 +489,7 @@ export default function PublicPortalView({
   const handleSubmitMenuRequest = async () => {
     if (!fiesta.id || (adultDelta <= 0 && kidsDelta <= 0)) return;
     setSimRequestLoading(true);
+    setSimRequestSuccess(false);
     try {
       // Prefer real budget-synced impact; fall back to legacy estimate for events without items
       const montoAdicional = guestSim ? guestSim.impacto : simulationTotals.aumentoTotal;
@@ -502,6 +504,7 @@ export default function PublicPortalView({
       setAdultDelta(0);
       setKidsDelta(0);
       setSimRequestNote('');
+      setSimRequestSuccess(true);
     } finally {
       setSimRequestLoading(false);
     }
@@ -1694,9 +1697,11 @@ export default function PublicPortalView({
                             {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
                             Enviar solicitud al equipo AK
                           </Button>
-                          <p className="text-xs text-muted-foreground text-center">
-                            Solicitud enviada. El equipo AK te contactará para confirmar la disponibilidad y el costo adicional.
-                          </p>
+                          {simRequestSuccess && (
+                            <p className="text-xs text-emerald-700 text-center bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+                              ✅ Solicitud enviada. El equipo AK te contactará para confirmar la disponibilidad y el costo adicional.
+                            </p>
+                          )}
                         </div>
                       )}
 
@@ -1736,9 +1741,11 @@ export default function PublicPortalView({
                       {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
                       Enviar solicitud al equipo AK
                     </Button>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Solicitud enviada. El equipo AK te contactará para confirmar la disponibilidad y el costo adicional.
-                    </p>
+                    {simRequestSuccess && (
+                      <p className="text-xs text-emerald-700 text-center bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+                        ✅ Solicitud enviada. El equipo AK te contactará para confirmar la disponibilidad y el costo adicional.
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>
