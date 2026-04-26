@@ -1628,8 +1628,8 @@ function DecoracionYDisenoEventoContent() {
                   </div>
                 )}
                 <div className={cn('relative', isFullscreen ? 'flex flex-1 gap-3 min-h-0' : '')}>
-                  <Card className={cn("border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden", isFullscreen ? 'flex-1' : '')}>
-                    <CardContent className="p-4">
+                  <Card className={cn("border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden", isFullscreen ? 'flex-1 flex flex-col' : '')}>
+                    <CardContent className={cn("p-4", isFullscreen ? 'flex-1 flex flex-col min-h-0' : '')}>
                       <DecoCanvas
                         elementos={canvasElementos}
                         onChange={handleCanvasElementsChange}
@@ -1639,6 +1639,7 @@ function DecoracionYDisenoEventoContent() {
                         fondoColor={canvasFondoColor}
                         fondoImagenUrl={canvasFondoImagenUrl || undefined}
                         showGrid={showGrid}
+                        fullscreen={isFullscreen}
                       />
                     </CardContent>
                   </Card>
@@ -1662,7 +1663,8 @@ function DecoracionYDisenoEventoContent() {
                           />
                         </CardContent>
                         {selectedCanvasEl && (
-                          <div className="p-3 border-t border-slate-100 space-y-2 flex-shrink-0">
+                          <div className="p-3 border-t border-slate-100 space-y-2 overflow-y-auto max-h-72 flex-shrink-0">
+                            {/* Layer controls */}
                             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Capas</p>
                             <div className="grid grid-cols-4 gap-1">
                               <Button type="button" variant="outline" size="sm" onClick={handleBringToFront} className="rounded-lg h-7 text-[10px] px-1 gap-0.5" title="Al frente">
@@ -1678,6 +1680,61 @@ function DecoracionYDisenoEventoContent() {
                                 <ChevronsDown className="w-3 h-3" />
                               </Button>
                             </div>
+
+                            {/* Color controls for SVG elements */}
+                            {!isSelectedCanvasImage && Array.from({ length: selectedCanvasColoresLength }).map((_, idx) => (
+                              <div key={`fs-color-${idx}`} className="space-y-1">
+                                <label className="text-[10px] text-slate-500">{idx === 0 ? 'Color principal' : idx === 1 ? 'Color secundario' : `Color ${idx + 1}`}</label>
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  {paletaColoresArray.filter(Boolean).map((color, i) => (
+                                    <button
+                                      key={`${color}-${i}`}
+                                      type="button"
+                                      className="w-5 h-5 rounded-full border border-white shadow"
+                                      style={{
+                                        backgroundColor: color,
+                                        outline: getSelectedCanvasColor(idx) === color ? '2px solid #3B82F6' : 'none',
+                                        outlineOffset: 1,
+                                      }}
+                                      onClick={() => handleUpdateSelectedElColor(idx, color)}
+                                    />
+                                  ))}
+                                  <input
+                                    type="color"
+                                    value={getSelectedCanvasColor(idx)}
+                                    onChange={e => handleUpdateSelectedElColor(idx, e.target.value)}
+                                    className="w-6 h-6 rounded border p-0.5 cursor-pointer"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+
+                            {/* Tint controls for PNG/image elements */}
+                            {isSelectedCanvasImage && (
+                              <div className="space-y-2">
+                                <div className="space-y-1">
+                                  <label className="text-[10px] text-slate-500">Tinte de color</label>
+                                  <input
+                                    type="color"
+                                    value={selectedCanvasEl.tintColor ?? '#ffffff'}
+                                    onChange={e => handleUpdateSelectedElProp('tintColor', e.target.value)}
+                                    className="h-7 w-full rounded border border-slate-200 bg-white p-0.5 cursor-pointer"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] text-slate-500">Intensidad ({Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}%)</label>
+                                  <input
+                                    type="range"
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    value={Math.round((selectedCanvasEl.tintOpacity ?? 0) * 100)}
+                                    onChange={e => handleUpdateSelectedElProp('tintOpacity', Number(e.target.value) / 100)}
+                                    className="w-full h-2 accent-primary"
+                                  />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </Card>

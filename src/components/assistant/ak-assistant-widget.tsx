@@ -61,13 +61,12 @@ const QUICK_ACTIONS = [
 
 const SUGGESTED_CHIPS = [
   '📸 Importá un presupuesto desde foto',
-  '¿Cómo creo un presupuesto?',
+  '📋 Crea un presupuesto para María, XV años, 10/09/2026, 100 invitados',
   '¿Tengo pagos pendientes?',
   'Registrá una seña de $50.000',
   'Generame un post para Instagram',
   '¿Estoy libre el próximo sábado?',
   'Creame un empleado',
-  'Agregá un proveedor',
   'Enseñame a usar el CRM',
 ];
 
@@ -995,6 +994,15 @@ export function AKAssistantWidget() {
                           {chip}
                         </button>
                       ))}
+                    </div>
+                    {/* Budget quick-start hint */}
+                    <div className="ml-9 rounded-xl border border-indigo-100 bg-indigo-50/60 px-3 py-2.5 text-[11px] text-slate-600 space-y-1.5">
+                      <p className="font-semibold text-indigo-700">💡 Cómo crear un presupuesto:</p>
+                      <ul className="space-y-1 text-slate-600">
+                        <li>• <span className="font-medium">Desde texto:</span> pegá el detalle de servicios y precios directamente acá y lo proceso automáticamente.</li>
+                        <li>• <span className="font-medium">Desde imagen/PDF:</span> usá el botón 📎 para adjuntar el archivo.</li>
+                        <li>• <span className="font-medium">Dictado:</span> decime "Presupuesto para [cliente], [tipo de evento], [servicios y precios]".</li>
+                      </ul>
                     </div>
                   </div>
                 )}

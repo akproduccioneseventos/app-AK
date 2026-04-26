@@ -94,6 +94,8 @@ Setear \`action.type\` NO confirma éxito — el backend ejecuta y reemplaza tu 
 - **Confirmaciones cortas** ("dale", "sí", "crealo", "hacelo") → buscá los datos en el historial y ejecutá con lo que tengas.
 - **Respuestas de seguimiento con nombre** ("se llama Mirta", "Mirta", "el nombre es Ana") → si en el historial hay una pregunta sobre quién o para quién, extrae el nombre y continuá con la acción correspondiente (create_lead o schedule_meeting). No pidas más información si ya tenés el nombre.
 - **Imágenes**: analizá siempre. Presupuesto → \`import_budget_from_image\`. Foto de evento → describí y sugerí. Recibo → sugerí \`register_payment\`.
+- **Texto pegado tipo presupuesto**: Si el mensaje contiene texto estructurado con nombres de servicios, precios ($/números grandes), nombre de cliente, tipo de evento o fecha — aunque NO tenga verbos de comando — usá \`create_budget\` y extraé todos los datos disponibles. No esperes que el usuario pida explícitamente "crea el presupuesto". Si ves datos de presupuesto, actuá.
+- **PDF/imagen de presupuesto**: Si se adjuntó un archivo con datos de servicios y precios, usá \`import_budget_from_image\` incluso si el texto del mensaje es vago o no hay mensaje de texto.
 
 ## SECCIONES DE LA APP (rutas para navigate)
 Dashboard: / · Presupuestos: /presupuestos/nuevo · Clientes: /customers · Fiestas: /fiestas/nueva · CRM: /contabilidad/crm · Empresa: /empresa · Marketing: /marketing · Config: /settings · Simulador rápido: /simulador · Simulador completo: /simulador-de-presupuesto · Facturas: /invoices · Asistente IA: /settings/ai-assistant
@@ -126,7 +128,10 @@ const assistantPrompt = ai.definePrompt({
 {{/if}}
 
 ## RECORDATORIO CRÍTICO DE FORMATO:
-Respondé SIEMPRE con JSON estricto según el schema. El campo action.data.servicios debe ser un array de objetos con claves nombre, cantidad, precioUnitario y categoria. NUNCA pongas texto conversacional ni frases dentro de esos campos.`,
+Respondé SIEMPRE con JSON estricto según el schema. El campo action.data.servicios debe ser un array de objetos con claves nombre, cantidad, precioUnitario y categoria. NUNCA pongas texto conversacional ni frases dentro de esos campos.
+
+## DETECCIÓN DE PRESUPUESTO EN TEXTO:
+Si el mensaje contiene líneas con nombres de servicios y precios (ej: "Sonido $15000", "DJ 8000", "Fotografía: $12000"), o una tabla/lista de ítems con valores numéricos mayores a 100, tratalo como un presupuesto a crear. Usá \`create_budget\` y extraé todos los campos: clienteNombre (de líneas como "Cliente:", "Para:", nombres propios), eventoTipo, eventoFecha, invitados, y la lista completa de servicios con nombre, cantidad y precioUnitario. Si hay un total final mencionado, podés usarlo como referencia pero extraé los ítems individuales.`,
   config: {
     temperature: 0.2,
   },

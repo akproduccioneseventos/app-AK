@@ -615,6 +615,32 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
       if (actionKeywords.test(message)) {
         logger.warn('[Asistente AK] ⚠️ AI returned type=none for a likely-action message. Message:', message.slice(0, 80));
       }
+
+      // Budget-text fallback: if Gemini returned none but the pasted text looks like a
+      // budget (medium/high confidence via the local parser), auto-create the budget.
+      // This handles copy-paste scenarios where the user doesn't include a command verb.
+      if (!imageDataUri && message.trim().length > 60) {
+        const lp = parseBudgetFromText(message);
+        if ((lp.confidence === 'high' || lp.confidence === 'medium') && lp.servicios.length > 0) {
+          logger.info('[Asistente AK] Budget text fallback triggered (Gemini returned none):', { confidence: lp.confidence, services: lp.servicios.length });
+          // Re-route into the create_budget handler by overriding the result
+          result.action = {
+            type: 'create_budget',
+            data: {
+              clienteNombre: lp.clienteNombre,
+              eventoTipo: lp.eventoTipo,
+              eventoFecha: lp.eventoFecha,
+              invitados: lp.invitados,
+              servicios: lp.servicios.map(s => ({
+                nombre: s.nombre,
+                cantidad: s.cantidad,
+                precioUnitario: s.precioUnitario,
+                categoria: 'Servicios',
+              })),
+            },
+          };
+        }
+      }
     }
 
     // 3. Ejecutar acciones si la IA las pidió

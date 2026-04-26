@@ -205,7 +205,20 @@ export const defaultMenuMesaData: MenuMesaData = {
     empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio integral', contacto: '098 355 530' }
 };
 
-export const defaultGiftItems: GiftItem[] = [];
+export const defaultGiftItems: GiftItem[] = [
+  { id: 'gift_default_1',  name: '💐 Flores',                  description: 'Ramo de flores para decorar',                        isClaimed: false },
+  { id: 'gift_default_2',  name: '🍾 Champagne',               description: 'Botella de champagne o espumante',                   isClaimed: false },
+  { id: 'gift_default_3',  name: '🎁 Caja de regalo',          description: 'Caja con detalles y sorpresas',                      isClaimed: false },
+  { id: 'gift_default_4',  name: '💳 Tarjeta de regalo',       description: 'Gift card para elegir lo que más le guste',          isClaimed: false },
+  { id: 'gift_default_5',  name: '👗 Ropa o accesorios',       description: 'Prenda de vestir, cartera o accesorio de moda',      isClaimed: false },
+  { id: 'gift_default_6',  name: '💄 Set de belleza',          description: 'Perfume, maquillaje o productos de cuidado personal', isClaimed: false },
+  { id: 'gift_default_7',  name: '📚 Libro',                   description: 'Libro favorito o colección especial',                 isClaimed: false },
+  { id: 'gift_default_8',  name: '🎭 Entradas a espectáculo',  description: 'Teatro, recital, cine u otro evento cultural',        isClaimed: false },
+  { id: 'gift_default_9',  name: '🧳 Accesorios de viaje',     description: 'Valija, neceser o artículo de viaje',                 isClaimed: false },
+  { id: 'gift_default_10', name: '🎮 Videojuego o consola',    description: 'Juego o gadget tecnológico',                         isClaimed: false },
+  { id: 'gift_default_11', name: '🍫 Chocolates o golosinas',  description: 'Caja de bombones o dulces especiales',               isClaimed: false },
+  { id: 'gift_default_12', name: '🌟 Experiencia especial',    description: 'Spa, cena romántica o actividad única',               isClaimed: false },
+];
 
 export const defaultCartaTragosData: CartaTragosData = {
   titulo: 'CARTA DE TRAGOS',

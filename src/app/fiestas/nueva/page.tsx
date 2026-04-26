@@ -77,7 +77,6 @@ const modules: ModuleDefinition[] = [
 
   // 4. PRODUCCIÓN MULTIMEDIA
   { id: 'fotografia', title: "Foto y Video", href: "fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
-  { id: 'muroSocial', title: "Muro Social & Juegos", href: "muro-social", icon: Gamepad2, description: "Mural de fotos en vivo + juegos interactivos (trivia, sorteo, encuestas) para la pantalla gigante.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
   { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-rose-100 text-rose-600", badge: 'Invitado' },
   { id: 'postEvento', title: "Post-Evento", href: "post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-rose-100 text-rose-600", badge: 'Interno' },
 
@@ -90,7 +89,7 @@ const modules: ModuleDefinition[] = [
   // 6. PANTALLA GIGANTE AK
   { id: 'enVivo', title: "Evento en Vivo", href: "en-vivo", icon: Zap, description: "Centro de operaciones para el día de la fiesta.", category: 'PANTALLA GIGANTE AK', color: "bg-primary text-white shadow-xl shadow-primary/30", badge: 'Pantalla' },
   { id: 'missionControl', title: "Mission Control", href: "mission-control", icon: Activity, description: "Control táctico minuto a minuto en tiempo real.", category: 'PANTALLA GIGANTE AK', color: "bg-indigo-600 text-white shadow-xl shadow-indigo-500/30", badge: 'Pantalla' },
-  { id: 'playlistPantalla', title: "Playlist de Pantalla", href: "playlist-pantalla", icon: Monitor, description: "Secuencia de contenidos para la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-purple-100 text-purple-700", badge: 'Pantalla' },
+  { id: 'muroSocial', title: "Muro Social & Pantalla", href: "muro-social", icon: Gamepad2, description: "Mural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-violet-100 text-violet-700", badge: 'Pantalla' },
   { id: 'readiness', title: "Readiness Score", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
 
   // 7. DISEÑO, SALÓN Y AMBIENTACIÓN
@@ -129,9 +128,9 @@ const categoryMeta: Record<string, { icon: React.ElementType; color: string; des
   'CENTRO DE PRODUCCIÓN':              { icon: Settings2,       color: 'text-slate-700 bg-slate-100',   description: 'Configuración, tareas, reuniones, documentos y finanzas.' },
   'OPERATIVA Y LOGÍSTICA':             { icon: Truck,           color: 'text-amber-700 bg-amber-100',   description: 'Lista de carga, logística, proveedores y personal.' },
   'EXPERIENCIA DEL CLIENTE VIP':       { icon: KeyRound,        color: 'text-amber-600 bg-amber-50',    description: 'Portal VIP, itinerario, música, video de vida e invitados.' },
-  'PRODUCCIÓN MULTIMEDIA':             { icon: Camera,          color: 'text-purple-700 bg-purple-100', description: 'Foto, video, muro social, juegos interactivos y material del evento.' },
+  'PRODUCCIÓN MULTIMEDIA':             { icon: Camera,          color: 'text-purple-700 bg-purple-100', description: 'Foto, video, regalos y material del evento.' },
   'EXPERIENCIA DEL INVITADO VIP':      { icon: Globe,           color: 'text-blue-700 bg-blue-100',     description: 'Invitación web, portal, QR, check-in y mesas.' },
-  'PANTALLA GIGANTE AK':               { icon: Tv,              color: 'text-indigo-700 bg-indigo-100', description: 'Evento en vivo, playlist, mission control y readiness.' },
+  'PANTALLA GIGANTE AK':               { icon: Tv,              color: 'text-indigo-700 bg-indigo-100', description: 'Evento en vivo, muro social, playlist, mission control y readiness.' },
   'DISEÑO, SALÓN Y AMBIENTACIÓN':      { icon: Palette,         color: 'text-pink-700 bg-pink-100',     description: 'Decoración, moodboard y ambientación del salón.' },
   'GASTRONOMÍA Y SERVICIO':            { icon: UtensilsCrossed, color: 'text-orange-700 bg-orange-100', description: 'Catering, menú, alergias, lista de compras y tragos.' },
   'CARTELERÍA Y MATERIAL IMPRESO':     { icon: Printer,         color: 'text-violet-700 bg-violet-100', description: 'Cartelería, números de mesa y menú impreso.' },
@@ -150,10 +149,10 @@ const badgeColors: Record<ModuleBadge, string> = {
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
 
 const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color: string; moduleIds: string[] }[] = [
-  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'playlistPantalla'] },
+  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial'] },
   { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'enVivo', 'playlistPantalla', 'checkin'] },
+  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'enVivo', 'checkin'] },
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
