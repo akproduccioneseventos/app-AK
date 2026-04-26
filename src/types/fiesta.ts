@@ -753,7 +753,7 @@ export interface SocialGallerySettings {
   brand?: SocialGalleryBrand;
   /** Active game to display on the giant screen */
   activeGame?: ActiveGameData;
-  /** Dark mode for the giant screen display (default: true = dark) */
+  /** Dark mode for the giant screen display (default: true = dark, false = light/white) */
   screenDarkMode?: boolean;
 }
 

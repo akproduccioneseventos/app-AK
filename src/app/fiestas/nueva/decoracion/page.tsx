@@ -1663,7 +1663,7 @@ function DecoracionYDisenoEventoContent() {
                           />
                         </CardContent>
                         {selectedCanvasEl && (
-                          <div className="p-3 border-t border-slate-100 space-y-2 flex-shrink-0 overflow-y-auto max-h-72">
+                          <div className="p-3 border-t border-slate-100 space-y-2 overflow-y-auto max-h-72 flex-shrink-0">
                             {/* Layer controls */}
                             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Capas</p>
                             <div className="grid grid-cols-4 gap-1">

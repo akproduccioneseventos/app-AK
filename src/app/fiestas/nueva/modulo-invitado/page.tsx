@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   ArrowLeft, Save, Loader2, Eye,
   Images, Globe, MapPin, Music, Gift, QrCode,
-  PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook, ImageIcon, Trash2,
+  PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook, Trash2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GuestPortalSettings, GuestExperienceSettings } from '@/types/fiesta';
