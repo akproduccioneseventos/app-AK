@@ -243,26 +243,7 @@ export default function MuroEnVivoPage() {
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
       </div>
 
-      {socialConnections.length > 0 && (
-        <div className="absolute top-16 right-6 z-30 flex flex-col gap-1.5 rounded-2xl border border-white/20 bg-black/50 px-4 py-3 backdrop-blur-md min-w-[160px]">
-          {socialConnections.map((connection) => {
-            const Icon = connection.platform === 'Instagram'
-              ? Instagram
-              : connection.platform === 'Facebook'
-              ? Facebook
-              : connection.platform === 'TikTok'
-              ? Music2
-              : MessageCircle;
-            const handle = connection.username || connection.phoneNumber || '';
-            return (
-              <span key={connection.platform} className="inline-flex items-center gap-2 text-sm text-white/90">
-                <Icon className="h-5 w-5 flex-shrink-0 text-white/70" />
-                <span className="font-semibold truncate max-w-[120px]">{handle || connection.platform}</span>
-              </span>
-            );
-          })}
-        </div>
-      )}
+
 
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -284,14 +265,14 @@ export default function MuroEnVivoPage() {
       )}
 
       {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
-        <MasonryLayout posts={posts} />
+        <SlideshowLayout posts={posts} />
       )}
 
       {isLoaded && activeScreenItem?.type === 'juego' && (
         activeGame
           ? <GameSlide game={activeGame} posts={posts} />
           : posts.length > 0
-            ? <MasonryLayout posts={posts} />
+            ? <SlideshowLayout posts={posts} />
             : (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
                 <div className="text-9xl">🎮</div>
@@ -364,6 +345,29 @@ export default function MuroEnVivoPage() {
       )}
 
       <div className="absolute bottom-0 left-0 right-0 z-30 space-y-1">
+        {socialConnections.length > 0 && (
+          <div className="flex items-center justify-center gap-6 border-t border-white/10 bg-black/70 px-6 py-2.5 backdrop-blur-sm">
+            {socialConnections.map((connection) => {
+              const Icon = connection.platform === 'Instagram'
+                ? Instagram
+                : connection.platform === 'Facebook'
+                ? Facebook
+                : connection.platform === 'TikTok'
+                ? Music2
+                : MessageCircle;
+              const handle = connection.username || connection.phoneNumber || '';
+              return (
+                <div key={connection.platform} className="flex items-center gap-2 text-white/90">
+                  <Icon className="h-5 w-5 flex-shrink-0 text-white/70" />
+                  <div className="flex flex-col leading-tight">
+                    <span className="text-sm font-bold">{handle || connection.platform}</span>
+                    <span className="text-[10px] text-white/50 uppercase tracking-wider">Suscríbete</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
         {settings.ledMarqueeText && (
           <div className="overflow-hidden border-y border-fuchsia-300/40 bg-fuchsia-500/15 py-2">
             <div className={`whitespace-nowrap text-2xl font-black uppercase tracking-wider text-fuchsia-200 ${LED_MARQUEE_ANIMATION_CLASS}`}>
@@ -463,9 +467,9 @@ function renderMarqueeText(text: string) {
 
 function ScreenMediaSlide({ item, fallbackPosts }: { item: ScreenPlaylistItem; fallbackPosts: SocialGalleryPost[] }) {
   if (!item.mediaUrl) {
-    // No media uploaded: show mural if there are posts, otherwise a placeholder
+    // No media uploaded: show slideshow if there are posts, otherwise a placeholder
     if (fallbackPosts.length > 0) {
-      return <MasonryLayout posts={fallbackPosts} />;
+      return <SlideshowLayout posts={fallbackPosts} />;
     }
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
@@ -550,6 +554,79 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+const SLIDESHOW_DURATION_MS = 6000;
+
+function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const prevLengthRef = useRef(posts.length);
+
+  // When a new post arrives (length increases), jump to the newest photo (index 0)
+  useEffect(() => {
+    if (posts.length > prevLengthRef.current) {
+      setCurrentIndex(0);
+    }
+    prevLengthRef.current = posts.length;
+  }, [posts.length]);
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    if (posts.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % posts.length);
+    }, SLIDESHOW_DURATION_MS);
+    return () => clearInterval(timer);
+  }, [posts.length]);
+
+  if (posts.length === 0) return null;
+
+  const post = posts[currentIndex] ?? posts[0];
+
+  return (
+    <div className="absolute inset-0 bg-black">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={post.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: 'easeInOut' }}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          <NextImage
+            src={post.imageUrl}
+            alt={post.authorName}
+            fill
+            className="object-contain"
+            unoptimized
+            priority
+          />
+          {/* Author name overlay */}
+          <div className="absolute bottom-16 left-0 right-0 flex items-end justify-center pb-2 pointer-events-none">
+            <span className="bg-black/60 text-white text-sm font-semibold px-5 py-1.5 rounded-full backdrop-blur-sm">
+              {post.authorName}
+            </span>
+          </div>
+          {/* Slide counter dots */}
+          {posts.length > 1 && (
+            <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
+              {posts.slice(0, Math.min(posts.length, 12)).map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === currentIndex % Math.min(posts.length, 12)
+                      ? 'w-6 bg-white'
+                      : 'w-1.5 bg-white/40'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
