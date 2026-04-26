@@ -314,6 +314,28 @@ export async function triggerSorteoWinner(
   }
 }
 
+/** Inicia la animación de la ruleta en la pantalla gigante (antes de revelar el ganador) */
+export async function startSorteoSpinOnScreen(
+  fiestaId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        sorteoSpinStartedAt: new Date().toISOString(),
+        activeSorteoWinner: undefined,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al iniciar animación.' };
+  }
+}
+
 /** Registra un voto en una opción del juego activo */
 export async function voteActiveGameOption(
   fiestaId: string,

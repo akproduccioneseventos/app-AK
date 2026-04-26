@@ -56,6 +56,8 @@ export default function MuroEnVivoPage() {
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
   const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
   const [activeSorteoWinner, setActiveSorteoWinner] = useState<string | null>(null);
+  const [sorteoSpinActive, setSorteoSpinActive] = useState(false);
+  const [sorteoSpinWheelAngle, setSorteoSpinWheelAngle] = useState(0);
   const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
   const [highlightedComments, setHighlightedComments] = useState<{ postId: string; comment: SocialComment }[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -109,6 +111,15 @@ export default function MuroEnVivoPage() {
           sorteoTs && sorteoWinner &&
           Date.now() - new Date(sorteoTs).getTime() < SORTEO_DISPLAY_DURATION_MS;
         setActiveSorteoWinner(sorteoIsFresh ? sorteoWinner : null);
+
+        // Sorteo spin animation (shows wheel spinning on big screen)
+        const spinTs = fiestaData.socialGallerySettings.sorteoSpinStartedAt;
+        const spinIsFresh = spinTs && Date.now() - new Date(spinTs).getTime() < 4000; // 4s window
+        if (spinIsFresh && !sorteoIsFresh) {
+          setSorteoSpinActive(true);
+          setSorteoSpinWheelAngle(prev => prev + 1800 + Math.floor(Math.random() * 720));
+          setTimeout(() => setSorteoSpinActive(false), 3000);
+        }
       }
       if (pollData) {
         setActivePoll({ id: pollData.id, question: pollData.question, options: pollData.options });
@@ -465,6 +476,46 @@ export default function MuroEnVivoPage() {
           </motion.div>
         )}
 
+        {/* Sorteo spinning wheel overlay */}
+        <AnimatePresence>
+          {sorteoSpinActive && !activeSorteoWinner && (
+            <motion.div
+              key="sorteo-spin"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[45] flex flex-col items-center justify-center bg-black/85 text-center"
+            >
+              <p className="mb-6 text-2xl font-black uppercase tracking-[0.5em] text-yellow-300">🎰 ¡Sorteando! 🎰</p>
+              {/* SVG Wheel */}
+              <div className="relative w-72 h-72">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20 w-0 h-0"
+                  style={{ borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '28px solid #eab308' }} />
+                <div
+                  className="w-72 h-72 rounded-full border-8 border-yellow-400 shadow-2xl"
+                  style={{
+                    transform: `rotate(${sorteoSpinWheelAngle}deg)`,
+                    transition: 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)',
+                    background: 'conic-gradient(#f43f5e, #f97316, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #f43f5e, #f97316, #eab308, #22c55e, #06b6d4)',
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-white border-4 border-yellow-400 flex items-center justify-center shadow-inner">
+                    <span className="text-2xl font-black text-yellow-600">AK</span>
+                  </div>
+                </div>
+              </div>
+              <motion.p
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                className="mt-6 text-xl font-bold text-white/70"
+              >
+                🎲 Eligiendo ganador…
+              </motion.p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {activeSorteoWinner && (
           <motion.div
             key={`sorteo-${activeSorteoWinner}`}
@@ -680,7 +731,7 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
             src={post.imageUrl}
             alt={post.authorName}
             fill
-            className="object-contain"
+            className="object-cover"
             unoptimized
             priority
           />

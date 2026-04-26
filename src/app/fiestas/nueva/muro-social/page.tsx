@@ -32,6 +32,7 @@ import {
   launchGame,
   clearActiveGame,
   triggerSorteoWinner,
+  startSorteoSpinOnScreen,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
 import { getInvitados } from '@/app/actions/fiesta/invitados.actions';
@@ -645,6 +646,8 @@ function MuroSocialContent() {
     // Spin: random full rotations (5-8) plus the landing angle
     const spinRotations = 5 + Math.floor(Math.random() * 4);
     setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
+    // Also trigger spin animation on the big screen immediately
+    await startSorteoSpinOnScreen(fiestaId);
     // After animation (2.8s), persist to Firestore and reveal winner
     setTimeout(async () => {
       setSorteoIsSpinning(false);
@@ -1409,29 +1412,94 @@ function MuroSocialContent() {
               </div>
 
               {/* Spinning wheel */}
-              <div className="flex justify-center py-2">
-                <div className="relative w-36 h-36">
-                  {/* Pointer — #eab308 = Tailwind yellow-500, matches border-yellow-400 theme */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 w-0 h-0"
-                    style={{ borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '16px solid #eab308' }} />
-                  {/* Wheel */}
-                  <div
-                    className="w-36 h-36 rounded-full border-4 border-yellow-400 shadow-lg overflow-hidden flex items-center justify-center"
-                    style={{
-                      transform: `rotate(${sorteoWheelAngle}deg)`,
-                      transition: sorteoIsSpinning
-                        ? 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
-                        : 'none',
-                      background: 'conic-gradient(#fef9c3, #fde68a, #fbbf24, #f59e0b, #fef9c3, #fde68a, #fbbf24, #f59e0b)',
-                    }}
-                  >
-                    {/* AK logo center */}
-                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-inner border-2 border-yellow-300 z-10">
-                      <span className="text-lg font-black text-yellow-600 leading-none">AK</span>
+              {(() => {
+                const participants = sorteoParticipants
+                  .split('\n')
+                  .map(p => p.trim())
+                  .filter(Boolean);
+                const count = Math.min(participants.length, 16); // cap segments for readability
+                const wheelItems = participants.slice(0, count);
+                // Color palette for segments
+                const SEGMENT_COLORS = [
+                  '#f43f5e','#f97316','#eab308','#22c55e','#06b6d4','#6366f1','#ec4899','#14b8a6',
+                  '#fb923c','#a3e635','#38bdf8','#818cf8','#f472b6','#4ade80','#facc15','#fb7185',
+                ];
+                return (
+                  <div className="flex justify-center py-2">
+                    <div className="relative w-52 h-52">
+                      {/* Pointer arrow */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-20 w-0 h-0"
+                        style={{ borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '22px solid #eab308' }} />
+                      {/* Wheel */}
+                      <div
+                        className="w-52 h-52 rounded-full border-4 border-yellow-400 shadow-2xl overflow-hidden relative"
+                        style={{
+                          transform: `rotate(${sorteoWheelAngle}deg)`,
+                          transition: sorteoIsSpinning
+                            ? 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
+                            : 'none',
+                        }}
+                      >
+                        {wheelItems.length === 0 ? (
+                          <div
+                            className="w-full h-full flex items-center justify-center"
+                            style={{ background: 'conic-gradient(#fef9c3, #fde68a, #fbbf24, #f59e0b, #fef9c3, #fde68a, #fbbf24, #f59e0b)' }}
+                          >
+                            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-inner border-2 border-yellow-300 z-10">
+                              <span className="text-lg font-black text-yellow-600 leading-none">AK</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <svg width="100%" height="100%" viewBox="0 0 200 200">
+                            {wheelItems.map((name, i) => {
+                              const sliceAngle = (2 * Math.PI) / wheelItems.length;
+                              const startAngle = i * sliceAngle - Math.PI / 2;
+                              const endAngle = startAngle + sliceAngle;
+                              const x1 = 100 + 96 * Math.cos(startAngle);
+                              const y1 = 100 + 96 * Math.sin(startAngle);
+                              const x2 = 100 + 96 * Math.cos(endAngle);
+                              const y2 = 100 + 96 * Math.sin(endAngle);
+                              const midAngle = startAngle + sliceAngle / 2;
+                              const textR = 66;
+                              const tx = 100 + textR * Math.cos(midAngle);
+                              const ty = 100 + textR * Math.sin(midAngle);
+                              const largeArc = sliceAngle > Math.PI ? 1 : 0;
+                              const color = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
+                              const shortName = name.length > 10 ? name.slice(0, 9) + '…' : name;
+                              return (
+                                <g key={i}>
+                                  <path
+                                    d={`M 100 100 L ${x1} ${y1} A 96 96 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                    fill={color}
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                  />
+                                  <text
+                                    x={tx}
+                                    y={ty}
+                                    textAnchor="middle"
+                                    dominantBaseline="middle"
+                                    transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${tx}, ${ty})`}
+                                    fill="white"
+                                    fontSize={wheelItems.length > 8 ? 7 : 9}
+                                    fontWeight="bold"
+                                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+                                  >
+                                    {shortName}
+                                  </text>
+                                </g>
+                              );
+                            })}
+                            {/* Center circle */}
+                            <circle cx="100" cy="100" r="22" fill="white" stroke="#fbbf24" strokeWidth="3" />
+                            <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="900" fill="#d97706">AK</text>
+                          </svg>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Winner reveal */}
               {sorteoPreviewWinner && !sorteoIsSpinning && (

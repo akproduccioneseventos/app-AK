@@ -753,6 +753,8 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
+  /** Timestamp when a sorteo spin was started — triggers wheel animation on the big screen */
+  sorteoSpinStartedAt?: string;
   /** Prize description shown alongside the sorteo winner on the giant screen */
   sorteoPremio?: string;
   screenMode?: ScreenModeSettings;
