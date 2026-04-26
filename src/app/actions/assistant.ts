@@ -311,7 +311,8 @@ function parseLeadFromMessage(text: string, history?: Array<{ role: 'user' | 'as
   // This enables multi-turn flows where the date was given in a previous message
   // (e.g. user says "27 de abril 11 horas" then "juan" as the name reply).
   if (!followUpDate && history && history.length > 0) {
-    for (const msg of [...history].reverse()) {
+    for (let i = history.length - 1; i >= 0; i--) {
+      const msg = history[i];
       if (msg.role === 'user') {
         const { date: histDate, time: histTime } = parseDateTimeUY(msg.content);
         if (histDate || histTime) {
