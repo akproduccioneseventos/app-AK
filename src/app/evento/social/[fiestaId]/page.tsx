@@ -29,7 +29,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle, ArrowLeft, Gamepad2, LayoutGrid, BarChart2 } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -54,6 +54,52 @@ import type { Dedication, SongRequest } from '@/types/social-gallery';
 
 const MAX_DISPLAYED_SONG_REQUESTS = 12;
 
+/** Large touchable feature card shown on the guest home screen. */
+const GuestFeatureButton: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  sublabel?: string;
+  color: string;
+  onClick: () => void;
+  primary?: boolean;
+  wide?: boolean;
+  pulse?: boolean;
+}> = ({ icon, label, sublabel, color, onClick, primary, wide, pulse }) => (
+  <motion.button
+    whileTap={{ scale: 0.96 }}
+    onClick={onClick}
+    className={cn(
+      'relative flex flex-col items-center justify-center gap-2 p-5 rounded-3xl shadow-md transition-all text-center focus:outline-none select-none',
+      wide ? 'col-span-2' : '',
+      primary
+        ? 'text-white shadow-xl'
+        : 'bg-white text-slate-700 border border-slate-100 hover:bg-slate-50',
+    )}
+    style={primary ? { backgroundColor: color, boxShadow: `0 8px 24px ${color}40` } : {}}
+  >
+    {pulse && (
+      <span className="absolute top-3 right-3 flex h-2.5 w-2.5">
+        <span
+          className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+          style={{ backgroundColor: primary ? 'rgba(255,255,255,0.8)' : color }}
+        />
+        <span
+          className="relative inline-flex rounded-full h-2.5 w-2.5"
+          style={{ backgroundColor: primary ? 'white' : color }}
+        />
+      </span>
+    )}
+    <div style={!primary ? { color } : {}}>{icon}</div>
+    <div>
+      <p className="font-black text-sm leading-tight">{label}</p>
+      {sublabel && (
+        <p className={cn('text-[11px] mt-0.5 leading-tight', primary ? 'text-white/70' : 'text-slate-400')}>
+          {sublabel}
+        </p>
+      )}
+    </div>
+  </motion.button>
+);
 
 const PostCard: React.FC<{ 
   post: SocialGalleryPost; 
@@ -235,6 +281,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [projectionMode, setProjectionMode] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  // Controls which section the guest is viewing (null = home button grid)
+  const [guestSection, setGuestSection] = useState<'photos' | 'song' | 'dedication' | 'chat' | 'poll' | 'game' | null>(null);
 
 
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
@@ -564,6 +612,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
   return (
     <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: bgColor }}>
+      {/* ── Name modal (shared) ──────────────────────────────────────── */}
       <Dialog open={isNameModalOpen} onOpenChange={setIsNameModalOpen}>
         <DialogContent onInteractOutside={(e) => e.preventDefault()} hideCloseButton className="rounded-3xl border-none shadow-2xl">
             <DialogHeader className="text-center">
@@ -585,6 +634,483 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         </DialogContent>
       </Dialog>
 
+      {/* ════════════════════════════════════════════════════════════════
+          GUEST VIEW — clean button-grid interface
+          Syncs automatically via the 5-second polling in fetchData().
+          Buttons appear/disappear based on the organizer's settings.
+      ════════════════════════════════════════════════════════════════ */}
+      {!isAdminView && (
+        <>
+          {/* Upload dialog for guests (standalone, no trigger button needed here) */}
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogContent className="rounded-3xl border-none">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold">Publicar Momento</DialogTitle>
+                <DialogDescription>Sube una foto para que todos la vean.</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleUploadSubmit} className="space-y-6 py-2">
+                {uploadPreview ? (
+                  <div className="relative aspect-square rounded-2xl overflow-hidden shadow-inner border bg-slate-50">
+                    <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" />
+                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 rounded-full h-8 w-8" onClick={() => { setFileToUpload(null); setUploadPreview(null); }}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="h-64 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center bg-slate-50 transition-colors hover:bg-slate-100 hover:border-primary/30">
+                    <Label htmlFor="file-upload-guest" className="cursor-pointer text-center text-slate-400 p-8 flex flex-col items-center gap-3">
+                      <div className="p-4 bg-white rounded-2xl shadow-sm">
+                        <Upload className="w-8 h-8 text-primary" style={{ color: accentColor }} />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-bold text-slate-600">Toca para seleccionar</p>
+                        <p className="text-xs">JPG, PNG o GIF (Máx 10MB)</p>
+                      </div>
+                    </Label>
+                    <Input id="file-upload-guest" type="file" onChange={handleFileSelect} className="hidden" accept="image/*" disabled={!localSettings.uploadsActive} />
+                  </div>
+                )}
+                <DialogFooter>
+                  <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold" disabled={isUploading || !fileToUpload || !localSettings.uploadsActive} style={{ backgroundColor: accentColor }}>
+                    {isUploading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Send className="w-5 h-5 mr-2" />}
+                    {isUploading ? 'Publicando...' : 'Publicar ahora'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          <div className="min-h-screen flex flex-col">
+            {/* Guest header */}
+            <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm">
+              <div className="max-w-lg mx-auto h-16 px-4 flex items-center gap-3">
+                {guestSection !== null ? (
+                  <>
+                    <button
+                      onClick={() => setGuestSection(null)}
+                      className="h-10 w-10 rounded-2xl flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0"
+                      aria-label="Volver al inicio"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <h1 className="text-base font-bold text-slate-800 flex-1 text-center pr-10">
+                      {guestSection === 'photos' ? '📸 Fotos del evento' :
+                       guestSection === 'song' ? '🎵 Pedir Canción' :
+                       guestSection === 'dedication' ? '💖 Dedicatoria' :
+                       guestSection === 'chat' ? '💬 Chat en Vivo' :
+                       guestSection === 'poll' ? '📊 Encuesta' :
+                       guestSection === 'game' ? `🎮 ${localSettings.activeGame?.title || 'Juego'}` : ''}
+                    </h1>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                      {companyLogoUrl && (
+                        <div className="relative h-9 w-20 overflow-hidden rounded-xl shrink-0">
+                          <NextImage src={companyLogoUrl} alt="Logo" fill className="object-contain" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <h1 className="text-base font-black text-slate-800 truncate leading-tight">
+                          {localSettings.title || fiesta?.configuracion.nombreEvento || 'Evento'}
+                        </h1>
+                        <p className="text-[11px] text-slate-400 leading-tight">Hola, {authorName || '...'} 👋</p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10 rounded-2xl shrink-0" aria-label="Actualizar">
+                      <RefreshCw className={`w-4 h-4 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </header>
+
+            {/* Guest main content */}
+            <main className="flex-1 max-w-lg mx-auto w-full px-4 pb-10">
+              <AnimatePresence mode="wait">
+
+                {/* ── Home: feature button grid ── */}
+                {guestSection === null && (
+                  <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-6 space-y-3">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-5">¿Qué querés hacer?</p>
+                    <div className="grid grid-cols-2 gap-3">
+
+                      {localSettings.uploadsActive && (
+                        <GuestFeatureButton
+                          icon={<CameraIcon className="w-8 h-8" />}
+                          label="Subir Foto"
+                          sublabel={posts.length > 0 ? `${posts.length} en el mural` : 'Sé el primero'}
+                          color={accentColor}
+                          onClick={() => setIsUploadDialogOpen(true)}
+                          primary
+                        />
+                      )}
+
+                      {posts.length > 0 && (
+                        <GuestFeatureButton
+                          icon={<LayoutGrid className="w-8 h-8" />}
+                          label="Ver Fotos"
+                          sublabel={`${posts.length} foto${posts.length !== 1 ? 's' : ''}`}
+                          color={accentColor}
+                          onClick={() => setGuestSection('photos')}
+                        />
+                      )}
+
+                      {localSettings.allowComments && posts.length > 0 && (
+                        <GuestFeatureButton
+                          icon={<MessageCircle className="w-8 h-8" />}
+                          label="Comentar"
+                          sublabel="Fotos del evento"
+                          color={accentColor}
+                          onClick={() => setGuestSection('photos')}
+                        />
+                      )}
+
+                      {localSettings.chatEnabled && (
+                        <GuestFeatureButton
+                          icon={<MessageSquare className="w-8 h-8" />}
+                          label="Chat en Vivo"
+                          sublabel={chatMessages.length > 0 ? `${chatMessages.length} mensajes` : 'Chateá con todos'}
+                          color={accentColor}
+                          onClick={() => setGuestSection('chat')}
+                        />
+                      )}
+
+                      {localSettings.showSongRequests && (
+                        <GuestFeatureButton
+                          icon={<Music className="w-8 h-8" />}
+                          label="Pedir Canción"
+                          sublabel={songRequests.length > 0 ? `${songRequests.length} pedido${songRequests.length !== 1 ? 's' : ''}` : 'Pedile al DJ'}
+                          color={accentColor}
+                          onClick={() => setGuestSection('song')}
+                        />
+                      )}
+
+                      {localSettings.showDedications && (
+                        <GuestFeatureButton
+                          icon={<Heart className="w-8 h-8" />}
+                          label="Dedicatoria"
+                          sublabel={dedications.length > 0 ? `${dedications.length} enviada${dedications.length !== 1 ? 's' : ''}` : 'Dejá tu mensaje'}
+                          color={accentColor}
+                          onClick={() => setGuestSection('dedication')}
+                        />
+                      )}
+
+                      {activePoll && localSettings.showPolls !== false && (
+                        <GuestFeatureButton
+                          icon={<BarChart2 className="w-8 h-8" />}
+                          label="Votar"
+                          sublabel="Encuesta activa"
+                          color={accentColor}
+                          onClick={() => setGuestSection('poll')}
+                          pulse
+                        />
+                      )}
+
+                      {localSettings.activeGame && (
+                        <GuestFeatureButton
+                          icon={<Gamepad2 className="w-8 h-8" />}
+                          label={localSettings.activeGame.title || 'Juego en Vivo'}
+                          sublabel={localSettings.activeGame.subtitle || '¡Participá ahora!'}
+                          color={accentColor}
+                          onClick={() => setGuestSection('game')}
+                          primary
+                          wide
+                          pulse
+                        />
+                      )}
+                    </div>
+
+                    {/* Empty state */}
+                    {!localSettings.uploadsActive &&
+                     !localSettings.chatEnabled &&
+                     !localSettings.showSongRequests &&
+                     !localSettings.showDedications &&
+                     !activePoll &&
+                     !localSettings.activeGame &&
+                     posts.length === 0 && (
+                      <div className="text-center pt-20 space-y-3">
+                        <div className="text-5xl">🎉</div>
+                        <p className="font-bold text-slate-500">El evento está comenzando...</p>
+                        <p className="text-sm text-slate-400">Las funcionalidades se activarán pronto.</p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* ── Photos & Comments section ── */}
+                {guestSection === 'photos' && (
+                  <motion.div key="photos" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4">
+                    {isLoading ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-3xl" />
+                        ))}
+                      </div>
+                    ) : posts.length === 0 ? (
+                      <div className="text-center py-16 text-slate-400">No hay fotos aún.</div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-4">
+                        {posts.map(post => (
+                          <PostCard
+                            key={post.id}
+                            post={post}
+                            onLike={handleLike}
+                            onComment={handleComment}
+                            isAdminView={false}
+                            authorName={authorName}
+                            accentColor={accentColor}
+                            allowLikes={Boolean(localSettings.allowLikes)}
+                            allowComments={Boolean(localSettings.allowComments)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* ── Song Requests section ── */}
+                {guestSection === 'song' && (
+                  <motion.div key="song" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
+                    <Card className="shadow-lg border-none rounded-3xl">
+                      <CardContent className="p-5 space-y-4">
+                        <form onSubmit={handleSongRequestSubmit} className="flex gap-2">
+                          <Input value={newSongRequest} onChange={e => setNewSongRequest(e.target.value)} placeholder="Ej: TQG - Karol G & Shakira" className="flex-1 h-12 rounded-2xl border-slate-200" />
+                          <Button type="submit" disabled={!newSongRequest.trim()} className="h-12 w-12 rounded-2xl shrink-0 shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
+                            <Send className="w-4 h-4" />
+                          </Button>
+                        </form>
+                        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                          {songRequests.slice(0, MAX_DISPLAYED_SONG_REQUESTS).map(req => (
+                            <div key={req.id} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm">
+                              <p className="font-semibold text-slate-700">{req.song}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">Pedido por {req.requestedBy}</p>
+                            </div>
+                          ))}
+                          {songRequests.length === 0 && (
+                            <p className="text-sm text-slate-400 text-center py-6">No hay pedidos aún. ¡Sé el primero!</p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+
+                {/* ── Dedications section ── */}
+                {guestSection === 'dedication' && (
+                  <motion.div key="dedication" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
+                    <Card className="shadow-lg border-none rounded-3xl">
+                      <CardContent className="p-5 space-y-4">
+                        <form onSubmit={handleDedicationSubmit} className="space-y-3">
+                          <Textarea value={newDedication} onChange={e => setNewDedication(e.target.value)} placeholder="Escribe tu dedicatoria aquí..." rows={4} className="rounded-2xl border-slate-200 resize-none" />
+                          <Button type="submit" disabled={!newDedication.trim()} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
+                            <Send className="w-4 h-4 mr-2" /> Enviar dedicatoria
+                          </Button>
+                        </form>
+                        <div className="space-y-2 max-h-[40vh] overflow-y-auto">
+                          {dedications.slice(-10).reverse().map(d => (
+                            <div key={d.id} className={cn('rounded-2xl border px-4 py-3 text-sm', d.highlighted ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100')}>
+                              <p className="text-slate-700 leading-relaxed">{d.message}</p>
+                              <p className="text-xs text-slate-500 mt-1">— {d.authorName}</p>
+                            </div>
+                          ))}
+                          {dedications.length === 0 && (
+                            <p className="text-sm text-slate-400 text-center py-6">No hay dedicatorias aún.</p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+
+                {/* ── Live Chat section ── */}
+                {guestSection === 'chat' && (
+                  <motion.div key="chat" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4">
+                    <div className="flex flex-col" style={{ height: 'calc(100dvh - 9rem)' }}>
+                      <ScrollArea className="flex-1 pr-1">
+                        <div className="space-y-3 pb-2">
+                          {chatMessages.map(msg => {
+                            const isMe = msg.authorName === authorName;
+                            return (
+                              <div key={msg.id} className={cn('flex flex-col max-w-[85%]', isMe ? 'ml-auto items-end' : 'items-start')}>
+                                {!isMe && <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-0.5 ml-1">{msg.authorName}</span>}
+                                <div
+                                  className={cn('px-3.5 py-2 rounded-2xl text-sm shadow-sm leading-relaxed', isMe ? 'text-white' : 'bg-white text-slate-700 border border-slate-100')}
+                                  style={isMe ? { backgroundColor: accentColor } : {}}
+                                >
+                                  {msg.text}
+                                </div>
+                                <span className="text-[8px] text-slate-300 mt-0.5 mx-1">
+                                  {new Date(msg.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                            );
+                          })}
+                          {chatMessages.length === 0 && (
+                            <p className="text-sm text-slate-400 text-center py-8">No hay mensajes aún. ¡Sé el primero!</p>
+                          )}
+                          <div ref={chatEndRef} />
+                        </div>
+                      </ScrollArea>
+                      <form onSubmit={handleChatSubmit} className="flex gap-2 items-center pt-3 border-t border-slate-100 mt-2 shrink-0">
+                        <Input
+                          value={newChatMessage}
+                          onChange={e => setNewChatMessage(e.target.value)}
+                          placeholder="Escribe un mensaje..."
+                          disabled={isSendingChat || !authorName}
+                          className="flex-1 h-12 rounded-2xl bg-slate-50 border-none px-4 text-sm"
+                        />
+                        <Button
+                          type="submit"
+                          disabled={!newChatMessage.trim() || isSendingChat || !authorName}
+                          className="h-12 w-12 rounded-2xl shrink-0 shadow-lg transition-transform active:scale-95"
+                          style={{ backgroundColor: accentColor }}
+                        >
+                          {isSendingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        </Button>
+                      </form>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ── Poll / Voting section ── */}
+                {guestSection === 'poll' && (
+                  <motion.div key="poll" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4">
+                    {activePoll ? (
+                      <Card className="shadow-lg border-none rounded-3xl">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2 text-slate-800">
+                            <BarChart2 className="w-5 h-5" style={{ color: accentColor }} /> Encuesta en Vivo
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <p className="text-lg font-bold text-slate-700">{activePoll.question}</p>
+                          {hasVoted && votedPollId === activePoll.id ? (
+                            <div className="space-y-3">
+                              {activePoll.options.map(opt => {
+                                const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
+                                const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
+                                return (
+                                  <div key={opt.id} className="space-y-1">
+                                    <div className="flex justify-between text-sm text-slate-600">
+                                      <span className="font-medium">{opt.text}</span>
+                                      <span className="font-bold" style={{ color: accentColor }}>{pct}%</span>
+                                    </div>
+                                    <div className="h-3 rounded-full bg-slate-100">
+                                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: accentColor }} />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              <p className="text-xs text-slate-400 text-center pt-2">¡Gracias por votar!</p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 gap-2">
+                              {activePoll.options.map(opt => (
+                                <Button
+                                  key={opt.id}
+                                  variant="outline"
+                                  className="h-14 rounded-2xl text-left justify-start font-semibold text-base px-5"
+                                  onClick={() => handleVotePoll(activePoll.id, opt.id)}
+                                >
+                                  {opt.text}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="text-center py-16 space-y-3">
+                        <div className="text-4xl">📊</div>
+                        <p className="font-medium text-slate-500">No hay encuesta activa en este momento.</p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* ── Game section ── */}
+                {guestSection === 'game' && (
+                  <motion.div key="game" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
+                    {localSettings.activeGame ? (
+                      <>
+                        <Card className="shadow-xl border-none rounded-3xl overflow-hidden">
+                          <div className="h-1.5 w-full" style={{ backgroundColor: accentColor }} />
+                          <CardContent className="p-8 text-center space-y-4">
+                            <div className="text-6xl mb-2">🎮</div>
+                            <h2 className="text-2xl font-black text-slate-800">{localSettings.activeGame.title}</h2>
+                            {localSettings.activeGame.subtitle && (
+                              <p className="text-slate-500 text-base">{localSettings.activeGame.subtitle}</p>
+                            )}
+                            <div className="inline-block bg-slate-50 rounded-2xl px-5 py-3 text-sm font-medium text-slate-400">
+                              ¡Mirá la pantalla principal para participar!
+                            </div>
+                          </CardContent>
+                        </Card>
+                        {/* If the game has a linked poll, allow voting directly */}
+                        {localSettings.activeGame.pollId && activePoll && (
+                          <Card className="shadow-lg border-none rounded-3xl">
+                            <CardHeader>
+                              <CardTitle className="text-slate-800 text-base">{activePoll.question}</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              {hasVoted && votedPollId === activePoll.id ? (
+                                <div className="space-y-2">
+                                  {activePoll.options.map(opt => {
+                                    const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
+                                    const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
+                                    return (
+                                      <div key={opt.id} className="space-y-0.5">
+                                        <div className="flex justify-between text-sm text-slate-600">
+                                          <span>{opt.text}</span>
+                                          <span className="font-bold" style={{ color: accentColor }}>{pct}%</span>
+                                        </div>
+                                        <div className="h-2.5 rounded-full bg-slate-100">
+                                          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: accentColor }} />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                  <p className="text-xs text-center text-slate-400 pt-2">¡Gracias por votar!</p>
+                                </div>
+                              ) : (
+                                <div className="grid gap-2">
+                                  {activePoll.options.map(opt => (
+                                    <Button
+                                      key={opt.id}
+                                      variant="outline"
+                                      className="h-12 rounded-2xl justify-start font-semibold"
+                                      onClick={() => handleVotePoll(activePoll.id, opt.id)}
+                                    >
+                                      {opt.text}
+                                    </Button>
+                                  ))}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-center py-16 space-y-3">
+                        <div className="text-4xl">🎮</div>
+                        <p className="font-medium text-slate-500">No hay juego activo en este momento.</p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+              </AnimatePresence>
+            </main>
+          </div>
+        </>
+      )}
+
+      {/* ════════════════════════════════════════════════════════════════
+          ADMIN VIEW — existing complex layout, unchanged
+      ════════════════════════════════════════════════════════════════ */}
+      {isAdminView && (
+        <>
       <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm px-4">
         <div className="max-w-6xl mx-auto h-20 flex justify-between items-center gap-4">
           <div className="flex items-center gap-4 min-w-0">
@@ -1008,6 +1534,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                  </div>
             </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

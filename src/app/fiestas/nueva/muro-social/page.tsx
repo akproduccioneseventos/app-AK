@@ -33,6 +33,7 @@ import {
   triggerSorteoWinner,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
+import { getInvitados } from '@/app/actions/fiesta/invitados.actions';
 import type { SocialPoll } from '@/types/social-gallery';
 
 const ADMIN_REFRESH_INTERVAL_MS = 3000;
@@ -174,6 +175,10 @@ function MuroSocialContent() {
     },
     screenMediaLibrary: [],
   });
+  // Ref always reflects the latest settings value; used in async callbacks to avoid
+  // stale closure issues without relying on synchronous setState execution.
+  const settingsRef = useRef(settings);
+  useEffect(() => { settingsRef.current = settings; }, [settings]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingLed, setIsSavingLed] = useState(false);
@@ -192,7 +197,8 @@ function MuroSocialContent() {
   const [selectedGameTemplate, setSelectedGameTemplate] = useState<typeof GAME_TEMPLATES[number] | null>(null);
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Lightweight auto-refresh: refreshes just the status data without showing a spinner
+  // Lightweight auto-refresh: refreshes only status data (activeGame, postCount)
+  // WITHOUT overwriting user-editable settings state, which would revert unsaved changes.
   const refreshStatus = useCallback(async () => {
     if (!fiestaId) return;
     try {
@@ -200,10 +206,18 @@ function MuroSocialContent() {
       if (!fiestaData) return;
       const sg = fiestaData.socialGallerySettings;
       if (sg) {
-        setSettings(withScreenDefaults({
-          ...sg,
-        }));
+        // Only update active game — do NOT overwrite settings to prevent toggled/edited
+        // values from being reverted by the background refresh before the user saves.
         setActiveGame(sg.activeGame ?? null);
+        // Keep the screenMode playing/index badge in sync without touching user-edited fields
+        setSettings((prev) => ({
+          ...prev,
+          screenMode: {
+            ...(prev.screenMode ?? {}),
+            isPlaying: sg.screenMode?.isPlaying ?? prev.screenMode?.isPlaying ?? true,
+            currentItemIndex: sg.screenMode?.currentItemIndex ?? prev.screenMode?.currentItemIndex ?? 0,
+          } as SocialGallerySettings['screenMode'],
+        }));
       }
       const posts = await getSocialPosts(fiestaId);
       setPostCount(posts.length);
@@ -222,6 +236,10 @@ function MuroSocialContent() {
   const [isTriggeringSorteo, setIsTriggeringSorteo] = useState(false);
   const [sorteoParticipants, setSorteoParticipants] = useState<string>('');
   const [lastSorteoWinner, setLastSorteoWinner] = useState<string | null>(null);
+  // Spinning wheel state
+  const [sorteoIsSpinning, setSorteoIsSpinning] = useState(false);
+  const [sorteoWheelAngle, setSorteoWheelAngle] = useState(0);
+  const [sorteoPreviewWinner, setSorteoPreviewWinner] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -317,6 +335,32 @@ function MuroSocialContent() {
       toast({ title: 'Error al enviar cartel LED', description: result.error, variant: 'destructive' });
     }
   };
+
+  const saveMarketingText = async () => {
+    if (!fiestaId) return;
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, settings);
+    if (result.success) {
+      toast({ title: 'Texto de marketing actualizado ✓', description: 'El zócalo se actualizó en la pantalla en vivo.' });
+    } else {
+      toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  /** Auto-saves a single boolean toggle to Firestore immediately so it cannot be
+   *  reverted by the background refreshStatus polling cycle. */
+  const handleToggleSetting = useCallback(async (key: keyof SocialGallerySettings, checked: boolean) => {
+    if (!fiestaId) return;
+    // Apply optimistic update to local state
+    setSettings((prev) => ({ ...prev, [key]: checked }));
+    // Use the ref to get the current settings snapshot for Firestore (avoids stale closure)
+    const updatedSettings = { ...settingsRef.current, [key]: checked };
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
+    if (!result.success) {
+      toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+      // Revert on failure
+      setSettings((prev) => ({ ...prev, [key]: !checked }));
+    }
+  }, [fiestaId, toast]);
 
   const triggerMoment = async (momentToTrigger: (typeof QUICK_MOMENTS)[number]) => {
     if (!fiestaId) return;
@@ -448,7 +492,7 @@ function MuroSocialContent() {
     }
   };
 
-  const handlePlaylistItemChange = (itemId: string, update: Partial<ScreenPlaylistItem>) => {
+  const handlePlaylistItemChange = useCallback((itemId: string, update: Partial<ScreenPlaylistItem>) => {
     setSettings((prev) => withScreenDefaults({
       ...prev,
       screenMode: {
@@ -458,7 +502,29 @@ function MuroSocialContent() {
         ),
       },
     }));
-  };
+  }, []);
+
+  /** Auto-saves the enabled flag of a playlist item immediately to Firestore. */
+  const handlePlaylistItemToggle = useCallback(async (itemId: string, enabled: boolean) => {
+    if (!fiestaId) return;
+    // Apply optimistic update to local state
+    const updatedPlaylist = (settingsRef.current.screenMode?.playlist ?? DEFAULT_SCREEN_PLAYLIST).map(
+      (item) => item.id === itemId ? { ...item, enabled } : item
+    );
+    const updatedSettings = withScreenDefaults({
+      ...settingsRef.current,
+      screenMode: {
+        ...(settingsRef.current.screenMode ?? {}),
+        playlist: updatedPlaylist,
+      } as SocialGallerySettings['screenMode'],
+    });
+    setSettings(updatedSettings);
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updatedSettings);
+    if (!result.success) {
+      toast({ title: 'Error al guardar ítem', description: result.error, variant: 'destructive' });
+      handlePlaylistItemChange(itemId, { enabled: !enabled }); // Revert
+    }
+  }, [fiestaId, handlePlaylistItemChange, toast]);
 
   const reorderPlaylist = (startId: string, endId: string) => {
     setSettings((prev) => {
@@ -539,14 +605,42 @@ function MuroSocialContent() {
       return;
     }
     const winner = participants[Math.floor(Math.random() * participants.length)];
-    setIsTriggeringSorteo(true);
-    const result = await triggerSorteoWinner(fiestaId, winner);
-    setIsTriggeringSorteo(false);
-    if (result.success) {
-      setLastSorteoWinner(winner);
-      toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
-    } else {
-      toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
+    // Animate the wheel before saving to Firestore
+    setSorteoPreviewWinner(null);
+    setSorteoIsSpinning(true);
+    // Spin: random full rotations (5-8) plus the landing angle
+    const spinRotations = 5 + Math.floor(Math.random() * 4);
+    setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
+    // After animation (2.8s), persist to Firestore and reveal winner
+    setTimeout(async () => {
+      setSorteoIsSpinning(false);
+      setSorteoPreviewWinner(winner);
+      setIsTriggeringSorteo(true);
+      const result = await triggerSorteoWinner(fiestaId, winner);
+      setIsTriggeringSorteo(false);
+      if (result.success) {
+        setLastSorteoWinner(winner);
+        toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
+      } else {
+        toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
+      }
+    }, 2800);
+  };
+
+  const handleLoadInvitadosToSorteo = async () => {
+    if (!fiestaId) return;
+    try {
+      const invitados = await getInvitados(fiestaId);
+      // Use checked-in guests first; fall back to confirmed ones
+      const eligible = invitados.filter(inv => inv.checkedIn || inv.rsvp === 'Confirmado');
+      if (eligible.length === 0) {
+        toast({ title: 'Sin invitados confirmados', description: 'No hay invitados con check-in o confirmados aún.', variant: 'destructive' });
+        return;
+      }
+      setSorteoParticipants(eligible.map(inv => inv.nombre).join('\n'));
+      toast({ title: `${eligible.length} invitados cargados`, description: 'Lista lista para el sorteo.' });
+    } catch {
+      toast({ title: 'Error al cargar invitados', variant: 'destructive' });
     }
   };
 
@@ -681,13 +775,14 @@ function MuroSocialContent() {
                 <span className="text-sm font-medium">{item.label}</span>
                 <Switch
                   checked={Boolean(settings[item.key as keyof SocialGallerySettings])}
-                  onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, [item.key]: checked }))}
+                  onCheckedChange={(checked) => handleToggleSetting(item.key as keyof SocialGallerySettings, checked)}
                 />
               </div>
             ))}
-            <div className="sm:col-span-2 flex gap-2 pt-1">
+            <div className="sm:col-span-2 flex gap-2 pt-1 flex-wrap">
               <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Button></Link>
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank"><Button variant="outline">Abrir Pantalla</Button></Link>
+              <Link href={`/evento/dj/${fiestaId}`} target="_blank"><Button variant="outline">🎧 Panel DJ</Button></Link>
             </div>
           </CardContent>
         </Card>
@@ -700,11 +795,23 @@ function MuroSocialContent() {
           <CardContent className="space-y-3">
             <div className="space-y-1">
               <Label>Zócalo de marketing (redes)</Label>
-              <Input
-                value={settings.marketingTickerText ?? ''}
-                onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerText: e.target.value }))}
-                placeholder={DEFAULT_MARKETING_TICKER_TEXT}
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={settings.marketingTickerText ?? ''}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerText: e.target.value }))}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveMarketingText(); } }}
+                  placeholder={DEFAULT_MARKETING_TICKER_TEXT}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={saveMarketingText}
+                  title="Enviar texto de marketing a pantalla ahora"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             <div className="space-y-1">
               <Label>Cartel LED / Mensaje pasante</Label>
@@ -820,7 +927,7 @@ function MuroSocialContent() {
                     <option value="portrait">9:16</option>
                   </select>
                   <div className="flex items-center gap-2">
-                    <Switch checked={item.enabled} onCheckedChange={(checked) => handlePlaylistItemChange(item.id, { enabled: checked })} />
+                    <Switch checked={item.enabled} onCheckedChange={(checked) => handlePlaylistItemToggle(item.id, checked)} />
                     <select
                       className="h-10 rounded-md border px-2 text-sm w-full"
                       value={item.mediaAssetId ?? ''}
@@ -1152,31 +1259,80 @@ function MuroSocialContent() {
             </div>
 
             {/* Sorteo */}
-            <div className="rounded-xl border border-yellow-200 bg-white p-4 space-y-3">
+            <div className="rounded-xl border border-yellow-200 bg-white p-4 space-y-4">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-yellow-500" />
                 <p className="font-bold text-sm text-yellow-900">Sorteo Sorpresa</p>
               </div>
+
+              {/* Spinning wheel */}
+              <div className="flex justify-center py-2">
+                <div className="relative w-36 h-36">
+                  {/* Pointer — #eab308 = Tailwind yellow-500, matches border-yellow-400 theme */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 w-0 h-0"
+                    style={{ borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '16px solid #eab308' }} />
+                  {/* Wheel */}
+                  <div
+                    className="w-36 h-36 rounded-full border-4 border-yellow-400 shadow-lg overflow-hidden flex items-center justify-center"
+                    style={{
+                      transform: `rotate(${sorteoWheelAngle}deg)`,
+                      transition: sorteoIsSpinning
+                        ? 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
+                        : 'none',
+                      background: 'conic-gradient(#fef9c3, #fde68a, #fbbf24, #f59e0b, #fef9c3, #fde68a, #fbbf24, #f59e0b)',
+                    }}
+                  >
+                    {/* AK logo center */}
+                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-inner border-2 border-yellow-300 z-10">
+                      <span className="text-lg font-black text-yellow-600 leading-none">AK</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Winner reveal */}
+              {sorteoPreviewWinner && !sorteoIsSpinning && (
+                <div className="rounded-lg bg-yellow-50 border-2 border-yellow-300 px-4 py-3 text-center animate-bounce-once">
+                  <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-1">🎉 ¡Ganador!</p>
+                  <p className="text-2xl font-black text-yellow-900">🏆 {sorteoPreviewWinner}</p>
+                </div>
+              )}
+
               <div className="space-y-2">
+                {/* Load from guest list */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadInvitadosToSorteo}
+                  className="w-full border-yellow-300 text-yellow-800 hover:bg-yellow-50"
+                >
+                  👥 Cargar lista de invitados (con check-in / confirmados)
+                </Button>
                 <Label className="text-xs text-slate-500">
-                  Ingresá los nombres de los participantes (uno por línea):
+                  Participantes — uno por línea (podés editar manualmente):
                 </Label>
                 <textarea
                   className="w-full rounded-md border px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   placeholder={"Juan García\nMaría López\nPedro Martínez\n..."}
                   value={sorteoParticipants}
-                  onChange={(e) => setSorteoParticipants(e.target.value)}
+                  onChange={(e) => { setSorteoParticipants(e.target.value); setSorteoPreviewWinner(null); }}
                 />
+                {sorteoParticipants.trim() && (
+                  <p className="text-xs text-slate-400">
+                    {sorteoParticipants.split('\n').map(p => p.trim()).filter(Boolean).length} participantes
+                  </p>
+                )}
                 <Button
                   type="button"
                   onClick={handleTriggerSorteo}
-                  disabled={isTriggeringSorteo || !sorteoParticipants.trim()}
+                  disabled={isTriggeringSorteo || sorteoIsSpinning || !sorteoParticipants.trim()}
                   className="bg-yellow-500 hover:bg-yellow-600 text-white w-full"
                 >
-                  {isTriggeringSorteo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
-                  🎲 ¡Lanzar Sorteo en Pantalla!
+                  {(isTriggeringSorteo || sorteoIsSpinning) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
+                  {sorteoIsSpinning ? '¡Girando la ruleta! 🎡' : '🎲 ¡Lanzar Sorteo en Pantalla!'}
                 </Button>
-                {lastSorteoWinner && (
+                {lastSorteoWinner && !sorteoIsSpinning && !sorteoPreviewWinner && (
                   <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-center">
                     <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-1">Último ganador</p>
                     <p className="text-xl font-black text-yellow-900">🏆 {lastSorteoWinner}</p>

@@ -116,14 +116,25 @@ export default function MuroEnVivoPage() {
         setActivePoll(null);
       }
       setHighlightedDedications((dedicationsData ?? []).filter(d => d.highlighted));
-      // Extract highlighted comments from all posts
+      // Extract comments for the live wall: prefer operator-highlighted comments; fall back
+      // to the 3 most recent comments across all posts so that comments are visible by default.
       const hComments: { postId: string; comment: SocialComment }[] = [];
+      const allComments: { postId: string; comment: SocialComment }[] = [];
       for (const p of sorted) {
         for (const c of (p.comments ?? [])) {
+          allComments.push({ postId: p.id, comment: c });
           if (c.highlighted) hComments.push({ postId: p.id, comment: c });
         }
       }
-      setHighlightedComments(hComments);
+      if (hComments.length > 0) {
+        setHighlightedComments(hComments);
+      } else {
+        // Show the most recent 3 comments when none are highlighted
+        const recent = allComments.sort(
+          (a, b) => new Date(b.comment.timestamp).getTime() - new Date(a.comment.timestamp).getTime()
+        ).slice(0, 3);
+        setHighlightedComments(recent);
+      }
       setCompanyMarketingText(
         companyInfo?.companyName
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
@@ -341,7 +352,7 @@ export default function MuroEnVivoPage() {
         </div>
       )}
 
-      {highlightedComments.length > 0 && !activePoll && highlightedDedications.length === 0 && (
+      {highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
         <div className="absolute left-6 top-20 z-30 w-[32vw] max-w-sm space-y-3">
           {highlightedComments.slice(0, 3).map(({ postId, comment }) => (
             <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
@@ -544,7 +555,25 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
 }
 
 function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
-  // Distribute posts into 3 columns
+  const numCols = Math.min(posts.length, 3);
+
+  // For 1 or 2 posts use a simple non-scrolling layout; for 3+ use the scrolling masonry.
+  if (numCols < 3) {
+    return (
+      <div className="absolute inset-0 pt-14 pb-16 px-3 flex items-center justify-center">
+        <div
+          className="h-full w-full grid gap-3"
+          style={{ gridTemplateColumns: `repeat(${numCols}, 1fr)` }}
+        >
+          {posts.map((post, i) => (
+            <MasonryCard key={post.id} post={post} index={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // 3+ photos: scrolling masonry with 3 columns
   const columns = [0, 1, 2].map(colIndex =>
     posts.filter((_, i) => i % 3 === colIndex)
   );
