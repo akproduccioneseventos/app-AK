@@ -156,11 +156,9 @@ describe('detectIntent — schedule_meeting', () => {
     expect(intent.data.followUpDate).toBe('2026-04-16');
   });
 
-  it('has medium confidence when only name is detected (no date/time)', () => {
+  it('returns none when only name is detected (no date/time) — passes to Gemini for multi-turn', () => {
     const intent = detectIntent('Agenda con Laura', REF);
-    expect(intent.type).toBe('schedule_meeting');
-    expect(intent.confidence).toBe('medium');
-    expect(intent.data.name).toBe('Laura');
+    expect(intent.type).toBe('none');
   });
 
   it('returns none for non-scheduling messages', () => {

@@ -173,16 +173,16 @@ export function detectIntent(
     const name = extractScheduleName(trimmed);
     const { date, time } = parseDateTimeUY(trimmed, referenceDate);
 
-    if (name) {
+    // Only short-circuit Gemini when the current message has ALL required data
+    // (name + date/time). If either is missing, fall through to 'none' so that
+    // Gemini can handle the multi-turn conversation with the full history.
+    if (name && (date || time)) {
       const notes: string[] = [];
       if (time) notes.push(`Hora solicitada: ${time}`);
 
-      // Alta confianza cuando tenemos nombre + (fecha o hora)
-      const confidence: 'high' | 'medium' = date || time ? 'high' : 'medium';
-
       return {
         type: 'schedule_meeting',
-        confidence,
+        confidence: 'high',
         data: {
           name,
           followUpDate: date,
@@ -200,18 +200,13 @@ export function detectIntent(
     const invitados = extractInvitados(trimmed);
     const { date } = parseDateTimeUY(trimmed, referenceDate);
 
-    // Alta confianza solo si tenemos nombre y tipo de evento
+    // Only short-circuit Gemini when the current message has ALL required data
+    // (client name + event type). If either is missing, pass to Gemini with the
+    // full history so it can handle the multi-turn conversation.
     if (name && eventoTipo) {
       return {
         type: 'create_budget',
         confidence: 'high',
-        data: { name, eventoTipo, invitados, followUpDate: date },
-      };
-    }
-    if (name) {
-      return {
-        type: 'create_budget',
-        confidence: 'medium',
         data: { name, eventoTipo, invitados, followUpDate: date },
       };
     }

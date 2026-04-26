@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2, Palette } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2, Palette, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual, updateClientePortalExperienceFiestaActual } from '@/app/actions/fiesta-actual';
@@ -41,30 +41,65 @@ function generatePortalAccessKey(fiesta?: FiestaEnPlanificacion | null): string 
   return `cliente-vip-${base}-${suffix}`;
 }
 
-const portalModules: { id: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, label: string }[] = [
-    { id: 'checklist', label: 'Checklist de Tareas del Cliente' },
-    { id: 'itinerario', label: 'Cronograma del Evento' },
-    { id: 'musica', label: 'Sugerencias Musicales' },
-    { id: 'videoVida', label: 'Carga de Fotos para Video' },
-    { id: 'listaRegalos', label: 'Ver Lista de Regalos' },
-    { id: 'documentos', label: 'Documentos' },
-    { id: 'notasCliente', label: 'Mensajes y observaciones' },
-    { id: 'invitados', label: 'Lista de Invitados y Asignación de Mesas' },
-    { id: 'paginaPublica', label: 'Acceso a Página Pública' },
-    { id: 'fotografiaYFilmacion', label: 'Seguimiento de Fotografía/Video' },
-    { id: 'pagos', label: 'Mostrar Pagos y Saldo' },
-    { id: 'simuladorInvitados', label: 'Agregar invitados o servicios' },
-    { id: 'calculadoraBebidas', label: 'Bebidas y extras' },
-    { id: 'moodboard', label: 'Moodboard / Galería de Inspiración' },
-    { id: 'contrato', label: 'Contrato y Documentos' },
-    { id: 'serviciosContratados', label: '¿Qué estoy contratando? (Servicios)' },
-    { id: 'ubicacion', label: 'Ubicación y Mapa del Evento' },
-    { id: 'menu', label: 'Menú del Evento' },
-    { id: 'cartaTragos', label: 'Carta de Tragos' },
-    { id: 'dressCode', label: 'Dress Code' },
-    { id: 'faq', label: 'Preguntas frecuentes' },
-    { id: 'informarPago', label: '💳 Informar Pago (Portal VIP)' },
+type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>;
+
+interface ModuleGroup {
+  label: string;
+  emoji: string;
+  modules: { id: ModuleId; label: string }[];
+}
+
+const portalModuleGroups: ModuleGroup[] = [
+  {
+    label: 'A. Inicio y comunicación',
+    emoji: '💬',
+    modules: [
+      { id: 'checklist', label: 'Tareas pendientes' },
+      { id: 'notasCliente', label: 'Mensajes con AK' },
+      { id: 'faq', label: 'Preguntas frecuentes' },
+      { id: 'paginaPublica', label: 'Página pública del evento' },
+    ],
+  },
+  {
+    label: 'B. Organización',
+    emoji: '📋',
+    modules: [
+      { id: 'itinerario', label: 'Itinerario / Cronograma' },
+      { id: 'menu', label: 'Comida y bebidas (menú)' },
+      { id: 'calculadoraBebidas', label: 'Bebidas y extras' },
+      { id: 'cartaTragos', label: 'Carta de tragos' },
+      { id: 'dressCode', label: 'Dress code' },
+      { id: 'moodboard', label: 'Decoración / Moodboard' },
+      { id: 'musica', label: 'Música' },
+      { id: 'fotografiaYFilmacion', label: 'Fotos y video' },
+      { id: 'invitados', label: 'Invitados y mesas' },
+      { id: 'listaRegalos', label: 'Lista de regalos' },
+    ],
+  },
+  {
+    label: 'C. Contable',
+    emoji: '💳',
+    modules: [
+      { id: 'pagos', label: 'Pagos y saldo' },
+      { id: 'informarPago', label: 'Informar pago / subir comprobante' },
+      { id: 'contrato', label: 'Contrato' },
+      { id: 'documentos', label: 'Documentos varios' },
+      { id: 'serviciosContratados', label: 'Servicios contratados (presupuesto)' },
+    ],
+  },
+  {
+    label: 'D. Extras',
+    emoji: '⚙️',
+    modules: [
+      { id: 'simuladorInvitados', label: 'Agregar invitados o servicios' },
+      { id: 'videoVida', label: 'Video de vida (carga de fotos)' },
+      { id: 'ubicacion', label: 'Ubicación del evento' },
+    ],
+  },
 ];
+
+
+
 
 function ClientPortalConfigContent() {
   const { toast } = useToast();
@@ -79,6 +114,8 @@ function ClientPortalConfigContent() {
   // Portal experience (cover photo, color, welcome message)
   const [portalExperience, setPortalExperience] = useState<ClientePortalExperience>({});
   const [isSavingExperience, setIsSavingExperience] = useState(false);
+  const heroImageInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
 
   // FAQ editor state
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
@@ -192,6 +229,29 @@ function ClientPortalConfigContent() {
     } finally {
       setIsSavingExperience(false);
     }
+  };
+
+  const MAX_HERO_IMAGE_SIZE_MB = 1;
+
+  const handleHeroImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_HERO_IMAGE_SIZE_MB * 1024 * 1024) {
+      toast({ title: "Imagen demasiado grande", description: `La imagen debe pesar menos de ${MAX_HERO_IMAGE_SIZE_MB} MB. Reducí su tamaño antes de subirla.`, variant: "destructive" });
+      return;
+    }
+    setIsUploadingHeroImage(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPortalExperience(p => ({ ...p, heroImageUrl: reader.result as string }));
+      setIsUploadingHeroImage(false);
+      toast({ title: "Imagen cargada", description: "Guardá la personalización para aplicar los cambios." });
+    };
+    reader.onerror = () => {
+      setIsUploadingHeroImage(false);
+      toast({ title: "Error al cargar imagen", variant: "destructive" });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveCuentas = async () => {
@@ -431,18 +491,28 @@ function ClientPortalConfigContent() {
                     </div>
                   )}
                   <Separator/>
-                   <h4 className="text-md font-medium pt-2">Módulos Visibles para el Cliente</h4>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {portalModules.map(mod => (
-                            <div key={mod.id} className="flex items-center space-x-2 p-3 border rounded-md">
-                                <Switch
-                                    id={`switch-${mod.id}`}
-                                    checked={getModuleVisibility(mod.id)}
-                                    onCheckedChange={(v) => handlePortalSwitch(mod.id, 'visible', v)}
-                                />
-                                <Label htmlFor={`switch-${mod.id}`}>{mod.label}</Label>
-                            </div>
-                        ))}
+                   <h4 className="text-md font-medium pt-2">Módulos visibles para el cliente</h4>
+                   <p className="text-xs text-muted-foreground -mt-2">Activá los módulos que querés mostrar en el portal del cliente, agrupados por categoría.</p>
+                   <div className="space-y-4">
+                     {portalModuleGroups.map(group => (
+                       <div key={group.label} className="border rounded-xl overflow-hidden">
+                         <div className="px-3 py-2 bg-muted/40 border-b">
+                           <p className="text-xs font-black uppercase tracking-wide text-muted-foreground">{group.emoji} {group.label}</p>
+                         </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2">
+                           {group.modules.map((mod, idx) => (
+                             <div key={mod.id} className={`flex items-center space-x-2 p-3 ${idx % 2 === 0 && group.modules.length > 1 ? 'border-b md:border-b-0 md:border-r' : 'border-b last:border-b-0'} border-muted/60`}>
+                               <Switch
+                                 id={`switch-${mod.id}`}
+                                 checked={getModuleVisibility(mod.id)}
+                                 onCheckedChange={(v) => handlePortalSwitch(mod.id, 'visible', v)}
+                               />
+                               <Label htmlFor={`switch-${mod.id}`} className="text-sm cursor-pointer">{mod.label}</Label>
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                     ))}
                    </div>
 
                    {/* Simulador de invitados config */}
@@ -570,15 +640,74 @@ function ClientPortalConfigContent() {
             <CardDescription>Configurá la imagen de portada, color principal y mensajes que verá el cliente al ingresar a su portal.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Event display name override */}
             <div className="space-y-1.5">
-              <Label htmlFor="hero-url">URL de imagen de portada</Label>
+              <Label htmlFor="event-display-name">Nombre visible del evento (en el portal)</Label>
               <Input
-                id="hero-url"
-                placeholder="https://... (URL pública de la foto)"
-                value={portalExperience.heroImageUrl ?? ''}
-                onChange={e => setPortalExperience(p => ({ ...p, heroImageUrl: e.target.value || undefined }))}
+                id="event-display-name"
+                placeholder="Ej: XV de Rocío, Boda Juan & Sofía, Cumple 50 Carlos"
+                value={portalExperience.eventDisplayName ?? ''}
+                onChange={e => setPortalExperience(p => ({ ...p, eventDisplayName: e.target.value || undefined }))}
               />
-              <p className="text-xs text-muted-foreground">Dejá vacío para usar la foto del/de la protagonista del evento.</p>
+              <p className="text-xs text-muted-foreground">Si está vacío, se usará el nombre del evento configurado. Dejalo vacío si el nombre ya está bien.</p>
+            </div>
+            {/* Hero image upload */}
+            <div className="space-y-1.5">
+              <Label>Imagen de portada</Label>
+              <input
+                ref={heroImageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleHeroImageFileChange}
+              />
+              {portalExperience.heroImageUrl ? (
+                <div className="space-y-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={portalExperience.heroImageUrl}
+                    alt="Portada del portal"
+                    className="w-full max-h-40 object-cover rounded-xl border border-muted"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => heroImageInputRef.current?.click()}
+                      disabled={isUploadingHeroImage}
+                    >
+                      {isUploadingHeroImage ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Upload className="w-4 h-4 mr-1" />}
+                      Cambiar imagen
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => setPortalExperience(p => ({ ...p, heroImageUrl: undefined }))}
+                    >
+                      Quitar imagen
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => heroImageInputRef.current?.click()}
+                  disabled={isUploadingHeroImage}
+                  className="w-full flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/40 hover:bg-primary/5 transition-colors text-muted-foreground"
+                >
+                  {isUploadingHeroImage ? (
+                    <Loader2 className="w-7 h-7 animate-spin text-primary" />
+                  ) : (
+                    <Upload className="w-7 h-7 text-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium">Subir imagen desde PC</span>
+                  <span className="text-xs">JPG, PNG, WEBP · máximo 1 MB · se usará como fondo de la portada</span>
+                </button>
+              )}
+              <p className="text-xs text-muted-foreground">Si no hay imagen, se usa un degradado con el color principal del evento.</p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="primary-color">Color principal del portal</Label>
@@ -641,9 +770,9 @@ function ClientPortalConfigContent() {
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2">
               <GlassWater className="w-5 h-5 text-blue-500" />
-              Calculadora de Bebidas y Extras
+              Comida y bebidas — configuración de ítems
             </CardTitle>
-            <CardDescription>Configurá bebidas y otros items que lleva el cliente (postres, torta, servicios subcontratados, etc.).</CardDescription>
+            <CardDescription>Configurá bebidas y otros ítems que lleva el cliente (postres, torta, servicios subcontratados, etc.). Estos se muestran en la sección "Comida y bebidas" del portal.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {bebidasItems.map((item) => (
@@ -785,10 +914,10 @@ function ClientPortalConfigContent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <PackageCheck className="w-5 h-5 text-teal-600" />
-            Lo que el cliente debe llevar
+            Lo que tengo que enviar o llevar — configuración
           </CardTitle>
           <CardDescription>
-            Configurá la lista de ítems que el cliente debe preparar y traer al evento. El cliente puede marcarlos como enviados desde su portal.
+            Configurá la lista de ítems que el cliente debe preparar, enviar o llevar al evento. El cliente puede marcarlos como enviados desde su portal en la sección "Lo que tengo que enviar o llevar".
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

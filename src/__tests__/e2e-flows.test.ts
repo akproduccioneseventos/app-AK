@@ -526,11 +526,9 @@ describe('detectIntent — create_budget', () => {
     expect(intent.data.invitados).toBe(150);
   });
 
-  it('detecta presupuesto con confianza media cuando no hay tipo', () => {
+  it('devuelve none cuando no hay tipo de evento — pasa a Gemini para multi-turno', () => {
     const intent = detectIntent('Crea un presupuesto para Pedro Rodríguez', REF);
-    expect(intent.type).toBe('create_budget');
-    expect(intent.confidence).toBe('medium');
-    expect(intent.data.name).toBe('Pedro Rodríguez');
+    expect(intent.type).toBe('none');
   });
 
   it('detecta presupuesto para casamiento', () => {
