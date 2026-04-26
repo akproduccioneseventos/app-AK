@@ -23,7 +23,7 @@ const MARQUEE_REPEAT_COUNT = 3;
 const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
 const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]';
 const GAME_OVERLAY_CLASS =
-  'absolute right-6 top-20 z-30 w-[38vw] max-w-3xl rounded-3xl border-2 border-yellow-300/70 bg-black/70 p-6 shadow-[0_0_60px_rgba(255,215,0,0.35)] backdrop-blur-md';
+  'w-full flex flex-col items-center justify-center gap-5';
 
 type MomentData = { id: string; nombre: string; emoji: string; timestamp: string };
 type PollData = { id: string; question: string; options: { id: string; text: string; votes: number }[] };
@@ -221,16 +221,21 @@ export default function MuroEnVivoPage() {
     return () => clearTimeout(timeout);
   }, [activeScreenItem, enabledPlaylist.length, settings.screenMode?.isPlaying, settings.screenMode?.loop, playlistTick]);
 
-  return (
-    <div className="fixed inset-0 bg-slate-950 overflow-hidden select-none">
-      {/* Ambient gradient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
+  // Whether to show a right side panel (poll or game overlay)
+  const hasSidePanel =
+    (activeGame !== null && activeScreenItem?.type !== 'juego') ||
+    (activePoll !== null && settings.showPolls !== false && !activeGame);
 
-      {/* Header bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 bg-gradient-to-b from-slate-950/90 to-transparent">
+  return (
+    <div className="fixed inset-0 bg-slate-950 overflow-hidden select-none flex flex-col">
+      {/* Ambient gradient background */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
+
+      {/* Header bar — in flow so it doesn't float over content */}
+      <header className="relative z-20 shrink-0 flex items-center justify-between px-8 py-3 bg-slate-950/90 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
-            <div className="relative h-10 w-24 overflow-hidden rounded bg-white/90 p-1">
+            <div className="relative h-8 w-20 overflow-hidden rounded bg-white/90 p-1">
               <NextImage src={companyLogoUrl} alt={`Logo de ${companyName}`} fill className="object-contain" />
             </div>
           )}
@@ -241,110 +246,129 @@ export default function MuroEnVivoPage() {
           <span className="text-white/40 text-sm font-semibold tracking-wide">{eventName}</span>
         )}
         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+      </header>
+
+      {/* Main content row — fills all space between header and bottom bar */}
+      <div className="relative flex-1 flex overflow-hidden">
+
+        {/* ── Left / main content pane ── */}
+        <div className="relative flex-1 overflow-hidden">
+
+          {/* Loading state */}
+          {!isLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="space-y-4 text-center">
+                <div className="w-16 h-16 mx-auto rounded-full border-4 border-white/10 border-t-white/60 animate-spin" />
+                <p className="text-white/40 text-sm tracking-widest uppercase">Cargando muro…</p>
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego') && posts.length === 0 && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+              <div className="text-8xl opacity-20">📸</div>
+              <div className="text-center space-y-2">
+                <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Muro Social</p>
+                <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Mural / photo slideshow */}
+          {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
+            <SlideshowLayout posts={posts} />
+          )}
+
+          {/* Juego slide */}
+          {isLoaded && activeScreenItem?.type === 'juego' && (
+            activeGame
+              ? <GameSlide game={activeGame} posts={posts} />
+              : posts.length > 0
+                ? <SlideshowLayout posts={posts} />
+                : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+                    <div className="text-9xl">🎮</div>
+                    <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Zona de juegos</p>
+                    <p className="text-white/30 text-base">El operador activará el juego en breve…</p>
+                  </div>
+                )
+          )}
+
+          {/* Video slide */}
+          {isLoaded && activeScreenItem?.type === 'video' && (
+            <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
+          )}
+
+          {/* Redes slide */}
+          {isLoaded && activeScreenItem?.type === 'redes' && (
+            <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
+          )}
+
+          {/* Dedications overlay — left side, only shown when no side panel */}
+          {isLoaded && highlightedDedications.length > 0 && !activePoll && !hasSidePanel && (
+            <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-3">
+              {highlightedDedications.slice(0, 3).map(d => (
+                <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+                  <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
+                  <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Comments overlay — left side, only shown when no side panel and no dedications */}
+          {isLoaded && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && !hasSidePanel && (
+            <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-3">
+              {highlightedComments.slice(0, 3).map(({ postId: _postId, comment }) => (
+                <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+                  <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
+                  <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Right side panel: poll or game overlay ── */}
+        {hasSidePanel && isLoaded && (
+          <div className="w-[38%] shrink-0 flex flex-col items-center justify-center gap-5 p-6 bg-black/65 border-l border-white/10 backdrop-blur-md overflow-y-auto">
+            {/* Active game (when playlist is not on 'juego' slide) */}
+            {activeGame && activeScreenItem?.type !== 'juego' && (
+              <div className={GAME_OVERLAY_CLASS}>
+                <GameOverlayContent game={activeGame} />
+              </div>
+            )}
+            {/* Active poll */}
+            {activePoll && settings.showPolls !== false && !activeGame && (
+              <div className="w-full space-y-5">
+                <p className="text-center text-sm font-black tracking-[0.35em] text-yellow-300 uppercase">🎮 Juego en Vivo</p>
+                <h2 className="text-center text-3xl font-black leading-tight text-white">{activePoll.question}</h2>
+                <div className="space-y-4">
+                  {activePoll.options.map((option) => {
+                    const totalVotes = activePoll.options.reduce((acc, opt) => acc + opt.votes, 0);
+                    const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
+                    return (
+                      <div key={option.id} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-white">
+                          <span className="text-xl font-extrabold">{option.text}</span>
+                          <span className="text-2xl font-black text-yellow-300">{percentage}%</span>
+                        </div>
+                        <div className="h-6 rounded-full bg-white/20">
+                          <div className="h-full rounded-full bg-yellow-300 transition-all duration-500" style={{ width: `${percentage}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-
-
-      {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="space-y-4 text-center">
-            <div className="w-16 h-16 mx-auto rounded-full border-4 border-white/10 border-t-white/60 animate-spin" />
-            <p className="text-white/40 text-sm tracking-widest uppercase">Cargando muro…</p>
-          </div>
-        </div>
-      )}
-
-      {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego') && posts.length === 0 && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-          <div className="text-8xl opacity-20">📸</div>
-          <div className="text-center space-y-2">
-            <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Muro Social</p>
-            <p className="text-white/30 text-base">Las fotos de los invitados aparecerán aquí.</p>
-          </div>
-        </div>
-      )}
-
-      {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
-        <SlideshowLayout posts={posts} />
-      )}
-
-      {isLoaded && activeScreenItem?.type === 'juego' && (
-        activeGame
-          ? <GameSlide game={activeGame} posts={posts} />
-          : posts.length > 0
-            ? <SlideshowLayout posts={posts} />
-            : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-                <div className="text-9xl">🎮</div>
-                <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Zona de juegos</p>
-                <p className="text-white/30 text-base">El operador activará el juego en breve…</p>
-              </div>
-            )
-      )}
-
-      {isLoaded && activeScreenItem?.type === 'video' && (
-        <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
-      )}
-
-      {isLoaded && activeScreenItem?.type === 'redes' && (
-        <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
-      )}
-
-      {/* Active game overlay — shown on all slide types when a game is active */}
-      {activeGame && activeScreenItem?.type !== 'juego' && (
-        <div className={GAME_OVERLAY_CLASS}>
-          <GameOverlayContent game={activeGame} />
-        </div>
-      )}
-
-      {/* Poll overlay — shown when there is an active poll and no active game overlay */}
-      {activePoll && settings.showPolls && !activeGame && (
-        <div className={GAME_OVERLAY_CLASS}>
-          <p className="mb-3 text-center text-base font-black tracking-[0.35em] text-yellow-300 uppercase">🎮 Juego en Vivo</p>
-          <h2 className="mb-5 text-center text-4xl font-black leading-tight text-white">{activePoll.question}</h2>
-          <div className="space-y-4">
-            {activePoll.options.map((option) => {
-              const totalVotes = activePoll.options.reduce((acc, opt) => acc + opt.votes, 0);
-              const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
-              return (
-                <div key={option.id} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-white">
-                    <span className="text-2xl font-extrabold">{option.text}</span>
-                    <span className="text-3xl font-black text-yellow-300">{percentage}%</span>
-                  </div>
-                  <div className="h-7 rounded-full bg-white/20">
-                    <div className="h-full rounded-full bg-yellow-300 transition-all duration-500" style={{ width: `${percentage}%` }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {highlightedDedications.length > 0 && !activePoll && (
-        <div className="absolute left-6 top-20 z-30 w-[32vw] max-w-sm space-y-3">
-          {highlightedDedications.slice(0, 3).map(d => (
-            <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
-              <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
-              <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
-        <div className="absolute left-6 top-20 z-30 w-[32vw] max-w-sm space-y-3">
-          {highlightedComments.slice(0, 3).map(({ postId, comment }) => (
-            <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
-              <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
-              <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="absolute bottom-0 left-0 right-0 z-30 space-y-1">
+      {/* ── Bottom bar — in flow ── */}
+      <div className="relative z-30 shrink-0">
         {socialConnections.length > 0 && (
           <div className="flex items-center justify-center gap-6 border-t border-white/10 bg-black/70 px-6 py-2.5 backdrop-blur-sm">
             {socialConnections.map((connection) => {
@@ -382,7 +406,7 @@ export default function MuroEnVivoPage() {
         </div>
       </div>
 
-      {/* Overlay display priority: sorteo winner (z-50) > active moment (z-40) > poll (z-30) > dedications/comments (z-30) */}
+      {/* ── Full-screen overlays (moment, sorteo) — still absolute/z-40+ ── */}
       <AnimatePresence>
         {/* Active moment overlay — only shown when no sorteo winner is active */}
         {activeMoment && !activeSorteoWinner && (
