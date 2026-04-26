@@ -763,17 +763,17 @@ export default function SimuladorAKPage() {
   // ── Layout ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex flex-col print:bg-white print:text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex flex-col print:bg-white print:text-slate-900 print:min-h-0 print:block">
 
-      {/* Print header */}
-      <div className="hidden print:block p-8">
+      {/* Print header — rendered first and only visible when printing */}
+      <div className="hidden print:block print:p-8">
         <PrintSummary state={state} prices={priceStats} />
       </div>
 
       <div className="print:hidden flex flex-col lg:flex-row flex-1 gap-0">
 
         {/* ── Left: Wizard ────────────────────────────────────────────────── */}
-        <div className="flex-1 flex flex-col items-center justify-start px-4 pt-8 pb-4 lg:pt-12 lg:pb-8 min-h-screen lg:min-h-0">
+        <div className="flex-1 flex flex-col items-center justify-start px-4 pt-8 pb-4 lg:pt-12 lg:pb-8 min-h-screen lg:min-h-0 print:min-h-0">
 
           {/* Brand */}
           <div className="flex items-center gap-2 mb-6 lg:mb-8">
@@ -1933,7 +1933,10 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
               </tr>
             </thead>
             <tbody>
-              {prices?.detallados?.map((s) => (
+              {[...(prices?.detallados || [])].sort((a, b) => {
+                if (a.esRegalo === b.esRegalo) return a.nombre.localeCompare(b.nombre);
+                return a.esRegalo ? 1 : -1;
+              }).map((s) => (
                 <tr key={s.id} className="border-t border-slate-200">
                   <td className="px-3 py-2 font-medium">
                     {s.nombre}

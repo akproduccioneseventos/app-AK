@@ -453,7 +453,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const isBorrador = presupuesto.estado === 'Borrador';
 
   return (
-    <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 font-sans">
+    <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 print:min-h-0 font-sans">
         {/* ── QUICK ACTION BAR ────────────────────────────────── */}
         <div className="print:hidden max-w-3xl mx-auto px-4 mb-4">
           <div className="bg-white rounded-2xl shadow-md px-4 py-3 flex flex-wrap items-center justify-between gap-3">
