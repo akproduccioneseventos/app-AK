@@ -1023,7 +1023,7 @@ export function AKAssistantWidget() {
                           <div>
                             <p className="text-[11px] font-bold text-rose-700 mb-1">❌ Limitaciones actuales:</p>
                             <ul className="space-y-0.5 text-[11px] text-slate-500">
-                              <li>• No puede leer PDFs complejos con tablas sin IA vision</li>
+                              <li>• No puede leer PDFs complejos con tablas sin visión de IA</li>
                               <li>• Presupuestos complejos multi-servicio pueden necesitar ajuste manual</li>
                               <li>• No puede acceder a datos de clientes sin nombre/teléfono</li>
                               <li>• No puede enviar WhatsApp de forma autónoma (genera el texto)</li>

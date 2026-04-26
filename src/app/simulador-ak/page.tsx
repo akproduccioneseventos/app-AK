@@ -1547,9 +1547,9 @@ function StepMenus({
   // Sort recommended dishes first within each category
   const sortRecommended = (list: ServicioEmpresa[]) =>
     [...list].sort((a, b) => {
-      const aRec = recommendedDishIds.has(a.id) ? 0 : 1;
-      const bRec = recommendedDishIds.has(b.id) ? 0 : 1;
-      return aRec - bRec;
+      const aIsRecommended = recommendedDishIds.has(a.id) ? 0 : 1;
+      const bIsRecommended = recommendedDishIds.has(b.id) ? 0 : 1;
+      return aIsRecommended - bIsRecommended;
     });
 
   return (
