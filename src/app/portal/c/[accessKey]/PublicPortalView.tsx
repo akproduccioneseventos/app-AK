@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, RsvpStatus } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, RsvpStatus, Reunion } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import {
   Calendar,
@@ -580,22 +580,37 @@ export default function PublicPortalView({
           </div>
 
           {/* Protagonist photo + event name */}
-          {config.protagonistaFotoUrl ? (
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="relative">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/40 shadow-2xl ring-4 ring-white/20">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={config.protagonistaFotoUrl}
-                    alt={config.protagonista1Nombre || displayEventName}
-                    className="w-full h-full object-cover"
-                  />
+          {(() => {
+            const circularPhoto = config.protagonistaFotoUrl || portalExperience.heroImageUrl;
+            return circularPhoto ? (
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="relative">
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-yellow-400/60 shadow-2xl ring-4 ring-yellow-300/20">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={circularPhoto}
+                      alt={config.protagonista1Nombre || displayEventName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1 shadow-lg">
+                    <Crown className="w-3.5 h-3.5 text-black" />
+                  </div>
                 </div>
-                <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1 shadow-lg">
-                  <Crown className="w-3.5 h-3.5 text-black" />
+                <div className="space-y-1">
+                  <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-lg">
+                    {displayEventName}
+                  </h1>
+                  {config.protagonista1Nombre && (
+                    <p className="text-xl font-bold opacity-95">
+                      ✨ {config.protagonista1Nombre}
+                      {config.protagonista2Nombre && ` & ${config.protagonista2Nombre}`}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div className="space-y-1">
+            ) : (
+              <div className="text-center space-y-2">
                 <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-lg">
                   {displayEventName}
                 </h1>
@@ -606,20 +621,8 @@ export default function PublicPortalView({
                   </p>
                 )}
               </div>
-            </div>
-          ) : (
-            <div className="text-center space-y-2">
-              <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-lg">
-                {displayEventName}
-              </h1>
-              {config.protagonista1Nombre && (
-                <p className="text-xl font-bold opacity-95">
-                  ✨ {config.protagonista1Nombre}
-                  {config.protagonista2Nombre && ` & ${config.protagonista2Nombre}`}
-                </p>
-              )}
-            </div>
-          )}
+            );
+          })()}
 
           {/* Event meta badges */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-sm text-white/85">
@@ -717,7 +720,7 @@ export default function PublicPortalView({
                   if (fiesta.invitacionSlug) {
                     window.open(`/i/${fiesta.invitacionSlug}`, '_blank');
                   } else {
-                    document.getElementById('seccion-pagina-publica')?.scrollIntoView({ behavior: 'smooth' });
+                    window.open(`/invitacion/${fiesta.id}`, '_blank');
                   }
                 }}
               >
@@ -741,7 +744,14 @@ export default function PublicPortalView({
             </button>
             <button
               className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
-              onClick={() => document.getElementById('seccion-mensajes')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                const el = document.getElementById('seccion-mensajes');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  window.open(whatsappHref, '_blank');
+                }
+              }}
             >
               <MessageSquare className="w-3.5 h-3.5" />
               Enviar mensaje
@@ -790,14 +800,62 @@ export default function PublicPortalView({
               </div>
             )}
 
-            {/* ── 1. Organización del evento ── */}
+            {/* ── Reuniones coordinadas ── */}
+            {fiesta.reuniones && fiesta.reuniones.length > 0 && (
+              <Card id="seccion-reuniones" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="pb-2 bg-gradient-to-r from-indigo-50 to-blue-50">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-indigo-600" />
+                    Reuniones coordinadas
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">Historial de reuniones con el equipo AK</p>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  {[...fiesta.reuniones]
+                    .sort((a, b) => {
+                      if (!a.fecha && !b.fecha) return 0;
+                      if (!a.fecha) return 1;
+                      if (!b.fecha) return -1;
+                      return new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+                    })
+                    .map((reunion, idx) => (
+                      <div key={reunion.id} className="flex items-start gap-3 p-3 rounded-2xl bg-indigo-50/60 border border-indigo-100">
+                        <div className="p-2 rounded-xl bg-indigo-100 shrink-0 mt-0.5">
+                          <Calendar className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-start justify-between gap-2 flex-wrap">
+                            <p className="font-semibold text-sm text-slate-800 leading-snug">{reunion.titulo}</p>
+                            {reunion.fecha && (
+                              <span className="text-[10px] font-bold text-indigo-600 uppercase bg-indigo-100 rounded-full px-2 py-0.5 shrink-0">
+                                {formatDate(reunion.fecha)}
+                              </span>
+                            )}
+                          </div>
+                          {reunion.notas && (
+                            <p className="text-xs text-slate-600 leading-relaxed">{reunion.notas}</p>
+                          )}
+                          {reunion.acuerdos && (
+                            <div className="text-xs text-indigo-700 bg-indigo-50 rounded-xl px-3 py-2 border border-indigo-100">
+                              <span className="font-black uppercase tracking-wider text-[10px] text-indigo-500 block mb-1">📌 Acuerdos</span>
+                              {reunion.acuerdos}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ── 1. Datos del evento ── */}
             <Card id="seccion-organizacion" className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-purple-50">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <Home className="w-5 h-5 text-violet-600" />
-                  Organización del evento
+                  Datos del evento
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">Resumen general de tu celebración</p>
+                <p className="text-xs text-muted-foreground">Información general de tu evento</p>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
                 {/* Event details grid */}
@@ -1148,71 +1206,65 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 3. Lo que tengo que enviar o llevar ── */}
-            {debeLlevarItems.length > 0 && (
-              <Card id="seccion-llevar" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Package className="w-5 h-5 text-teal-600" />
-                    Lo que tengo que enviar o llevar
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    {debeLlevarItems.filter(i => i.completado).length} de {debeLlevarItems.length} ítems listos
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-2">
-                  {debeLlevarItems.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      disabled={isSavingDebeLlevar}
-                      onClick={() => handleToggleDebeLlevar(item.id)}
-                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${
-                        item.completado
-                          ? 'border-teal-200 bg-teal-50'
-                          : 'border-slate-100 bg-slate-50 hover:border-teal-200 hover:bg-teal-50/40'
-                      }`}
-                    >
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                        item.completado ? 'border-teal-500 bg-teal-500' : 'border-slate-300 bg-white'
-                      }`}>
-                        {item.completado && <span className="text-white text-xs font-black">✓</span>}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-semibold leading-snug ${item.completado ? 'line-through text-muted-foreground' : ''}`}>
-                          {item.texto}
-                          {item.obligatorio && <span className="ml-1 text-red-500 text-xs">*</span>}
-                        </p>
-                        {item.notas && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{item.notas}</p>
-                        )}
-                      </div>
-                      {item.completado && (
-                        <span className="text-[10px] font-bold text-teal-600 uppercase bg-teal-100 rounded-full px-2 py-0.5 shrink-0">
-                          {DEBE_LLEVAR_ESTADO_LABELS[item.estado ?? ''] ?? 'Hecho'}
-                        </span>
-                      )}
-                      {isSavingDebeLlevar && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />}
-                    </button>
-                  ))}
-                  <p className="text-xs text-muted-foreground text-center pt-1">
-                    Tocá cada ítem para marcarlo como listo
-                  </p>
-                </CardContent>
-              </Card>
-            )}
 
-            {/* ── 4. Comida y bebidas ── */}
-            {(settings?.menu?.visible || settings?.cartaTragos?.visible || settings?.dressCode?.visible || calcBebidas?.visible) && (
+            {/* ── 4. Lo que debo llevar ── */}
+            {(debeLlevarItems.length > 0 || settings?.menu?.visible || settings?.cartaTragos?.visible || settings?.dressCode?.visible || calcBebidas?.visible) && (
               <Card id="seccion-comida" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-amber-50">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Utensils className="w-5 h-5 text-orange-500" />
-                    Comida y bebidas
+                    <Package className="w-5 h-5 text-orange-500" />
+                    Lo que debo llevar
                   </CardTitle>
-                  <p className="text-xs text-muted-foreground">Menú, bebidas y vestimenta del evento</p>
+                  <p className="text-xs text-muted-foreground">Todo lo que tenés que traer vos para la fiesta, según tu contrato</p>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-4">
+
+                  {/* Lo que el cliente debe traer */}
+                  {debeLlevarItems.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
+                        <Package className="w-3.5 h-3.5" />
+                        Ítems a enviar o llevar · {debeLlevarItems.filter(i => i.completado).length} de {debeLlevarItems.length} listos
+                      </p>
+                      {debeLlevarItems.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          disabled={isSavingDebeLlevar}
+                          onClick={() => handleToggleDebeLlevar(item.id)}
+                          className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${
+                            item.completado
+                              ? 'border-teal-200 bg-teal-50'
+                              : 'border-slate-100 bg-slate-50 hover:border-teal-200 hover:bg-teal-50/40'
+                          }`}
+                        >
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                            item.completado ? 'border-teal-500 bg-teal-500' : 'border-slate-300 bg-white'
+                          }`}>
+                            {item.completado && <span className="text-white text-xs font-black">✓</span>}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold leading-snug ${item.completado ? 'line-through text-muted-foreground' : ''}`}>
+                              {item.texto}
+                              {item.obligatorio && <span className="ml-1 text-red-500 text-xs">*</span>}
+                            </p>
+                            {item.notas && (
+                              <p className="text-xs text-muted-foreground mt-0.5">{item.notas}</p>
+                            )}
+                          </div>
+                          {item.completado && (
+                            <span className="text-[10px] font-bold text-teal-600 uppercase bg-teal-100 rounded-full px-2 py-0.5 shrink-0">
+                              {DEBE_LLEVAR_ESTADO_LABELS[item.estado ?? ''] ?? 'Hecho'}
+                            </span>
+                          )}
+                          {isSavingDebeLlevar && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />}
+                        </button>
+                      ))}
+                      <p className="text-xs text-muted-foreground text-center pt-1">
+                        Tocá cada ítem para marcarlo como listo
+                      </p>
+                    </div>
+                  )}
 
                   {/* Event Menu */}
                   {settings?.menu?.visible && fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres || fiesta.menuMesa.bebidas) && (
@@ -1450,6 +1502,248 @@ export default function PublicPortalView({
               </Card>
             )}
 
+            {/* ── ¿Querés agregar más invitados? ── */}
+            <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+              <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5" style={{ color: eventColor }} />
+                  ¿Querés agregar más invitados?
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">Calculá el costo adicional y enviá una solicitud al equipo AK para coordinar.</p>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-4">
+                {!presupuesto && (
+                  <p className="text-sm text-muted-foreground text-center py-2 bg-muted/40 rounded-xl px-3">
+                    Completá los cambios deseados y el equipo AK te enviará un presupuesto actualizado.
+                  </p>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
+                    <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                      <Users className="w-3 h-3" /> Adultos a agregar
+                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
+                        onClick={() => setAdultDelta((d) => Math.max(0, d - 1))}
+                        disabled={adultDelta <= 0}
+                      >
+                        <MinusCircle className="w-4 h-4" />
+                      </button>
+                      <p className="text-2xl font-black tabular-nums">+{adultDelta}</p>
+                      <button
+                        className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
+                        onClick={() => setAdultDelta((d) => Math.min(effectiveMaxAdult, d + 1))}
+                        disabled={adultDelta >= effectiveMaxAdult}
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxAdult}</p>
+                  </div>
+                  <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
+                    <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                      <Users className="w-3 h-3" /> Niños/Adolesc. a agregar
+                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
+                        onClick={() => setKidsDelta((d) => Math.max(0, d - 1))}
+                        disabled={kidsDelta <= 0}
+                      >
+                        <MinusCircle className="w-4 h-4" />
+                      </button>
+                      <p className="text-2xl font-black tabular-nums">+{kidsDelta}</p>
+                      <button
+                        className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
+                        onClick={() => setKidsDelta((d) => Math.min(effectiveMaxKids, d + 1))}
+                        disabled={kidsDelta >= effectiveMaxKids}
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxKids}</p>
+                  </div>
+                </div>
+
+                {/* Budget-synced simulation results */}
+                {guestSim && (() => {
+                  const sim = guestSim;
+                  const hasChanges = adultDelta > 0 || kidsDelta > 0;
+                  return (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-2xl border bg-slate-50 p-3 text-center">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Invitados actuales</p>
+                          <p className="text-2xl font-black">{sim.totalActual}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {sim.adultosActuales} adultos · {sim.ninosActuales} menores
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border p-3 text-center" style={{ borderColor: hasChanges ? `${eventColor}60` : undefined, backgroundColor: hasChanges ? `${eventColor}08` : '#f8fafc' }}>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Nuevos invitados totales</p>
+                          <p className="text-2xl font-black" style={{ color: hasChanges ? eventColor : undefined }}>{sim.totalNuevo}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {sim.adultosNuevos} adultos · {sim.ninosNuevos} menores
+                          </p>
+                        </div>
+                      </div>
+
+                      {hasChanges && (
+                        <div className="space-y-2">
+                          {sim.serviciosFijos.length > 0 && (
+                            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3 text-slate-400" /> Servicios fijos (no cambian)
+                              </p>
+                              <div className="space-y-1">
+                                {sim.serviciosFijos.slice(0, 4).map((s, i) => (
+                                  <div key={i} className="flex justify-between items-center text-xs">
+                                    <span className="text-slate-600 truncate flex-1">{s.nombre}</span>
+                                    <span className="text-slate-500 shrink-0 ml-2 font-medium">{formatCurrency(s.costo)}</span>
+                                  </div>
+                                ))}
+                                {sim.serviciosFijos.length > 4 && (
+                                  <p className="text-xs text-slate-400">+{sim.serviciosFijos.length - 4} más...</p>
+                                )}
+                              </div>
+                              <div className="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs font-bold">
+                                <span className="text-slate-600">Total fijo</span>
+                                <span className="text-slate-700">{formatCurrency(sim.costosFijosActuales)}</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {sim.serviciosVariables.length > 0 && (
+                            <div className="rounded-2xl border p-3" style={{ borderColor: `${eventColor}30`, backgroundColor: `${eventColor}06` }}>
+                              <p className="text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-1" style={{ color: eventColor }}>
+                                <TrendingUp className="w-3 h-3" /> Servicios por persona (cambian)
+                              </p>
+                              <div className="space-y-1">
+                                {sim.serviciosVariables.slice(0, 5).map((s, i) => (
+                                  <div key={i} className="flex justify-between items-center text-xs gap-2">
+                                    <span className="text-slate-600 truncate flex-1">{s.nombre}</span>
+                                    <span className="text-slate-400 shrink-0">{formatCurrency(s.costoActual)}</span>
+                                    <span className="text-[10px] text-slate-400">→</span>
+                                    <span className="shrink-0 font-bold" style={{ color: eventColor }}>{formatCurrency(s.costoNuevo)}</span>
+                                  </div>
+                                ))}
+                                {sim.serviciosVariables.length > 5 && (
+                                  <p className="text-xs text-slate-400">+{sim.serviciosVariables.length - 5} más...</p>
+                                )}
+                              </div>
+                              <div className="mt-2 pt-2 border-t flex justify-between text-xs font-bold" style={{ borderColor: `${eventColor}20` }}>
+                                <span className="text-slate-600">Impacto variable</span>
+                                <span style={{ color: eventColor }}>+{formatCurrency(sim.costoVariableNuevo - sim.costoVariableActual)}</span>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="rounded-2xl p-4 text-white" style={{ background: `linear-gradient(135deg, ${eventColor}, ${eventColor}cc)` }}>
+                            <div className="grid grid-cols-2 gap-3 text-center">
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Total actual</p>
+                                <p className="text-xl font-black">{formatCurrency(sim.costoActual)}</p>
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Nuevo total estimado</p>
+                                <p className="text-xl font-black">{formatCurrency(sim.costoNuevo)}</p>
+                              </div>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-white/20 text-center">
+                              <p className="text-[10px] uppercase tracking-widest opacity-80">Impacto estimado</p>
+                              <p className="text-2xl font-black mt-0.5">
+                                {sim.impacto >= 0 ? '+' : ''}{formatCurrency(sim.impacto)}
+                              </p>
+                              {sim.impacto > 0 && (adultDelta + kidsDelta) > 0 && (
+                                <p className="text-[11px] opacity-80 mt-1">
+                                  ≈ {formatCurrency(Math.round(sim.impacto / (adultDelta + kidsDelta)))} por invitado adicional
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 flex items-start gap-2">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                            <p className="text-xs text-amber-700">Esta es una estimación basada en el presupuesto. El monto final lo confirma el equipo AK.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {!hasChanges && presupuesto && (
+                        <p className="text-center text-xs text-muted-foreground py-2">
+                          Ajustá las cantidades para ver el impacto estimado en el costo de tu evento.
+                        </p>
+                      )}
+
+                      {hasChanges && (
+                        <div className="space-y-2">
+                          <Textarea
+                            value={simRequestNote}
+                            onChange={(e) => setSimRequestNote(e.target.value)}
+                            placeholder="Nota opcional para el equipo (ej: son invitados de última hora de la mesa 5)."
+                            rows={2}
+                            className="rounded-xl text-sm"
+                          />
+                          <Button
+                            className="w-full rounded-xl font-bold"
+                            style={{ backgroundColor: eventColor, borderColor: eventColor }}
+                            onClick={handleSubmitMenuRequest}
+                            disabled={simRequestLoading || (adultDelta <= 0 && kidsDelta <= 0)}
+                          >
+                            {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                            Enviar solicitud al equipo AK
+                          </Button>
+                          <p className="text-xs text-muted-foreground text-center">
+                            Solicitud enviada. El equipo AK te contactará para confirmar la disponibilidad y el costo adicional.
+                          </p>
+                        </div>
+                      )}
+
+                      {menuChangeRequests.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Solicitudes recientes</p>
+                          {menuChangeRequests.slice(-3).reverse().map((request) => (
+                            <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
+                              <div>
+                                <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
+                                <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
+                              </div>
+                              <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+
+                {!guestSim && (adultDelta > 0 || kidsDelta > 0) && (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={simRequestNote}
+                      onChange={(e) => setSimRequestNote(e.target.value)}
+                      placeholder="Describí los cambios que necesitás (ej: agregar 10 adultos a la mesa VIP)."
+                      rows={2}
+                      className="rounded-xl text-sm"
+                    />
+                    <Button
+                      className="w-full rounded-xl font-bold"
+                      style={{ backgroundColor: eventColor, borderColor: eventColor }}
+                      onClick={handleSubmitMenuRequest}
+                      disabled={simRequestLoading}
+                    >
+                      {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                      Enviar solicitud al equipo AK
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Solicitud enviada. El equipo AK te contactará para confirmar la disponibilidad y el costo adicional.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* ── 6. Itinerario ── */}
             {settings?.itinerario?.visible && programa.length > 0 && (
               <Card id="seccion-itinerario" className="shadow-lg border-0 rounded-3xl overflow-hidden">
@@ -1686,7 +1980,7 @@ export default function PublicPortalView({
                         {idx > 0 && <Separator className="my-1" />}
                         <button
                           className="w-full flex items-center justify-between gap-3 py-3 px-1 text-left"
-                          onClick={() => setOpenFaqId(openFaqId === faq.id ? null : faq.id)}
+                          onClick={(e) => { e.stopPropagation(); setOpenFaqId(openFaqId === faq.id ? null : faq.id); }}
                         >
                           <span className="font-semibold text-sm leading-snug">{faq.pregunta}</span>
                           {openFaqId === faq.id ? (
@@ -1707,217 +2001,6 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 11. Simulador de invitados ── */}
-            {!!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 && (
-              <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" style={{ color: eventColor }} />
-                    Simulador de invitados
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Calculá el impacto real en el costo si sumás más invitados. Sincronizado con tu presupuesto.</p>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
-                      <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-                        <Users className="w-3 h-3" /> Adultos a agregar
-                      </p>
-                      <div className="flex items-center justify-between gap-2">
-                        <button
-                          className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                          onClick={() => setAdultDelta((d) => Math.max(0, d - 1))}
-                          disabled={adultDelta <= 0}
-                        >
-                          <MinusCircle className="w-4 h-4" />
-                        </button>
-                        <p className="text-2xl font-black tabular-nums">+{adultDelta}</p>
-                        <button
-                          className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                          onClick={() => setAdultDelta((d) => Math.min(effectiveMaxAdult, d + 1))}
-                          disabled={adultDelta >= effectiveMaxAdult}
-                        >
-                          <PlusCircle className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxAdult}</p>
-                    </div>
-                    <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
-                      <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-                        <Users className="w-3 h-3" /> Niños/Adolesc. a agregar
-                      </p>
-                      <div className="flex items-center justify-between gap-2">
-                        <button
-                          className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                          onClick={() => setKidsDelta((d) => Math.max(0, d - 1))}
-                          disabled={kidsDelta <= 0}
-                        >
-                          <MinusCircle className="w-4 h-4" />
-                        </button>
-                        <p className="text-2xl font-black tabular-nums">+{kidsDelta}</p>
-                        <button
-                          className="h-9 w-9 rounded-full border-2 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-30"
-                          onClick={() => setKidsDelta((d) => Math.min(effectiveMaxKids, d + 1))}
-                          disabled={kidsDelta >= effectiveMaxKids}
-                        >
-                          <PlusCircle className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxKids}</p>
-                    </div>
-                  </div>
-
-                  {/* Budget-synced simulation results */}
-                  {guestSim && (() => {
-                    const sim = guestSim;
-                    const hasChanges = adultDelta > 0 || kidsDelta > 0;
-                    return (
-                      <>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="rounded-2xl border bg-slate-50 p-3 text-center">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Invitados actuales</p>
-                            <p className="text-2xl font-black">{sim.totalActual}</p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              {sim.adultosActuales} adultos · {sim.ninosActuales} menores
-                            </p>
-                          </div>
-                          <div className="rounded-2xl border p-3 text-center" style={{ borderColor: hasChanges ? `${eventColor}60` : undefined, backgroundColor: hasChanges ? `${eventColor}08` : '#f8fafc' }}>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Nuevos invitados totales</p>
-                            <p className="text-2xl font-black" style={{ color: hasChanges ? eventColor : undefined }}>{sim.totalNuevo}</p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              {sim.adultosNuevos} adultos · {sim.ninosNuevos} menores
-                            </p>
-                          </div>
-                        </div>
-
-                        {hasChanges && (
-                          <div className="space-y-2">
-                            {sim.serviciosFijos.length > 0 && (
-                              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1">
-                                  <CheckCircle2 className="w-3 h-3 text-slate-400" /> Servicios fijos (no cambian)
-                                </p>
-                                <div className="space-y-1">
-                                  {sim.serviciosFijos.slice(0, 4).map((s, i) => (
-                                    <div key={i} className="flex justify-between items-center text-xs">
-                                      <span className="text-slate-600 truncate flex-1">{s.nombre}</span>
-                                      <span className="text-slate-500 shrink-0 ml-2 font-medium">{formatCurrency(s.costo)}</span>
-                                    </div>
-                                  ))}
-                                  {sim.serviciosFijos.length > 4 && (
-                                    <p className="text-xs text-slate-400">+{sim.serviciosFijos.length - 4} más...</p>
-                                  )}
-                                </div>
-                                <div className="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs font-bold">
-                                  <span className="text-slate-600">Total fijo</span>
-                                  <span className="text-slate-700">{formatCurrency(sim.costosFijosActuales)}</span>
-                                </div>
-                              </div>
-                            )}
-
-                            {sim.serviciosVariables.length > 0 && (
-                              <div className="rounded-2xl border p-3" style={{ borderColor: `${eventColor}30`, backgroundColor: `${eventColor}06` }}>
-                                <p className="text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-1" style={{ color: eventColor }}>
-                                  <TrendingUp className="w-3 h-3" /> Servicios por persona (cambian)
-                                </p>
-                                <div className="space-y-1">
-                                  {sim.serviciosVariables.slice(0, 5).map((s, i) => (
-                                    <div key={i} className="flex justify-between items-center text-xs gap-2">
-                                      <span className="text-slate-600 truncate flex-1">{s.nombre}</span>
-                                      <span className="text-slate-400 shrink-0">{formatCurrency(s.costoActual)}</span>
-                                      <span className="text-[10px] text-slate-400">→</span>
-                                      <span className="shrink-0 font-bold" style={{ color: eventColor }}>{formatCurrency(s.costoNuevo)}</span>
-                                    </div>
-                                  ))}
-                                  {sim.serviciosVariables.length > 5 && (
-                                    <p className="text-xs text-slate-400">+{sim.serviciosVariables.length - 5} más...</p>
-                                  )}
-                                </div>
-                                <div className="mt-2 pt-2 border-t flex justify-between text-xs font-bold" style={{ borderColor: `${eventColor}20` }}>
-                                  <span className="text-slate-600">Impacto variable</span>
-                                  <span style={{ color: eventColor }}>+{formatCurrency(sim.costoVariableNuevo - sim.costoVariableActual)}</span>
-                                </div>
-                              </div>
-                            )}
-
-                            <div className="rounded-2xl p-4 text-white" style={{ background: `linear-gradient(135deg, ${eventColor}, ${eventColor}cc)` }}>
-                              <div className="grid grid-cols-2 gap-3 text-center">
-                                <div>
-                                  <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Total actual</p>
-                                  <p className="text-xl font-black">{formatCurrency(sim.costoActual)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Nuevo total estimado</p>
-                                  <p className="text-xl font-black">{formatCurrency(sim.costoNuevo)}</p>
-                                </div>
-                              </div>
-                              <div className="mt-3 pt-3 border-t border-white/20 text-center">
-                                <p className="text-[10px] uppercase tracking-widest opacity-80">Impacto estimado</p>
-                                <p className="text-2xl font-black mt-0.5">
-                                  {sim.impacto >= 0 ? '+' : ''}{formatCurrency(sim.impacto)}
-                                </p>
-                                {sim.impacto > 0 && (adultDelta + kidsDelta) > 0 && (
-                                  <p className="text-[11px] opacity-80 mt-1">
-                                    ≈ {formatCurrency(Math.round(sim.impacto / (adultDelta + kidsDelta)))} por invitado adicional
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 flex items-start gap-2">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                              <p className="text-xs text-amber-700">Esta es una estimación basada en el presupuesto. El monto final lo confirma el equipo AK.</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {!hasChanges && (
-                          <p className="text-center text-xs text-muted-foreground py-2">
-                            Ajustá las cantidades para ver el impacto estimado en el costo de tu evento.
-                          </p>
-                        )}
-
-                        {hasChanges && (
-                          <div className="space-y-2">
-                            <Textarea
-                              value={simRequestNote}
-                              onChange={(e) => setSimRequestNote(e.target.value)}
-                              placeholder="Nota opcional para el equipo (ej: son invitados de última hora de la mesa 5)."
-                              rows={2}
-                              className="rounded-xl text-sm"
-                            />
-                            <Button
-                              className="w-full rounded-xl font-bold"
-                              style={{ backgroundColor: eventColor, borderColor: eventColor }}
-                              onClick={handleSubmitMenuRequest}
-                              disabled={simRequestLoading}
-                            >
-                              {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-                              Enviar solicitud al equipo AK
-                            </Button>
-                          </div>
-                        )}
-
-                        {menuChangeRequests.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Solicitudes recientes</p>
-                            {menuChangeRequests.slice(-3).reverse().map((request) => (
-                              <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
-                                <div>
-                                  <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
-                                  <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
-                                </div>
-                                <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </CardContent>
-              </Card>
-            )}
 
             {/* ── 12. Lista de regalos ── */}
             {settings?.listaRegalos?.visible && fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0 && (
@@ -2015,6 +2098,64 @@ export default function PublicPortalView({
                 <p className="text-center text-xs text-muted-foreground">{companyName}</p>
               </CardContent>
             </Card>
+
+            {/* ── Firma AK Producciones ── */}
+            {(() => {
+              const guestExp = fiesta.guestExperienceSettings;
+              const instagramUrl = guestExp?.instagramUrl;
+              const whatsappUrl = guestExp?.whatsappUrl || (hasValidPhone ? whatsappHref : null);
+              const landingUrl = guestExp?.landingUrl;
+              const hasLinks = !!(instagramUrl || whatsappUrl || landingUrl);
+              return (
+                <div className="rounded-3xl border border-slate-200/60 bg-gradient-to-br from-slate-50 to-purple-50/30 px-6 py-6 text-center space-y-3">
+                  <div className="flex items-center gap-3 justify-center">
+                    <div className="w-0.5 h-6 bg-slate-300 rounded-full" />
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <div className="w-0.5 h-6 bg-slate-300 rounded-full" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-black text-base text-slate-800">
+                      ✨ Experiencia creada por {companyName}
+                    </p>
+                    <p className="text-sm text-slate-500 italic">
+                      &quot;Organizamos tu evento con dedicación y elegancia&quot;
+                    </p>
+                  </div>
+                  {hasLinks && (
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                      {instagramUrl && (
+                        <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="outline" className="rounded-full text-xs gap-1.5 border-slate-200 hover:border-pink-300 hover:text-pink-600">
+                            <Heart className="w-3.5 h-3.5" />
+                            Instagram
+                          </Button>
+                        </a>
+                      )}
+                      {whatsappUrl && (
+                        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="outline" className="rounded-full text-xs gap-1.5 border-slate-200 hover:border-green-300 hover:text-green-600">
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            WhatsApp
+                          </Button>
+                        </a>
+                      )}
+                      {landingUrl && (
+                        <a href={landingUrl} target="_blank" rel="noopener noreferrer">
+                          <Button size="sm" variant="outline" className="rounded-full text-xs gap-1.5 border-slate-200 hover:border-violet-300 hover:text-violet-600">
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            Ver servicios
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 justify-center">
+                    <div className="w-0.5 h-6 bg-slate-300 rounded-full" />
+                    <div className="w-0.5 h-6 bg-slate-300 rounded-full" />
+                  </div>
+                </div>
+              );
+            })()}
 
           </div>
 
