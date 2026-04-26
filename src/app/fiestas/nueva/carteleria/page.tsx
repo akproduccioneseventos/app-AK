@@ -298,6 +298,10 @@ function CarteleriaContent() {
   const [cardLayout, setCardLayout] = useState<(typeof CARD_LAYOUT_PRESETS)[number]['value']>('10x15');
   const [showSeatingPlan, setShowSeatingPlan] = useState(true);
   const [showWelcomePoster, setShowWelcomePoster] = useState(true);
+  const [seatingPlanTitle, setSeatingPlanTitle] = useState('Busca tu mesa');
+  const [seatingPlanColumns, setSeatingPlanColumns] = useState<'1' | '2' | '3' | '4'>('2');
+  const [seatingPlanBgColor, setSeatingPlanBgColor] = useState('#ffffff');
+  const [seatingPlanTextColor, setSeatingPlanTextColor] = useState('#334155');
 
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -620,12 +624,13 @@ function CarteleriaContent() {
 
             <div className="p-4 overflow-y-auto">
               <Tabs defaultValue="general" className="space-y-4">
-                <TabsList className="grid grid-cols-2 md:grid-cols-6 h-auto gap-1">
+                <TabsList className="grid grid-cols-2 md:grid-cols-7 h-auto gap-1">
                   <TabsTrigger value="general">General</TabsTrigger>
                   <TabsTrigger value="carta">Carta de Tragos</TabsTrigger>
                   <TabsTrigger value="menu">Menú</TabsTrigger>
                   <TabsTrigger value="qr">QR</TabsTrigger>
                   <TabsTrigger value="numeros">Números</TabsTrigger>
+                  <TabsTrigger value="seating">Busca tu mesa</TabsTrigger>
                   <TabsTrigger value="impresion">Impresión</TabsTrigger>
                 </TabsList>
 
@@ -864,6 +869,47 @@ function CarteleriaContent() {
                   </div>
                 </TabsContent>
 
+                <TabsContent value="seating" className="space-y-4">
+                  <div className="space-y-2 rounded-lg border p-3">
+                    <label className="flex items-center gap-2 text-sm font-medium">
+                      <input type="checkbox" checked={showSeatingPlan} onChange={e => setShowSeatingPlan(e.target.checked)} />
+                      Mostrar cartel "Busca tu mesa"
+                    </label>
+                    {showSeatingPlan && (
+                      <label className="flex items-center gap-2 text-sm font-medium ml-6 text-muted-foreground">
+                        <input type="checkbox" checked={showSeatingQr} onChange={e => setShowSeatingQr(e.target.checked)} />
+                        Incluir código QR para consultar mesa en el cartel
+                      </label>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1 md:col-span-2">
+                      <Label>Título del cartel</Label>
+                      <Input value={seatingPlanTitle} onChange={e => setSeatingPlanTitle(e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Columnas de la lista</Label>
+                      <Select value={seatingPlanColumns} onValueChange={value => setSeatingPlanColumns(value as '1' | '2' | '3' | '4')}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1 columna</SelectItem>
+                          <SelectItem value="2">2 columnas</SelectItem>
+                          <SelectItem value="3">3 columnas</SelectItem>
+                          <SelectItem value="4">4 columnas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color de fondo</Label>
+                      <Input type="color" value={seatingPlanBgColor} onChange={e => setSeatingPlanBgColor(e.target.value)} className="w-full h-10" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Color del texto de la lista</Label>
+                      <Input type="color" value={seatingPlanTextColor} onChange={e => setSeatingPlanTextColor(e.target.value)} className="w-full h-10" />
+                    </div>
+                  </div>
+                </TabsContent>
+
                 <TabsContent value="impresion" className="space-y-4">
                   <div className="space-y-1">
                     <Label>Medida predefinida (A4)</Label>
@@ -1027,14 +1073,14 @@ function CarteleriaContent() {
 
         {showSeatingPlan && (
           <A4Page className="items-stretch justify-start p-0">
-            <div className="w-full h-full flex flex-col" style={{ fontFamily: tableFontFamily }}>
+            <div className="w-full h-full flex flex-col" style={{ fontFamily: tableFontFamily, backgroundColor: seatingPlanBgColor }}>
               {/* Header */}
               <div
                 className="flex items-center justify-between px-10 py-6 shrink-0"
                 style={{ backgroundColor: primaryColor }}
               >
                 <div className="text-white">
-                  <h2 className="font-headline text-4xl font-black tracking-tight leading-none">Busca tu mesa</h2>
+                  <h2 className="font-headline text-4xl font-black tracking-tight leading-none">{seatingPlanTitle}</h2>
                   <p className="text-sm mt-1 opacity-80 uppercase tracking-widest">{nombreEvento}</p>
                 </div>
                 {showSeatingQr && fiestaId && (
@@ -1053,7 +1099,7 @@ function CarteleriaContent() {
               {/* Guest list */}
               <div className="flex-1 p-8 overflow-hidden">
                 {invitadosPorMesa.length > 0 ? (
-                  <div className="columns-2 gap-5 text-sm">
+                  <div className={{ '1': 'columns-1', '2': 'columns-2', '3': 'columns-3', '4': 'columns-4' }[seatingPlanColumns] + ' gap-5 text-sm'}>
                     {invitadosPorMesa.map(([mesa, nombres]) => {
                       const mesaLabel = salonTableLabels.get(mesa);
                       return (
@@ -1074,7 +1120,7 @@ function CarteleriaContent() {
                           </span>
                           {mesaLabel ? `${mesaLabel} (Mesa ${mesa})` : `Mesa ${mesa}`}
                         </p>
-                        <ul className="space-y-0.5 text-slate-700">
+                        <ul className="space-y-0.5" style={{ color: seatingPlanTextColor }}>
                           {nombres.map((nombre, index) => (
                             <li key={`${mesa}-${nombre}-${index}`} className="flex items-center gap-1.5">
                               <span className="w-1 h-1 rounded-full bg-slate-400 inline-block shrink-0" />
