@@ -316,6 +316,10 @@ export default function PublicPortalView({
   const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(fiesta.clienteDebeLlevar ?? []);
   const [isSavingDebeLlevar, setIsSavingDebeLlevar] = useState(false);
 
+  // Panel state
+  const [showItinerarioPanel, setShowItinerarioPanel] = useState(false);
+  const [showPagosPanel, setShowPagosPanel] = useState(false);
+
   // Guest list RSVP state
   const [invitados, setInvitados] = useState(fiesta.invitados ?? []);
   const [updatingRsvpId, setUpdatingRsvpId] = useState<string | null>(null);
@@ -507,6 +511,11 @@ export default function PublicPortalView({
     } finally {
       setSimRequestLoading(false);
     }
+  };
+
+  const handleOpenInformarPago = () => {
+    setShowPagosPanel(false);
+    setShowPagoModal(true);
   };
 
   // Event name display — use eventDisplayName override, fallback to config name
@@ -729,14 +738,7 @@ export default function PublicPortalView({
             )}
             <button
               className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
-              onClick={() => {
-                const el = document.getElementById('seccion-pagos');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  setShowPagoModal(true);
-                }
-              }}
+              onClick={() => setShowPagosPanel(true)}
             >
               <CreditCard className="w-3.5 h-3.5" />
               Hacer un pago
@@ -964,238 +966,50 @@ export default function PublicPortalView({
             </Card>
 
             {/* ── 2. Pagos y documentos ── */}
-            {(settings?.pagos?.visible || settings?.informarPago?.visible || settings?.serviciosContratados?.visible || settings?.contrato?.visible || settings?.documentos?.visible) && (presupuesto || settings?.contrato?.visible) && (
-              <Card id="seccion-pagos" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2 bg-gradient-to-r from-emerald-50 to-teal-50">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-emerald-600" />
-                    Pagos y documentos
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Estado de cuenta, pagos y documentación</p>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
-
-                  {/* Payments & Balance */}
-                  {settings?.pagos?.visible && presupuesto && (
-                    <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between text-xs text-muted-foreground font-medium">
-                          <span>{Math.round(porcentajePagado)}% pagado</span>
-                          <span>{formatCurrency(totalPagado)} de {formatCurrency(totalCosto)}</span>
-                        </div>
-                        <div className="h-3 rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{
-                              width: `${porcentajePagado}%`,
-                              background: isPaid
-                                ? 'linear-gradient(90deg, #10b981, #059669)'
-                                : 'linear-gradient(90deg, #f59e0b, #d97706)',
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Total del evento</span>
-                          <span className="font-bold">{formatCurrency(totalCosto)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-700 flex items-center gap-1.5">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Total pagado
-                          </span>
-                          <span className="font-bold text-emerald-700">{formatCurrency(totalPagado)}</span>
-                        </div>
-                        <Separator />
-                        <div className={`flex justify-between items-center rounded-xl p-3 ${isPaid ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'}`}>
-                          <span className={`font-black uppercase text-sm tracking-tight flex items-center gap-2 ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
-                            {isPaid ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                            {isPaid ? 'CUENTA SALDADA' : 'SALDO PENDIENTE'}
-                          </span>
-                          <span className={`font-black text-lg ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
-                            {isPaid ? formatCurrency(0) : formatCurrency(saldoPendiente)}
-                          </span>
-                        </div>
-                      </div>
-                      {pagos.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
-                            Historial de Pagos
-                          </p>
-                          <div className="border rounded-xl overflow-hidden text-sm">
-                            {pagos.map((pago, idx) => (
-                              <div key={pago.id}>
-                                {idx > 0 && <Separator />}
-                                <div className="flex items-center justify-between px-3 py-2.5 gap-2">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <Badge variant="secondary" className="flex items-center gap-1 text-[9px] font-bold uppercase shrink-0">
-                                      <MetodoPagoIcon metodo={pago.metodoPago} />
-                                      {pago.metodoPago}
-                                    </Badge>
-                                    <span className="text-xs text-muted-foreground truncate">{formatDate(pago.fecha)}</span>
-                                  </div>
-                                  <span className="font-bold text-emerald-700 shrink-0">{formatCurrency(pago.monto)}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {pagos.length === 0 && (
-                        <div className="text-center py-4 text-muted-foreground text-xs border border-dashed rounded-xl">
-                          Sin pagos registrados aún
-                        </div>
-                      )}
+            {(settings?.pagos?.visible || settings?.informarPago?.visible || settings?.serviciosContratados?.visible || settings?.contrato?.visible || settings?.documentos?.visible) && (
+              <button
+                onClick={() => setShowPagosPanel(true)}
+                className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
+              >
+                <div className="px-5 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2.5 rounded-2xl bg-emerald-100 shrink-0">
+                      <DollarSign className="w-5 h-5 text-emerald-600" />
                     </div>
-                  )}
-
-                  {/* Informar Pago VIP */}
-                  {settings?.informarPago?.visible !== false && presupuesto && saldoPendiente > 0 && (
-                    <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-violet-900 to-primary p-6 space-y-4 text-white">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-2xl bg-white/20">
-                          <Crown className="w-6 h-6 text-yellow-300" />
-                        </div>
-                        <div>
-                          <p className="font-black text-lg">Informar un Pago</p>
-                          <p className="text-xs text-white/70">Subí tu comprobante y lo verificamos al instante</p>
-                        </div>
-                      </div>
-                      {settings?.cuentasBancarias && settings.cuentasBancarias.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-white/60">
-                            Datos Bancarios para Transferencia
-                          </p>
-                          {settings.cuentasBancarias.map((cuenta) => (
-                            <div key={cuenta.id} className="flex items-start gap-3 bg-white/10 rounded-2xl px-4 py-3">
-                              <Building2 className="w-4 h-4 text-yellow-300 mt-0.5 shrink-0" />
-                              <div className="text-sm">
-                                <p className="font-bold">{cuenta.banco}</p>
-                                <p className="text-white/80">{cuenta.titular}</p>
-                                <p className="text-white/60 text-xs font-mono">{cuenta.numero}</p>
-                                {cuenta.tipo && <p className="text-white/50 text-xs">{cuenta.tipo}</p>}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {pagoSuccess ? (
-                        <div className="flex flex-col items-center gap-2 py-4 text-center">
-                          <CheckCircle2 className="w-10 h-10 text-green-300" />
-                          <p className="font-black text-lg">¡Pago informado!</p>
-                          <p className="text-sm text-white/70">
-                            Recibirás confirmación cuando lo verifiquemos. 🎉
-                          </p>
-                        </div>
-                      ) : (
-                        <Button
-                          onClick={() => setShowPagoModal(true)}
-                          className="w-full h-14 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-black text-base shadow-lg border-0"
-                        >
-                          <Upload className="w-5 h-5 mr-2" />
-                          Informar Pago
-                        </Button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Services / Budget Breakdown */}
-                  {settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 && (
-                    <div id="seccion-servicios" className="space-y-3">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <Package className="w-3.5 h-3.5" />
-                        ¿Qué estoy contratando?
-                      </p>
-                      {presupuesto?.nombrePromocion && (
-                        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-primary/5 border border-primary/20">
-                          <Star className="w-4 h-4 text-primary shrink-0" />
-                          <p className="text-xs font-semibold text-primary">Promoción aplicada: {presupuesto.nombrePromocion}</p>
-                        </div>
-                      )}
-                      <div className="space-y-1.5">
-                        {itemsPresupuestados.map((item, index) => (
-                          <div key={`${item.idServicioCatalogo}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-muted/40 text-sm">
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium leading-snug">{item.nombreServicio}</p>
-                              <p className="text-[11px] text-muted-foreground">
-                                {item.cantidad} {item.unidad || 'unidad'}{item.cantidad > 1 ? 'es' : ''}{item.categoriaServicio ? ` · ${item.categoriaServicio}` : ''}
-                              </p>
-                            </div>
-                            {item.esRegalo && (
-                              <Badge variant="secondary" className="text-[9px] shrink-0 bg-emerald-100 text-emerald-700 border-emerald-200">
-                                🎁 Incluido
-                              </Badge>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Contract and Documents */}
-                  {settings?.contrato?.visible && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo || (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0)) && (
-                    <div className="space-y-3">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <FileSignature className="w-3.5 h-3.5" />
-                        Contrato y Documentos
-                      </p>
-                      {(fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo) && (
+                    <div className="min-w-0">
+                      {presupuesto ? (
                         <>
-                          {fiesta.contratoFirmaInfo?.isSigned ? (
-                            <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
-                              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                              <div className="flex-1">
-                                <p className="font-bold text-emerald-800 text-sm">Contrato Firmado ✅</p>
-                                {fiesta.contratoFirmaInfo.signedAt && (
-                                  <p className="text-xs text-emerald-700">
-                                    {formatDate(fiesta.contratoFirmaInfo.signedAt)}
-                                    {fiesta.contratoFirmaInfo.method === 'digital' ? ' · Digital' : fiesta.contratoFirmaInfo.method === 'physical' ? ' · Físico' : ''}
-                                  </p>
-                                )}
-                              </div>
-                              <a href={`/portal/${fiesta.id}/contrato`} target="_blank" rel="noopener noreferrer">
-                                <Button size="sm" variant="outline" className="rounded-xl shrink-0 text-xs gap-1">
-                                  <ExternalLink className="w-3 h-3" /> Ver
-                                </Button>
-                              </a>
+                          <p className="font-bold text-sm text-slate-800">💳 Pagos y documentos</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden max-w-[80px]">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${porcentajePagado}%`,
+                                  background: isPaid
+                                    ? 'linear-gradient(90deg, #10b981, #059669)'
+                                    : 'linear-gradient(90deg, #f59e0b, #d97706)',
+                                }}
+                              />
                             </div>
-                          ) : (
-                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
-                              <div className="flex items-center gap-3">
-                                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-                                <div>
-                                  <p className="font-bold text-amber-800 text-sm">Pendiente de firma ⏳</p>
-                                  <p className="text-xs text-amber-700">Tu contrato aún no fue firmado</p>
-                                </div>
-                              </div>
-                              <a href={`/portal/${fiesta.id}/contrato`}>
-                                <Button size="sm" className="rounded-xl shrink-0 text-xs">
-                                  Firmar
-                                </Button>
-                              </a>
-                            </div>
-                          )}
+                            <span className={`text-xs font-semibold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
+                              {isPaid ? 'Saldado ✓' : `Saldo: ${formatCurrency(saldoPendiente)}`}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-bold text-sm text-slate-800">📄 Documentos y contrato</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Ver contrato y documentos</p>
                         </>
                       )}
-                      {fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0 && (
-                        <div className="space-y-1.5">
-                          {fiesta.othersDocumentos.map(doc => (
-                            <div key={doc.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-muted/60">
-                              <FileText className="w-4 h-4 text-primary shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm truncate">{doc.nombre}</p>
-                                <p className="text-xs text-muted-foreground">{doc.tipo}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  )}
-
-                </CardContent>
-              </Card>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-emerald-500 shrink-0" />
+                </div>
+              </button>
             )}
+
 
             {/* ── 3. Lo que tengo que enviar o llevar ── */}
             {debeLlevarItems.length > 0 && (
@@ -1500,67 +1314,30 @@ export default function PublicPortalView({
             )}
 
             {/* ── 6. Itinerario ── */}
-            {settings?.itinerario?.visible && programa.length > 0 && (
-              <Card id="seccion-itinerario" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Calendar className="w-5 h-5" style={{ color: eventColor }} />
-                    Itinerario
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Hacé click en cada momento para ver los detalles</p>
-                </CardHeader>
-                <CardContent className="pt-3 pb-4">
-                  <div className="relative pl-6">
-                    <div className="absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full" style={{ backgroundColor: `${eventColor}40` }} />
-                    <div className="space-y-0">
-                      {programa.map((item) => {
-                        const isOpen = openProgramaIds.has(item.id);
-                        const toggleItem = () => setOpenProgramaIds(prev => {
-                          const next = new Set(prev);
-                          if (next.has(item.id)) next.delete(item.id);
-                          else next.add(item.id);
-                          return next;
-                        });
-                        const ItemIcon = getItineraryIcon(item.titulo || '');
-                        return (
-                          <div key={item.id} className="relative flex items-start gap-4 py-2">
-                            <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
-                              <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <button
-                                className="w-full flex items-center gap-2 py-1 text-left"
-                                onClick={toggleItem}
-                              >
-                                <div className="flex items-center gap-2 flex-1 flex-wrap">
-                                  <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: eventColor }}>
-                                    {item.hora}
-                                  </span>
-                                  <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                                  <span className="font-semibold text-sm">{item.titulo}</span>
-                                </div>
-                                {item.descripcion && (
-                                  isOpen
-                                    ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                                    : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                                )}
-                              </button>
-                              {isOpen && item.descripcion && (
-                                <div className="mt-1 mb-2 pl-1">
-                                  <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
-                                    {item.descripcion}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+            {settings?.itinerario?.visible && (
+              <button
+                onClick={() => setShowItinerarioPanel(true)}
+                className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
+              >
+                <div className="px-5 py-4 flex items-center justify-between gap-4" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2.5 rounded-2xl shrink-0" style={{ backgroundColor: `${eventColor}22` }}>
+                      <Calendar className="w-5 h-5" style={{ color: eventColor }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-slate-800">📋 Ver itinerario</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {programa.length > 0
+                          ? `${programa.length} momento${programa.length !== 1 ? 's' : ''} del evento`
+                          : 'El itinerario estará disponible próximamente'}
+                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <ChevronRight className="w-5 h-5 shrink-0" style={{ color: eventColor }} />
+                </div>
+              </button>
             )}
+
 
             {/* ── 7. Fotos y video ── */}
             {settings?.fotografiaYFilmacion?.visible && fiesta.fotografiaYFilmacion && fiesta.fotografiaYFilmacion.servicios.length > 0 && (
@@ -1663,7 +1440,7 @@ export default function PublicPortalView({
             )}
 
             {/* ── 9. Música ── */}
-            {settings?.musica?.visible && musica && (musica.cancionEntrada || musica.cancionVals || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0) || musica.listaNoReproducir) && (
+            {settings?.musica?.visible && (
               <Card id="seccion-musica" className="shadow-lg border-0 rounded-3xl">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1672,6 +1449,8 @@ export default function PublicPortalView({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-3">
+                  {musica && (musica.cancionEntrada || musica.cancionVals || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0) || musica.listaNoReproducir) ? (
+                    <>
                   {musica.cancionEntrada && (
                     <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
                       <span className="text-lg">🎵</span>
@@ -1709,6 +1488,12 @@ export default function PublicPortalView({
                         <p className="text-sm text-muted-foreground">{musica.listaNoReproducir}</p>
                       </div>
                     </div>
+                  )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-xl">
+                      🎵 La información de música estará disponible próximamente.
+                    </p>
                   )}
                 </CardContent>
               </Card>
@@ -2309,6 +2094,344 @@ export default function PublicPortalView({
               )}
               Enviar Pago
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Itinerario Panel (bottom sheet on mobile, modal on desktop) ── */}
+      {showItinerarioPanel && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowItinerarioPanel(false)}>
+          <div
+            className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col animate-in slide-in-from-bottom-4 duration-300"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" style={{ color: eventColor }} />
+                <h2 className="font-black text-base">Itinerario</h2>
+              </div>
+              <button
+                onClick={() => setShowItinerarioPanel(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            {/* Content */}
+            <div className="overflow-y-auto flex-1 px-5 py-4">
+              {programa.length === 0 ? (
+                <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
+                  <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
+                  <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
+                </div>
+              ) : (
+                <div className="relative pl-6">
+                  <div className="absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full" style={{ backgroundColor: `${eventColor}40` }} />
+                  <div className="space-y-0">
+                    {programa.map((item) => {
+                      const isOpen = openProgramaIds.has(item.id);
+                      const toggleItem = () => setOpenProgramaIds(prev => {
+                        const next = new Set(prev);
+                        if (next.has(item.id)) next.delete(item.id);
+                        else next.add(item.id);
+                        return next;
+                      });
+                      const ItemIcon = getItineraryIcon(item.titulo || '');
+                      return (
+                        <div key={item.id} className="relative flex items-start gap-4 py-2">
+                          <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
+                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <button
+                              className="w-full flex items-center gap-2 py-1 text-left"
+                              onClick={toggleItem}
+                            >
+                              <div className="flex items-center gap-2 flex-1 flex-wrap">
+                                <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: eventColor }}>
+                                  {item.hora}
+                                </span>
+                                <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                                <span className="font-semibold text-sm">{item.titulo}</span>
+                              </div>
+                              {item.descripcion && (
+                                isOpen
+                                  ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                  : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                              )}
+                            </button>
+                            {isOpen && item.descripcion && (
+                              <div className="mt-1 mb-2 pl-1">
+                                <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
+                                  {item.descripcion}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Pagos y documentos Panel (full-screen slide-up) ── */}
+      {showPagosPanel && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowPagosPanel(false)}>
+          <div
+            className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-4 duration-300"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-emerald-50 to-teal-50 rounded-t-3xl">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-emerald-600" />
+                <h2 className="font-black text-base">Pagos y documentos</h2>
+              </div>
+              <button
+                onClick={() => setShowPagosPanel(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            {/* Content */}
+            <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+
+              {/* No presupuesto placeholder */}
+              {!presupuesto && (
+                <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
+                  <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm font-semibold">Sin presupuesto cargado aún</p>
+                  <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
+                </div>
+              )}
+
+              {/* Payments & Balance */}
+              {settings?.pagos?.visible && presupuesto && (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs text-muted-foreground font-medium">
+                      <span>{Math.round(porcentajePagado)}% pagado</span>
+                      <span>{formatCurrency(totalPagado)} de {formatCurrency(totalCosto)}</span>
+                    </div>
+                    <div className="h-3 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${porcentajePagado}%`,
+                          background: isPaid
+                            ? 'linear-gradient(90deg, #10b981, #059669)'
+                            : 'linear-gradient(90deg, #f59e0b, #d97706)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Total del evento</span>
+                      <span className="font-bold">{formatCurrency(totalCosto)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-emerald-700 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Total pagado
+                      </span>
+                      <span className="font-bold text-emerald-700">{formatCurrency(totalPagado)}</span>
+                    </div>
+                    <Separator />
+                    <div className={`flex justify-between items-center rounded-xl p-3 ${isPaid ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'}`}>
+                      <span className={`font-black uppercase text-sm tracking-tight flex items-center gap-2 ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                        {isPaid ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                        {isPaid ? 'CUENTA SALDADA' : 'SALDO PENDIENTE'}
+                      </span>
+                      <span className={`font-black text-lg ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                        {isPaid ? formatCurrency(0) : formatCurrency(saldoPendiente)}
+                      </span>
+                    </div>
+                  </div>
+                  {pagos.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                        Historial de Pagos
+                      </p>
+                      <div className="border rounded-xl overflow-hidden text-sm">
+                        {pagos.map((pago, idx) => (
+                          <div key={pago.id}>
+                            {idx > 0 && <Separator />}
+                            <div className="flex items-center justify-between px-3 py-2.5 gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <Badge variant="secondary" className="flex items-center gap-1 text-[9px] font-bold uppercase shrink-0">
+                                  <MetodoPagoIcon metodo={pago.metodoPago} />
+                                  {pago.metodoPago}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground truncate">{formatDate(pago.fecha)}</span>
+                              </div>
+                              <span className="font-bold text-emerald-700 shrink-0">{formatCurrency(pago.monto)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {pagos.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground text-xs border border-dashed rounded-xl">
+                      Sin pagos registrados aún
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Informar Pago VIP */}
+              {settings?.informarPago?.visible !== false && presupuesto && saldoPendiente > 0 && (
+                <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-violet-900 to-primary p-6 space-y-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-2xl bg-white/20">
+                      <Crown className="w-6 h-6 text-yellow-300" />
+                    </div>
+                    <div>
+                      <p className="font-black text-lg">Informar un Pago</p>
+                      <p className="text-xs text-white/70">Subí tu comprobante y lo verificamos al instante</p>
+                    </div>
+                  </div>
+                  {settings?.cuentasBancarias && settings.cuentasBancarias.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-white/60">
+                        Datos Bancarios para Transferencia
+                      </p>
+                      {settings.cuentasBancarias.map((cuenta) => (
+                        <div key={cuenta.id} className="flex items-start gap-3 bg-white/10 rounded-2xl px-4 py-3">
+                          <Building2 className="w-4 h-4 text-yellow-300 mt-0.5 shrink-0" />
+                          <div className="text-sm">
+                            <p className="font-bold">{cuenta.banco}</p>
+                            <p className="text-white/80">{cuenta.titular}</p>
+                            <p className="text-white/60 text-xs font-mono">{cuenta.numero}</p>
+                            {cuenta.tipo && <p className="text-white/50 text-xs">{cuenta.tipo}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {pagoSuccess ? (
+                    <div className="flex flex-col items-center gap-2 py-4 text-center">
+                      <CheckCircle2 className="w-10 h-10 text-green-300" />
+                      <p className="font-black text-lg">¡Pago informado!</p>
+                      <p className="text-sm text-white/70">
+                        Recibirás confirmación cuando lo verifiquemos. 🎉
+                      </p>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={handleOpenInformarPago}
+                      className="w-full h-14 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-black text-base shadow-lg border-0"
+                    >
+                      <Upload className="w-5 h-5 mr-2" />
+                      Informar Pago
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Services / Budget Breakdown */}
+              {settings?.serviciosContratados?.visible && itemsPresupuestados.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
+                    <Package className="w-3.5 h-3.5" />
+                    ¿Qué estoy contratando?
+                  </p>
+                  {presupuesto?.nombrePromocion && (
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-primary/5 border border-primary/20">
+                      <Star className="w-4 h-4 text-primary shrink-0" />
+                      <p className="text-xs font-semibold text-primary">Promoción aplicada: {presupuesto.nombrePromocion}</p>
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    {itemsPresupuestados.map((item, index) => (
+                      <div key={`${item.idServicioCatalogo}-${index}`} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-muted/40 text-sm">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium leading-snug">{item.nombreServicio}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {item.cantidad} {item.unidad || 'unidad'}{item.cantidad > 1 ? 'es' : ''}{item.categoriaServicio ? ` · ${item.categoriaServicio}` : ''}
+                          </p>
+                        </div>
+                        {item.esRegalo && (
+                          <Badge variant="secondary" className="text-[9px] shrink-0 bg-emerald-100 text-emerald-700 border-emerald-200">
+                            🎁 Incluido
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Contract and Documents */}
+              {settings?.contrato?.visible && (fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo || (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0)) && (
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
+                    <FileSignature className="w-3.5 h-3.5" />
+                    Contrato y Documentos
+                  </p>
+                  {(fiesta.contratoServicioTexto || fiesta.contratoFirmaInfo) && (
+                    <>
+                      {fiesta.contratoFirmaInfo?.isSigned ? (
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                          <div className="flex-1">
+                            <p className="font-bold text-emerald-800 text-sm">Contrato Firmado ✅</p>
+                            {fiesta.contratoFirmaInfo.signedAt && (
+                              <p className="text-xs text-emerald-700">
+                                {formatDate(fiesta.contratoFirmaInfo.signedAt)}
+                                {fiesta.contratoFirmaInfo.method === 'digital' ? ' · Digital' : fiesta.contratoFirmaInfo.method === 'physical' ? ' · Físico' : ''}
+                              </p>
+                            )}
+                          </div>
+                          <a href={`/portal/${fiesta.id}/contrato`} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" variant="outline" className="rounded-xl shrink-0 text-xs gap-1">
+                              <ExternalLink className="w-3 h-3" /> Ver
+                            </Button>
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                          <div className="flex items-center gap-3">
+                            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                            <div>
+                              <p className="font-bold text-amber-800 text-sm">Pendiente de firma ⏳</p>
+                              <p className="text-xs text-amber-700">Tu contrato aún no fue firmado</p>
+                            </div>
+                          </div>
+                          <a href={`/portal/${fiesta.id}/contrato`}>
+                            <Button size="sm" className="rounded-xl shrink-0 text-xs">
+                              Firmar
+                            </Button>
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0 && (
+                    <div className="space-y-1.5">
+                      {fiesta.othersDocumentos.map(doc => (
+                        <div key={doc.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-muted/60">
+                          <FileText className="w-4 h-4 text-primary shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm truncate">{doc.nombre}</p>
+                            <p className="text-xs text-muted-foreground">{doc.tipo}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+            </div>
           </div>
         </div>
       )}
