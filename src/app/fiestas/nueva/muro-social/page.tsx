@@ -426,58 +426,67 @@ function MuroSocialContent() {
   const handleLaunchGame = async (template: typeof GAME_TEMPLATES[number]) => {
     if (!fiestaId) return;
     setIsLaunchingGame(true);
-    // If user filled in a custom title, use it; otherwise use template defaults
-    const title = (selectedGameTemplate?.type === template.type && gameCustomTitle.trim())
-      ? gameCustomTitle.trim()
-      : template.title;
-    const subtitle = (selectedGameTemplate?.type === template.type && gameCustomSubtitle.trim())
-      ? gameCustomSubtitle.trim()
-      : template.subtitle;
-    let options = template.options;
-    if (selectedGameTemplate?.type === template.type && gameCustomOptions.trim()) {
-      options = gameCustomOptions
-        .split('\n')
-        .map((o, i) => ({ id: `opt_${i}`, text: o.trim() }))
-        .filter(o => o.text);
-    }
-    // For game types that require options but none provided, require at least 2
-    const requiresOptions = template.type !== 'baileLibre' && template.type !== 'preguntaAbierta';
-    if (requiresOptions && (!options || options.length < 2)) {
+    try {
+      // If user filled in a custom title, use it; otherwise use template defaults
+      const title = (selectedGameTemplate?.type === template.type && gameCustomTitle.trim())
+        ? gameCustomTitle.trim()
+        : template.title;
+      const subtitle = (selectedGameTemplate?.type === template.type && gameCustomSubtitle.trim())
+        ? gameCustomSubtitle.trim()
+        : template.subtitle;
+      let options = template.options;
+      if (selectedGameTemplate?.type === template.type && gameCustomOptions.trim()) {
+        options = gameCustomOptions
+          .split('\n')
+          .map((o, i) => ({ id: `opt_${i}`, text: o.trim() }))
+          .filter(o => o.text);
+      }
+      // For game types that require options but none provided, require at least 2
+      const requiresOptions = template.type !== 'baileLibre' && template.type !== 'preguntaAbierta';
+      if (requiresOptions && (!options || options.length < 2)) {
+        toast({ title: 'Se necesitan al menos 2 opciones', description: 'Agregá las opciones de respuesta antes de lanzar el juego.', variant: 'destructive' });
+        return;
+      }
+      const game: Omit<ActiveGameData, 'launchedAt'> = {
+        type: template.type,
+        title,
+        ...(subtitle ? { subtitle } : {}),
+        ...(options && options.length > 0 ? { options } : {}),
+      };
+      const result = await launchGame(fiestaId, game);
+      if (result.success) {
+        toast({ title: `Juego lanzado: ${template.label} 🎮`, description: 'Aparece en la pantalla gigante ahora.' });
+        setSelectedGameTemplate(null);
+        setGameCustomTitle('');
+        setGameCustomSubtitle('');
+        setGameCustomOptions('');
+        await refreshStatus();
+      } else {
+        toast({ title: 'Error al lanzar juego', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al lanzar juego', description: e.message || 'Error inesperado', variant: 'destructive' });
+    } finally {
       setIsLaunchingGame(false);
-      toast({ title: 'Se necesitan al menos 2 opciones', description: 'Agregá las opciones de respuesta antes de lanzar el juego.', variant: 'destructive' });
-      return;
-    }
-    const game: Omit<ActiveGameData, 'launchedAt'> = {
-      type: template.type,
-      title,
-      ...(subtitle ? { subtitle } : {}),
-      ...(options && options.length > 0 ? { options } : {}),
-    };
-    const result = await launchGame(fiestaId, game);
-    setIsLaunchingGame(false);
-    if (result.success) {
-      toast({ title: `Juego lanzado: ${template.label} 🎮`, description: 'Aparece en la pantalla gigante ahora.' });
-      setSelectedGameTemplate(null);
-      setGameCustomTitle('');
-      setGameCustomSubtitle('');
-      setGameCustomOptions('');
-      await refreshStatus();
-    } else {
-      toast({ title: 'Error al lanzar juego', description: result.error, variant: 'destructive' });
     }
   };
 
   const handleClearGame = async () => {
     if (!fiestaId) return;
     setIsLaunchingGame(true);
-    const result = await clearActiveGame(fiestaId);
-    setIsLaunchingGame(false);
-    if (result.success) {
-      setActiveGame(null); // immediate optimistic UI update
-      toast({ title: 'Juego detenido ⏹', description: 'La pantalla volvió al modo normal.' });
-      await refreshStatus();
-    } else {
-      toast({ title: 'Error al detener juego', description: result.error, variant: 'destructive' });
+    try {
+      const result = await clearActiveGame(fiestaId);
+      if (result.success) {
+        setActiveGame(null); // immediate optimistic UI update
+        toast({ title: 'Juego detenido ⏹', description: 'La pantalla volvió al modo normal.' });
+        await refreshStatus();
+      } else {
+        toast({ title: 'Error al detener juego', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al detener juego', description: e.message || 'Error inesperado', variant: 'destructive' });
+    } finally {
+      setIsLaunchingGame(false);
     }
   };
 
@@ -655,28 +664,6 @@ function MuroSocialContent() {
     }
   };
 
-  const handleTransferSorteoToScreen = async () => {
-    if (!fiestaId) return;
-    const participants = sorteoParticipants
-      .split('\n')
-      .map(p => p.trim())
-      .filter(Boolean);
-    if (participants.length === 0) {
-      toast({ title: 'Sin participantes', description: 'Ingresá los nombres de los participantes (uno por línea).', variant: 'destructive' });
-      return;
-    }
-    setIsTransferringSorteo(true);
-    const result = await transferSorteoToScreen(fiestaId);
-    setIsTransferringSorteo(false);
-    if (result.success) {
-      setSorteoTransferredToScreen(true);
-      setSorteoPreviewWinner(null);
-      toast({ title: '🎡 Sorteo transferido a pantalla', description: 'La ruleta ya aparece en la pantalla gigante. Cuando quieras, presioná "Iniciar Sorteo / Girar".' });
-    } else {
-      toast({ title: 'Error al transferir', description: result.error, variant: 'destructive' });
-    }
-  };
-
   const handleTriggerSorteo = async () => {
     if (!fiestaId) return;
     const participants = sorteoParticipants
@@ -694,12 +681,13 @@ function MuroSocialContent() {
     // Spin: many full rotations (10-14) plus the landing angle — longer spin for suspense
     const spinRotations = 10 + Math.floor(Math.random() * 5);
     setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
-    // Also trigger spin animation on the big screen immediately
+    // Also trigger spin animation on the big screen immediately (clears the static preview)
     await startSorteoSpinOnScreen(fiestaId);
     // After animation (6s for suspense), persist to Firestore and reveal winner
     setTimeout(async () => {
       setSorteoIsSpinning(false);
       setSorteoPreviewWinner(winner);
+      setSorteoTransferredToScreen(false);
       setIsTriggeringSorteo(true);
       const result = await triggerSorteoWinner(fiestaId, winner, sorteoPremio.trim() || undefined);
       setIsTriggeringSorteo(false);
@@ -711,6 +699,33 @@ function MuroSocialContent() {
         toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
       }
     }, 6000);
+  };
+
+  const handleTransferSorteoToScreen = async () => {
+    if (!fiestaId) return;
+    const participants = sorteoParticipants
+      .split('\n')
+      .map(p => p.trim())
+      .filter(Boolean);
+    if (participants.length === 0) {
+      toast({ title: 'Sin participantes', description: 'Ingresá los nombres antes de transferir a pantalla.', variant: 'destructive' });
+      return;
+    }
+    setIsTransferringSorteo(true);
+    try {
+      const result = await transferSorteoToScreen(fiestaId);
+      if (result.success) {
+        setSorteoTransferredToScreen(true);
+        setSorteoPreviewWinner(null);
+        toast({ title: 'Ruleta en pantalla gigante 🎡', description: 'Ya se ve en la pantalla. Presioná "Iniciar Sorteo" cuando estés listo.' });
+      } else {
+        toast({ title: 'Error al transferir sorteo', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al transferir sorteo', description: e.message || 'Error inesperado', variant: 'destructive' });
+    } finally {
+      setIsTransferringSorteo(false);
+    }
   };
 
   const handleLoadInvitadosToSorteo = async () => {
@@ -2021,40 +2036,36 @@ function MuroSocialContent() {
                   className="w-full rounded-md border px-3 py-2 text-sm min-h-[80px] resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   placeholder={"Juan García\nMaría López\nPedro Martínez\n..."}
                   value={sorteoParticipants}
-                  onChange={(e) => { setSorteoParticipants(e.target.value); setSorteoPreviewWinner(null); }}
+                  onChange={(e) => { setSorteoParticipants(e.target.value); setSorteoPreviewWinner(null); setSorteoTransferredToScreen(false); }}
                 />
                 {sorteoParticipants.trim() && (
                   <p className="text-xs text-slate-400">
                     {sorteoParticipants.split('\n').map(p => p.trim()).filter(Boolean).length} participantes
                   </p>
                 )}
-
-                {/* Step 1: Transfer to giant screen */}
-                <Button
-                  type="button"
-                  onClick={handleTransferSorteoToScreen}
-                  disabled={isTransferringSorteo || sorteoIsSpinning || isTriggeringSorteo || !sorteoParticipants.trim()}
-                  variant="outline"
-                  className="w-full border-yellow-400 text-yellow-800 hover:bg-yellow-50"
-                >
-                  {isTransferringSorteo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <span className="mr-2">📺</span>}
-                  {sorteoTransferredToScreen ? '✅ Ruleta en Pantalla' : 'Transferir a Pantalla Gigante'}
-                </Button>
-
-                {/* Step 2: Spin / Start (only enabled after transfer) */}
-                <Button
-                  type="button"
-                  onClick={handleTriggerSorteo}
-                  disabled={isTriggeringSorteo || sorteoIsSpinning || !sorteoParticipants.trim() || !sorteoTransferredToScreen}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white w-full"
-                >
-                  {(isTriggeringSorteo || sorteoIsSpinning) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
-                  {sorteoIsSpinning ? '¡Girando la ruleta! 🎡' : '🎲 Iniciar Sorteo / Girar'}
-                </Button>
-                {!sorteoTransferredToScreen && sorteoParticipants.trim() && (
-                  <p className="text-xs text-slate-400 text-center">Primero transferí a pantalla, luego iniciá el sorteo.</p>
+                {/* Step 1: Transfer to screen (static wheel) */}
+                {!sorteoTransferredToScreen ? (
+                  <Button
+                    type="button"
+                    onClick={handleTransferSorteoToScreen}
+                    disabled={isTransferringSorteo || sorteoIsSpinning || !sorteoParticipants.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 text-white w-full"
+                  >
+                    {isTransferringSorteo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
+                    🎡 Transferir a pantalla gigante
+                  </Button>
+                ) : (
+                  /* Step 2: Spin and pick winner */
+                  <Button
+                    type="button"
+                    onClick={handleTriggerSorteo}
+                    disabled={isTriggeringSorteo || sorteoIsSpinning}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white w-full"
+                  >
+                    {(isTriggeringSorteo || sorteoIsSpinning) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
+                    {sorteoIsSpinning ? '¡Girando la ruleta! 🎡' : '🎲 ¡Iniciar Sorteo / Girar!'}
+                  </Button>
                 )}
-
                 {lastSorteoWinner && !sorteoIsSpinning && !sorteoPreviewWinner && (
                   <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-center">
                     <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-1">Último ganador</p>

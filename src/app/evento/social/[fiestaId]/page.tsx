@@ -514,7 +514,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         toast({ title: "Error al subir", description: result.error, variant: "destructive" });
       }
     } catch (e: any) {
-      toast({ title: "Error al subir", description: e?.message || "No se pudo publicar la foto.", variant: "destructive" });
+      toast({ title: "Error al subir la foto", description: e.message || 'Ocurrió un error inesperado. Intentá de nuevo.', variant: "destructive" });
     } finally {
       setIsUploading(false);
     }
@@ -524,10 +524,14 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     if (localSettings.allowLikes === false) return;
     const originalPosts = [...posts];
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
-    const result = await addLikeToPost(postId);
-    if (!result.success) {
-      toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
-      setPosts(originalPosts); // Revert on error
+    try {
+      const result = await addLikeToPost(postId);
+      if (!result.success) {
+        toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
+        setPosts(originalPosts); // Revert on error
+      }
+    } catch {
+      setPosts(originalPosts); // Revert on exception
     }
   };
   

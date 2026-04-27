@@ -58,12 +58,12 @@ export default function MuroEnVivoPage() {
   const [activePoll, setActivePoll] = useState<PollData | null>(null);
   const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
   const [activeSorteoWinner, setActiveSorteoWinner] = useState<string | null>(null);
-  const [sorteoActiveOnScreen, setSorteoActiveOnScreen] = useState(false);
   const [sorteoSpinActive, setSorteoSpinActive] = useState(false);
   const [sorteoSpinWheelAngle, setSorteoSpinWheelAngle] = useState(0);
   const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
   const [highlightedComments, setHighlightedComments] = useState<{ postId: string; comment: SocialComment }[]>([]);
-  const [liveChatMessages, setLiveChatMessages] = useState<ChatMessage[]>([]);
+  const [recentChatMessages, setRecentChatMessages] = useState<ChatMessage[]>([]);
+  const [sorteoOnScreen, setSorteoOnScreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
@@ -81,7 +81,7 @@ export default function MuroEnVivoPage() {
         getInvoiceTemplateSettings(),
         getSocialConnections(),
         getDedications(fiestaId),
-        getChatMessages(fiestaId),
+        getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
       ]);
 
       const sorted = [...fetchedPosts].sort(
@@ -109,6 +109,9 @@ export default function MuroEnVivoPage() {
         // Sync active game
         setActiveGame(fiestaData.socialGallerySettings.activeGame ?? null);
 
+        // Sorteo static preview on screen (wheel shown before spinning)
+        setSorteoOnScreen(fiestaData.socialGallerySettings.sorteoOnScreen === true);
+
         // Sorteo winner display (TTL: SORTEO_DISPLAY_DURATION_MS)
         const sorteoTs = fiestaData.socialGallerySettings.activeSorteoTimestamp;
         const sorteoWinner = fiestaData.socialGallerySettings.activeSorteoWinner;
@@ -116,9 +119,6 @@ export default function MuroEnVivoPage() {
           sorteoTs && sorteoWinner &&
           Date.now() - new Date(sorteoTs).getTime() < SORTEO_DISPLAY_DURATION_MS;
         setActiveSorteoWinner(sorteoIsFresh ? sorteoWinner : null);
-
-        // Sorteo on-screen flag: show wheel waiting for spin
-        setSorteoActiveOnScreen(!!fiestaData.socialGallerySettings.sorteoActiveOnScreen && !sorteoIsFresh);
 
         // Sorteo spin animation (shows wheel spinning on big screen)
         const spinTs = fiestaData.socialGallerySettings.sorteoSpinStartedAt;
@@ -133,6 +133,15 @@ export default function MuroEnVivoPage() {
         setActivePoll({ id: pollData.id, question: pollData.question, options: pollData.options });
       } else {
         setActivePoll(null);
+      }
+      // Update recent chat messages: keep only the last 3 for display on screen
+      if (chatData && chatData.length > 0) {
+        const recent = [...chatData]
+          .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+          .slice(-3);
+        setRecentChatMessages(recent);
+      } else {
+        setRecentChatMessages([]);
       }
       setHighlightedDedications((dedicationsData ?? []).filter(d => d.highlighted));
       // Extract comments for the live wall: prefer operator-highlighted comments; fall back
@@ -154,11 +163,6 @@ export default function MuroEnVivoPage() {
         ).slice(0, 3);
         setHighlightedComments(recent);
       }
-      // Show the 5 most recent live chat messages on the big screen
-      const recentChat = [...(chatData ?? [])].sort(
-        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      ).slice(0, 5).reverse();
-      setLiveChatMessages(recentChat);
       setCompanyMarketingText(
         companyInfo?.companyName
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
@@ -372,29 +376,18 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
-          {/* Live chat overlay — shown when chat is enabled and there are messages, and no dedications/comments */}
-          {(() => {
-            const shouldShowLiveChat =
-              isLoaded &&
-              liveChatMessages.length > 0 &&
-              settings.chatEnabled !== false &&
-              !activePoll &&
-              highlightedDedications.length === 0 &&
-              highlightedComments.length === 0 &&
-              !hasSidePanel;
-            if (!shouldShowLiveChat) return null;
-            return (
-              <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-sky-300 mb-3">💬 Chat en Vivo</p>
-                {liveChatMessages.map(msg => (
-                  <div key={msg.id} className="rounded-2xl border border-sky-300/40 bg-black/70 px-4 py-3 shadow-lg backdrop-blur-md">
-                    <p className="text-sm font-semibold leading-snug text-white">{msg.text}</p>
-                    <p className="mt-1 text-[10px] font-bold tracking-widest text-sky-300 uppercase">— {msg.authorName}</p>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
+          {/* Live chat messages overlay — bottom-left, shown when chat is enabled and there are recent messages */}
+          {isLoaded && settings.chatEnabled !== false && recentChatMessages.length > 0 && !hasSidePanel && !activePoll && (
+            <div className="absolute left-6 bottom-6 z-10 w-[32vw] max-w-xs space-y-1.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
+              {recentChatMessages.map(msg => (
+                <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
+                  <span className="text-[11px] font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
+                  <span className="text-[12px] text-white/85 leading-snug">{msg.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── Right side panel: poll or game overlay ── */}
@@ -526,31 +519,26 @@ export default function MuroEnVivoPage() {
           </motion.div>
         )}
 
-        {/* Sorteo "ready" overlay — shows when the operator transferred the sorteo to screen
-            but hasn't pressed "Girar" yet.  Gives the audience a moment to see the wheel. */}
+        {/* Sorteo static preview — shows the wheel on screen before spinning starts */}
         <AnimatePresence>
-          {sorteoActiveOnScreen && !sorteoSpinActive && !activeSorteoWinner && (
+          {sorteoOnScreen && !sorteoSpinActive && !activeSorteoWinner && (
             <motion.div
-              key="sorteo-ready"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              key="sorteo-preview"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
               className="absolute inset-0 z-[44] flex flex-col items-center justify-center bg-black/85 text-center"
             >
-              <motion.p
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="mb-6 text-2xl font-black uppercase tracking-[0.5em] text-yellow-300"
-              >
-                🎲 ¡Sorteo Sorpresa! 🎲
-              </motion.p>
-              {/* Static wheel */}
+              <p className="mb-6 text-2xl font-black uppercase tracking-[0.5em] text-yellow-300">🎡 Sorteo Sorpresa 🎡</p>
               <div className="relative w-72 h-72">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20 w-0 h-0"
                   style={{ borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '28px solid #eab308' }} />
                 <div
                   className="w-72 h-72 rounded-full border-8 border-yellow-400 shadow-2xl"
-                  style={{ background: 'conic-gradient(#f43f5e, #f97316, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #f43f5e, #f97316, #eab308, #22c55e, #06b6d4)' }}
+                  style={{
+                    background: 'conic-gradient(#f43f5e, #f97316, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #f43f5e, #f97316, #eab308, #22c55e, #06b6d4)',
+                  }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-20 h-20 rounded-full bg-white border-4 border-yellow-400 flex items-center justify-center shadow-inner">
@@ -559,12 +547,18 @@ export default function MuroEnVivoPage() {
                 </div>
               </div>
               <motion.p
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="mt-8 text-xl font-bold text-white/80"
+                animate={{ opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="mt-6 text-xl font-bold text-white/70"
               >
-                ⏳ Esperando el giro…
+                🎁 ¡Sorteando en breve!
               </motion.p>
+              {settings.sorteoPremio && (
+                <div className="mt-4 rounded-2xl border-2 border-yellow-400/50 bg-yellow-400/10 px-8 py-3 backdrop-blur-sm">
+                  <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">🎁 Premio</p>
+                  <p className="text-2xl font-black text-white">{settings.sorteoPremio}</p>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

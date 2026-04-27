@@ -763,8 +763,8 @@ export interface SocialGallerySettings {
   activeSorteoTimestamp?: string;
   /** Timestamp when a sorteo spin was started — triggers wheel animation on the big screen */
   sorteoSpinStartedAt?: string;
-  /** When true the sorteo raffle view is shown on the giant screen (waiting for the spin) */
-  sorteoActiveOnScreen?: boolean;
+  /** When true, the raffle wheel is displayed statically on the big screen before spinning */
+  sorteoOnScreen?: boolean;
   /** Prize description shown alongside the sorteo winner on the giant screen */
   sorteoPremio?: string;
   screenMode?: ScreenModeSettings;

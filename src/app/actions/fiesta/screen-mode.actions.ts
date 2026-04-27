@@ -344,6 +344,7 @@ export async function startSorteoSpinOnScreen(
       socialGallerySettings: {
         ...settings,
         sorteoSpinStartedAt: new Date().toISOString(),
+        sorteoOnScreen: false,
         activeSorteoWinner: undefined,
       },
     });
@@ -353,11 +354,7 @@ export async function startSorteoSpinOnScreen(
   }
 }
 
-/**
- * Transfers the raffle (sorteo) view to the giant screen so the audience can see the
- * wheel BEFORE the operator actually starts the spin.  The DJ/host then presses a
- * separate "Iniciar Sorteo / Girar" button to trigger the animation.
- */
+/** Transfiere la ruleta del sorteo a la pantalla gigante (modo estático, sin girar) */
 export async function transferSorteoToScreen(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -369,8 +366,7 @@ export async function transferSorteoToScreen(
       ...fiesta,
       socialGallerySettings: {
         ...settings,
-        sorteoActiveOnScreen: true,
-        // Clear any leftover winner/spin from a previous sorteo
+        sorteoOnScreen: true,
         activeSorteoWinner: undefined,
         sorteoSpinStartedAt: undefined,
       },
