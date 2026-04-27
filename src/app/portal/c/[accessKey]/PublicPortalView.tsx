@@ -831,7 +831,7 @@ export default function PublicPortalView({
                           <p className="text-xs text-muted-foreground leading-relaxed">{reunion.notas}</p>
                         )}
                         {reunion.acuerdos && (
-                          <p className="text-xs text-sky-700 font-medium">✅ {reunion.acuerdos}</p>
+                          <p className="text-xs text-sky-700 font-medium flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-sky-600 shrink-0" /> {reunion.acuerdos}</p>
                         )}
                       </div>
                     ))}
