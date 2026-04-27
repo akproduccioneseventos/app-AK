@@ -81,7 +81,7 @@ export default function MuroEnVivoPage() {
         getInvoiceTemplateSettings(),
         getSocialConnections(),
         getDedications(fiestaId),
-        getChatMessages(fiestaId).catch(() => []),
+        getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
       ]);
 
       const sorted = [...fetchedPosts].sort(
@@ -134,11 +134,11 @@ export default function MuroEnVivoPage() {
       } else {
         setActivePoll(null);
       }
-      // Update recent chat messages (last 5, sorted ascending for display)
+      // Update recent chat messages: keep only the last 3 for display on screen
       if (chatData && chatData.length > 0) {
         const recent = [...chatData]
           .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-          .slice(-5);
+          .slice(-3);
         setRecentChatMessages(recent);
       } else {
         setRecentChatMessages([]);
@@ -379,8 +379,8 @@ export default function MuroEnVivoPage() {
           {/* Live chat messages overlay — bottom-left, shown when chat is enabled and there are recent messages */}
           {isLoaded && settings.chatEnabled !== false && recentChatMessages.length > 0 && !hasSidePanel && !activePoll && (
             <div className="absolute left-6 bottom-6 z-10 w-[32vw] max-w-xs space-y-1.5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en vivo</p>
-              {recentChatMessages.slice(-3).map(msg => (
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
+              {recentChatMessages.map(msg => (
                 <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
                   <span className="text-[11px] font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
                   <span className="text-[12px] text-white/85 leading-snug">{msg.text}</span>
