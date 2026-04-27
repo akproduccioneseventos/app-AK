@@ -60,6 +60,82 @@ jest.mock('@/app/actions/social-gallery', () => ({
   highlightComment: jest.fn(),
 }));
 
+// ─── In-memory Firestore mock (used by social-interactive functions) ──────────
+jest.mock('@/lib/firebase/server', () => {
+  const _store: Record<string, Record<string, any>> = {};
+
+  function makeDocRef(col: string, id: string): any {
+    return {
+      _col: col,
+      _id: id,
+      set: jest.fn(async (data: any) => {
+        _store[col] = _store[col] || {};
+        _store[col][id] = { ...data };
+      }),
+      update: jest.fn(async (data: any) => {
+        _store[col] = _store[col] || {};
+        _store[col][id] = { ...(_store[col][id] || {}), ...data };
+      }),
+      get: jest.fn(async () => {
+        const data = _store[col]?.[id];
+        return { exists: data !== undefined, data: () => (data ? { ...data } : undefined) };
+      }),
+    };
+  }
+
+  function makeQuery(col: string, filters: Array<[string, any]> = []): any {
+    const q: any = {
+      get: jest.fn(async () => {
+        const docs = Object.entries(_store[col] || {})
+          .filter(([, d]) => filters.every(([f, v]) => d[f] === v))
+          .map(([docId, data]) => ({ id: docId, data: () => ({ ...data }), ref: makeDocRef(col, docId) }));
+        return { docs, size: docs.length, empty: docs.length === 0 };
+      }),
+      where: jest.fn((f: string, _op: string, v: any) => makeQuery(col, [...filters, [f, v]])),
+      select: jest.fn(() => q),
+      limit: jest.fn(() => q),
+    };
+    return q;
+  }
+
+  const dbAdminMock: any = {
+    collection: jest.fn((col: string) => ({
+      doc: jest.fn((id: string) => makeDocRef(col, id)),
+      where: jest.fn((f: string, op: string, v: any) => makeQuery(col, [[f, v]])),
+    })),
+    batch: jest.fn(() => {
+      const ops: Array<() => void> = [];
+      return {
+        update: jest.fn((ref: any, data: any) => {
+          ops.push(() => {
+            _store[ref._col] = _store[ref._col] || {};
+            _store[ref._col][ref._id] = { ...(_store[ref._col][ref._id] || {}), ...data };
+          });
+        }),
+        commit: jest.fn(async () => { ops.forEach(op => op()); }),
+      };
+    }),
+    runTransaction: jest.fn(async (fn: any) => {
+      const tx = {
+        get: jest.fn(async (ref: any) => ref.get()),
+        update: jest.fn((ref: any, data: any) => {
+          _store[ref._col] = _store[ref._col] || {};
+          _store[ref._col][ref._id] = { ...(_store[ref._col][ref._id] || {}), ...data };
+        }),
+      };
+      return fn(tx);
+    }),
+    __setDoc: (col: string, id: string, data: any) => {
+      _store[col] = _store[col] || {};
+      _store[col][id] = { ...data };
+    },
+    __getDoc: (col: string, id: string) => _store[col]?.[id],
+    __clearStore: () => { Object.keys(_store).forEach(k => delete _store[k]); },
+  };
+
+  return { dbAdmin: dbAdminMock, isFirebaseAvailable: () => true };
+});
+
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
 import { highlightComment } from '@/app/actions/social-gallery';
@@ -78,9 +154,18 @@ const mockWriteData = writeData as jest.MockedFunction<typeof writeData>;
 const mockGetInvoiceById = getInvoiceById as jest.MockedFunction<typeof getInvoiceById>;
 const mockSaveInvoice = saveInvoice as jest.MockedFunction<typeof saveInvoice>;
 
+const { dbAdmin: mockFirestore } = jest.requireMock('@/lib/firebase/server') as {
+  dbAdmin: {
+    __setDoc: (col: string, id: string, data: any) => void;
+    __getDoc: (col: string, id: string) => any;
+    __clearStore: () => void;
+  };
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockWriteData.mockResolvedValue(undefined);
+  mockFirestore.__clearStore();
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -89,8 +174,6 @@ beforeEach(() => {
 
 describe('createPoll', () => {
   it('(1) returns a valid SocialPoll with the given question and options', async () => {
-    mockReadData.mockResolvedValue([]);
-
     const result = await createPoll('fiesta_1', '¿Cuál es tu canción favorita?', ['Rock', 'Pop', 'Reggaeton']);
 
     expect(result.success).toBe(true);
@@ -112,14 +195,13 @@ describe('createPoll', () => {
         active: true,
       },
     ];
-    mockReadData.mockResolvedValue(existing);
+    mockFirestore.__setDoc('social_polls', existing[0].id, existing[0]);
 
     const result = await createPoll('fiesta_1', 'New poll', ['A', 'B']);
 
     expect(result.success).toBe(true);
-    // writeData should be called with the old poll deactivated + new poll active
-    const savedData = (mockWriteData.mock.calls[0][1] as SocialPoll[]);
-    const old = savedData.find(p => p.id === 'poll_old');
+    // Old poll should be deactivated in Firestore store
+    const old = mockFirestore.__getDoc('social_polls', 'poll_old');
     expect(old?.active).toBe(false);
     expect(result.poll!.active).toBe(true);
   });
@@ -140,7 +222,7 @@ describe('votePoll', () => {
         active: true,
       },
     ];
-    mockReadData.mockResolvedValue(polls);
+    mockFirestore.__setDoc('social_polls', polls[0].id, polls[0]);
 
     const result = await votePoll('fiesta_1', 'poll_1', 'opt_0');
 
@@ -150,7 +232,6 @@ describe('votePoll', () => {
   });
 
   it('returns error when poll not found', async () => {
-    mockReadData.mockResolvedValue([]);
     const result = await votePoll('fiesta_1', 'nonexistent', 'opt_0');
     expect(result.success).toBe(false);
     expect(result.error).toBeTruthy();
@@ -169,13 +250,13 @@ describe('closePoll', () => {
         active: true,
       },
     ];
-    mockReadData.mockResolvedValue(polls);
+    mockFirestore.__setDoc('social_polls', polls[0].id, polls[0]);
 
     const result = await closePoll('fiesta_1', 'poll_1');
 
     expect(result.success).toBe(true);
-    const savedPolls = mockWriteData.mock.calls[0][1] as SocialPoll[];
-    expect(savedPolls.find(p => p.id === 'poll_1')?.active).toBe(false);
+    const savedPoll = mockFirestore.__getDoc('social_polls', 'poll_1');
+    expect(savedPoll?.active).toBe(false);
   });
 });
 
@@ -191,7 +272,7 @@ describe('getActivePoll', () => {
         active: false,
       },
     ];
-    mockReadData.mockResolvedValue(polls);
+    mockFirestore.__setDoc('social_polls', polls[0].id, polls[0]);
 
     const result = await getActivePoll('fiesta_1');
     expect(result).toBeNull();
@@ -216,7 +297,7 @@ describe('getActivePoll', () => {
         active: true,
       },
     ];
-    mockReadData.mockResolvedValue(polls);
+    polls.forEach(p => mockFirestore.__setDoc('social_polls', p.id, p));
 
     const result = await getActivePoll('fiesta_1');
     expect(result).not.toBeNull();
@@ -231,8 +312,6 @@ describe('getActivePoll', () => {
 
 describe('addDedication', () => {
   it('(6) creates a new dedication with correct fields', async () => {
-    mockReadData.mockResolvedValue([]);
-
     const result = await addDedication('fiesta_1', 'Feliz cumpleaños!', 'Juan');
 
     expect(result.success).toBe(true);
@@ -257,13 +336,13 @@ describe('highlightDedication', () => {
         highlighted: false,
       },
     ];
-    mockReadData.mockResolvedValue(dedications);
+    mockFirestore.__setDoc('social_dedications', dedications[0].id, dedications[0]);
 
     const result = await highlightDedication('fiesta_1', 'ded_1', true);
 
     expect(result.success).toBe(true);
-    const saved = mockWriteData.mock.calls[0][1] as Dedication[];
-    expect(saved.find(d => d.id === 'ded_1')?.highlighted).toBe(true);
+    const saved = mockFirestore.__getDoc('social_dedications', 'ded_1');
+    expect(saved?.highlighted).toBe(true);
   });
 
   it('sets highlighted:false to un-highlight a dedication', async () => {
@@ -277,13 +356,13 @@ describe('highlightDedication', () => {
         highlighted: true,
       },
     ];
-    mockReadData.mockResolvedValue(dedications);
+    mockFirestore.__setDoc('social_dedications', dedications[0].id, dedications[0]);
 
     const result = await highlightDedication('fiesta_1', 'ded_1', false);
 
     expect(result.success).toBe(true);
-    const saved = mockWriteData.mock.calls[0][1] as Dedication[];
-    expect(saved.find(d => d.id === 'ded_1')?.highlighted).toBe(false);
+    const saved = mockFirestore.__getDoc('social_dedications', 'ded_1');
+    expect(saved?.highlighted).toBe(false);
   });
 });
 
