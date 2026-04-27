@@ -32,6 +32,7 @@ import {
   clearActiveGame,
   triggerSorteoWinner,
   startSorteoSpinOnScreen,
+  transferSorteoToScreen,
   getMuroParticipantesForSorteo,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
@@ -238,6 +239,8 @@ function MuroSocialContent() {
   const [isCreatingPoll, setIsCreatingPoll] = useState(false);
   const [isClosingPoll, setIsClosingPoll] = useState(false);
   const [isTriggeringSorteo, setIsTriggeringSorteo] = useState(false);
+  const [isTransferringSorteo, setIsTransferringSorteo] = useState(false);
+  const [sorteoTransferredToScreen, setSorteoTransferredToScreen] = useState(false);
   const [sorteoParticipants, setSorteoParticipants] = useState<string>('');
   const [lastSorteoWinner, setLastSorteoWinner] = useState<string | null>(null);
   // Spinning wheel state
@@ -652,6 +655,28 @@ function MuroSocialContent() {
     }
   };
 
+  const handleTransferSorteoToScreen = async () => {
+    if (!fiestaId) return;
+    const participants = sorteoParticipants
+      .split('\n')
+      .map(p => p.trim())
+      .filter(Boolean);
+    if (participants.length === 0) {
+      toast({ title: 'Sin participantes', description: 'Ingresá los nombres de los participantes (uno por línea).', variant: 'destructive' });
+      return;
+    }
+    setIsTransferringSorteo(true);
+    const result = await transferSorteoToScreen(fiestaId);
+    setIsTransferringSorteo(false);
+    if (result.success) {
+      setSorteoTransferredToScreen(true);
+      setSorteoPreviewWinner(null);
+      toast({ title: '🎡 Sorteo transferido a pantalla', description: 'La ruleta ya aparece en la pantalla gigante. Cuando quieras, presioná "Iniciar Sorteo / Girar".' });
+    } else {
+      toast({ title: 'Error al transferir', description: result.error, variant: 'destructive' });
+    }
+  };
+
   const handleTriggerSorteo = async () => {
     if (!fiestaId) return;
     const participants = sorteoParticipants
@@ -680,6 +705,7 @@ function MuroSocialContent() {
       setIsTriggeringSorteo(false);
       if (result.success) {
         setLastSorteoWinner(winner);
+        setSorteoTransferredToScreen(false); // reset after winner revealed
         toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
       } else {
         toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
@@ -2002,15 +2028,33 @@ function MuroSocialContent() {
                     {sorteoParticipants.split('\n').map(p => p.trim()).filter(Boolean).length} participantes
                   </p>
                 )}
+
+                {/* Step 1: Transfer to giant screen */}
+                <Button
+                  type="button"
+                  onClick={handleTransferSorteoToScreen}
+                  disabled={isTransferringSorteo || sorteoIsSpinning || isTriggeringSorteo || !sorteoParticipants.trim()}
+                  variant="outline"
+                  className="w-full border-yellow-400 text-yellow-800 hover:bg-yellow-50"
+                >
+                  {isTransferringSorteo ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <span className="mr-2">📺</span>}
+                  {sorteoTransferredToScreen ? '✅ Ruleta en Pantalla' : 'Transferir a Pantalla Gigante'}
+                </Button>
+
+                {/* Step 2: Spin / Start (only enabled after transfer) */}
                 <Button
                   type="button"
                   onClick={handleTriggerSorteo}
-                  disabled={isTriggeringSorteo || sorteoIsSpinning || !sorteoParticipants.trim()}
+                  disabled={isTriggeringSorteo || sorteoIsSpinning || !sorteoParticipants.trim() || !sorteoTransferredToScreen}
                   className="bg-yellow-500 hover:bg-yellow-600 text-white w-full"
                 >
                   {(isTriggeringSorteo || sorteoIsSpinning) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trophy className="w-4 h-4 mr-2" />}
-                  {sorteoIsSpinning ? '¡Girando la ruleta! 🎡' : '🎲 ¡Lanzar Sorteo en Pantalla!'}
+                  {sorteoIsSpinning ? '¡Girando la ruleta! 🎡' : '🎲 Iniciar Sorteo / Girar'}
                 </Button>
+                {!sorteoTransferredToScreen && sorteoParticipants.trim() && (
+                  <p className="text-xs text-slate-400 text-center">Primero transferí a pantalla, luego iniciá el sorteo.</p>
+                )}
+
                 {lastSorteoWinner && !sorteoIsSpinning && !sorteoPreviewWinner && (
                   <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-center">
                     <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-1">Último ganador</p>
