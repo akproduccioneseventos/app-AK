@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
@@ -253,6 +252,7 @@ function MuroSocialContent() {
   const [isSavingMomento, setIsSavingMomento] = useState(false);
   // Download + clear state
   const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
+  const [isClearingOnly, setIsClearingOnly] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -362,8 +362,11 @@ function MuroSocialContent() {
     }
     setUploadingCoverPhoto(true);
     try {
-      // Re-use uploadScreenMediaAsset but then set mobileControlCoverUrl to the uploaded URL
-      const res = await uploadScreenMediaAsset(fiestaId, file);
+      // Re-use uploadScreenMediaAsset (FormData) but then set mobileControlCoverUrl to the uploaded URL
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('file', file);
+      const res = await uploadScreenMediaAsset(formData);
       if (!res.success || !res.asset) throw new Error(res.error || 'No se pudo subir la imagen.');
       const updated = { ...settingsRef.current, mobileControlCoverUrl: res.asset.url };
       setSettings(updated);
@@ -434,6 +437,13 @@ function MuroSocialContent() {
         .map((o, i) => ({ id: `opt_${i}`, text: o.trim() }))
         .filter(o => o.text);
     }
+    // For game types that require options but none provided, require at least 2
+    const requiresOptions = template.type !== 'baileLibre' && template.type !== 'preguntaAbierta';
+    if (requiresOptions && (!options || options.length < 2)) {
+      setIsLaunchingGame(false);
+      toast({ title: 'Se necesitan al menos 2 opciones', description: 'Agregá las opciones de respuesta antes de lanzar el juego.', variant: 'destructive' });
+      return;
+    }
     const game: Omit<ActiveGameData, 'launchedAt'> = {
       type: template.type,
       title,
@@ -460,6 +470,7 @@ function MuroSocialContent() {
     const result = await clearActiveGame(fiestaId);
     setIsLaunchingGame(false);
     if (result.success) {
+      setActiveGame(null); // immediate optimistic UI update
       toast({ title: 'Juego detenido ⏹', description: 'La pantalla volvió al modo normal.' });
       await refreshStatus();
     } else {
@@ -589,14 +600,17 @@ function MuroSocialContent() {
     if (!fiestaId || !file) return;
     setUploadingMedia(true);
     try {
-      const res = await uploadScreenMediaAsset(fiestaId, file);
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('file', file);
+      const res = await uploadScreenMediaAsset(formData);
       if (res.success && res.asset) {
         setSettings((prev) => withScreenDefaults({
           ...prev,
           screenMediaLibrary: [...(prev.screenMediaLibrary ?? []), res.asset!],
         }));
         setGlobalLibrary((prev) => [res.asset!, ...prev]);
-        toast({ title: 'Medio subido', description: 'Disponible para la playlist de esta fiesta.' });
+        toast({ title: 'Medio subido ✓', description: 'Disponible para la playlist de esta fiesta y la biblioteca global.' });
       } else {
         throw new Error(res.error || 'No se pudo subir el medio.');
       }
@@ -652,12 +666,12 @@ function MuroSocialContent() {
     // Animate the wheel before saving to Firestore
     setSorteoPreviewWinner(null);
     setSorteoIsSpinning(true);
-    // Spin: random full rotations (5-8) plus the landing angle
-    const spinRotations = 5 + Math.floor(Math.random() * 4);
+    // Spin: many full rotations (10-14) plus the landing angle — longer spin for suspense
+    const spinRotations = 10 + Math.floor(Math.random() * 5);
     setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
     // Also trigger spin animation on the big screen immediately
     await startSorteoSpinOnScreen(fiestaId);
-    // After animation (2.8s), persist to Firestore and reveal winner
+    // After animation (6s for suspense), persist to Firestore and reveal winner
     setTimeout(async () => {
       setSorteoIsSpinning(false);
       setSorteoPreviewWinner(winner);
@@ -670,7 +684,7 @@ function MuroSocialContent() {
       } else {
         toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });
       }
-    }, 2800);
+    }, 6000);
   };
 
   const handleLoadInvitadosToSorteo = async () => {
@@ -820,6 +834,49 @@ function MuroSocialContent() {
     }
   };
 
+  const handleDownloadGalleryOnly = async () => {
+    if (!fiestaId) return;
+    setIsDownloadingAndClearing(true);
+    try {
+      const response = await fetch(`/api/social-gallery/${fiestaId}/download`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `galeria-social-${fiestaId}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        toast({ title: 'Descarga completada ✓', description: 'El ZIP con todas las fotos se descargó.' });
+      } else {
+        const err = await response.json().catch(() => ({}));
+        toast({ title: 'Error al descargar', description: (err as any).error || 'No se pudo generar el ZIP.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsDownloadingAndClearing(false);
+    }
+  };
+
+  const handleClearGalleryOnly = async () => {
+    if (!fiestaId) return;
+    if (!window.confirm(`¿Borrar todas las ${postCount ?? 0} fotos del muro? Esta acción no se puede deshacer.`)) return;
+    setIsClearingOnly(true);
+    try {
+      await clearGallery(fiestaId);
+      setPostCount(0);
+      toast({ title: 'Galería borrada ✓', description: 'Todas las fotos fueron eliminadas del muro.' });
+    } catch (e: any) {
+      toast({ title: 'Error al borrar galería', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsClearingOnly(false);
+    }
+  };
+
+
   if (isLoading || !fiesta) {
     return <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
@@ -948,12 +1005,10 @@ function MuroSocialContent() {
             {[
               { key: 'enabled', label: 'Muro activo' },
               { key: 'uploadsActive', label: 'Subida de fotos' },
-              { key: 'allowLikes', label: 'Me gusta' },
-              { key: 'allowComments', label: 'Comentarios' },
-              { key: 'chatEnabled', label: 'Chat en vivo' },
-              { key: 'showPolls', label: 'Encuestas (juegos)' },
-              { key: 'showSongRequests', label: 'Pedidos de canciones' },
-              { key: 'showDedications', label: 'Dedicatorias' },
+              { key: 'allowLikes', label: 'Me gusta ❤️' },
+              { key: 'showSongRequests', label: 'Pedidos de canciones 🎵' },
+              { key: 'showDedications', label: 'Dedicatorias 💌' },
+              { key: 'showPolls', label: 'Encuestas y juegos 🎯' },
             ].map((item) => (
               <div key={item.key} className="flex items-center justify-between rounded-lg border p-3">
                 <span className="text-sm font-medium">{item.label}</span>
@@ -963,6 +1018,20 @@ function MuroSocialContent() {
                 />
               </div>
             ))}
+            {/* Unified Chat + Comments toggle */}
+            <div className="sm:col-span-2 flex items-center justify-between rounded-lg border p-3 bg-blue-50 border-blue-200">
+              <div>
+                <span className="text-sm font-medium">💬 Chat y Comentarios en vivo</span>
+                <p className="text-xs text-muted-foreground mt-0.5">Activa el chat en tiempo real y los comentarios en fotos (son la misma funcionalidad)</p>
+              </div>
+              <Switch
+                checked={Boolean(settings.chatEnabled) || Boolean(settings.allowComments)}
+                onCheckedChange={async (checked) => {
+                  await handleToggleSetting('chatEnabled', checked);
+                  await handleToggleSetting('allowComments', checked);
+                }}
+              />
+            </div>
             <div className="flex items-center justify-between rounded-lg border p-3 sm:col-span-2 bg-slate-950 text-white">
               <div>
                 <span className="text-sm font-medium">🌙 Modo Oscuro (pantalla)</span>
@@ -1031,24 +1100,49 @@ function MuroSocialContent() {
             {/* Download + clear gallery */}
             <div className="sm:col-span-2 rounded-lg border border-destructive/30 p-3 space-y-2 bg-red-50/40">
               <p className="text-sm font-semibold text-destructive flex items-center gap-1.5">
-                <Download className="w-4 h-4" /> Descargar y limpiar galería
+                <Download className="w-4 h-4" /> Gestión de imágenes del muro
               </p>
-              <p className="text-xs text-muted-foreground">Descarga un ZIP con todas las fotos del muro y después las elimina de Firebase para ahorrar espacio.</p>
+              <p className="text-xs text-muted-foreground">Descargá o eliminá las fotos subidas por los invitados.</p>
               <p className="text-xs font-semibold text-destructive">
                 📸 {postCount === null ? '…' : postCount} foto{postCount !== 1 ? 's' : ''} actualmente en el muro.
               </p>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={isDownloadingAndClearing || postCount === 0}
-                onClick={handleDownloadAndClearGallery}
-                className="w-full"
-              >
-                {isDownloadingAndClearing
-                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Descargando y limpiando…</>
-                  : <><Download className="w-4 h-4 mr-2" />Descargar ZIP y borrar fotos</>
-                }
-              </Button>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isDownloadingAndClearing || isClearingOnly || postCount === 0}
+                  onClick={handleDownloadGalleryOnly}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                >
+                  {isDownloadingAndClearing
+                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Descargando…</>
+                    : <><Download className="w-4 h-4 mr-2" />Descargar todas</>
+                  }
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={isDownloadingAndClearing || isClearingOnly || postCount === 0}
+                  onClick={handleClearGalleryOnly}
+                >
+                  {isClearingOnly
+                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Borrando…</>
+                    : <><Trash2 className="w-4 h-4 mr-2" />Borrar todas las imágenes</>
+                  }
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={isDownloadingAndClearing || isClearingOnly || postCount === 0}
+                  onClick={handleDownloadAndClearGallery}
+                  className="bg-red-700 hover:bg-red-800"
+                >
+                  {isDownloadingAndClearing
+                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Procesando…</>
+                    : <><Download className="w-4 h-4 mr-2" />Descargar y borrar</>
+                  }
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1059,8 +1153,17 @@ function MuroSocialContent() {
             <CardDescription>Texto para zócalo inferior y mensaje pasante tipo marquesina.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <Label>Zócalo de marketing (redes)</Label>
+            <div className="space-y-2 rounded-lg border p-3 bg-slate-50">
+              <div className="flex items-center justify-between">
+                <Label className="font-semibold">Zócalo de marketing / Redes sociales</Label>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <span>Activo</span>
+                  <Switch
+                    checked={settings.marketingTickerEnabled !== false}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, marketingTickerEnabled: checked }))}
+                  />
+                </div>
+              </div>
               <div className="flex gap-2">
                 <Input
                   value={settings.marketingTickerText ?? ''}
@@ -1078,6 +1181,43 @@ function MuroSocialContent() {
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <Label className="text-xs">Color de letra</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={settings.marketingTickerColor || '#ffffff'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerColor: e.target.value }))}
+                      className="w-10 h-9 p-1 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.marketingTickerColor || '#ffffff'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerColor: e.target.value }))}
+                      placeholder="#ffffff"
+                      className="flex-1 h-9 text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Color de fondo</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={settings.marketingTickerBgColor || '#ec4899'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerBgColor: e.target.value }))}
+                      className="w-10 h-9 p-1 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.marketingTickerBgColor || '#ec4899'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, marketingTickerBgColor: e.target.value }))}
+                      placeholder="#ec4899"
+                      className="flex-1 h-9 text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Presioná Enter o el botón de envío para actualizar en la pantalla en vivo.</p>
             </div>
             <div className="space-y-2 rounded-lg border p-3 bg-slate-50">
               <div className="flex items-center justify-between">
@@ -1155,6 +1295,29 @@ function MuroSocialContent() {
             <CardDescription>Secuencia configurable con video, mural, redes y bases de juegos.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Playlist mode enable/disable toggle */}
+            <div className="flex items-center justify-between rounded-lg border-2 border-blue-200 bg-blue-50 p-3">
+              <div>
+                <span className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                  <Play className="w-4 h-4" />
+                  Modo Playlist activo
+                </span>
+                <p className="text-xs text-blue-600 mt-0.5">
+                  Cuando está activo, la pantalla gigante rota automáticamente entre los ítems de la lista (video, mural, redes, juegos). Desactivalo si querés que la pantalla muestre solo el mural.
+                </p>
+              </div>
+              <Switch
+                checked={settings.screenMode?.enabled !== false}
+                onCheckedChange={async (checked) => {
+                  setSettings((prev) => withScreenDefaults({ ...prev, screenMode: { ...(prev.screenMode ?? {}), enabled: checked } as SocialGallerySettings['screenMode'] }));
+                  const result = await updateSocialGallerySettingsFiestaActual(fiestaId!, {
+                    ...settingsRef.current,
+                    screenMode: { ...(settingsRef.current.screenMode ?? {}), enabled: checked } as SocialGallerySettings['screenMode'],
+                  });
+                  if (!result.success) toast({ title: 'Error al cambiar modo', description: result.error, variant: 'destructive' });
+                }}
+              />
+            </div>
             <div className="grid sm:grid-cols-4 gap-2">
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('video')}><Plus className="w-4 h-4 mr-2" />Video</Button>
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('mural')}><Plus className="w-4 h-4 mr-2" />Mural</Button>
@@ -1405,7 +1568,7 @@ function MuroSocialContent() {
                   Personalizar: {selectedGameTemplate.label}
                 </p>
                 <div className="space-y-1">
-                  <Label className="text-xs">Título en pantalla</Label>
+                  <Label className="text-xs">Título / Pregunta en pantalla</Label>
                   <Input
                     value={gameCustomTitle}
                     onChange={(e) => setGameCustomTitle(e.target.value)}
@@ -1420,15 +1583,57 @@ function MuroSocialContent() {
                     placeholder={selectedGameTemplate.subtitle ?? 'Texto adicional…'}
                   />
                 </div>
-                {selectedGameTemplate.options !== undefined && (
-                  <div className="space-y-1">
-                    <Label className="text-xs">Opciones (una por línea, dejar vacío para usar las predeterminadas)</Label>
-                    <Textarea
-                      value={gameCustomOptions}
-                      onChange={(e) => setGameCustomOptions(e.target.value)}
-                      placeholder={selectedGameTemplate.options.map(o => o.text).join('\n')}
-                      rows={3}
-                    />
+                {selectedGameTemplate.type !== 'baileLibre' && selectedGameTemplate.type !== 'preguntaAbierta' && (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold">Opciones de respuesta (mín. 2, máx. 6)</Label>
+                    {gameCustomOptions
+                      .split('\n')
+                      .concat(['', ''])
+                      .slice(0, Math.max(2, gameCustomOptions.split('\n').filter(Boolean).length + 1))
+                      .map((opt, idx, arr) => (
+                        <div key={idx} className="flex gap-2 items-center">
+                          <span className="text-xs font-bold text-violet-600 w-5 shrink-0">{idx + 1}.</span>
+                          <Input
+                            value={opt}
+                            onChange={(e) => {
+                              const lines = gameCustomOptions.split('\n');
+                              while (lines.length <= idx) lines.push('');
+                              lines[idx] = e.target.value;
+                              setGameCustomOptions(lines.join('\n').replace(/\n+$/, ''));
+                            }}
+                            placeholder={
+                              selectedGameTemplate.options?.[idx]?.text ??
+                              (idx === 0 ? 'Ej: Sí ✅' : idx === 1 ? 'Ej: No ❌' : `Opción ${idx + 1}`)
+                            }
+                            className="flex-1 h-9 text-sm"
+                          />
+                          {idx >= 2 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const lines = gameCustomOptions.split('\n').filter((_, i) => i !== idx);
+                                setGameCustomOptions(lines.join('\n').replace(/\n+$/, ''));
+                              }}
+                              className="text-slate-400 hover:text-destructive shrink-0"
+                              title="Eliminar opción"
+                            >
+                              <MinusCircle className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    {gameCustomOptions.split('\n').filter(Boolean).length < 6 && (
+                      <button
+                        type="button"
+                        onClick={() => setGameCustomOptions((prev) => prev ? prev + '\n' : '')}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-violet-500 hover:text-violet-700"
+                      >
+                        <PlusCircle className="w-4 h-4" /> Agregar opción
+                      </button>
+                    )}
+                    {selectedGameTemplate.options && !gameCustomOptions.trim() && (
+                      <p className="text-xs text-slate-400 italic">Si dejás vacío, se usarán las opciones predeterminadas: {selectedGameTemplate.options.map(o => o.text).join(' / ')}</p>
+                    )}
                   </div>
                 )}
                 <div className="flex gap-2">
@@ -1660,7 +1865,7 @@ function MuroSocialContent() {
                         style={{
                           transform: `rotate(${sorteoWheelAngle}deg)`,
                           transition: sorteoIsSpinning
-                            ? 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
+                            ? 'transform 6s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
                             : 'none',
                         }}
                       >
