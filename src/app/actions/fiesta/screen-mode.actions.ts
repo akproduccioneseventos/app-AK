@@ -188,10 +188,11 @@ export async function updateScreenBrand(
 }
 
 export async function uploadScreenMediaAsset(
-  fiestaId: string,
-  file: File
+  formData: FormData
 ): Promise<{ success: boolean; asset?: ScreenMediaAsset; error?: string }> {
   try {
+    const fiestaId = formData.get('fiestaId') as string | null;
+    const file = formData.get('file') as File | null;
     if (!fiestaId || !file) return { success: false, error: 'Datos incompletos.' };
     // Explicit size check with a clear message (bodySizeLimit in next.config.js is 20MB)
     const isVideo = file.type.startsWith('video/');

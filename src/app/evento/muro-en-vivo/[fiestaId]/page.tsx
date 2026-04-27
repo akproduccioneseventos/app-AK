@@ -19,7 +19,7 @@ const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
 const SORTEO_DISPLAY_DURATION_MS = 20000;
 /** Window in which a sorteo spin animation is shown on the big screen (before the winner is revealed) */
-const SORTEO_SPIN_DISPLAY_DURATION_MS = 4000;
+const SORTEO_SPIN_DISPLAY_DURATION_MS = 7000;
 const FRESH_POST_POLAROID_DURATION_MS = 20000;
 const MARQUEE_REPEAT_COUNT = 3;
 const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
@@ -119,8 +119,8 @@ export default function MuroEnVivoPage() {
         const spinIsFresh = spinTs && Date.now() - new Date(spinTs).getTime() < SORTEO_SPIN_DISPLAY_DURATION_MS;
         if (spinIsFresh && !sorteoIsFresh) {
           setSorteoSpinActive(true);
-          setSorteoSpinWheelAngle(prev => prev + 1800 + Math.floor(Math.random() * 720));
-          setTimeout(() => setSorteoSpinActive(false), 3000);
+          setSorteoSpinWheelAngle(prev => prev + 3600 + Math.floor(Math.random() * 1440));
+          setTimeout(() => setSorteoSpinActive(false), 6500);
         }
       }
       if (pollData) {
@@ -444,11 +444,24 @@ export default function MuroEnVivoPage() {
             </div>
           </div>
         )}
-        <div className="overflow-hidden border-t border-white/15 bg-black/65 py-2">
-          <div className={`whitespace-nowrap text-lg font-bold text-cyan-100 ${MARKETING_MARQUEE_ANIMATION_CLASS}`}>
-            {renderMarqueeText(settings.marketingTickerText || companyMarketingText)}
+        {settings.marketingTickerEnabled !== false && (settings.marketingTickerText || companyMarketingText) && (
+          <div
+            className="overflow-hidden border-t py-2"
+            style={{
+              backgroundColor: settings.marketingTickerBgColor || '#000000a0',
+              borderColor: settings.marketingTickerBgColor
+                ? `${settings.marketingTickerBgColor}80`
+                : 'rgba(255,255,255,0.15)',
+            }}
+          >
+            <div
+              className={`whitespace-nowrap text-lg font-bold ${MARKETING_MARQUEE_ANIMATION_CLASS}`}
+              style={{ color: settings.marketingTickerColor || '#e0f2fe' }}
+            >
+              {renderMarqueeText(settings.marketingTickerText || companyMarketingText)}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── Full-screen overlays (moment, sorteo) — still absolute/z-40+ ── */}
@@ -497,7 +510,7 @@ export default function MuroEnVivoPage() {
                   className="w-72 h-72 rounded-full border-8 border-yellow-400 shadow-2xl"
                   style={{
                     transform: `rotate(${sorteoSpinWheelAngle}deg)`,
-                    transition: 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)',
+                    transition: 'transform 6s cubic-bezier(0.17, 0.67, 0.12, 0.99)',
                     background: 'conic-gradient(#f43f5e, #f97316, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #f43f5e, #f97316, #eab308, #22c55e, #06b6d4)',
                   }}
                 />

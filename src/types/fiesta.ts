@@ -731,6 +731,12 @@ export interface SocialGallerySettings {
   allowComments: boolean;
   uploadsActive: boolean;
   marketingTickerText?: string;
+  /** Whether the marketing ticker (social/network footer bar) is enabled */
+  marketingTickerEnabled?: boolean;
+  /** Text color for the marketing ticker (CSS color string) */
+  marketingTickerColor?: string;
+  /** Background color for the marketing ticker */
+  marketingTickerBgColor?: string;
   ledMarqueeText?: string;
   /** Whether the LED marquee is enabled/visible on the giant screen */
   ledMarqueeEnabled?: boolean;
