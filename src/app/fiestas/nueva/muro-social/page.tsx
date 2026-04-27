@@ -1303,7 +1303,7 @@ function MuroSocialContent() {
                   Modo Playlist activo
                 </span>
                 <p className="text-xs text-blue-600 mt-0.5">
-                  Cuando está activo, la pantalla gigante rota automáticamente entre los ítems de la lista (video, mural, redes, juegos). Desactivalo si querés que la pantalla muestre solo el mural.
+                  Cuando está activo, la pantalla gigante rota automáticamente entre los ítems de la lista (video, mural, redes, juegos). Desactivá si querés que la pantalla muestre solo el mural.
                 </p>
               </div>
               <Switch
@@ -1586,54 +1586,59 @@ function MuroSocialContent() {
                 {selectedGameTemplate.type !== 'baileLibre' && selectedGameTemplate.type !== 'preguntaAbierta' && (
                   <div className="space-y-2">
                     <Label className="text-xs font-semibold">Opciones de respuesta (mín. 2, máx. 6)</Label>
-                    {gameCustomOptions
-                      .split('\n')
-                      .concat(['', ''])
-                      .slice(0, Math.max(2, gameCustomOptions.split('\n').filter(Boolean).length + 1))
-                      .map((opt, idx, arr) => (
-                        <div key={idx} className="flex gap-2 items-center">
-                          <span className="text-xs font-bold text-violet-600 w-5 shrink-0">{idx + 1}.</span>
-                          <Input
-                            value={opt}
-                            onChange={(e) => {
-                              const lines = gameCustomOptions.split('\n');
-                              while (lines.length <= idx) lines.push('');
-                              lines[idx] = e.target.value;
-                              setGameCustomOptions(lines.join('\n').replace(/\n+$/, ''));
-                            }}
-                            placeholder={
-                              selectedGameTemplate.options?.[idx]?.text ??
-                              (idx === 0 ? 'Ej: Sí ✅' : idx === 1 ? 'Ej: No ❌' : `Opción ${idx + 1}`)
-                            }
-                            className="flex-1 h-9 text-sm"
-                          />
-                          {idx >= 2 && (
+                    {(() => {
+                      const optLines = gameCustomOptions.split('\n');
+                      const filledCount = optLines.filter(Boolean).length;
+                      const rows = optLines.concat(['', '']).slice(0, Math.max(2, filledCount + 1));
+                      return (
+                        <>
+                          {rows.map((opt, idx) => (
+                            <div key={idx} className="flex gap-2 items-center">
+                              <span className="text-xs font-bold text-violet-600 w-5 shrink-0">{idx + 1}.</span>
+                              <Input
+                                value={opt}
+                                onChange={(e) => {
+                                  const lines = gameCustomOptions.split('\n');
+                                  while (lines.length <= idx) lines.push('');
+                                  lines[idx] = e.target.value;
+                                  setGameCustomOptions(lines.join('\n').replace(/\n+$/, ''));
+                                }}
+                                placeholder={
+                                  selectedGameTemplate.options?.[idx]?.text ??
+                                  (idx === 0 ? 'Ej: Sí ✅' : idx === 1 ? 'Ej: No ❌' : `Opción ${idx + 1}`)
+                                }
+                                className="flex-1 h-9 text-sm"
+                              />
+                              {idx >= 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const lines = gameCustomOptions.split('\n').filter((_, i) => i !== idx);
+                                    setGameCustomOptions(lines.join('\n').replace(/\n+$/, ''));
+                                  }}
+                                  className="text-slate-400 hover:text-destructive shrink-0"
+                                  title="Eliminar opción"
+                                >
+                                  <MinusCircle className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                          {filledCount < 6 && (
                             <button
                               type="button"
-                              onClick={() => {
-                                const lines = gameCustomOptions.split('\n').filter((_, i) => i !== idx);
-                                setGameCustomOptions(lines.join('\n').replace(/\n+$/, ''));
-                              }}
-                              className="text-slate-400 hover:text-destructive shrink-0"
-                              title="Eliminar opción"
+                              onClick={() => setGameCustomOptions((prev) => prev ? prev + '\n' : '')}
+                              className="flex items-center gap-1.5 text-xs font-semibold text-violet-500 hover:text-violet-700"
                             >
-                              <MinusCircle className="w-4 h-4" />
+                              <PlusCircle className="w-4 h-4" /> Agregar opción
                             </button>
                           )}
-                        </div>
-                      ))}
-                    {gameCustomOptions.split('\n').filter(Boolean).length < 6 && (
-                      <button
-                        type="button"
-                        onClick={() => setGameCustomOptions((prev) => prev ? prev + '\n' : '')}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-violet-500 hover:text-violet-700"
-                      >
-                        <PlusCircle className="w-4 h-4" /> Agregar opción
-                      </button>
-                    )}
-                    {selectedGameTemplate.options && !gameCustomOptions.trim() && (
-                      <p className="text-xs text-slate-400 italic">Si dejás vacío, se usarán las opciones predeterminadas: {selectedGameTemplate.options.map(o => o.text).join(' / ')}</p>
-                    )}
+                          {selectedGameTemplate.options && !gameCustomOptions.trim() && (
+                            <p className="text-xs text-slate-400 italic">Si dejás vacío, se usarán las opciones predeterminadas: {selectedGameTemplate.options.map(o => o.text).join(' / ')}</p>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
                 <div className="flex gap-2">
