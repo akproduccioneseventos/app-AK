@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { getSocialPosts } from '@/app/actions/social-gallery';
-import type { SocialGalleryPost, Dedication, SocialComment } from '@/types/social-gallery';
+import { getSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
+import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -62,6 +62,8 @@ export default function MuroEnVivoPage() {
   const [sorteoSpinWheelAngle, setSorteoSpinWheelAngle] = useState(0);
   const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
   const [highlightedComments, setHighlightedComments] = useState<{ postId: string; comment: SocialComment }[]>([]);
+  const [recentChatMessages, setRecentChatMessages] = useState<ChatMessage[]>([]);
+  const [sorteoOnScreen, setSorteoOnScreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
@@ -71,7 +73,7 @@ export default function MuroEnVivoPage() {
   const fetchData = useCallback(async () => {
     if (!fiestaId) return;
     try {
-      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections, dedicationsData] = await Promise.all([
+      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections, dedicationsData, chatData] = await Promise.all([
         getSocialPosts(fiestaId),
         getFiestaById(fiestaId),
         getActivePoll(fiestaId),
@@ -79,6 +81,7 @@ export default function MuroEnVivoPage() {
         getInvoiceTemplateSettings(),
         getSocialConnections(),
         getDedications(fiestaId),
+        getChatMessages(fiestaId).catch(() => []),
       ]);
 
       const sorted = [...fetchedPosts].sort(
@@ -106,6 +109,9 @@ export default function MuroEnVivoPage() {
         // Sync active game
         setActiveGame(fiestaData.socialGallerySettings.activeGame ?? null);
 
+        // Sorteo static preview on screen (wheel shown before spinning)
+        setSorteoOnScreen(fiestaData.socialGallerySettings.sorteoOnScreen === true);
+
         // Sorteo winner display (TTL: SORTEO_DISPLAY_DURATION_MS)
         const sorteoTs = fiestaData.socialGallerySettings.activeSorteoTimestamp;
         const sorteoWinner = fiestaData.socialGallerySettings.activeSorteoWinner;
@@ -127,6 +133,15 @@ export default function MuroEnVivoPage() {
         setActivePoll({ id: pollData.id, question: pollData.question, options: pollData.options });
       } else {
         setActivePoll(null);
+      }
+      // Update recent chat messages (last 5, sorted ascending for display)
+      if (chatData && chatData.length > 0) {
+        const recent = [...chatData]
+          .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+          .slice(-5);
+        setRecentChatMessages(recent);
+      } else {
+        setRecentChatMessages([]);
       }
       setHighlightedDedications((dedicationsData ?? []).filter(d => d.highlighted));
       // Extract comments for the live wall: prefer operator-highlighted comments; fall back
@@ -360,6 +375,19 @@ export default function MuroEnVivoPage() {
               ))}
             </div>
           )}
+
+          {/* Live chat messages overlay — bottom-left, shown when chat is enabled and there are recent messages */}
+          {isLoaded && settings.chatEnabled !== false && recentChatMessages.length > 0 && !hasSidePanel && !activePoll && (
+            <div className="absolute left-6 bottom-6 z-10 w-[32vw] max-w-xs space-y-1.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en vivo</p>
+              {recentChatMessages.slice(-3).map(msg => (
+                <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
+                  <span className="text-[11px] font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
+                  <span className="text-[12px] text-white/85 leading-snug">{msg.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── Right side panel: poll or game overlay ── */}
@@ -490,6 +518,50 @@ export default function MuroEnVivoPage() {
             </h1>
           </motion.div>
         )}
+
+        {/* Sorteo static preview — shows the wheel on screen before spinning starts */}
+        <AnimatePresence>
+          {sorteoOnScreen && !sorteoSpinActive && !activeSorteoWinner && (
+            <motion.div
+              key="sorteo-preview"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 z-[44] flex flex-col items-center justify-center bg-black/85 text-center"
+            >
+              <p className="mb-6 text-2xl font-black uppercase tracking-[0.5em] text-yellow-300">🎡 Sorteo Sorpresa 🎡</p>
+              <div className="relative w-72 h-72">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20 w-0 h-0"
+                  style={{ borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '28px solid #eab308' }} />
+                <div
+                  className="w-72 h-72 rounded-full border-8 border-yellow-400 shadow-2xl"
+                  style={{
+                    background: 'conic-gradient(#f43f5e, #f97316, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #f43f5e, #f97316, #eab308, #22c55e, #06b6d4)',
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-white border-4 border-yellow-400 flex items-center justify-center shadow-inner">
+                    <span className="text-2xl font-black text-yellow-600">AK</span>
+                  </div>
+                </div>
+              </div>
+              <motion.p
+                animate={{ opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="mt-6 text-xl font-bold text-white/70"
+              >
+                🎁 ¡Sorteando en breve!
+              </motion.p>
+              {settings.sorteoPremio && (
+                <div className="mt-4 rounded-2xl border-2 border-yellow-400/50 bg-yellow-400/10 px-8 py-3 backdrop-blur-sm">
+                  <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">🎁 Premio</p>
+                  <p className="text-2xl font-black text-white">{settings.sorteoPremio}</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Sorteo spinning wheel overlay */}
         <AnimatePresence>

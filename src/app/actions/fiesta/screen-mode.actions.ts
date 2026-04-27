@@ -331,12 +331,36 @@ export async function startSorteoSpinOnScreen(
       socialGallerySettings: {
         ...settings,
         sorteoSpinStartedAt: new Date().toISOString(),
+        sorteoOnScreen: false,
         activeSorteoWinner: undefined,
       },
     });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al iniciar animación.' };
+  }
+}
+
+/** Transfiere la ruleta del sorteo a la pantalla gigante (modo estático, sin girar) */
+export async function transferSorteoToScreen(
+  fiestaId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        sorteoOnScreen: true,
+        activeSorteoWinner: undefined,
+        sorteoSpinStartedAt: undefined,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al transferir sorteo a pantalla.' };
   }
 }
 

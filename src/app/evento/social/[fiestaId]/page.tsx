@@ -471,36 +471,45 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     if (!fileToUpload || !localSettings.uploadsActive) return;
     setIsUploading(true);
 
-    // Compute image hash for duplicate detection
-    const imageHash = await computeImageHash(fileToUpload);
+    try {
+      // Compute image hash for duplicate detection
+      const imageHash = await computeImageHash(fileToUpload);
 
-    const formData = new FormData();
-    formData.append('fiestaId', params.fiestaId);
-    formData.append('file', fileToUpload);
-    formData.append('authorName', authorName || 'Anónimo');
-    if (imageHash) formData.append('imageHash', imageHash);
+      const formData = new FormData();
+      formData.append('fiestaId', params.fiestaId);
+      formData.append('file', fileToUpload);
+      formData.append('authorName', authorName || 'Anónimo');
+      if (imageHash) formData.append('imageHash', imageHash);
 
-    const result = await uploadSocialPost(formData);
-    if (result.success) {
-      toast({ title: "¡Foto publicada!", description: "Tu momento ya está en el mural." });
-      await fetchData(false);
-      setIsUploadDialogOpen(false);
-      setFileToUpload(null);
-      setUploadPreview(null);
-    } else {
-      toast({ title: "Error al subir", description: result.error, variant: "destructive" });
+      const result = await uploadSocialPost(formData);
+      if (result.success) {
+        toast({ title: "¡Foto publicada!", description: "Tu momento ya está en el mural." });
+        await fetchData(false);
+        setIsUploadDialogOpen(false);
+        setFileToUpload(null);
+        setUploadPreview(null);
+      } else {
+        toast({ title: "Error al subir", description: result.error, variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Error al subir la foto", description: e.message || 'Ocurrió un error inesperado. Intentá de nuevo.', variant: "destructive" });
+    } finally {
+      setIsUploading(false);
     }
-    setIsUploading(false);
   };
   
   const handleLike = async (postId: string) => {
     if (!localSettings.allowLikes) return;
     const originalPosts = [...posts];
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
-    const result = await addLikeToPost(postId);
-    if (!result.success) {
-      toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
-      setPosts(originalPosts); // Revert on error
+    try {
+      const result = await addLikeToPost(postId);
+      if (!result.success) {
+        toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
+        setPosts(originalPosts); // Revert on error
+      }
+    } catch {
+      setPosts(originalPosts); // Revert on exception
     }
   };
   
