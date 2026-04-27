@@ -266,6 +266,7 @@ export default function PublicPortalView({
   const [kidsDelta, setKidsDelta] = useState(0);
   const [simRequestNote, setSimRequestNote] = useState('');
   const [simRequestLoading, setSimRequestLoading] = useState(false);
+  const [simRequestSuccess, setSimRequestSuccess] = useState(false);
 
   // Moodboard liked state
   const [likedItems, setLikedItems] = useState<Set<string>>(
@@ -502,6 +503,7 @@ export default function PublicPortalView({
       setAdultDelta(0);
       setKidsDelta(0);
       setSimRequestNote('');
+      setSimRequestSuccess(true);
     } finally {
       setSimRequestLoading(false);
     }
@@ -580,13 +582,13 @@ export default function PublicPortalView({
           </div>
 
           {/* Protagonist photo + event name */}
-          {config.protagonistaFotoUrl ? (
+          {(config.protagonistaFotoUrl || portalExperience.heroImageUrl) ? (
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="relative">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/40 shadow-2xl ring-4 ring-white/20">
+                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-yellow-400/60 shadow-2xl ring-4 ring-yellow-300/30">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={config.protagonistaFotoUrl}
+                    src={config.protagonistaFotoUrl || portalExperience.heroImageUrl}
                     alt={config.protagonista1Nombre || displayEventName}
                     className="w-full h-full object-cover"
                   />
@@ -717,7 +719,7 @@ export default function PublicPortalView({
                   if (fiesta.invitacionSlug) {
                     window.open(`/i/${fiesta.invitacionSlug}`, '_blank');
                   } else {
-                    document.getElementById('seccion-pagina-publica')?.scrollIntoView({ behavior: 'smooth' });
+                    window.open(`/invitacion/${fiesta.id}`, '_blank');
                   }
                 }}
               >
@@ -741,7 +743,14 @@ export default function PublicPortalView({
             </button>
             <button
               className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
-              onClick={() => document.getElementById('seccion-mensajes')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                const el = document.getElementById('seccion-mensajes');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  window.open(whatsappHref, '_blank');
+                }
+              }}
             >
               <MessageSquare className="w-3.5 h-3.5" />
               Enviar mensaje
@@ -790,14 +799,54 @@ export default function PublicPortalView({
               </div>
             )}
 
-            {/* ── 1. Organización del evento ── */}
+            {/* ── 0. Reuniones coordinadas ── */}
+            {fiesta.reuniones && fiesta.reuniones.length > 0 && (
+              <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="pb-2 bg-gradient-to-r from-sky-50 to-blue-50">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-sky-600" />
+                    Reuniones coordinadas
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">Lo que coordinamos juntos hasta ahora</p>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  {[...fiesta.reuniones]
+                    .sort((a, b) => {
+                      if (!a.fecha && !b.fecha) return 0;
+                      if (!a.fecha) return 1;
+                      if (!b.fecha) return -1;
+                      return b.fecha.localeCompare(a.fecha);
+                    })
+                    .map(reunion => (
+                      <div key={reunion.id} className="rounded-2xl border border-sky-100 bg-sky-50/50 p-3 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-bold text-sm text-sky-900 leading-snug">{reunion.titulo}</p>
+                          {reunion.fecha && (
+                            <span className="text-[10px] font-semibold text-sky-600 bg-sky-100 rounded-full px-2 py-0.5 shrink-0">
+                              {formatDate(reunion.fecha)}
+                            </span>
+                          )}
+                        </div>
+                        {reunion.notas && (
+                          <p className="text-xs text-muted-foreground leading-relaxed">{reunion.notas}</p>
+                        )}
+                        {reunion.acuerdos && (
+                          <p className="text-xs text-sky-700 font-medium">✅ {reunion.acuerdos}</p>
+                        )}
+                      </div>
+                    ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ── 1. Datos del evento ── */}
             <Card id="seccion-organizacion" className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-purple-50">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <Home className="w-5 h-5 text-violet-600" />
-                  Organización del evento
+                  Datos del evento
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">Resumen general de tu celebración</p>
+                <p className="text-xs text-muted-foreground">Información general de tu evento</p>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
                 {/* Event details grid */}
@@ -1202,15 +1251,15 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 4. Comida y bebidas ── */}
+            {/* ── 4. Lo que debo llevar ── */}
             {(settings?.menu?.visible || settings?.cartaTragos?.visible || settings?.dressCode?.visible || calcBebidas?.visible) && (
               <Card id="seccion-comida" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-amber-50">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
                     <Utensils className="w-5 h-5 text-orange-500" />
-                    Comida y bebidas
+                    Lo que debo llevar
                   </CardTitle>
-                  <p className="text-xs text-muted-foreground">Menú, bebidas y vestimenta del evento</p>
+                  <p className="text-xs text-muted-foreground">Todo lo que tenés que traer vos para la fiesta, según tu contrato</p>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-4">
 
@@ -1686,7 +1735,7 @@ export default function PublicPortalView({
                         {idx > 0 && <Separator className="my-1" />}
                         <button
                           className="w-full flex items-center justify-between gap-3 py-3 px-1 text-left"
-                          onClick={() => setOpenFaqId(openFaqId === faq.id ? null : faq.id)}
+                          onClick={(e) => { e.stopPropagation(); setOpenFaqId(openFaqId === faq.id ? null : faq.id); }}
                         >
                           <span className="font-semibold text-sm leading-snug">{faq.pregunta}</span>
                           {openFaqId === faq.id ? (
@@ -1708,16 +1757,21 @@ export default function PublicPortalView({
             )}
 
             {/* ── 11. Simulador de invitados ── */}
-            {!!presupuesto && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 && (
-              <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" style={{ color: eventColor }} />
-                    Simulador de invitados
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Calculá el impacto real en el costo si sumás más invitados. Sincronizado con tu presupuesto.</p>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
+            <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
+              <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5" style={{ color: eventColor }} />
+                  ¿Querés agregar más invitados?
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">Calculá el impacto en el costo si sumás más invitados.</p>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-4">
+                {(!presupuesto || (presupuesto.itemsPresupuestados?.length ?? 0) === 0) ? (
+                  <p className="text-sm text-muted-foreground text-center py-2">
+                    Aún no hay presupuesto cargado para tu evento. Cuando esté listo, podrás simular el impacto de agregar más invitados acá.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
                       <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
@@ -1912,12 +1966,19 @@ export default function PublicPortalView({
                             ))}
                           </div>
                         )}
+
+                        {simRequestSuccess && (
+                          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 text-sm font-medium text-center">
+                            ✅ ¡Solicitud enviada! El equipo AK la revisará pronto.
+                          </div>
+                        )}
                       </>
                     );
                   })()}
-                </CardContent>
-              </Card>
-            )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* ── 12. Lista de regalos ── */}
             {settings?.listaRegalos?.visible && fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0 && (
@@ -2015,6 +2076,49 @@ export default function PublicPortalView({
                 <p className="text-center text-xs text-muted-foreground">{companyName}</p>
               </CardContent>
             </Card>
+
+            {/* ── 15. AK Producciones signature block ── */}
+            {(() => {
+              const guestExp = fiesta.guestExperienceSettings;
+              const instagramUrl = guestExp?.instagramUrl;
+              const signatureWhatsappUrl = guestExp?.whatsappUrl || (hasValidPhone ? whatsappHref : null);
+              const landingUrl = guestExp?.landingUrl;
+              const hasLinks = !!(instagramUrl || signatureWhatsappUrl || landingUrl);
+              return (
+                <div className="rounded-3xl border border-slate-100 bg-gradient-to-br from-slate-50 to-white p-5 text-center space-y-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <p className="font-black text-sm text-slate-800 tracking-tight">AK Producciones</p>
+                    <p className="text-xs text-muted-foreground">Eventos que quedan en la memoria</p>
+                  </div>
+                  {hasLinks && (
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {instagramUrl && (
+                        <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                          <button className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm">
+                            <span>📸</span> Instagram
+                          </button>
+                        </a>
+                      )}
+                      {signatureWhatsappUrl && (
+                        <a href={signatureWhatsappUrl} target="_blank" rel="noopener noreferrer">
+                          <button className="rounded-full bg-[#25D366] text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm">
+                            <MessageSquare className="w-3 h-3" /> WhatsApp
+                          </button>
+                        </a>
+                      )}
+                      {landingUrl && (
+                        <a href={landingUrl} target="_blank" rel="noopener noreferrer">
+                          <button className="rounded-full bg-violet-600 text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm">
+                            <ExternalLink className="w-3 h-3" /> Ver servicios
+                          </button>
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  <p className="text-[10px] text-slate-400">✨ Creado con amor para {config.protagonista1Nombre || 'vos'}</p>
+                </div>
+              );
+            })()}
 
           </div>
 
