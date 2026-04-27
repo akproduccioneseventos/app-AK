@@ -248,9 +248,6 @@ function MuroSocialContent() {
   const [sorteoWheelAngle, setSorteoWheelAngle] = useState(0);
   const [sorteoPreviewWinner, setSorteoPreviewWinner] = useState<string | null>(null);
   const [sorteoPremio, setSorteoPremio] = useState('');
-  // Whether the sorteo wheel has been transferred to the big screen (waiting for spin)
-  const [sorteoTransferredToScreen, setSorteoTransferredToScreen] = useState(false);
-  const [isTransferringSorteo, setIsTransferringSorteo] = useState(false);
   const [uploadingCoverPhoto, setUploadingCoverPhoto] = useState(false);
   // Custom moments state
   const [newMomentoNombre, setNewMomentoNombre] = useState('');
@@ -664,28 +661,6 @@ function MuroSocialContent() {
       toast({ title: 'Trivia cerrada' });
     } else {
       toast({ title: 'Error al cerrar trivia', description: result.error, variant: 'destructive' });
-    }
-  };
-
-  const handleTransferSorteoToScreen = async () => {
-    if (!fiestaId) return;
-    const participants = sorteoParticipants
-      .split('\n')
-      .map(p => p.trim())
-      .filter(Boolean);
-    if (participants.length === 0) {
-      toast({ title: 'Sin participantes', description: 'Ingresá los nombres de los participantes (uno por línea).', variant: 'destructive' });
-      return;
-    }
-    setIsTransferringSorteo(true);
-    const result = await transferSorteoToScreen(fiestaId);
-    setIsTransferringSorteo(false);
-    if (result.success) {
-      setSorteoTransferredToScreen(true);
-      setSorteoPreviewWinner(null);
-      toast({ title: '🎡 Sorteo transferido a pantalla', description: 'La ruleta ya aparece en la pantalla gigante. Cuando quieras, presioná "Iniciar Sorteo / Girar".' });
-    } else {
-      toast({ title: 'Error al transferir', description: result.error, variant: 'destructive' });
     }
   };
 
