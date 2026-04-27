@@ -239,6 +239,8 @@ function MuroSocialContent() {
   const [isCreatingPoll, setIsCreatingPoll] = useState(false);
   const [isClosingPoll, setIsClosingPoll] = useState(false);
   const [isTriggeringSorteo, setIsTriggeringSorteo] = useState(false);
+  const [isTransferringSorteo, setIsTransferringSorteo] = useState(false);
+  const [sorteoTransferredToScreen, setSorteoTransferredToScreen] = useState(false);
   const [sorteoParticipants, setSorteoParticipants] = useState<string>('');
   const [lastSorteoWinner, setLastSorteoWinner] = useState<string | null>(null);
   // Spinning wheel state
@@ -665,6 +667,28 @@ function MuroSocialContent() {
     }
   };
 
+  const handleTransferSorteoToScreen = async () => {
+    if (!fiestaId) return;
+    const participants = sorteoParticipants
+      .split('\n')
+      .map(p => p.trim())
+      .filter(Boolean);
+    if (participants.length === 0) {
+      toast({ title: 'Sin participantes', description: 'Ingresá los nombres de los participantes (uno por línea).', variant: 'destructive' });
+      return;
+    }
+    setIsTransferringSorteo(true);
+    const result = await transferSorteoToScreen(fiestaId);
+    setIsTransferringSorteo(false);
+    if (result.success) {
+      setSorteoTransferredToScreen(true);
+      setSorteoPreviewWinner(null);
+      toast({ title: '🎡 Sorteo transferido a pantalla', description: 'La ruleta ya aparece en la pantalla gigante. Cuando quieras, presioná "Iniciar Sorteo / Girar".' });
+    } else {
+      toast({ title: 'Error al transferir', description: result.error, variant: 'destructive' });
+    }
+  };
+
   const handleTriggerSorteo = async () => {
     if (!fiestaId) return;
     const participants = sorteoParticipants
@@ -694,6 +718,7 @@ function MuroSocialContent() {
       setIsTriggeringSorteo(false);
       if (result.success) {
         setLastSorteoWinner(winner);
+        setSorteoTransferredToScreen(false); // reset after winner revealed
         toast({ title: `🎉 ¡Ganador: ${winner}!`, description: 'El resultado se muestra ahora en la pantalla gigante (20 segundos).' });
       } else {
         toast({ title: 'Error al lanzar sorteo', description: result.error, variant: 'destructive' });

@@ -4,6 +4,7 @@ import path from 'path';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
+import admin from 'firebase-admin';
 
 /** Maximum allowed video upload size (bytes) — leaves headroom below the 20 MB Next.js bodySizeLimit */
 const MAX_VIDEO_UPLOAD_BYTES = 18 * 1024 * 1024;
@@ -276,6 +277,18 @@ export async function clearActiveGame(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Use a direct Firestore update with FieldValue.delete() to explicitly remove the
+    // activeGame nested field.  The generic saveFiesta path uses { merge: true } which
+    // only adds/updates fields — it NEVER deletes existing ones, so the game would stay
+    // visible on the screen even after pressing "Detener".
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      await dbAdmin.collection('fiestas').doc(fiestaId).update({
+        'socialGallerySettings.activeGame': admin.firestore.FieldValue.delete(),
+      });
+      return { success: true };
+    }
+    // Fallback for environments without Firestore (local JSON-only dev)
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);

@@ -55,6 +55,28 @@ import type { Dedication, SongRequest } from '@/types/social-gallery';
 
 const MAX_DISPLAYED_SONG_REQUESTS = 12;
 
+/**
+ * Merges incoming Firestore social-gallery settings with the current local state,
+ * ensuring that "enabled by default" boolean flags (allowLikes, chatEnabled, etc.)
+ * are treated as `true` when the field is absent — so that fiestas created before
+ * those settings were introduced still have all interactive features enabled.
+ */
+function mergeGuestSettings(
+  prev: SocialGallerySettings,
+  incoming: SocialGallerySettings
+): SocialGallerySettings {
+  return {
+    ...prev,
+    ...incoming,
+    allowLikes: incoming.allowLikes ?? prev.allowLikes ?? true,
+    allowComments: incoming.allowComments ?? prev.allowComments ?? true,
+    uploadsActive: incoming.uploadsActive ?? prev.uploadsActive ?? true,
+    chatEnabled: incoming.chatEnabled ?? prev.chatEnabled ?? true,
+    showSongRequests: incoming.showSongRequests ?? prev.showSongRequests ?? true,
+    showDedications: incoming.showDedications ?? prev.showDedications ?? true,
+  };
+}
+
 /** Large touchable feature card shown on the guest home screen. */
 const GuestFeatureButton: React.FC<{
   icon: React.ReactNode;
@@ -341,7 +363,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setPosts(fetchedPosts);
       setFiesta(fiestaData);
       if (fiestaData?.socialGallerySettings) {
-          setLocalSettings(prev => ({ ...prev, ...fiestaData.socialGallerySettings }));
+          setLocalSettings(prev => mergeGuestSettings(prev, fiestaData.socialGallerySettings!));
       }
       setChatMessages(fetchedChat);
       setSongRequests(fetchedSongRequests);
@@ -499,7 +521,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   };
   
   const handleLike = async (postId: string) => {
-    if (!localSettings.allowLikes) return;
+    if (localSettings.allowLikes === false) return;
     const originalPosts = [...posts];
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
     try {
@@ -514,7 +536,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   };
   
   const handleComment = async (postId: string, text: string) => {
-    if (!localSettings.allowComments) return;
+    if (localSettings.allowComments === false) return;
     const result = await addCommentToPost(postId, text, authorName || 'Anónimo');
     if (!result.success) {
         toast({title: "Error", description: "No se pudo añadir el comentario."});
