@@ -3,7 +3,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trophy, Upload, X, Zap } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Download, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
-import { getSocialPosts } from '@/app/actions/social-gallery';
+import { getSocialPosts, clearGallery } from '@/app/actions/social-gallery';
 import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
@@ -26,11 +26,14 @@ import {
   prevScreenItem,
   setScreenLoop,
   updateLedMessage,
+  updateLedConfig,
   triggerLiveMoment,
   updateScreenBrand,
   launchGame,
   clearActiveGame,
   triggerSorteoWinner,
+  startSorteoSpinOnScreen,
+  getMuroParticipantesForSorteo,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
 import { getInvitados } from '@/app/actions/fiesta/invitados.actions';
@@ -217,6 +220,8 @@ function MuroSocialContent() {
             isPlaying: sg.screenMode?.isPlaying ?? prev.screenMode?.isPlaying ?? true,
             currentItemIndex: sg.screenMode?.currentItemIndex ?? prev.screenMode?.currentItemIndex ?? 0,
           } as SocialGallerySettings['screenMode'],
+          // Keep sorteo followers count current (read-only, not user-editable)
+          sorteoParticipantesRedes: sg.sorteoParticipantesRedes ?? prev.sorteoParticipantesRedes,
         }));
       }
       const posts = await getSocialPosts(fiestaId);
@@ -240,6 +245,14 @@ function MuroSocialContent() {
   const [sorteoIsSpinning, setSorteoIsSpinning] = useState(false);
   const [sorteoWheelAngle, setSorteoWheelAngle] = useState(0);
   const [sorteoPreviewWinner, setSorteoPreviewWinner] = useState<string | null>(null);
+  const [sorteoPremio, setSorteoPremio] = useState('');
+  const [uploadingCoverPhoto, setUploadingCoverPhoto] = useState(false);
+  // Custom moments state
+  const [newMomentoNombre, setNewMomentoNombre] = useState('');
+  const [newMomentoEmoji, setNewMomentoEmoji] = useState('✨');
+  const [isSavingMomento, setIsSavingMomento] = useState(false);
+  // Download + clear state
+  const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -326,13 +339,44 @@ function MuroSocialContent() {
   const saveLedText = async () => {
     if (!fiestaId) return;
     setIsSavingLed(true);
-    const result = await updateLedMessage(fiestaId, settings.ledMarqueeText ?? '');
+    const result = await updateLedConfig(fiestaId, {
+      text: settings.ledMarqueeText ?? '',
+      enabled: settings.ledMarqueeEnabled !== false,
+      color: settings.ledMarqueeColor,
+      bgColor: settings.ledMarqueeBgColor,
+    });
     setIsSavingLed(false);
     if (result.success) {
       toast({ title: 'Cartel LED enviado ✓', description: 'El texto se actualizó en la pantalla en vivo.' });
       await loadData();
     } else {
       toast({ title: 'Error al enviar cartel LED', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleUploadCoverPhoto = async (file: File | null) => {
+    if (!fiestaId || !file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Solo se aceptan imágenes', variant: 'destructive' });
+      return;
+    }
+    setUploadingCoverPhoto(true);
+    try {
+      // Re-use uploadScreenMediaAsset but then set mobileControlCoverUrl to the uploaded URL
+      const res = await uploadScreenMediaAsset(fiestaId, file);
+      if (!res.success || !res.asset) throw new Error(res.error || 'No se pudo subir la imagen.');
+      const updated = { ...settingsRef.current, mobileControlCoverUrl: res.asset.url };
+      setSettings(updated);
+      const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+      if (result.success) {
+        toast({ title: 'Portada actualizada ✓' });
+      } else {
+        toast({ title: 'Error al guardar portada', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al subir portada', description: e.message, variant: 'destructive' });
+    } finally {
+      setUploadingCoverPhoto(false);
     }
   };
 
@@ -611,12 +655,14 @@ function MuroSocialContent() {
     // Spin: random full rotations (5-8) plus the landing angle
     const spinRotations = 5 + Math.floor(Math.random() * 4);
     setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
+    // Also trigger spin animation on the big screen immediately
+    await startSorteoSpinOnScreen(fiestaId);
     // After animation (2.8s), persist to Firestore and reveal winner
     setTimeout(async () => {
       setSorteoIsSpinning(false);
       setSorteoPreviewWinner(winner);
       setIsTriggeringSorteo(true);
-      const result = await triggerSorteoWinner(fiestaId, winner);
+      const result = await triggerSorteoWinner(fiestaId, winner, sorteoPremio.trim() || undefined);
       setIsTriggeringSorteo(false);
       if (result.success) {
         setLastSorteoWinner(winner);
@@ -642,6 +688,33 @@ function MuroSocialContent() {
     } catch {
       toast({ title: 'Error al cargar invitados', variant: 'destructive' });
     }
+  };
+
+  const handleLoadMuroParticipantes = async () => {
+    if (!fiestaId) return;
+    const result = await getMuroParticipantesForSorteo(fiestaId);
+    if (result.success && result.participantes && result.participantes.length > 0) {
+      setSorteoParticipants(result.participantes.join('\n'));
+      setSorteoPreviewWinner(null);
+      toast({ title: `${result.participantes.length} participantes del muro cargados`, description: 'Solo se incluyen los que pusieron su nombre (no anónimos).' });
+    } else if (result.success) {
+      toast({ title: 'Sin participantes del muro', description: 'Nadie participó con nombre aún.', variant: 'destructive' });
+    } else {
+      toast({ title: 'Error al cargar participantes', description: result.error, variant: 'destructive' });
+    }
+  };
+
+  const handleLoadRedesSeguidores = () => {
+    const seguidores = (settings.sorteoParticipantesRedes ?? []);
+    // Deduplicate by name (case-insensitive)
+    const unique = Array.from(new Map(seguidores.map(s => [s.nombre.toLowerCase(), s.nombre])).values());
+    if (unique.length === 0) {
+      toast({ title: 'Sin seguidores registrados', description: 'Ningún invitado hizo clic en "Seguir" todavía.', variant: 'destructive' });
+      return;
+    }
+    setSorteoParticipants(unique.join('\n'));
+    setSorteoPreviewWinner(null);
+    toast({ title: `${unique.length} seguidores de redes cargados`, description: 'Solo los que hicieron clic en Seguir desde su celular.' });
   };
 
   const addPlaylistItem = (type: ScreenPlaylistItem['type']) => {
@@ -673,6 +746,78 @@ function MuroSocialContent() {
         playlist: [...(prev.screenMode?.playlist ?? []), { id, ...defaults[type] }],
       },
     }));
+  };
+
+  const removePlaylistItem = (itemId: string) => {
+    setSettings((prev) => withScreenDefaults({
+      ...prev,
+      screenMode: {
+        ...(prev.screenMode ?? { enabled: true, loop: true, isPlaying: true, currentItemIndex: 0, playlist: [] }),
+        playlist: (prev.screenMode?.playlist ?? []).filter((item) => item.id !== itemId),
+      },
+    }));
+  };
+
+  const handleAddCustomMomento = async () => {
+    if (!fiestaId || !newMomentoNombre.trim()) return;
+    setIsSavingMomento(true);
+    const id = `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const newMomento = { id, nombre: newMomentoNombre.trim(), emoji: newMomentoEmoji.trim() || '✨' };
+    const updated = {
+      ...settingsRef.current,
+      customMomentos: [...(settingsRef.current.customMomentos ?? []), newMomento],
+    };
+    setSettings(updated);
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+    setIsSavingMomento(false);
+    if (result.success) {
+      setNewMomentoNombre('');
+      setNewMomentoEmoji('✨');
+      toast({ title: 'Momento añadido ✓' });
+    } else {
+      toast({ title: 'Error al guardar momento', description: result.error, variant: 'destructive' });
+      setSettings((prev) => ({ ...prev, customMomentos: (prev.customMomentos ?? []).filter((m) => m.id !== id) }));
+    }
+  };
+
+  const handleDeleteCustomMomento = async (momentoId: string) => {
+    if (!fiestaId) return;
+    const updated = {
+      ...settingsRef.current,
+      customMomentos: (settingsRef.current.customMomentos ?? []).filter((m) => m.id !== momentoId),
+    };
+    setSettings(updated);
+    await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+  };
+
+  const handleDownloadAndClearGallery = async () => {
+    if (!fiestaId) return;
+    setIsDownloadingAndClearing(true);
+    try {
+      const response = await fetch(`/api/social-gallery/${fiestaId}/download`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `galeria-social-${fiestaId}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        // Clear after successful download
+        await clearGallery(fiestaId);
+        setPostCount(0);
+        toast({ title: 'Descarga completada y galería limpiada ✓', description: 'El ZIP se descargó y todas las fotos fueron eliminadas.' });
+      } else {
+        const err = await response.json().catch(() => ({}));
+        toast({ title: 'Error al descargar', description: (err as any).error || 'No se pudo generar el ZIP.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsDownloadingAndClearing(false);
+    }
   };
 
   if (isLoading || !fiesta) {
@@ -752,6 +897,45 @@ function MuroSocialContent() {
                 </p>
               </div>
             </div>
+            {/* Cover photo for mobile control */}
+            <div className="space-y-1 pt-2 border-t">
+              <Label className="text-xs font-semibold flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5" />
+                Portada del control móvil (quinceañera / evento)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">Foto de portada que aparece en la pantalla de bienvenida del muro social para invitados.</p>
+              {settings.mobileControlCoverUrl && (
+                <div className="relative h-24 w-full rounded-lg overflow-hidden mb-2 border bg-slate-50">
+                  <img src={settings.mobileControlCoverUrl} alt="Portada" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  disabled={uploadingCoverPhoto}
+                  onChange={(e) => handleUploadCoverPhoto(e.target.files?.[0] ?? null)}
+                  className="flex-1 text-xs"
+                />
+                {uploadingCoverPhoto && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
+              </div>
+              {settings.mobileControlCoverUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-destructive hover:text-destructive"
+                  onClick={async () => {
+                    const updated = { ...settingsRef.current, mobileControlCoverUrl: undefined };
+                    setSettings(updated);
+                    await updateSocialGallerySettingsFiestaActual(fiestaId!, updated);
+                    toast({ title: 'Portada eliminada' });
+                  }}
+                >
+                  Quitar portada
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -786,13 +970,85 @@ function MuroSocialContent() {
               </div>
               <Switch
                 checked={settings.screenDarkMode !== false}
-                onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, screenDarkMode: checked }))}
+                onCheckedChange={(checked) => handleToggleSetting('screenDarkMode', checked)}
               />
             </div>
             <div className="sm:col-span-2 flex gap-2 pt-1 flex-wrap">
               <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Button></Link>
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank"><Button variant="outline">Abrir Pantalla</Button></Link>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const url = `/evento/muro-en-vivo/${fiestaId}`;
+                  const win = window.open(url, '_blank', 'noopener,noreferrer');
+                  if (win) {
+                    const requestFs = () => {
+                      win.document.documentElement.requestFullscreen?.().catch(() => {});
+                    };
+                    if (win.document.readyState === 'complete') {
+                      requestFs();
+                    } else {
+                      win.addEventListener('load', requestFs, { once: true });
+                    }
+                  }
+                }}
+              >
+                <Maximize2 className="w-4 h-4 mr-2" />Pantalla Completa
+              </Button>
               <Link href={`/evento/dj/${fiestaId}`} target="_blank"><Button variant="outline">🎧 Panel DJ</Button></Link>
+            </div>
+
+            {/* Photo limits config */}
+            <div className="sm:col-span-2 rounded-lg border p-3 space-y-3 bg-slate-50">
+              <p className="text-sm font-semibold">Límites de fotos</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Máx. fotos por evento</Label>
+                  <Input
+                    type="number"
+                    min={10}
+                    max={2000}
+                    value={settings.maxPhotos ?? 200}
+                    onChange={(e) => setSettings((prev) => ({ ...prev, maxPhotos: Number(e.target.value) || 200 }))}
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Máx. fotos por persona</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={settings.maxPhotosPerPerson ?? 10}
+                    onChange={(e) => setSettings((prev) => ({ ...prev, maxPhotosPerPerson: Number(e.target.value) || 10 }))}
+                    className="h-9"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Los cambios se guardan al presionar "Guardar" arriba.</p>
+            </div>
+
+            {/* Download + clear gallery */}
+            <div className="sm:col-span-2 rounded-lg border border-destructive/30 p-3 space-y-2 bg-red-50/40">
+              <p className="text-sm font-semibold text-destructive flex items-center gap-1.5">
+                <Download className="w-4 h-4" /> Descargar y limpiar galería
+              </p>
+              <p className="text-xs text-muted-foreground">Descarga un ZIP con todas las fotos del muro y después las elimina de Firebase para ahorrar espacio.</p>
+              <p className="text-xs font-semibold text-destructive">
+                📸 {postCount === null ? '…' : postCount} foto{postCount !== 1 ? 's' : ''} actualmente en el muro.
+              </p>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isDownloadingAndClearing || postCount === 0}
+                onClick={handleDownloadAndClearGallery}
+                className="w-full"
+              >
+                {isDownloadingAndClearing
+                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Descargando y limpiando…</>
+                  : <><Download className="w-4 h-4 mr-2" />Descargar ZIP y borrar fotos</>
+                }
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -823,8 +1079,17 @@ function MuroSocialContent() {
                 </Button>
               </div>
             </div>
-            <div className="space-y-1">
-              <Label>Cartel LED / Mensaje pasante</Label>
+            <div className="space-y-2 rounded-lg border p-3 bg-slate-50">
+              <div className="flex items-center justify-between">
+                <Label className="font-semibold">Cartel LED / Mensaje pasante</Label>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <span>Activo</span>
+                  <Switch
+                    checked={settings.ledMarqueeEnabled !== false}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, ledMarqueeEnabled: checked }))}
+                  />
+                </div>
+              </div>
               <div className="flex gap-2">
                 <Input
                   value={settings.ledMarqueeText ?? ''}
@@ -843,7 +1108,43 @@ function MuroSocialContent() {
                   {isSavingLed ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">Presioná Enter o el botón de envío para actualizar el texto en la pantalla en vivo inmediatamente.</p>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <Label className="text-xs">Color del texto</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={settings.ledMarqueeColor || '#f0abfc'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeColor: e.target.value }))}
+                      className="w-10 h-9 p-1 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.ledMarqueeColor || '#f0abfc'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeColor: e.target.value }))}
+                      placeholder="#f0abfc"
+                      className="flex-1 h-9 text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Color de fondo</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="color"
+                      value={settings.ledMarqueeBgColor || '#a855f7'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeBgColor: e.target.value }))}
+                      className="w-10 h-9 p-1 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.ledMarqueeBgColor || '#a855f7'}
+                      onChange={(e) => setSettings((prev) => ({ ...prev, ledMarqueeBgColor: e.target.value }))}
+                      placeholder="#a855f7"
+                      className="flex-1 h-9 text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Presioná Enter o el botón de envío para actualizar el cartel en la pantalla en vivo inmediatamente.</p>
             </div>
           </CardContent>
         </Card>
@@ -954,6 +1255,14 @@ function MuroSocialContent() {
                         <option key={asset.id} value={asset.id}>{asset.title || asset.id}</option>
                       ))}
                     </select>
+                    <button
+                      type="button"
+                      onClick={() => removePlaylistItem(item.id)}
+                      className="h-10 w-10 flex items-center justify-center rounded-md border border-transparent text-slate-400 hover:text-destructive hover:border-destructive/30 hover:bg-red-50 transition-colors shrink-0"
+                      title="Eliminar ítem"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -963,11 +1272,12 @@ function MuroSocialContent() {
               <Label>Subir publicidad/media (PC) para esta fiesta</Label>
               <Input
                 type="file"
-                accept="video/*,image/*"
+                accept="video/mp4,video/webm,video/ogg,video/quicktime,video/*,image/*"
                 disabled={uploadingMedia}
                 onChange={(e) => handleUploadMedia(e.target.files?.[0] ?? null)}
               />
-              <p className="text-xs text-muted-foreground">La biblioteca global incluye medios de otras fiestas para reutilizar.</p>
+              {uploadingMedia && <p className="text-xs text-blue-600 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" />Subiendo archivo, aguardá…</p>}
+              <p className="text-xs text-muted-foreground">Soporta MP4, WebM, MOV, imágenes JPG/PNG/GIF. La biblioteca global incluye medios de otras fiestas para reutilizar.</p>
               <p className="text-xs text-muted-foreground">Templates redes incluidos: Neón, VIP elegante y Minimal (editable por handles/QR en playlist tipo redes).</p>
             </div>
           </CardContent>
@@ -1151,13 +1461,63 @@ function MuroSocialContent() {
             <CardTitle className="text-base">Disparador rápido de momentos</CardTitle>
             <CardDescription>Interrumpe temporalmente la proyección con anuncio a pantalla completa.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {QUICK_MOMENTS.map((moment) => (
-              <Button key={moment.id} variant="secondary" onClick={() => triggerMoment(moment)}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                {moment.emoji} {moment.nombre}
-              </Button>
-            ))}
+          <CardContent className="space-y-4">
+            {/* Hardcoded quick moments */}
+            <div className="flex flex-wrap gap-2">
+              {QUICK_MOMENTS.map((moment) => (
+                <Button key={moment.id} variant="secondary" onClick={() => triggerMoment(moment)}>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {moment.emoji} {moment.nombre}
+                </Button>
+              ))}
+              {/* Custom moments */}
+              {(settings.customMomentos ?? []).map((moment) => (
+                <div key={moment.id} className="flex items-center gap-1">
+                  <Button variant="secondary" onClick={() => triggerMoment(moment)}>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {moment.emoji} {moment.nombre}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCustomMomento(moment.id)}
+                    className="h-7 w-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-destructive hover:bg-red-50 transition-colors"
+                    title="Eliminar momento"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add custom moment form */}
+            <div className="rounded-lg border border-dashed border-slate-200 p-3 space-y-2">
+              <p className="text-xs font-semibold text-slate-500">➕ Agregar momento personalizado</p>
+              <div className="flex gap-2">
+                <Input
+                  value={newMomentoEmoji}
+                  onChange={(e) => setNewMomentoEmoji(e.target.value)}
+                  placeholder="🎵"
+                  className="w-16 text-center text-lg h-9"
+                  maxLength={4}
+                />
+                <Input
+                  value={newMomentoNombre}
+                  onChange={(e) => setNewMomentoNombre(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomMomento(); } }}
+                  placeholder="Ej: Vals, Primer cotillón, Sorpresa…"
+                  className="flex-1 h-9"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!newMomentoNombre.trim() || isSavingMomento}
+                  onClick={handleAddCustomMomento}
+                  className="h-9"
+                >
+                  {isSavingMomento ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -1276,29 +1636,94 @@ function MuroSocialContent() {
               </div>
 
               {/* Spinning wheel */}
-              <div className="flex justify-center py-2">
-                <div className="relative w-36 h-36">
-                  {/* Pointer — #eab308 = Tailwind yellow-500, matches border-yellow-400 theme */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 w-0 h-0"
-                    style={{ borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '16px solid #eab308' }} />
-                  {/* Wheel */}
-                  <div
-                    className="w-36 h-36 rounded-full border-4 border-yellow-400 shadow-lg overflow-hidden flex items-center justify-center"
-                    style={{
-                      transform: `rotate(${sorteoWheelAngle}deg)`,
-                      transition: sorteoIsSpinning
-                        ? 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
-                        : 'none',
-                      background: 'conic-gradient(#fef9c3, #fde68a, #fbbf24, #f59e0b, #fef9c3, #fde68a, #fbbf24, #f59e0b)',
-                    }}
-                  >
-                    {/* AK logo center */}
-                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-inner border-2 border-yellow-300 z-10">
-                      <span className="text-lg font-black text-yellow-600 leading-none">AK</span>
+              {(() => {
+                const participants = sorteoParticipants
+                  .split('\n')
+                  .map(p => p.trim())
+                  .filter(Boolean);
+                const count = Math.min(participants.length, 16); // cap segments for readability
+                const wheelItems = participants.slice(0, count);
+                // Color palette for segments
+                const SEGMENT_COLORS = [
+                  '#f43f5e','#f97316','#eab308','#22c55e','#06b6d4','#6366f1','#ec4899','#14b8a6',
+                  '#fb923c','#a3e635','#38bdf8','#818cf8','#f472b6','#4ade80','#facc15','#fb7185',
+                ];
+                return (
+                  <div className="flex justify-center py-2">
+                    <div className="relative w-52 h-52">
+                      {/* Pointer arrow */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-20 w-0 h-0"
+                        style={{ borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '22px solid #eab308' }} />
+                      {/* Wheel */}
+                      <div
+                        className="w-52 h-52 rounded-full border-4 border-yellow-400 shadow-2xl overflow-hidden relative"
+                        style={{
+                          transform: `rotate(${sorteoWheelAngle}deg)`,
+                          transition: sorteoIsSpinning
+                            ? 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)'
+                            : 'none',
+                        }}
+                      >
+                        {wheelItems.length === 0 ? (
+                          <div
+                            className="w-full h-full flex items-center justify-center"
+                            style={{ background: 'conic-gradient(#fef9c3, #fde68a, #fbbf24, #f59e0b, #fef9c3, #fde68a, #fbbf24, #f59e0b)' }}
+                          >
+                            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-inner border-2 border-yellow-300 z-10">
+                              <span className="text-lg font-black text-yellow-600 leading-none">AK</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <svg width="100%" height="100%" viewBox="0 0 200 200">
+                            {wheelItems.map((name, i) => {
+                              const sliceAngle = (2 * Math.PI) / wheelItems.length;
+                              const startAngle = i * sliceAngle - Math.PI / 2;
+                              const endAngle = startAngle + sliceAngle;
+                              const x1 = 100 + 96 * Math.cos(startAngle);
+                              const y1 = 100 + 96 * Math.sin(startAngle);
+                              const x2 = 100 + 96 * Math.cos(endAngle);
+                              const y2 = 100 + 96 * Math.sin(endAngle);
+                              const midAngle = startAngle + sliceAngle / 2;
+                              const textR = 66;
+                              const tx = 100 + textR * Math.cos(midAngle);
+                              const ty = 100 + textR * Math.sin(midAngle);
+                              const largeArc = sliceAngle > Math.PI ? 1 : 0;
+                              const color = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
+                              const shortName = name.length > 10 ? name.slice(0, 9) + '…' : name;
+                              return (
+                                <g key={i}>
+                                  <path
+                                    d={`M 100 100 L ${x1} ${y1} A 96 96 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                    fill={color}
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                  />
+                                  <text
+                                    x={tx}
+                                    y={ty}
+                                    textAnchor="middle"
+                                    dominantBaseline="middle"
+                                    transform={`rotate(${(midAngle * 180) / Math.PI + 90}, ${tx}, ${ty})`}
+                                    fill="white"
+                                    fontSize={wheelItems.length > 8 ? 7 : 9}
+                                    fontWeight="bold"
+                                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+                                  >
+                                    {shortName}
+                                  </text>
+                                </g>
+                              );
+                            })}
+                            {/* Center circle */}
+                            <circle cx="100" cy="100" r="22" fill="white" stroke="#fbbf24" strokeWidth="3" />
+                            <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="900" fill="#d97706">AK</text>
+                          </svg>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Winner reveal */}
               {sorteoPreviewWinner && !sorteoIsSpinning && (
@@ -1309,16 +1734,50 @@ function MuroSocialContent() {
               )}
 
               <div className="space-y-2">
-                {/* Load from guest list */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLoadInvitadosToSorteo}
-                  className="w-full border-yellow-300 text-yellow-800 hover:bg-yellow-50"
-                >
-                  👥 Cargar lista de invitados (con check-in / confirmados)
-                </Button>
+                {/* Prize configuration */}
+                <div className="space-y-1">
+                  <Label className="text-xs text-slate-500">Premio del sorteo (se muestra en pantalla)</Label>
+                  <Input
+                    value={sorteoPremio}
+                    onChange={(e) => setSorteoPremio(e.target.value)}
+                    placeholder="Ej: Una cena para dos, Pack de vinos…"
+                    className="h-9 text-sm"
+                  />
+                </div>
+                {/* Three sorteo participant type buttons */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-500 font-semibold">Cargar participantes desde:</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadInvitadosToSorteo}
+                    className="w-full border-yellow-300 text-yellow-800 hover:bg-yellow-50 justify-start text-left"
+                  >
+                    👥 <span className="font-bold ml-1">Todos los invitados</span>
+                    <span className="ml-1 text-yellow-600 font-normal">(confirmados / con check-in)</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadMuroParticipantes}
+                    className="w-full border-blue-300 text-blue-800 hover:bg-blue-50 justify-start text-left"
+                  >
+                    🎉 <span className="font-bold ml-1">Participantes del muro</span>
+                    <span className="ml-1 text-blue-600 font-normal">(pusieron su nombre, no anónimos)</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadRedesSeguidores}
+                    className="w-full border-pink-300 text-pink-800 hover:bg-pink-50 justify-start text-left"
+                  >
+                    📱 <span className="font-bold ml-1">Seguidores de redes</span>
+                    <span className="ml-1 text-pink-600 font-normal">({(settings.sorteoParticipantesRedes ?? []).length} hicieron clic en Seguir)</span>
+                  </Button>
+                </div>
                 <Label className="text-xs text-slate-500">
                   Participantes — uno por línea (podés editar manualmente):
                 </Label>

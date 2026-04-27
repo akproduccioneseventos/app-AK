@@ -31,6 +31,7 @@ import * as logger from '@/lib/logger';
 const GALLERY_COLLECTION = 'social_gallery_posts';
 const CHAT_COLLECTION = 'social_chat';
 const MAX_PHOTOS_PER_EVENT = 200;
+const MAX_PHOTOS_PER_PERSON = 10;
 
 /** Returns the Firestore Admin instance; throws if Firebase is not configured. */
 async function getDb(): Promise<FirebaseFirestore.Firestore> {
@@ -70,6 +71,7 @@ export async function uploadSocialPost(
   const authorName = (formData.get('authorName') as string) || 'Anónimo';
   const dedication = (formData.get('dedication') as string) || undefined;
   const momentTag = (formData.get('momentTag') as string) || undefined;
+  const imageHash = (formData.get('imageHash') as string) || undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
   if (!file.type.startsWith('image/')) return { success: false, error: 'Solo se aceptan archivos de imagen.' };
@@ -78,16 +80,45 @@ export async function uploadSocialPost(
   try {
     const db = await getDb();
     const fiestaData = await getFiestaById(fiestaId);
-    const limit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
+    const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
+    const personLimit = fiestaData?.socialGallerySettings?.maxPhotosPerPerson ?? MAX_PHOTOS_PER_PERSON;
 
-    // Lightweight count — fetches only doc IDs (no full documents) to check the limit.
+    // Lightweight count — fetches only doc IDs (no full documents) to check the event limit.
     const countSnap = await db
       .collection(GALLERY_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .select('id')
       .get();
-    if (countSnap.size >= limit) {
-      return { success: false, error: `Se ha alcanzado el límite de ${limit} fotos para este evento.` };
+    if (countSnap.size >= eventLimit) {
+      return { success: false, error: `Se ha alcanzado el límite de ${eventLimit} fotos para este evento.` };
+    }
+
+    // Per-person limit — only applied to named (non-anonymous) users.
+    const isAnonymous = !authorName || authorName.toLowerCase() === 'anónimo' || authorName.toLowerCase() === 'anonimo';
+    if (!isAnonymous) {
+      const personSnap = await db
+        .collection(GALLERY_COLLECTION)
+        .where('fiestaId', '==', fiestaId)
+        .where('authorName', '==', authorName)
+        .select('id')
+        .get();
+      if (personSnap.size >= personLimit) {
+        return { success: false, error: `Ya subiste el máximo de ${personLimit} fotos permitidas por persona.` };
+      }
+
+      // Duplicate image detection — reject if the same content hash was already uploaded.
+      if (imageHash) {
+        const hashSnap = await db
+          .collection(GALLERY_COLLECTION)
+          .where('fiestaId', '==', fiestaId)
+          .where('imageHash', '==', imageHash)
+          .select('id')
+          .limit(1)
+          .get();
+        if (!hashSnap.empty) {
+          return { success: false, error: 'Esta imagen ya fue subida anteriormente.' };
+        }
+      }
     }
 
     const fileExtension = path.extname(file.name);
@@ -112,6 +143,7 @@ export async function uploadSocialPost(
       comments: [],
       ...(dedication ? { dedication } : {}),
       ...(momentTag ? { momentTag } : {}),
+      ...(imageHash ? { imageHash } : {}),
     };
 
     // Single-document write — zero write conflict even with 200 simultaneous uploads,

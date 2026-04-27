@@ -5,6 +5,11 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 
+/** Maximum allowed video upload size (bytes) — leaves headroom below the 20 MB Next.js bodySizeLimit */
+const MAX_VIDEO_UPLOAD_BYTES = 18 * 1024 * 1024;
+/** Maximum allowed image upload size (bytes) */
+const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 function normalizeSocialSettings(settings?: SocialGallerySettings): SocialGallerySettings {
   return {
     enabled: settings?.enabled ?? true,
@@ -188,6 +193,16 @@ export async function uploadScreenMediaAsset(
 ): Promise<{ success: boolean; asset?: ScreenMediaAsset; error?: string }> {
   try {
     if (!fiestaId || !file) return { success: false, error: 'Datos incompletos.' };
+    // Explicit size check with a clear message (bodySizeLimit in next.config.js is 20MB)
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? MAX_VIDEO_UPLOAD_BYTES : MAX_IMAGE_UPLOAD_BYTES;
+    if (file.size > maxSize) {
+      return {
+        success: false,
+        error: `El archivo es demasiado grande (${(file.size / 1024 / 1024).toFixed(1)} MB). Máximo permitido: ${(maxSize / 1024 / 1024).toFixed(0)} MB.`,
+      };
+    }
+
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 
@@ -200,7 +215,7 @@ export async function uploadScreenMediaAsset(
     const asset: ScreenMediaAsset = {
       id,
       url,
-      type: file.type.startsWith('video/') ? 'video' : 'image',
+      type: isVideo ? 'video' : 'image',
       sourceFiestaId: fiestaId,
       sourceFiestaNombre: fiesta.configuracion.nombreEvento,
       createdAt: new Date().toISOString(),
@@ -275,7 +290,8 @@ export async function clearActiveGame(
 /** Lanza un sorteo y muestra el ganador en la pantalla gigante */
 export async function triggerSorteoWinner(
   fiestaId: string,
-  winner: string
+  winner: string,
+  premio?: string
 ): Promise<{ success: boolean; error?: string }> {
   const MAX_SORTEO_HISTORY = 50;
   try {
@@ -292,10 +308,164 @@ export async function triggerSorteoWinner(
         activeSorteoWinner: winner,
         activeSorteoTimestamp: new Date().toISOString(),
         sorteoGanadores: updatedWinners,
+        ...(premio !== undefined ? { sorteoPremio: premio } : {}),
       },
     });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al lanzar sorteo.' };
+  }
+}
+
+/** Inicia la animación de la ruleta en la pantalla gigante (antes de revelar el ganador) */
+export async function startSorteoSpinOnScreen(
+  fiestaId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        sorteoSpinStartedAt: new Date().toISOString(),
+        activeSorteoWinner: undefined,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al iniciar animación.' };
+  }
+}
+
+/** Registra un voto en una opción del juego activo */
+export async function voteActiveGameOption(
+  fiestaId: string,
+  optionId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const activeGame = settings.activeGame;
+    if (!activeGame) return { success: false, error: 'No hay juego activo.' };
+    const updatedOptions = (activeGame.options ?? []).map(opt =>
+      opt.id === optionId ? { ...opt, votes: (opt.votes ?? 0) + 1 } : opt
+    );
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        activeGame: { ...activeGame, options: updatedOptions },
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al votar.' };
+  }
+}
+
+/** Actualiza la configuración del cartel LED (colores, habilitado) */
+export async function updateLedConfig(
+  fiestaId: string,
+  config: { text?: string; enabled?: boolean; color?: string; bgColor?: string }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: {
+        ...settings,
+        ...(config.text !== undefined ? { ledMarqueeText: config.text } : {}),
+        ...(config.enabled !== undefined ? { ledMarqueeEnabled: config.enabled } : {}),
+        ...(config.color !== undefined ? { ledMarqueeColor: config.color } : {}),
+        ...(config.bgColor !== undefined ? { ledMarqueeBgColor: config.bgColor } : {}),
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al actualizar cartel LED.' };
+  }
+}
+
+/**
+ * Registra que un invitado del muro social hizo clic en el botón de seguir en redes sociales.
+ * Se guarda en `sorteoParticipantesRedes` para poder usar esos participantes en el sorteo.
+ * Se ignoran los anónimos y las entradas duplicadas (mismo nombre + plataforma en la misma fiesta).
+ */
+export async function trackSocialFollowClick(
+  fiestaId: string,
+  authorName: string,
+  platform: 'instagram' | 'facebook' | 'tiktok'
+): Promise<{ success: boolean; error?: string }> {
+  if (!authorName || authorName.toLowerCase() === 'anónimo') {
+    return { success: true }; // Silently ignore anonymous users
+  }
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
+    const existing = settings.sorteoParticipantesRedes ?? [];
+    // Avoid duplicates: same name + platform combo
+    const alreadyRegistered = existing.some(
+      p => p.nombre.toLowerCase() === authorName.toLowerCase() && (p as any).platform === platform
+    );
+    if (alreadyRegistered) return { success: true };
+    const updated = [
+      ...existing,
+      { nombre: authorName, timestamp: new Date().toISOString(), platform } as any,
+    ];
+    await saveFiesta({
+      ...fiesta,
+      socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated },
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al registrar seguidor.' };
+  }
+}
+
+/**
+ * Devuelve los nombres únicos (no anónimos) de invitados que interactuaron con el muro social
+ * (subieron fotos, enviaron mensajes de chat, dedicatorias o pedidos de canciones).
+ */
+export async function getMuroParticipantesForSorteo(
+  fiestaId: string
+): Promise<{ success: boolean; participantes?: string[]; error?: string }> {
+  try {
+    // Import social actions lazily to avoid circular dependencies
+    const { getSocialPosts } = await import('@/app/actions/social-gallery');
+    const { getDedications, getSongRequests } = await import('@/app/actions/social-interactive');
+    const { getChatMessages } = await import('@/app/actions/social-gallery');
+
+    const [posts, dedications, songRequests, chatMessages] = await Promise.all([
+      getSocialPosts(fiestaId).catch(() => []),
+      getDedications(fiestaId).catch(() => []),
+      getSongRequests(fiestaId).catch(() => []),
+      getChatMessages(fiestaId).catch(() => []),
+    ]);
+
+    const names = new Set<string>();
+    const isAnon = (n: string) => !n || n.toLowerCase() === 'anónimo' || n.toLowerCase() === 'anonimo';
+
+    for (const post of posts) {
+      if (!isAnon(post.authorName)) names.add(post.authorName.trim());
+    }
+    for (const d of dedications) {
+      if (!isAnon(d.authorName)) names.add(d.authorName.trim());
+    }
+    for (const s of songRequests) {
+      if (!isAnon(s.requestedBy)) names.add(s.requestedBy.trim());
+    }
+    for (const c of chatMessages) {
+      if (!isAnon(c.authorName)) names.add(c.authorName.trim());
+    }
+
+    return { success: true, participantes: Array.from(names).sort() };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al obtener participantes del muro.' };
   }
 }

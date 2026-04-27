@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, type FormEvent, useRef, type C
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication } from '@/app/actions/social-interactive';
+import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
@@ -29,7 +30,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle, ArrowLeft, Gamepad2, LayoutGrid, BarChart2 } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle, ArrowLeft, Gamepad2, LayoutGrid, BarChart2, Ghost } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -114,12 +115,29 @@ const PostCard: React.FC<{
   allowComments: boolean;
 }> = ({ post, onLike, onComment, onDelete, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments }) => {
   const [commentText, setCommentText] = useState('');
+  const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number }[]>([]);
+  const heartIdRef = useRef(0);
   
   const handleCommentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
     await onComment(post.id, commentText);
     setCommentText('');
+  };
+
+  const handleLikeClick = () => {
+    if (!allowLikes) return;
+    // Spawn 3-5 floating hearts
+    const count = 3 + Math.floor(Math.random() * 3);
+    const newHearts = Array.from({ length: count }, () => ({
+      id: ++heartIdRef.current,
+      x: -20 + Math.random() * 40,
+    }));
+    setFloatingHearts(prev => [...prev, ...newHearts]);
+    setTimeout(() => {
+      setFloatingHearts(prev => prev.filter(h => !newHearts.some(nh => nh.id === h.id)));
+    }, 1200);
+    onLike(post.id);
   };
 
   const formattedTimestamp = formatDistanceToNow(new Date(post.timestamp), {
@@ -162,10 +180,28 @@ const PostCard: React.FC<{
         <CardFooter className="p-4 flex flex-col items-start gap-3">
             <div className="w-full flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => onLike(post.id)} disabled={!allowLikes} className="flex items-center gap-1.5 group/like outline-none disabled:opacity-50 disabled:cursor-not-allowed">
-                        <Heart className={`w-6 h-6 transition-all ${post.likes > 0 ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover/like:text-red-400'}`} />
-                        <span className="text-sm font-bold text-slate-600">{post.likes}</span>
-                    </button>
+                    <div className="relative">
+                      <button onClick={handleLikeClick} disabled={!allowLikes} className="flex items-center gap-1.5 group/like outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                          <Heart className={`w-6 h-6 transition-all ${post.likes > 0 ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover/like:text-red-400'}`} />
+                          <span className="text-sm font-bold text-slate-600">{post.likes}</span>
+                      </button>
+                      {/* Floating hearts */}
+                      <AnimatePresence>
+                        {floatingHearts.map(heart => (
+                          <motion.div
+                            key={heart.id}
+                            className="absolute pointer-events-none text-red-500 text-lg select-none"
+                            style={{ bottom: '100%', left: `calc(50% + ${heart.x}px)`, translateX: '-50%' }}
+                            initial={{ opacity: 1, y: 0, scale: 0.8 }}
+                            animate={{ opacity: 0, y: -50, scale: 1.4 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 1.0, ease: 'easeOut' }}
+                          >
+                            ❤️
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
                     <div className="flex items-center gap-1.5 text-slate-400">
                         <MessageCircle className="w-6 h-6" />
                         <span className="text-sm font-bold text-slate-600">{post.comments.length}</span>
@@ -194,7 +230,7 @@ const PostCard: React.FC<{
                     )) : <p className="text-xs text-muted-foreground text-center py-2 italic">Sin comentarios aún...</p>}
                 </div>
                 <form onSubmit={handleCommentSubmit} className="flex gap-2 items-center">
-                    <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Escribe un comentario..." className="h-10 text-xs rounded-xl bg-slate-50 border-none focus-visible:ring-1" style={{ '--tw-ring-color': accentColor } as any}/>
+                    <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Escribe un comentario... 💬❤️😊" className="h-10 text-xs rounded-xl bg-slate-50 border-none focus-visible:ring-1" style={{ '--tw-ring-color': accentColor } as any}/>
                     <Button type="submit" size="icon" className="h-10 w-10 flex-shrink-0 rounded-xl shadow-md transition-transform active:scale-95" disabled={!commentText.trim()} style={{ backgroundColor: accentColor }}>
                         <Send className="w-4 h-4"/>
                     </Button>
@@ -253,6 +289,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   
   const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [instagramUrl, setInstagramUrl] = useState<string | null>(null);
+  const [facebookUrl, setFacebookUrl] = useState<string | null>(null);
+  /** Platform keys the guest has already clicked "follow" on (stored in sessionStorage) */
+  const [followedPlatforms, setFollowedPlatforms] = useState<Set<string>>(new Set());
 
   // Custom Settings State (for Admin)
   const [localSettings, setLocalSettings] = useState<SocialGallerySettings>({
@@ -309,6 +349,21 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setActivePoll(poll);
       setCompanyLogoUrl(settingsData.logoUrl ?? null);
       setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
+      const igConn = socialConnections.find(c => c.platform === 'Instagram');
+      const fbConn = socialConnections.find(c => c.platform === 'Facebook');
+      // Use brand handle if set, otherwise fall back to company social connections
+      const brandIg = fiestaData?.socialGallerySettings?.brand?.instagramHandle;
+      const brandFb = fiestaData?.socialGallerySettings?.brand?.facebookHandle;
+      setInstagramUrl(
+        brandIg
+          ? `https://instagram.com/${brandIg.replace(/^@/, '')}`
+          : igConn?.profileUrl || null
+      );
+      setFacebookUrl(
+        brandFb
+          ? `https://facebook.com/${brandFb.replace(/^@/, '')}`
+          : fbConn?.profileUrl || null
+      );
 
     } catch (e) {
       toast({ title: "Error al cargar galería", variant: "destructive" });
@@ -331,6 +386,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             } else {
                 setIsNameModalOpen(true);
             }
+        }
+        // Restore platforms the guest already followed
+        const followedRaw = sessionStorage.getItem(`socialFollowed_${params.fiestaId}`);
+        if (followedRaw) {
+          try { setFollowedPlatforms(new Set(JSON.parse(followedRaw))); } catch {}
         }
     }
   }, [params.fiestaId]);
@@ -369,6 +429,17 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setUploadPreview(URL.createObjectURL(file));
     }
   };
+
+  /** Compute a SHA-256 hex digest of the file contents for duplicate detection. */
+  const computeImageHash = async (file: File): Promise<string | null> => {
+    try {
+      const buffer = await file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      return null;
+    }
+  };
   
   const handleSetAuthorName = (e: FormEvent) => {
     e.preventDefault();
@@ -379,14 +450,35 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     }
   };
 
+  const handleFollowClick = (platform: 'instagram' | 'facebook', url: string) => {
+    // Open link in new tab
+    window.open(url, '_blank', 'noopener,noreferrer');
+    // Track click server-side (fire-and-forget)
+    if (authorName && authorName.toLowerCase() !== 'anónimo') {
+      trackSocialFollowClick(params.fiestaId, authorName, platform).catch(() => {});
+    }
+    // Mark as followed in sessionStorage and local state
+    setFollowedPlatforms(prev => {
+      const next = new Set(prev);
+      next.add(platform);
+      sessionStorage.setItem(`socialFollowed_${params.fiestaId}`, JSON.stringify(Array.from(next)));
+      return next;
+    });
+  };
+
   const handleUploadSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!fileToUpload || !localSettings.uploadsActive) return;
     setIsUploading(true);
+
+    // Compute image hash for duplicate detection
+    const imageHash = await computeImageHash(fileToUpload);
+
     const formData = new FormData();
     formData.append('fiestaId', params.fiestaId);
     formData.append('file', fileToUpload);
     formData.append('authorName', authorName || 'Anónimo');
+    if (imageHash) formData.append('imageHash', imageHash);
 
     const result = await uploadSocialPost(formData);
     if (result.success) {
@@ -436,39 +528,50 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     setChatMessages(prev => [...prev, optimisticMessage]);
     setNewChatMessage('');
     
-    const result = await addChatMessage(params.fiestaId, newChatMessage, authorName);
-    if (!result.success) {
-      toast({ title: "Error", description: "No se pudo enviar tu mensaje.", variant: "destructive" });
-      setChatMessages(prev => prev.filter(m => m.id !== optimisticMessage.id)); // Revert
-    } else {
-        await fetchData(false); // Sync with server state
+    try {
+      const result = await addChatMessage(params.fiestaId, newChatMessage, authorName || 'Anónimo');
+      if (!result.success) {
+        toast({ title: "Error", description: "No se pudo enviar tu mensaje.", variant: "destructive" });
+        setChatMessages(prev => prev.filter(m => m.id !== optimisticMessage.id)); // Revert
+      } else {
+          await fetchData(false); // Sync with server state
+      }
+    } finally {
+      setIsSendingChat(false);
     }
-    setIsSendingChat(false);
   };
 
   const handleSongRequestSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!newSongRequest.trim()) return;
-    const result = await addSongRequest(params.fiestaId, newSongRequest.trim(), authorName || 'Anónimo');
-    if (result.success) {
-      setNewSongRequest('');
-      await fetchData(false);
-      toast({ title: 'Pedido recibido 🎵' });
-    } else {
-      toast({ title: 'Error', description: result.error || 'No se pudo guardar el pedido.', variant: 'destructive' });
+    try {
+      const result = await addSongRequest(params.fiestaId, newSongRequest.trim(), authorName || 'Anónimo');
+      if (result.success) {
+        setNewSongRequest('');
+        await fetchData(false);
+        toast({ title: 'Pedido recibido 🎵' });
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudo guardar el pedido.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error al enviar pedido', variant: 'destructive' });
     }
   };
 
   const handleDedicationSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!newDedication.trim()) return;
-    const result = await addDedication(params.fiestaId, newDedication.trim(), authorName || 'Anónimo');
-    if (result.success) {
-      setNewDedication('');
-      await fetchData(false);
-      toast({ title: 'Dedicatoria enviada 💖' });
-    } else {
-      toast({ title: 'Error', description: result.error || 'No se pudo guardar la dedicatoria.', variant: 'destructive' });
+    try {
+      const result = await addDedication(params.fiestaId, newDedication.trim(), authorName || 'Anónimo');
+      if (result.success) {
+        setNewDedication('');
+        await fetchData(false);
+        toast({ title: 'Dedicatoria enviada 💖' });
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudo guardar la dedicatoria.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error al enviar dedicatoria', variant: 'destructive' });
     }
   };
 
@@ -617,18 +720,41 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         <DialogContent onInteractOutside={(e) => e.preventDefault()} hideCloseButton className="rounded-3xl border-none shadow-2xl">
             <DialogHeader className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <UserIcon className="w-8 h-8 text-primary"/>
+                    {localSettings.mobileControlCoverUrl ? (
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden">
+                        <NextImage src={localSettings.mobileControlCoverUrl} alt="Evento" fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <UserIcon className="w-8 h-8 text-primary"/>
+                    )}
                 </div>
                 <DialogTitle className="text-2xl font-headline">¡Bienvenido/a!</DialogTitle>
-                <DialogDescription className="text-base">Dinos tu nombre para participar en el mural del evento.</DialogDescription>
+                <DialogDescription className="text-base">
+                  {localSettings.title || fiesta?.configuracion.nombreEvento
+                    ? `Ingresá tu nombre para participar en ${localSettings.title || fiesta?.configuracion.nombreEvento}.`
+                    : 'Dinos tu nombre para participar en el mural del evento.'}
+                </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSetAuthorName} className="space-y-6 py-4">
+            <form onSubmit={handleSetAuthorName} className="space-y-4 py-4">
                 <div className="space-y-2">
                     <Label htmlFor="author-name-input" className="text-xs uppercase tracking-widest font-bold text-slate-400">Tu Nombre</Label>
-                    <Input id="author-name-input" value={tempAuthorName} onChange={e => setTempAuthorName(e.target.value)} placeholder="Ej: Juan Pérez" required className="h-12 rounded-xl text-lg bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-primary"/>
+                    <Input id="author-name-input" value={tempAuthorName} onChange={e => setTempAuthorName(e.target.value)} placeholder="Ej: Juan Pérez" className="h-12 rounded-xl text-lg bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-primary"/>
                 </div>
-                <DialogFooter>
-                    <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold shadow-lg" disabled={!tempAuthorName.trim()}>Ingresar al Mural</Button>
+                <DialogFooter className="flex-col gap-2 sm:flex-col">
+                    <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold shadow-lg" disabled={!tempAuthorName.trim()} style={{ backgroundColor: accentColor }}>Ingresar al Mural</Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-12 rounded-xl text-base font-semibold text-slate-500"
+                      onClick={() => {
+                        setAuthorName('Anónimo');
+                        sessionStorage.setItem(`socialWallAuthor_${params.fiestaId}`, 'Anónimo');
+                        setIsNameModalOpen(false);
+                      }}
+                    >
+                      <Ghost className="w-4 h-4 mr-2" />
+                      Participar como Anónimo
+                    </Button>
                 </DialogFooter>
             </form>
         </DialogContent>
@@ -681,6 +807,26 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           </Dialog>
 
           <div className="min-h-screen flex flex-col">
+            {/* Cover photo splash (only on home screen when configured) */}
+            {guestSection === null && localSettings.mobileControlCoverUrl && (
+              <div className="relative w-full h-48 overflow-hidden">
+                <NextImage
+                  src={localSettings.mobileControlCoverUrl}
+                  alt="Portada del evento"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
+                <div className="absolute bottom-3 left-4 right-4">
+                  <p className="text-white font-black text-xl leading-tight drop-shadow-lg">
+                    {localSettings.title || fiesta?.configuracion.nombreEvento}
+                  </p>
+                  {authorName && (
+                    <p className="text-white/80 text-sm mt-0.5">Hola, {authorName} 👋</p>
+                  )}
+                </div>
+              </div>
+            )}
             {/* Guest header */}
             <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm">
               <div className="max-w-lg mx-auto h-16 px-4 flex items-center gap-3">
@@ -833,6 +979,51 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                         <div className="text-5xl">🎉</div>
                         <p className="font-bold text-slate-500">El evento está comenzando...</p>
                         <p className="text-sm text-slate-400">Las funcionalidades se activarán pronto.</p>
+                      </div>
+                    )}
+
+                    {/* ── Social follow banner (shown when Instagram or Facebook is configured) ── */}
+                    {(instagramUrl || facebookUrl) && (
+                      <div className="mt-6 rounded-3xl border border-slate-100 bg-white shadow-md p-5 space-y-3">
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 text-center">Seguinos en redes 📲</p>
+                        <div className={`grid gap-3 ${instagramUrl && facebookUrl ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                          {instagramUrl && (
+                            <button
+                              onClick={() => handleFollowClick('instagram', instagramUrl)}
+                              className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white shadow-lg transition-transform active:scale-95"
+                              style={{ background: 'linear-gradient(135deg, #f43f5e, #ec4899, #a855f7)' }}
+                            >
+                              {followedPlatforms.has('instagram') ? (
+                                <><CheckCircle2 className="w-4 h-4 shrink-0" /> ¡Ya seguís!</>
+                              ) : (
+                                <><svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> Seguir en Instagram</>
+                              )}
+                            </button>
+                          )}
+                          {facebookUrl && (
+                            <button
+                              onClick={() => handleFollowClick('facebook', facebookUrl)}
+                              className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white shadow-lg transition-transform active:scale-95 bg-blue-600 hover:bg-blue-700"
+                            >
+                              {followedPlatforms.has('facebook') ? (
+                                <><CheckCircle2 className="w-4 h-4 shrink-0" /> ¡Ya seguís!</>
+                              ) : (
+                                <><svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Seguir en Facebook</>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        {!isAdminView && authorName && authorName.toLowerCase() !== 'anónimo' &&
+                         (followedPlatforms.has('instagram') || followedPlatforms.has('facebook')) && (
+                          <p className="text-[10px] text-center text-slate-400">
+                            ✅ ¡Gracias por seguirnos! Tu nombre queda registrado para participar en los sorteos de redes. 🎉
+                          </p>
+                        )}
+                        {!isAdminView && authorName && authorName.toLowerCase() === 'anónimo' && (
+                          <p className="text-[10px] text-center text-amber-500">
+                            ⚠️ Para participar en los sorteos de redes, ingresá tu nombre (no como Anónimo).
+                          </p>
+                        )}
                       </div>
                     )}
                   </motion.div>
@@ -1042,11 +1233,19 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                             {localSettings.activeGame.subtitle && (
                               <p className="text-slate-500 text-base">{localSettings.activeGame.subtitle}</p>
                             )}
-                            <div className="inline-block bg-slate-50 rounded-2xl px-5 py-3 text-sm font-medium text-slate-400">
-                              ¡Mirá la pantalla principal para participar!
-                            </div>
                           </CardContent>
                         </Card>
+
+                        {/* Game options with interactive voting (for siONo, verdadODesafio, trivia, encuesta) */}
+                        {localSettings.activeGame.options && localSettings.activeGame.options.length > 0 && !localSettings.activeGame.pollId && (
+                          <GameOptionsVoting
+                            game={localSettings.activeGame}
+                            fiestaId={params.fiestaId}
+                            accentColor={accentColor}
+                            onVoted={() => fetchData(false)}
+                          />
+                        )}
+
                         {/* If the game has a linked poll, allow voting directly */}
                         {localSettings.activeGame.pollId && activePoll && (
                           <Card className="shadow-lg border-none rounded-3xl">
@@ -1102,6 +1301,35 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
               </AnimatePresence>
             </main>
+
+            {/* ── Sticky social follow footer (shown in all sections when social links are configured) ── */}
+            {(instagramUrl || facebookUrl) && guestSection !== null && (
+              <div className="sticky bottom-0 z-10 bg-white/95 backdrop-blur-sm border-t border-slate-100 px-4 py-2.5 flex items-center gap-2 max-w-lg mx-auto w-full">
+                <span className="text-xs font-bold text-slate-400 shrink-0">Seguinos 📲</span>
+                <div className="flex gap-2 flex-1 justify-end">
+                  {instagramUrl && (
+                    <button
+                      onClick={() => handleFollowClick('instagram', instagramUrl)}
+                      className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
+                      style={{ background: followedPlatforms.has('instagram') ? '#22c55e' : 'linear-gradient(135deg, #f43f5e, #a855f7)' }}
+                    >
+                      {followedPlatforms.has('instagram') ? <CheckCircle2 className="w-3.5 h-3.5" /> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>}
+                      {followedPlatforms.has('instagram') ? '¡Seguido!' : 'Instagram'}
+                    </button>
+                  )}
+                  {facebookUrl && (
+                    <button
+                      onClick={() => handleFollowClick('facebook', facebookUrl)}
+                      className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
+                      style={{ backgroundColor: followedPlatforms.has('facebook') ? '#22c55e' : '#1d4ed8' }}
+                    >
+                      {followedPlatforms.has('facebook') ? <CheckCircle2 className="w-3.5 h-3.5" /> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>}
+                      {followedPlatforms.has('facebook') ? '¡Seguido!' : 'Facebook'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -1498,5 +1726,110 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         </>
       )}
     </div>
+  );
+}
+
+/** Interactive voting component for game options (siONo, verdadODesafio, trivia, encuesta) */
+function GameOptionsVoting({
+  game,
+  fiestaId,
+  accentColor,
+  onVoted,
+}: {
+  game: NonNullable<SocialGallerySettings['activeGame']>;
+  fiestaId: string;
+  accentColor: string;
+  onVoted: () => void;
+}) {
+  const storageKey = `votedGame_${fiestaId}_${game.launchedAt}`;
+  const [voted, setVoted] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(storageKey);
+    }
+    return null;
+  });
+  const [isVoting, setIsVoting] = useState(false);
+  const { toast } = useToast();
+
+  const handleVote = async (optionId: string) => {
+    if (voted || isVoting) return;
+    setIsVoting(true);
+    try {
+      const result = await voteActiveGameOption(fiestaId, optionId);
+      if (result.success) {
+        setVoted(optionId);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(storageKey, optionId);
+        }
+        onVoted();
+        toast({ title: '¡Voto registrado! 🎉' });
+      } else {
+        toast({ title: 'Error al votar', description: result.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error al enviar voto', variant: 'destructive' });
+    } finally {
+      setIsVoting(false);
+    }
+  };
+
+  const totalVotes = (game.options ?? []).reduce((s, o) => s + (o.votes ?? 0), 0);
+
+  return (
+    <Card className="shadow-lg border-none rounded-3xl">
+      <CardContent className="p-5 space-y-3">
+        {voted ? (
+          <>
+            <p className="text-sm font-bold text-center text-slate-500 pb-1">Resultados actuales</p>
+            {(game.options ?? []).map(opt => {
+              const pct = totalVotes > 0 ? Math.round(((opt.votes ?? 0) / totalVotes) * 100) : 0;
+              const isMyVote = voted === opt.id;
+              return (
+                <div key={opt.id} className="space-y-1">
+                  <div className="flex justify-between text-sm text-slate-700">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      {opt.emoji && <span>{opt.emoji}</span>}
+                      {opt.text}
+                      {isMyVote && <CheckCircle2 className="w-4 h-4 text-green-500 ml-1" />}
+                    </span>
+                    <span className="font-black" style={{ color: accentColor }}>{pct}%</span>
+                  </div>
+                  <div className="h-3 rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${pct}%`,
+                        backgroundColor: isMyVote ? accentColor : `${accentColor}80`,
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+            <p className="text-xs text-center text-slate-400 pt-1">¡Gracias por participar!</p>
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-bold text-center text-slate-600 pb-1">¡Elegí tu respuesta!</p>
+            <div className="grid gap-2">
+              {(game.options ?? []).map(opt => (
+                <Button
+                  key={opt.id}
+                  variant="outline"
+                  className="h-14 rounded-2xl text-left justify-start font-semibold text-base px-5 transition-transform active:scale-95"
+                  disabled={isVoting}
+                  onClick={() => handleVote(opt.id)}
+                  style={{ borderColor: `${accentColor}40` }}
+                >
+                  {isVoting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  {opt.emoji && <span className="mr-2 text-lg">{opt.emoji}</span>}
+                  {opt.text}
+                </Button>
+              ))}
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }

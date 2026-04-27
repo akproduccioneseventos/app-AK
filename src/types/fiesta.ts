@@ -732,10 +732,18 @@ export interface SocialGallerySettings {
   uploadsActive: boolean;
   marketingTickerText?: string;
   ledMarqueeText?: string;
+  /** Whether the LED marquee is enabled/visible on the giant screen */
+  ledMarqueeEnabled?: boolean;
+  /** Text color for the LED marquee (CSS color string) */
+  ledMarqueeColor?: string;
+  /** Background color for the LED marquee */
+  ledMarqueeBgColor?: string;
   backgroundColor?: string;
   accentColor?: string;
   chatEnabled?: boolean;
   maxPhotos?: number;
+  /** Maximum photos a single named author can upload per event (default: 10) */
+  maxPhotosPerPerson?: number;
   showAds?: boolean;
   showSongRequests?: boolean;
   showPolls?: boolean;
@@ -747,6 +755,10 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
+  /** Timestamp when a sorteo spin was started — triggers wheel animation on the big screen */
+  sorteoSpinStartedAt?: string;
+  /** Prize description shown alongside the sorteo winner on the giant screen */
+  sorteoPremio?: string;
   screenMode?: ScreenModeSettings;
   screenMediaLibrary?: ScreenMediaAsset[];
   /** Real AK branding shown on the giant screen */
@@ -755,6 +767,10 @@ export interface SocialGallerySettings {
   activeGame?: ActiveGameData;
   /** Dark mode for the giant screen display (default: true = dark, false = light/white) */
   screenDarkMode?: boolean;
+  /** Cover photo URL shown on the mobile control/social wall entry screen */
+  mobileControlCoverUrl?: string;
+  /** Custom event moments configured by the operator (merged with the hardcoded defaults) */
+  customMomentos?: Array<{ id: string; nombre: string; emoji: string }>;
 }
 
 export interface SocialGalleryBrand {
