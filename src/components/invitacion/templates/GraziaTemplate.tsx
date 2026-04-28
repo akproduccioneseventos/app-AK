@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SeccionInvitacion, GiftItem, ProgramaEventoItem, TextStyle, Invitado } from '@/types/fiesta';
 import type { SocialConnection } from '@/types/settings';
+import type { SocialGalleryPost } from '@/types/social-gallery';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -47,6 +48,8 @@ import { claimGift } from '@/app/actions/fiesta/regalos.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AddToCalendarButton } from '@/components/invitacion/AddToCalendarButton';
+import { EventParticles } from '@/components/invitacion/EventParticles';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -130,7 +133,7 @@ const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle
     </div>
 );
 
-const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, isPreview: boolean }> = ({ data, fiesta, paleta }) => {
+const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, isPreview: boolean }> = ({ data, fiesta, paleta, isPreview }) => {
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || data.protagonista1;
     const protagonist2 = fiesta.configuracion.protagonista2Nombre || data.protagonista2;
     const subtitleText = fiesta.configuracion.tipoCelebracion || data.subtitulo?.text;
@@ -138,6 +141,13 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
 
     return (
         <section className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
+            {!isPreview && (
+              <EventParticles
+                tipoCelebracion={fiesta.configuracion.tipoCelebracion}
+                primaryColor={paleta.primary || '#8b5cf6'}
+                count={12}
+              />
+            )}
             <motion.div 
                 initial={{ scale: 1.2, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -221,11 +231,20 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpMusicSuggestion, setRsvpMusicSuggestion] = useState('');
 
+  // RSVP count for public display
+  const [rsvpCount, setRsvpCount] = useState<number | null>(null);
+
+  // Post-event social gallery
+  const [socialPhotos, setSocialPhotos] = useState<SocialGalleryPost[]>([]);
+
   // Pre-party Chat states
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newChatMsg, setNewChatMsg] = useState('');
   const [isSendingChat, setIsSendingChat] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+  const isPostEvent = eventDate ? new Date() > eventDate : false;
 
   useEffect(() => {
     if (!isPreview && fiesta.id) {
@@ -236,6 +255,27 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return () => clearInterval(interval);
     }
   }, [fiesta.id, isPreview]);
+
+  useEffect(() => {
+    if (isPreview || !fiesta?.id) return;
+    const fetchCount = async () => {
+      try {
+        const { getConfirmedRsvpCount } = await import('@/app/actions/fiesta/invitados.actions');
+        const count = await getConfirmedRsvpCount(fiesta.id);
+        setRsvpCount(count);
+      } catch {}
+    };
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, [fiesta?.id, isPreview]);
+
+  useEffect(() => {
+    if (!isPostEvent || isPreview || !fiesta.id) return;
+    import('@/app/actions/social-gallery').then(({ getSocialPosts }) => {
+      getSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12)));
+    });
+  }, [isPostEvent, isPreview, fiesta.id]);
 
   useEffect(() => {
     const totalOthers = (numAdults + numKids) - 1;
@@ -386,9 +426,20 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                         <p className="text-primary font-black text-lg md:text-xl tracking-tighter" style={{ color: primaryColor }}>{detalle.hora || (idx === 2 ? fiesta.configuracion.horaInicio : '')} HS</p>
                     </div>
                     <p className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed">{detalle.direccionLugar}</p>
-                    <Button asChild variant="outline" className="mt-2 md:mt-4 rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
-                      <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> VER UBICACIÓN</a>
-                    </Button>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 justify-center mt-2 md:mt-4">
+                      <Button asChild variant="outline" className="rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
+                        <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> VER UBICACIÓN</a>
+                      </Button>
+                      {(detalle.fecha || fiesta.configuracion.fechaEvento) && (
+                        <AddToCalendarButton
+                          eventName={detalle.titulo || fiesta.configuracion.nombreEvento || 'Mi Evento'}
+                          startDate={detalle.fecha || fiesta.configuracion.fechaEvento || new Date().toISOString()}
+                          location={detalle.direccionLugar || detalle.nombreLugar}
+                          description={`${fiesta.configuracion.nombreEvento || ''} — ${detalle.nombreLugar || ''}`}
+                          primaryColor={primaryColor}
+                        />
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -585,6 +636,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
                 <span className="block mt-2 text-white font-bold text-xl md:text-2xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
               </p>
+              {rsvpCount !== null && rsvpCount > 0 && (
+                <div className="text-center">
+                  <span className="inline-flex items-center gap-1.5 bg-green-950/60 text-green-400 px-3 py-1 rounded-full text-xs font-semibold border border-green-800">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    {rsvpCount} persona{rsvpCount !== 1 ? 's' : ''} ya confirmaron
+                  </span>
+                </div>
+              )}
               <Button size="lg" className="h-16 md:h-20 px-10 md:px-16 rounded-full text-lg md:text-xl font-bold shadow-2xl hover:scale-105 transition-all duration-500" style={{ backgroundColor: primaryColor }} onClick={() => setIsRsvpModalOpen(true)}>
                 CONFIRMAR ASISTENCIA
               </Button>
@@ -623,6 +682,34 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         {invitacionData.secciones.map(seccion => renderSectionComponent(seccion))}
       </main>
 
+      {/* Post-event gallery */}
+      {isPostEvent && socialPhotos.length > 0 && (
+        <section className="py-16 px-4 bg-slate-50">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-serif text-center mb-8" style={{ color: primaryColor, fontFamily: "'Playfair Display', Georgia, serif" }}>
+              Los mejores momentos 📸
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {socialPhotos.map(post => (
+                <div key={post.id} className="aspect-square rounded-2xl overflow-hidden relative group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={post.imageUrl}
+                    alt={post.authorName}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {post.authorName !== 'Anónimo' && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                      <p className="text-white text-xs font-semibold truncate">{post.authorName}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <footer className="py-16 sm:py-24 md:py-32 text-center bg-slate-50 px-4 sm:px-6 border-t border-slate-100">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="space-y-8 md:space-y-12">
             <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer?.titulo?.text ?? ''}</h4>
@@ -641,6 +728,23 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       </footer>
       
       <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
+
+      {/* WhatsApp share button */}
+      {!isPreview && (
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(`¡Mirá mi invitación para ${fiesta.configuracion.nombreEvento || invitacionData.cabecera.protagonista1}! 🎉 ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed z-50 flex items-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-full shadow-2xl font-bold text-sm hover:bg-[#128C7E] transition-colors"
+          style={{ bottom: invitacionData.musicaFondoUrl ? '5rem' : '1.5rem', right: '1.5rem' }}
+          aria-label="Compartir por WhatsApp"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Compartir
+        </a>
+      )}
 
       <Dialog open={isRsvpModalOpen} onOpenChange={setIsRsvpModalOpen}>
         <DialogContent className="sm:max-w-md rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border-none shadow-3xl">

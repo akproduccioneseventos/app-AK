@@ -5,11 +5,12 @@ import type { DietaryRestriction, InvitacionDigitalConfig, InvitacionDigitalCron
 import type { SocialConnection } from '@/types/settings';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Clock, Gift, CreditCard, Copy, Check, Calendar, Heart, Users, ChevronDown, MessageCircle, Camera, Shirt, Loader2, Instagram, Facebook } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { SplashScreen } from '@/components/invitacion/SplashScreen';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -463,6 +464,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   const isBoda = config.tipoEvento === 'boda';
   const secondName = config.nombreHomenajeado2;
   const [heroImageError, setHeroImageError] = useState(false);
+  const [splashDone, setSplashDone] = useState(isEditorMode);
 
   useEffect(() => {
     setHeroImageError(false);
@@ -739,6 +741,23 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
+    <>
+      <AnimatePresence>
+        {!splashDone && !isEditorMode && (
+          <SplashScreen
+            fiestaId={fiestaId}
+            nombreEvento={config.nombreHomenajeada || 'Tu Evento'}
+            primaryColor={config.colorPrincipal || '#8b5cf6'}
+            tipoCelebracion={config.tipoEvento}
+            onComplete={() => setSplashDone(true)}
+          />
+        )}
+      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: splashDone ? 1 : 0 }}
+        transition={{ duration: 0.8 }}
+      >
     <div className={cn('min-h-screen', styles.fontBody)} style={cssVars}>
       {/* ============= HERO / PORTADA ============= */}
       <section className="relative min-h-screen flex items-end justify-center overflow-hidden">
@@ -899,5 +918,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         </a>
       )}
     </div>
+      </motion.div>
+    </>
   );
 }
