@@ -180,7 +180,7 @@ function RsvpFormContent() {
                       ¡Gracias, <strong>{confirmedGuest.nombre}</strong>! Tu lugar está reservado.
                     </CardDescription>
                     <p className="text-sm text-slate-500 leading-relaxed">
-                      Te esperamos con muchas ganas. Este es tu pase digital — guardalo o descargalo para presentarlo en la entrada del evento.
+                      Te esperamos con muchas ganas. Este es tu pase digital — guardálo o descargálo para presentarlo en la entrada del evento.
                     </p>
                   </div>
                 </>

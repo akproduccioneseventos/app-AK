@@ -100,7 +100,7 @@ function SocialPhotosPreview({ fiestaId, accentColor }: { fiestaId: string; acce
         <div key={photo.id} className="aspect-square overflow-hidden">
           <img
             src={photo.imageUrl}
-            alt={photo.authorName}
+            alt={`Foto compartida por ${photo.authorName}`}
             className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
             loading="lazy"
           />
@@ -408,7 +408,7 @@ function GuestPortalContent() {
                 style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)' }}
               >
                 <div className="px-5 pt-5 pb-3 text-center">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-300 mb-1">🎫 Pase de Entrada</p>
+                  <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-300 mb-1">🎫 Pase de Entrada</p>
                   <p className="text-xl font-black text-white">{guest.nombre}</p>
                   {guest.tableNumber && (
                     <div className="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full bg-white/10 border border-white/20">
@@ -454,7 +454,7 @@ function GuestPortalContent() {
             const deadlineStr = cancelDeadline.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' });
             return canStillCancel ? (
               <div className="mt-3 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-2">
-                <p className="text-[10px] text-amber-400/80">
+                <p className="text-xs text-amber-400/80">
                   Podés cancelar tu asistencia hasta el <strong className="text-amber-400">{deadlineStr}</strong>
                 </p>
                 <a
