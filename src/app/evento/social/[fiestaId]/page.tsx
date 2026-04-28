@@ -135,8 +135,7 @@ const PostCard: React.FC<{
   accentColor: string;
   allowLikes: boolean;
   allowComments: boolean;
-  hasLiked: boolean;
-}> = ({ post, onLike, onComment, onDelete, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments, hasLiked }) => {
+}> = ({ post, onLike, onComment, onDelete, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments }) => {
   const [commentText, setCommentText] = useState('');
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number }[]>([]);
   const heartIdRef = useRef(0);
@@ -149,9 +148,7 @@ const PostCard: React.FC<{
   };
 
   const handleLikeClick = () => {
-    // Guard here (in addition to button disabled prop) to prevent programmatic double-likes
-    // e.g., when the PostCard is reused in an admin context.
-    if (!allowLikes || hasLiked) return;
+    if (!allowLikes) return;
     // Spawn 3-5 floating hearts
     const count = 3 + Math.floor(Math.random() * 3);
     const newHearts = Array.from({ length: count }, () => ({
@@ -200,28 +197,14 @@ const PostCard: React.FC<{
             )}
         </CardHeader>
         <CardContent className="p-0 flex-grow">
-            {/* 4:3 container with object-contain so the full photo is always visible */}
-            <div className="relative w-full bg-slate-100" style={{ aspectRatio: '4 / 3' }}>
-              <NextImage
-                src={post.imageUrl}
-                alt={`Foto de ${post.authorName}`}
-                fill
-                className="object-contain"
-                unoptimized
-              />
-            </div>
+            <WatermarkedImage containerClassName="aspect-square relative bg-slate-100" src={post.imageUrl} alt={`Foto de ${post.authorName}`} layout="fill" objectFit="cover" data-ai-hint="event photo" />
         </CardContent>
         <CardFooter className="p-4 flex flex-col items-start gap-3">
             <div className="w-full flex justify-between items-center">
                 <div className="flex items-center gap-4">
                     <div className="relative">
-                      <button
-                        onClick={handleLikeClick}
-                        disabled={!allowLikes || hasLiked}
-                        className="flex items-center gap-1.5 group/like outline-none disabled:cursor-not-allowed"
-                        title={hasLiked ? 'Ya le diste Me Gusta' : 'Me Gusta'}
-                      >
-                          <Heart className={`w-6 h-6 transition-all ${(post.likes > 0 || hasLiked) ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover/like:text-red-400'}`} />
+                      <button onClick={handleLikeClick} disabled={!allowLikes} className="flex items-center gap-1.5 group/like outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                          <Heart className={`w-6 h-6 transition-all ${post.likes > 0 ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover/like:text-red-400'}`} />
                           <span className="text-sm font-bold text-slate-600">{post.likes}</span>
                       </button>
                       {/* Floating hearts */}
@@ -312,18 +295,6 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setVotedPollId(stored);
     }
   }, [params.fiestaId]);
-
-  // Track which posts this guest has already liked (persisted in sessionStorage)
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const raw = sessionStorage.getItem(`likedPosts_${params.fiestaId}`);
-    if (raw) {
-      // Silently ignore parse errors — corrupted sessionStorage data (e.g., invalid JSON)
-      // should not break the UI; the guest simply starts with an empty liked set.
-      try { setLikedPosts(new Set(JSON.parse(raw))); } catch (_) { /* ignore invalid JSON */ }
-    }
-  }, [params.fiestaId]);
   
   const [authorName, setAuthorName] = useState('');
   const [tempAuthorName, setTempAuthorName] = useState('');
@@ -332,8 +303,6 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isSendingChat, setIsSendingChat] = useState(false);
-  const [isSendingSong, setIsSendingSong] = useState(false);
-  const [isSendingDedication, setIsSendingDedication] = useState(false);
 
   const [isAdminView, setIsAdminView] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
@@ -553,34 +522,16 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   
   const handleLike = async (postId: string) => {
     if (localSettings.allowLikes === false) return;
-    if (likedPosts.has(postId)) return; // prevent double-like
-    // Persist immediately in sessionStorage so the heart stays filled across polls
-    const nextLiked = new Set(likedPosts);
-    nextLiked.add(postId);
-    setLikedPosts(nextLiked);
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(`likedPosts_${params.fiestaId}`, JSON.stringify(Array.from(nextLiked)));
-    }
-    const revertLike = () => {
-      const reverted = new Set(nextLiked);
-      reverted.delete(postId);
-      setLikedPosts(reverted);
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(`likedPosts_${params.fiestaId}`, JSON.stringify(Array.from(reverted)));
-      }
-    };
     const originalPosts = [...posts];
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
     try {
       const result = await addLikeToPost(postId);
       if (!result.success) {
         toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
-        setPosts(originalPosts);
-        revertLike();
+        setPosts(originalPosts); // Revert on error
       }
     } catch {
-      setPosts(originalPosts);
-      revertLike();
+      setPosts(originalPosts); // Revert on exception
     }
   };
   
@@ -623,8 +574,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
   const handleSongRequestSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newSongRequest.trim() || isSendingSong) return;
-    setIsSendingSong(true);
+    if (!newSongRequest.trim()) return;
     try {
       const result = await addSongRequest(params.fiestaId, newSongRequest.trim(), authorName || 'Anónimo');
       if (result.success) {
@@ -636,15 +586,12 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       }
     } catch {
       toast({ title: 'Error al enviar pedido', variant: 'destructive' });
-    } finally {
-      setIsSendingSong(false);
     }
   };
 
   const handleDedicationSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newDedication.trim() || isSendingDedication) return;
-    setIsSendingDedication(true);
+    if (!newDedication.trim()) return;
     try {
       const result = await addDedication(params.fiestaId, newDedication.trim(), authorName || 'Anónimo');
       if (result.success) {
@@ -656,8 +603,6 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       }
     } catch {
       toast({ title: 'Error al enviar dedicatoria', variant: 'destructive' });
-    } finally {
-      setIsSendingDedication(false);
     }
   };
 
@@ -1139,7 +1084,6 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                             accentColor={accentColor}
                             allowLikes={localSettings.allowLikes !== false}
                             allowComments={localSettings.allowComments !== false}
-                            hasLiked={likedPosts.has(post.id)}
                           />
                         ))}
                       </div>
@@ -1153,9 +1097,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                     <Card className="shadow-lg border-none rounded-3xl">
                       <CardContent className="p-5 space-y-4">
                         <form onSubmit={handleSongRequestSubmit} className="flex gap-2">
-                          <Input value={newSongRequest} onChange={e => setNewSongRequest(e.target.value)} placeholder="Ej: TQG - Karol G & Shakira" className="flex-1 h-12 rounded-2xl border-slate-200" disabled={isSendingSong} />
-                          <Button type="submit" disabled={!newSongRequest.trim() || isSendingSong} className="h-12 w-12 rounded-2xl shrink-0 shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingSong ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                          <Input value={newSongRequest} onChange={e => setNewSongRequest(e.target.value)} placeholder="Ej: TQG - Karol G & Shakira" className="flex-1 h-12 rounded-2xl border-slate-200" />
+                          <Button type="submit" disabled={!newSongRequest.trim()} className="h-12 w-12 rounded-2xl shrink-0 shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
+                            <Send className="w-4 h-4" />
                           </Button>
                         </form>
                         <div className="space-y-2 max-h-[60vh] overflow-y-auto">
@@ -1180,9 +1124,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                     <Card className="shadow-lg border-none rounded-3xl">
                       <CardContent className="p-5 space-y-4">
                         <form onSubmit={handleDedicationSubmit} className="space-y-3">
-                          <Textarea value={newDedication} onChange={e => setNewDedication(e.target.value)} placeholder="Escribe tu dedicatoria aquí..." rows={4} className="rounded-2xl border-slate-200 resize-none" disabled={isSendingDedication} />
-                          <Button type="submit" disabled={!newDedication.trim() || isSendingDedication} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingDedication ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Enviar dedicatoria
+                          <Textarea value={newDedication} onChange={e => setNewDedication(e.target.value)} placeholder="Escribe tu dedicatoria aquí..." rows={4} className="rounded-2xl border-slate-200 resize-none" />
+                          <Button type="submit" disabled={!newDedication.trim()} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
+                            <Send className="w-4 h-4 mr-2" /> Enviar dedicatoria
                           </Button>
                         </form>
                         <div className="space-y-2 max-h-[40vh] overflow-y-auto">
@@ -1566,7 +1510,6 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       accentColor={accentColor}
                       allowLikes={localSettings.allowLikes !== false}
                       allowComments={localSettings.allowComments !== false}
-                      hasLiked={likedPosts.has(post.id)}
                     />
                 ))}
             </AnimatePresence>
