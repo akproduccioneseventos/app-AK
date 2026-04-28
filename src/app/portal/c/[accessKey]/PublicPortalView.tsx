@@ -52,7 +52,7 @@ import {
   Palette,
   ClipboardList,
   DollarSign,
-  Image,
+  Image as ImageIcon,
   TrendingUp,
   AlertTriangle,
   PartyPopper,
