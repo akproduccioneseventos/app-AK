@@ -224,14 +224,16 @@ function getItineraryIcon(titulo: string): React.ElementType {
   return Clock;
 }
 
+type VisibleModuleKey = keyof Omit<NonNullable<FiestaEnPlanificacion['clientPortalSettings']>, 'enabled' | 'accessKey' | 'cuentasBancarias' | 'simuladorInvitadosConfig'>;
+
 const isModuleVisible = (
   settings: FiestaEnPlanificacion['clientPortalSettings'],
-  key: keyof Omit<NonNullable<FiestaEnPlanificacion['clientPortalSettings']>, 'enabled' | 'accessKey' | 'cuentasBancarias' | 'simuladorInvitadosConfig'>
+  key: VisibleModuleKey
 ): boolean => {
   if (!settings) return false;
   const mod = settings[key];
-  if (!mod || typeof mod !== 'object') return false;
-  return 'visible' in (mod as object) ? (mod as { visible: boolean }).visible === true : false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return !!(mod && typeof mod === 'object' && (mod as any).visible === true);
 };
 
 export default function PublicPortalView({
@@ -1039,7 +1041,11 @@ export default function PublicPortalView({
             )}
 
             {/* ── 3. Lo que debo llevar (merged: checklist + bebidas clienteLleva) ── */}
-            {(isModuleVisible(settings, 'calculadoraBebidas') || debeLlevarItems.length > 0) && (
+            {(isModuleVisible(settings, 'calculadoraBebidas') || debeLlevarItems.length > 0) && (() => {
+              const bebidasClienteLleva = bebidasItems.filter(b => b.clienteLleva && b.visible);
+              const completedCount = debeLlevarItems.filter(i => i.completado).length;
+              const totalCount = debeLlevarItems.length + bebidasClienteLleva.length;
+              return (
               <Card id="seccion-llevar" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1047,7 +1053,7 @@ export default function PublicPortalView({
                     Lo que debo llevar
                   </CardTitle>
                   <p className="text-xs text-muted-foreground">
-                    {debeLlevarItems.filter(i => i.completado).length} de {debeLlevarItems.length + bebidasItems.filter(b => b.clienteLleva && b.visible).length} ítems listos
+                    {completedCount} de {totalCount} ítems listos
                   </p>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-3">
@@ -1087,13 +1093,13 @@ export default function PublicPortalView({
                     </button>
                   ))}
                   {/* bebidasItems where clienteLleva === true */}
-                  {isModuleVisible(settings, 'calculadoraBebidas') && numInvitados > 0 && bebidasItems.some(b => b.clienteLleva && b.visible) && (
+                  {isModuleVisible(settings, 'calculadoraBebidas') && numInvitados > 0 && bebidasClienteLleva.length > 0 && (
                     <>
                       {debeLlevarItems.length > 0 && <Separator className="my-2" />}
                       <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
                         📋 Según tu contrato, vos te encargás de estos ítems para {numInvitados} personas:
                       </p>
-                      {bebidasItems.filter(b => b.clienteLleva && b.visible).map(item => {
+                      {bebidasClienteLleva.map(item => {
                         const cantidad = Math.round(numInvitados * item.cantidadPorPersona * 10) / 10;
                         return (
                           <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200">
@@ -1115,14 +1121,15 @@ export default function PublicPortalView({
                       })}
                     </>
                   )}
-                  {debeLlevarItems.length === 0 && !bebidasItems.some(b => b.clienteLleva && b.visible) && (
+                  {debeLlevarItems.length === 0 && bebidasClienteLleva.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-3 border border-dashed rounded-xl">
                       No hay ítems pendientes por ahora.
                     </p>
                   )}
                 </CardContent>
               </Card>
-            )}
+              );
+            })()}
 
             {/* ── 4. Control de invitados ── */}
             {settings?.invitados?.visible && invitados.length > 0 && (
@@ -1165,7 +1172,9 @@ export default function PublicPortalView({
                       onChange={e => setGuestSearchQuery(e.target.value)}
                       className="rounded-xl text-sm"
                     />
-                    {invitados.filter(inv => !guestSearchQuery || inv.nombre.toLowerCase().includes(guestSearchQuery.toLowerCase())).map(inv => {
+                    {(() => {
+                      const lowerQuery = guestSearchQuery.toLowerCase();
+                      return invitados.filter(inv => !lowerQuery || inv.nombre.toLowerCase().includes(lowerQuery)).map(inv => {
                       const rsvpConfig: Record<RsvpStatus, { label: string; bg: string; text: string; border: string }> = {
                         Confirmado: { label: 'Confirmado', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
                         Pendiente: { label: 'Pendiente', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
@@ -1218,7 +1227,8 @@ export default function PublicPortalView({
                           </div>
                         </div>
                       );
-                    })}
+                    });
+                    })()}
                   </div>
 
                 </CardContent>
@@ -1781,10 +1791,10 @@ export default function PublicPortalView({
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100 rounded-t-3xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-violet-50 to-purple-50 rounded-t-3xl">
               <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-slate-600" />
-                <h2 className="font-black text-base">Organización AK</h2>
+                <ClipboardList className="w-5 h-5 text-violet-600" />
+                <h2 className="font-black text-base">Organización del evento</h2>
               </div>
               <button
                 onClick={() => setShowOrganizacionPanel(false)}
@@ -1799,13 +1809,13 @@ export default function PublicPortalView({
                 onClick={() => setOrgActiveTab('ak')}
                 className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'ak' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
               >
-                📋 Itinerario
+                📋 Lo que AK prepara
               </button>
               <button
                 onClick={() => setOrgActiveTab('cliente')}
                 className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'cliente' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
               >
-                👥 Equipo AK
+                🎯 Tu participación
               </button>
             </div>
             {/* Content */}
