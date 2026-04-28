@@ -374,6 +374,15 @@ export default function PublicPortalView({
     }
   };
 
+  const handleToggleLike = (itemId: string) => {
+    setLikedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(itemId)) next.delete(itemId);
+      else next.add(itemId);
+      return next;
+    });
+  };
+
   const handleToggleTask = async (taskId: string) => {
     const previous = checklist;
     const newChecklist = checklist.map(t =>
@@ -444,6 +453,31 @@ export default function PublicPortalView({
 
   // Days until event
   const daysUntil = countdown && !countdown.isPast ? countdown.days : null;
+
+  // Fallback: detect if event is in the past when countdown is still null (date not processed yet)
+  const isEventPast = countdown
+    ? countdown.isPast
+    : config.fechaEvento
+    ? (() => {
+        const d = new Date(
+          config.fechaEvento.includes('T') ? config.fechaEvento : `${config.fechaEvento}T23:59:59`
+        );
+        return !isNaN(d.getTime()) && d.getTime() < Date.now();
+      })()
+    : false;
+
+  // Derived visibility flags for module panels
+  const hasOrganizacionModules =
+    isModuleVisible(settings, 'itinerario') ||
+    isModuleVisible(settings, 'musica') ||
+    isModuleVisible(settings, 'moodboard') ||
+    isModuleVisible(settings, 'cartaTragos') ||
+    isModuleVisible(settings, 'menu') ||
+    isModuleVisible(settings, 'fotografiaYFilmacion') ||
+    isModuleVisible(settings, 'dressCode') ||
+    isModuleVisible(settings, 'listaRegalos') ||
+    isModuleVisible(settings, 'videoVida') ||
+    isModuleVisible(settings, 'ubicacion');
 
   // Smart alert banners
   const alertas: { type: 'amber' | 'emerald' | 'blue'; message: string }[] = [];
@@ -592,7 +626,7 @@ export default function PublicPortalView({
           <Sparkles className="absolute top-12 left-12 w-8 h-8 text-yellow-200 rotate-45" />
         </div>
 
-        <div className="relative max-w-lg mx-auto">
+        <div className="relative z-10 max-w-lg mx-auto">
           {/* Badges row */}
           <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30 hover:bg-white/20">
@@ -678,27 +712,35 @@ export default function PublicPortalView({
             )}
           </div>
 
-          {/* Countdown — simplified, inside hero */}
-          {config.fechaEvento && (
+          {/* Countdown — 4-unit display using CountdownUnit */}
+          {config.fechaEvento && countdown && !countdown.isPast && (
+            <div className="mt-5 flex justify-center items-center gap-3">
+              <CountdownUnit value={countdown.days} label="días" />
+              <span className="text-2xl font-black opacity-60 mb-4">:</span>
+              <CountdownUnit value={countdown.hours} label="horas" />
+              <span className="text-2xl font-black opacity-60 mb-4">:</span>
+              <CountdownUnit value={countdown.minutes} label="min" />
+              <span className="text-2xl font-black opacity-60 mb-4">:</span>
+              <CountdownUnit value={countdown.seconds} label="seg" />
+            </div>
+          )}
+          {config.fechaEvento && countdown?.isPast && (
             <div className="mt-5 text-center">
-              {countdown?.isPast ? (
-                <p className="text-xl font-black opacity-90">🎉 ¡El evento ya fue!</p>
-              ) : countdown && !countdown.isPast ? (
-                <p className="text-2xl font-black opacity-90">
-                  ⏳ Faltan <span className="tabular-nums">{countdown.days}</span> día{countdown.days !== 1 ? 's' : ''}
-                </p>
-              ) : null}
+              <p className="text-xl font-black opacity-90">🎉 ¡El evento ya fue!</p>
             </div>
           )}
 
           {/* Quick action buttons */}
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             {config.googleMapsUrl && (
-              <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer">
-                <button className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors">
-                  <Navigation className="w-3.5 h-3.5" />
-                  Cómo llegar
-                </button>
+              <a
+                href={config.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                Cómo llegar
               </a>
             )}
             {settings?.paginaPublica?.visible && (
@@ -728,12 +770,14 @@ export default function PublicPortalView({
             <button
               className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
               onClick={() => {
-                const el = document.getElementById('seccion-mensajes');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  window.open(whatsappHref, '_blank');
+                if (isModuleVisible(settings, 'notasCliente')) {
+                  const el = document.getElementById('seccion-mensajes');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                    return;
+                  }
                 }
+                window.open(whatsappHref, '_blank');
               }}
             >
               <MessageSquare className="w-3.5 h-3.5" />
@@ -760,11 +804,14 @@ export default function PublicPortalView({
                 </div>
               </div>
               {config.googleMapsUrl && (
-                <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="block">
-                  <button className="w-full mt-2 bg-white/20 hover:bg-white/30 transition-colors rounded-2xl py-3 font-bold text-sm flex items-center justify-center gap-2">
-                    <Navigation className="w-4 h-4" />
-                    Ver cómo llegar
-                  </button>
+                <a
+                  href={config.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full mt-2 block bg-white/20 hover:bg-white/30 transition-colors rounded-2xl py-3 font-bold text-sm flex items-center justify-center gap-2"
+                >
+                  <Navigation className="w-4 h-4" />
+                  Ver cómo llegar
                 </a>
               )}
             </div>
@@ -791,7 +838,7 @@ export default function PublicPortalView({
             )}
 
           {/* ── Post-event screen ── */}
-          {countdown?.isPast && (
+          {isEventPast && (
             <div className="rounded-3xl overflow-hidden shadow-xl border-0 bg-gradient-to-br from-violet-500 to-purple-700 text-white p-5 space-y-3">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-white/20 rounded-2xl">
@@ -867,10 +914,12 @@ export default function PublicPortalView({
             )}
 
             {/* ── Resumen Ejecutivo ── */}
-            {!countdown?.isPast && (
+            {!isEventPast && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
-                  <p className="text-2xl font-black text-emerald-600">{porcentajePagado}%</p>
+                  <p className="text-2xl font-black text-emerald-600">
+                    {presupuesto && totalCosto > 0 ? `${Math.round(porcentajePagado)}%` : '—'}
+                  </p>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pagado</p>
                 </div>
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
@@ -891,7 +940,7 @@ export default function PublicPortalView({
             )}
 
             {/* ── Checklist de Hitos ── */}
-            {!countdown?.isPast && (
+            {!isEventPast && (
               <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-3">
                 <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                   <CheckSquare className="w-3.5 h-3.5" />
@@ -908,16 +957,18 @@ export default function PublicPortalView({
                     <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${isPaid ? 'bg-emerald-100' : 'bg-amber-100'}`}>
                       {isPaid ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                     </div>
-                    <span className="font-semibold">Pago {isPaid ? 'completado ✓' : `pendiente (${porcentajePagado}% pagado)`}</span>
+                    <span className="font-semibold">Pago {isPaid ? 'completado ✓' : `pendiente (${Math.round(porcentajePagado)}% pagado)`}</span>
                   </div>
-                  <div className={`flex items-center gap-3 text-sm ${guestConfirmados.length > 0 ? 'text-emerald-700' : 'text-slate-500'}`}>
-                    <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${guestConfirmados.length > 0 ? 'bg-emerald-100' : 'bg-slate-100'}`}>
-                      {guestConfirmados.length > 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                  {isModuleVisible(settings, 'invitados') && (
+                    <div className={`flex items-center gap-3 text-sm ${guestConfirmados.length > 0 ? 'text-emerald-700' : 'text-slate-500'}`}>
+                      <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${guestConfirmados.length > 0 ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+                        {guestConfirmados.length > 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                      </div>
+                      <span className="font-semibold">
+                        {guestConfirmados.length > 0 ? `${guestConfirmados.length} invitados confirmados ✓` : 'Sin confirmaciones aún'}
+                      </span>
                     </div>
-                    <span className="font-semibold">
-                      {guestConfirmados.length > 0 ? `${guestConfirmados.length} invitados confirmados ✓` : 'Sin confirmaciones aún'}
-                    </span>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1132,7 +1183,7 @@ export default function PublicPortalView({
             })()}
 
             {/* ── 4. Control de invitados ── */}
-            {settings?.invitados?.visible && invitados.length > 0 && (
+            {isModuleVisible(settings, 'invitados') && invitados.length > 0 && (
               <Card id="seccion-invitados" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1236,7 +1287,7 @@ export default function PublicPortalView({
             )}
 
             {/* ── 5. Botón Organización del evento ── */}
-            {(isModuleVisible(settings, 'itinerario') || isModuleVisible(settings, 'musica') || isModuleVisible(settings, 'moodboard') || isModuleVisible(settings, 'cartaTragos') || isModuleVisible(settings, 'menu') || isModuleVisible(settings, 'fotografiaYFilmacion') || isModuleVisible(settings, 'dressCode') || isModuleVisible(settings, 'listaRegalos') || isModuleVisible(settings, 'videoVida') || isModuleVisible(settings, 'invitados')) && (
+            {hasOrganizacionModules && (
               <button
                 onClick={() => setShowOrganizacionPanel(true)}
                 className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
@@ -1257,7 +1308,7 @@ export default function PublicPortalView({
             )}
 
             {/* ── 10. Preguntas frecuentes ── */}
-            {settings?.faq?.visible && faqItems.length > 0 && (
+            {isModuleVisible(settings, 'faq') && faqItems.length > 0 && (
               <Card id="seccion-faq" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1267,39 +1318,33 @@ export default function PublicPortalView({
                   <p className="text-xs text-muted-foreground">Todo lo que necesitás saber</p>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-1">
-                  {faqItems.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      No hay preguntas frecuentes por el momento.
-                    </p>
-                  ) : (
-                    faqItems.map((faq, idx) => (
-                      <div key={faq.id}>
-                        {idx > 0 && <Separator className="my-1" />}
-                        <button
-                          className="w-full flex items-center justify-between gap-3 py-3 px-1 text-left"
-                          onClick={(e) => { e.stopPropagation(); setOpenFaqId(openFaqId === faq.id ? null : faq.id); }}
-                        >
-                          <span className="font-semibold text-sm leading-snug">{faq.pregunta}</span>
-                          {openFaqId === faq.id ? (
-                            <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                          )}
-                        </button>
-                        {openFaqId === faq.id && (
-                          <div className="pb-3 px-1">
-                            <p className="text-sm text-muted-foreground leading-relaxed">{faq.respuesta}</p>
-                          </div>
+                  {faqItems.map((faq, idx) => (
+                    <div key={faq.id}>
+                      {idx > 0 && <Separator className="my-1" />}
+                      <button
+                        className="w-full flex items-center justify-between gap-3 py-3 px-1 text-left"
+                        onClick={(e) => { e.stopPropagation(); setOpenFaqId(openFaqId === faq.id ? null : faq.id); }}
+                      >
+                        <span className="font-semibold text-sm leading-snug">{faq.pregunta}</span>
+                        {openFaqId === faq.id ? (
+                          <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                         )}
-                      </div>
-                    ))
-                  )}
+                      </button>
+                      {openFaqId === faq.id && (
+                        <div className="pb-3 px-1">
+                          <p className="text-sm text-muted-foreground leading-relaxed">{faq.respuesta}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             )}
 
             {/* ── 11. Simulador de invitados ── */}
-            {settings?.simuladorInvitados?.visible && (
+            {isModuleVisible(settings, 'simuladorInvitados') && (
             <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1645,24 +1690,33 @@ export default function PublicPortalView({
                   {hasLinks && (
                     <div className="flex flex-wrap justify-center gap-2">
                       {instagramUrl && (
-                        <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
-                          <button className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm">
-                            <span>📸</span> Instagram
-                          </button>
+                        <a
+                          href={instagramUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm"
+                        >
+                          <span>📸</span> Instagram
                         </a>
                       )}
                       {signatureWhatsappUrl && (
-                        <a href={signatureWhatsappUrl} target="_blank" rel="noopener noreferrer">
-                          <button className="rounded-full bg-[#25D366] text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm">
-                            <MessageSquare className="w-3 h-3" /> WhatsApp
-                          </button>
+                        <a
+                          href={signatureWhatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full bg-[#25D366] text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm"
+                        >
+                          <MessageSquare className="w-3 h-3" /> WhatsApp
                         </a>
                       )}
                       {landingUrl && (
-                        <a href={landingUrl} target="_blank" rel="noopener noreferrer">
-                          <button className="rounded-full bg-violet-600 text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm">
-                            <ExternalLink className="w-3 h-3" /> Ver servicios
-                          </button>
+                        <a
+                          href={landingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full bg-violet-600 text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm"
+                        >
+                          <ExternalLink className="w-3 h-3" /> Ver servicios
                         </a>
                       )}
                     </div>
@@ -1821,65 +1875,511 @@ export default function PublicPortalView({
             {/* Content */}
             <div className="overflow-y-auto flex-1 px-5 py-4">
               {orgActiveTab === 'ak' ? (
-                programa.filter(item => item.visibleParaCliente !== false).length === 0 ? (
-                  <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
-                    <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
-                    <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
-                  </div>
-                ) : (
-                  <div className="relative pl-6">
-                    <div className="absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full" style={{ backgroundColor: `${eventColor}40` }} />
-                    <div className="space-y-0">
-                      {programa.filter(item => item.visibleParaCliente !== false).map((item) => {
-                        const isOpen = openProgramaIds.has(item.id);
-                        const toggleItem = () => setOpenProgramaIds(prev => {
-                          const next = new Set(prev);
-                          if (next.has(item.id)) next.delete(item.id);
-                          else next.add(item.id);
-                          return next;
-                        });
-                        const ItemIcon = getItineraryIcon(item.titulo || '');
-                        const displayDescription = item.descripcionCliente || item.descripcion;
-                        return (
-                          <div key={item.id} className="relative flex items-start gap-4 py-2">
-                            <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
-                              <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                <div className="space-y-6">
+
+                  {/* === ITINERARIO === */}
+                  {isModuleVisible(settings, 'itinerario') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Itinerario del evento
+                      </p>
+                      {programa.filter(item => item.visibleParaCliente !== false).length === 0 ? (
+                        <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
+                          <Calendar className="w-7 h-7 mx-auto mb-2 opacity-30" />
+                          <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
+                          <p className="text-xs mt-1 opacity-60">El equipo AK lo cargará próximamente.</p>
+                        </div>
+                      ) : (
+                        <div className="relative pl-6">
+                          <div className="absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full" style={{ backgroundColor: `${eventColor}40` }} />
+                          <div className="space-y-0">
+                            {programa.filter(item => item.visibleParaCliente !== false).map((item) => {
+                              const isOpen = openProgramaIds.has(item.id);
+                              const toggleItem = () => setOpenProgramaIds(prev => {
+                                const next = new Set(prev);
+                                if (next.has(item.id)) next.delete(item.id);
+                                else next.add(item.id);
+                                return next;
+                              });
+                              const ItemIcon = getItineraryIcon(item.titulo || '');
+                              const displayDescription = item.descripcionCliente || item.descripcion;
+                              return (
+                                <div key={item.id} className="relative flex items-start gap-4 py-2">
+                                  <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <button
+                                      className="w-full flex items-center gap-2 py-1 text-left"
+                                      onClick={toggleItem}
+                                    >
+                                      <div className="flex items-center gap-2 flex-1 flex-wrap">
+                                        <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: eventColor }}>
+                                          {item.hora}
+                                        </span>
+                                        <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                                        <span className="font-semibold text-sm">{item.titulo}</span>
+                                      </div>
+                                      {displayDescription && (
+                                        isOpen
+                                          ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                          : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                      )}
+                                    </button>
+                                    {isOpen && displayDescription && (
+                                      <div className="mt-1 mb-2 pl-1">
+                                        <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
+                                          {displayDescription}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* === MÚSICA === */}
+                  {isModuleVisible(settings, 'musica') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Music className="w-3.5 h-3.5" />
+                        Música
+                      </p>
+                      {musica && (musica.cancionEntrada || musica.cancionVals || musica.playlistFiesta || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0)) ? (
+                        <div className="rounded-2xl bg-violet-50 border border-violet-100 p-4 space-y-2">
+                          {musica.cancionEntrada && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Music className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                              <span className="text-muted-foreground font-medium">Entrada:</span>
+                              <span className="font-semibold">{musica.cancionEntrada}</span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <button
-                                className="w-full flex items-center gap-2 py-1 text-left"
-                                onClick={toggleItem}
-                              >
-                                <div className="flex items-center gap-2 flex-1 flex-wrap">
-                                  <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: eventColor }}>
-                                    {item.hora}
-                                  </span>
-                                  <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                                  <span className="font-semibold text-sm">{item.titulo}</span>
-                                </div>
-                                {displayDescription && (
-                                  isOpen
-                                    ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                                    : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                          )}
+                          {musica.cancionVals && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Music className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                              <span className="text-muted-foreground font-medium">Vals:</span>
+                              <span className="font-semibold">{musica.cancionVals}</span>
+                            </div>
+                          )}
+                          {musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0 && (
+                            <div className="flex items-start gap-2 text-sm">
+                              <Music className="w-3.5 h-3.5 text-violet-500 shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-muted-foreground font-medium">Torta/Brindis: </span>
+                                <span className="font-semibold">{musica.cancionesTortaBrindis.join(', ')}</span>
+                              </div>
+                            </div>
+                          )}
+                          {musica.playlistFiesta && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Music className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                              <span className="text-muted-foreground font-medium">Playlist:</span>
+                              <span className="font-semibold">{musica.playlistFiesta}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* === MOODBOARD === */}
+                  {isModuleVisible(settings, 'moodboard') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5" />
+                        Moodboard / Decoración
+                      </p>
+                      {moodboardItems.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {moodboardItems.map(item => (
+                            <div key={item.id} className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
+                              {item.url && (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img src={item.url} alt={item.description || 'Moodboard'} className="w-full h-28 object-cover" />
+                              )}
+                              <div className="p-2.5 flex items-start justify-between gap-2">
+                                {item.description && (
+                                  <p className="text-xs text-slate-700 leading-snug flex-1">{item.description}</p>
                                 )}
-                              </button>
-                              {isOpen && displayDescription && (
-                                <div className="mt-1 mb-2 pl-1">
-                                  <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
-                                    {displayDescription}
-                                  </p>
-                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleLike(item.id)}
+                                  className={`shrink-0 p-1 rounded-full transition-colors ${likedItems.has(item.id) ? 'text-red-500' : 'text-slate-300 hover:text-red-400'}`}
+                                >
+                                  <Heart className="w-4 h-4" fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* === MENÚ === */}
+                  {isModuleVisible(settings, 'menu') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Utensils className="w-3.5 h-3.5" />
+                        Menú
+                      </p>
+                      {fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres) ? (
+                        <div className="rounded-2xl bg-amber-50 border border-amber-100 p-4 space-y-2">
+                          {fiesta.menuMesa.entrada && (
+                            <div className="text-sm"><span className="font-black text-amber-700">Entrada: </span><span>{fiesta.menuMesa.entrada}</span></div>
+                          )}
+                          {fiesta.menuMesa.platoPrincipal && (
+                            <div className="text-sm"><span className="font-black text-amber-700">Plato principal: </span><span>{fiesta.menuMesa.platoPrincipal}</span></div>
+                          )}
+                          {fiesta.menuMesa.adolescentes && (
+                            <div className="text-sm"><span className="font-black text-amber-700">Adolescentes: </span><span>{fiesta.menuMesa.adolescentes}</span></div>
+                          )}
+                          {fiesta.menuMesa.postres && (
+                            <div className="text-sm"><span className="font-black text-amber-700">Postre: </span><span>{fiesta.menuMesa.postres}</span></div>
+                          )}
+                          {fiesta.menuMesa.bebidas && (
+                            <div className="text-sm"><span className="font-black text-amber-700">Bebidas: </span><span>{fiesta.menuMesa.bebidas}</span></div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* === CARTA DE TRAGOS === */}
+                  {isModuleVisible(settings, 'cartaTragos') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <GlassWater className="w-3.5 h-3.5" />
+                        Carta de Tragos
+                      </p>
+                      {fiesta.cartaTragos?.items && fiesta.cartaTragos.items.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {fiesta.cartaTragos.items.map(trago => (
+                            <div key={trago.id} className="rounded-2xl border border-sky-100 bg-sky-50 p-3 flex items-center gap-2">
+                              <GlassWater className="w-4 h-4 text-sky-500 shrink-0" />
+                              <span className="font-semibold text-sm">{trago.nombre}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* === FOTOS Y FILMACIÓN === */}
+                  {isModuleVisible(settings, 'fotografiaYFilmacion') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Camera className="w-3.5 h-3.5" />
+                        Fotos y Filmación
+                      </p>
+                      {fiesta.fotografiaYFilmacion?.servicios && fiesta.fotografiaYFilmacion.servicios.length > 0 ? (
+                        <div className="space-y-2">
+                          {fiesta.fotografiaYFilmacion.servicios.map(servicio => (
+                            <div key={servicio.id} className="rounded-2xl border border-pink-100 bg-pink-50 p-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-semibold text-sm">{servicio.nombre}</span>
+                                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                  servicio.estado === 'Entregado completo' ? 'bg-emerald-100 text-emerald-700' :
+                                  servicio.estado === 'En edición' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-amber-100 text-amber-700'
+                                }`}>{servicio.estado}</span>
+                              </div>
+                              {servicio.fechaEntregaEstimada && (
+                                <p className="text-xs text-muted-foreground mt-1">Entrega estimada: {formatDate(servicio.fechaEntregaEstimada)}</p>
+                              )}
+                              {servicio.notas && <p className="text-xs text-muted-foreground mt-1">{servicio.notas}</p>}
+                              {servicio.linkEntrega && (
+                                <a href={servicio.linkEntrega} target="_blank" rel="noopener noreferrer" className="text-xs text-primary font-semibold mt-1 flex items-center gap-1">
+                                  <ExternalLink className="w-3 h-3" /> Ver material
+                                </a>
                               )}
                             </div>
-                          </div>
-                        );
-                      })}
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
                     </div>
-                  </div>
-                )
+                  )}
+
+                  {/* === DRESS CODE === */}
+                  {isModuleVisible(settings, 'dressCode') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Shirt className="w-3.5 h-3.5" />
+                        Dress Code
+                      </p>
+                      {(fiesta.invitacionConfig?.dressCode || dressCode?.texto?.text) ? (
+                        <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 space-y-2">
+                          {fiesta.invitacionConfig?.dressCode ? (
+                            <>
+                              <p className="font-bold text-sm text-indigo-800">{fiesta.invitacionConfig.dressCode.tipo}</p>
+                              {fiesta.invitacionConfig.dressCode.textoPersonalizado && (
+                                <p className="text-sm text-indigo-700">{fiesta.invitacionConfig.dressCode.textoPersonalizado}</p>
+                              )}
+                              {fiesta.invitacionConfig.dressCode.colorSugerido && (
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Palette className="w-3.5 h-3.5 text-indigo-500" />
+                                  <span className="text-indigo-700">Color sugerido: {fiesta.invitacionConfig.dressCode.colorSugerido}</span>
+                                </div>
+                              )}
+                              {fiesta.invitacionConfig.dressCode.restricciones && (
+                                <p className="text-xs text-indigo-600 bg-indigo-100 rounded-xl px-3 py-2">{fiesta.invitacionConfig.dressCode.restricciones}</p>
+                              )}
+                            </>
+                          ) : dressCode?.texto?.text ? (
+                            <p className="text-sm text-indigo-700">{dressCode.texto.text}</p>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* === LISTA DE REGALOS === */}
+                  {isModuleVisible(settings, 'listaRegalos') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Gift className="w-3.5 h-3.5" />
+                        Lista de Regalos
+                      </p>
+                      {(fiesta.invitacionConfig?.regalos && fiesta.invitacionConfig.regalos.tipo !== 'ninguno') || (fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0) ? (
+                        <div className="rounded-2xl border border-pink-100 bg-pink-50 p-4 space-y-2">
+                          {fiesta.invitacionConfig?.regalos && fiesta.invitacionConfig.regalos.tipo !== 'ninguno' && (
+                            <>
+                              {fiesta.invitacionConfig.regalos.textoPersonalizado && (
+                                <p className="text-sm text-pink-800">{fiesta.invitacionConfig.regalos.textoPersonalizado}</p>
+                              )}
+                              {fiesta.invitacionConfig.regalos.aliasCBU && (
+                                <p className="text-sm text-pink-700 font-mono">Alias: {fiesta.invitacionConfig.regalos.aliasCBU}</p>
+                              )}
+                              {fiesta.invitacionConfig.regalos.linkListaRegalos && (
+                                <a href={fiesta.invitacionConfig.regalos.linkListaRegalos} target="_blank" rel="noopener noreferrer" className="text-sm text-primary font-semibold flex items-center gap-1">
+                                  <ExternalLink className="w-3.5 h-3.5" /> Ver lista de regalos
+                                </a>
+                              )}
+                            </>
+                          )}
+                          {fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.map(item => (
+                            <div key={item.id} className={`flex items-center gap-2 text-sm py-1 ${item.isClaimed ? 'line-through text-muted-foreground' : ''}`}>
+                              <Gift className="w-3.5 h-3.5 text-pink-500 shrink-0" />
+                              <span>{item.name}</span>
+                              {item.isClaimed && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 rounded-full px-2 py-0.5">Reclamado</span>}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* === VIDEO DE VIDA === */}
+                  {isModuleVisible(settings, 'videoVida') && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Camera className="w-3.5 h-3.5" />
+                        Video de Vida
+                      </p>
+                      {fiesta.videoVida ? (
+                        <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 space-y-2">
+                          {fiesta.videoVida.customText && (
+                            <p className="text-sm text-violet-800">{fiesta.videoVida.customText}</p>
+                          )}
+                          {fiesta.videoVida.songSuggestion && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Music className="w-3.5 h-3.5 text-violet-500" />
+                              <span className="text-violet-700">Canción sugerida: {fiesta.videoVida.songSuggestion}</span>
+                            </div>
+                          )}
+                          {fiesta.videoVida.photoCount !== undefined && fiesta.videoVida.photoCount > 0 && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <ImageIcon className="w-3.5 h-3.5 text-violet-500" />
+                              <span className="text-violet-700">{fiesta.videoVida.photoCount} fotos cargadas</span>
+                            </div>
+                          )}
+                          {!fiesta.videoVida.customText && !fiesta.videoVida.songSuggestion && (
+                            <p className="text-sm text-muted-foreground">El equipo AK está preparando el video de vida para tu evento.</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
+                          El equipo AK cargará esta información próximamente.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Empty state if no AK-managed modules visible */}
+                  {!hasOrganizacionModules && (
+                    <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
+                      <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      <p className="text-sm font-semibold">Sin información disponible aún</p>
+                      <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="space-y-4">
+
+                  {/* Moodboard liked items — interactive */}
+                  {isModuleVisible(settings, 'moodboard') && moodboardItems.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Heart className="w-3.5 h-3.5" />
+                        Mis preferencias de Moodboard
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {moodboardItems.map(item => {
+                          const isLiked = likedItems.has(item.id);
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => handleToggleLike(item.id)}
+                              className={`rounded-2xl border-2 overflow-hidden text-left transition-all ${
+                                isLiked ? 'border-red-400 shadow-md' : 'border-slate-100 hover:border-red-200'
+                              }`}
+                            >
+                              {item.url && (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img src={item.url} alt={item.description || 'Moodboard'} className="w-full h-24 object-cover" />
+                              )}
+                              <div className={`p-2 flex items-center justify-between gap-1 ${isLiked ? 'bg-red-50' : 'bg-white'}`}>
+                                {item.description && <p className="text-xs text-slate-700 leading-snug flex-1 truncate">{item.description}</p>}
+                                <Heart className={`w-4 h-4 shrink-0 transition-colors ${isLiked ? 'text-red-500 fill-red-500' : 'text-slate-300'}`} />
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {likedItems.size > 0 && (
+                        <p className="text-xs text-muted-foreground mt-2 text-center">
+                          ❤️ {likedItems.size} {likedItems.size === 1 ? 'ítem marcado' : 'ítems marcados'} como favorito{likedItems.size !== 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Dress code */}
+                  {isModuleVisible(settings, 'dressCode') && (fiesta.invitacionConfig?.dressCode || dressCode?.texto?.text) && (
+                    <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-2 flex items-center gap-1.5">
+                        <Shirt className="w-3.5 h-3.5" />
+                        Dress Code
+                      </p>
+                      {fiesta.invitacionConfig?.dressCode ? (
+                        <div className="space-y-1">
+                          <p className="font-bold text-sm text-indigo-800">{fiesta.invitacionConfig.dressCode.tipo}</p>
+                          {fiesta.invitacionConfig.dressCode.textoPersonalizado && (
+                            <p className="text-sm text-indigo-700">{fiesta.invitacionConfig.dressCode.textoPersonalizado}</p>
+                          )}
+                          {fiesta.invitacionConfig.dressCode.colorSugerido && (
+                            <p className="text-sm text-indigo-600">Color sugerido: {fiesta.invitacionConfig.dressCode.colorSugerido}</p>
+                          )}
+                        </div>
+                      ) : dressCode?.texto?.text ? (
+                        <p className="text-sm text-indigo-700">{dressCode.texto.text}</p>
+                      ) : null}
+                    </div>
+                  )}
+
+                  {/* Lo que debo llevar */}
+                  {debeLlevarItems.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Package className="w-3.5 h-3.5" />
+                        Lo que debo llevar
+                      </p>
+                      <div className="space-y-2">
+                        {debeLlevarItems.map(item => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            disabled={isSavingDebeLlevar}
+                            onClick={() => handleToggleDebeLlevar(item.id)}
+                            className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${
+                              item.completado ? 'border-teal-200 bg-teal-50' : 'border-slate-100 bg-slate-50 hover:border-teal-200'
+                            }`}
+                          >
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                              item.completado ? 'border-teal-500 bg-teal-500' : 'border-slate-300 bg-white'
+                            }`}>
+                              {item.completado && <span className="text-white text-[10px] font-black">✓</span>}
+                            </div>
+                            <span className={`text-sm font-semibold ${item.completado ? 'line-through text-muted-foreground' : ''}`}>{item.texto}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Ubicación con Google Maps */}
+                  {isModuleVisible(settings, 'ubicacion') && (
+                    <div className="rounded-2xl bg-white border border-slate-100 p-4 space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5" />
+                        Ubicación del evento
+                      </p>
+                      {eventDate && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Calendar className="w-4 h-4 text-violet-500 shrink-0" />
+                          <span className="font-semibold capitalize">{eventDate}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="w-4 h-4 text-red-500 shrink-0" />
+                        <span className={`font-semibold ${!isLocationConfirmed ? 'text-muted-foreground italic' : ''}`}>{displayLocation}</span>
+                      </div>
+                      {config.instruccionesLlegada && (
+                        <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2">
+                          <p className="text-[10px] font-black uppercase tracking-wider text-amber-600 mb-1">Instrucciones</p>
+                          <p className="text-xs text-amber-800 leading-relaxed">{config.instruccionesLlegada}</p>
+                        </div>
+                      )}
+                      {config.googleMapsUrl && (
+                        <a
+                          href={config.googleMapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full rounded-xl bg-blue-50 border border-blue-100 text-blue-700 font-semibold text-sm py-2.5 hover:bg-blue-100 transition-colors"
+                        >
+                          <Navigation className="w-4 h-4" />
+                          Ver en Google Maps
+                        </a>
+                      )}
+                    </div>
+                  )}
+
                   {/* Company contact info */}
                   <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 space-y-3">
                     <p className="font-black text-sm text-slate-800">{companyName}</p>
@@ -1887,34 +2387,6 @@ export default function PublicPortalView({
                       <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-emerald-700 hover:underline">
                         <MessageSquare className="w-4 h-4 shrink-0" />
                         Contactar por WhatsApp
-                      </a>
-                    )}
-                  </div>
-                  {/* Event key details */}
-                  <div className="rounded-2xl bg-white border border-slate-100 p-4 space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Datos del evento</p>
-                    {eventDate && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-violet-500 shrink-0" />
-                        <span className="font-semibold capitalize">{eventDate}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="w-4 h-4 text-red-500 shrink-0" />
-                      <span className={`font-semibold ${!isLocationConfirmed ? 'text-muted-foreground italic' : ''}`}>{displayLocation}</span>
-                    </div>
-                    {config.instruccionesLlegada && (
-                      <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2">
-                        <p className="text-[10px] font-black uppercase tracking-wider text-amber-600 mb-1">Instrucciones de llegada</p>
-                        <p className="text-xs text-amber-800 leading-relaxed">{config.instruccionesLlegada}</p>
-                      </div>
-                    )}
-                    {config.googleMapsUrl && (
-                      <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="block">
-                        <button className="w-full rounded-xl bg-blue-50 border border-blue-100 text-blue-700 font-semibold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors">
-                          <Navigation className="w-4 h-4" />
-                          Ver en Google Maps
-                        </button>
                       </a>
                     )}
                   </div>
