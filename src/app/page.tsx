@@ -128,7 +128,11 @@ export default function MainDashboardPage() {
 
     const handleDismissPriority = useCallback(async (alertaId: string) => {
         // Optimistically remove from local list
-        setKpiData((prev: any) => prev ? { ...prev, alerts: (prev.alerts || []).filter((a: any) => a.id !== alertaId) } : prev);
+        setKpiData((prev: Record<string, unknown> | null) =>
+            prev
+                ? { ...prev, alerts: ((prev.alerts as GlobalAlert[]) || []).filter((a: GlobalAlert) => a.id !== alertaId) }
+                : prev
+        );
         try {
             await descartarPrioridad(alertaId);
         } catch {

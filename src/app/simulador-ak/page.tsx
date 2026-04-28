@@ -440,7 +440,7 @@ export default function SimuladorAKPage() {
     const detallados: ServicioDetallado[] = [];
     // Build recommended ids set from config
     const recommendedIds = new Set<string>();
-    config.platosVisibles?.forEach((p: any) => { if (p.recommended) recommendedIds.add(p.id); });
+    config.platosVisibles?.forEach((p) => { if (p.recommended) recommendedIds.add(p.id); });
     config.recommendedDishIds?.forEach((id: string) => recommendedIds.add(id));
     allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
       const { qty, unitPrice, total } = getServicioCalculatedData(servicio, state.adultos, state.ninos);

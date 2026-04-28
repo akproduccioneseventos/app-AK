@@ -243,8 +243,9 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
   try {
     const { forceDeleteDocFromFirestore } = await import('@/lib/firebase-sync');
     await forceDeleteDocFromFirestore('clientes', id);
-  } catch (e: any) {
-    console.warn(`[Clientes] Could not force-delete Firestore doc for customer ${id}:`, e.message);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn('[Clientes] Could not force-delete Firestore doc for customer:', msg);
   }
 
   return { success: true };
