@@ -61,11 +61,7 @@ export async function GET() {
 
     // Read package.json version (best-effort)
     let appVersion = '0.1.0';
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pkg = require('../../../../package.json') as { version?: string };
-      appVersion = pkg.version || appVersion;
-    } catch { /* ignore */ }
+    appVersion = process.env.npm_package_version || appVersion;
 
     // Read each collection — in production, try Firestore directly first
     let exportedCount = 0;
