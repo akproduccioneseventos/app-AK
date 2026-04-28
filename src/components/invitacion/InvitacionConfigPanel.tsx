@@ -96,10 +96,22 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
 
   const handlePublishToSocial = async (imageUrl: string) => {
     if (!fiestaId) return;
+    // Validate the URL is a safe HTTPS URL before fetching (prevents SSRF with non-https URLs)
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(imageUrl);
+    } catch {
+      toast({ title: 'Error', description: 'URL de imagen inválida.', variant: 'destructive' });
+      return;
+    }
+    if (parsedUrl.protocol !== 'https:') {
+      toast({ title: 'Error', description: 'Solo se pueden publicar imágenes con URL segura (HTTPS).', variant: 'destructive' });
+      return;
+    }
     setPublishingUrl(imageUrl);
     try {
       const { uploadSocialPost } = await import('@/app/actions/social-gallery');
-      const response = await fetch(imageUrl);
+      const response = await fetch(parsedUrl.toString());
       const blob = await response.blob();
       const file = new File([blob], 'gallery-photo.jpg', { type: blob.type || 'image/jpeg' });
       const formData = new FormData();

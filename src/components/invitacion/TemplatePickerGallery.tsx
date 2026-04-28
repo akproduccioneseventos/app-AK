@@ -87,7 +87,10 @@ function TemplateCard({ tpl, isActive, onApply }: TemplateCardProps) {
   const texture = CATEGORY_TEXTURE[category] ?? CATEGORY_TEXTURE['General'];
   const protagonista = tpl.cabecera?.protagonista1 || 'Valentina';
   const subtitulo = tpl.cabecera?.subtitulo?.text || category;
-  const fontFamily = (tpl.cabecera?.subtitulo?.style as any)?.fontFamily || 'Georgia, serif';
+  const fontFamily =
+    typeof (tpl.cabecera?.subtitulo?.style as { fontFamily?: string } | undefined)?.fontFamily === 'string'
+      ? (tpl.cabecera!.subtitulo!.style as { fontFamily: string }).fontFamily
+      : 'Georgia, serif';
 
   return (
     <button
