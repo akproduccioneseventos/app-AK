@@ -6,12 +6,12 @@
 export const CLUB_URUGUAY_KEYWORDS = [
   'club uruguay',
   'cluburuguay',
-  'club_uruguay',
-  'club-uruguay',
 ] as const;
 
 /**
  * Returns true if the given salon/place name corresponds to Club Uruguay.
+ * Normalizes the input by lowercasing, trimming, collapsing whitespace, and
+ * replacing hyphens/underscores with spaces before matching.
  */
 export function isClubUruguay(nombre?: string): boolean {
   if (!nombre) return false;
@@ -20,7 +20,5 @@ export function isClubUruguay(nombre?: string): boolean {
     .trim()
     .replace(/\s+/g, ' ')
     .replace(/[_-]/g, ' ');
-  return CLUB_URUGUAY_KEYWORDS.some((kw) =>
-    normalized.includes(kw.replace(/[_-]/g, ' '))
-  );
+  return CLUB_URUGUAY_KEYWORDS.some((kw) => normalized.includes(kw));
 }

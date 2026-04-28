@@ -184,6 +184,9 @@ function CroquisContent() {
   const [isCustomOpen, setIsCustomOpen] = useState(false);
   const [customEl, setCustomEl] = useState({ name: '', width: 2, height: 1, seats: 8, shape: 'circle' as 'circle' | 'rectangle', type: 'element' as 'element' | 'area' });
 
+  const [isDimensionsOpen, setIsDimensionsOpen] = useState(false);
+  const [dimForm, setDimForm] = useState({ width: 15, height: 15 });
+
   const salonSceneRef = useRef<{ captureScreenshot: () => string | null } | null>(null);
 
   const loadData = useCallback(async () => {
@@ -463,7 +466,7 @@ function CroquisContent() {
       </Card>
 
       {/* Salon dimensions info */}
-      <div className="flex gap-4 text-xs text-slate-400 font-medium">
+      <div className="flex gap-4 text-xs text-slate-400 font-medium items-center">
         <span>Ancho: {layout.salonWidth || 15}m</span>
         <span>Alto: {layout.salonHeight || 15}m</span>
         <span>{layout.salonElements?.length || 0} elementos</span>
@@ -472,20 +475,39 @@ function CroquisContent() {
           size="sm"
           className="text-xs h-auto p-0 text-slate-400"
           onClick={() => {
-            const w = prompt('Ancho del salón en metros:', String(layout.salonWidth || 15));
-            const h = prompt('Alto del salón en metros:', String(layout.salonHeight || 15));
-            if (w && h) {
-              setLayout((prev) => ({
-                ...prev,
-                salonWidth: parseInt(w, 10) || 15,
-                salonHeight: parseInt(h, 10) || 15,
-              }));
-            }
+            setDimForm({ width: layout.salonWidth || 15, height: layout.salonHeight || 15 });
+            setIsDimensionsOpen(true);
           }}
         >
           Cambiar dimensiones
         </Button>
       </div>
+
+      {/* Dimensions Dialog */}
+      <Dialog open={isDimensionsOpen} onOpenChange={setIsDimensionsOpen}>
+        <DialogContent className="sm:max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Dimensiones del Salón</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Ancho (metros)</Label>
+              <Input type="number" min="1" max="100" value={dimForm.width} onChange={(e) => setDimForm((p) => ({ ...p, width: parseInt(e.target.value) || 15 }))} />
+            </div>
+            <div className="space-y-1">
+              <Label>Alto (metros)</Label>
+              <Input type="number" min="1" max="100" value={dimForm.height} onChange={(e) => setDimForm((p) => ({ ...p, height: parseInt(e.target.value) || 15 }))} />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+            <Button onClick={() => {
+              setLayout((prev) => ({ ...prev, salonWidth: dimForm.width, salonHeight: dimForm.height }));
+              setIsDimensionsOpen(false);
+            }}><Save className="w-4 h-4 mr-2" />Aplicar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Element Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

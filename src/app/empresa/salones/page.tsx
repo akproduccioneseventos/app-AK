@@ -224,9 +224,9 @@ function SalonForm({
                   onChange={handleFileChange}
                 />
               </div>
-              {!(form.fotos?.length) && (
-                <p className="text-xs text-muted-foreground">Guardá el salón primero, luego podrás subir fotos.</p>
-              )}
+          {!(form.fotos?.length) && editing && (
+              <p className="text-xs text-muted-foreground">No hay fotos cargadas aún. Usá el botón "Subir" para agregar fotos.</p>
+            )}
             </div>
           )}
           {!editing && (

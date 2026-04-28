@@ -113,11 +113,14 @@ export async function deleteSalonFoto(
     // Best-effort delete from Storage (storage path derived from URL)
     try {
       const url = new URL(fotoUrl);
-      // Public storage URL pattern: https://storage.googleapis.com/BUCKET/PATH
-      const pathParts = url.pathname.split('/').slice(2); // remove leading empty + bucket
-      if (pathParts.length > 0) {
-        const storagePath = pathParts.join('/');
-        await deleteFromStorage(storagePath);
+      // Only attempt deletion for known Firebase Storage public URLs
+      // Pattern: https://storage.googleapis.com/BUCKET/PATH
+      if (url.hostname === 'storage.googleapis.com') {
+        const pathParts = url.pathname.split('/').slice(2); // remove leading empty segment + bucket name
+        if (pathParts.length > 0) {
+          const storagePath = pathParts.join('/');
+          await deleteFromStorage(storagePath);
+        }
       }
     } catch {
       // Ignore storage deletion errors — the DB record is already updated

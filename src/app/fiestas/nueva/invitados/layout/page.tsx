@@ -301,10 +301,11 @@ function SalonLayoutContent() {
       if (deco.salonElements.length === 0 && fiestaData.configuracion.nombreLugar) {
         try {
           const salones = await getSalones();
+          const normalizedVenue = fiestaData.configuracion.nombreLugar.toLowerCase().trim();
           const matchingSalon = salones.find(
             (s) =>
               s.salonLayout &&
-              (s.nombre.toLowerCase().trim() === fiestaData.configuracion.nombreLugar.toLowerCase().trim() ||
+              (s.nombre.toLowerCase().trim() === normalizedVenue ||
                 (s.esClubUruguay && isClubUruguay(fiestaData.configuracion.nombreLugar)))
           );
           if (matchingSalon) {

@@ -74,7 +74,7 @@ function exportCSV(fiestas: FiestaEnPlanificacion[]) {
     f.estado || '',
     String(f.configuracion.invitadosEstimados || 0),
   ]);
-  const csv = [header, ...rows].map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n');
+  const csv = '\uFEFF' + [header, ...rows].map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -106,31 +106,30 @@ export default function ClubUruguayPage() {
     fetchFiestas();
   }, [fetchFiestas]);
 
-  const now = new Date();
-
   const proximas = useMemo(
-    () =>
-      fiestas
+    () => {
+      const today = new Date();
+      return fiestas
         .filter((f) => {
           if (!f.configuracion.fechaEvento) return false;
-          return new Date(f.configuracion.fechaEvento) >= now;
+          return new Date(f.configuracion.fechaEvento) >= today;
         })
         .sort(
           (a, b) =>
             new Date(a.configuracion.fechaEvento!).getTime() -
             new Date(b.configuracion.fechaEvento!).getTime()
-        ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        );
+    },
     [fiestas]
   );
 
   const realizadas = useMemo(
     () =>
       fiestas.filter((f) => {
+        const today = new Date();
         if (!f.configuracion.fechaEvento) return true;
-        return new Date(f.configuracion.fechaEvento) < now;
+        return new Date(f.configuracion.fechaEvento) < today;
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [fiestas]
   );
 

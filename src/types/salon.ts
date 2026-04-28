@@ -1,3 +1,4 @@
+import type { DecoracionData } from '@/types/fiesta';
 
 export interface Salon {
   id: string;
@@ -7,6 +8,6 @@ export interface Salon {
   capacidad: number;
   descripcion?: string;
   fotos?: string[];
-  salonLayout?: any;
+  salonLayout?: DecoracionData;
   esClubUruguay?: boolean;
 }
