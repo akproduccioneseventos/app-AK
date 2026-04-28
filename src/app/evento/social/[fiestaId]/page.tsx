@@ -149,6 +149,8 @@ const PostCard: React.FC<{
   };
 
   const handleLikeClick = () => {
+    // Guard here (in addition to button disabled prop) to prevent programmatic double-likes
+    // e.g., when the PostCard is reused in an admin context.
     if (!allowLikes || hasLiked) return;
     // Spawn 3-5 floating hearts
     const count = 3 + Math.floor(Math.random() * 3);
@@ -317,7 +319,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     if (typeof window === 'undefined') return;
     const raw = sessionStorage.getItem(`likedPosts_${params.fiestaId}`);
     if (raw) {
-      try { setLikedPosts(new Set(JSON.parse(raw))); } catch {}
+      // Silently ignore parse errors — corrupted sessionStorage data (e.g., invalid JSON)
+      // should not break the UI; the guest simply starts with an empty liked set.
+      try { setLikedPosts(new Set(JSON.parse(raw))); } catch (_) { /* ignore invalid JSON */ }
     }
   }, [params.fiestaId]);
   

@@ -84,7 +84,8 @@ export default function MuroEnVivoPage() {
   useEffect(() => {
     if (sorteoSpinActive && !sorteoSpinTriggeredRef.current) {
       sorteoSpinTriggeredRef.current = true;
-      // Double RAF ensures the element has rendered at its initial transform before we change it
+      // Double RAF ensures the wheel element is painted at rotate(0deg) before applying the
+      // spin angle, allowing the CSS transition to trigger correctly.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setSorteoSpinWheelAngle(prev => prev + 3600 + Math.floor(Math.random() * 1440));
@@ -261,7 +262,10 @@ export default function MuroEnVivoPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  // Playlist is only active when screenMode.enabled is true; otherwise fall back to mural-only
+  // Playlist is only active when screenMode.enabled is explicitly true.
+  // Using `!== false` is intentional: when enabled is undefined (legacy events that never set it),
+  // we treat the playlist as active so existing behaviour is preserved (opt-out semantics).
+  // New events can explicitly set enabled=false to disable the playlist.
   const enabledPlaylist = settings.screenMode?.enabled !== false
     ? (settings.screenMode?.playlist ?? []).filter((item) => item.enabled)
     : [];
@@ -910,7 +914,7 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
             fill
             className="object-cover scale-110 blur-2xl opacity-40"
             unoptimized
-            aria-hidden
+            aria-hidden={true}
           />
           {/* Main photo — contained so it's never cropped */}
           <NextImage

@@ -279,8 +279,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
 
-  // Muro Social panel: full-screen admin monitor — no sidebar/header, just a clean canvas
-  const isMuroSocialPanel = pathname === '/fiestas/nueva/muro-social';
+  // Muro Social panel: full-screen admin monitor — isolated from the app shell so the operator
+  // has a clean, distraction-free view with no sidebar or top navigation.
+  const isMuroSocialIsolatedView = pathname === '/fiestas/nueva/muro-social';
 
   const isSpecialRender = 
     isAuthPage || 
@@ -289,11 +290,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     isPdfPage ||
     isBudgetViewPage ||
     isInvoiceViewPage ||
-    isMuroSocialPanel;
+    isMuroSocialIsolatedView;
 
   // Simplified logic for when to render the shell
   if (isSpecialRender) {
-    if (isMuroSocialPanel) {
+    if (isMuroSocialIsolatedView) {
       return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 p-4 sm:p-6 lg:p-8">
           {children}
