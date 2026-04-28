@@ -1263,12 +1263,38 @@ export interface ContratoFirmaInfo {
     notes?: string;
 }
 
+export interface CuotaPlanPagoContrato {
+  id: string;
+  descripcion: string;
+  fechaVencimiento: string; // ISO
+  montoMinimo: number;
+  montoObjetivo?: number; // para la cuota del 30%
+  esCuotaClave: boolean; // true = la cuota del 30%
+  estado: 'pendiente' | 'parcial' | 'completada' | 'vencida';
+  pagosAplicados: string[]; // IDs de PagoCliente
+  montoAcumulado: number;
+}
+
+export interface PlanPagos {
+  activo: boolean;
+  pagoMinimoTrimestral: number; // default 5000
+  porcentajeMinimoAntesFecha: number; // default 30
+  mesesLimiteAntesFecha: number; // calculado automáticamente
+  fechaLimite30Porciento: string; // ISO date calculada
+  montoObjetivo30Porciento: number; // totalContrato * 0.30
+  cuotas: CuotaPlanPagoContrato[];
+  aceptadoPorCliente: boolean;
+  aceptadoAt?: string;
+  generadoAt: string;
+}
+
 export interface ContratoDatos {
   senia?: number;
   saldo?: number;
   ajusteAnualPorcentaje?: number;
   fechaFirmaContrato?: string;
   clausulas?: string;
+  planPagos?: PlanPagos;
 }
 
 export interface ContratoGeneradoInfo {

@@ -1,18 +1,18 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info } from 'lucide-react';
+import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, PlanPagos } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CompanyInfo, ContractTemplateItem, ContractType } from '@/types/settings';
-import { getFiestaById, updateContratoFiestaActual, uploadPhysicalContract } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateContratoFiestaActual, uploadPhysicalContract, savePlanPagosContrato } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplates } from '@/app/actions/settings';
@@ -23,9 +23,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { generarPlanPagos } from '@/lib/planPagos';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '____________';
@@ -63,6 +65,45 @@ function ContratoServicioContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Plan de pagos state
+  const [pagoMinimoTrimestral, setPagoMinimoTrimestral] = useState(5000);
+  const [porcentajeMinimo, setPorcentajeMinimo] = useState(30);
+  const [planGenerado, setPlanGenerado] = useState<PlanPagos | null>(null);
+  const [isSavingPlan, setIsSavingPlan] = useState(false);
+
+  const totalContrato = useMemo(
+    () => presupuesto?.totalConDescuento ?? presupuesto?.costoTotalEstimado ?? 0,
+    [presupuesto],
+  );
+
+  const recalcularPlan = useCallback(() => {
+    const fechaEvento = fiesta?.configuracion?.fechaEvento;
+    if (!fechaEvento || totalContrato <= 0) return;
+    const plan = generarPlanPagos(fechaEvento, totalContrato, pagoMinimoTrimestral, porcentajeMinimo);
+    setPlanGenerado(plan);
+  }, [fiesta, totalContrato, pagoMinimoTrimestral, porcentajeMinimo]);
+
+  useEffect(() => {
+    recalcularPlan();
+  }, [recalcularPlan]);
+
+  const handleSavePlan = async () => {
+    if (!fiestaId || !planGenerado) return;
+    setIsSavingPlan(true);
+    try {
+      const result = await savePlanPagosContrato(fiestaId, planGenerado);
+      if (result.success) {
+        toast({ title: '✅ Plan guardado', description: 'El plan de pagos fue guardado en el contrato.' });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSavingPlan(false);
+    }
+  };
+
   const loadData = useCallback(async () => {
     if (!fiestaId) {
         setError("Falta el ID del evento.");
@@ -86,6 +127,14 @@ function ContratoServicioContent() {
       setTemplates(templateList);
       const persistedType = fiestaData.contratoGenerado?.tipo || 'servicios';
       setSelectedType(persistedType);
+
+      // Restore plan config from saved contratoDatos if any
+      const savedPlan = fiestaData.contratoDatos?.planPagos;
+      if (savedPlan) {
+        setPagoMinimoTrimestral(savedPlan.pagoMinimoTrimestral);
+        setPorcentajeMinimo(savedPlan.porcentajeMinimoAntesFecha);
+        setPlanGenerado(savedPlan);
+      }
 
       if (fiestaData.configuracion.clienteId && fiestaData.presupuestoId) {
           const [clienteData, presupuestoData] = await Promise.all([
@@ -328,6 +377,127 @@ function ContratoServicioContent() {
             </CardContent>
           </Card>
         </div>
+
+        {/* ── Plan de Pagos ──────────────────────────────────── */}
+        {fiesta?.configuracion?.fechaEvento && totalContrato > 0 && (
+          <div className="print:hidden px-4">
+            <Card className="border-blue-200 bg-blue-50/40">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2 text-blue-800">
+                    <CreditCard className="w-4 h-4 text-blue-600" />
+                    Plan de Pagos del Contrato
+                  </CardTitle>
+                  {fiesta?.contratoDatos?.planPagos?.activo && (
+                    <Badge className="bg-blue-100 text-blue-700 text-[10px]">CONFIGURADO</Badge>
+                  )}
+                </div>
+                <CardDescription className="text-blue-600 text-xs">
+                  Configura las cuotas que el cliente deberá aceptar al firmar el contrato.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-slate-700">Pago mínimo trimestral ($)</Label>
+                    <Input
+                      type="number"
+                      min={1000}
+                      step={500}
+                      value={pagoMinimoTrimestral}
+                      onChange={e => setPagoMinimoTrimestral(Number(e.target.value))}
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-slate-700">Porcentaje mínimo antes de la fecha clave (%)</Label>
+                    <Input
+                      type="number"
+                      min={10}
+                      max={100}
+                      step={5}
+                      value={porcentajeMinimo}
+                      onChange={e => setPorcentajeMinimo(Number(e.target.value))}
+                      className="bg-white"
+                    />
+                  </div>
+                </div>
+
+                {planGenerado && (
+                  <div className="space-y-3">
+                    <div className="grid sm:grid-cols-3 gap-2 text-xs">
+                      <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Meses hasta el evento</p>
+                        <p className="font-bold text-slate-800">{planGenerado.mesesLimiteAntesFecha} meses antes de la fecha clave</p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Fecha límite {porcentajeMinimo}%</p>
+                        <p className="font-bold text-blue-700">
+                          {new Date(planGenerado.fechaLimite30Porciento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </p>
+                      </div>
+                      <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Monto objetivo</p>
+                        <p className="font-bold text-emerald-700">
+                          {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(planGenerado.montoObjetivo30Porciento)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Cuotas generadas ({planGenerado.cuotas.length})</p>
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {planGenerado.cuotas.map(cuota => (
+                          <div
+                            key={cuota.id}
+                            className={cn(
+                              'flex items-center justify-between text-xs p-2.5 rounded-xl border',
+                              cuota.esCuotaClave
+                                ? 'bg-amber-50 border-amber-200'
+                                : 'bg-white border-slate-100',
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              {cuota.esCuotaClave
+                                ? <Star className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                : <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              }
+                              <span className={cn('font-semibold', cuota.esCuotaClave ? 'text-amber-800' : 'text-slate-700')}>
+                                {cuota.descripcion}
+                              </span>
+                            </div>
+                            <div className="text-right shrink-0 ml-2">
+                              <p className={cn('font-bold', cuota.esCuotaClave ? 'text-amber-700' : 'text-slate-600')}>
+                                {cuota.esCuotaClave
+                                  ? new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(cuota.montoObjetivo ?? cuota.montoMinimo)
+                                  : `mín. ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(cuota.montoMinimo)}`
+                                }
+                              </p>
+                              <p className="text-[10px] text-slate-400">
+                                {new Date(cuota.fechaVencimiento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="pt-0">
+                <Button
+                  size="sm"
+                  onClick={handleSavePlan}
+                  disabled={isSavingPlan || !planGenerado}
+                  className="w-full sm:w-auto"
+                >
+                  {isSavingPlan ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                  Guardar Plan de Pagos
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        )}
 
         {/* ALERTA DE FIRMA DIGITAL */}
         {firma?.isSigned && (

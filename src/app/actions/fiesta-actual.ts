@@ -121,7 +121,7 @@ export async function updateGestionCostosFiestaActual(fiestaId: string, costos: 
 export async function updateFotografiaYFilmacionFiestaActual(fiestaId: string, fotografia: FotografiaYFilmacionData) { return await FotografiaModule.updateFotografiaYFilmacion(fiestaId, fotografia); }
 export async function uploadDocumentoFiesta(formData: FormData) { return await DocumentosModule.uploadDocumento(formData); }
 export async function deleteDocumentoFiesta(fiestaId: string, docId: string) { return await DocumentosModule.deleteDocumento(fiestaId, docId); }
-export async function signContractDigitally(fiestaId: string, name: string) { return await DocumentosModule.signContractDigitally(fiestaId, name); }
+export async function signContractDigitally(fiestaId: string, name: string, acceptedPlanPagos?: boolean) { return await DocumentosModule.signContractDigitally(fiestaId, name, acceptedPlanPagos); }
 export async function uploadPhysicalContract(formData: FormData) { return await DocumentosModule.uploadPhysicalContract(formData); }
 export async function getContractSigningSummary(fiestaId: string) { return await DocumentosModule.getContractSigningSummary(fiestaId); }
 
@@ -153,4 +153,22 @@ export async function updateContratoFiestaActual(fiestaId: string, text: string,
       },
     };
     return await FiestaModule.saveFiesta(updatedFiesta);
+}
+
+export async function savePlanPagosContrato(
+  fiestaId: string,
+  planPagos: import('@/types/fiesta').PlanPagos,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await FiestaModule.getFiestaById(fiestaId);
+    if (!fiesta) throw new Error('Fiesta no encontrada');
+    const updatedFiesta: FiestaEnPlanificacion = {
+      ...fiesta,
+      contratoDatos: { ...(fiesta.contratoDatos || {}), planPagos },
+    };
+    await FiestaModule.saveFiesta(updatedFiesta);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
 }
