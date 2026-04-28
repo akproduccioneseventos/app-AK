@@ -279,16 +279,27 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
 
+  // Muro Social panel: full-screen admin monitor — no sidebar/header, just a clean canvas
+  const isMuroSocialPanel = pathname === '/fiestas/nueva/muro-social';
+
   const isSpecialRender = 
     isAuthPage || 
     isPublicEventPage || 
     isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
-    isInvoiceViewPage;
+    isInvoiceViewPage ||
+    isMuroSocialPanel;
 
   // Simplified logic for when to render the shell
   if (isSpecialRender) {
+    if (isMuroSocialPanel) {
+      return (
+        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
+      );
+    }
     return <main className="min-h-screen">{children}</main>;
   }
 

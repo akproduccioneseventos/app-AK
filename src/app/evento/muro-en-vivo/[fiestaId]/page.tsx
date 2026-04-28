@@ -69,6 +69,27 @@ export default function MuroEnVivoPage() {
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
 
   const postsRef = useRef<SocialGalleryPost[]>([]);
+  // Track whether we already triggered the spin angle for the current sorteoSpinActive session
+  const sorteoSpinTriggeredRef = useRef(false);
+  // Track the spin timestamp we last processed to avoid re-triggering
+  const lastSpinTsRef = useRef<string | null>(null);
+
+  // When sorteoSpinActive becomes true, defer the angle change to after mount
+  // so the CSS transition actually plays (element must exist at start angle first).
+  useEffect(() => {
+    if (sorteoSpinActive && !sorteoSpinTriggeredRef.current) {
+      sorteoSpinTriggeredRef.current = true;
+      // Double RAF ensures the element has rendered at its initial transform before we change it
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setSorteoSpinWheelAngle(prev => prev + 3600 + Math.floor(Math.random() * 1440));
+        });
+      });
+    }
+    if (!sorteoSpinActive) {
+      sorteoSpinTriggeredRef.current = false;
+    }
+  }, [sorteoSpinActive]);
 
   const fetchData = useCallback(async () => {
     if (!fiestaId) return;
@@ -120,12 +141,14 @@ export default function MuroEnVivoPage() {
           Date.now() - new Date(sorteoTs).getTime() < SORTEO_DISPLAY_DURATION_MS;
         setActiveSorteoWinner(sorteoIsFresh ? sorteoWinner : null);
 
-        // Sorteo spin animation (shows wheel spinning on big screen)
+        // Sorteo spin animation — only trigger once per unique spin timestamp
         const spinTs = fiestaData.socialGallerySettings.sorteoSpinStartedAt;
         const spinIsFresh = spinTs && Date.now() - new Date(spinTs).getTime() < SORTEO_SPIN_DISPLAY_DURATION_MS;
-        if (spinIsFresh && !sorteoIsFresh) {
+        if (spinIsFresh && !sorteoIsFresh && spinTs !== lastSpinTsRef.current) {
+          lastSpinTsRef.current = spinTs;
+          // Reset wheel angle to 0 so the new spin starts fresh
+          setSorteoSpinWheelAngle(0);
           setSorteoSpinActive(true);
-          setSorteoSpinWheelAngle(prev => prev + 3600 + Math.floor(Math.random() * 1440));
           setTimeout(() => setSorteoSpinActive(false), 6500);
         }
       }
@@ -223,7 +246,10 @@ export default function MuroEnVivoPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  const enabledPlaylist = (settings.screenMode?.playlist ?? []).filter((item) => item.enabled);
+  // Playlist is only active when screenMode.enabled is true; otherwise fall back to mural-only
+  const enabledPlaylist = settings.screenMode?.enabled !== false
+    ? (settings.screenMode?.playlist ?? []).filter((item) => item.enabled)
+    : [];
   const activeScreenItem: ScreenPlaylistItem | null = enabledPlaylist.length > 0
     ? enabledPlaylist[localPlaylistIndex % enabledPlaylist.length]
     : null;
@@ -352,9 +378,9 @@ export default function MuroEnVivoPage() {
             <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
           )}
 
-          {/* Dedications overlay — left side, only shown when no side panel */}
-          {isLoaded && highlightedDedications.length > 0 && !activePoll && !hasSidePanel && (
-            <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-3">
+          {/* Dedications overlay — always shown when no side panel takes up the left column */}
+          {isLoaded && highlightedDedications.length > 0 && !activePoll && (
+            <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedDedications.slice(0, 3).map(d => (
                 <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
                   <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
@@ -364,9 +390,9 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
-          {/* Comments overlay — left side, only shown when no side panel and no dedications */}
-          {isLoaded && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && !hasSidePanel && (
-            <div className="absolute left-6 top-6 z-10 w-[32vw] max-w-sm space-y-3">
+          {/* Comments overlay — shown when chat is enabled and no dedications */}
+          {isLoaded && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
+            <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedComments.slice(0, 3).map(({ comment }) => (
                 <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
                   <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
@@ -376,9 +402,9 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
-          {/* Live chat messages overlay — bottom-left, shown when chat is enabled and there are recent messages */}
-          {isLoaded && settings.chatEnabled !== false && recentChatMessages.length > 0 && !hasSidePanel && !activePoll && (
-            <div className="absolute left-6 bottom-6 z-10 w-[32vw] max-w-xs space-y-1.5">
+          {/* Live chat messages overlay — bottom-left, always shown when chat is enabled */}
+          {isLoaded && settings.chatEnabled !== false && recentChatMessages.length > 0 && !activePoll && (
+            <div className={`absolute left-6 bottom-6 z-10 space-y-1.5 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-xs'}`}>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
               {recentChatMessages.map(msg => (
                 <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
@@ -528,21 +554,30 @@ export default function MuroEnVivoPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="absolute inset-0 z-[44] flex flex-col items-center justify-center bg-black/85 text-center"
+              className="absolute inset-0 z-[44] flex flex-col items-center justify-center bg-black/85 text-center overflow-hidden"
             >
-              <p className="mb-6 text-2xl font-black uppercase tracking-[0.5em] text-yellow-300">🎡 Sorteo Sorpresa 🎡</p>
-              <div className="relative w-72 h-72">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20 w-0 h-0"
-                  style={{ borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '28px solid #eab308' }} />
-                <div
-                  className="w-72 h-72 rounded-full border-8 border-yellow-400 shadow-2xl"
+              <motion.p
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 text-3xl font-black uppercase tracking-[0.4em] text-yellow-300 drop-shadow-[0_0_12px_rgba(234,179,8,0.6)]"
+              >
+                🎡 Sorteo Sorpresa 🎡
+              </motion.p>
+              {/* Slowly rotating preview wheel */}
+              <div className="relative w-80 h-80">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-3 z-20 w-0 h-0"
+                  style={{ borderLeft: '16px solid transparent', borderRight: '16px solid transparent', borderTop: '32px solid #eab308', filter: 'drop-shadow(0 0 8px rgba(234,179,8,0.8))' }} />
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                  className="w-80 h-80 rounded-full border-[10px] border-yellow-400 shadow-[0_0_40px_rgba(234,179,8,0.4)]"
                   style={{
-                    background: 'conic-gradient(#f43f5e, #f97316, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #f43f5e, #f97316, #eab308, #22c55e, #06b6d4)',
+                    background: 'conic-gradient(#f43f5e 0deg, #f43f5e 30deg, #f97316 30deg, #f97316 60deg, #eab308 60deg, #eab308 90deg, #22c55e 90deg, #22c55e 120deg, #06b6d4 120deg, #06b6d4 150deg, #6366f1 150deg, #6366f1 180deg, #ec4899 180deg, #ec4899 210deg, #f43f5e 210deg, #f43f5e 240deg, #f97316 240deg, #f97316 270deg, #eab308 270deg, #eab308 300deg, #22c55e 300deg, #22c55e 330deg, #06b6d4 330deg, #06b6d4 360deg)',
                   }}
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full bg-white border-4 border-yellow-400 flex items-center justify-center shadow-inner">
-                    <span className="text-2xl font-black text-yellow-600">AK</span>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-24 h-24 rounded-full bg-white border-4 border-yellow-400 flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.5)]">
+                    <span className="text-3xl font-black text-yellow-600 drop-shadow">AK</span>
                   </div>
                 </div>
               </div>
@@ -554,10 +589,15 @@ export default function MuroEnVivoPage() {
                 🎁 ¡Sorteando en breve!
               </motion.p>
               {settings.sorteoPremio && (
-                <div className="mt-4 rounded-2xl border-2 border-yellow-400/50 bg-yellow-400/10 px-8 py-3 backdrop-blur-sm">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="mt-4 rounded-2xl border-2 border-yellow-400/50 bg-yellow-400/10 px-8 py-3 backdrop-blur-sm"
+                >
                   <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">🎁 Premio</p>
                   <p className="text-2xl font-black text-white">{settings.sorteoPremio}</p>
-                </div>
+                </motion.div>
               )}
             </motion.div>
           )}
@@ -571,31 +611,52 @@ export default function MuroEnVivoPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[45] flex flex-col items-center justify-center bg-black/85 text-center"
+              className="absolute inset-0 z-[45] flex flex-col items-center justify-center bg-black/85 text-center overflow-hidden"
             >
-              <p className="mb-6 text-2xl font-black uppercase tracking-[0.5em] text-yellow-300">🎰 ¡Sorteando! 🎰</p>
-              {/* SVG Wheel */}
-              <div className="relative w-72 h-72">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20 w-0 h-0"
-                  style={{ borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '28px solid #eab308' }} />
+              {/* Floating emoji particles */}
+              {['🎰', '✨', '🎲', '⭐', '🎊', '💫', '🏆', '🎉'].map((e, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute text-4xl pointer-events-none select-none"
+                  style={{ left: `${8 + i * 11}%`, bottom: '-10%' }}
+                  animate={{ y: [0, '-110vh'] }}
+                  transition={{ duration: 3 + (i % 4), repeat: Infinity, delay: i * 0.4, ease: 'linear' }}
+                >
+                  {e}
+                </motion.div>
+              ))}
+              <motion.p
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 text-3xl font-black uppercase tracking-[0.4em] text-yellow-300 drop-shadow-[0_0_12px_rgba(234,179,8,0.6)]"
+              >
+                🎰 ¡Sorteando! 🎰
+              </motion.p>
+              {/* Spinning wheel */}
+              <div className="relative w-80 h-80">
+                {/* Pointer */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-3 z-20 w-0 h-0"
+                  style={{ borderLeft: '16px solid transparent', borderRight: '16px solid transparent', borderTop: '32px solid #eab308', filter: 'drop-shadow(0 0 8px rgba(234,179,8,0.8))' }} />
+                {/* Wheel disc */}
                 <div
-                  className="w-72 h-72 rounded-full border-8 border-yellow-400 shadow-2xl"
+                  className="w-80 h-80 rounded-full border-[10px] border-yellow-400 shadow-[0_0_40px_rgba(234,179,8,0.4)]"
                   style={{
                     transform: `rotate(${sorteoSpinWheelAngle}deg)`,
-                    transition: 'transform 6s cubic-bezier(0.17, 0.67, 0.12, 0.99)',
-                    background: 'conic-gradient(#f43f5e, #f97316, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #f43f5e, #f97316, #eab308, #22c55e, #06b6d4)',
+                    transition: 'transform 7s cubic-bezier(0.08, 0.82, 0.17, 1)',
+                    background: 'conic-gradient(#f43f5e 0deg, #f43f5e 30deg, #f97316 30deg, #f97316 60deg, #eab308 60deg, #eab308 90deg, #22c55e 90deg, #22c55e 120deg, #06b6d4 120deg, #06b6d4 150deg, #6366f1 150deg, #6366f1 180deg, #ec4899 180deg, #ec4899 210deg, #f43f5e 210deg, #f43f5e 240deg, #f97316 240deg, #f97316 270deg, #eab308 270deg, #eab308 300deg, #22c55e 300deg, #22c55e 330deg, #06b6d4 330deg, #06b6d4 360deg)',
                   }}
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full bg-white border-4 border-yellow-400 flex items-center justify-center shadow-inner">
-                    <span className="text-2xl font-black text-yellow-600">AK</span>
+                {/* Center hub */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-24 h-24 rounded-full bg-white border-4 border-yellow-400 flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.5)]">
+                    <span className="text-3xl font-black text-yellow-600 drop-shadow">AK</span>
                   </div>
                 </div>
               </div>
               <motion.p
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="mt-6 text-xl font-bold text-white/70"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+                className="mt-8 text-2xl font-bold text-white/70"
               >
                 🎲 Eligiendo ganador…
               </motion.p>
@@ -814,17 +875,31 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
           transition={{ duration: 0.9, ease: 'easeInOut' }}
           className="absolute inset-0 flex items-center justify-center"
         >
+          {/* Blurred background fill (handles portrait photos on landscape screen) */}
+          <NextImage
+            src={post.imageUrl}
+            alt=""
+            fill
+            className="object-cover scale-110 blur-2xl opacity-40"
+            unoptimized
+            aria-hidden
+          />
+          {/* Main photo — contained so it's never cropped */}
           <NextImage
             src={post.imageUrl}
             alt={post.authorName}
             fill
-            className="object-cover"
+            className="object-contain relative"
             unoptimized
             priority
           />
+          {/* Author badge */}
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-5 py-1.5 backdrop-blur-sm border border-white/20">
+            <span className="text-sm font-bold text-white/90">{post.authorName}</span>
+          </div>
           {/* Slide counter dots — only shown when posts fit within the dot limit */}
           {posts.length > 1 && posts.length <= 12 && (
-            <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
+            <div className="absolute bottom-5 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
               {posts.map((_, i) => (
                 <div
                   key={i}
