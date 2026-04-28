@@ -23,7 +23,7 @@ const CONFETTI_COLORS = ['#f43f5e', '#f59e0b', '#10b981', '#3b82f6', '#a855f7', 
 function getEmojis(tipo?: string): string[] {
   if (tipo === 'XV Años') return ['🌸', '🦋', '✨', '🌸', '✨', '🦋'];
   if (tipo === 'Boda') return ['💍', '✨', '🤍', '✨', '🤍', '✨'];
-  if (tipo === 'Cumpleaños') return ['', '', '', '', '', ''];
+  if (tipo === 'Cumpleaños') return []; // uses confetti divs instead of emojis
   if (tipo === 'Infantil') return ['🎈', '⭐', '🎊', '🎈', '⭐', '🎊'];
   return ['✨', '🎉', '✨', '🎉', '✨', '🎉'];
 }
@@ -39,7 +39,7 @@ function seededRandom(seed: number) {
 function buildParticles(tipo: string | undefined, count: number, primaryColor: string): ParticleDef[] {
   const rand = seededRandom(42);
   const emojis = getEmojis(tipo);
-  const isConfetti = tipo === 'Cumpleaños';
+  const isConfetti = tipo === 'Cumpleaños' || emojis.length === 0;
 
   return Array.from({ length: count }, (_, i) => ({
     id: i,

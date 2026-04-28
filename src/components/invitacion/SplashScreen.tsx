@@ -80,7 +80,8 @@ export function SplashScreen({
     setVisible(true);
     const timer = setTimeout(dismiss, 2500);
     return () => clearTimeout(timer);
-  }, [fiestaId, onComplete, dismiss]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fiestaId]);
 
   useEffect(() => {
     if (!visible) return;

@@ -62,7 +62,8 @@ function downloadIcs(props: AddToCalendarButtonProps) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${props.eventName.replace(/[^a-z0-9]/gi, '_')}.ics`;
+  const safeName = props.eventName.replace(/[^a-z0-9]/gi, '_').replace(/_{2,}/g, '_').replace(/^_|_$/g, '') || 'evento';
+  a.download = `${safeName}.ics`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

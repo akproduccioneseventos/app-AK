@@ -757,6 +757,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         initial={{ opacity: 0 }}
         animate={{ opacity: splashDone ? 1 : 0 }}
         transition={{ duration: 0.8 }}
+        aria-hidden={!splashDone}
       >
     <div className={cn('min-h-screen', styles.fontBody)} style={cssVars}>
       {/* ============= HERO / PORTADA ============= */}

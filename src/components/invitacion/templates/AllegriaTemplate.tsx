@@ -92,6 +92,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
 
     useEffect(() => {
         if (isPreview || !fiesta?.id) return;
+        // Dynamic import to avoid including this server action in the initial bundle
         const fetchCount = async () => {
             try {
                 const { getConfirmedRsvpCount } = await import('@/app/actions/fiesta/invitados.actions');
@@ -106,6 +107,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
 
     useEffect(() => {
         if (!isPostEvent || isPreview || !fiesta.id) return;
+        // Dynamic import to avoid including this server action in the initial bundle
         import('@/app/actions/social-gallery').then(({ getSocialPosts }) => {
             getSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12)));
         });
@@ -530,7 +532,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={post.imageUrl}
-                                        alt={post.authorName}
+                                        alt={`Foto de ${post.authorName}`}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
                                     {post.authorName !== 'Anónimo' && (
