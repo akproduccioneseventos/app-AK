@@ -58,33 +58,35 @@ const portalModuleGroups: ModuleGroup[] = [
       { id: 'notasCliente', label: 'Mensajes con AK' },
       { id: 'faq', label: 'Preguntas frecuentes' },
       { id: 'paginaPublica', label: 'Página pública del evento' },
+      { id: 'ubicacion', label: 'Ubicación del evento' },
     ],
   },
   {
-    label: 'B. Organización',
+    label: 'B. Organización del evento',
     emoji: '📋',
     modules: [
       { id: 'itinerario', label: 'Itinerario / Cronograma' },
-      { id: 'menu', label: 'Comida y bebidas (menú)' },
-      { id: 'calculadoraBebidas', label: 'Bebidas y extras' },
+      { id: 'invitados', label: 'Invitados y mesas' },
+      { id: 'menu', label: 'Menú del evento' },
+      { id: 'calculadoraBebidas', label: 'Calculadora de bebidas' },
       { id: 'cartaTragos', label: 'Carta de tragos' },
       { id: 'dressCode', label: 'Dress code' },
       { id: 'moodboard', label: 'Decoración / Moodboard' },
       { id: 'musica', label: 'Música' },
       { id: 'fotografiaYFilmacion', label: 'Fotos y video' },
-      { id: 'invitados', label: 'Invitados y mesas' },
       { id: 'listaRegalos', label: 'Lista de regalos' },
+      { id: 'videoVida', label: 'Video de vida (carga de fotos)' },
     ],
   },
   {
-    label: 'C. Contable',
+    label: 'C. Finanzas y documentos',
     emoji: '💳',
     modules: [
       { id: 'pagos', label: 'Pagos y saldo' },
       { id: 'informarPago', label: 'Informar pago / subir comprobante' },
+      { id: 'serviciosContratados', label: 'Servicios contratados (presupuesto)' },
       { id: 'contrato', label: 'Contrato' },
       { id: 'documentos', label: 'Documentos varios' },
-      { id: 'serviciosContratados', label: 'Servicios contratados (presupuesto)' },
     ],
   },
   {
@@ -92,8 +94,6 @@ const portalModuleGroups: ModuleGroup[] = [
     emoji: '⚙️',
     modules: [
       { id: 'simuladorInvitados', label: 'Agregar invitados o servicios' },
-      { id: 'videoVida', label: 'Video de vida (carga de fotos)' },
-      { id: 'ubicacion', label: 'Ubicación del evento' },
     ],
   },
 ];
@@ -304,6 +304,33 @@ function ClientPortalConfigContent() {
       });
     } catch {
       toast({ title: "Error", description: "No se pudieron sincronizar las cuentas desde Empresa.", variant: "destructive" });
+    }
+  };
+
+  const handleSaveLlevarYBebidas = async () => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    setIsSavingLlevar(true);
+    try {
+      const settingsToSave: ClientPortalSettings = {
+        ...portalSettings,
+        calculadoraBebidas: { ...portalSettings.calculadoraBebidas, items: bebidasItems },
+      };
+      const [settingsResult, llevarResult] = await Promise.all([
+        updatePortalSettingsFiestaActual(fiestaId, settingsToSave),
+        updateClienteDebeLlevar(fiestaId, debeLlevarItems),
+      ]);
+      if (settingsResult.success && llevarResult.success) {
+        setPortalSettings(settingsToSave);
+        toast({ title: '✅ Guardado', description: 'La lista de bebidas y lo que debe traer el cliente fueron actualizados.' });
+      } else {
+        throw new Error((settingsResult as any).error || (llevarResult as any).error || 'Error al guardar');
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al guardar', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+      setIsSavingLlevar(false);
     }
   };
 
@@ -764,97 +791,6 @@ function ClientPortalConfigContent() {
         </Card>
       )}
 
-      {/* Drink Calculator Editor */}
-      {portalSettings.enabled && (
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2">
-              <GlassWater className="w-5 h-5 text-blue-500" />
-              Comida y bebidas — configuración de ítems
-            </CardTitle>
-            <CardDescription>Configurá bebidas y otros ítems que lleva el cliente (postres, torta, servicios subcontratados, etc.). Estos se muestran en la sección "Comida y bebidas" del portal.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {bebidasItems.map((item) => (
-              <div key={item.id} className="border rounded-lg p-3 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={item.emoji}
-                    onChange={e => updateBebidaItem(item.id, 'emoji', e.target.value)}
-                    className="w-14 text-center text-lg"
-                    maxLength={4}
-                    placeholder="🍺"
-                  />
-                  <Input
-                    value={item.nombre}
-                    onChange={e => updateBebidaItem(item.id, 'nombre', e.target.value)}
-                    className="flex-1"
-                    placeholder="Nombre del item"
-                  />
-                  <Button type="button" variant="ghost" size="icon" onClick={() => removeBebidaItem(item.id)} className="text-destructive shrink-0">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Cantidad por persona</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      step={0.1}
-                      value={item.cantidadPorPersona}
-                      onChange={e => updateBebidaItem(item.id, 'cantidadPorPersona', parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Unidad</Label>
-                    <Input
-                      value={item.unidad}
-                      onChange={e => updateBebidaItem(item.id, 'unidad', e.target.value)}
-                      placeholder="unidades, litros, kg..."
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id={`bebida-visible-${item.id}`}
-                      checked={item.visible}
-                      onCheckedChange={v => updateBebidaItem(item.id, 'visible', v)}
-                    />
-                    <Label htmlFor={`bebida-visible-${item.id}`} className="text-xs">Visible</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id={`bebida-clienteLleva-${item.id}`}
-                      checked={item.clienteLleva}
-                      onCheckedChange={v => updateBebidaItem(item.id, 'clienteLleva', v)}
-                    />
-                    <Label htmlFor={`bebida-clienteLleva-${item.id}`} className="text-xs">Cliente lleva</Label>
-                  </div>
-                  <div className="flex items-center gap-2 ml-auto">
-                    <Label className="text-xs">Color</Label>
-                    <Input
-                      value={item.color}
-                      onChange={e => updateBebidaItem(item.id, 'color', e.target.value)}
-                      className="w-24 text-xs"
-                      placeholder="amber, sky..."
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-            <Button type="button" variant="outline" className="w-full" onClick={addBebidaItem}>
-              <Plus className="w-4 h-4 mr-2" /> Agregar item
-            </Button>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleSavePortalSettings} disabled={isSaving}>
-              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />} Guardar Bebidas y Extras
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
 
       {/* FAQ Editor */}
       {portalSettings.enabled && (
@@ -909,102 +845,175 @@ function ClientPortalConfigContent() {
         </Card>
       )}
 
-      {/* clienteDebeLlevar Editor */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <PackageCheck className="w-5 h-5 text-teal-600" />
-            Lo que tengo que enviar o llevar — configuración
-          </CardTitle>
-          <CardDescription>
-            Configurá la lista de ítems que el cliente debe preparar, enviar o llevar al evento. El cliente puede marcarlos como enviados desde su portal en la sección "Lo que tengo que enviar o llevar".
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {debeLlevarItems.map((item) => (
-            <div key={item.id} className="flex items-center gap-2 border rounded-xl p-3 bg-slate-50">
-              <button
-                type="button"
-                onClick={() => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, obligatorio: !i.obligatorio } : i))}
-                className={`shrink-0 text-xs px-2 py-1 rounded-lg border font-semibold transition-all
-                  ${item.obligatorio ? 'bg-red-50 border-red-200 text-red-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}
-                title="Marcar como obligatorio"
-              >
-                {item.obligatorio ? '* Oblig.' : 'Opcional'}
-              </button>
-              <Input
-                value={item.texto}
-                onChange={e => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, texto: e.target.value } : i))}
-                className="flex-1 h-8 text-sm"
-              />
-              <Input
-                placeholder="Notas (opcional)"
-                value={item.notas || ''}
-                onChange={e => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, notas: e.target.value } : i))}
-                className="w-32 h-8 text-xs"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="text-destructive hover:text-destructive h-8 w-8 shrink-0"
-                onClick={() => setDebeLlevarItems(prev => prev.filter(i => i.id !== item.id))}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
+      {/* Fused: Lo que debe traer el cliente (bebidas + ítems a llevar) */}
+      {portalSettings.enabled && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <PackageCheck className="w-5 h-5 text-teal-600" />
+              Lo que debe traer el cliente
+            </CardTitle>
+            <CardDescription>
+              Configurá la lista de ítems que el cliente debe preparar o llevar, y las bebidas/extras a calcular para el evento.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+
+            {/* Part 1: clienteDebeLlevar */}
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-teal-700 flex items-center gap-2">📦 Lista de lo que debe enviar o llevar</p>
+              {debeLlevarItems.map((item) => (
+                <div key={item.id} className="flex items-center gap-2 border rounded-xl p-3 bg-slate-50">
+                  <button
+                    type="button"
+                    onClick={() => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, obligatorio: !i.obligatorio } : i))}
+                    className={`shrink-0 text-xs px-2 py-1 rounded-lg border font-semibold transition-all
+                      ${item.obligatorio ? 'bg-red-50 border-red-200 text-red-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}
+                    title="Marcar como obligatorio"
+                  >
+                    {item.obligatorio ? '* Oblig.' : 'Opcional'}
+                  </button>
+                  <Input
+                    value={item.texto}
+                    onChange={e => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, texto: e.target.value } : i))}
+                    className="flex-1 h-8 text-sm"
+                  />
+                  <Input
+                    placeholder="Notas (opcional)"
+                    value={item.notas || ''}
+                    onChange={e => setDebeLlevarItems(prev => prev.map(i => i.id === item.id ? { ...i, notas: e.target.value } : i))}
+                    className="w-32 h-8 text-xs"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive h-8 w-8 shrink-0"
+                    onClick={() => setDebeLlevarItems(prev => prev.filter(i => i.id !== item.id))}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Nuevo ítem (ej: Torta de cumpleaños)"
+                  value={newLlevarTexto}
+                  onChange={e => setNewLlevarTexto(e.target.value)}
+                  className="flex-1 text-sm"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && newLlevarTexto.trim()) {
+                      setDebeLlevarItems(prev => [...prev, { id: `dl_${Date.now()}`, texto: newLlevarTexto.trim(), completado: false }]);
+                      setNewLlevarTexto('');
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!newLlevarTexto.trim()}
+                  onClick={() => {
+                    if (!newLlevarTexto.trim()) return;
+                    setDebeLlevarItems(prev => [...prev, { id: `dl_${Date.now()}`, texto: newLlevarTexto.trim(), completado: false }]);
+                    setNewLlevarTexto('');
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Agregar
+                </Button>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Part 2: bebidas */}
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-blue-700 flex items-center gap-2">
+                <GlassWater className="w-4 h-4 text-blue-500" /> Bebidas y extras (calculadora)
+              </p>
+              {bebidasItems.map((item) => (
+                <div key={item.id} className="border rounded-lg p-3 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={item.emoji}
+                      onChange={e => updateBebidaItem(item.id, 'emoji', e.target.value)}
+                      className="w-14 text-center text-lg"
+                      maxLength={4}
+                      placeholder="🍺"
+                    />
+                    <Input
+                      value={item.nombre}
+                      onChange={e => updateBebidaItem(item.id, 'nombre', e.target.value)}
+                      className="flex-1"
+                      placeholder="Nombre del item"
+                    />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeBebidaItem(item.id)} className="text-destructive shrink-0">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Cantidad por persona</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={0.1}
+                        value={item.cantidadPorPersona}
+                        onChange={e => updateBebidaItem(item.id, 'cantidadPorPersona', parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Unidad</Label>
+                      <Input
+                        value={item.unidad}
+                        onChange={e => updateBebidaItem(item.id, 'unidad', e.target.value)}
+                        placeholder="unidades, litros, kg..."
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id={`bebida-visible-${item.id}`}
+                        checked={item.visible}
+                        onCheckedChange={v => updateBebidaItem(item.id, 'visible', v)}
+                      />
+                      <Label htmlFor={`bebida-visible-${item.id}`} className="text-xs">Visible</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id={`bebida-clienteLleva-${item.id}`}
+                        checked={item.clienteLleva}
+                        onCheckedChange={v => updateBebidaItem(item.id, 'clienteLleva', v)}
+                      />
+                      <Label htmlFor={`bebida-clienteLleva-${item.id}`} className="text-xs">Cliente lleva</Label>
+                    </div>
+                    <div className="flex items-center gap-2 ml-auto">
+                      <Label className="text-xs">Color</Label>
+                      <Input
+                        value={item.color}
+                        onChange={e => updateBebidaItem(item.id, 'color', e.target.value)}
+                        className="w-24 text-xs"
+                        placeholder="amber, sky..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button type="button" variant="outline" className="w-full" onClick={addBebidaItem}>
+                <Plus className="w-4 h-4 mr-2" /> Agregar item
               </Button>
             </div>
-          ))}
-          <div className="flex gap-2">
-            <Input
-              placeholder="Nuevo ítem (ej: Torta de cumpleaños)"
-              value={newLlevarTexto}
-              onChange={e => setNewLlevarTexto(e.target.value)}
-              className="flex-1 text-sm"
-              onKeyDown={e => {
-                if (e.key === 'Enter' && newLlevarTexto.trim()) {
-                  setDebeLlevarItems(prev => [...prev, { id: `dl_${Date.now()}`, texto: newLlevarTexto.trim(), completado: false }]);
-                  setNewLlevarTexto('');
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!newLlevarTexto.trim()}
-              onClick={() => {
-                if (!newLlevarTexto.trim()) return;
-                setDebeLlevarItems(prev => [...prev, { id: `dl_${Date.now()}`, texto: newLlevarTexto.trim(), completado: false }]);
-                setNewLlevarTexto('');
-              }}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Agregar
+
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleSaveLlevarYBebidas} disabled={isSaving || isSavingLlevar}>
+              {(isSaving || isSavingLlevar) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Guardar lista y bebidas
             </Button>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button
-            onClick={async () => {
-              if (!fiestaId) return;
-              setIsSavingLlevar(true);
-              try {
-                const res = await updateClienteDebeLlevar(fiestaId, debeLlevarItems);
-                if (res.success) toast({ title: '✅ Lista guardada', description: 'El cliente verá la lista actualizada.' });
-                else throw new Error((res as { success: false; error?: string }).error ?? 'Error al guardar');
-              } catch (e) {
-                const msg = e instanceof Error ? e.message : 'Error desconocido';
-                toast({ title: 'No se pudo guardar la lista', description: `${msg}. Por favor, intentá nuevamente.`, variant: 'destructive' });
-              } finally {
-                setIsSavingLlevar(false);
-              }
-            }}
-            disabled={isSavingLlevar}
-          >
-            {isSavingLlevar && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Guardar lista
-          </Button>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      )}
 
       {/* Bank Accounts Editor */}
       <Card>
