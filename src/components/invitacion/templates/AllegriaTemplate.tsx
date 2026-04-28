@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SeccionInvitacion, GiftItem, TextStyle, Invitado } from '@/types/fiesta';
 import type { SocialConnection } from '@/types/settings';
+import type { SocialGalleryPost } from '@/types/social-gallery';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -23,6 +24,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AddToCalendarButton } from '@/components/invitacion/AddToCalendarButton';
+import { EventParticles } from '@/components/invitacion/EventParticles';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -62,11 +65,20 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     const [companionNames, setCompanionNames] = useState<string[]>([]);
     const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
 
+    // RSVP count for public display
+    const [rsvpCount, setRsvpCount] = useState<number | null>(null);
+
+    // Post-event social gallery
+    const [socialPhotos, setSocialPhotos] = useState<SocialGalleryPost[]>([]);
+
     // Pre-party Chat states
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [newChatMsg, setNewChatMsg] = useState('');
     const [isSendingChat, setIsSendingChat] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
+
+    const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+    const isPostEvent = eventDate ? new Date() > eventDate : false;
 
     useEffect(() => {
         if (!isPreview && fiesta.id) {
@@ -77,6 +89,29 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             return () => clearInterval(interval);
         }
     }, [fiesta.id, isPreview]);
+
+    useEffect(() => {
+        if (isPreview || !fiesta?.id) return;
+        // Dynamic import to avoid including this server action in the initial bundle
+        const fetchCount = async () => {
+            try {
+                const { getConfirmedRsvpCount } = await import('@/app/actions/fiesta/invitados.actions');
+                const count = await getConfirmedRsvpCount(fiesta.id);
+                setRsvpCount(count);
+            } catch {}
+        };
+        fetchCount();
+        const interval = setInterval(fetchCount, 30000);
+        return () => clearInterval(interval);
+    }, [fiesta?.id, isPreview]);
+
+    useEffect(() => {
+        if (!isPostEvent || isPreview || !fiesta.id) return;
+        // Dynamic import to avoid including this server action in the initial bundle
+        import('@/app/actions/social-gallery').then(({ getSocialPosts }) => {
+            getSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12)));
+        });
+    }, [isPostEvent, isPreview, fiesta.id]);
 
     useEffect(() => {
         const numCompanions = rsvpGuests > 1 ? rsvpGuests - 1 : 0;
@@ -154,7 +189,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || invitacionData.cabecera.protagonista1;
     const protagonist2 = fiesta.configuracion.protagonista2Nombre || invitacionData.cabecera.protagonista2;
     const subtitleText = fiesta.configuracion.tipoCelebracion || invitacionData.cabecera.subtitulo.text;
-    const eventDate = formatDate(fiesta.configuracion.fechaEvento);
+    const headerEventDate = formatDate(fiesta.configuracion.fechaEvento);
 
     const isXV = fiesta.configuracion.tipoCelebracion === 'XV años';
     const displayWelcomeTitle = (isXV && invitacionData.bienvenida.titulo.text === '¡Nos Casamos!') 
@@ -171,6 +206,13 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                 onClick={() => onSectionClick?.('cabecera')}
                 className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-32 overflow-hidden"
             >
+                {!isPreview && (
+                  <EventParticles
+                    tipoCelebracion={fiesta.configuracion.tipoCelebracion}
+                    primaryColor={primaryColor}
+                    count={12}
+                  />
+                )}
                 <motion.div 
                     initial={{ scale: 1.2 }}
                     animate={{ scale: 1 }}
@@ -207,7 +249,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     </motion.h1>
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 1 }} className="flex items-center justify-center gap-4 md:gap-8 text-base sm:text-xl md:text-2xl font-bold tracking-[0.2em] sm:tracking-[0.4em]">
                         <div className="h-px w-8 sm:w-16 bg-white/30"></div>
-                        <span>{eventDate}</span>
+                        <span>{headerEventDate}</span>
                         <div className="h-px w-8 sm:w-16 bg-white/30"></div>
                     </motion.div>
                 </div>
@@ -274,6 +316,17 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                 <Button asChild className="w-full h-12 sm:h-16 md:h-20 rounded-2xl md:rounded-[2rem] text-sm sm:text-lg md:text-xl font-black shadow-2xl shadow-primary/30" style={{ backgroundColor: primaryColor }}>
                                     <a href={detalle.mapaUrl || '#'}>VER UBICACIÓN</a>
                                 </Button>
+                                {(detalle.fecha || fiesta.configuracion.fechaEvento) && (
+                                  <div className="flex justify-center">
+                                    <AddToCalendarButton
+                                      eventName={detalle.titulo || fiesta.configuracion.nombreEvento || 'Mi Evento'}
+                                      startDate={detalle.fecha || fiesta.configuracion.fechaEvento || new Date().toISOString()}
+                                      location={detalle.direccionLugar || detalle.nombreLugar}
+                                      description={`${fiesta.configuracion.nombreEvento || ''} — ${detalle.nombreLugar || ''}`}
+                                      primaryColor={primaryColor}
+                                    />
+                                  </div>
+                                )}
                             </div>
                         </motion.div>
                     ))}
@@ -446,6 +499,14 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
                             <span className="block mt-2 text-white font-bold text-xl sm:text-2xl md:text-3xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
                         </p>
+                        {rsvpCount !== null && rsvpCount > 0 && (
+                          <div className="text-center mt-2">
+                            <span className="inline-flex items-center gap-1.5 bg-green-950/60 text-green-400 px-3 py-1 rounded-full text-xs font-semibold border border-green-800">
+                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                              {rsvpCount} persona{rsvpCount !== 1 ? 's' : ''} ya confirmaron
+                            </span>
+                          </div>
+                        )}
                         <Button 
                             onClick={() => setIsRsvpModalOpen(true)}
                             size="lg" 
@@ -454,6 +515,34 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         >
                             CONFIRMAR ASISTENCIA
                         </Button>
+                    </div>
+                </section>
+            )}
+
+            {/* Post-event gallery */}
+            {isPostEvent && socialPhotos.length > 0 && (
+                <section className="py-16 px-4 bg-slate-50">
+                    <div className="max-w-4xl mx-auto">
+                        <h2 className="text-3xl font-serif text-center mb-8" style={{ color: primaryColor, fontFamily: "'Playfair Display', Georgia, serif" }}>
+                            Los mejores momentos 📸
+                        </h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {socialPhotos.map(post => (
+                                <div key={post.id} className="aspect-square rounded-2xl overflow-hidden relative group">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={post.imageUrl}
+                                        alt={`Foto de ${post.authorName}`}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    />
+                                    {post.authorName !== 'Anónimo' && (
+                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                            <p className="text-white text-xs font-semibold truncate">{post.authorName}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </section>
             )}
@@ -554,6 +643,23 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     </form>
                 </DialogContent>
             </Dialog>
+
+            {/* WhatsApp share button */}
+            {!isPreview && (
+                <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`¡Mirá mi invitación para ${fiesta.configuracion.nombreEvento || invitacionData.cabecera.protagonista1}! 🎉 ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="fixed z-50 flex items-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-full shadow-2xl font-bold text-sm hover:bg-[#128C7E] transition-colors"
+                    style={{ bottom: '1.5rem', right: '1.5rem' }}
+                    aria-label="Compartir por WhatsApp"
+                >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" aria-hidden="true">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    Compartir
+                </a>
+            )}
         </div>
     );
 };

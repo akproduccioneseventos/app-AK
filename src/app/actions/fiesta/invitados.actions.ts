@@ -33,6 +33,12 @@ export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
   return fiesta?.invitados || [];
 }
 
+export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta?.invitados) return 0;
+  return fiesta.invitados.filter(i => i.rsvp === 'Confirmado').length;
+}
+
 // ─── Guest CRUD ──────────────────────────────────────────────────────────────
 
 export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) {
