@@ -238,6 +238,15 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
   }
 
   await writeData(CUSTOMERS_FILE, customers);
+
+  // Explicitly delete the Firestore document to avoid it being restored on the next sync
+  try {
+    const { forceDeleteDocFromFirestore } = await import('@/lib/firebase-sync');
+    await forceDeleteDocFromFirestore('clientes', id);
+  } catch (e: any) {
+    console.warn(`[Clientes] Could not force-delete Firestore doc for customer ${id}:`, e.message);
+  }
+
   return { success: true };
 }
 

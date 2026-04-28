@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Building2, Edit, ExternalLink, Loader2, MapPin, PlusCircle, Save, Trash2, Users, X } from 'lucide-react';
+import { ArrowLeft, Building2, Edit, ExternalLink, LayoutDashboard, Loader2, MapPin, PlusCircle, Save, Trash2, Users, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Salon } from '@/types/salon';
 import { getSalones, saveSalon, deleteSalon } from '@/app/actions/salones';
@@ -146,6 +146,12 @@ export default function SalonesPage() {
             <PlusCircle className="w-4 h-4 mr-2" />
             Agregar Salón
           </Button>
+          <Link href="/fiestas/nueva/invitados/layout">
+            <Button variant="outline">
+              <LayoutDashboard className="w-4 h-4 mr-2" />
+              Diseño de Mesas
+            </Button>
+          </Link>
           <Link href="/empresa">
             <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -331,6 +337,14 @@ export default function SalonesPage() {
                     {!salon.direccion && !salon.googleMapsUrl && salon.capacidad === 0 && (
                       <p className="text-xs text-muted-foreground/50 italic">Sin datos adicionales</p>
                     )}
+                    <div className="pt-1 border-t border-slate-100">
+                      <Link href="/fiestas/nueva/invitados/layout">
+                        <Button variant="outline" size="sm" className="w-full text-xs h-8">
+                          <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
+                          Diseño de Mesas y Salón
+                        </Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               ))}

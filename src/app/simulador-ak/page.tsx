@@ -107,6 +107,9 @@ type ServicioDetallado = {
   cantidad: number;
   precioUnitario: number;
   costoTotal: number;
+  categoria: string;
+  calculationMethod?: string;
+  esRecomendado?: boolean;
 };
 
 type PriceStats = {
@@ -118,6 +121,23 @@ type PriceStats = {
 };
 
 // ─── Pricing Data ─────────────────────────────────────────────────────────────
+
+/** Returns true if the category indicates a per-person food/catering item. */
+function esCategoriaGastronomica(categoria: string, calculationMethod?: string): boolean {
+  const lower = (categoria || '').toLowerCase();
+  return (
+    lower.includes('gastronom') ||
+    lower.includes('catering') ||
+    lower.includes('menú') ||
+    lower.includes('menu') ||
+    lower.includes('comida') ||
+    lower.includes('bebida') ||
+    lower.includes('trago') ||
+    lower.includes('hamburguesa') ||
+    lower.includes('pizza') ||
+    calculationMethod === 'porPersona'
+  );
+}
 
 const EVENT_META: Record<EventType, { label: string; emoji: string; basePP: number; fixed: number }> = {
   cumpleanos: { label: 'Cumpleaños', emoji: '🎂', basePP: 620, fixed: 12000 },
@@ -418,10 +438,24 @@ export default function SimuladorAKPage() {
     }
     let totalRegular = 0;
     const detallados: ServicioDetallado[] = [];
+    // Build recommended ids set from config
+    const recommendedIds = new Set<string>();
+    config.platosVisibles?.forEach((p: any) => { if (p.recommended) recommendedIds.add(p.id); });
+    config.recommendedDishIds?.forEach((id: string) => recommendedIds.add(id));
     allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
       const { qty, unitPrice, total } = getServicioCalculatedData(servicio, state.adultos, state.ninos);
       if (!esRegalo) totalRegular += total;
-      detallados.push({ id: servicio.id, nombre: servicio.nombre, esRegalo, cantidad: qty, precioUnitario: unitPrice, costoTotal: total });
+      detallados.push({
+        id: servicio.id,
+        nombre: servicio.nombre,
+        esRegalo,
+        cantidad: qty,
+        precioUnitario: unitPrice,
+        costoTotal: total,
+        categoria: esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Servicios'),
+        calculationMethod: servicio.calculationMethod,
+        esRecomendado: recommendedIds.has(servicio.id),
+      });
     });
     const descPromo = Math.round(totalRegular * DISCOUNT_RATE);
     const ahorroRegalos = detallados.filter(d => d.esRegalo).reduce((acc, d) => acc + d.costoTotal, 0);
@@ -1659,35 +1693,50 @@ function StepConversion({
 
       {/* Price breakdown */}
       {prices && (() => {
-        // Sort: regular items by name, gifts at the bottom
-        const regular = [...prices.detallados].filter(d => !d.esRegalo).sort((a, b) => a.nombre.localeCompare(b.nombre));
-        const regalos = prices.detallados.filter(d => d.esRegalo);
-        const sorted = [...regular, ...regalos];
+        // Group by category, gifts at the bottom
+        const agrupados = prices.detallados.reduce((acc, item) => {
+          const cat = item.categoria || (item.esRegalo ? 'Regalos Incluidos' : 'Servicios');
+          if (!acc[cat]) acc[cat] = [];
+          acc[cat].push(item);
+          return acc;
+        }, {} as Record<string, ServicioDetallado[]>);
+        const sortedCats = Object.keys(agrupados).sort((a, b) => {
+          if (a === 'Regalos Incluidos') return 1;
+          if (b === 'Regalos Incluidos') return -1;
+          return a.localeCompare(b);
+        });
         return (
           <div className="bg-white/5 rounded-2xl p-4 space-y-2">
             <p className="text-violet-200 text-xs font-bold uppercase tracking-wider mb-2">Detalle del presupuesto</p>
 
-            {/* Service list */}
-            {sorted.length > 0 && (
-              <ul className="space-y-1 mb-3">
-                {sorted.map((item) => (
-                  <li key={item.id} className="flex items-start justify-between gap-3 text-xs">
-                    <span className={cn('flex items-center gap-1', item.esRegalo ? 'text-emerald-300' : 'text-white/80')}>
-                      {item.esRegalo && <Gift className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
-                      {item.nombre}
-                    </span>
-                    <span className={item.esRegalo ? 'text-emerald-300 font-bold whitespace-nowrap' : 'text-white/80 whitespace-nowrap'}>
-                      {item.esRegalo ? (
-                        <span className="flex items-center gap-1">
-                          <span className="line-through text-white/40">{formatCurrency(item.costoTotal)}</span>
-                          <span>¡Sin costo! 🎁</span>
-                        </span>
-                      ) : formatCurrency(item.costoTotal)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* Service list grouped by category */}
+            {sortedCats.map(cat => (
+              <div key={cat} className="mb-2">
+                <p className="text-violet-300 text-[10px] font-black uppercase tracking-widest mb-1 border-b border-white/10 pb-0.5">{cat}</p>
+                <ul className="space-y-1">
+                  {agrupados[cat].map((item) => (
+                    <li key={item.id} className={cn('flex items-start justify-between gap-3 text-xs rounded-lg px-1.5 py-0.5', item.esRecomendado && 'bg-amber-500/10 border border-amber-500/20')}>
+                      <span className={cn('flex items-center gap-1', item.esRegalo ? 'text-emerald-300' : 'text-white/80')}>
+                        {item.esRegalo && <Gift className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
+                        {item.esRecomendado && <Star className="w-3 h-3 text-amber-400 flex-shrink-0" />}
+                        {item.nombre}
+                        {esCategoriaGastronomica(item.categoria, item.calculationMethod) && (
+                          <span className="text-amber-300/70 text-[9px] ml-0.5">/ PP</span>
+                        )}
+                      </span>
+                      <span className={item.esRegalo ? 'text-emerald-300 font-bold whitespace-nowrap' : 'text-white/80 whitespace-nowrap'}>
+                        {item.esRegalo ? (
+                          <span className="flex items-center gap-1">
+                            <span className="line-through text-white/40">{formatCurrency(item.costoTotal)}</span>
+                            <span>¡Sin costo! 🎁</span>
+                          </span>
+                        ) : formatCurrency(item.costoTotal)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
 
             <div className="border-t border-white/10 pt-2 space-y-1.5">
               <div className="flex justify-between text-sm">
@@ -1933,24 +1982,51 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
               </tr>
             </thead>
             <tbody>
-              {[...(prices?.detallados || [])].sort((a, b) => {
-                if (a.esRegalo === b.esRegalo) return a.nombre.localeCompare(b.nombre);
-                return a.esRegalo ? 1 : -1;
-              }).map((s) => (
-                <tr key={s.id} className="border-t border-slate-200">
-                  <td className="px-3 py-2 font-medium">
-                    {s.nombre}
-                    {s.esRegalo && <span className="ml-1 text-emerald-600 text-xs font-bold">🎁 Regalo</span>}
-                  </td>
-                  <td className="px-3 py-2 text-center">{s.cantidad}</td>
-                  <td className="px-3 py-2 text-right">
-                    {s.esRegalo ? <span className="line-through text-slate-400">{formatCurrency(s.precioUnitario)}</span> : formatCurrency(s.precioUnitario)}
-                  </td>
-                  <td className="px-3 py-2 text-right font-semibold">
-                    {s.esRegalo ? <span className="text-emerald-600 font-bold">Sin costo</span> : formatCurrency(s.costoTotal)}
-                  </td>
-                </tr>
-              ))}
+              {(() => {
+                // Group by category, sort categories alphabetically with gifts last
+                const agrupados = (prices?.detallados || []).reduce((acc, item) => {
+                  const cat = item.categoria || (item.esRegalo ? 'Regalos Incluidos' : 'Servicios');
+                  if (!acc[cat]) acc[cat] = [];
+                  acc[cat].push(item);
+                  return acc;
+                }, {} as Record<string, ServicioDetallado[]>);
+                const sortedCats = Object.keys(agrupados).sort((a, b) => {
+                  if (a === 'Regalos Incluidos') return 1;
+                  if (b === 'Regalos Incluidos') return -1;
+                  return a.localeCompare(b);
+                });
+                return sortedCats.map(cat => (
+                  <React.Fragment key={cat}>
+                    <tr>
+                      <td colSpan={4} className="px-3 py-1.5 bg-slate-100 font-black text-[10px] uppercase tracking-widest text-slate-600">{cat}</td>
+                    </tr>
+                    {agrupados[cat].map((s) => (
+                      <tr key={s.id} className={cn('border-t border-slate-200', s.esRecomendado && 'bg-amber-50')}>
+                        <td className="px-3 py-2 font-medium">
+                          <div className="flex items-center gap-1.5">
+                            {s.nombre}
+                            {s.esRegalo && <span className="text-emerald-600 text-xs font-bold">🎁 Regalo</span>}
+                            {s.esRecomendado && <span className="text-amber-600 text-[9px] font-black border border-amber-200 bg-amber-100 px-1 rounded">Destacado</span>}
+                          </div>
+                          {esCategoriaGastronomica(s.categoria, s.calculationMethod) && (
+                            <span className="text-[10px] text-slate-400 font-medium">Precio por persona</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 text-center">{s.cantidad}</td>
+                        <td className="px-3 py-2 text-right">
+                          {s.esRegalo
+                            ? <span className="line-through text-slate-400">{formatCurrency(s.precioUnitario)}</span>
+                            : <span>{formatCurrency(s.precioUnitario)}{esCategoriaGastronomica(s.categoria, s.calculationMethod) ? ' / PP' : ''}</span>
+                          }
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold">
+                          {s.esRegalo ? <span className="text-emerald-600 font-bold">Sin costo</span> : formatCurrency(s.costoTotal)}
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ));
+              })()}
             </tbody>
           </table>
         </div>

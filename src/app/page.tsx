@@ -53,7 +53,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { getAlertasGlobalesConLeidas, marcarAlertaLeida } from '@/app/actions/alertas.actions';
+import { getAlertasGlobalesConLeidas, marcarAlertaLeida, descartarPrioridad } from '@/app/actions/alertas.actions';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 
 const MAX_DASHBOARD_ALERTS = 3;
@@ -125,6 +125,17 @@ export default function MainDashboardPage() {
             toast({ title: "Error", description: "No se pudo cerrar la alerta.", variant: "destructive" });
         }
     }, [alertasUrgentes, toast]);
+
+    const handleDismissPriority = useCallback(async (alertaId: string) => {
+        // Optimistically remove from local list
+        setKpiData((prev: any) => prev ? { ...prev, alerts: (prev.alerts || []).filter((a: any) => a.id !== alertaId) } : prev);
+        try {
+            await descartarPrioridad(alertaId);
+        } catch {
+            // Silently fail — re-fetch will restore it
+            toast({ title: "Error", description: "No se pudo descartar la prioridad.", variant: "destructive" });
+        }
+    }, [toast]);
 
     const pieChartData = useMemo(() => {
         if (!kpiData) return [];
@@ -558,22 +569,31 @@ export default function MainDashboardPage() {
                          kpiData?.alerts?.length > 0 ? (
                             <div className="divide-y divide-slate-50">
                                 {kpiData.alerts.map((alert: GlobalAlert) => (
-                                    <Link key={alert.id} href={alert.href} className="flex items-start gap-4 sm:gap-5 p-5 sm:p-6 hover:bg-slate-50 transition-all group relative">
-                                        <div className={cn(
-                                          "p-2.5 sm:p-3 rounded-2xl mt-0.5 shadow-sm transition-transform group-hover:scale-110 duration-500 shrink-0", 
-                                          alert.severity === 'high' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
-                                        )}>
-                                            {alert.type === 'payment' ? <DollarSign className="w-4 h-4 sm:w-5 sm:h-5"/> : 
-                                             alert.type === 'meeting' ? <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5"/> : 
-                                             <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5"/>}
-                                        </div>
-                                        <div className="flex-grow min-w-0">
-                                            <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors">{alert.title}</p>
-                                            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p>
-                                        </div>
-                                        <ArrowRight className="w-4 h-4 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all self-center shrink-0 hidden sm:block"/>
+                                    <div key={alert.id} className="flex items-start gap-4 sm:gap-5 p-5 sm:p-6 hover:bg-slate-50 transition-all group relative">
+                                        <Link href={alert.href} className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
+                                            <div className={cn(
+                                              "p-2.5 sm:p-3 rounded-2xl mt-0.5 shadow-sm transition-transform group-hover:scale-110 duration-500 shrink-0", 
+                                              alert.severity === 'high' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                                            )}>
+                                                {alert.type === 'payment' ? <DollarSign className="w-4 h-4 sm:w-5 sm:h-5"/> : 
+                                                 alert.type === 'meeting' ? <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5"/> : 
+                                                 <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5"/>}
+                                            </div>
+                                            <div className="flex-grow min-w-0">
+                                                <p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors">{alert.title}</p>
+                                                <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p>
+                                            </div>
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDismissPriority(alert.id)}
+                                            className="shrink-0 self-center p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                            title="Descartar prioridad"
+                                            aria-label="Descartar prioridad"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
                                         {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1 bg-rose-500 rounded-r-full"></div>}
-                                    </Link>
+                                    </div>
                                 ))}
                             </div>
                          ) : (
