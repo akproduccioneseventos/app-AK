@@ -1173,6 +1173,8 @@ export interface GuestExperienceSettings {
   allowPhotoUpload: boolean;
   /** Whether guests can access a persistent guest portal */
   allowGuestPortal: boolean;
+  /** Whether to show the event menu link in the guest portal (defaults to true) */
+  showMenu?: boolean;
 }
 
 // --- CLIENTE PORTAL EXPERIENCE ---
