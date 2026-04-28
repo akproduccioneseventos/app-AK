@@ -229,7 +229,7 @@ export default function CrmPage() {
     } finally {
       setIsResettingCrm(false);
     }
-  }, [fetchData, toast]);
+  }, [toast, fetchData]);
 
   const quickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
     { key: 'all', label: 'Todos' },
