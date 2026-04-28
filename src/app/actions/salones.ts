@@ -114,10 +114,12 @@ export async function deleteSalonFoto(
     try {
       const url = new URL(fotoUrl);
       // Only attempt deletion for known Firebase Storage public URLs
-      // Pattern: https://storage.googleapis.com/BUCKET/PATH
+      // Pattern: https://storage.googleapis.com/BUCKET/path/to/file
       if (url.hostname === 'storage.googleapis.com') {
-        const pathParts = url.pathname.split('/').slice(2); // pathname: /BUCKET/path/to/file → split gives ['', 'BUCKET', 'path', ...] → slice(2) gives ['path', ...]
-        if (pathParts.length > 0) {
+        // pathname: /BUCKET/path/to/file → split → ['', 'BUCKET', 'path', 'to', 'file'] → slice(2) → ['path', 'to', 'file']
+        const pathParts = url.pathname.split('/').slice(2);
+        // Require at least 2 path segments (sub-folder + filename) to avoid accidentally deleting bucket roots
+        if (pathParts.length >= 2 && pathParts.every((p) => p.length > 0)) {
           const storagePath = pathParts.join('/');
           await deleteFromStorage(storagePath);
         }

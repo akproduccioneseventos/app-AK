@@ -626,7 +626,7 @@ export default function ClubUruguayPage() {
                   )}
                   {salon.gerente.whatsapp && (
                     <a
-                      href={`https://wa.me/${salon.gerente.whatsapp.replace(/[^\d]/g, '')}?text=${encodeURIComponent('Hola, te escribo de parte de AK Producciones.')}`}
+                      href={`https://wa.me/${salon.gerente.whatsapp.replace(/[^\d+]/g, '').replace(/^\+/, '')}?text=${encodeURIComponent('Hola, te escribo de parte de AK Producciones.')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"

@@ -201,7 +201,7 @@ function CroquisContent() {
         const l = s.salonLayout as DecoracionData;
         if (!Array.isArray(l.salonElements)) l.salonElements = [];
         l.salonElements = l.salonElements.filter(
-          (el: any) => el && el.id && typeof el.x === 'number' && typeof el.y === 'number'
+          (el: LayoutElement) => el && el.id && typeof el.x === 'number' && typeof el.y === 'number'
         );
         setLayout({
           ...defaultLayout,
