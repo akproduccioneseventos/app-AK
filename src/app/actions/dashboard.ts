@@ -11,6 +11,7 @@ import { es } from 'date-fns/locale';
 import { getCrmKpiData, getCrmLeads } from './crm';
 import { getRoles } from './roles';
 import { calculateFinancialLedger } from '@/lib/commercial-flow/ledger-service';
+import { getPrioridadesDescartadas } from './alertas.actions';
 
 export interface MonthlyChartData {
   month: string;
@@ -48,6 +49,7 @@ export async function getDashboardKpiData() {
       crmKpis,
       leadsData,
       notificationsData,
+      prioridadesDescartadas,
     ] = await Promise.all([
       getCustomers(),
       getPresupuestos(),
@@ -56,6 +58,7 @@ export async function getDashboardKpiData() {
       getCrmKpiData(),
       getCrmLeads(),
       getNotifications().catch(() => []),
+      getPrioridadesDescartadas().catch(() => new Set<string>()),
     ]);
     
     const now = new Date();
@@ -200,7 +203,7 @@ export async function getDashboardKpiData() {
         montoPagado,
         totalPendiente,
         monthlyChartData: monthlyData,
-        alerts: alerts.sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6),
+        alerts: alerts.filter(a => !prioridadesDescartadas.has(a.id)).sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6),
         notificacionesNoLeidas: notificationsData.filter(n => !n.leida).length,
         proximoEvento: (() => {
           const futuras = fiestasData

@@ -16,8 +16,9 @@ import {
   RefreshCw,
   ExternalLink,
   BellOff,
+  Trash2,
 } from 'lucide-react';
-import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas } from '@/app/actions/alertas.actions';
+import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas, descartarAlerta } from '@/app/actions/alertas.actions';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -94,6 +95,21 @@ export default function AlertasPage() {
       toast({ title: 'Error', description: 'No se pudo marcar como leída.', variant: 'destructive' });
     }
   }, [toast]);
+
+  const handleDescartar = useCallback(async (alertaId: string) => {
+    // Optimistically remove from local state
+    setAlertas(prev => prev.filter(a => a.id !== alertaId));
+    try {
+      const result = await descartarAlerta(alertaId);
+      if (!result.success) {
+        toast({ title: 'Error', description: 'No se pudo eliminar la alerta.', variant: 'destructive' });
+        fetchAlertas();
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo eliminar la alerta.', variant: 'destructive' });
+      fetchAlertas();
+    }
+  }, [toast, fetchAlertas]);
 
   const handleMarcarTodasLeidas = useCallback(async () => {
     setIsMarkingAll(true);
@@ -311,6 +327,16 @@ export default function AlertasPage() {
                             Marcar como leída
                           </Button>
                         )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 text-xs text-slate-400 hover:text-red-600"
+                          onClick={() => handleDescartar(alerta.id)}
+                          aria-label={`Eliminar alerta: ${alerta.mensaje}`}
+                          title="Eliminar alerta"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}

@@ -154,8 +154,26 @@ interface ServicioDetallado {
   precioUnitario: number;
   costoTotal: number;
   categoria: string;
+  calculationMethod?: string;
+  esRecomendado?: boolean;
 }
 
+/** Returns true if the category or calculation method indicates a per-person food/catering item. */
+function esCategoriaGastronomica(categoria: string, calculationMethod?: string): boolean {
+  const lower = categoria.toLowerCase();
+  return (
+    lower.includes('gastronom') ||
+    lower.includes('catering') ||
+    lower.includes('menú') ||
+    lower.includes('menu') ||
+    lower.includes('comida') ||
+    lower.includes('bebida') ||
+    lower.includes('trago') ||
+    lower.includes('hamburguesa') ||
+    lower.includes('pizza') ||
+    calculationMethod === 'porPersona'
+  );
+}
 function SimuladorContent() {
     const { toast } = useToast();
     const [step, setStep] = useState(1);
@@ -348,6 +366,11 @@ function SimuladorContent() {
         let totalRegular = 0;  
         let totalRegalos = 0;  
         const detallados: ServicioDetallado[] = [];
+
+        // Build recommended ids set from config
+        const recommendedIds = new Set<string>();
+        config.platosVisibles?.forEach(p => { if (p.recommended) recommendedIds.add(p.id); });
+        config.recommendedDishIds?.forEach((id: string) => recommendedIds.add(id));
         
         allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
             const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
@@ -362,7 +385,9 @@ function SimuladorContent() {
                 cantidad: qty, 
                 precioUnitario: unitPrice, 
                 costoTotal: total, 
-                categoria: (esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Varios')) as string
+                categoria: (esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Varios')) as string,
+                calculationMethod: servicio.calculationMethod,
+                esRecomendado: recommendedIds.has(servicio.id),
             });
         });
         
@@ -669,11 +694,16 @@ function SimuladorContent() {
                                                   <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 pl-8 tracking-widest py-2">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map(item => (
-                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                                                    <TableRow key={item.id} className={cn("hover:bg-slate-50/50 transition-colors border-slate-100", item.esRecomendado && "bg-amber-50/60 hover:bg-amber-50")}>
                                                         <TableCell className="pl-8 py-4">
-                                                            <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                                                            <div className="flex items-center gap-2">
+                                                              <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                                                              {item.esRecomendado && <span className="text-[9px] font-black uppercase tracking-wider text-amber-600 bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded-full">Destacado</span>}
+                                                            </div>
                                                             {(budgetSettings.showIndividualPrices ?? true) && (
-                                                              <p className="text-[10px] text-muted-foreground uppercase font-medium">{formatCurrency(item.precioUnitario)} c/u</p>
+                                                              <p className="text-[10px] text-muted-foreground uppercase font-medium">
+                                                                {formatCurrency(item.precioUnitario)}{esCategoriaGastronomica(item.categoria, item.calculationMethod) ? ' / PP' : ' c/u'}
+                                                              </p>
                                                             )}
                                                         </TableCell>
                                                         {(budgetSettings.showIndividualPrices ?? true) && (

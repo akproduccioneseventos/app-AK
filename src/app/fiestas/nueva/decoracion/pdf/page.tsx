@@ -117,30 +117,68 @@ function DecorationPdfPageContent() {
                     const assignedGuests = (invitados || []).filter(inv => inv.tableNumber === element.name);
                     const isRound = element.shape === 'circle';
                     const isArea = element.type === 'area';
+                    const seatCount = element.seats || 0;
+                    // Render chairs around the table (only for non-area tables)
+                    const chairSize = 10;
+                    const chairs: React.ReactNode[] = [];
+                    if (!isArea && seatCount > 0) {
+                      const cx = (element.width || 60) / 2;
+                      const cy = (element.height || 60) / 2;
+                      const rx = cx + chairSize + 2;
+                      const ry = cy + chairSize + 2;
+                      for (let i = 0; i < seatCount; i++) {
+                        const angle = (2 * Math.PI * i) / seatCount - Math.PI / 2;
+                        const sx = cx + rx * Math.cos(angle) - chairSize / 2;
+                        const sy = cy + ry * Math.sin(angle) - chairSize / 2;
+                        chairs.push(
+                          <div
+                            key={`chair-${i}`}
+                            style={{
+                              position: 'absolute',
+                              left: sx,
+                              top: sy,
+                              width: chairSize,
+                              height: chairSize,
+                              borderRadius: '50%',
+                              background: '#94a3b8',
+                              border: '1px solid #64748b',
+                            }}
+                          />
+                        );
+                      }
+                    }
                     return (
-                        <div key={element.id} 
-                             className={cn(
-                                 "absolute border border-slate-400 p-1 flex flex-col items-center justify-center text-center",
-                                 isRound ? 'rounded-full' : 'rounded-sm',
-                                 isArea ? 'bg-blue-100/30' : 'bg-white/90 shadow-sm'
-                             )}
-                             style={{ 
-                                 left: `${element.x}px`, 
-                                 top: `${element.y}px`, 
-                                 width: `${element.width}px`, 
-                                 height: `${element.height}px`, 
+                        <div key={element.id}
+                             style={{
+                                 position: 'absolute',
+                                 left: element.x,
+                                 top: element.y,
+                                 width: element.width,
+                                 height: element.height,
                                  transform: `rotate(${element.rotation}deg)`,
-                                 zIndex: element.zIndex || 0
+                                 zIndex: element.zIndex || 0,
                              }}>
-                           <p className="text-[10px] font-bold uppercase leading-none">{element.name}</p>
-                           {!isArea && (
-                               <p className="text-[8px] text-muted-foreground font-black mt-0.5">
-                                   {assignedGuests.reduce((s, g) => s + (g.partySize || 1), 0)}/{element.seats || '∞'}
-                               </p>
-                           )}
-                           <div className="mt-1 overflow-hidden">
-                                {assignedGuests.map(g => <p key={g.id} className="text-[7px] leading-tight truncate">{g.nombre}</p>)}
-                           </div>
+                          {/* Chairs rendered around the table */}
+                          {chairs}
+                          {/* Table body */}
+                          <div
+                            className={cn(
+                                "absolute inset-0 border border-slate-400 p-1 flex flex-col items-center justify-center text-center",
+                                isArea ? 'bg-blue-100/30' : 'bg-white/90 shadow-sm'
+                            )}
+                            style={{
+                                borderRadius: isRound ? '50%' : '4px',
+                            }}>
+                            <p className="text-[10px] font-bold uppercase leading-none">{element.name}</p>
+                            {!isArea && (
+                                <p className="text-[8px] text-muted-foreground font-black mt-0.5">
+                                    {assignedGuests.reduce((s, g) => s + (g.partySize || 1), 0)}/{element.seats || '∞'}
+                                </p>
+                            )}
+                            <div className="mt-1 overflow-hidden">
+                                 {assignedGuests.map(g => <p key={g.id} className="text-[7px] leading-tight truncate">{g.nombre}</p>)}
+                            </div>
+                          </div>
                         </div>
                     )
                 })}
