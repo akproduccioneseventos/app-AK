@@ -493,6 +493,9 @@ function MuroSocialContent() {
   const handlePlay = async () => {
     if (!fiestaId) return;
     setIsPlayAction(true);
+    // Save current settings (including playlist) to Firestore FIRST so the live wall
+    // can find the playlist items when playback starts.
+    await updateSocialGallerySettingsFiestaActual(fiestaId, settingsRef.current);
     const result = await playScreenPlaylist(fiestaId);
     setIsPlayAction(false);
     if (result.success) {
@@ -793,6 +796,9 @@ function MuroSocialContent() {
         },
       },
       juego: { type: 'juego', title: 'Base de juego', durationSeconds: 15, enabled: true, layout: 'auto' },
+      dedicaciones: { type: 'dedicaciones', title: 'Dedicatorias', durationSeconds: 30, enabled: true, layout: 'auto' },
+      chat: { type: 'chat', title: 'Chat en Vivo', durationSeconds: 30, enabled: true, layout: 'auto' },
+      canciones: { type: 'canciones', title: 'Pedidos de Canciones', durationSeconds: 30, enabled: true, layout: 'auto' },
     };
     setSettings((prev) => withScreenDefaults({
       ...prev,
@@ -933,7 +939,6 @@ function MuroSocialContent() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
           <Button onClick={saveSettings} disabled={isSaving}>{isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}Guardar</Button>
         </div>
       </div>
@@ -1033,6 +1038,39 @@ function MuroSocialContent() {
                   Quitar portada
                 </Button>
               )}
+            </div>
+            {/* Accent color for mobile control */}
+            <div className="space-y-1 pt-2 border-t">
+              <Label className="text-xs font-semibold flex items-center gap-1.5">
+                🎨 Color de acento (portal del invitado)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">Define el color principal de botones y elementos del control móvil de los invitados.</p>
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="color"
+                  value={settings.accentColor || '#3b82f6'}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, accentColor: e.target.value }))}
+                  className="w-10 h-9 p-1 cursor-pointer"
+                />
+                <Input
+                  value={settings.accentColor || '#3b82f6'}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, accentColor: e.target.value }))}
+                  placeholder="#3b82f6"
+                  className="flex-1 h-9 text-xs"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={async () => {
+                    const updated = { ...settingsRef.current, accentColor: settings.accentColor };
+                    const result = await updateSocialGallerySettingsFiestaActual(fiestaId!, updated);
+                    if (result.success) toast({ title: 'Color guardado ✓' });
+                    else toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+                  }}
+                >
+                  <Save className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1364,6 +1402,11 @@ function MuroSocialContent() {
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('mural')}><Plus className="w-4 h-4 mr-2" />Mural</Button>
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('redes')}><Plus className="w-4 h-4 mr-2" />Redes</Button>
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('juego')}><Plus className="w-4 h-4 mr-2" />Juego</Button>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-2">
+              <Button type="button" variant="outline" onClick={() => addPlaylistItem('dedicaciones')}><Plus className="w-4 h-4 mr-2" />💌 Dedicatorias</Button>
+              <Button type="button" variant="outline" onClick={() => addPlaylistItem('chat')}><Plus className="w-4 h-4 mr-2" />💬 Chat en Vivo</Button>
+              <Button type="button" variant="outline" onClick={() => addPlaylistItem('canciones')}><Plus className="w-4 h-4 mr-2" />🎵 Canciones</Button>
             </div>
 
             <div className="grid sm:grid-cols-4 gap-2">

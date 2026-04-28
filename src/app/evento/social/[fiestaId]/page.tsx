@@ -453,7 +453,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     fetchData();
     const interval = setInterval(() => {
         fetchData(false);
-    }, 2000); 
+    }, 4000); 
     return () => clearInterval(interval);
   }, [fetchData]);
   
@@ -848,11 +848,22 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
       {/* ════════════════════════════════════════════════════════════════
           GUEST VIEW — clean button-grid interface
-          Syncs automatically via the 5-second polling in fetchData().
+          Syncs automatically via the polling in fetchData().
           Buttons appear/disappear based on the organizer's settings.
       ════════════════════════════════════════════════════════════════ */}
       {!isAdminView && (
         <>
+          {/* Wall disabled by organizer */}
+          {localSettings.enabled === false && (
+            <div className="min-h-screen flex flex-col items-center justify-center text-center p-8" style={{ backgroundColor: localSettings.backgroundColor || '#f1f5f9' }}>
+              <div className="text-6xl mb-4">🎉</div>
+              <h2 className="text-xl font-bold text-slate-700">El muro social no está disponible en este momento</h2>
+              <p className="text-sm text-slate-400 mt-2">El organizador lo activará pronto.</p>
+            </div>
+          )}
+
+          {/* Normal guest UI — only shown when the wall is enabled */}
+          {localSettings.enabled !== false && (<>
           {/* Upload dialog for guests (standalone, no trigger button needed here) */}
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogContent className="rounded-3xl border-none">
@@ -983,16 +994,6 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                           icon={<LayoutGrid className="w-8 h-8" />}
                           label="Ver Fotos"
                           sublabel={`${posts.length} foto${posts.length !== 1 ? 's' : ''}`}
-                          color={accentColor}
-                          onClick={() => setGuestSection('photos')}
-                        />
-                      )}
-
-                      {localSettings.allowComments !== false && posts.length > 0 && (
-                        <GuestFeatureButton
-                          icon={<MessageCircle className="w-8 h-8" />}
-                          label="Comentar"
-                          sublabel="Fotos del evento"
                           color={accentColor}
                           onClick={() => setGuestSection('photos')}
                         />
@@ -1811,7 +1812,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             </div>
         </div>
       )}
-        </>
+        </>)}
+      </>
       )}
     </div>
   );

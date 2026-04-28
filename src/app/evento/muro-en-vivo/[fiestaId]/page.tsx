@@ -357,7 +357,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Empty state */}
-          {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego') && posts.length === 0 && (
+          {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego' && activeScreenItem?.type !== 'dedicaciones' && activeScreenItem?.type !== 'chat' && activeScreenItem?.type !== 'canciones') && posts.length === 0 && settings.enabled !== false && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
               <div className="text-8xl opacity-20">📸</div>
               <div className="text-center space-y-2">
@@ -367,8 +367,8 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
-          {/* Mural / photo slideshow */}
-          {isLoaded && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
+          {/* Mural / photo slideshow — only shown when wall is enabled */}
+          {isLoaded && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
             <SlideshowLayout posts={posts} />
           )}
 
@@ -395,6 +395,72 @@ export default function MuroEnVivoPage() {
           {/* Redes slide */}
           {isLoaded && activeScreenItem?.type === 'redes' && (
             <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
+          )}
+
+          {/* Dedicaciones full-screen slide */}
+          {isLoaded && activeScreenItem?.type === 'dedicaciones' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-12 overflow-hidden">
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-400 mb-2">💌 Dedicatorias</p>
+              {highlightedDedications.length > 0 ? (
+                <div className="space-y-6 w-full max-w-2xl">
+                  {highlightedDedications.slice(0, 5).map(d => (
+                    <div key={d.id} className="rounded-3xl border border-amber-300/60 bg-black/70 px-8 py-6 shadow-xl backdrop-blur-md text-center">
+                      <p className="text-2xl font-semibold leading-snug text-white">"{d.message}"</p>
+                      <p className="mt-3 text-sm font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center space-y-4">
+                  <div className="text-8xl opacity-30">💌</div>
+                  <p className="text-white/40 text-xl">Las dedicatorias de los invitados aparecerán aquí</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Chat en Vivo full-screen slide */}
+          {isLoaded && activeScreenItem?.type === 'chat' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-12 overflow-hidden">
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-sky-400 mb-2">💬 Chat en Vivo</p>
+              {recentChatMessages.length > 0 ? (
+                <div className="space-y-4 w-full max-w-2xl">
+                  {recentChatMessages.map(msg => (
+                    <div key={msg.id} className="rounded-3xl border border-sky-300/40 bg-black/70 px-8 py-5 shadow-xl backdrop-blur-md">
+                      <span className="text-sm font-black text-sky-300 mr-2">{msg.authorName}:</span>
+                      <span className="text-xl text-white/90 leading-snug">{msg.text}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center space-y-4">
+                  <div className="text-8xl opacity-30">💬</div>
+                  <p className="text-white/40 text-xl">Los mensajes del chat en vivo aparecerán aquí</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Canciones full-screen slide */}
+          {isLoaded && activeScreenItem?.type === 'canciones' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-12 overflow-hidden">
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-green-400 mb-2">🎵 Pedidos de Canciones</p>
+              {recentSongRequests.length > 0 ? (
+                <div className="space-y-4 w-full max-w-2xl">
+                  {recentSongRequests.map(req => (
+                    <div key={req.id} className="rounded-3xl border border-green-400/40 bg-black/70 px-8 py-5 shadow-xl backdrop-blur-md">
+                      <p className="text-2xl font-bold text-green-300">{req.song}</p>
+                      <p className="text-sm text-white/50 mt-1">Pedido por {req.requestedBy}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center space-y-4">
+                  <div className="text-8xl opacity-30">🎵</div>
+                  <p className="text-white/40 text-xl">Los pedidos de canciones aparecerán aquí</p>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Dedications overlay — always shown when no side panel takes up the left column */}
