@@ -116,7 +116,7 @@ export async function deleteSalonFoto(
       // Only attempt deletion for known Firebase Storage public URLs
       // Pattern: https://storage.googleapis.com/BUCKET/PATH
       if (url.hostname === 'storage.googleapis.com') {
-        const pathParts = url.pathname.split('/').slice(2); // remove leading empty segment + bucket name
+        const pathParts = url.pathname.split('/').slice(2); // pathname: /BUCKET/path/to/file → split gives ['', 'BUCKET', 'path', ...] → slice(2) gives ['path', ...]
         if (pathParts.length > 0) {
           const storagePath = pathParts.join('/');
           await deleteFromStorage(storagePath);
