@@ -173,7 +173,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
 
 // --- TOQUE DE ORO 2: AUTOMATIZACIÓN DE FLUJOS (DOMINÓ) ---
 
-export async function signContractDigitally(fiestaId: string, signerName: string): Promise<{ success: boolean; error?: string }> {
+export async function signContractDigitally(fiestaId: string, signerName: string, acceptedPlanPagos?: boolean): Promise<{ success: boolean; error?: string }> {
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado");
@@ -192,6 +192,21 @@ export async function signContractDigitally(fiestaId: string, signerName: string
                 ip: ip
             }
         };
+
+        // Save plan acceptance if the contract has a plan and client accepted it
+        if (
+            acceptedPlanPagos &&
+            updatedFiesta.contratoDatos?.planPagos
+        ) {
+            updatedFiesta.contratoDatos = {
+                ...updatedFiesta.contratoDatos,
+                planPagos: {
+                    ...updatedFiesta.contratoDatos.planPagos,
+                    aceptadoPorCliente: true,
+                    aceptadoAt: new Date().toISOString(),
+                },
+            };
+        }
 
         // 1. AUTOMATIZACIÓN: Habilitar portal del cliente
         if (updatedFiesta.clientPortalSettings) {

@@ -922,6 +922,118 @@ export default function PublicPortalView({
               </div>
             )}
 
+            {/* ── Plan de Pagos del Contrato ── */}
+            {fiesta.contratoDatos?.planPagos?.activo && presupuesto && (() => {
+              const plan = fiesta.contratoDatos!.planPagos!;
+              const formatMoney = (n: number) =>
+                new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(n);
+              const formatFecha = (iso: string) =>
+                new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+
+              const porcentajePlan = totalCosto > 0 ? Math.min(100, Math.round((totalPagado / totalCosto) * 100)) : 0;
+              const cuotaClave = plan.cuotas.find(c => c.esCuotaClave);
+              const proximaCuota = plan.cuotas.find(c => c.estado === 'vencida') ?? plan.cuotas.find(c => c.estado === 'pendiente' || c.estado === 'parcial');
+              const diasHastaClave = cuotaClave
+                ? Math.ceil((new Date(cuotaClave.fechaVencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                : null;
+              const alertaClave = diasHastaClave !== null && diasHastaClave >= 0 && diasHastaClave <= 30;
+
+              return (
+                <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+                  <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-blue-600" />
+                      Plan de Pagos
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground">Seguimiento de tus compromisos de pago</p>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-4">
+                    {/* Alerta cuota clave */}
+                    {alertaClave && cuotaClave && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-black text-amber-800">
+                            ⏰ {diasHastaClave === 0 ? '¡Hoy!' : `${diasHastaClave} días`} para completar el {plan.porcentajeMinimoAntesFecha}%
+                          </p>
+                          <p className="text-[11px] text-amber-700 mt-0.5">
+                            Debés llegar a {formatMoney(plan.montoObjetivo30Porciento)} antes del {formatFecha(cuotaClave.fechaVencimiento)}.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Barra de progreso */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span className="font-semibold">Pagado: {formatMoney(totalPagado)}</span>
+                        <span className="font-semibold">{porcentajePlan}%</span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div
+                          className={`h-2.5 rounded-full transition-all ${porcentajePlan >= plan.porcentajeMinimoAntesFecha ? 'bg-emerald-500' : 'bg-blue-500'}`}
+                          style={{ width: `${porcentajePlan}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-muted-foreground">
+                        <span>Total: {formatMoney(totalCosto)}</span>
+                        <span>Objetivo {plan.porcentajeMinimoAntesFecha}%: {formatMoney(plan.montoObjetivo30Porciento)}</span>
+                      </div>
+                    </div>
+
+                    {/* Lista de cuotas */}
+                    <div className="space-y-2">
+                      {plan.cuotas.map(cuota => {
+                        const estadoColor =
+                          cuota.estado === 'completada'
+                            ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                            : cuota.estado === 'vencida'
+                            ? 'text-red-700 bg-red-50 border-red-200'
+                            : cuota.esCuotaClave
+                            ? 'text-amber-700 bg-amber-50 border-amber-200'
+                            : 'text-slate-700 bg-white border-slate-100';
+                        const estadoIcon =
+                          cuota.estado === 'completada' ? '✅'
+                          : cuota.estado === 'vencida' ? '🔴'
+                          : cuota.esCuotaClave ? '⭐'
+                          : '⏳';
+                        return (
+                          <div key={cuota.id} className={`flex items-center justify-between text-xs p-2.5 rounded-xl border ${estadoColor}`}>
+                            <div className="flex items-center gap-2">
+                              <span className="shrink-0">{estadoIcon}</span>
+                              <span className="font-semibold">{cuota.descripcion}</span>
+                            </div>
+                            <div className="text-right shrink-0 ml-2">
+                              <p className="font-bold text-[11px]">
+                                {cuota.esCuotaClave
+                                  ? formatMoney(cuota.montoObjetivo ?? plan.montoObjetivo30Porciento)
+                                  : `mín. ${formatMoney(cuota.montoMinimo)}`
+                                }
+                              </p>
+                              <p className="text-[10px] opacity-70">{formatFecha(cuota.fechaVencimiento)}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Próxima cuota */}
+                    {proximaCuota && (
+                      <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase text-blue-500 tracking-wider">Próximo pago</p>
+                        <p className="text-sm font-bold text-blue-800 mt-0.5">
+                          {proximaCuota.esCuotaClave
+                            ? formatMoney(proximaCuota.montoObjetivo ?? plan.montoObjetivo30Porciento)
+                            : `mín. ${formatMoney(proximaCuota.montoMinimo)}`
+                          } — antes del {formatFecha(proximaCuota.fechaVencimiento)}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
             {/* ── 1. Datos del evento ── */}
             <Card id="seccion-organizacion" className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-purple-50">

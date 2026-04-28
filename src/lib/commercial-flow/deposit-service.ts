@@ -83,6 +83,38 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
       }
     }
 
+    // 3. Recalcular plan de pagos del contrato si la fiesta tiene uno activo
+    try {
+      const { getFiestaById, saveFiesta } = await import('@/app/actions/fiesta/fiesta.actions');
+      const fiesta = await getFiestaById(fiestaId);
+      if (fiesta?.contratoDatos?.planPagos?.activo) {
+        const { recalcularEstadoCuotas } = await import('@/lib/planPagos');
+        // Build a list of all payments from presupuesto or fall back to the new payment alone
+        let allPagos: import('@/types/presupuesto').PagoCliente[] = [];
+        if (presupuestoId) {
+          const { getPresupuestoById } = await import('@/app/actions/presupuestos');
+          const pres = await getPresupuestoById(presupuestoId);
+          allPagos = pres?.pagosCliente ?? [];
+        } else {
+          allPagos = [{
+            id: `pago_dep_${fiestaId}_${Date.now()}`,
+            fecha: date,
+            monto: amount,
+            metodoPago: method as import('@/types/presupuesto').MetodoPago,
+            estadoPago: 'confirmado',
+          }];
+        }
+        const planActualizado = recalcularEstadoCuotas(fiesta.contratoDatos.planPagos, allPagos);
+        await saveFiesta({
+          ...fiesta,
+          contratoDatos: { ...fiesta.contratoDatos, planPagos: planActualizado },
+        });
+      }
+    } catch (planError) {
+      // Non-fatal: log but don't fail the deposit
+      console.warn('[registerContractDeposit] Error recalculando plan de pagos:', planError);
+    }
+
     return { success: true, invoiceId: depositResult.invoiceId };
   } catch (error: any) {
     return { success: false, error: error.message ?? 'Error desconocido al registrar la seña.' };
