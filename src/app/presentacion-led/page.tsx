@@ -148,7 +148,7 @@ export default function PresentacionLedPage() {
   const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
   const [selectedTeenMenuId, setSelectedTeenMenuId] = useState<string | null>(null);
   const [selectedEntradasIds, setSelectedEntradasIds] = useState<string[]>([]);
-  const [entradasCount, setEntradasCount] = useState<1 | 2>(1);
+  // entradasCount is derived from duration (1 if < ENTRADA_DUAL_DURATION_THRESHOLD hours, 2 otherwise)
   const [presentacionSettings, setPresentacionSettings] = useState<PresentacionLedSettings | null>(null);
   const [clientData, setClientData] = useState<ClientData>({
     nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '', invitadosAdultos: '', invitadosAdolescentes: '', duracionHoras: '', tieneSalon: undefined, salon: '',
@@ -238,13 +238,15 @@ export default function PresentacionLedPage() {
     ];
   }, [categorias]);
 
+  const requiredEntradasCount: 1 | 2 = Number(clientData.duracionHoras) >= ENTRADA_DUAL_DURATION_THRESHOLD ? 2 : 1;
+
   const resourceSummary = useMemo<ResourceSummary>(() => {
     const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
     const ninos = Math.max(0, Number(clientData.invitadosAdolescentes || '0'));
     const invitados = adultos + ninos;
     const mesas = Math.max(1, Math.ceil(invitados / 10));
     const mozos = Math.max(1, Math.ceil(invitados / 10));
-    const vajilla = invitados * Math.max(1, entradasCount + MAIN_DISHES_PER_PERSON);
+    const vajilla = invitados * Math.max(1, requiredEntradasCount + MAIN_DISHES_PER_PERSON);
     const manteleria = mesas;
     const requiereAsador = Boolean(
       selectedServices.some((id) => {
@@ -262,7 +264,7 @@ export default function PresentacionLedPage() {
       mozos,
       requiereAsador,
     };
-  }, [clientData.invitadosAdultos, clientData.invitadosAdolescentes, entradasCount, selectedServices, data?.servicios, selectedMenu]);
+  }, [clientData.invitadosAdultos, clientData.invitadosAdolescentes, requiredEntradasCount, selectedServices, data?.servicios, selectedMenu]);
 
   const totalSlides = data ? FIXED_SLIDES_START + dynamicSlides.length + FIXED_SLIDES_END : 0;
 
@@ -313,7 +315,6 @@ export default function PresentacionLedPage() {
     return result;
   }, [data]);
 
-  const requiredEntradasCount: 1 | 2 = Number(clientData.duracionHoras) >= ENTRADA_DUAL_DURATION_THRESHOLD ? 2 : 1;
   const canAdvanceFromEntradas = todasLasEntradas.length === 0 || selectedEntradasIds.length >= requiredEntradasCount;
 
   const canAdvanceFromTeenMenu = !requireTeenMenu || !!selectedTeenMenuId;
@@ -354,7 +355,7 @@ export default function PresentacionLedPage() {
   const goNext = useCallback(() => {
     // Skip salon if client already has a venue
     if (isDatosEventoSlide && clientData.tieneSalon === true) {
-      goToSlide(DYNAMIC_START); // skip salon (index 3), go to first dynamic slide
+      goToSlide(SALON_SLIDE_INDEX + NEXT_SLIDE_OFFSET); // skip salon (index 3), go to first dynamic slide
       return;
     }
     // Skip teen menu when going from entradas if no teens
@@ -368,7 +369,7 @@ export default function PresentacionLedPage() {
   const goPrev = useCallback(() => {
     // Skip salon when going back from first dynamic slide if client has venue
     if (currentSlide === DYNAMIC_START && clientData.tieneSalon === true) {
-      goToSlide(2); // go back to datos-evento (index 2), skipping salon (index 3)
+      goToSlide(SALON_SLIDE_INDEX - NEXT_SLIDE_OFFSET); // go back to datos-evento (index 2), skipping salon (index 3)
       return;
     }
     // Skip teen menu when going back from menu-adulto if no teens
@@ -417,7 +418,7 @@ export default function PresentacionLedPage() {
     if (selectedMenuId && /^[\w-]+$/.test(selectedMenuId)) {
       sessionStorage.setItem('presentacion_menu_seleccionado', selectedMenuId);
     }
-    sessionStorage.setItem('presentacion_menu_entradas', String(entradasCount));
+    sessionStorage.setItem('presentacion_menu_entradas', String(requiredEntradasCount));
     if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) {
       sessionStorage.setItem('presentacion_menu_adolescente', selectedTeenMenuId);
     }
@@ -430,7 +431,7 @@ export default function PresentacionLedPage() {
     if (selectedTeenMenuId && /^[\w-]+$/.test(selectedTeenMenuId)) params.set('teenMenuId', selectedTeenMenuId);
     const query = params.toString();
     router.push(query ? `/presupuestos/nuevo/crear?${query}` : '/presupuestos/nuevo/crear');
-  }, [selectedServices, selectedEntradasIds, clientData, selectedMenuId, selectedTeenMenuId, entradasCount, router]);
+  }, [selectedServices, selectedEntradasIds, clientData, selectedMenuId, selectedTeenMenuId, requiredEntradasCount, router]);
 
   const handlePrint = useCallback(() => {
     window.print();
