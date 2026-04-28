@@ -969,140 +969,89 @@ export default function PublicPortalView({
                   </a>
                 )}
 
-                {/* Music teaser */}
-                {settings?.musica?.visible && musica && (musica.cancionEntrada || musica.cancionVals) && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-fuchsia-50 border border-fuchsia-100">
-                    <Music className="w-4 h-4 text-fuchsia-600 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black uppercase text-fuchsia-600 tracking-wider">Música del evento</p>
-                      <p className="text-sm font-semibold text-fuchsia-800 truncate">
-                        {musica.cancionEntrada || musica.cancionVals}
-                      </p>
-                    </div>
-                    <a href="#seccion-musica" className="text-xs text-fuchsia-600 font-semibold shrink-0">Ver →</a>
+                {/* Google Maps */}
+                {config.googleMapsUrl && (
+                  <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center gap-2 p-3 rounded-xl bg-sky-50 border border-sky-100 hover:bg-sky-100 transition-colors">
+                    <Navigation className="w-4 h-4 text-sky-600 shrink-0" />
+                    <p className="text-sm font-semibold text-sky-700">Ver en Google Maps</p>
+                  </a>
+                )}
+
+                {/* Instrucciones de llegada */}
+                {config.instruccionesLlegada && (
+                  <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2">
+                    <p className="text-xs font-black uppercase text-amber-600 tracking-wider mb-1">📍 Cómo llegar</p>
+                    <p className="text-sm text-amber-800 leading-relaxed">{config.instruccionesLlegada}</p>
                   </div>
                 )}
 
-                {/* Moodboard teaser */}
-                {settings?.moodboard?.visible && moodboardItems.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-pink-50 border border-pink-100">
-                    <Palette className="w-4 h-4 text-pink-600 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black uppercase text-pink-600 tracking-wider">Moodboard</p>
-                      <p className="text-sm font-semibold text-pink-800">{moodboardItems.length} imágenes de inspiración</p>
-                    </div>
-                    <a href="#seccion-moodboard" className="text-xs text-pink-600 font-semibold shrink-0">Ver →</a>
-                  </div>
-                )}
-
-                {/* Interactive Checklist */}
-                {settings?.checklist?.visible && checklist.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                      <CheckSquare className="w-3.5 h-3.5" />
-                      Checklist · {checklist.filter(t => t.completada).length} de {checklist.length} completadas
-                    </p>
-                    {checklist.map((tarea, idx) => (
-                      <div key={tarea.id}>
-                        {idx > 0 && <Separator className="my-1" />}
-                        <div className="flex items-center gap-3 py-2">
-                          <Checkbox
-                            id={`task-${tarea.id}`}
-                            checked={tarea.completada}
-                            onCheckedChange={() => handleToggleTask(tarea.id)}
-                            disabled={togglingTaskId !== null || !settings.checklist.editable}
-                          />
-                          <Label
-                            htmlFor={`task-${tarea.id}`}
-                            className={`text-sm cursor-pointer leading-snug ${tarea.completada ? 'line-through text-muted-foreground' : ''}`}
-                          >
-                            {tarea.texto}
-                          </Label>
-                          {togglingTaskId === tarea.id && <Loader2 className="w-3 h-3 ml-auto animate-spin text-muted-foreground shrink-0" />}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Weather placeholder */}
-                {daysUntil !== null && daysUntil > 0 && (
-                  <div className="flex items-center gap-4 p-3 rounded-xl bg-sky-50 border border-sky-100">
-                    <div className="p-2 rounded-xl bg-sky-100">
-                      <CloudSun className="w-6 h-6 text-sky-500" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-sky-800">Clima del día del evento</p>
-                      <p className="text-xs text-sky-600">
-                        {daysUntil <= 7
-                          ? `¡Tu evento es en ${daysUntil} día${daysUntil > 1 ? 's' : ''}! El pronóstico estará disponible próximamente.`
-                          : 'El pronóstico se mostrará 7 días antes del evento.'}
-                      </p>
-                    </div>
+                {/* QR del evento */}
+                {settings?.paginaPublica?.visible && (
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/30 border border-muted/60">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">QR del evento</p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(typeof window !== 'undefined' ? (window.location.origin + (fiesta.invitacionSlug ? '/i/' + fiesta.invitacionSlug : '/invitacion/' + fiesta.id)) : '')}`}
+                      alt="QR del evento"
+                      className="w-24 h-24 rounded-xl"
+                    />
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* ── 2. Pagos y documentos ── */}
-            {(settings?.pagos?.visible || settings?.informarPago?.visible || settings?.serviciosContratados?.visible || settings?.contrato?.visible || settings?.documentos?.visible) && (
-              <button
-                onClick={() => setShowFinanzasPanel(true)}
-                className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="px-5 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2.5 rounded-2xl bg-emerald-100 shrink-0">
-                      <DollarSign className="w-5 h-5 text-emerald-600" />
+            {/* ── 2. Tareas pendientes ── */}
+            {isModuleVisible(settings, 'checklist') && checklist.length > 0 && (
+              <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <CheckSquare className="w-5 h-5 text-teal-600" />
+                    Tareas pendientes
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {checklist.filter(t => t.completada).length} de {checklist.length} completadas
+                  </p>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-2">
+                  {checklist.map((tarea, idx) => (
+                    <div key={tarea.id}>
+                      {idx > 0 && <Separator className="my-1" />}
+                      <div className="flex items-center gap-3 py-2">
+                        <Checkbox
+                          id={`task-${tarea.id}`}
+                          checked={tarea.completada}
+                          onCheckedChange={() => handleToggleTask(tarea.id)}
+                          disabled={togglingTaskId !== null || !settings?.checklist?.editable}
+                        />
+                        <Label
+                          htmlFor={`task-${tarea.id}`}
+                          className={`text-sm cursor-pointer leading-snug ${tarea.completada ? 'line-through text-muted-foreground' : ''}`}
+                        >
+                          {tarea.texto}
+                        </Label>
+                        {togglingTaskId === tarea.id && <Loader2 className="w-3 h-3 ml-auto animate-spin text-muted-foreground shrink-0" />}
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      {presupuesto ? (
-                        <>
-                          <p className="font-bold text-sm text-slate-800">💳 Pagos y documentos</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden max-w-[80px]">
-                              <div
-                                className="h-full rounded-full transition-all duration-500"
-                                style={{
-                                  width: `${porcentajePagado}%`,
-                                  background: isPaid
-                                    ? 'linear-gradient(90deg, #10b981, #059669)'
-                                    : 'linear-gradient(90deg, #f59e0b, #d97706)',
-                                }}
-                              />
-                            </div>
-                            <span className={`text-xs font-semibold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
-                              {isPaid ? 'Saldado ✓' : `Saldo: ${formatCurrency(saldoPendiente)}`}
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p className="font-bold text-sm text-slate-800">📄 Documentos y contrato</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Ver contrato y documentos</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-emerald-500 shrink-0" />
-                </div>
-              </button>
+                  ))}
+                </CardContent>
+              </Card>
             )}
 
-
-            {/* ── 3. Lo que tengo que enviar o llevar ── */}
-            {debeLlevarItems.length > 0 && (
+            {/* ── 3. Lo que debo llevar (merged: checklist + bebidas clienteLleva) ── */}
+            {(isModuleVisible(settings, 'calculadoraBebidas') || debeLlevarItems.length > 0) && (
               <Card id="seccion-llevar" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
                     <Package className="w-5 h-5 text-teal-600" />
-                    Lo que tengo que enviar o llevar
+                    Lo que debo llevar
                   </CardTitle>
                   <p className="text-xs text-muted-foreground">
-                    {debeLlevarItems.filter(i => i.completado).length} de {debeLlevarItems.length} ítems listos
+                    {debeLlevarItems.filter(i => i.completado).length} de {debeLlevarItems.length + bebidasItems.filter(b => b.clienteLleva && b.visible).length} ítems listos
                   </p>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2">
+                <CardContent className="pt-4 space-y-3">
+                  {/* clienteDebeLlevar checklist */}
                   {debeLlevarItems.map((item) => (
                     <button
                       key={item.id}
@@ -1137,168 +1086,45 @@ export default function PublicPortalView({
                       {isSavingDebeLlevar && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />}
                     </button>
                   ))}
-                  <p className="text-xs text-muted-foreground text-center pt-1">
-                    Tocá cada ítem para marcarlo como listo
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── 4. Lo que debo llevar ── */}
-            {(settings?.menu?.visible || settings?.cartaTragos?.visible || settings?.dressCode?.visible || calcBebidas?.visible) && (
-              <Card id="seccion-comida" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-amber-50">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Utensils className="w-5 h-5 text-orange-500" />
-                    Lo que debo llevar
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Todo lo que tenés que traer vos para la fiesta, según tu contrato</p>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
-
-                  {/* Event Menu */}
-                  {settings?.menu?.visible && fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres || fiesta.menuMesa.bebidas) && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Menú del evento</p>
-                      {[
-                        { label: 'Entrada', value: fiesta.menuMesa.entrada, emoji: '🥗' },
-                        { label: 'Plato Principal', value: fiesta.menuMesa.platoPrincipal, emoji: '🍽️' },
-                        { label: 'Opción Adolescentes', value: fiesta.menuMesa.adolescentes, emoji: '🍕' },
-                        { label: 'Postres', value: fiesta.menuMesa.postres, emoji: '🍰' },
-                        { label: 'Bebidas', value: fiesta.menuMesa.bebidas, emoji: '🥂' },
-                      ]
-                        .filter(row => !!row.value)
-                        .map(row => (
-                          <div key={row.label} className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                            <span className="text-xl shrink-0">{row.emoji}</span>
-                            <div>
-                              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">{row.label}</p>
-                              <p className="font-semibold text-sm leading-snug">{row.value}</p>
+                  {/* bebidasItems where clienteLleva === true */}
+                  {isModuleVisible(settings, 'calculadoraBebidas') && numInvitados > 0 && bebidasItems.some(b => b.clienteLleva && b.visible) && (
+                    <>
+                      {debeLlevarItems.length > 0 && <Separator className="my-2" />}
+                      <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+                        📋 Según tu contrato, vos te encargás de estos ítems para {numInvitados} personas:
+                      </p>
+                      {bebidasItems.filter(b => b.clienteLleva && b.visible).map(item => {
+                        const cantidad = Math.round(numInvitados * item.cantidadPorPersona * 10) / 10;
+                        return (
+                          <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">{item.emoji}</span>
+                              <div>
+                                <p className="font-bold text-sm">{item.nombre}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.cantidadPorPersona} {item.unidad} por persona
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-black text-amber-700">{cantidad}</p>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.unidad}</p>
                             </div>
                           </div>
-                        ))}
-                    </div>
+                        );
+                      })}
+                    </>
                   )}
-
-                  {/* Drinks Menu (Carta de Tragos) */}
-                  {settings?.cartaTragos?.visible && fiesta.cartaTragos && fiesta.cartaTragos.items.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
-                        {fiesta.cartaTragos.titulo || 'Carta de tragos'}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {fiesta.cartaTragos.items.map(trago => (
-                          <div key={trago.id} className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-muted/60">
-                            {trago.imageUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={trago.imageUrl} alt={trago.nombre} className="w-8 h-8 object-cover rounded-lg shrink-0" />
-                            ) : (
-                              <span className="text-xl shrink-0">🍸</span>
-                            )}
-                            <p className="font-semibold text-sm leading-tight">{trago.nombre}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  {debeLlevarItems.length === 0 && !bebidasItems.some(b => b.clienteLleva && b.visible) && (
+                    <p className="text-sm text-muted-foreground text-center py-3 border border-dashed rounded-xl">
+                      No hay ítems pendientes por ahora.
+                    </p>
                   )}
-
-                  {/* Dress Code */}
-                  {settings?.dressCode?.visible && dressCode?.visible && (dressCode.texto?.text || (dressCode.sugeridos && dressCode.sugeridos.length > 0) || (dressCode.evitar && dressCode.evitar.length > 0)) && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <Shirt className="w-3.5 h-3.5" /> Dress Code
-                      </p>
-                      {dressCode.texto?.text && (
-                        <p className="text-sm text-muted-foreground leading-relaxed">{dressCode.texto.text}</p>
-                      )}
-                      {dressCode.sugeridos && dressCode.sugeridos.length > 0 && (
-                        <div className="space-y-1.5">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">✅ Sugerido</p>
-                          <div className="flex flex-wrap gap-2">
-                            {dressCode.sugeridos.map((s, i) => (
-                              <Badge key={i} variant="secondary" className="bg-emerald-100 text-emerald-700 border-emerald-200 rounded-xl">
-                                {s}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {dressCode.evitar && dressCode.evitar.length > 0 && (
-                        <div className="space-y-1.5">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">🚫 Evitar</p>
-                          <div className="flex flex-wrap gap-2">
-                            {dressCode.evitar.map((e, i) => (
-                              <Badge key={i} variant="secondary" className="bg-rose-100 text-rose-700 border-rose-200 rounded-xl">
-                                {e}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Drink calculator */}
-                  {calcBebidas?.visible && numInvitados > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <GlassWater className="w-3.5 h-3.5" /> Calculadora de bebidas
-                      </p>
-                      {bebidasItems.some(b => b.clienteLleva && b.visible) ? (
-                        <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
-                          📋 Según tu contrato, vos te encargás de estos ítems para {numInvitados} personas:
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground bg-muted/40 rounded-xl px-3 py-2">
-                          Estimación de cantidades para {numInvitados} invitados:
-                        </p>
-                      )}
-                      <div className="space-y-2">
-                        {bebidasItems
-                          .filter(item => item.visible)
-                          .map(item => {
-                            const { bg, border, text } = getColorClasses(item.color);
-                            const cantidad = Math.round(numInvitados * item.cantidadPorPersona * 10) / 10;
-                            return (
-                              <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl ${item.clienteLleva ? 'bg-amber-50 border border-amber-200' : `${bg} border ${border}`}`}>
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">{item.emoji}</span>
-                                  <div>
-                                    <p className="font-bold text-sm">{item.nombre}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {item.cantidadPorPersona} {item.unidad} por persona
-                                      {item.clienteLleva && <span className="ml-1 font-bold text-amber-700">· ✋ Vos traés</span>}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className={`text-2xl font-black ${item.clienteLleva ? 'text-amber-700' : text}`}>{cantidad}</p>
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.unidad}</p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Catering Change Simulator */}
-                  {presupuesto && invitadosContratados > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Solicitar cambio de menú</p>
-                      <CateringSimulator
-                        fiestaId={fiesta.id}
-                        presupuesto={presupuesto}
-                        fiesta={fiesta}
-                      />
-                    </div>
-                  )}
-
                 </CardContent>
               </Card>
             )}
 
-            {/* ── 5b. Invitados y mesas ── */}
+            {/* ── 4. Control de invitados ── */}
             {settings?.invitados?.visible && invitados.length > 0 && (
               <Card id="seccion-invitados" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -1332,7 +1158,14 @@ export default function PublicPortalView({
                   {/* Guest list */}
                   <div className="space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Lista de invitados</p>
-                    {invitados.map(inv => {
+                    {/* Search input */}
+                    <Input
+                      placeholder="🔍 Buscar invitado por nombre..."
+                      value={guestSearchQuery}
+                      onChange={e => setGuestSearchQuery(e.target.value)}
+                      className="rounded-xl text-sm"
+                    />
+                    {invitados.filter(inv => !guestSearchQuery || inv.nombre.toLowerCase().includes(guestSearchQuery.toLowerCase())).map(inv => {
                       const rsvpConfig: Record<RsvpStatus, { label: string; bg: string; text: string; border: string }> = {
                         Confirmado: { label: 'Confirmado', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
                         Pendiente: { label: 'Pendiente', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
@@ -1392,213 +1225,29 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 6. Itinerario ── */}
-            {settings?.itinerario?.visible && (
+            {/* ── 5. Botón Organización del evento ── */}
+            {(isModuleVisible(settings, 'itinerario') || isModuleVisible(settings, 'musica') || isModuleVisible(settings, 'moodboard') || isModuleVisible(settings, 'cartaTragos') || isModuleVisible(settings, 'menu') || isModuleVisible(settings, 'fotografiaYFilmacion') || isModuleVisible(settings, 'dressCode') || isModuleVisible(settings, 'listaRegalos') || isModuleVisible(settings, 'videoVida') || isModuleVisible(settings, 'invitados')) && (
               <button
                 onClick={() => setShowOrganizacionPanel(true)}
                 className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
               >
-                <div className="px-5 py-4 flex items-center justify-between gap-4" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
+                <div className="px-5 py-4 bg-gradient-to-r from-violet-50 to-purple-50 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2.5 rounded-2xl shrink-0" style={{ backgroundColor: `${eventColor}22` }}>
-                      <Calendar className="w-5 h-5" style={{ color: eventColor }} />
+                    <div className="p-2.5 rounded-2xl bg-violet-100 shrink-0">
+                      <ClipboardList className="w-5 h-5 text-violet-600" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-sm text-slate-800">📋 Ver itinerario</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {programa.length > 0
-                          ? `${programa.length} momento${programa.length !== 1 ? 's' : ''} del evento`
-                          : 'El itinerario estará disponible próximamente'}
-                      </p>
+                      <p className="font-bold text-sm text-slate-800">📋 Organización del evento</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Itinerario, menú, música, fotos y más</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 shrink-0" style={{ color: eventColor }} />
+                  <ChevronRight className="w-5 h-5 text-violet-500 shrink-0" />
                 </div>
               </button>
             )}
 
-            {/* ── Organización AK ── */}
-            <button
-              onClick={() => setShowOrganizacionPanel(true)}
-              className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-slate-100 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="p-2.5 rounded-2xl bg-slate-200 shrink-0">
-                    <Building2 className="w-5 h-5 text-slate-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-sm text-slate-800">🗂 Organización AK</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Itinerario, contacto y datos del equipo</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
-              </div>
-            </button>
-
-
-            {/* ── 7. Fotos y video ── */}
-            {settings?.fotografiaYFilmacion?.visible && fiesta.fotografiaYFilmacion && fiesta.fotografiaYFilmacion.servicios.length > 0 && (
-              <Card id="seccion-fotos" className="shadow-lg border-0 rounded-3xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Camera className="w-5 h-5 text-primary" />
-                    Fotografía y filmación
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Estado de entrega de los materiales.</p>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-3">
-                  {fiesta.fotografiaYFilmacion.servicios.map(servicio => (
-                    <div key={servicio.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                      <div className="p-2 rounded-xl bg-primary/10 shrink-0 mt-0.5">
-                        <Camera className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-slate-800">{servicio.nombre}</p>
-                        {servicio.fechaEntregaEstimada && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Entrega estimada: {formatDate(servicio.fechaEntregaEstimada)}
-                          </p>
-                        )}
-                        {servicio.notas && (
-                          <p className="text-xs text-slate-500 mt-1">{servicio.notas}</p>
-                        )}
-                      </div>
-                      <div className="shrink-0">
-                        {servicio.estado === 'Entregado completo' || servicio.estado === 'Entregado parcial' ? (
-                          <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs">✓ Entregado</Badge>
-                        ) : servicio.linkEntrega ? (
-                          <a href={servicio.linkEntrega} target="_blank" rel="noopener noreferrer">
-                            <Badge className="bg-primary/10 text-primary border-0 text-xs flex items-center gap-1 cursor-pointer hover:bg-primary/20">
-                              <ExternalLink className="w-3 h-3" /> Ver
-                            </Badge>
-                          </a>
-                        ) : (
-                          <Badge variant="outline" className="text-xs text-slate-400">Pendiente</Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {fiesta.fotografiaYFilmacion.notasGenerales && (
-                    <p className="text-xs text-slate-500 italic px-1">{fiesta.fotografiaYFilmacion.notasGenerales}</p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── 8. Moodboard ── */}
-            {settings?.moodboard?.visible && moodboardItems.length > 0 && (
-              <Card id="seccion-moodboard" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Star className="w-5 h-5 text-primary" />
-                    Moodboard
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    Dales ❤️ a las ideas que más te gustan
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="grid grid-cols-2 gap-2">
-                    {moodboardItems.map(item => (
-                      <div key={item.id} className="relative rounded-2xl overflow-hidden aspect-square bg-muted">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={item.url}
-                          alt={item.description || 'Inspiración'}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          onClick={() =>
-                            setLikedItems(prev => {
-                              const next = new Set(prev);
-                              if (next.has(item.id)) next.delete(item.id);
-                              else next.add(item.id);
-                              return next;
-                            })
-                          }
-                          className={`absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors ${
-                            likedItems.has(item.id)
-                              ? 'bg-rose-500 text-white'
-                              : 'bg-white/80 text-rose-500'
-                          }`}
-                        >
-                          <Heart className="w-4 h-4" fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
-                        </button>
-                        {item.description && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                            <p className="text-white text-[10px] font-medium leading-tight">{item.description}</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── 9. Música ── */}
-            {settings?.musica?.visible && (
-              <Card id="seccion-musica" className="shadow-lg border-0 rounded-3xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Music className="w-5 h-5 text-primary" />
-                    Música
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-3">
-                  {musica && (musica.cancionEntrada || musica.cancionVals || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0) || musica.listaNoReproducir) ? (
-                    <>
-                  {musica.cancionEntrada && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                      <span className="text-lg">🎵</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Canción de Entrada</p>
-                        <p className="font-semibold text-sm">{musica.cancionEntrada}</p>
-                      </div>
-                    </div>
-                  )}
-                  {musica.cancionVals && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                      <span className="text-lg">💃</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Vals / Baile</p>
-                        <p className="font-semibold text-sm">{musica.cancionVals}</p>
-                      </div>
-                    </div>
-                  )}
-                  {musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0 && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                      <span className="text-lg">🥂</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Torta / Brindis</p>
-                        {musica.cancionesTortaBrindis.map((c, i) => (
-                          <p key={i} className="font-semibold text-sm">{c}</p>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {musica.listaNoReproducir && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-rose-50 border border-rose-100">
-                      <span className="text-lg">🚫</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">No Reproducir</p>
-                        <p className="text-sm text-muted-foreground">{musica.listaNoReproducir}</p>
-                      </div>
-                    </div>
-                  )}
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-xl">
-                      🎵 La información de música estará disponible próximamente.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
             {/* ── 10. Preguntas frecuentes ── */}
-            {settings?.faq?.visible && (
+            {settings?.faq?.visible && faqItems.length > 0 && (
               <Card id="seccion-faq" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1865,41 +1514,49 @@ export default function PublicPortalView({
             </Card>
             )}
 
-            {/* ── 12. Lista de regalos ── */}
-            {settings?.listaRegalos?.visible && fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0 && (
-              <Card className="shadow-lg border-0 rounded-3xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Gift className="w-5 h-5 text-primary" />
-                    Lista de regalos
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    {fiesta.invitacionDigital.regalos.items.filter(i => i.isClaimed).length} de {fiesta.invitacionDigital.regalos.items.length} regalos elegidos
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-2">
-                  {fiesta.invitacionDigital.regalos.items.map(item => (
-                    <div key={item.id} className={`flex items-center gap-3 p-3 rounded-2xl border ${item.isClaimed ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-semibold text-sm ${item.isClaimed ? 'text-emerald-700 line-through opacity-70' : 'text-slate-800'}`}>
-                          {item.name}
-                        </p>
-                        {item.description && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-                        )}
-                        {item.isClaimed && item.claimedBy && (
-                          <p className="text-xs text-emerald-600 mt-0.5">Por: {item.claimedBy}</p>
-                        )}
-                      </div>
-                      {item.isClaimed ? (
-                        <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs shrink-0">✓ Elegido</Badge>
+            {/* ── 6. Botón Finanzas y documentos ── */}
+            {(isModuleVisible(settings, 'pagos') || isModuleVisible(settings, 'informarPago') || isModuleVisible(settings, 'serviciosContratados') || isModuleVisible(settings, 'contrato') || isModuleVisible(settings, 'documentos')) && (
+              <button
+                onClick={() => setShowFinanzasPanel(true)}
+                className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
+              >
+                <div className="px-5 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2.5 rounded-2xl bg-emerald-100 shrink-0">
+                      <DollarSign className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="min-w-0">
+                      {presupuesto ? (
+                        <>
+                          <p className="font-bold text-sm text-slate-800">💳 Finanzas y documentos</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden max-w-[80px]">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${porcentajePagado}%`,
+                                  background: isPaid
+                                    ? 'linear-gradient(90deg, #10b981, #059669)'
+                                    : 'linear-gradient(90deg, #f59e0b, #d97706)',
+                                }}
+                              />
+                            </div>
+                            <span className={`text-xs font-semibold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
+                              {isPaid ? 'Saldado ✓' : `Saldo: ${formatCurrency(saldoPendiente)}`}
+                            </span>
+                          </div>
+                        </>
                       ) : (
-                        <Badge variant="outline" className="text-xs text-slate-400 shrink-0">Disponible</Badge>
+                        <>
+                          <p className="font-bold text-sm text-slate-800">💳 Finanzas y documentos</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Ver contrato y documentos</p>
+                        </>
                       )}
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-emerald-500 shrink-0" />
+                </div>
+              </button>
             )}
 
             {/* ── 13. Mensajes con AK ── */}
