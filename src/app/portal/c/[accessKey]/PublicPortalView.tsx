@@ -231,7 +231,7 @@ const isModuleVisible = (
   if (!settings) return false;
   const mod = settings[key];
   if (!mod || typeof mod !== 'object') return false;
-  return 'visible' in mod ? (mod as any).visible === true : false;
+  return 'visible' in (mod as object) ? (mod as { visible: boolean }).visible === true : false;
 };
 
 export default function PublicPortalView({
@@ -572,8 +572,9 @@ export default function PublicPortalView({
       <div
         className="relative text-white px-4 pb-10 pt-12 overflow-hidden"
         style={{
-          backgroundImage: portalExperience.heroImageUrl ? `url(${portalExperience.heroImageUrl})` : undefined,
-          background: !portalExperience.heroImageUrl ? `linear-gradient(135deg, ${eventColor}ee 0%, ${eventColor}99 50%, #1e1b4b 100%)` : undefined,
+          backgroundImage: portalExperience.heroImageUrl
+            ? `url(${portalExperience.heroImageUrl})`
+            : `linear-gradient(135deg, ${eventColor}ee 0%, ${eventColor}99 50%, #1e1b4b 100%)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -875,7 +876,9 @@ export default function PublicPortalView({
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tareas pendientes</p>
                 </div>
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
-                  <p className="text-2xl font-black text-sky-600">{daysUntil !== null ? (daysUntil === 0 ? '¡Hoy!' : daysUntil) : '—'}</p>
+                  <p className="text-2xl font-black text-sky-600">
+                    {daysUntil === null ? '—' : daysUntil === 0 ? '¡Hoy!' : daysUntil}
+                  </p>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Días para el evento</p>
                 </div>
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
@@ -2170,7 +2173,7 @@ export default function PublicPortalView({
                           return next;
                         });
                         const ItemIcon = getItineraryIcon(item.titulo || '');
-                        const displayDesc = item.descripcionCliente || item.descripcion;
+                        const displayDescription = item.descripcionCliente || item.descripcion;
                         return (
                           <div key={item.id} className="relative flex items-start gap-4 py-2">
                             <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
@@ -2188,16 +2191,16 @@ export default function PublicPortalView({
                                   <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
                                   <span className="font-semibold text-sm">{item.titulo}</span>
                                 </div>
-                                {displayDesc && (
+                                {displayDescription && (
                                   isOpen
                                     ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                                     : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                                 )}
                               </button>
-                              {isOpen && displayDesc && (
+                              {isOpen && displayDescription && (
                                 <div className="mt-1 mb-2 pl-1">
                                   <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
-                                    {displayDesc}
+                                    {displayDescription}
                                   </p>
                                 </div>
                               )}

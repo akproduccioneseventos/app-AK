@@ -324,7 +324,10 @@ function ClientPortalConfigContent() {
         setPortalSettings(settingsToSave);
         toast({ title: '✅ Guardado', description: 'La lista de bebidas y lo que debe traer el cliente fueron actualizados.' });
       } else {
-        throw new Error((settingsResult as any).error || (llevarResult as any).error || 'Error al guardar');
+        const errorMsg = (!settingsResult.success ? settingsResult.error : undefined)
+          ?? (!llevarResult.success ? llevarResult.error : undefined)
+          ?? 'Error al guardar';
+        throw new Error(errorMsg);
       }
     } catch (e: any) {
       toast({ title: 'Error al guardar', description: e.message, variant: 'destructive' });
