@@ -2,7 +2,7 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { Salon } from '@/types/salon';
+import type { Salon, SalonPago } from '@/types/salon';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const SALONES_FILE = 'salones.json';
@@ -131,4 +131,59 @@ export async function deleteSalonFoto(
     return { success: false, error: e.message };
   }
 }
+
+// ─────────────────── Salon Payments ───────────────────
+
+/**
+ * Adds a payment record to a salon (with optional comprobante as base64).
+ * Comprobante images are stored inline as base64 to keep them self-contained.
+ */
+export async function addSalonPago(
+  salonId: string,
+  pago: Omit<SalonPago, 'id'>
+): Promise<{ success: boolean; pago?: SalonPago; error?: string }> {
+  try {
+    const salones = await getSalones();
+    const idx = salones.findIndex((s) => s.id === salonId);
+    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
+
+    const newPago: SalonPago = {
+      ...pago,
+      id: `pago_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    };
+
+    salones[idx] = {
+      ...salones[idx],
+      pagos: [...(salones[idx].pagos || []), newPago],
+    };
+    await writeData(SALONES_FILE, salones);
+    return { success: true, pago: newPago };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+/**
+ * Removes a payment record from a salon.
+ */
+export async function deleteSalonPago(
+  salonId: string,
+  pagoId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const salones = await getSalones();
+    const idx = salones.findIndex((s) => s.id === salonId);
+    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
+
+    salones[idx] = {
+      ...salones[idx],
+      pagos: (salones[idx].pagos || []).filter((p) => p.id !== pagoId),
+    };
+    await writeData(SALONES_FILE, salones);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
 

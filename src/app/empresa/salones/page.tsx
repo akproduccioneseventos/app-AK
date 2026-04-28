@@ -30,6 +30,8 @@ import {
   LayoutDashboard,
   Loader2,
   MapPin,
+  MessageCircle,
+  Phone,
   PlusCircle,
   Save,
   Star,
@@ -44,6 +46,13 @@ import type { Salon } from '@/types/salon';
 import { getSalones, saveSalon, deleteSalon, uploadSalonFoto, deleteSalonFoto } from '@/app/actions/salones';
 import { isClubUruguay } from '@/lib/club-uruguay';
 import NextImage from 'next/image';
+
+/** Returns a wa.me deep-link for the given phone number (strips non-digit chars except leading +) */
+function buildWhatsAppUrl(phone: string, text?: string): string {
+  const digits = phone.replace(/[^\d+]/g, '').replace(/^\+/, '');
+  const base = `https://wa.me/${digits}`;
+  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
+}
 
 const emptySalon: Omit<Salon, 'id'> = {
   nombre: '',
@@ -181,6 +190,33 @@ function SalonForm({
             <Label htmlFor="salon-esClubUruguay" className="cursor-pointer">
               Este salón es el <span className="font-bold text-amber-600">Club Uruguay</span>
             </Label>
+          </div>
+
+          {/* Gerente del salón */}
+          <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-400">Gerente / Contacto del Salón</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="salon-gerente-nombre" className="text-xs">Nombre</Label>
+                <Input
+                  id="salon-gerente-nombre"
+                  value={form.gerente?.nombre || ''}
+                  onChange={(e) => onChange('gerente', { ...form.gerente, nombre: e.target.value })}
+                  placeholder="Ej: Juan Pérez"
+                  disabled={isSaving}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="salon-gerente-whatsapp" className="text-xs">WhatsApp (con código de país)</Label>
+                <Input
+                  id="salon-gerente-whatsapp"
+                  value={form.gerente?.whatsapp || ''}
+                  onChange={(e) => onChange('gerente', { ...form.gerente, whatsapp: e.target.value })}
+                  placeholder="Ej: +598 99 123 456"
+                  disabled={isSaving}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Photo upload — only available when editing an existing salon */}
@@ -400,6 +436,23 @@ function SalonCard({ salon, deletingId, onEdit, onDelete }: SalonCardProps) {
                 Ver sección Club Uruguay
               </Button>
             </Link>
+          )}
+          {salon.gerente?.whatsapp && (
+            <a
+              href={buildWhatsAppUrl(salon.gerente.whatsapp, `Hola${salon.gerente.nombre ? ` ${salon.gerente.nombre}` : ''}, te escribo de parte de AK Producciones en referencia al salón ${salon.nombre}.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs h-8 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+              >
+                <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
+                WhatsApp {salon.gerente.nombre ? `a ${salon.gerente.nombre}` : 'Gerente'}
+              </Button>
+            </a>
           )}
         </div>
       </div>
