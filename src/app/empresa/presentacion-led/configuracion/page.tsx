@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Upload, Check, Loader2, Camera, Save, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -181,7 +181,7 @@ export default function PresentacionLedConfiguracionPage() {
   };
 
   // Collect all unique menu items
-  const allMenuItems = React.useMemo<MenuItem[]>(() => {
+  const allMenuItems = useMemo<MenuItem[]>(() => {
     const seen = new Set<string>();
     const result: MenuItem[] = [];
     for (const menu of menus) {

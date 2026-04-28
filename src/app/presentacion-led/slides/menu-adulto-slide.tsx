@@ -52,7 +52,8 @@ function MenuCard({
       sessionStorage.setItem('desde_presentacion_led', 'true');
       const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
       sessionStorage.setItem('presentacion_slide_regreso', slide);
-      window.location.href = `/galeria-led?categoria=Catering`;
+      // Always navigate to the Catering category in the gallery
+      window.location.assign('/galeria-led?categoria=Catering');
     }
   };
 

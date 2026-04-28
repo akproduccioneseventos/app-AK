@@ -66,7 +66,8 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [], ledFot
       sessionStorage.setItem('desde_presentacion_led', 'true');
       const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
       sessionStorage.setItem('presentacion_slide_regreso', slide);
-      window.location.href = '/galeria-led?categoria=Regalo+exclusivo';
+      // Always navigate to the gift/exclusivo category in the gallery
+      window.location.assign('/galeria-led?categoria=Regalo+exclusivo');
     }
   };
 

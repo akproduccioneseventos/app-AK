@@ -64,6 +64,8 @@ const transition = {
 const NEXT_SLIDE_OFFSET = 1;
 const SKIP_TEEN_MENU_OFFSET = 2;
 const MAIN_DISHES_PER_PERSON = 1;
+/** Event duration (hours) from which 2 entradas are required instead of 1 */
+const ENTRADA_DUAL_DURATION_THRESHOLD = 4;
 // Fixed slides: portada(0), beneficios(1), datos(2), salon(3)
 const SALON_SLIDE_INDEX = 3;
 const DYNAMIC_START = 4; // = FIXED_SLIDES_START
@@ -311,7 +313,7 @@ export default function PresentacionLedPage() {
     return result;
   }, [data]);
 
-  const requiredEntradasCount: 1 | 2 = Number(clientData.duracionHoras) >= 4 ? 2 : 1;
+  const requiredEntradasCount: 1 | 2 = Number(clientData.duracionHoras) >= ENTRADA_DUAL_DURATION_THRESHOLD ? 2 : 1;
   const canAdvanceFromEntradas = todasLasEntradas.length === 0 || selectedEntradasIds.length >= requiredEntradasCount;
 
   const canAdvanceFromTeenMenu = !requireTeenMenu || !!selectedTeenMenuId;

@@ -62,9 +62,12 @@ export function PlanPagosSlide({
   const safeImagen = imagenFondoUrl && isSafeUrl(imagenFondoUrl) ? imagenFondoUrl : null;
 
   const waMessage = clienteNombre
-    ? `¡Hola AK Producciones! Quisiera coordinar el plan de pagos para el evento de ${clienteNombre}.`
+    ? `¡Hola AK Producciones! Quisiera coordinar el plan de pagos para el evento de ${clienteNombre.slice(0, 200)}.`
     : '¡Hola AK Producciones! Me gustaría hablar sobre el plan de pagos.';
-  const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
+  // Build a safe WhatsApp URL only when the phone number is a known constant
+  const waHref = /^\d+$/.test(WHATSAPP_NUMBER)
+    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`
+    : '#';
 
   return (
     <SlideLayout overflowScroll>

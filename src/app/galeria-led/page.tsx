@@ -68,7 +68,8 @@ function GaleriaLedContent() {
     } catch {
       // ignore
     }
-    window.location.href = '/presentacion-led';
+    // Hardcoded safe path — never derived from user input
+    window.location.assign('/presentacion-led');
   };
 
   const titulo = subCategoria
@@ -85,7 +86,7 @@ function GaleriaLedContent() {
             className="flex items-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 font-bold rounded-xl px-4 py-2 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
-            ← Volver a la presentación
+            Volver a la presentación
           </button>
         )}
         <div className="flex-1 min-w-0">
@@ -113,12 +114,12 @@ function GaleriaLedContent() {
               <button
                 key={foto.id}
                 type="button"
-                onClick={() => setLightboxUrl(foto.url)}
+                onClick={() => { if (isSafeUrl(foto.url)) setLightboxUrl(foto.url); }}
                 className="block w-full break-inside-avoid rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-200"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={foto.url}
+                  src={isSafeUrl(foto.url) ? foto.url : ''}
                   alt={foto.titulo || titulo}
                   className="w-full object-cover"
                   loading="lazy"
@@ -143,7 +144,7 @@ function GaleriaLedContent() {
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={lightboxUrl}
+            src={lightboxUrl && isSafeUrl(lightboxUrl) ? lightboxUrl : ''}
             alt="Foto ampliada"
             className="max-w-full max-h-[90vh] object-contain rounded-xl"
             onClick={e => e.stopPropagation()}

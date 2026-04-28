@@ -134,12 +134,12 @@ function ServicioCard({
       sessionStorage.setItem('desde_presentacion_led', 'true');
       const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
       sessionStorage.setItem('presentacion_slide_regreso', slide);
-      const cat = encodeURIComponent(servicio.categoria ?? '');
-      const sub = encodeURIComponent(servicio.subcategoria ?? '');
+      const cat = encodeURIComponent(String(servicio.categoria ?? '').slice(0, 100));
+      const sub = encodeURIComponent(String(servicio.subcategoria ?? '').slice(0, 100));
       const url = sub
         ? `/galeria-led?categoria=${cat}&subCategoria=${sub}`
         : `/galeria-led?categoria=${cat}`;
-      window.location.href = url;
+      window.location.assign(url);
     }
   };
 
