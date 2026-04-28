@@ -680,7 +680,7 @@ function SalonLayoutContent() {
           <div className="flex items-center gap-2">
             <LayoutDashboard className="w-5 h-5 text-amber-600 shrink-0" />
             <p className="text-sm font-semibold text-amber-800">
-              El salón <span className="font-black">{salonSuggestion.nombre}</span> tiene un croquis guardado. ¿Querés cargarlo como punto de partida?
+              El salón <span className="font-black">{salonSuggestion.nombre}</span> tiene un diseño guardado. ¿Querés cargarlo como punto de partida?
             </p>
           </div>
           <div className="flex gap-2 shrink-0">
@@ -697,10 +697,10 @@ function SalonLayoutContent() {
                   salonHeight: layout.salonHeight || decoracion.salonHeight,
                 });
                 setSalonSuggestion(null);
-                toast({ title: 'Croquis cargado', description: `Se cargó el diseño de ${salonSuggestion.nombre}.` });
+                toast({ title: 'Diseño cargado', description: `Se cargó el diseño de ${salonSuggestion.nombre}.` });
               }}
             >
-              Cargar croquis de {salonSuggestion.nombre}
+              Cargar diseño de {salonSuggestion.nombre}
             </Button>
             <Button size="sm" variant="ghost" className="rounded-xl h-8 text-slate-500" onClick={() => setSalonSuggestion(null)}>
               <X className="w-4 h-4" />

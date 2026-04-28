@@ -422,7 +422,7 @@ function SalonCard({ salon, deletingId, onEdit, onDelete }: SalonCardProps) {
           <Link href={`/empresa/salones/${salon.id}/croquis`}>
             <Button variant="outline" size="sm" className="w-full text-xs h-8">
               <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
-              Ver/Editar Croquis del Salón
+              Ver/Editar Diseño del Salón
             </Button>
           </Link>
           {clubUruguay && (

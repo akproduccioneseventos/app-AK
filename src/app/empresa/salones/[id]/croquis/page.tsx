@@ -229,7 +229,7 @@ function CroquisContent() {
     try {
       const result = await saveSalon({ ...salon, salonLayout: layout });
       if (!result.success) throw new Error(result.error);
-      toast({ title: 'Croquis guardado', description: 'El croquis del salón fue guardado correctamente.' });
+      toast({ title: 'Diseño guardado', description: 'El diseño del salón fue guardado correctamente.' });
     } catch (e: any) {
       toast({ title: 'Error al guardar', description: e.message, variant: 'destructive' });
     } finally {
@@ -347,7 +347,7 @@ function CroquisContent() {
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tighter font-headline uppercase">
-              Croquis del Salón
+              Diseño del Salón
             </h1>
             {salon && (
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{salon.nombre}</p>
@@ -357,7 +357,7 @@ function CroquisContent() {
         <div className="flex gap-2 flex-wrap">
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            {isSaving ? 'Guardando...' : 'Guardar Croquis'}
+            {isSaving ? 'Guardando...' : 'Guardar Diseño'}
           </Button>
           <Link href="/empresa/salones">
             <Button variant="outline">
@@ -457,7 +457,7 @@ function CroquisContent() {
                 ))}
               {(layout.salonElements || []).length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-slate-300 font-bold text-sm">Usá el botón &quot;Añadir Elemento&quot; para empezar a diseñar el croquis</p>
+                  <p className="text-slate-300 font-bold text-sm">Usá el botón &quot;Añadir Elemento&quot; para empezar a diseñar el salón</p>
                 </div>
               )}
             </div>
