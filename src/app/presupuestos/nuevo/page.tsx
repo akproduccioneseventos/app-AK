@@ -65,6 +65,8 @@ function PresupuestoDashboardContent() {
             const result = await resetAllPresupuestos();
             if (result.success) {
                 toast({ title: '🗑️ Presupuestos eliminados', description: `${result.deletedCount ?? 0} presupuesto(s) eliminado(s) permanentemente.`, variant: 'destructive' });
+                setPresupuestos([]);
+                setTotalPresupuestosCount(0);
                 router.refresh();
                 await fetchPresupuestos();
             } else {

@@ -51,6 +51,11 @@ export function useCrmBoard() {
   const fetchData = useCallback(async (forceRefresh = false) => {
     if (!isMountedRef.current) return;
 
+    if (forceRefresh) {
+      invalidateCache(CACHE_KEY_LEADS);
+      invalidateCache(CACHE_KEY_KPIS);
+    }
+
     if (!forceRefresh) {
       const cachedStages = getCached<CrmStage[]>(CACHE_KEY_STAGES);
       const cachedLeads = getCached<CrmLead[]>(CACHE_KEY_LEADS);

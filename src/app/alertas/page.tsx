@@ -97,19 +97,19 @@ export default function AlertasPage() {
   }, [toast]);
 
   const handleDescartar = useCallback(async (alertaId: string) => {
-    // Optimistically remove from local state
+    const previous = alertas; // snapshot BEFORE removal
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
     try {
       const result = await descartarAlerta(alertaId);
       if (!result.success) {
+        setAlertas(previous); // restore from snapshot
         toast({ title: 'Error', description: 'No se pudo eliminar la alerta.', variant: 'destructive' });
-        fetchAlertas();
       }
     } catch {
+      setAlertas(previous); // restore from snapshot
       toast({ title: 'Error', description: 'No se pudo eliminar la alerta.', variant: 'destructive' });
-      fetchAlertas();
     }
-  }, [toast, fetchAlertas]);
+  }, [alertas, toast]);
 
   const handleMarcarTodasLeidas = useCallback(async () => {
     setIsMarkingAll(true);

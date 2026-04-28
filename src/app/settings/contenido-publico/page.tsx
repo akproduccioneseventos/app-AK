@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, PlusCircle, Trash2, ArrowUp, ArrowDown, Save, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,8 @@ import {
   saveCatalogoSettings,
 } from '@/app/actions/contenido-publico';
 import type { CatalogoSettings, PresentacionLedSettings } from '@/types/contenido-publico';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 const CATALOG_TYPES = ['bodas', 'xv-anos', 'cumpleanos', 'fiestas', 'corporativos', 'aniversarios'];
 
@@ -32,7 +34,6 @@ function moveItem<T>(list: T[], index: number, direction: -1 | 1): T[] {
 export default function ContenidoPublicoSettingsPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [tipoCatalogo, setTipoCatalogo] = useState('bodas');
   const [presentacion, setPresentacion] = useState<PresentacionLedSettings | null>(null);
   const [catalogo, setCatalogo] = useState<CatalogoSettings | null>(null);
@@ -57,22 +58,20 @@ export default function ContenidoPublicoSettingsPage() {
     load();
   }, [tipoCatalogo, toast]);
 
-  const handleSave = async () => {
-    if (!presentacion || !catalogo) return;
-    setSaving(true);
-    try {
+  const autoSaveData = useMemo(() => ({ presentacion, catalogo }), [presentacion, catalogo]);
+
+  const { isSaving: saving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: autoSaveData,
+    onSave: async (d) => {
+      if (!d.presentacion || !d.catalogo) return { success: false, error: 'Sin datos' };
       await Promise.all([
-        savePresentacionLedSettings(presentacion),
-        saveCatalogoSettings(tipoCatalogo, catalogo),
+        savePresentacionLedSettings(d.presentacion),
+        saveCatalogoSettings(tipoCatalogo, d.catalogo),
       ]);
-      toast({ title: 'Guardado', description: 'Los cambios se guardaron correctamente.' });
-    } catch {
-      console.error('Error saving contenido público settings');
-      toast({ title: 'Error', description: 'No se pudieron guardar los cambios.', variant: 'destructive' });
-    } finally {
-      setSaving(false);
-    }
-  };
+      return { success: true };
+    },
+    enabled: !loading && !!presentacion && !!catalogo,
+  });
 
   if (loading || !presentacion || !catalogo) {
     return <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin" /></div>;
@@ -85,7 +84,8 @@ export default function ContenidoPublicoSettingsPage() {
           <h1 className="text-3xl font-bold">Contenido Público</h1>
           <p className="text-sm text-muted-foreground">Editá textos e imágenes de /presentacion-led y /catalogo/[tipo].</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <AutoSaveIndicator isSaving={saving} lastSaved={lastSaved} saveError={saveError} />
           <Link href="/settings"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
           <Button onClick={() => window.open('/presentacion-led', '_blank')} variant="outline"><ExternalLink className="w-4 h-4 mr-2" />Ver preview LED</Button>
           <Button onClick={() => window.open(`/catalogo/${tipoCatalogo}`, '_blank')} variant="outline"><ExternalLink className="w-4 h-4 mr-2" />Ver preview catálogo</Button>
@@ -194,9 +194,9 @@ export default function ContenidoPublicoSettingsPage() {
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving} className="min-w-44">
+        <Button onClick={saveNow} disabled={saving} className="min-w-44">
           {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Guardar cambios
+          Guardar ahora
         </Button>
       </div>
     </div>

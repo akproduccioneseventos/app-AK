@@ -220,7 +220,7 @@ export default function CrmPage() {
       const result = await resetCrm();
       if (result.success) {
         toast({ title: 'CRM reiniciado', description: 'Todos los prospectos han sido eliminados.' });
-        fetchData(true);
+        await fetchData(true);
       } else {
         toast({ title: 'Error', description: result.error || 'No se pudo reiniciar el CRM.', variant: 'destructive' });
       }
@@ -229,7 +229,7 @@ export default function CrmPage() {
     } finally {
       setIsResettingCrm(false);
     }
-  }, [toast, fetchData]);
+  }, [fetchData, toast]);
 
   const quickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
     { key: 'all', label: 'Todos' },

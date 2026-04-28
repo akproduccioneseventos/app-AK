@@ -25,6 +25,8 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 /** Escape user-supplied text before embedding in raw HTML strings. */
 function escapeHtml(str: string): string {
@@ -217,10 +219,15 @@ function NumerosDeMesaContent() {
   const [data, setData] = useState<NumerosMesaData>(defaultNumerosMesaData);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [tableCount, setTableCount] = useState(20);
   const [layoutMode, setLayoutMode] = useState<'2-per-page' | '4-per-page'>('2-per-page');
   const [previewTable, setPreviewTable] = useState<number | null>(null);
+
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data,
+    onSave: (d) => updateNumerosMesaAction(fiestaId!, d),
+    enabled: !isLoading && !!fiestaId,
+  });
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -260,22 +267,7 @@ function NumerosDeMesaContent() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const handleSave = async () => {
-    if (!fiestaId) return;
-    setIsSaving(true);
-    try {
-      const result = await updateNumerosMesaAction(fiestaId, data);
-      if (result.success) {
-        toast({ title: '¡Configuración Guardada!' });
-      } else {
-        throw new Error((result as { success: false; error?: string }).error);
-      }
-    } catch (e: unknown) {
-      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error desconocido', variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const handleSave = saveNow;
 
   const handlePrint = () => window.print();
 
@@ -306,6 +298,7 @@ function NumerosDeMesaContent() {
           </Link>
           <h1 className="font-headline text-xl font-bold text-slate-800">Torres de Mesa A4</h1>
         </div>
+        <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
 
         <Separator />
 
@@ -465,9 +458,9 @@ function NumerosDeMesaContent() {
         </div>
 
         <div className="pt-4 space-y-3">
-          <Button onClick={handleSave} disabled={isSaving} className="w-full rounded-xl h-12 font-bold shadow-lg shadow-primary/20">
+          <Button onClick={saveNow} disabled={isSaving} className="w-full rounded-xl h-12 font-bold shadow-lg shadow-primary/20">
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            Guardar Datos
+            Guardar ahora
           </Button>
           <Button onClick={handlePrint} variant="secondary" className="w-full rounded-xl h-12 font-bold">
             <PrinterIcon className="w-4 h-4 mr-2" /> 🖨️ Imprimir en A4

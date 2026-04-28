@@ -1,15 +1,17 @@
 
 'use client';
 
-import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, BellRing, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, BellRing, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 interface NotificationPreferences {
   eventReminders: { email: boolean; app: boolean };
@@ -45,7 +47,6 @@ async function saveNotificationPreferences(prefs: NotificationPreferences): Prom
 export default function NotificationsSettingsPage() {
   const { toast } = useToast();
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadPreferences = useCallback(async () => {
@@ -64,6 +65,16 @@ export default function NotificationsSettingsPage() {
     loadPreferences();
   }, [loadPreferences]);
 
+  const { isSaving, lastSaved, saveError } = useAutoSave({
+    data: preferences,
+    onSave: async (prefs) => {
+      if (!prefs) return { success: false, error: 'Sin datos' };
+      await saveNotificationPreferences(prefs);
+      return { success: true };
+    },
+    debounceMs: 1500,
+    enabled: !isLoading && !!preferences,
+  });
 
   const handlePreferenceChange = (
     category: keyof NotificationPreferences,
@@ -80,23 +91,6 @@ export default function NotificationsSettingsPage() {
             },
         };
     });
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!preferences) return;
-    setIsSaving(true);
-    try {
-      await saveNotificationPreferences(preferences);
-      toast({
-        title: "Preferencias Guardadas",
-        description: "Tus configuraciones de notificación han sido actualizadas.",
-      });
-    } catch(e) {
-      toast({ title: "Error", description: "No se pudieron guardar las preferencias.", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const notificationSections: {
@@ -129,23 +123,25 @@ export default function NotificationsSettingsPage() {
             Configuración de Notificaciones
           </h1>
         </div>
-        <Link href="/settings">
-          <Button variant="outline" disabled={isSaving}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Configuración
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+          <Link href="/settings">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver a Configuración
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Gestionar Preferencias</CardTitle>
           <CardDescription>
-            Elige qué notificaciones deseas recibir y por qué canales.
+            Elige qué notificaciones deseas recibir y por qué canales. Los cambios se guardan automáticamente.
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6">
+        <CardContent className="space-y-6">
             {notificationSections.map((section, index) => (
               <React.Fragment key={section.id}>
                 {index > 0 && <Separator />}
@@ -188,13 +184,6 @@ export default function NotificationsSettingsPage() {
               </React.Fragment>
             ))}
           </CardContent>
-          <CardFooter className="border-t pt-6">
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              {isSaving ? "Guardando..." : "Guardar Preferencias"}
-            </Button>
-          </CardFooter>
-        </form>
       </Card>
     </div>
   );

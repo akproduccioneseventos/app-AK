@@ -53,7 +53,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { getAlertasGlobalesConLeidas, marcarAlertaLeida, descartarPrioridad } from '@/app/actions/alertas.actions';
+import { getAlertasGlobalesConLeidas, marcarAlertaLeida, descartarPrioridad, descartarAlerta } from '@/app/actions/alertas.actions';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 
 const MAX_DASHBOARD_ALERTS = 3;
@@ -116,10 +116,7 @@ export default function MainDashboardPage() {
         const previous = alertasUrgentes;
         setAlertasUrgentes(prev => prev.filter(a => a.id !== alertaId));
         try {
-            const result = await marcarAlertaLeida(alertaId);
-            if (!result.success) {
-                throw new Error('No se pudo marcar la alerta como leída.');
-            }
+            await descartarAlerta(alertaId);
         } catch {
             setAlertasUrgentes(previous);
             toast({ title: "Error", description: "No se pudo cerrar la alerta.", variant: "destructive" });

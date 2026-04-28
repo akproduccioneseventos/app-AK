@@ -29,6 +29,8 @@ import { Suspense } from 'react';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 const ALL_ESTADOS_ENTREGA: EntregaMaterialEstado[] = ['Pendiente', 'En edición', 'En revisión', 'Entregado parcial', 'Entregado completo'];
 
@@ -40,11 +42,21 @@ function FotografiaContent() {
     const [formData, setFormData] = useState<FotografiaYFilmacionData | null>(null);
     const [eventDate, setEventDate] = useState<string | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
     
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentItem, setCurrentItem] = useState<Partial<ServicioFotografia> | null>(null);
+
+    const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+        data: formData,
+        onSave: async (d) => {
+            if (!d || !fiestaId) return { success: false, error: 'Sin datos' };
+            const result = await updateFotografia(fiestaId, d);
+            if (result.updatedData) setFormData(result.updatedData);
+            return result;
+        },
+        enabled: !isLoading && !!fiestaId && !!formData,
+    });
 
     const loadData = useCallback(async (showLoading = true) => {
         if (!fiestaId) return;
@@ -137,23 +149,7 @@ function FotografiaContent() {
         loadData();
     }, [loadData]);
     
-    const handleSave = async () => {
-        if (!formData || !fiestaId) return;
-        setIsSaving(true);
-        try {
-            const result = await updateFotografia(fiestaId, formData);
-            if (result.success) {
-                toast({ title: "¡Guardado!", description: "La información ha sido actualizada y es visible para el cliente." });
-                if (result.updatedData) setFormData(result.updatedData);
-            } else {
-                throw new Error(result.error);
-            }
-        } catch (err: any) {
-            toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-        } finally {
-            setIsSaving(false);
-        }
-    };
+    const handleSave = saveNow;
 
     const openItemModal = (item?: ServicioFotografia) => {
         setCurrentItem(item || { nombre: '', estado: 'Pendiente' });
@@ -253,7 +249,8 @@ function FotografiaContent() {
                     <Film className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Seguimiento de Material</h1>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-3">
+                    <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
                     <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Sincronizar con presupuesto">
                         <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
                     </Button>
@@ -350,9 +347,9 @@ function FotografiaContent() {
             </Card>
 
             <div className="flex justify-end pt-4 border-t">
-                <Button onClick={handleSave} disabled={isSaving} size="lg">
+                <Button onClick={saveNow} disabled={isSaving} size="lg">
                     {isSaving ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Save className="w-5 h-5 mr-2"/>}
-                    Guardar Cambios y Notificar Cliente
+                    Guardar ahora
                 </Button>
             </div>
         </div>
