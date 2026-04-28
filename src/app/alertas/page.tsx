@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -96,20 +96,23 @@ export default function AlertasPage() {
     }
   }, [toast]);
 
+  const alertasRef = useRef(alertas);
+  alertasRef.current = alertas;
+
   const handleDescartar = useCallback(async (alertaId: string) => {
-    // Optimistically remove from local state
+    const previous = alertasRef.current; // snapshot BEFORE removal
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
     try {
       const result = await descartarAlerta(alertaId);
       if (!result.success) {
+        setAlertas(previous); // restore from snapshot
         toast({ title: 'Error', description: 'No se pudo eliminar la alerta.', variant: 'destructive' });
-        fetchAlertas();
       }
     } catch {
+      setAlertas(previous); // restore from snapshot
       toast({ title: 'Error', description: 'No se pudo eliminar la alerta.', variant: 'destructive' });
-      fetchAlertas();
     }
-  }, [toast, fetchAlertas]);
+  }, [toast]);
 
   const handleMarcarTodasLeidas = useCallback(async () => {
     setIsMarkingAll(true);

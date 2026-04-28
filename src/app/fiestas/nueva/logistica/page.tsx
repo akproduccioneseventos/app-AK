@@ -16,6 +16,8 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { ConfigEventoDataStorage } from '@/types/fiesta';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 function LogisticaContent() {
   const { toast } = useToast();
@@ -26,7 +28,12 @@ function LogisticaContent() {
   const [config, setConfig] = useState<Partial<ConfigEventoDataStorage>>({});
   const [nombreEvento, setNombreEvento] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: config,
+    onSave: (d) => updateConfiguracionFiestaActual(fiestaId!, d as ConfigEventoDataStorage),
+    enabled: !isLoading && !!fiestaId,
+  });
 
   useEffect(() => {
     if (!fiestaId) { router.replace('/eventos'); return; }
@@ -39,23 +46,6 @@ function LogisticaContent() {
       })
       .finally(() => setIsLoading(false));
   }, [fiestaId, router]);
-
-  const handleSave = async () => {
-    if (!fiestaId) return;
-    setIsSaving(true);
-    try {
-      const result = await updateConfiguracionFiestaActual(fiestaId, config as ConfigEventoDataStorage);
-      if (result.success) {
-        toast({ title: '✅ Logística guardada', description: 'La información de logística fue actualizada.' });
-      } else {
-        toast({ title: 'Error', description: result.error ?? 'No se pudo guardar.', variant: 'destructive' });
-      }
-    } catch {
-      toast({ title: 'Error', description: 'Error inesperado al guardar.', variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const publicUrl = fiestaId ? `${typeof window !== 'undefined' ? window.location.origin : ''}/evento/logistica/${fiestaId}` : '';
 
@@ -75,19 +65,22 @@ function LogisticaContent() {
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
-            <Navigation className="w-5 h-5 text-indigo-600" />
-            Logística &amp; Accesibilidad
-          </h1>
-          <p className="text-sm text-slate-500">{nombreEvento} · Información para invitados</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
+              <Navigation className="w-5 h-5 text-indigo-600" />
+              Logística &amp; Accesibilidad
+            </h1>
+            <p className="text-sm text-slate-500">{nombreEvento} · Información para invitados</p>
+          </div>
         </div>
+        <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
       </div>
 
       {/* Public Link */}
@@ -253,12 +246,12 @@ function LogisticaContent() {
       <Card>
         <CardFooter className="pt-4">
           <Button
-            onClick={handleSave}
+            onClick={saveNow}
             disabled={isSaving}
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-            {isSaving ? 'Guardando...' : 'Guardar Logística'}
+            {isSaving ? 'Guardando...' : 'Guardar ahora'}
           </Button>
         </CardFooter>
       </Card>

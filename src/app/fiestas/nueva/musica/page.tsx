@@ -14,6 +14,8 @@ import { getFiestaById, updateMusicaFiestaActual } from '@/app/actions/fiesta-ac
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 const cancionesSugeridasTortaBrindis = [
   "Llego la hora de cortar la torta",
@@ -39,8 +41,13 @@ function MusicaContent() {
   });
   const [nuevaCancionTorta, setNuevaCancionTorta] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
+    data: musicaData,
+    onSave: (d) => updateMusicaFiestaActual(fiestaId!, d),
+    enabled: !isLoading && !!fiestaId,
+  });
 
   const loadMusicaData = useCallback(async () => {
     if (!fiestaId) return;
@@ -90,24 +97,6 @@ function MusicaContent() {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!fiestaId) return;
-    setIsSaving(true);
-    try {
-      const result = await updateMusicaFiestaActual(fiestaId, musicaData);
-      if (result.success) {
-        toast({ title: "¡Música Guardada!" });
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
 
   return (
@@ -117,7 +106,8 @@ function MusicaContent() {
           <Music2 className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Música de la Fiesta</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
             <Link href={`/fiestas/nueva/musica/pdf?fiestaId=${fiestaId}`}>
               <Button variant="secondary"><Printer className="w-4 h-4 mr-2"/>Imprimir para DJ</Button>
             </Link>
@@ -127,7 +117,7 @@ function MusicaContent() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => { e.preventDefault(); saveNow(); }}>
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl">Preferencias Musicales</CardTitle>
@@ -232,7 +222,7 @@ function MusicaContent() {
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2" />}
-              Guardar Preferencias
+              Guardar ahora
             </Button>
           </CardFooter>
         </Card>

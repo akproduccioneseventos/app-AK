@@ -203,16 +203,20 @@ export default function CustomersPage() {
   }, [fetchCustomers]);
 
   const handleDelete = async (id: string, customerName?: string) => {
+    if (deletingId) return;
     setDeletingId(id);
+    const previous = customers; // snapshot
+    setCustomers(prev => prev.filter(c => c.id !== id)); // optimistic removal
     try {
       const result = await deleteCustomerAction(id);
       if (result.success) {
         toast({ title: "Cliente Eliminado", description: `El cliente "${customerName || id}" ha sido eliminado.` });
-        fetchCustomers(); 
       } else {
+        setCustomers(previous); // revert
         throw new Error(result.error || "Error desconocido al eliminar.");
       }
     } catch (error: any) {
+      setCustomers(previous); // revert
       toast({ title: "Error al Eliminar", description: error.message, variant: "destructive" });
     } finally {
       setDeletingId(null);

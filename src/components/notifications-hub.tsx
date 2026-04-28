@@ -117,7 +117,7 @@ export function NotificationsHub() {
                             {formatDistanceToNow(new Date(notif.fecha), { addSuffix: true, locale: es })}
                         </p>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-destructive" onClick={() => handleDeleteNotification(notif.id)}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 md:opacity-0 md:group-hover:opacity-100 text-destructive" onClick={() => handleDeleteNotification(notif.id)}>
                         <Trash2 className="w-3.5 h-3.5"/>
                     </Button>
                 </div>
