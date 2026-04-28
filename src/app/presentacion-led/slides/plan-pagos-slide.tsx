@@ -60,10 +60,11 @@ export function PlanPagosSlide({
   const contenido = getContenidoPorTipo(tipoFiesta);
   const cuotas = calcularCuotas(totalEstimado);
   const safeImagen = imagenFondoUrl && isSafeUrl(imagenFondoUrl) ? imagenFondoUrl : null;
+  const empresa = companyInfo.companyName || 'AK Producciones';
 
   const waMessage = clienteNombre
-    ? `¡Hola AK Producciones! Quisiera coordinar el plan de pagos para el evento de ${clienteNombre.slice(0, 200)}.`
-    : '¡Hola AK Producciones! Me gustaría hablar sobre el plan de pagos.';
+    ? `¡Hola ${empresa}! Quisiera coordinar el plan de pagos para el evento de ${clienteNombre.slice(0, 200)}.`
+    : `¡Hola ${empresa}! Me gustaría hablar sobre el plan de pagos.`;
   // Build a safe WhatsApp URL only when the phone number is a known constant
   const waHref = /^\d+$/.test(WHATSAPP_NUMBER)
     ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`
@@ -194,7 +195,7 @@ export function PlanPagosSlide({
             </a>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
-              <p className="text-white font-bold">{companyInfo.companyName || 'AK Producciones'}</p>
+              <p className="text-white font-bold">{empresa}</p>
               {companyInfo.companyAddress && (
                 <p className="text-white/50 text-sm mt-1">{companyInfo.companyAddress}</p>
               )}
