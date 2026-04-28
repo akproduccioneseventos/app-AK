@@ -357,7 +357,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Empty state */}
-          {isLoaded && (activeScreenItem?.type !== 'video' && activeScreenItem?.type !== 'redes' && activeScreenItem?.type !== 'juego' && activeScreenItem?.type !== 'dedicaciones' && activeScreenItem?.type !== 'chat' && activeScreenItem?.type !== 'canciones') && posts.length === 0 && settings.enabled !== false && (
+          {isLoaded && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
               <div className="text-8xl opacity-20">📸</div>
               <div className="text-center space-y-2">

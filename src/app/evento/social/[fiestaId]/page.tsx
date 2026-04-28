@@ -848,7 +848,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
       {/* ════════════════════════════════════════════════════════════════
           GUEST VIEW — clean button-grid interface
-          Syncs automatically via the polling in fetchData().
+          Syncs automatically via the 4-second polling in fetchData().
           Buttons appear/disappear based on the organizer's settings.
       ════════════════════════════════════════════════════════════════ */}
       {!isAdminView && (
