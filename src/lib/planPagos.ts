@@ -54,9 +54,11 @@ export function generarPlanPagos(
 
   // Generar cuotas trimestrales
   const cuotas: CuotaPlanPagoContrato[] = [];
+  // Normalize cursor to 1st of month for consistent quarterly intervals.
+  // Installments are due at the start of the month to simplify date arithmetic.
   let cursor = new Date(hoy);
   cursor.setMonth(cursor.getMonth() + 3);
-  cursor.setDate(1); // Normalize to start of month for clarity
+  cursor.setDate(1);
 
   let index = 1;
   let cuotaClaveAgregada = false;
@@ -126,20 +128,25 @@ export function generarPlanPagos(
 
 /**
  * Recalcula el estado de las cuotas aplicando los pagos registrados.
- * Distribuye los pagos cronológicamente entre las cuotas.
+ * Distribuye los pagos cronológicamente entre las cuotas (waterfall).
  */
 export function recalcularEstadoCuotas(
   plan: PlanPagos,
   pagos: PagoCliente[],
 ): PlanPagos {
   const hoy = new Date();
-  const pagosOrdenados = [...pagos].sort(
-    (a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime(),
-  );
+  const pagosOrdenados = [...pagos]
+    .filter(p => p.estadoPago !== 'pendiente_confirmacion')
+    .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
   let montoPendienteDistribuir = pagosOrdenados.reduce(
-    (sum, p) => sum + (p.estadoPago !== 'pendiente_confirmacion' ? p.monto : 0),
+    (sum, p) => sum + p.monto,
     0,
+  );
+
+  // Track how much each pago has been consumed to assign IDs accurately
+  const pagoRestante = new Map<string, number>(
+    pagosOrdenados.map(p => [p.id, p.monto]),
   );
 
   const cuotasActualizadas: CuotaPlanPagoContrato[] = plan.cuotas.map(cuota => {
@@ -150,10 +157,18 @@ export function recalcularEstadoCuotas(
     const montoAplicado = Math.min(montoPendienteDistribuir, montoObjetivo);
     montoPendienteDistribuir -= montoAplicado;
 
-    // Collect IDs of pagos used for this cuota (simplified: all pagos contribute)
-    const pagosAplicados = pagosOrdenados
-      .filter(p => p.estadoPago !== 'pendiente_confirmacion')
-      .map(p => p.id);
+    // Collect IDs of pagos that contributed to this cuota
+    let aDistribuir = montoAplicado;
+    const pagosAplicados: string[] = [];
+    for (const pago of pagosOrdenados) {
+      if (aDistribuir <= 0) break;
+      const disponible = pagoRestante.get(pago.id) ?? 0;
+      if (disponible <= 0) continue;
+      const usado = Math.min(disponible, aDistribuir);
+      pagoRestante.set(pago.id, disponible - usado);
+      aDistribuir -= usado;
+      pagosAplicados.push(pago.id);
+    }
 
     const vencida = new Date(cuota.fechaVencimiento) < hoy && montoAplicado < montoObjetivo;
 

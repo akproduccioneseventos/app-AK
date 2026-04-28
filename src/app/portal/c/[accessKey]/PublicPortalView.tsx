@@ -936,7 +936,8 @@ export default function PublicPortalView({
               const diasHastaClave = cuotaClave
                 ? Math.ceil((new Date(cuotaClave.fechaVencimiento).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
                 : null;
-              const alertaClave = diasHastaClave !== null && diasHastaClave >= 0 && diasHastaClave <= 30;
+              // Alert when <= 30 days left or already past due
+              const alertaClave = diasHastaClave !== null && diasHastaClave <= 30 && cuotaClave?.estado !== 'completada';
 
               return (
                 <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
@@ -954,7 +955,10 @@ export default function PublicPortalView({
                         <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                         <div>
                           <p className="text-xs font-black text-amber-800">
-                            ⏰ {diasHastaClave === 0 ? '¡Hoy!' : `${diasHastaClave} días`} para completar el {plan.porcentajeMinimoAntesFecha}%
+                            {diasHastaClave !== null && diasHastaClave < 0
+                              ? `🔴 ¡Fecha vencida! Debías completar el ${plan.porcentajeMinimoAntesFecha}%`
+                              : `⏰ ${diasHastaClave === 0 ? '¡Hoy!' : `${diasHastaClave} días`} para completar el ${plan.porcentajeMinimoAntesFecha}%`
+                            }
                           </p>
                           <p className="text-[11px] text-amber-700 mt-0.5">
                             Debés llegar a {formatMoney(plan.montoObjetivo30Porciento)} antes del {formatFecha(cuotaClave.fechaVencimiento)}.

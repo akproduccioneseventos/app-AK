@@ -428,7 +428,7 @@ function ContratoServicioContent() {
                     <div className="grid sm:grid-cols-3 gap-2 text-xs">
                       <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
                         <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Meses hasta el evento</p>
-                        <p className="font-bold text-slate-800">{planGenerado.mesesLimiteAntesFecha} meses antes del límite</p>
+                        <p className="font-bold text-slate-800">{planGenerado.mesesLimiteAntesFecha} meses antes de la fecha clave</p>
                       </div>
                       <div className="bg-white rounded-xl p-3 border border-blue-100 space-y-0.5">
                         <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Fecha límite {porcentajeMinimo}%</p>
