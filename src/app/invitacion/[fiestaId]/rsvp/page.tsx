@@ -174,10 +174,15 @@ function RsvpFormContent() {
               </motion.div>
               {confirmedGuest.rsvp === 'Confirmado' ? (
                 <>
-                  <CardTitle className="text-3xl font-bold">¡Confirmado!</CardTitle>
-                  <CardDescription className="text-base mt-2">
-                    ¡Te esperamos, <strong>{confirmedGuest.nombre}</strong>!
-                  </CardDescription>
+                  <div className="text-center space-y-2 px-4">
+                    <CardTitle className="text-3xl font-bold text-slate-900">¡Confirmado! 🎉</CardTitle>
+                    <CardDescription className="text-base mt-2 text-slate-600">
+                      ¡Gracias, <strong>{confirmedGuest.nombre}</strong>! Tu lugar está reservado.
+                    </CardDescription>
+                    <p className="text-sm text-slate-500 leading-relaxed">
+                      Te esperamos con muchas ganas. Este es tu pase digital — guardálo o descargálo para presentarlo en la entrada del evento.
+                    </p>
+                  </div>
                 </>
               ) : (
                 <>
@@ -245,18 +250,59 @@ function RsvpFormContent() {
                       <p className="text-sm font-semibold text-amber-800">{confirmedGuest.dietaryRestriction}</p>
                     </div>
                   )}
-                  {guestExp?.showSocialCta && (
-                    <a
-                      href={`/evento/social/${fiestaId}`}
-                      className="flex items-center justify-between w-full bg-indigo-50 border border-indigo-100 rounded-xl p-3 hover:bg-indigo-100 transition-colors"
-                    >
+                </div>
+
+                {/* Cancellation policy */}
+                {fiesta.configuracion?.fechaEvento && (() => {
+                  const eventDate = new Date(fiesta.configuracion!.fechaEvento!);
+                  const cancelDeadline = new Date(eventDate);
+                  cancelDeadline.setDate(cancelDeadline.getDate() - 7);
+                  const today = new Date();
+                  const canStillCancel = today < cancelDeadline;
+                  const deadlineStr = cancelDeadline.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
+                  return canStillCancel ? (
+                    <div className="w-full bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">📸</span>
-                        <p className="text-sm font-semibold text-indigo-800">Muro social del evento</p>
+                        <span className="text-lg">⚠️</span>
+                        <p className="text-sm font-bold text-amber-800">¿Necesitás cancelar?</p>
                       </div>
-                      <ExternalLink className="w-4 h-4 text-indigo-500 shrink-0" />
-                    </a>
-                  )}
+                      <p className="text-xs text-amber-700 leading-relaxed">
+                        Si por algún motivo no podés asistir, tenés tiempo hasta el <strong>{deadlineStr}</strong> para cancelar tu confirmación.
+                        Pasada esa fecha, no será posible realizar cambios.
+                      </p>
+                      <a
+                        href={`/invitacion/${fiestaId}/rsvp`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-800 transition"
+                      >
+                        Cancelar mi confirmación →
+                      </a>
+                    </div>
+                  ) : null;
+                })()}
+
+                {/* Social wall QR */}
+                <div className="w-full bg-indigo-50 border border-indigo-100 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📸</span>
+                    <div>
+                      <p className="text-sm font-bold text-indigo-800">Muro social del evento</p>
+                      <p className="text-xs text-indigo-600">Subí fotos y mensajes desde tu celular durante la fiesta</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <QRCodeStylized
+                      value={`${baseUrl}/evento/social/${fiestaId}`}
+                      size={120}
+                      level="M"
+                      id="qr-social-rsvp"
+                    />
+                  </div>
+                  <a
+                    href={`/evento/social/${fiestaId}`}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition"
+                  >
+                    📷 Entrar al muro social →
+                  </a>
                 </div>
               </CardContent>
             )}
@@ -267,11 +313,16 @@ function RsvpFormContent() {
                     <Download className="w-4 h-4 mr-2" /> Descargar QR
                   </Button>
                   <a
-                    href={`/portal-invitado/${fiestaId}/${confirmedGuest.id}`}
-                    className="block w-full text-center py-3 px-4 rounded-xl bg-purple-50 border border-purple-100 text-purple-700 text-sm font-semibold hover:bg-purple-100 transition-colors"
+                    href={`/invitacion/${fiestaId}/invitado/${confirmedGuest.id}`}
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all"
+                    style={{
+                      background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
+                      color: 'white',
+                      boxShadow: '0 4px 20px rgba(124,58,237,0.3)',
+                    }}
                     data-testid="guest-portal-link"
                   >
-                    🔖 Ver mi pase completo →
+                    🎫 Ver mi portal de invitado completo →
                   </a>
                 </>
               )}
