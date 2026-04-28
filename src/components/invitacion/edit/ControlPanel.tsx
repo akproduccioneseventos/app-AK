@@ -27,7 +27,6 @@ import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import QRCodeStylized from 'qrcode.react';
 import { useToast } from "@/hooks/use-toast";
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from "@/app/actions/invitacion-digital-templates";
-import { Badge } from "@/components/ui/badge";
 import { merge, cloneDeep } from 'lodash';
 
 interface ControlPanelProps {
@@ -136,35 +135,49 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                             <Loader2 className="w-8 h-8 animate-spin text-primary" />
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            {templates.filter(tpl => templateCategoryFilter === 'all' || tpl.category === templateCategoryFilter).map(tpl => (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                            {templates.filter(tpl => templateCategoryFilter === 'all' || tpl.category === templateCategoryFilter).map(tpl => {
+                                const palette = tpl.cabecera?.paletaColores;
+                                const primary = palette?.primary ?? '#8b5cf6';
+                                const secondary = palette?.secondary ?? '#c4b5fd';
+                                const accent = palette?.accent ?? '#ede9fe';
+                                const categoryEmoji = tpl.category === 'XV Años' ? '👑' : tpl.category === 'Boda' ? '💍' : tpl.category === 'Cumpleaños' ? '🎂' : tpl.category === 'Infantil' ? '🎈' : '🎉';
+                                return (
                                 <button
                                     key={tpl.id}
                                     onClick={() => applyTemplate(tpl)}
-                                    className="text-left p-4 border rounded-xl hover:bg-primary/5 hover:border-primary/30 transition-all space-y-1.5 group"
+                                    className="relative overflow-hidden rounded-2xl border-2 border-white/20 hover:scale-[1.02] hover:shadow-2xl transition-all duration-200 group text-left"
+                                    style={{ aspectRatio: '9/16' }}
+                                    title={tpl.name}
                                 >
-                                    <div className="flex items-center justify-between gap-2">
-                                        <span className="font-bold text-sm">{tpl.name}</span>
-                                        <Badge variant="secondary" className="text-[10px] shrink-0">{tpl.category}</Badge>
+                                    {/* Gradient background */}
+                                    <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${primary}ee 0%, ${secondary}cc 50%, ${accent}88 100%)` }} />
+                                    {/* Content */}
+                                    <div className="relative z-10 flex flex-col items-center justify-center h-full p-3 text-center">
+                                        <div className="text-3xl mb-1.5 drop-shadow-lg">{categoryEmoji}</div>
+                                        <div className="text-white text-[11px] font-bold drop-shadow-md leading-tight" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
+                                            {tpl.cabecera?.protagonista1 || 'Valentina'}
+                                        </div>
+                                        <div className="flex gap-1 mt-2">
+                                            <div className="w-4 h-1 rounded-full" style={{ backgroundColor: primary }} />
+                                            <div className="w-4 h-1 rounded-full" style={{ backgroundColor: secondary }} />
+                                            <div className="w-4 h-1 rounded-full" style={{ backgroundColor: accent }} />
+                                        </div>
                                     </div>
-                                    <p className="text-[11px] text-muted-foreground">
-                                        Estilo: {tpl.plantilla === 'Grazia' ? 'Clásica Elegante' : tpl.plantilla === 'Allegria' ? 'Moderna Vibrante' : tpl.plantilla}
-                                    </p>
-                                    <div className="flex gap-1 mt-1">
-                                        {tpl.cabecera?.paletaColores?.primary && (
-                                            <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.primary }} />
-                                        )}
-                                        {tpl.cabecera?.paletaColores?.secondary && (
-                                            <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.secondary }} />
-                                        )}
-                                        {tpl.cabecera?.paletaColores?.accent && (
-                                            <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: tpl.cabecera.paletaColores.accent }} />
-                                        )}
+                                    {/* Footer */}
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/40 backdrop-blur-sm px-2 py-1.5">
+                                        <p className="text-white text-[10px] font-bold truncate">{tpl.name}</p>
+                                        <p className="text-white/60 text-[9px]">{tpl.plantilla === 'Grazia' ? 'Clásica' : 'Moderna'}</p>
+                                    </div>
+                                    {/* Hover overlay */}
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <span className="bg-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xl" style={{ color: primary }}>Aplicar</span>
                                     </div>
                                 </button>
-                            ))}
+                                );
+                            })}
                             {templates.filter(tpl => templateCategoryFilter === 'all' || tpl.category === templateCategoryFilter).length === 0 && (
-                                <p className="col-span-2 text-center text-sm text-muted-foreground py-8">No hay plantillas disponibles para esta categoría.</p>
+                                <p className="col-span-3 text-center text-sm text-muted-foreground py-8">No hay plantillas disponibles para esta categoría.</p>
                             )}
                         </div>
                     )}

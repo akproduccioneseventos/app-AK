@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2, Layers, AlertCircle, ArrowUp, ArrowDown } from 'lucide-react';
+import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2, Layers, AlertCircle, ArrowUp, ArrowDown, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -28,6 +28,7 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [galeriaUrlDraft, setGaleriaUrlDraft] = useState('');
+  const [publishingUrl, setPublishingUrl] = useState<string | null>(null);
 
   const update = <K extends keyof InvitacionDigitalConfig>(key: K, value: InvitacionDigitalConfig[K]) => {
     onChange({ ...config, [key]: value });
@@ -90,6 +91,44 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
     } finally {
       setIsUploadingGallery(false);
       event.target.value = '';
+    }
+  };
+
+  const handlePublishToSocial = async (imageUrl: string) => {
+    if (!fiestaId) return;
+    // Validate the URL is a safe HTTPS URL before fetching (prevents SSRF with non-https URLs)
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(imageUrl);
+    } catch {
+      toast({ title: 'Error', description: 'URL de imagen inválida.', variant: 'destructive' });
+      return;
+    }
+    if (parsedUrl.protocol !== 'https:') {
+      toast({ title: 'Error', description: 'Solo se pueden publicar imágenes con URL segura (HTTPS).', variant: 'destructive' });
+      return;
+    }
+    setPublishingUrl(imageUrl);
+    try {
+      const { uploadSocialPost } = await import('@/app/actions/social-gallery');
+      const response = await fetch(parsedUrl.toString());
+      const blob = await response.blob();
+      const file = new File([blob], 'gallery-photo.jpg', { type: blob.type || 'image/jpeg' });
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('file', file);
+      formData.append('authorName', 'Organizador');
+      formData.append('momentTag', 'galería');
+      const result = await uploadSocialPost(formData);
+      if (result.success) {
+        toast({ title: '¡Foto publicada!', description: 'La foto aparece ahora en el mural social.' });
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: unknown) {
+      toast({ title: 'Error', description: getErrorMessage(e, 'No se pudo publicar la foto.'), variant: 'destructive' });
+    } finally {
+      setPublishingUrl(null);
     }
   };
 
@@ -257,6 +296,20 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
+                      {fiestaId && (
+                        <button
+                          type="button"
+                          className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-lg p-1.5 text-[10px] flex items-center gap-1 shadow-lg disabled:opacity-50"
+                          onClick={() => handlePublishToSocial(url)}
+                          disabled={publishingUrl === url}
+                          title="Publicar en mural social"
+                        >
+                          {publishingUrl === url
+                            ? <Loader2 className="w-3 h-3 animate-spin" />
+                            : <Share2 className="w-3 h-3" />}
+                          Publicar
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
