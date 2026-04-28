@@ -14,6 +14,8 @@ import type { ActiveGameData, ScreenPlaylistItem, SocialGallerySettings, SocialG
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize } from 'lucide-react';
+import { getSongRequests } from '@/app/actions/social-interactive';
+import type { SongRequest } from '@/types/social-gallery';
 
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
@@ -26,6 +28,8 @@ const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
 const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]';
 const GAME_OVERLAY_CLASS =
   'w-full flex flex-col items-center justify-center gap-5';
+const SORTEO_WHEEL_GRADIENT =
+  'conic-gradient(#f43f5e 0deg, #f43f5e 30deg, #f97316 30deg, #f97316 60deg, #eab308 60deg, #eab308 90deg, #22c55e 90deg, #22c55e 120deg, #06b6d4 120deg, #06b6d4 150deg, #6366f1 150deg, #6366f1 180deg, #ec4899 180deg, #ec4899 210deg, #f43f5e 210deg, #f43f5e 240deg, #f97316 240deg, #f97316 270deg, #eab308 270deg, #eab308 300deg, #22c55e 300deg, #22c55e 330deg, #06b6d4 330deg, #06b6d4 360deg)';
 
 type MomentData = { id: string; nombre: string; emoji: string; timestamp: string };
 type PollData = { id: string; question: string; options: { id: string; text: string; votes: number }[] };
@@ -63,6 +67,7 @@ export default function MuroEnVivoPage() {
   const [highlightedDedications, setHighlightedDedications] = useState<Dedication[]>([]);
   const [highlightedComments, setHighlightedComments] = useState<{ postId: string; comment: SocialComment }[]>([]);
   const [recentChatMessages, setRecentChatMessages] = useState<ChatMessage[]>([]);
+  const [recentSongRequests, setRecentSongRequests] = useState<SongRequest[]>([]);
   const [sorteoOnScreen, setSorteoOnScreen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
@@ -94,7 +99,7 @@ export default function MuroEnVivoPage() {
   const fetchData = useCallback(async () => {
     if (!fiestaId) return;
     try {
-      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections, dedicationsData, chatData] = await Promise.all([
+      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections, dedicationsData, chatData, songData] = await Promise.all([
         getSocialPosts(fiestaId),
         getFiestaById(fiestaId),
         getActivePoll(fiestaId),
@@ -103,6 +108,7 @@ export default function MuroEnVivoPage() {
         getSocialConnections(),
         getDedications(fiestaId),
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
+        getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
       ]);
 
       const sorted = [...fetchedPosts].sort(
@@ -165,6 +171,15 @@ export default function MuroEnVivoPage() {
         setRecentChatMessages(recent);
       } else {
         setRecentChatMessages([]);
+      }
+      // Show the 3 most recent song requests on screen
+      if (songData && songData.length > 0) {
+        const recentSongs = [...songData]
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .slice(0, 3);
+        setRecentSongRequests(recentSongs);
+      } else {
+        setRecentSongRequests([]);
       }
       setHighlightedDedications((dedicationsData ?? []).filter(d => d.highlighted));
       // Extract comments for the live wall: prefer operator-highlighted comments; fall back
@@ -414,6 +429,19 @@ export default function MuroEnVivoPage() {
               ))}
             </div>
           )}
+
+          {/* Song requests overlay — bottom-right corner */}
+          {isLoaded && settings.showSongRequests !== false && recentSongRequests.length > 0 && !activePoll && (
+            <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-xs space-y-1.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">🎵 Pedidos de Canciones</p>
+              {recentSongRequests.map(req => (
+                <div key={req.id} className="rounded-xl border border-green-400/20 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
+                  <span className="text-[12px] font-bold text-green-300 mr-1.5">{req.song}</span>
+                  <span className="text-[10px] text-white/50">— {req.requestedBy}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── Right side panel: poll or game overlay ── */}
@@ -572,7 +600,7 @@ export default function MuroEnVivoPage() {
                   transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                   className="w-80 h-80 rounded-full border-[10px] border-yellow-400 shadow-[0_0_40px_rgba(234,179,8,0.4)]"
                   style={{
-                    background: 'conic-gradient(#f43f5e 0deg, #f43f5e 30deg, #f97316 30deg, #f97316 60deg, #eab308 60deg, #eab308 90deg, #22c55e 90deg, #22c55e 120deg, #06b6d4 120deg, #06b6d4 150deg, #6366f1 150deg, #6366f1 180deg, #ec4899 180deg, #ec4899 210deg, #f43f5e 210deg, #f43f5e 240deg, #f97316 240deg, #f97316 270deg, #eab308 270deg, #eab308 300deg, #22c55e 300deg, #22c55e 330deg, #06b6d4 330deg, #06b6d4 360deg)',
+                    background: SORTEO_WHEEL_GRADIENT,
                   }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -643,7 +671,7 @@ export default function MuroEnVivoPage() {
                   style={{
                     transform: `rotate(${sorteoSpinWheelAngle}deg)`,
                     transition: 'transform 7s cubic-bezier(0.08, 0.82, 0.17, 1)',
-                    background: 'conic-gradient(#f43f5e 0deg, #f43f5e 30deg, #f97316 30deg, #f97316 60deg, #eab308 60deg, #eab308 90deg, #22c55e 90deg, #22c55e 120deg, #06b6d4 120deg, #06b6d4 150deg, #6366f1 150deg, #6366f1 180deg, #ec4899 180deg, #ec4899 210deg, #f43f5e 210deg, #f43f5e 240deg, #f97316 240deg, #f97316 270deg, #eab308 270deg, #eab308 300deg, #22c55e 300deg, #22c55e 330deg, #06b6d4 330deg, #06b6d4 360deg)',
+                    background: SORTEO_WHEEL_GRADIENT,
                   }}
                 />
                 {/* Center hub */}

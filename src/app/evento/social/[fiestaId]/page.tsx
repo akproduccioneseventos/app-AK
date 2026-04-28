@@ -557,23 +557,26 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(`likedPosts_${params.fiestaId}`, JSON.stringify(Array.from(nextLiked)));
     }
+    const revertLike = () => {
+      const reverted = new Set(nextLiked);
+      reverted.delete(postId);
+      setLikedPosts(reverted);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(`likedPosts_${params.fiestaId}`, JSON.stringify(Array.from(reverted)));
+      }
+    };
     const originalPosts = [...posts];
     setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
     try {
       const result = await addLikeToPost(postId);
       if (!result.success) {
         toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
-        setPosts(originalPosts); // Revert on error
-        // Revert liked state too
-        const reverted = new Set(nextLiked);
-        reverted.delete(postId);
-        setLikedPosts(reverted);
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem(`likedPosts_${params.fiestaId}`, JSON.stringify(Array.from(reverted)));
-        }
+        setPosts(originalPosts);
+        revertLike();
       }
     } catch {
-      setPosts(originalPosts); // Revert on exception
+      setPosts(originalPosts);
+      revertLike();
     }
   };
   
