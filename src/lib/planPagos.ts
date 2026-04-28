@@ -33,6 +33,12 @@ export function calcularMesesLimite(mesesHastaEvento: number): number {
  * Genera el plan completo de pagos dado fecha del evento y total del contrato.
  * Las cuotas son trimestrales desde hoy hasta el evento, con una cuota clave
  * del 30% en la fecha límite calculada dinámicamente.
+ *
+ * IMPORTANTE: `totalContrato` debe ser el total del contrato **sin** el ajuste
+ * anual del 15% (es decir, el precio vigente a la fecha de firma, antes de
+ * cualquier actualización enero a enero). Las cuotas y el monto objetivo del
+ * 30% quedan fijos al momento de generar el plan y no se recalculan cuando se
+ * aplica el ajuste anual pactado en la Cláusula 2 del contrato.
  */
 export function generarPlanPagos(
   fechaEvento: string,
@@ -129,6 +135,11 @@ export function generarPlanPagos(
 /**
  * Recalcula el estado de las cuotas aplicando los pagos registrados.
  * Distribuye los pagos cronológicamente entre las cuotas (waterfall).
+ *
+ * IMPORTANTE: esta función actualiza únicamente `estado`, `montoAcumulado` y
+ * `pagosAplicados`. Los campos `montoMinimo` y `montoObjetivo` se preservan
+ * tal cual están almacenados en la cuota original y NUNCA se recalculan, aun
+ * cuando se ejecute en años posteriores con un ajuste anual vigente.
  */
 export function recalcularEstadoCuotas(
   plan: PlanPagos,

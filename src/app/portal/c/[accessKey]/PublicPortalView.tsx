@@ -1021,6 +1021,17 @@ export default function PublicPortalView({
                       })}
                     </div>
 
+                    {/* Nota ajuste anual */}
+                    {fiesta.contratoDatos?.ajusteAnualPorcentaje ? (
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500 leading-relaxed">
+                        ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del {fiesta.contratoDatos.ajusteAnualPorcentaje}% pactado en la Cláusula 2 del contrato.
+                      </div>
+                    ) : (
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500 leading-relaxed">
+                        ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del 15% pactado en la Cláusula 2 del contrato.
+                      </div>
+                    )}
+
                     {/* Próxima cuota */}
                     {proximaCuota && (
                       <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">

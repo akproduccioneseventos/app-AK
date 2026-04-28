@@ -308,6 +308,9 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                                   <p className="font-bold">⚠️ Importante:</p>
                                   <p className="mt-0.5">El {plan.porcentajeMinimoAntesFecha}% acumulado funciona como caución: si cancelás el evento antes de completarlo, ese monto queda retenido como penalidad.</p>
                                 </div>
+                                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-500 leading-relaxed">
+                                  ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del 15% pactado en la Cláusula 2 del contrato.
+                                </div>
                               </div>
                               <div className="flex items-start space-x-3 p-4 bg-white rounded-2xl border border-blue-200 shadow-sm w-full">
                                 <Checkbox
