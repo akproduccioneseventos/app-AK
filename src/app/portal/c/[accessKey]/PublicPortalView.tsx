@@ -224,6 +224,18 @@ function getItineraryIcon(titulo: string): React.ElementType {
   return Clock;
 }
 
+type VisibleModuleKey = keyof Omit<NonNullable<FiestaEnPlanificacion['clientPortalSettings']>, 'enabled' | 'accessKey' | 'cuentasBancarias' | 'simuladorInvitadosConfig'>;
+
+const isModuleVisible = (
+  settings: FiestaEnPlanificacion['clientPortalSettings'],
+  key: VisibleModuleKey
+): boolean => {
+  if (!settings) return false;
+  const mod = settings[key];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return !!(mod && typeof mod === 'object' && (mod as any).visible === true);
+};
+
 export default function PublicPortalView({
   fiesta,
   companyContact,
@@ -273,6 +285,14 @@ export default function PublicPortalView({
     new Set((fiesta.decoracion?.moodboardItems ?? []).filter(i => i.likedByClient).map(i => i.id))
   );
 
+  const [showOrganizacionPanel, setShowOrganizacionPanel] = useState(false);
+  const [showFinanzasPanel, setShowFinanzasPanel] = useState(false);
+  const [orgActiveTab, setOrgActiveTab] = useState<'ak' | 'cliente'>('ak');
+  const [guestSearchQuery, setGuestSearchQuery] = useState('');
+  const [rating, setRating] = useState(0);
+  const [testimonial, setTestimonial] = useState('');
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+
   const handlePagoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -316,9 +336,7 @@ export default function PublicPortalView({
   const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(fiesta.clienteDebeLlevar ?? []);
   const [isSavingDebeLlevar, setIsSavingDebeLlevar] = useState(false);
 
-  // Panel state
-  const [showItinerarioPanel, setShowItinerarioPanel] = useState(false);
-  const [showPagosPanel, setShowPagosPanel] = useState(false);
+  // Panel state is managed via showOrganizacionPanel and showFinanzasPanel (declared above)
 
   // Guest list RSVP state
   const [invitados, setInvitados] = useState(fiesta.invitados ?? []);
@@ -514,7 +532,7 @@ export default function PublicPortalView({
   };
 
   const handleOpenInformarPago = () => {
-    setShowPagosPanel(false);
+    setShowFinanzasPanel(false);
     setShowPagoModal(true);
   };
 
@@ -556,20 +574,16 @@ export default function PublicPortalView({
       <div
         className="relative text-white px-4 pb-10 pt-12 overflow-hidden"
         style={{
-          background: portalExperience.heroImageUrl
-            ? `linear-gradient(to bottom, ${eventColor}cc 0%, #1e1b4b 100%)`
+          backgroundImage: portalExperience.heroImageUrl
+            ? `url(${portalExperience.heroImageUrl})`
             : `linear-gradient(135deg, ${eventColor}ee 0%, ${eventColor}99 50%, #1e1b4b 100%)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
-        {/* Hero background image */}
+        {/* Dark overlay for hero image */}
         {portalExperience.heroImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={portalExperience.heroImageUrl}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
-          />
+          <div className="absolute inset-0 bg-black/50 pointer-events-none" />
         )}
         {/* Decorative background stars */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -677,40 +691,6 @@ export default function PublicPortalView({
             </div>
           )}
 
-          {/* Guest RSVP stats — only when there are registered guests */}
-          {invitados.length > 0 && (
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <button
-                className="flex items-center gap-1.5 rounded-2xl bg-emerald-500/25 border border-emerald-400/40 text-white text-xs font-bold px-3 py-2 hover:bg-emerald-500/35 transition-colors"
-                onClick={() => document.getElementById('seccion-invitados')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                <span>{guestConfirmados.length} confirmados</span>
-                {totalInvitadosConfirmados > guestConfirmados.length && (
-                  <span className="opacity-75">({totalInvitadosConfirmados} personas)</span>
-                )}
-              </button>
-              {guestPendientes.length > 0 && (
-                <button
-                  className="flex items-center gap-1.5 rounded-2xl bg-amber-500/25 border border-amber-400/40 text-white text-xs font-bold px-3 py-2 hover:bg-amber-500/35 transition-colors"
-                  onClick={() => document.getElementById('seccion-invitados')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <Clock className="w-3.5 h-3.5 text-amber-300" />
-                  {guestPendientes.length} sin confirmar
-                </button>
-              )}
-              {guestCancelados.length > 0 && (
-                <button
-                  className="flex items-center gap-1.5 rounded-2xl bg-red-500/20 border border-red-400/40 text-white text-xs font-bold px-3 py-2 hover:bg-red-500/30 transition-colors"
-                  onClick={() => document.getElementById('seccion-invitados')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <MinusCircle className="w-3.5 h-3.5 text-red-300" />
-                  {guestCancelados.length} cancelaron
-                </button>
-              )}
-            </div>
-          )}
-
           {/* Quick action buttons */}
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             {config.googleMapsUrl && (
@@ -736,13 +716,15 @@ export default function PublicPortalView({
                 Página del evento
               </button>
             )}
-            <button
-              className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
-              onClick={() => setShowPagosPanel(true)}
-            >
-              <CreditCard className="w-3.5 h-3.5" />
-              Hacer un pago
-            </button>
+            {settings?.pagos?.visible && (
+              <button
+                className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
+                onClick={() => setShowFinanzasPanel(true)}
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                Hacer un pago
+              </button>
+            )}
             <button
               className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
               onClick={() => {
@@ -762,15 +744,35 @@ export default function PublicPortalView({
       </div>
 
       {/* ── BODY ── */}
-      <div className="max-w-5xl mx-auto px-4 py-6 pb-24">
-        <div className="flex flex-col-reverse lg:flex-row lg:items-start gap-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
+        <div className="space-y-5">
 
-          {/* ── MAIN CONTENT ── */}
-          <div className="flex-1 space-y-5 min-w-0">
+          {/* ── Modo Día del Evento ── */}
+          {countdown && !countdown.isPast && countdown.days === 0 && (
+            <div className="rounded-3xl overflow-hidden shadow-xl border-0 bg-gradient-to-br from-amber-400 to-orange-500 text-white p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 bg-white/20 rounded-2xl">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-black text-lg leading-tight">¡Es hoy! 🎉</p>
+                  <p className="text-sm text-white/80">El gran día de tu evento ha llegado</p>
+                </div>
+              </div>
+              {config.googleMapsUrl && (
+                <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="block">
+                  <button className="w-full mt-2 bg-white/20 hover:bg-white/30 transition-colors rounded-2xl py-3 font-bold text-sm flex items-center justify-center gap-2">
+                    <Navigation className="w-4 h-4" />
+                    Ver cómo llegar
+                  </button>
+                </a>
+              )}
+            </div>
+          )}
 
-            {/* Alert banners */}
-            {alertas.length > 0 && (
-              <div className="space-y-2">
+          {/* Alert banners */}
+          {alertas.length > 0 && (
+            <div className="space-y-2">
                 {alertas.map((alerta, idx) => (
                   <div
                     key={idx}
@@ -788,27 +790,50 @@ export default function PublicPortalView({
               </div>
             )}
 
-            {/* Welcome / organizer messages */}
-            {portalExperience.welcomeMessage && (
-              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 text-sm font-medium shadow-sm">
-                💬 {portalExperience.welcomeMessage}
+          {/* ── Post-event screen ── */}
+          {countdown?.isPast && (
+            <div className="rounded-3xl overflow-hidden shadow-xl border-0 bg-gradient-to-br from-violet-500 to-purple-700 text-white p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-white/20 rounded-2xl">
+                  <PartyPopper className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-black text-lg leading-tight">¡Tu evento fue un éxito! 🎊</p>
+                  <p className="text-sm text-white/80">Gracias por confiar en AK Producciones</p>
+                </div>
               </div>
-            )}
-            {portalExperience.organizerMessage && (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 text-sm shadow-sm">
-                <span className="font-black uppercase tracking-wider text-xs text-amber-600 block mb-1">📌 Nota del organizador</span>
-                {portalExperience.organizerMessage}
-              </div>
-            )}
+              {fiesta.galeriaUrl && (
+                <a href={fiesta.galeriaUrl} target="_blank" rel="noopener noreferrer" className="block">
+                  <button className="w-full bg-white/20 hover:bg-white/30 transition-colors rounded-2xl py-3 font-bold text-sm flex items-center justify-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    Ver galería de fotos
+                  </button>
+                </a>
+              )}
+            </div>
+          )}
 
-            {/* ── 0. Reuniones coordinadas ── */}
-            {fiesta.reuniones && fiesta.reuniones.length > 0 && (
-              <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2 bg-gradient-to-r from-sky-50 to-blue-50">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-sky-600" />
-                    Reuniones coordinadas
-                  </CardTitle>
+          {/* Welcome / organizer messages */}
+          {portalExperience.welcomeMessage && (
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 text-sm font-medium shadow-sm">
+              💬 {portalExperience.welcomeMessage}
+            </div>
+          )}
+          {portalExperience.organizerMessage && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 text-sm shadow-sm">
+              <span className="font-black uppercase tracking-wider text-xs text-amber-600 block mb-1">📌 Nota del organizador</span>
+              {portalExperience.organizerMessage}
+            </div>
+          )}
+
+          {/* ── 0. Reuniones coordinadas ── */}
+          {fiesta.reuniones && fiesta.reuniones.length > 0 && (
+            <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+              <CardHeader className="pb-2 bg-gradient-to-r from-sky-50 to-blue-50">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-sky-600" />
+                  Reuniones coordinadas
+                </CardTitle>
                   <p className="text-xs text-muted-foreground">Lo que coordinamos juntos hasta ahora</p>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-3">
@@ -839,6 +864,62 @@ export default function PublicPortalView({
                     ))}
                 </CardContent>
               </Card>
+            )}
+
+            {/* ── Resumen Ejecutivo ── */}
+            {!countdown?.isPast && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
+                  <p className="text-2xl font-black text-emerald-600">{porcentajePagado}%</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pagado</p>
+                </div>
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
+                  <p className="text-2xl font-black text-violet-600">{checklist.filter(t => !t.completada).length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tareas pendientes</p>
+                </div>
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
+                  <p className="text-2xl font-black text-sky-600">
+                    {daysUntil === null ? '—' : daysUntil === 0 ? '¡Hoy!' : daysUntil}
+                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Días para el evento</p>
+                </div>
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
+                  <p className="text-2xl font-black text-teal-600">{guestConfirmados.length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Invitados confirmados</p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Checklist de Hitos ── */}
+            {!countdown?.isPast && (
+              <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-3">
+                <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  Estado del proceso
+                </p>
+                <div className="space-y-2">
+                  <div className={`flex items-center gap-3 text-sm ${fiesta.contrato?.estado === 'firmado' ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${fiesta.contrato?.estado === 'firmado' ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+                      {fiesta.contrato?.estado === 'firmado' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                    </div>
+                    <span className="font-semibold">Contrato {fiesta.contrato?.estado === 'firmado' ? 'firmado ✓' : 'pendiente de firma'}</span>
+                  </div>
+                  <div className={`flex items-center gap-3 text-sm ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${isPaid ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+                      {isPaid ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                    </div>
+                    <span className="font-semibold">Pago {isPaid ? 'completado ✓' : `pendiente (${porcentajePagado}% pagado)`}</span>
+                  </div>
+                  <div className={`flex items-center gap-3 text-sm ${guestConfirmados.length > 0 ? 'text-emerald-700' : 'text-slate-500'}`}>
+                    <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${guestConfirmados.length > 0 ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+                      {guestConfirmados.length > 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                    </div>
+                    <span className="font-semibold">
+                      {guestConfirmados.length > 0 ? `${guestConfirmados.length} invitados confirmados ✓` : 'Sin confirmaciones aún'}
+                    </span>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* ── 1. Datos del evento ── */}
@@ -890,140 +971,93 @@ export default function PublicPortalView({
                   </a>
                 )}
 
-                {/* Music teaser */}
-                {settings?.musica?.visible && musica && (musica.cancionEntrada || musica.cancionVals) && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-fuchsia-50 border border-fuchsia-100">
-                    <Music className="w-4 h-4 text-fuchsia-600 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black uppercase text-fuchsia-600 tracking-wider">Música del evento</p>
-                      <p className="text-sm font-semibold text-fuchsia-800 truncate">
-                        {musica.cancionEntrada || musica.cancionVals}
-                      </p>
-                    </div>
-                    <a href="#seccion-musica" className="text-xs text-fuchsia-600 font-semibold shrink-0">Ver →</a>
+                {/* Google Maps */}
+                {config.googleMapsUrl && (
+                  <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center gap-2 p-3 rounded-xl bg-sky-50 border border-sky-100 hover:bg-sky-100 transition-colors">
+                    <Navigation className="w-4 h-4 text-sky-600 shrink-0" />
+                    <p className="text-sm font-semibold text-sky-700">Ver en Google Maps</p>
+                  </a>
+                )}
+
+                {/* Instrucciones de llegada */}
+                {config.instruccionesLlegada && (
+                  <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2">
+                    <p className="text-xs font-black uppercase text-amber-600 tracking-wider mb-1">📍 Cómo llegar</p>
+                    <p className="text-sm text-amber-800 leading-relaxed">{config.instruccionesLlegada}</p>
                   </div>
                 )}
 
-                {/* Moodboard teaser */}
-                {settings?.moodboard?.visible && moodboardItems.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-pink-50 border border-pink-100">
-                    <Palette className="w-4 h-4 text-pink-600 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black uppercase text-pink-600 tracking-wider">Moodboard</p>
-                      <p className="text-sm font-semibold text-pink-800">{moodboardItems.length} imágenes de inspiración</p>
-                    </div>
-                    <a href="#seccion-moodboard" className="text-xs text-pink-600 font-semibold shrink-0">Ver →</a>
-                  </div>
-                )}
-
-                {/* Interactive Checklist */}
-                {settings?.checklist?.visible && checklist.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                      <CheckSquare className="w-3.5 h-3.5" />
-                      Checklist · {checklist.filter(t => t.completada).length} de {checklist.length} completadas
-                    </p>
-                    {checklist.map((tarea, idx) => (
-                      <div key={tarea.id}>
-                        {idx > 0 && <Separator className="my-1" />}
-                        <div className="flex items-center gap-3 py-2">
-                          <Checkbox
-                            id={`task-${tarea.id}`}
-                            checked={tarea.completada}
-                            onCheckedChange={() => handleToggleTask(tarea.id)}
-                            disabled={togglingTaskId !== null || !settings.checklist.editable}
-                          />
-                          <Label
-                            htmlFor={`task-${tarea.id}`}
-                            className={`text-sm cursor-pointer leading-snug ${tarea.completada ? 'line-through text-muted-foreground' : ''}`}
-                          >
-                            {tarea.texto}
-                          </Label>
-                          {togglingTaskId === tarea.id && <Loader2 className="w-3 h-3 ml-auto animate-spin text-muted-foreground shrink-0" />}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Weather placeholder */}
-                {daysUntil !== null && daysUntil > 0 && (
-                  <div className="flex items-center gap-4 p-3 rounded-xl bg-sky-50 border border-sky-100">
-                    <div className="p-2 rounded-xl bg-sky-100">
-                      <CloudSun className="w-6 h-6 text-sky-500" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-sky-800">Clima del día del evento</p>
-                      <p className="text-xs text-sky-600">
-                        {daysUntil <= 7
-                          ? `¡Tu evento es en ${daysUntil} día${daysUntil > 1 ? 's' : ''}! El pronóstico estará disponible próximamente.`
-                          : 'El pronóstico se mostrará 7 días antes del evento.'}
-                      </p>
-                    </div>
+                {/* QR del evento */}
+                {settings?.paginaPublica?.visible && (
+                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/30 border border-muted/60">
+                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">QR del evento</p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(typeof window !== 'undefined' ? (window.location.origin + (fiesta.invitacionSlug ? '/i/' + fiesta.invitacionSlug : '/invitacion/' + fiesta.id)) : '')}`}
+                      alt="QR del evento"
+                      className="w-24 h-24 rounded-xl"
+                    />
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* ── 2. Pagos y documentos ── */}
-            {(settings?.pagos?.visible || settings?.informarPago?.visible || settings?.serviciosContratados?.visible || settings?.contrato?.visible || settings?.documentos?.visible) && (
-              <button
-                onClick={() => setShowPagosPanel(true)}
-                className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="px-5 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2.5 rounded-2xl bg-emerald-100 shrink-0">
-                      <DollarSign className="w-5 h-5 text-emerald-600" />
+            {/* ── 2. Tareas pendientes ── */}
+            {isModuleVisible(settings, 'checklist') && checklist.length > 0 && (
+              <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <CheckSquare className="w-5 h-5 text-teal-600" />
+                    Tareas pendientes
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {checklist.filter(t => t.completada).length} de {checklist.length} completadas
+                  </p>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-2">
+                  {checklist.map((tarea, idx) => (
+                    <div key={tarea.id}>
+                      {idx > 0 && <Separator className="my-1" />}
+                      <div className="flex items-center gap-3 py-2">
+                        <Checkbox
+                          id={`task-${tarea.id}`}
+                          checked={tarea.completada}
+                          onCheckedChange={() => handleToggleTask(tarea.id)}
+                          disabled={togglingTaskId !== null || !settings?.checklist?.editable}
+                        />
+                        <Label
+                          htmlFor={`task-${tarea.id}`}
+                          className={`text-sm cursor-pointer leading-snug ${tarea.completada ? 'line-through text-muted-foreground' : ''}`}
+                        >
+                          {tarea.texto}
+                        </Label>
+                        {togglingTaskId === tarea.id && <Loader2 className="w-3 h-3 ml-auto animate-spin text-muted-foreground shrink-0" />}
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      {presupuesto ? (
-                        <>
-                          <p className="font-bold text-sm text-slate-800">💳 Pagos y documentos</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden max-w-[80px]">
-                              <div
-                                className="h-full rounded-full transition-all duration-500"
-                                style={{
-                                  width: `${porcentajePagado}%`,
-                                  background: isPaid
-                                    ? 'linear-gradient(90deg, #10b981, #059669)'
-                                    : 'linear-gradient(90deg, #f59e0b, #d97706)',
-                                }}
-                              />
-                            </div>
-                            <span className={`text-xs font-semibold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
-                              {isPaid ? 'Saldado ✓' : `Saldo: ${formatCurrency(saldoPendiente)}`}
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p className="font-bold text-sm text-slate-800">📄 Documentos y contrato</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">Ver contrato y documentos</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-emerald-500 shrink-0" />
-                </div>
-              </button>
+                  ))}
+                </CardContent>
+              </Card>
             )}
 
-
-            {/* ── 3. Lo que tengo que enviar o llevar ── */}
-            {debeLlevarItems.length > 0 && (
+            {/* ── 3. Lo que debo llevar (merged: checklist + bebidas clienteLleva) ── */}
+            {(isModuleVisible(settings, 'calculadoraBebidas') || debeLlevarItems.length > 0) && (() => {
+              const bebidasClienteLleva = bebidasItems.filter(b => b.clienteLleva && b.visible);
+              const completedCount = debeLlevarItems.filter(i => i.completado).length;
+              const totalCount = debeLlevarItems.length + bebidasClienteLleva.length;
+              return (
               <Card id="seccion-llevar" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
                     <Package className="w-5 h-5 text-teal-600" />
-                    Lo que tengo que enviar o llevar
+                    Lo que debo llevar
                   </CardTitle>
                   <p className="text-xs text-muted-foreground">
-                    {debeLlevarItems.filter(i => i.completado).length} de {debeLlevarItems.length} ítems listos
+                    {completedCount} de {totalCount} ítems listos
                   </p>
                 </CardHeader>
-                <CardContent className="pt-4 space-y-2">
+                <CardContent className="pt-4 space-y-3">
+                  {/* clienteDebeLlevar checklist */}
                   {debeLlevarItems.map((item) => (
                     <button
                       key={item.id}
@@ -1058,168 +1092,46 @@ export default function PublicPortalView({
                       {isSavingDebeLlevar && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />}
                     </button>
                   ))}
-                  <p className="text-xs text-muted-foreground text-center pt-1">
-                    Tocá cada ítem para marcarlo como listo
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── 4. Lo que debo llevar ── */}
-            {(settings?.menu?.visible || settings?.cartaTragos?.visible || settings?.dressCode?.visible || calcBebidas?.visible) && (
-              <Card id="seccion-comida" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2 bg-gradient-to-r from-orange-50 to-amber-50">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Utensils className="w-5 h-5 text-orange-500" />
-                    Lo que debo llevar
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Todo lo que tenés que traer vos para la fiesta, según tu contrato</p>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-4">
-
-                  {/* Event Menu */}
-                  {settings?.menu?.visible && fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres || fiesta.menuMesa.bebidas) && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Menú del evento</p>
-                      {[
-                        { label: 'Entrada', value: fiesta.menuMesa.entrada, emoji: '🥗' },
-                        { label: 'Plato Principal', value: fiesta.menuMesa.platoPrincipal, emoji: '🍽️' },
-                        { label: 'Opción Adolescentes', value: fiesta.menuMesa.adolescentes, emoji: '🍕' },
-                        { label: 'Postres', value: fiesta.menuMesa.postres, emoji: '🍰' },
-                        { label: 'Bebidas', value: fiesta.menuMesa.bebidas, emoji: '🥂' },
-                      ]
-                        .filter(row => !!row.value)
-                        .map(row => (
-                          <div key={row.label} className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                            <span className="text-xl shrink-0">{row.emoji}</span>
-                            <div>
-                              <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">{row.label}</p>
-                              <p className="font-semibold text-sm leading-snug">{row.value}</p>
+                  {/* bebidasItems where clienteLleva === true */}
+                  {isModuleVisible(settings, 'calculadoraBebidas') && numInvitados > 0 && bebidasClienteLleva.length > 0 && (
+                    <>
+                      {debeLlevarItems.length > 0 && <Separator className="my-2" />}
+                      <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+                        📋 Según tu contrato, vos te encargás de estos ítems para {numInvitados} personas:
+                      </p>
+                      {bebidasClienteLleva.map(item => {
+                        const cantidad = Math.round(numInvitados * item.cantidadPorPersona * 10) / 10;
+                        return (
+                          <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">{item.emoji}</span>
+                              <div>
+                                <p className="font-bold text-sm">{item.nombre}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.cantidadPorPersona} {item.unidad} por persona
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-black text-amber-700">{cantidad}</p>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.unidad}</p>
                             </div>
                           </div>
-                        ))}
-                    </div>
+                        );
+                      })}
+                    </>
                   )}
-
-                  {/* Drinks Menu (Carta de Tragos) */}
-                  {settings?.cartaTragos?.visible && fiesta.cartaTragos && fiesta.cartaTragos.items.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
-                        {fiesta.cartaTragos.titulo || 'Carta de tragos'}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {fiesta.cartaTragos.items.map(trago => (
-                          <div key={trago.id} className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-muted/60">
-                            {trago.imageUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={trago.imageUrl} alt={trago.nombre} className="w-8 h-8 object-cover rounded-lg shrink-0" />
-                            ) : (
-                              <span className="text-xl shrink-0">🍸</span>
-                            )}
-                            <p className="font-semibold text-sm leading-tight">{trago.nombre}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  {debeLlevarItems.length === 0 && bebidasClienteLleva.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-3 border border-dashed rounded-xl">
+                      No hay ítems pendientes por ahora.
+                    </p>
                   )}
-
-                  {/* Dress Code */}
-                  {settings?.dressCode?.visible && dressCode?.visible && (dressCode.texto?.text || (dressCode.sugeridos && dressCode.sugeridos.length > 0) || (dressCode.evitar && dressCode.evitar.length > 0)) && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <Shirt className="w-3.5 h-3.5" /> Dress Code
-                      </p>
-                      {dressCode.texto?.text && (
-                        <p className="text-sm text-muted-foreground leading-relaxed">{dressCode.texto.text}</p>
-                      )}
-                      {dressCode.sugeridos && dressCode.sugeridos.length > 0 && (
-                        <div className="space-y-1.5">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">✅ Sugerido</p>
-                          <div className="flex flex-wrap gap-2">
-                            {dressCode.sugeridos.map((s, i) => (
-                              <Badge key={i} variant="secondary" className="bg-emerald-100 text-emerald-700 border-emerald-200 rounded-xl">
-                                {s}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {dressCode.evitar && dressCode.evitar.length > 0 && (
-                        <div className="space-y-1.5">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">🚫 Evitar</p>
-                          <div className="flex flex-wrap gap-2">
-                            {dressCode.evitar.map((e, i) => (
-                              <Badge key={i} variant="secondary" className="bg-rose-100 text-rose-700 border-rose-200 rounded-xl">
-                                {e}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Drink calculator */}
-                  {calcBebidas?.visible && numInvitados > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
-                        <GlassWater className="w-3.5 h-3.5" /> Calculadora de bebidas
-                      </p>
-                      {bebidasItems.some(b => b.clienteLleva && b.visible) ? (
-                        <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
-                          📋 Según tu contrato, vos te encargás de estos ítems para {numInvitados} personas:
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground bg-muted/40 rounded-xl px-3 py-2">
-                          Estimación de cantidades para {numInvitados} invitados:
-                        </p>
-                      )}
-                      <div className="space-y-2">
-                        {bebidasItems
-                          .filter(item => item.visible)
-                          .map(item => {
-                            const { bg, border, text } = getColorClasses(item.color);
-                            const cantidad = Math.round(numInvitados * item.cantidadPorPersona * 10) / 10;
-                            return (
-                              <div key={item.id} className={`flex items-center justify-between p-3 rounded-xl ${item.clienteLleva ? 'bg-amber-50 border border-amber-200' : `${bg} border ${border}`}`}>
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">{item.emoji}</span>
-                                  <div>
-                                    <p className="font-bold text-sm">{item.nombre}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {item.cantidadPorPersona} {item.unidad} por persona
-                                      {item.clienteLleva && <span className="ml-1 font-bold text-amber-700">· ✋ Vos traés</span>}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className={`text-2xl font-black ${item.clienteLleva ? 'text-amber-700' : text}`}>{cantidad}</p>
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.unidad}</p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Catering Change Simulator */}
-                  {presupuesto && invitadosContratados > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Solicitar cambio de menú</p>
-                      <CateringSimulator
-                        fiestaId={fiesta.id}
-                        presupuesto={presupuesto}
-                        fiesta={fiesta}
-                      />
-                    </div>
-                  )}
-
                 </CardContent>
               </Card>
-            )}
+              );
+            })()}
 
-            {/* ── 5b. Invitados y mesas ── */}
+            {/* ── 4. Control de invitados ── */}
             {settings?.invitados?.visible && invitados.length > 0 && (
               <Card id="seccion-invitados" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -1253,7 +1165,16 @@ export default function PublicPortalView({
                   {/* Guest list */}
                   <div className="space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Lista de invitados</p>
-                    {invitados.map(inv => {
+                    {/* Search input */}
+                    <Input
+                      placeholder="🔍 Buscar invitado por nombre..."
+                      value={guestSearchQuery}
+                      onChange={e => setGuestSearchQuery(e.target.value)}
+                      className="rounded-xl text-sm"
+                    />
+                    {(() => {
+                      const lowerQuery = guestSearchQuery.toLowerCase();
+                      return invitados.filter(inv => !lowerQuery || inv.nombre.toLowerCase().includes(lowerQuery)).map(inv => {
                       const rsvpConfig: Record<RsvpStatus, { label: string; bg: string; text: string; border: string }> = {
                         Confirmado: { label: 'Confirmado', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
                         Pendiente: { label: 'Pendiente', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
@@ -1306,201 +1227,37 @@ export default function PublicPortalView({
                           </div>
                         </div>
                       );
-                    })}
+                    });
+                    })()}
                   </div>
 
                 </CardContent>
               </Card>
             )}
 
-            {/* ── 6. Itinerario ── */}
-            {settings?.itinerario?.visible && (
+            {/* ── 5. Botón Organización del evento ── */}
+            {(isModuleVisible(settings, 'itinerario') || isModuleVisible(settings, 'musica') || isModuleVisible(settings, 'moodboard') || isModuleVisible(settings, 'cartaTragos') || isModuleVisible(settings, 'menu') || isModuleVisible(settings, 'fotografiaYFilmacion') || isModuleVisible(settings, 'dressCode') || isModuleVisible(settings, 'listaRegalos') || isModuleVisible(settings, 'videoVida') || isModuleVisible(settings, 'invitados')) && (
               <button
-                onClick={() => setShowItinerarioPanel(true)}
+                onClick={() => setShowOrganizacionPanel(true)}
                 className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
               >
-                <div className="px-5 py-4 flex items-center justify-between gap-4" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
+                <div className="px-5 py-4 bg-gradient-to-r from-violet-50 to-purple-50 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2.5 rounded-2xl shrink-0" style={{ backgroundColor: `${eventColor}22` }}>
-                      <Calendar className="w-5 h-5" style={{ color: eventColor }} />
+                    <div className="p-2.5 rounded-2xl bg-violet-100 shrink-0">
+                      <ClipboardList className="w-5 h-5 text-violet-600" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-sm text-slate-800">📋 Ver itinerario</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {programa.length > 0
-                          ? `${programa.length} momento${programa.length !== 1 ? 's' : ''} del evento`
-                          : 'El itinerario estará disponible próximamente'}
-                      </p>
+                      <p className="font-bold text-sm text-slate-800">📋 Organización del evento</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Itinerario, menú, música, fotos y más</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 shrink-0" style={{ color: eventColor }} />
+                  <ChevronRight className="w-5 h-5 text-violet-500 shrink-0" />
                 </div>
               </button>
             )}
 
-
-            {/* ── 7. Fotos y video ── */}
-            {settings?.fotografiaYFilmacion?.visible && fiesta.fotografiaYFilmacion && fiesta.fotografiaYFilmacion.servicios.length > 0 && (
-              <Card id="seccion-fotos" className="shadow-lg border-0 rounded-3xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Camera className="w-5 h-5 text-primary" />
-                    Fotografía y filmación
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Estado de entrega de los materiales.</p>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-3">
-                  {fiesta.fotografiaYFilmacion.servicios.map(servicio => (
-                    <div key={servicio.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                      <div className="p-2 rounded-xl bg-primary/10 shrink-0 mt-0.5">
-                        <Camera className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-slate-800">{servicio.nombre}</p>
-                        {servicio.fechaEntregaEstimada && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Entrega estimada: {formatDate(servicio.fechaEntregaEstimada)}
-                          </p>
-                        )}
-                        {servicio.notas && (
-                          <p className="text-xs text-slate-500 mt-1">{servicio.notas}</p>
-                        )}
-                      </div>
-                      <div className="shrink-0">
-                        {servicio.estado === 'Entregado completo' || servicio.estado === 'Entregado parcial' ? (
-                          <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs">✓ Entregado</Badge>
-                        ) : servicio.linkEntrega ? (
-                          <a href={servicio.linkEntrega} target="_blank" rel="noopener noreferrer">
-                            <Badge className="bg-primary/10 text-primary border-0 text-xs flex items-center gap-1 cursor-pointer hover:bg-primary/20">
-                              <ExternalLink className="w-3 h-3" /> Ver
-                            </Badge>
-                          </a>
-                        ) : (
-                          <Badge variant="outline" className="text-xs text-slate-400">Pendiente</Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {fiesta.fotografiaYFilmacion.notasGenerales && (
-                    <p className="text-xs text-slate-500 italic px-1">{fiesta.fotografiaYFilmacion.notasGenerales}</p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── 8. Moodboard ── */}
-            {settings?.moodboard?.visible && moodboardItems.length > 0 && (
-              <Card id="seccion-moodboard" className="shadow-lg border-0 rounded-3xl overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Star className="w-5 h-5 text-primary" />
-                    Moodboard
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    Dales ❤️ a las ideas que más te gustan
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="grid grid-cols-2 gap-2">
-                    {moodboardItems.map(item => (
-                      <div key={item.id} className="relative rounded-2xl overflow-hidden aspect-square bg-muted">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={item.url}
-                          alt={item.description || 'Inspiración'}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          onClick={() =>
-                            setLikedItems(prev => {
-                              const next = new Set(prev);
-                              if (next.has(item.id)) next.delete(item.id);
-                              else next.add(item.id);
-                              return next;
-                            })
-                          }
-                          className={`absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors ${
-                            likedItems.has(item.id)
-                              ? 'bg-rose-500 text-white'
-                              : 'bg-white/80 text-rose-500'
-                          }`}
-                        >
-                          <Heart className="w-4 h-4" fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
-                        </button>
-                        {item.description && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                            <p className="text-white text-[10px] font-medium leading-tight">{item.description}</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ── 9. Música ── */}
-            {settings?.musica?.visible && (
-              <Card id="seccion-musica" className="shadow-lg border-0 rounded-3xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Music className="w-5 h-5 text-primary" />
-                    Música
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-3">
-                  {musica && (musica.cancionEntrada || musica.cancionVals || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0) || musica.listaNoReproducir) ? (
-                    <>
-                  {musica.cancionEntrada && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                      <span className="text-lg">🎵</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Canción de Entrada</p>
-                        <p className="font-semibold text-sm">{musica.cancionEntrada}</p>
-                      </div>
-                    </div>
-                  )}
-                  {musica.cancionVals && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                      <span className="text-lg">💃</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Vals / Baile</p>
-                        <p className="font-semibold text-sm">{musica.cancionVals}</p>
-                      </div>
-                    </div>
-                  )}
-                  {musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0 && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40">
-                      <span className="text-lg">🥂</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">Torta / Brindis</p>
-                        {musica.cancionesTortaBrindis.map((c, i) => (
-                          <p key={i} className="font-semibold text-sm">{c}</p>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {musica.listaNoReproducir && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-rose-50 border border-rose-100">
-                      <span className="text-lg">🚫</span>
-                      <div>
-                        <p className="text-xs font-black uppercase text-muted-foreground tracking-wider">No Reproducir</p>
-                        <p className="text-sm text-muted-foreground">{musica.listaNoReproducir}</p>
-                      </div>
-                    </div>
-                  )}
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-xl">
-                      🎵 La información de música estará disponible próximamente.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
             {/* ── 10. Preguntas frecuentes ── */}
-            {settings?.faq?.visible && (
+            {settings?.faq?.visible && faqItems.length > 0 && (
               <Card id="seccion-faq" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1542,6 +1299,7 @@ export default function PublicPortalView({
             )}
 
             {/* ── 11. Simulador de invitados ── */}
+            {settings?.simuladorInvitados?.visible && (
             <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -1764,42 +1522,51 @@ export default function PublicPortalView({
                 )}
               </CardContent>
             </Card>
+            )}
 
-            {/* ── 12. Lista de regalos ── */}
-            {settings?.listaRegalos?.visible && fiesta.invitacionDigital?.regalos?.items && fiesta.invitacionDigital.regalos.items.length > 0 && (
-              <Card className="shadow-lg border-0 rounded-3xl">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Gift className="w-5 h-5 text-primary" />
-                    Lista de regalos
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    {fiesta.invitacionDigital.regalos.items.filter(i => i.isClaimed).length} de {fiesta.invitacionDigital.regalos.items.length} regalos elegidos
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-2">
-                  {fiesta.invitacionDigital.regalos.items.map(item => (
-                    <div key={item.id} className={`flex items-center gap-3 p-3 rounded-2xl border ${item.isClaimed ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-semibold text-sm ${item.isClaimed ? 'text-emerald-700 line-through opacity-70' : 'text-slate-800'}`}>
-                          {item.name}
-                        </p>
-                        {item.description && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-                        )}
-                        {item.isClaimed && item.claimedBy && (
-                          <p className="text-xs text-emerald-600 mt-0.5">Por: {item.claimedBy}</p>
-                        )}
-                      </div>
-                      {item.isClaimed ? (
-                        <Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs shrink-0">✓ Elegido</Badge>
+            {/* ── 6. Botón Finanzas y documentos ── */}
+            {(isModuleVisible(settings, 'pagos') || isModuleVisible(settings, 'informarPago') || isModuleVisible(settings, 'serviciosContratados') || isModuleVisible(settings, 'contrato') || isModuleVisible(settings, 'documentos')) && (
+              <button
+                onClick={() => setShowFinanzasPanel(true)}
+                className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
+              >
+                <div className="px-5 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2.5 rounded-2xl bg-emerald-100 shrink-0">
+                      <DollarSign className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="min-w-0">
+                      {presupuesto ? (
+                        <>
+                          <p className="font-bold text-sm text-slate-800">💳 Finanzas y documentos</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden max-w-[80px]">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${porcentajePagado}%`,
+                                  background: isPaid
+                                    ? 'linear-gradient(90deg, #10b981, #059669)'
+                                    : 'linear-gradient(90deg, #f59e0b, #d97706)',
+                                }}
+                              />
+                            </div>
+                            <span className={`text-xs font-semibold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
+                              {isPaid ? 'Saldado ✓' : `Saldo: ${formatCurrency(saldoPendiente)}`}
+                            </span>
+                          </div>
+                        </>
                       ) : (
-                        <Badge variant="outline" className="text-xs text-slate-400 shrink-0">Disponible</Badge>
+                        <>
+                          <p className="font-bold text-sm text-slate-800">💳 Finanzas y documentos</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Ver contrato y documentos</p>
+                        </>
                       )}
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-emerald-500 shrink-0" />
+                </div>
+              </button>
             )}
 
             {/* ── 13. Mensajes con AK ── */}
@@ -1905,88 +1672,6 @@ export default function PublicPortalView({
               );
             })()}
 
-          </div>
-
-          {/* ── SIDEBAR ── */}
-          <div className="lg:w-80 lg:sticky lg:top-4 space-y-4">
-
-            {/* Tareas pendientes */}
-            <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
-              <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
-                <CardTitle className="text-sm font-bold flex items-center gap-2">
-                  <ClipboardList className="w-4 h-4 text-teal-600" />
-                  Tareas pendientes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                {pendingDebeLlevar.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-2">
-                    No tenés tareas pendientes por ahora.
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {pendingDebeLlevar.map(item => (
-                      <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3 space-y-1.5">
-                        <p className="text-sm font-semibold leading-snug">{item.texto}</p>
-                        {item.notas && (
-                          <p className="text-xs text-muted-foreground">{item.notas}</p>
-                        )}
-                        {item.fechaLimite && (
-                          <p className="text-xs text-amber-600 font-medium flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            Límite: {formatDate(item.fechaLimite)}
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between gap-2">
-                          <Badge variant="outline" className="text-[10px] uppercase">
-                            {item.estado ?? 'pendiente'}
-                          </Badge>
-                          <button
-                            type="button"
-                            disabled={isSavingDebeLlevar}
-                            onClick={() => handleToggleDebeLlevar(item.id)}
-                            className="text-xs font-semibold text-teal-600 hover:text-teal-700 transition-colors flex items-center gap-1"
-                          >
-                            {isSavingDebeLlevar ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                            Marcar como enviado
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Mensajes con AK (sidebar preview) */}
-            <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
-              <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-purple-50">
-                <CardTitle className="text-sm font-bold flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-violet-600" />
-                  Mensajes con AK
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3 space-y-3">
-                {fiesta.clientNotes ? (
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {fiesta.clientNotes.slice(0, 150)}{fiesta.clientNotes.length > 150 ? '...' : ''}
-                  </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground text-center py-1">
-                    Todavía no hay mensajes compartidos.
-                  </p>
-                )}
-                <button
-                  className="w-full rounded-xl text-xs font-semibold py-2 px-3 bg-violet-50 border border-violet-200 text-violet-700 hover:bg-violet-100 transition-colors flex items-center justify-center gap-1.5"
-                  onClick={() => document.getElementById('seccion-mensajes')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  Enviar mensaje
-                </button>
-              </CardContent>
-            </Card>
-
-          </div>
         </div>
       </div>
 
@@ -2098,81 +1783,140 @@ export default function PublicPortalView({
         </div>
       )}
 
-      {/* ── Itinerario Panel (bottom sheet on mobile, modal on desktop) ── */}
-      {showItinerarioPanel && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowItinerarioPanel(false)}>
+      {/* ── Organization Panel ── */}
+      {showOrganizacionPanel && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowOrganizacionPanel(false)}>
           <div
-            className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col animate-in slide-in-from-bottom-4 duration-300"
+            className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-4 duration-300"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-violet-50 to-purple-50 rounded-t-3xl">
               <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" style={{ color: eventColor }} />
-                <h2 className="font-black text-base">Itinerario</h2>
+                <ClipboardList className="w-5 h-5 text-violet-600" />
+                <h2 className="font-black text-base">Organización del evento</h2>
               </div>
               <button
-                onClick={() => setShowItinerarioPanel(false)}
+                onClick={() => setShowOrganizacionPanel(false)}
                 className="p-1.5 rounded-full hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
+            {/* Tabs */}
+            <div className="flex border-b bg-white px-5">
+              <button
+                onClick={() => setOrgActiveTab('ak')}
+                className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'ak' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
+              >
+                📋 Lo que AK prepara
+              </button>
+              <button
+                onClick={() => setOrgActiveTab('cliente')}
+                className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'cliente' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
+              >
+                🎯 Tu participación
+              </button>
+            </div>
             {/* Content */}
             <div className="overflow-y-auto flex-1 px-5 py-4">
-              {programa.length === 0 ? (
-                <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
-                  <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
-                  <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
-                </div>
-              ) : (
-                <div className="relative pl-6">
-                  <div className="absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full" style={{ backgroundColor: `${eventColor}40` }} />
-                  <div className="space-y-0">
-                    {programa.map((item) => {
-                      const isOpen = openProgramaIds.has(item.id);
-                      const toggleItem = () => setOpenProgramaIds(prev => {
-                        const next = new Set(prev);
-                        if (next.has(item.id)) next.delete(item.id);
-                        else next.add(item.id);
-                        return next;
-                      });
-                      const ItemIcon = getItineraryIcon(item.titulo || '');
-                      return (
-                        <div key={item.id} className="relative flex items-start gap-4 py-2">
-                          <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
-                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <button
-                              className="w-full flex items-center gap-2 py-1 text-left"
-                              onClick={toggleItem}
-                            >
-                              <div className="flex items-center gap-2 flex-1 flex-wrap">
-                                <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: eventColor }}>
-                                  {item.hora}
-                                </span>
-                                <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                                <span className="font-semibold text-sm">{item.titulo}</span>
-                              </div>
-                              {item.descripcion && (
-                                isOpen
-                                  ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                                  : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              {orgActiveTab === 'ak' ? (
+                programa.filter(item => item.visibleParaCliente !== false).length === 0 ? (
+                  <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
+                    <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
+                    <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
+                  </div>
+                ) : (
+                  <div className="relative pl-6">
+                    <div className="absolute left-2.5 top-3 bottom-3 w-0.5 rounded-full" style={{ backgroundColor: `${eventColor}40` }} />
+                    <div className="space-y-0">
+                      {programa.filter(item => item.visibleParaCliente !== false).map((item) => {
+                        const isOpen = openProgramaIds.has(item.id);
+                        const toggleItem = () => setOpenProgramaIds(prev => {
+                          const next = new Set(prev);
+                          if (next.has(item.id)) next.delete(item.id);
+                          else next.add(item.id);
+                          return next;
+                        });
+                        const ItemIcon = getItineraryIcon(item.titulo || '');
+                        const displayDescription = item.descripcionCliente || item.descripcion;
+                        return (
+                          <div key={item.id} className="relative flex items-start gap-4 py-2">
+                            <div className="absolute -left-3.5 top-4 w-4 h-4 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: eventColor }}>
+                              <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <button
+                                className="w-full flex items-center gap-2 py-1 text-left"
+                                onClick={toggleItem}
+                              >
+                                <div className="flex items-center gap-2 flex-1 flex-wrap">
+                                  <span className="text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: eventColor }}>
+                                    {item.hora}
+                                  </span>
+                                  <ItemIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                                  <span className="font-semibold text-sm">{item.titulo}</span>
+                                </div>
+                                {displayDescription && (
+                                  isOpen
+                                    ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                    : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                )}
+                              </button>
+                              {isOpen && displayDescription && (
+                                <div className="mt-1 mb-2 pl-1">
+                                  <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
+                                    {displayDescription}
+                                  </p>
+                                </div>
                               )}
-                            </button>
-                            {isOpen && item.descripcion && (
-                              <div className="mt-1 mb-2 pl-1">
-                                <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 rounded-xl px-3 py-2">
-                                  {item.descripcion}
-                                </p>
-                              </div>
-                            )}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                  </div>
+                )
+              ) : (
+                <div className="space-y-4">
+                  {/* Company contact info */}
+                  <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 space-y-3">
+                    <p className="font-black text-sm text-slate-800">{companyName}</p>
+                    {hasValidPhone && (
+                      <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-emerald-700 hover:underline">
+                        <MessageSquare className="w-4 h-4 shrink-0" />
+                        Contactar por WhatsApp
+                      </a>
+                    )}
+                  </div>
+                  {/* Event key details */}
+                  <div className="rounded-2xl bg-white border border-slate-100 p-4 space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Datos del evento</p>
+                    {eventDate && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="w-4 h-4 text-violet-500 shrink-0" />
+                        <span className="font-semibold capitalize">{eventDate}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="w-4 h-4 text-red-500 shrink-0" />
+                      <span className={`font-semibold ${!isLocationConfirmed ? 'text-muted-foreground italic' : ''}`}>{displayLocation}</span>
+                    </div>
+                    {fiesta.celebracion?.instruccionesLlegada && (
+                      <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-amber-600 mb-1">Instrucciones de llegada</p>
+                        <p className="text-xs text-amber-800 leading-relaxed">{fiesta.celebracion.instruccionesLlegada}</p>
+                      </div>
+                    )}
+                    {config.googleMapsUrl && (
+                      <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="block">
+                        <button className="w-full rounded-xl bg-blue-50 border border-blue-100 text-blue-700 font-semibold text-sm py-2.5 flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors">
+                          <Navigation className="w-4 h-4" />
+                          Ver en Google Maps
+                        </button>
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
@@ -2181,9 +1925,9 @@ export default function PublicPortalView({
         </div>
       )}
 
-      {/* ── Pagos y documentos Panel (full-screen slide-up) ── */}
-      {showPagosPanel && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowPagosPanel(false)}>
+      {/* ── Finanzas y documentos Panel (full-screen slide-up) ── */}
+      {showFinanzasPanel && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowFinanzasPanel(false)}>
           <div
             className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-4 duration-300"
             onClick={e => e.stopPropagation()}
@@ -2192,10 +1936,10 @@ export default function PublicPortalView({
             <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-emerald-50 to-teal-50 rounded-t-3xl">
               <div className="flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-emerald-600" />
-                <h2 className="font-black text-base">Pagos y documentos</h2>
+                <h2 className="font-black text-base">Finanzas y documentos</h2>
               </div>
               <button
-                onClick={() => setShowPagosPanel(false)}
+                onClick={() => setShowFinanzasPanel(false)}
                 className="p-1.5 rounded-full hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5 text-slate-400" />
