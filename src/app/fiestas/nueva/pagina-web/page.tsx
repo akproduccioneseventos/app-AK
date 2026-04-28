@@ -31,13 +31,12 @@ import { cn } from '@/lib/utils';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { TemplatePickerGallery } from '@/components/invitacion/TemplatePickerGallery';
 import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
 import { getErrorMessage } from '@/lib/error-utils';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
-type TemplateCategoryFilter = 'Todas' | 'XV Años' | 'Boda' | 'Cumpleaños' | 'Infantil' | 'General';
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -57,7 +56,6 @@ function PaginaWebPageContent() {
   const [editorMode, setEditorMode] = useState<EditorMode>('simple');
   const [mobileEditorOpen, setMobileEditorOpen] = useState(false);
   const [templateGalleryOpen, setTemplateGalleryOpen] = useState(false);
-  const [templateCategoryFilter, setTemplateCategoryFilter] = useState<TemplateCategoryFilter>('Todas');
   const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
   const [slugInput, setSlugInput] = useState('');
   const [isSavingSlug, setIsSavingSlug] = useState(false);
@@ -220,24 +218,6 @@ function PaginaWebPageContent() {
       return 'tu-app.com/i/';
     }
   }, []);
-
-  const filteredTemplates = useMemo(() => {
-    if (templateCategoryFilter === 'Todas') return templates;
-    return templates.filter(tpl => tpl.category === templateCategoryFilter);
-  }, [templates, templateCategoryFilter]);
-
-  const isTemplateActive = (tpl: InvitacionDigitalTemplate) => {
-    const palette = tpl.cabecera?.paletaColores;
-    const currentPalette = invitacionData.cabecera?.paletaColores;
-    return (
-      invitacionData.plantilla === tpl.plantilla &&
-      !!palette &&
-      !!currentPalette &&
-      palette.primary === currentPalette.primary &&
-      palette.secondary === currentPalette.secondary &&
-      palette.accent === currentPalette.accent
-    );
-  };
 
   const applyTemplate = (tpl: InvitacionDigitalTemplate) => {
     const palette = tpl.cabecera?.paletaColores;
@@ -550,50 +530,14 @@ function PaginaWebPageContent() {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={templateGalleryOpen} onOpenChange={setTemplateGalleryOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Elegir Plantilla</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-wrap gap-2">
-            {(['Todas', 'XV Años', 'Boda', 'Cumpleaños', 'Infantil', 'General'] as TemplateCategoryFilter[]).map(category => (
-              <Button
-                key={category}
-                size="sm"
-                variant={templateCategoryFilter === category ? 'default' : 'outline'}
-                onClick={() => setTemplateCategoryFilter(category)}
-                className="rounded-xl"
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {filteredTemplates.map(tpl => (
-              <button
-                key={tpl.id}
-                onClick={() => applyTemplate(tpl)}
-                className={cn(
-                  'border rounded-xl p-3 text-left space-y-3 transition-all',
-                  isTemplateActive(tpl) ? 'border-primary shadow-md bg-primary/5' : 'border-slate-200 hover:border-primary/40'
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-bold">{tpl.name}</div>
-                  {isTemplateActive(tpl) && <span className="text-xs font-semibold text-primary">✓ Activa</span>}
-                </div>
-                <div className="text-xs text-muted-foreground">{tpl.category}</div>
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera?.paletaColores?.primary ?? '#8b5cf6' }} />
-                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera?.paletaColores?.secondary ?? '#c4b5fd' }} />
-                  <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: tpl.cabecera?.paletaColores?.accent ?? '#ede9fe' }} />
-                </div>
-                <div className="text-xs text-muted-foreground">Base: {tpl.plantilla}</div>
-              </button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <TemplatePickerGallery
+        open={templateGalleryOpen}
+        onOpenChange={setTemplateGalleryOpen}
+        templates={templates}
+        currentData={invitacionData}
+        onApply={applyTemplate}
+        tipoCelebracion={fiesta?.configuracion?.tipoCelebracion}
+      />
       
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
