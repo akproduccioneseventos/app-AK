@@ -91,6 +91,9 @@ export async function getPresentacionLedSettings(): Promise<PresentacionLedSetti
     },
     salon: { ...DEFAULT_PRESENTACION_LED_SETTINGS.salon, ...(settings.salon || {}) },
     cierre: { ...DEFAULT_PRESENTACION_LED_SETTINGS.cierre, ...(settings.cierre || {}) },
+    ledFotosServicios: settings.ledFotosServicios || {},
+    ledFotosMenuItems: settings.ledFotosMenuItems || {},
+    planPagosImagenUrl: settings.planPagosImagenUrl || '',
   };
 }
 
@@ -120,6 +123,9 @@ export async function savePresentacionLedSettings(data: PresentacionLedSettings)
       ctaTexto: (data.cierre?.ctaTexto || '').trim(),
       ctaAccion: data.cierre?.ctaAccion || 'generar-presupuesto',
     },
+    ledFotosServicios: data.ledFotosServicios || {},
+    ledFotosMenuItems: data.ledFotosMenuItems || {},
+    planPagosImagenUrl: (data.planPagosImagenUrl || '').trim(),
   };
 
   await writeData(PRESENTACION_LED_SETTINGS_FILE, sanitized);

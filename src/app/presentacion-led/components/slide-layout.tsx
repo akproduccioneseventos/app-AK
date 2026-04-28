@@ -13,7 +13,7 @@ export function SlideLayout({ children, className, centered = true, overflowScro
   return (
     <div
       className={cn(
-        'absolute inset-0 px-6 md:px-12 py-16',
+        'absolute inset-0 px-6 md:px-12 pt-20 pb-28',
         centered && 'flex flex-col items-center justify-center',
         overflowScroll ? 'overflow-y-auto' : 'overflow-hidden',
         className,

@@ -41,7 +41,7 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
     clientData.nombre.trim()
     && clientData.tipoFiesta
     && clientData.fechaEvento
-    && Number(clientData.cantidadInvitados) > 0
+    && Number(clientData.invitadosAdultos) > 0
     && clientData.duracionHoras !== '',
   );
 
@@ -165,28 +165,11 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
             )}
           </div>
 
-          {/* Cantidad total de invitados */}
-          <div className="space-y-2">
-            <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-              <Users className="w-4 h-4" /> Cantidad de invitados (total)
-            </Label>
-            <input
-              type="number"
-              min="1"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
-              placeholder="Ej: 150"
-              value={clientData.cantidadInvitados}
-              aria-invalid={showValidation && !(Number(clientData.cantidadInvitados) > 0)}
-              aria-describedby={showValidation && !(Number(clientData.cantidadInvitados) > 0) ? validationMessageId : undefined}
-              onChange={e => onClientDataChange({ ...clientData, cantidadInvitados: e.target.value })}
-            />
-          </div>
-
           {/* Adultos / Niños y adolescentes */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-                <Users className="w-4 h-4" /> Invitados adultos
+                <Users className="w-4 h-4" /> Invitados adultos *
               </Label>
               <input
                 type="number"
@@ -194,12 +177,19 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
                 className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
                 placeholder="Ej: 100"
                 value={clientData.invitadosAdultos}
-                onChange={e => onClientDataChange({ ...clientData, invitadosAdultos: e.target.value })}
+                aria-invalid={showValidation && !(Number(clientData.invitadosAdultos) > 0)}
+                aria-describedby={showValidation && !(Number(clientData.invitadosAdultos) > 0) ? validationMessageId : undefined}
+                onChange={e => {
+                  const adultos = e.target.value;
+                  const ninos = clientData.invitadosAdolescentes;
+                  const total = String((Number(adultos) || 0) + (Number(ninos) || 0));
+                  onClientDataChange({ ...clientData, invitadosAdultos: adultos, cantidadInvitados: total });
+                }}
               />
             </div>
             <div className="space-y-2">
               <Label className="text-white/80 text-sm font-medium flex items-center gap-2">
-                <Users className="w-4 h-4" /> Invitados niños y adolescentes
+                <Users className="w-4 h-4" /> Niños y adolescentes
               </Label>
               <input
                 type="number"
@@ -207,10 +197,20 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
                 className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base"
                 placeholder="Ej: 15"
                 value={clientData.invitadosAdolescentes}
-                onChange={e => onClientDataChange({ ...clientData, invitadosAdolescentes: e.target.value })}
+                onChange={e => {
+                  const ninos = e.target.value;
+                  const adultos = clientData.invitadosAdultos;
+                  const total = String((Number(adultos) || 0) + (Number(ninos) || 0));
+                  onClientDataChange({ ...clientData, invitadosAdolescentes: ninos, cantidadInvitados: total });
+                }}
               />
             </div>
           </div>
+          {(Number(clientData.invitadosAdultos) > 0 || Number(clientData.invitadosAdolescentes) > 0) && (
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
+              Total: <span className="text-white font-semibold">{Number(clientData.invitadosAdultos || 0) + Number(clientData.invitadosAdolescentes || 0)} invitados</span>
+            </div>
+          )}
 
           {/* Duración */}
           <div className="space-y-2">
@@ -314,7 +314,7 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
           </button>
           {showValidation && !hasRequiredFields && (
             <p id={validationMessageId} className="text-amber-300 text-sm mt-2 text-center">
-              Completá nombre, tipo, fecha, invitados y duración para continuar.
+              Completá nombre, tipo, fecha, al menos 1 adulto y duración para continuar.
             </p>
           )}
         </motion.div>

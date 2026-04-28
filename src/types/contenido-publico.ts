@@ -25,6 +25,12 @@ export interface PresentacionLedSettings {
     ctaTexto: string;
     ctaAccion: 'generar-presupuesto' | 'whatsapp' | 'contacto';
   };
+  /** Map of ServicioEmpresa ID → uploaded photo URL for LED presenter */
+  ledFotosServicios?: Record<string, string>;
+  /** Map of MenuItem ID → uploaded photo URL for LED presenter */
+  ledFotosMenuItems?: Record<string, string>;
+  /** URL for the plan de pagos slide background photo */
+  planPagosImagenUrl?: string;
 }
 
 export interface CatalogoSettings {

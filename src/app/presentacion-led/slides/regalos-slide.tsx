@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Check, Gift, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Gift, Star, Info, ExternalLink } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
@@ -14,6 +14,8 @@ interface RegalosSlideProps {
   servicios: ServicioEmpresa[];
   tipoFiesta: string;
   catalogoFotos?: CatalogoFoto[];
+  /** Map of service ID → uploaded LED photo URL */
+  ledFotoMap?: Record<string, string>;
 }
 
 const DEFAULT_REGALOS = [
@@ -32,7 +34,7 @@ function isSafeHttpsUrl(url: string): boolean {
   }
 }
 
-export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [] }: RegalosSlideProps) {
+export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [], ledFotoMap = {} }: RegalosSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
   const gifts = servicios.filter(s => s.categoria === 'Regalo exclusivo');
   const itemsToShow = gifts.length > 0
@@ -41,6 +43,7 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [] }: Rega
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [imgFailed, setImgFailed] = useState<Set<string>>(new Set());
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const toggleGift = (id: string) => {
     setSelectedIds(prev => {
@@ -48,6 +51,23 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [] }: Rega
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  };
+
+  const toggleDesc = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleGallery = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('desde_presentacion_led', 'true');
+      const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
+      sessionStorage.setItem('presentacion_slide_regreso', slide);
+      window.location.href = '/galeria-led?categoria=Regalo+exclusivo';
+    }
   };
 
   // Build a photo map: gift id → photo url
@@ -58,11 +78,16 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [] }: Rega
     );
     const map: Record<string, string> = {};
     itemsToShow.forEach((item, i) => {
-      const foto = regaloFotos[i];
-      if (foto) map[item.id] = foto.url;
+      // LED-specific uploaded photo takes priority
+      if (ledFotoMap[item.id]) {
+        map[item.id] = ledFotoMap[item.id];
+      } else {
+        const foto = regaloFotos[i];
+        if (foto) map[item.id] = foto.url;
+      }
     });
     return map;
-  }, [catalogoFotos, itemsToShow]);
+  }, [catalogoFotos, itemsToShow, ledFotoMap]);
 
   return (
     <SlideLayout overflowScroll>
@@ -97,20 +122,19 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [] }: Rega
             const isSelected = selectedIds.has(item.id);
             const photoUrl = giftPhotoMap[item.id];
             const imgBroken = imgFailed.has(item.id);
+            const isExpanded = expandedIds.has(item.id);
 
             return (
-              <motion.button
+              <motion.div
                 key={item.id}
-                type="button"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 + i * 0.08 }}
-                onClick={() => toggleGift(item.id)}
                 className={cn(
-                  'relative flex flex-col overflow-hidden rounded-2xl border-2 transition-all duration-200 text-left',
+                  'relative flex flex-col overflow-hidden rounded-2xl border-2 transition-all duration-200',
                   isSelected
                     ? 'border-emerald-400 bg-emerald-500/10 shadow-lg shadow-emerald-500/20'
-                    : 'border-white/15 bg-white/5 hover:bg-white/10 hover:border-white/30',
+                    : 'border-white/15 bg-white/5 hover:border-white/30',
                 )}
               >
                 {/* Photo */}
@@ -139,16 +163,51 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [] }: Rega
                 )}
 
                 {/* Content */}
-                <div className="flex items-start gap-2 p-3">
-                  <Star className={cn('h-4 w-4 shrink-0 mt-0.5', isSelected ? 'text-emerald-300' : 'text-yellow-300')} />
-                  <div>
+                <div className="p-3 flex-1 flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => toggleGift(item.id)}
+                    className="flex items-start gap-2 text-left"
+                  >
+                    <Star className={cn('h-4 w-4 shrink-0 mt-0.5', isSelected ? 'text-emerald-300' : 'text-yellow-300')} />
                     <p className="text-white font-bold text-sm leading-tight">{item.titulo}</p>
+                  </button>
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2 mt-2">
                     {item.descripcion && (
-                      <p className="text-white/60 text-xs mt-1 leading-relaxed">{item.descripcion}</p>
+                      <button
+                        onClick={() => toggleDesc(item.id)}
+                        className="flex items-center gap-1 text-xs text-indigo-300 hover:text-indigo-200 font-semibold transition-colors"
+                      >
+                        <Info className="h-3 w-3" />
+                        {isExpanded ? 'Ocultar' : 'Ver más'}
+                      </button>
                     )}
+                    <button
+                      onClick={handleGallery}
+                      className="flex items-center gap-1 text-xs text-emerald-300 hover:text-emerald-200 font-semibold transition-colors ml-auto"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      Galería
+                    </button>
                   </div>
+
+                  <AnimatePresence>
+                    {isExpanded && item.descripcion && (
+                      <motion.p
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-white/60 text-xs mt-2 leading-relaxed overflow-hidden"
+                      >
+                        {item.descripcion}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </motion.button>
+              </motion.div>
             );
           })}
         </div>

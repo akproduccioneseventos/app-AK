@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles, Info, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
@@ -31,6 +31,8 @@ interface CategoriaServiciosSlideProps {
   totalCategorias: number;
   catalogoFotos?: CatalogoFoto[];
   tipoFiesta?: string;
+  /** Map of service ID → uploaded LED photo URL */
+  ledFotoMap?: Record<string, string>;
 }
 
 function getServiceIcon(categoria?: string) {
@@ -121,10 +123,25 @@ function ServicioCard({
   fotoUrl?: string | null;
 }) {
   const [showSpecs, setShowSpecs] = useState(false);
+  const [showDesc, setShowDesc] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
   const specs = getCatalogSpecsForService(servicio.categoria, servicio.nombre);
   const price = mostrarPrecios ? formatPrice(servicio) : null;
   const showPhoto = fotoUrl != null && isSafeHttpsUrl(fotoUrl) && !imgFailed;
+
+  const handleGallery = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('desde_presentacion_led', 'true');
+      const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
+      sessionStorage.setItem('presentacion_slide_regreso', slide);
+      const cat = encodeURIComponent(servicio.categoria ?? '');
+      const sub = encodeURIComponent(servicio.subcategoria ?? '');
+      const url = sub
+        ? `/galeria-led?categoria=${cat}&subCategoria=${sub}`
+        : `/galeria-led?categoria=${cat}`;
+      window.location.href = url;
+    }
+  };
 
   return (
     <div
@@ -172,23 +189,54 @@ function ServicioCard({
                 <span className="text-emerald-400 font-bold text-sm shrink-0">{price}</span>
               )}
             </div>
-            {servicio.notas && (
-              <p className="text-white/60 text-sm mt-1 leading-relaxed line-clamp-2">{servicio.notas}</p>
-            )}
           </div>
         </div>
 
-        {/* Specs toggle */}
-        {specs.length > 0 && (
+        {/* Action buttons row */}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {(servicio.notas) && (
+            <button
+              onClick={() => setShowDesc(v => !v)}
+              className="flex items-center gap-1 text-xs text-indigo-300 hover:text-indigo-200 font-semibold transition-colors"
+            >
+              <Info className="h-3.5 w-3.5" />
+              {showDesc ? 'Ocultar' : 'Descripción'}
+            </button>
+          )}
           <button
-            onClick={() => setShowSpecs(v => !v)}
-            className="mt-3 flex items-center gap-1.5 text-indigo-300 text-xs font-semibold hover:text-indigo-200 transition-colors"
+            onClick={handleGallery}
+            className="flex items-center gap-1 text-xs text-emerald-300 hover:text-emerald-200 font-semibold transition-colors"
           >
-            <ListChecks className="h-3.5 w-3.5" />
-            {showSpecs ? 'Ocultar detalles' : '¿Qué incluye?'}
-            {showSpecs ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            <ExternalLink className="h-3.5 w-3.5" />
+            Ver galería
           </button>
-        )}
+          {specs.length > 0 && (
+            <button
+              onClick={() => setShowSpecs(v => !v)}
+              className="flex items-center gap-1 text-xs text-white/50 hover:text-white/70 transition-colors ml-auto"
+            >
+              <ListChecks className="h-3.5 w-3.5" />
+              {showSpecs ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </button>
+          )}
+        </div>
+
+        {/* Description panel */}
+        <AnimatePresence>
+          {showDesc && servicio.notas && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <p className="text-white/60 text-sm mt-2 leading-relaxed pt-2 border-t border-white/10">
+                {servicio.notas}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <AnimatePresence>
@@ -227,6 +275,7 @@ export function CategoriaServiciosSlide({
   totalCategorias,
   catalogoFotos = [],
   tipoFiesta = '',
+  ledFotoMap = {},
 }: CategoriaServiciosSlideProps) {
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
@@ -372,7 +421,7 @@ export function CategoriaServiciosSlide({
                     isSelected={selectedServices.includes(servicio.id)}
                     onToggle={() => onToggleSelect(servicio.id)}
                     mostrarPrecios={mostrarPrecios}
-                    fotoUrl={findPhotoForService(servicio, catalogoFotos, tipoFiesta)}
+                    fotoUrl={ledFotoMap[servicio.id] || findPhotoForService(servicio, catalogoFotos, tipoFiesta)}
                   />
                 </motion.div>
               ))
