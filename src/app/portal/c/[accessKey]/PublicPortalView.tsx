@@ -466,6 +466,19 @@ export default function PublicPortalView({
       })()
     : false;
 
+  // Derived visibility flags for module panels
+  const hasOrganizacionModules =
+    isModuleVisible(settings, 'itinerario') ||
+    isModuleVisible(settings, 'musica') ||
+    isModuleVisible(settings, 'moodboard') ||
+    isModuleVisible(settings, 'cartaTragos') ||
+    isModuleVisible(settings, 'menu') ||
+    isModuleVisible(settings, 'fotografiaYFilmacion') ||
+    isModuleVisible(settings, 'dressCode') ||
+    isModuleVisible(settings, 'listaRegalos') ||
+    isModuleVisible(settings, 'videoVida') ||
+    isModuleVisible(settings, 'ubicacion');
+
   // Smart alert banners
   const alertas: { type: 'amber' | 'emerald' | 'blue'; message: string }[] = [];
   if (settings?.pagos?.visible && presupuesto && saldoPendiente > 0) {
@@ -1274,7 +1287,7 @@ export default function PublicPortalView({
             )}
 
             {/* ── 5. Botón Organización del evento ── */}
-            {(isModuleVisible(settings, 'itinerario') || isModuleVisible(settings, 'musica') || isModuleVisible(settings, 'moodboard') || isModuleVisible(settings, 'cartaTragos') || isModuleVisible(settings, 'menu') || isModuleVisible(settings, 'fotografiaYFilmacion') || isModuleVisible(settings, 'dressCode') || isModuleVisible(settings, 'listaRegalos') || isModuleVisible(settings, 'videoVida') || isModuleVisible(settings, 'ubicacion')) && (
+            {hasOrganizacionModules && (
               <button
                 onClick={() => setShowOrganizacionPanel(true)}
                 className="w-full text-left rounded-3xl shadow-lg border-0 bg-white overflow-hidden hover:shadow-xl transition-shadow"
@@ -2226,8 +2239,8 @@ export default function PublicPortalView({
                     </div>
                   )}
 
-                  {/* Empty state if no modules visible */}
-                  {!isModuleVisible(settings, 'itinerario') && !isModuleVisible(settings, 'musica') && !isModuleVisible(settings, 'moodboard') && !isModuleVisible(settings, 'menu') && !isModuleVisible(settings, 'cartaTragos') && !isModuleVisible(settings, 'fotografiaYFilmacion') && !isModuleVisible(settings, 'dressCode') && !isModuleVisible(settings, 'listaRegalos') && !isModuleVisible(settings, 'videoVida') && (
+                  {/* Empty state if no AK-managed modules visible */}
+                  {!hasOrganizacionModules && (
                     <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
                       <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
                       <p className="text-sm font-semibold">Sin información disponible aún</p>
