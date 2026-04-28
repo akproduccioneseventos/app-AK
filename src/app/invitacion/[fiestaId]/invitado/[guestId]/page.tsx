@@ -8,6 +8,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 import {
   Loader2,
   AlertTriangle,
@@ -21,13 +22,9 @@ import {
   UtensilsCrossed,
   Heart,
   Navigation,
-  QrCode,
-  ChevronDown,
-  ChevronUp,
   Globe,
   Camera,
   Clock,
-  Sparkles,
   Facebook,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -72,6 +69,47 @@ function getSocialUrl(connections: SocialConnection[], platform: string): string
   return connections.find(c => c.platform === platform && c.isConnected)?.profileUrl;
 }
 
+/** Preview de las últimas fotos del muro social — carga lazy */
+function SocialPhotosPreview({ fiestaId, accentColor }: { fiestaId: string; accentColor: string }) {
+  const [photos, setPhotos] = useState<{ id: string; imageUrl: string; authorName: string }[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    import('@/app/actions/social-gallery').then(({ getSocialPosts }) => {
+      getSocialPosts(fiestaId).then(posts => {
+        setPhotos(
+          posts.slice(0, 6).map(p => ({ id: p.id, imageUrl: p.imageUrl, authorName: p.authorName ?? '' }))
+        );
+        setLoaded(true);
+      }).catch(() => setLoaded(true));
+    });
+  }, [fiestaId]);
+
+  if (!loaded) return null;
+  if (photos.length === 0) {
+    return (
+      <div className="p-4 text-center text-xs text-zinc-500">
+        Sé el primero en subir una foto 📸
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-3 gap-0.5 p-0.5">
+      {photos.map(photo => (
+        <div key={photo.id} className="aspect-square overflow-hidden">
+          <img
+            src={photo.imageUrl}
+            alt={photo.authorName}
+            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function GuestPortalContent() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
@@ -82,7 +120,6 @@ function GuestPortalContent() {
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [showQR, setShowQR] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId || !guestId) {
@@ -296,16 +333,30 @@ function GuestPortalContent() {
                 <ExternalLink className="w-3.5 h-3.5" /> Ver invitación
               </a>
             )}
+            {gps.showMesaAsignada && guest.tableNumber && (
+              <div
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-black text-white backdrop-blur-sm"
+                style={{ borderColor: `${accentColor}80`, background: `${accentColor}25` }}
+              >
+                <span>🪑</span>
+                <span>Mesa <strong>{guest.tableNumber}</strong></span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* ─── CARDS ─── */}
-      <div className="w-full max-w-sm px-4 space-y-4 py-6">
+      <div className="w-full max-w-sm px-4 pb-6 space-y-0">
 
         {/* ── MI ASISTENCIA ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
         <div
-          className="rounded-2xl border p-5 space-y-3"
+          className="rounded-2xl border p-5 space-y-3 mt-4"
           style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
         >
           <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Mi Asistencia</p>
@@ -349,34 +400,43 @@ function GuestPortalContent() {
             </div>
           )}
 
-          {/* QR colapsable */}
+          {/* QR de entrada — siempre visible cuando confirmado */}
           {gps.showCheckin && guest.rsvp === 'Confirmado' && (
-            <div data-testid="guest-portal-qr">
-              <button
-                onClick={() => setShowQR(v => !v)}
-                className="w-full flex items-center justify-between gap-2 mt-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition"
-                style={{ color: accentColor, borderColor: `${accentColor}50`, background: `${accentColor}10` }}
+            <div data-testid="guest-portal-qr" className="mt-3">
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)' }}
               >
-                <span className="flex items-center gap-2">
-                  <QrCode className="w-4 h-4" /> Ver QR de entrada
-                </span>
-                {showQR ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              {showQR && (
-                <div className="mt-3 flex flex-col items-center gap-3 p-5 rounded-2xl bg-white">
-                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={200} level="H" />
-                  <p className="text-xs text-zinc-500 text-center">
-                    Mostrá este QR en la entrada del evento.
-                  </p>
+                <div className="px-5 pt-5 pb-3 text-center">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-300 mb-1">🎫 Pase de Entrada</p>
+                  <p className="text-xl font-black text-white">{guest.nombre}</p>
+                  {guest.tableNumber && (
+                    <div className="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full bg-white/10 border border-white/20">
+                      <span className="text-sm">🪑</span>
+                      <span className="text-sm font-bold text-white">Mesa {guest.tableNumber}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-center pb-4 px-5">
+                  <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                    <QRCodeStylized id="qr-guest-portal" value={qrValue} size={180} level="H" />
+                  </div>
+                </div>
+                <div className="px-5 pb-2 text-center">
+                  <p className="text-xs text-purple-300">Mostrá este código en la entrada del evento</p>
+                </div>
+                <div className="px-5 pb-5 flex justify-between items-center">
+                  <p className="text-xs text-purple-400 font-medium">{config?.nombreEvento}</p>
                   <Button
                     onClick={downloadQR}
-                    variant="outline"
-                    className="w-full rounded-xl text-zinc-800 border-zinc-200"
+                    size="sm"
+                    variant="ghost"
+                    className="text-purple-300 hover:text-white hover:bg-white/10 rounded-xl text-xs gap-1.5"
                   >
-                    <Download className="w-4 h-4 mr-2" /> Descargar QR
+                    <Download className="w-3 h-3" /> Guardar QR
                   </Button>
                 </div>
-              )}
+              </div>
             </div>
           )}
           {gps.showCheckin && guest.rsvp !== 'Confirmado' && (
@@ -384,12 +444,43 @@ function GuestPortalContent() {
               Tu QR de entrada estará disponible una vez que confirmes tu asistencia.
             </div>
           )}
+
+          {/* Botón cancelar asistencia */}
+          {guest.rsvp === 'Confirmado' && fiesta.configuracion?.fechaEvento && (() => {
+            const eventDate = new Date(fiesta.configuracion!.fechaEvento!);
+            const cancelDeadline = new Date(eventDate);
+            cancelDeadline.setDate(cancelDeadline.getDate() - 7);
+            const canStillCancel = new Date() < cancelDeadline;
+            const deadlineStr = cancelDeadline.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' });
+            return canStillCancel ? (
+              <div className="mt-3 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-2">
+                <p className="text-[10px] text-amber-400/80">
+                  Podés cancelar tu asistencia hasta el <strong className="text-amber-400">{deadlineStr}</strong>
+                </p>
+                <a
+                  href={`/invitacion/${fiestaId}/rsvp`}
+                  className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-semibold hover:text-amber-300 transition"
+                >
+                  Cancelar confirmación →
+                </a>
+              </div>
+            ) : null;
+          })()}
         </div>
+        </motion.div>
+
+        {/* Separador visual */}
+        <div className="h-px mx-4 my-1" style={{ background: `linear-gradient(to right, transparent, ${accentColor}30, transparent)` }} />
 
         {/* ── DATOS DEL EVENTO ── */}
         {(config?.nombreLugar || fecha || dressCode?.tipo) && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.4 }}
+          >
           <div
-            className="rounded-2xl border p-5 space-y-3"
+            className="rounded-2xl border p-5 space-y-3 mt-4"
             style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Datos del evento</p>
@@ -434,8 +525,21 @@ function GuestPortalContent() {
                 <Navigation className="w-4 h-4" /> Ver en Google Maps →
               </a>
             )}
+            {guestExp?.showMenu !== false && (
+              <a
+                href={`/portal-cliente/${fiestaId}/menu`}
+                className="flex items-center gap-2 text-sm font-semibold hover:opacity-80 transition mt-1"
+                style={{ color: accentColor }}
+              >
+                🍽️ Ver menú del evento →
+              </a>
+            )}
           </div>
+          </motion.div>
         )}
+
+        {/* Separador visual */}
+        <div className="h-px mx-4 my-1" style={{ background: `linear-gradient(to right, transparent, ${accentColor}30, transparent)` }} />
 
         {/* ── ACCESOS RÁPIDOS (grid 2x2) ── */}
         {(() => {
@@ -447,6 +551,12 @@ function GuestPortalContent() {
           ].filter(Boolean) as { icon: string; label: string; href: string; external: boolean }[];
           if (actions.length === 0) return null;
           return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="mt-4"
+            >
             <div className="grid grid-cols-2 gap-3">
               {actions.map((action) => (
                 <a
@@ -462,6 +572,7 @@ function GuestPortalContent() {
                 </a>
               ))}
             </div>
+            </motion.div>
           );
         })()}
 
@@ -482,26 +593,70 @@ function GuestPortalContent() {
           </div>
         )}
 
+        {/* Separador visual */}
+        <div className="h-px mx-4 my-1" style={{ background: `linear-gradient(to right, transparent, ${accentColor}30, transparent)` }} />
+
         {/* ── MURO SOCIAL ── */}
         {gps.showMural && (
-          <a
-            href={`/evento/social/${fiestaId}`}
-            className="block rounded-2xl border p-5 hover:opacity-90 transition"
-            style={{ background: `${accentColor}10`, borderColor: `${accentColor}30` }}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
           >
-            <div className="flex items-center gap-3 mb-1">
-              <Camera className="w-5 h-5" style={{ color: accentColor }} />
-              <p className="text-sm font-bold uppercase tracking-wider" style={{ color: accentColor }}>Muro social en vivo</p>
+          <div
+            className="rounded-2xl border overflow-hidden mt-4"
+            style={{ borderColor: `${accentColor}30` }}
+          >
+            <div className="p-4 flex items-center justify-between" style={{ background: `${accentColor}10` }}>
+              <div className="flex items-center gap-2">
+                <Camera className="w-5 h-5" style={{ color: accentColor }} />
+                <div>
+                  <p className="text-sm font-bold text-white">Muro Social en Vivo</p>
+                  <p className="text-xs text-zinc-400">Subí tus fotos durante la fiesta</p>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-zinc-300">Subí tus fotos y mensajes para verlos en pantalla gigante.</p>
-            <p className="text-sm font-bold mt-2" style={{ color: accentColor }}>Participar ahora →</p>
-          </a>
+
+            <SocialPhotosPreview fiestaId={fiestaId} accentColor={accentColor} />
+
+            <div className="p-4 space-y-3 bg-zinc-900/50">
+              <div className="flex items-center gap-4">
+                <div className="bg-white p-2 rounded-xl shrink-0">
+                  <QRCodeStylized
+                    value={`${baseUrl}/evento/social/${fiestaId}`}
+                    size={64}
+                    level="M"
+                    id="qr-social-guest-portal"
+                  />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-zinc-400 mb-1">Escaneá para entrar al muro</p>
+                  <a
+                    href={`/evento/social/${fiestaId}`}
+                    className="flex items-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold text-white w-full justify-center transition"
+                    style={{ backgroundColor: accentColor }}
+                  >
+                    📷 Abrir muro social →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          </motion.div>
         )}
+
+        {/* Separador visual */}
+        <div className="h-px mx-4 my-1" style={{ background: `linear-gradient(to right, transparent, ${accentColor}30, transparent)` }} />
 
         {/* ── PROGRAMA DEL EVENTO (Bug 5: solo si hay datos reales) ── */}
         {hasPrograma && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+          >
           <div
-            className="rounded-2xl border p-5"
+            className="rounded-2xl border p-5 mt-4"
             style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">
@@ -520,6 +675,7 @@ function GuestPortalContent() {
               ))}
             </ul>
           </div>
+          </motion.div>
         )}
 
         {/* ── AK PRODUCCIONES (firma de lujo) ── */}
