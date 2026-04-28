@@ -24,6 +24,9 @@ import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTemplate, deleteSalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { getSalones } from '@/app/actions/salones';
+import { isClubUruguay } from '@/lib/club-uruguay';
+import type { Salon } from '@/types/salon';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -276,6 +279,7 @@ function SalonLayoutContent() {
   const [guestSearchTerm, setGuestSearchTerm] = useState('');
   const [tagFilter, setTagFilter] = useState<string>('all');
   const [isUploading, setIsUploading] = useState(false);
+  const [salonSuggestion, setSalonSuggestion] = useState<Salon | null>(null);
 
   const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
@@ -292,6 +296,24 @@ function SalonLayoutContent() {
       deco.salonWidth = deco.salonWidth || 15;
       deco.salonHeight = deco.salonHeight || 15;
       setDecoracion(deco);
+
+      // If the current layout is empty, check if the fiesta's venue matches a salon with a saved layout
+      if (deco.salonElements.length === 0 && fiestaData.configuracion.nombreLugar) {
+        try {
+          const salones = await getSalones();
+          const matchingSalon = salones.find(
+            (s) =>
+              s.salonLayout &&
+              (s.nombre.toLowerCase().trim() === fiestaData.configuracion.nombreLugar.toLowerCase().trim() ||
+                (s.esClubUruguay && isClubUruguay(fiestaData.configuracion.nombreLugar)))
+          );
+          if (matchingSalon) {
+            setSalonSuggestion(matchingSalon);
+          }
+        } catch {
+          // Non-critical — ignore errors when checking salon catalog
+        }
+      }
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -650,6 +672,41 @@ function SalonLayoutContent() {
             </Link>
          </div>
       </div>
+
+      {/* Salon layout suggestion banner */}
+      {salonSuggestion && decoracion && (decoracion.salonElements || []).length === 0 && (
+        <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3">
+          <div className="flex items-center gap-2">
+            <LayoutDashboard className="w-5 h-5 text-amber-600 shrink-0" />
+            <p className="text-sm font-semibold text-amber-800">
+              El salón <span className="font-black">{salonSuggestion.nombre}</span> tiene un croquis guardado. ¿Querés cargarlo como punto de partida?
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <Button
+              size="sm"
+              className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white h-8 px-4"
+              onClick={() => {
+                if (!salonSuggestion.salonLayout || !decoracion) return;
+                const layout = salonSuggestion.salonLayout as typeof decoracion;
+                setDecoracion({
+                  ...decoracion,
+                  salonElements: layout.salonElements || [],
+                  salonWidth: layout.salonWidth || decoracion.salonWidth,
+                  salonHeight: layout.salonHeight || decoracion.salonHeight,
+                });
+                setSalonSuggestion(null);
+                toast({ title: 'Croquis cargado', description: `Se cargó el diseño de ${salonSuggestion.nombre}.` });
+              }}
+            >
+              Cargar croquis de {salonSuggestion.nombre}
+            </Button>
+            <Button size="sm" variant="ghost" className="rounded-xl h-8 text-slate-500" onClick={() => setSalonSuggestion(null)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
        <Tabs defaultValue="visual" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-2xl h-14 border border-slate-200">

@@ -3,8 +3,10 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { Salon } from '@/types/salon';
+import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const SALONES_FILE = 'salones.json';
+const SALONES_STORAGE_PREFIX = 'salones';
 
 export async function getSalones(): Promise<Salon[]> {
   return readData<Salon[]>(SALONES_FILE, []);
@@ -48,3 +50,82 @@ export async function deleteSalon(
   await writeData(SALONES_FILE, salones);
   return { success: true };
 }
+
+/**
+ * Uploads a photo for a salon to Firebase Storage and saves the URL in the salon's `fotos` array.
+ */
+export async function uploadSalonFoto(
+  formData: FormData
+): Promise<{ success: boolean; url?: string; error?: string }> {
+  const file = formData.get('file') as File | null;
+  const salonId = formData.get('salonId') as string | null;
+
+  if (!file) return { success: false, error: 'No se proporcionó ningún archivo.' };
+  if (!salonId) return { success: false, error: 'ID de salón no proporcionado.' };
+
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return { success: false, error: 'Solo se permiten imágenes JPEG, PNG, GIF o WebP.' };
+  }
+
+  try {
+    const ext = file.name.split('.').pop() || 'jpg';
+    const photoId = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const storagePath = `${SALONES_STORAGE_PREFIX}/${salonId}/${photoId}.${ext}`;
+
+    const bytes = await file.arrayBuffer();
+    const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type, true);
+
+    const salones = await getSalones();
+    const idx = salones.findIndex((s) => s.id === salonId);
+    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
+
+    salones[idx] = {
+      ...salones[idx],
+      fotos: [...(salones[idx].fotos || []), url],
+    };
+    await writeData(SALONES_FILE, salones);
+
+    return { success: true, url };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+/**
+ * Removes a photo URL from a salon's `fotos` array (and optionally deletes it from Storage).
+ */
+export async function deleteSalonFoto(
+  salonId: string,
+  fotoUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const salones = await getSalones();
+    const idx = salones.findIndex((s) => s.id === salonId);
+    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
+
+    salones[idx] = {
+      ...salones[idx],
+      fotos: (salones[idx].fotos || []).filter((u) => u !== fotoUrl),
+    };
+    await writeData(SALONES_FILE, salones);
+
+    // Best-effort delete from Storage (storage path derived from URL)
+    try {
+      const url = new URL(fotoUrl);
+      // Public storage URL pattern: https://storage.googleapis.com/BUCKET/PATH
+      const pathParts = url.pathname.split('/').slice(2); // remove leading empty + bucket
+      if (pathParts.length > 0) {
+        const storagePath = pathParts.join('/');
+        await deleteFromStorage(storagePath);
+      }
+    } catch {
+      // Ignore storage deletion errors — the DB record is already updated
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+

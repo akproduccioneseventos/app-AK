@@ -5,4 +5,8 @@ export interface Salon {
   direccion: string;
   googleMapsUrl: string;
   capacidad: number;
+  descripcion?: string;
+  fotos?: string[];
+  salonLayout?: any;
+  esClubUruguay?: boolean;
 }
