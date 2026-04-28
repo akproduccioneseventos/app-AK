@@ -898,11 +898,11 @@ export default function PublicPortalView({
                   Estado del proceso
                 </p>
                 <div className="space-y-2">
-                  <div className={`flex items-center gap-3 text-sm ${fiesta.contrato?.estado === 'firmado' ? 'text-emerald-700' : 'text-amber-700'}`}>
-                    <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${fiesta.contrato?.estado === 'firmado' ? 'bg-emerald-100' : 'bg-amber-100'}`}>
-                      {fiesta.contrato?.estado === 'firmado' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                  <div className={`flex items-center gap-3 text-sm ${fiesta.contratoFirmaInfo?.isSigned ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${fiesta.contratoFirmaInfo?.isSigned ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+                      {fiesta.contratoFirmaInfo?.isSigned ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                     </div>
-                    <span className="font-semibold">Contrato {fiesta.contrato?.estado === 'firmado' ? 'firmado ✓' : 'pendiente de firma'}</span>
+                    <span className="font-semibold">Contrato {fiesta.contratoFirmaInfo?.isSigned ? 'firmado ✓' : 'pendiente de firma'}</span>
                   </div>
                   <div className={`flex items-center gap-3 text-sm ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
                     <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${isPaid ? 'bg-emerald-100' : 'bg-amber-100'}`}>
