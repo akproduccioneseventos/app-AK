@@ -70,6 +70,102 @@ function addInternalOverview() {
   header.insertAdjacentElement('afterend', section);
 }
 
+function addInternalDefaultLinkWarning() {
+  if (document.getElementById('portal-cliente-default-link-warning')) return;
+
+  const bodyText = document.body.innerText || '';
+  const hasDefaultClientLink = bodyText.includes('CLIENTE1') || bodyText.includes('/portal/c/CLIENTE1');
+  if (!hasDefaultClientLink) return;
+
+  const header = findPortalHeader();
+  if (!header) return;
+
+  const warning = document.createElement('section');
+  warning.id = 'portal-cliente-default-link-warning';
+  warning.className = 'rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 space-y-1';
+  warning.innerHTML = `
+    <p class="font-black">Atención: este portal sigue usando el link de prueba CLIENTE1.</p>
+    <p>Antes de enviarlo al cliente, cambiá el link personalizado por un nombre real del evento. Ejemplo: <strong>cliente-vip-rocio-15</strong>.</p>
+  `;
+
+  header.insertAdjacentElement('afterend', warning);
+}
+
+function addPublicUnconfiguredWarning() {
+  if (document.getElementById('portal-cliente-unconfigured-warning')) return;
+
+  const bodyText = document.body.innerText || '';
+  const isUnconfigured =
+    bodyText.includes('Evento sin configurar') ||
+    bodyText.includes('Lugar a confirmar') ||
+    bodyText.includes('/portal/c/CLIENTE1') ||
+    window.location.pathname.toLowerCase().includes('/portal/c/cliente1');
+
+  if (!isUnconfigured) return;
+
+  const heroTitle = Array.from(document.querySelectorAll('h1')).find(h =>
+    (h.textContent ?? '').includes('Evento sin configurar')
+  );
+  const heroContainer = heroTitle?.closest('div.relative') ?? document.querySelector('main') ?? document.body;
+
+  const warning = document.createElement('section');
+  warning.id = 'portal-cliente-unconfigured-warning';
+  warning.className = 'mx-auto max-w-3xl px-4 -mt-5 mb-4 relative z-30';
+  warning.innerHTML = `
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-4 shadow-xl text-amber-900 space-y-2">
+      <p class="text-base font-black">Portal sin datos reales todavía</p>
+      <p class="text-sm leading-relaxed">Este link está funcionando, pero el evento todavía no tiene configurados los datos reales del cliente, fecha, lugar, presupuesto o contrato. No conviene enviarlo al cliente hasta completar esos datos desde Planificador.</p>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="rounded-2xl bg-white/70 border border-amber-100 p-2"><strong>1.</strong> Cambiar CLIENTE1 por link personalizado.</div>
+        <div class="rounded-2xl bg-white/70 border border-amber-100 p-2"><strong>2.</strong> Cargar nombre real del evento.</div>
+        <div class="rounded-2xl bg-white/70 border border-amber-100 p-2"><strong>3.</strong> Vincular presupuesto/contrato.</div>
+        <div class="rounded-2xl bg-white/70 border border-amber-100 p-2"><strong>4.</strong> Revisar pagos y tareas.</div>
+      </div>
+    </div>
+  `;
+
+  heroContainer.insertAdjacentElement('afterend', warning);
+}
+
+function correctFalsePublicProcessStates() {
+  const bodyText = document.body.innerText || '';
+  const isUnconfigured =
+    bodyText.includes('Evento sin configurar') ||
+    window.location.pathname.toLowerCase().includes('/portal/c/cliente1');
+
+  if (!isUnconfigured) return;
+
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes: Text[] = [];
+  let current = walker.nextNode();
+  while (current) {
+    nodes.push(current as Text);
+    current = walker.nextNode();
+  }
+
+  for (const node of nodes) {
+    let value = node.nodeValue ?? '';
+    let changed = false;
+
+    const replacements: Array<[string, string]> = [
+      ['Pago completado ✓', 'Pago sin configurar'],
+      ['Pago completado', 'Pago sin configurar'],
+      ['Contrato pendiente de firma', 'Contrato sin configurar'],
+      ['Sin confirmaciones aún', 'Invitados sin configurar'],
+      ['PAGADO', 'PAGO'],
+    ];
+
+    for (const [from, to] of replacements) {
+      if (value.includes(from)) {
+        value = value.replaceAll(from, to);
+        changed = true;
+      }
+    }
+
+    if (changed) node.nodeValue = value;
+  }
+}
+
 function addPublicQuickGuide() {
   if (document.getElementById('portal-cliente-public-guide')) return;
 
@@ -99,8 +195,15 @@ export default function ClientPortalVipUxLayer({ mode }: { mode: 'admin' | 'publ
   useEffect(() => {
     const apply = () => {
       replaceTextNodes(document.body);
-      if (mode === 'admin') addInternalOverview();
-      if (mode === 'public') addPublicQuickGuide();
+      if (mode === 'admin') {
+        addInternalOverview();
+        addInternalDefaultLinkWarning();
+      }
+      if (mode === 'public') {
+        addPublicQuickGuide();
+        addPublicUnconfiguredWarning();
+        correctFalsePublicProcessStates();
+      }
     };
 
     apply();
