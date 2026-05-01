@@ -4,7 +4,7 @@ import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import type { Presupuesto } from '@/types/presupuesto';
-import PublicPortalView from './PublicPortalView';
+import PublicPortalProView from './PublicPortalProView';
 
 interface PageProps {
   params: { accessKey: string };
@@ -28,7 +28,7 @@ export default async function PublicPortalPage({ params }: PageProps) {
   }
 
   return (
-    <PublicPortalView
+    <PublicPortalProView
       fiesta={fiesta}
       companyContact={companyInfo.companyContact}
       companyName={companyInfo.companyName}
