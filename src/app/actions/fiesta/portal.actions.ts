@@ -9,6 +9,11 @@ import { createNotification } from '../notifications';
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
 
+function normalizeClientPaymentAmount(value: number): number {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return Math.round(value * 100) / 100;
+}
+
 async function updateFiestaData(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>
@@ -137,12 +142,15 @@ export async function submitClientPayment(
   comprobanteNombre?: string
 ): Promise<{ success: boolean; notificationId?: string; error?: string }> {
   try {
+    const safeMonto = normalizeClientPaymentAmount(monto);
+    if (safeMonto <= 0) return { success: false, error: 'Monto inválido' };
+
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
     const notification: ClientPaymentNotification = {
       id: `cpn_${crypto.randomUUID()}`,
-      monto,
+      monto: safeMonto,
       comprobanteBase64,
       comprobanteNombre,
       estado: 'pendiente',
@@ -160,7 +168,7 @@ export async function submitClientPayment(
     await saveFiesta(updated);
 
     await createNotification({
-      mensaje: `💳 Pago informado por cliente para "${fiesta.configuracion.nombreEvento}": $${monto.toLocaleString('es-UY')}`,
+      mensaje: `💳 Pago informado por cliente para "${fiesta.configuracion.nombreEvento}": $${safeMonto.toLocaleString('es-UY')}`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=pagos`,
       icono: 'CreditCard',
     });
