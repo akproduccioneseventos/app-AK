@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, type ElementType } from 'react';
+import { useRef, useState, type ElementType, type ReactNode } from 'react';
 import {
   AlertTriangle,
   Calendar,
@@ -36,7 +36,6 @@ import { PublicFooter } from '@/components/public-footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -98,7 +97,6 @@ function daysUntilEvent(date?: string): number | null {
   if (!date) return null;
   const value = new Date(date.includes('T') ? date : `${date}T00:00:00`);
   if (Number.isNaN(value.getTime())) return null;
-
   return Math.ceil((value.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 }
 
@@ -137,7 +135,7 @@ function hasBudgetService(searchText: string, keywords: string[]): boolean {
   return keywords.some(keyword => normalized.includes(normalizeText(keyword)));
 }
 
-function InfoBadge({ children, tone = 'info' }: { children: string; tone?: 'info' | 'action' | 'ok' }) {
+function InfoBadge({ children, tone = 'info' }: { children: ReactNode; tone?: 'info' | 'action' | 'ok' }) {
   const className = tone === 'action'
     ? 'border-amber-200 bg-amber-50 text-amber-800'
     : tone === 'ok'
@@ -229,42 +227,26 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   });
 
   const currentGuestCount = Number(presupuesto?.invitadosCantidad ?? config.invitadosEstimados ?? guestStats.total ?? 1) || 1;
-  const annualAdjustmentPercent = Number(
-    presupuesto?.ajusteAnualPorcentaje
-      ?? fiesta?.contratoDatos?.ajusteAnualPorcentaje
-      ?? 15
-  ) || 15;
-
+  const annualAdjustmentPercent = Number(presupuesto?.ajusteAnualPorcentaje ?? fiesta?.contratoDatos?.ajusteAnualPorcentaje ?? 15) || 15;
   const pendingTasks = [
-    ...(fiesta?.clienteDebeLlevar ?? []).map((item: any) => ({
-      id: item.id,
-      text: item.texto || item.nombre,
-      done: item.completado || item.estado === 'listo' || item.estado === 'revisado',
-      required: item.obligatorio,
-    })),
-    ...(portalExperience.clienteDebeLlevar ?? []).map((item: any) => ({
-      id: item.id,
-      text: item.texto || item.nombre,
-      done: item.completado || item.estado === 'listo' || item.estado === 'revisado',
-      required: item.obligatorio,
-    })),
-    ...(fiesta?.clientChecklist ?? []).map((item: any) => ({
-      id: item.id,
-      text: item.texto || item.titulo,
-      done: item.completada,
-      required: false,
-    })),
-  ].filter(task => task.text && !task.done);
+    ...(fiesta?.clienteDebeLlevar ?? []),
+    ...(portalExperience.clienteDebeLlevar ?? []),
+    ...(fiesta?.clientChecklist ?? []),
+  ].map((item: any) => ({
+    id: item.id,
+    text: item.texto || item.nombre || item.titulo,
+    done: item.completado || item.completada || item.estado === 'listo' || item.estado === 'revisado',
+  })).filter(task => task.text && !task.done);
 
-  const nextStep = useMemo(() => {
-    if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviar este portal, AK debe cambiar el link de prueba por uno real.' };
-    if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver el total, pagos y servicios contratados.' };
+  const nextStep = (() => {
+    if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviarlo, AK debe cambiar el link de prueba por uno real.' };
+    if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.' };
     if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.` };
     if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.` };
     if (pendingTasks.length > 0) return { title: 'Pendiente para revisar', text: pendingTasks[0].text };
     if (guestStats.needsAction > 0) return { title: 'Invitados pendientes', text: `${guestStats.needsAction} invitado(s) todavía necesitan respuesta.` };
     return { title: 'Todo encaminado', text: 'La información principal del evento está ordenada.' };
-  }, [guestStats.needsAction, isDefaultLink, paymentSummary.balance, paymentSummary.pendingReviewCount, pendingTasks, presupuesto]);
+  })();
 
   const serviceCards = [
     {
@@ -319,9 +301,17 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     const key = documento?.fileName || documento?.id || getDocumentName(documento);
     return key && list.findIndex(item => (item?.fileName || item?.id || getDocumentName(item)) === key) === index;
   });
-
   const contractDocuments = documentos.filter((documento: any) => normalizeText(`${documento?.tipo} ${getDocumentName(documento)}`).includes('contrato'));
   const budgetDocuments = documentos.filter((documento: any) => normalizeText(`${documento?.tipo} ${getDocumentName(documento)}`).includes('presupuesto'));
+  const documentsOrdered = [
+    ...contractDocuments,
+    ...budgetDocuments,
+    ...documentos.filter((documento: any) => !contractDocuments.includes(documento) && !budgetDocuments.includes(documento)),
+  ];
+  const contractStatus = fiesta?.contratoFirmaInfo?.isSigned
+    ? 'firmado'
+    : (fiesta?.contratoServicioTexto || contractDocuments.length > 0 ? 'cargado' : 'pendiente');
+
   const lineItems = presupuesto?.itemsPresupuestados ?? [];
   const cuentasBancarias = settings?.cuentasBancarias ?? [];
   const listaMusica = fiesta?.listaMusicaPortal ?? {};
@@ -329,24 +319,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const musicMust = [...(listaMusica.imprescindibles ?? []), ...localMusicSuggestions];
   const musicMaybe = listaMusica.siEsPosible ?? [];
   const musicNo = listaMusica.noQuiero ?? [];
-
   const reuniones = fiesta?.reuniones ?? [];
-  const programaItems = (fiesta?.programa ?? []).map((item: any) => ({
-    id: item.id,
-    time: item.hora,
-    title: item.titulo,
-    text: item.descripcionCliente || item.descripcion,
-    done: item.completado,
-  }));
+  const programaItems = (fiesta?.programa ?? []).map((item: any) => ({ id: item.id, time: item.hora, title: item.titulo, text: item.descripcionCliente || item.descripcion }));
   const timelineItems = programaItems.length > 0
     ? programaItems
-    : (fiesta?.timeline ?? []).map((item: any) => ({
-      id: item.id,
-      time: formatShortDate(item.fechaProgramada),
-      title: item.nombre,
-      text: item.notas,
-      done: item.completado,
-    }));
+    : (fiesta?.timeline ?? []).map((item: any) => ({ id: item.id, time: formatShortDate(item.fechaProgramada), title: item.nombre, text: item.notas }));
   const faqItems = fiesta?.faqPortal ?? [];
   const activeGuestRequests = (fiesta?.clientMenuChangeRequests ?? []).filter((request: any) => request.status === 'pendiente');
 
@@ -414,8 +391,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   };
 
   const submitMusicSuggestion = async () => {
-    setMusicNotice(null);
     const value = musicSuggestion.trim();
+    setMusicNotice(null);
+
     if (!value) {
       setMusicNotice({ type: 'error', text: 'Escribí una canción antes de agregarla.' });
       return;
@@ -491,16 +469,16 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             <div className="space-y-3">
               <p className="text-sm font-semibold text-white/80">{config.tipoCelebracion || 'Evento'}</p>
               <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">{eventName}</h1>
-              <p className="max-w-2xl text-base leading-7 text-white/88">
+              <p className="max-w-2xl text-base leading-7 text-white/90">
                 {portalExperience.welcomeMessage || portalExperience.organizerMessage || 'Toda la información importante del evento en un solo lugar.'}
               </p>
             </div>
 
             <div className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/16 px-3 py-2"><Calendar className="h-4 w-4" />{eventDate}</span>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/16 px-3 py-2"><Clock className="h-4 w-4" />{config.horaInicio || 'Hora a confirmar'}</span>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/16 px-3 py-2"><MapPin className="h-4 w-4" />{config.nombreLugar && config.nombreLugar !== 'Salón a definir' ? config.nombreLugar : 'Lugar a confirmar'}</span>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/16 px-3 py-2"><PartyPopper className="h-4 w-4" />{days === null ? 'Fecha a confirmar' : days > 0 ? `Faltan ${days} días` : 'Evento en marcha'}</span>
+              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><Calendar className="h-4 w-4" />{eventDate}</span>
+              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><Clock className="h-4 w-4" />{config.horaInicio || 'Hora a confirmar'}</span>
+              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><MapPin className="h-4 w-4" />{config.nombreLugar && config.nombreLugar !== 'Salón a definir' ? config.nombreLugar : 'Lugar a confirmar'}</span>
+              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{days === null ? 'Fecha a confirmar' : days > 0 ? `Faltan ${days} días` : 'Evento en marcha'}</span>
             </div>
           </div>
 
@@ -611,9 +589,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <InfoBadge tone="action">Cliente participa</InfoBadge>
                     </div>
                   </div>
-                  {reuniones.length === 0 ? (
-                    <EmptyLine text="No hay reuniones cargadas todavía." />
-                  ) : reuniones.slice(0, 5).map((reunion: any) => (
+                  {reuniones.length === 0 ? <EmptyLine text="No hay reuniones cargadas todavía." /> : reuniones.slice(0, 5).map((reunion: any) => (
                     <div key={reunion.id} className="mb-2 rounded-lg bg-slate-50 p-3">
                       <p className="font-semibold">{reunion.titulo || 'Reunión'}</p>
                       <p className="text-sm text-slate-600">{formatShortDate(reunion.fecha)}{reunion.notas ? ` · ${reunion.notas}` : ''}</p>
@@ -630,7 +606,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <div className="mb-3 flex items-center gap-3">
                     <IconBlock icon={Camera} color={eventColor} />
                     <div>
-                      <p className="font-black">Fotos, video y redes del evento</p>
+                      <p className="font-black">Fotos, video y redes</p>
                       <InfoBadge tone="action">Cliente participa</InfoBadge>
                     </div>
                   </div>
@@ -641,9 +617,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <Button variant="outline" asChild>
                         <a href={`/evento/social/${fiesta.id}`} target="_blank" rel="noopener noreferrer"><ImageIcon className="h-4 w-4" /> Abrir mural social</a>
                       </Button>
-                    ) : (
-                      <EmptyLine text="El mural social todavía no está activo." />
-                    )}
+                    ) : <EmptyLine text="El mural social todavía no está activo." />}
                   </div>
                 </div>
               </div>
@@ -665,9 +639,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       {fiesta.menuSeleccionPortal.bebidas && <p className="rounded-lg bg-slate-50 p-3"><strong>Bebidas:</strong> {fiesta.menuSeleccionPortal.bebidas}</p>}
                       {fiesta.menuSeleccionPortal.restriccionesAlimentarias && <p className="rounded-lg bg-amber-50 p-3 text-amber-900"><strong>Restricciones:</strong> {fiesta.menuSeleccionPortal.restriccionesAlimentarias}</p>}
                     </div>
-                  ) : (
-                    <EmptyLine text="El menú todavía no está cargado." />
-                  )}
+                  ) : <EmptyLine text="El menú todavía no está cargado." />}
                 </div>
 
                 <div className="rounded-lg border p-4">
@@ -695,9 +667,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <InfoBadge>Solo información</InfoBadge>
                   </div>
                 </div>
-                {timelineItems.length === 0 ? (
-                  <EmptyLine text="El cronograma todavía no está cargado." />
-                ) : (
+                {timelineItems.length === 0 ? <EmptyLine text="El cronograma todavía no está cargado." /> : (
                   <div className="space-y-2">
                     {timelineItems.map((item: any) => (
                       <div key={item.id} className="grid gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-[120px_1fr]">
@@ -720,134 +690,58 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             </AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
               <div className="grid gap-3 lg:grid-cols-4">
-                <div className="rounded-lg border bg-slate-50 p-4">
-                  <p className="text-xs font-bold text-slate-500">Total contratado</p>
-                  <p className="text-2xl font-black">{formatPortalMoney(paymentSummary.total)}</p>
-                </div>
-                <div className="rounded-lg border bg-emerald-50 p-4 text-emerald-900">
-                  <p className="text-xs font-bold">Pagado</p>
-                  <p className="text-2xl font-black">{formatPortalMoney(paymentSummary.paid)}</p>
-                </div>
-                <div className="rounded-lg border bg-rose-50 p-4 text-rose-900">
-                  <p className="text-xs font-bold">Saldo</p>
-                  <p className="text-2xl font-black">{formatPortalMoney(paymentSummary.balance)}</p>
-                </div>
-                <div className="rounded-lg border bg-amber-50 p-4 text-amber-900">
-                  <p className="text-xs font-bold">En revisión</p>
-                  <p className="text-2xl font-black">{paymentSummary.pendingReviewCount}</p>
-                </div>
+                <div className="rounded-lg border bg-slate-50 p-4"><p className="text-xs font-bold text-slate-500">Total contratado</p><p className="text-2xl font-black">{formatPortalMoney(paymentSummary.total)}</p></div>
+                <div className="rounded-lg border bg-emerald-50 p-4 text-emerald-900"><p className="text-xs font-bold">Pagado</p><p className="text-2xl font-black">{formatPortalMoney(paymentSummary.paid)}</p></div>
+                <div className="rounded-lg border bg-rose-50 p-4 text-rose-900"><p className="text-xs font-bold">Saldo</p><p className="text-2xl font-black">{formatPortalMoney(paymentSummary.balance)}</p></div>
+                <div className="rounded-lg border bg-amber-50 p-4 text-amber-900"><p className="text-xs font-bold">En revisión</p><p className="text-2xl font-black">{paymentSummary.pendingReviewCount}</p></div>
               </div>
-
-              <div className="rounded-full bg-slate-100 p-1">
-                <div className="h-3 rounded-full" style={{ width: `${paymentSummary.paidPercent}%`, background: eventColor }} />
-              </div>
+              <div className="rounded-full bg-slate-100 p-1"><div className="h-3 rounded-full" style={{ width: `${paymentSummary.paidPercent}%`, background: eventColor }} /></div>
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="rounded-lg border p-4">
-                  <div className="mb-3 flex items-center gap-3">
-                    <IconBlock icon={FileText} color={eventColor} />
-                    <div>
-                      <p className="font-black">Contrato y documentos</p>
-                      <InfoBadge>Solo información</InfoBadge>
-                    </div>
-                  </div>
+                  <div className="mb-3 flex items-center gap-3"><IconBlock icon={FileText} color={eventColor} /><div><p className="font-black">Contrato y documentos</p><InfoBadge>Solo información</InfoBadge></div></div>
                   <div className="space-y-2">
-                    <p className="rounded-lg bg-slate-50 p-3 text-sm">
-                      Contrato: {fiesta?.contratoFirmaInfo?.isSigned ? 'firmado' : fiesta?.contratoServicioTexto || contractDocuments.length > 0 ? 'cargado' : 'pendiente'}
-                    </p>
-                    {[...contractDocuments, ...budgetDocuments, ...documentos.filter((documento: any) => !contractDocuments.includes(documento) && !budgetDocuments.includes(documento))].slice(0, 8).map((documento: any) => (
+                    <p className="rounded-lg bg-slate-50 p-3 text-sm">Contrato: {contractStatus}</p>
+                    {documentsOrdered.slice(0, 8).map((documento: any) => (
                       documento.fileName ? (
                         <Button key={documento.id || documento.fileName} variant="outline" className="w-full justify-between" asChild>
-                          <a href={documentHref(fiesta.id, documento.fileName)} target="_blank" rel="noopener noreferrer">
-                            <span className="min-w-0 truncate">{getDocumentName(documento)}</span>
-                            <Download className="h-4 w-4" />
-                          </a>
+                          <a href={documentHref(fiesta.id, documento.fileName)} target="_blank" rel="noopener noreferrer"><span className="min-w-0 truncate">{getDocumentName(documento)}</span><Download className="h-4 w-4" /></a>
                         </Button>
-                      ) : (
-                        <p key={documento.id || getDocumentName(documento)} className="rounded-lg bg-slate-50 p-3 text-sm">{getDocumentName(documento)}</p>
-                      )
+                      ) : <p key={documento.id || getDocumentName(documento)} className="rounded-lg bg-slate-50 p-3 text-sm">{getDocumentName(documento)}</p>
                     ))}
                     {documentos.length === 0 && <EmptyLine text="No hay documentos descargables cargados todavía." />}
                   </div>
                 </div>
 
                 <div className="rounded-lg border p-4">
-                  <div className="mb-3 flex items-center gap-3">
-                    <IconBlock icon={CreditCard} color={eventColor} />
-                    <div>
-                      <p className="font-black">Informar pago</p>
-                      <InfoBadge tone="action">Cliente participa</InfoBadge>
-                    </div>
-                  </div>
+                  <div className="mb-3 flex items-center gap-3"><IconBlock icon={CreditCard} color={eventColor} /><div><p className="font-black">Informar pago</p><InfoBadge tone="action">Cliente participa</InfoBadge></div></div>
                   <div className="space-y-3 text-sm text-slate-600">
-                    {cuentasBancarias.length > 0 && cuentasBancarias.slice(0, 2).map((cuenta: any) => (
-                      <div key={cuenta.id || cuenta.numero} className="rounded-lg bg-slate-50 p-3">
-                        <p className="font-semibold text-slate-900">{cuenta.banco}</p>
-                        <p>{cuenta.titular}</p>
-                        <p>{cuenta.numero}</p>
-                      </div>
-                    ))}
-                    <Button onClick={() => setPaymentModalOpen(true)} style={{ background: eventColor }}>
-                      <Upload className="h-4 w-4" /> Informar pago
-                    </Button>
-                    {paymentSummary.pendingReviewCount > 0 && (
-                      <p className="rounded-lg bg-amber-50 p-3 text-amber-900">Tenés pagos informados esperando revisión de AK.</p>
-                    )}
+                    {cuentasBancarias.length > 0 && cuentasBancarias.slice(0, 2).map((cuenta: any) => <div key={cuenta.id || cuenta.numero} className="rounded-lg bg-slate-50 p-3"><p className="font-semibold text-slate-900">{cuenta.banco}</p><p>{cuenta.titular}</p><p>{cuenta.numero}</p></div>)}
+                    <Button onClick={() => setPaymentModalOpen(true)} style={{ background: eventColor }}><Upload className="h-4 w-4" /> Informar pago</Button>
+                    {paymentSummary.pendingReviewCount > 0 && <p className="rounded-lg bg-amber-50 p-3 text-amber-900">Tenés pagos informados esperando revisión de AK.</p>}
                   </div>
                 </div>
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="mb-3 flex items-center gap-3">
-                  <IconBlock icon={Receipt} color={eventColor} />
-                  <div>
-                    <p className="font-black">Lo contratado</p>
-                    <InfoBadge>Solo información</InfoBadge>
-                  </div>
-                </div>
-                {lineItems.length === 0 ? (
-                  <EmptyLine text="No hay servicios cargados en el presupuesto." />
-                ) : (
+                <div className="mb-3 flex items-center gap-3"><IconBlock icon={Receipt} color={eventColor} /><div><p className="font-black">Lo contratado</p><InfoBadge>Solo información</InfoBadge></div></div>
+                {lineItems.length === 0 ? <EmptyLine text="No hay servicios cargados en el presupuesto." /> : (
                   <div className="grid gap-2 lg:grid-cols-2">
-                    {lineItems.slice(0, 12).map((item: any) => (
-                      <div key={`${item.idServicioCatalogo}-${item.nombreServicio}`} className="rounded-lg bg-slate-50 p-3 text-sm">
-                        <p className="font-semibold text-slate-900">{item.nombreServicio}</p>
-                        <p className="text-slate-500">Cantidad: {item.cantidad ?? 1}{item.unidad ? ` ${item.unidad}` : ''}</p>
-                        <p className="font-bold text-slate-800">{formatPortalMoney(item.costoTotalItem)}</p>
-                      </div>
-                    ))}
+                    {lineItems.slice(0, 12).map((item: any, index: number) => <div key={`${item.idServicioCatalogo}-${index}`} className="rounded-lg bg-slate-50 p-3 text-sm"><p className="font-semibold text-slate-900">{item.nombreServicio}</p><p className="text-slate-500">Cantidad: {item.cantidad ?? 1}{item.unidad ? ` ${item.unidad}` : ''}</p><p className="font-bold text-slate-800">{formatPortalMoney(item.costoTotalItem)}</p></div>)}
                   </div>
                 )}
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="mb-3 flex items-center gap-3">
-                  <IconBlock icon={Plus} color={eventColor} />
-                  <div>
-                    <p className="font-black">Simular más invitados</p>
-                    <InfoBadge tone="action">Requiere aprobación de AK</InfoBadge>
-                  </div>
-                </div>
+                <div className="mb-3 flex items-center gap-3"><IconBlock icon={Plus} color={eventColor} /><div><p className="font-black">Simular más invitados</p><InfoBadge tone="action">Requiere aprobación de AK</InfoBadge></div></div>
                 <div className="grid gap-3 lg:grid-cols-[1fr_1fr_1.1fr]">
-                  <label className="space-y-1 text-sm font-semibold text-slate-700">
-                    Adultos a agregar
-                    <Input type="number" min={0} value={extraAdults} onChange={event => setExtraAdults(Math.max(0, Number(event.target.value) || 0))} />
-                  </label>
-                  <label className="space-y-1 text-sm font-semibold text-slate-700">
-                    Niños/adolescentes
-                    <Input type="number" min={0} value={extraChildren} onChange={event => setExtraChildren(Math.max(0, Number(event.target.value) || 0))} />
-                  </label>
-                  <div className="rounded-lg bg-slate-50 p-3 text-sm">
-                    <p>Extra estimado: <strong>{formatPortalMoney(guestEstimate.additionalTotal)}</strong></p>
-                    <p>Nuevo total: <strong>{formatPortalMoney(guestEstimate.newTotal)}</strong></p>
-                    <p className="text-xs text-slate-500">Incluye ajuste anual de {annualAdjustmentPercent}%.</p>
-                  </div>
+                  <label className="space-y-1 text-sm font-semibold text-slate-700">Adultos a agregar<Input type="number" min={0} value={extraAdults} onChange={event => setExtraAdults(Math.max(0, Number(event.target.value) || 0))} /></label>
+                  <label className="space-y-1 text-sm font-semibold text-slate-700">Niños/adolescentes<Input type="number" min={0} value={extraChildren} onChange={event => setExtraChildren(Math.max(0, Number(event.target.value) || 0))} /></label>
+                  <div className="rounded-lg bg-slate-50 p-3 text-sm"><p>Extra estimado: <strong>{formatPortalMoney(guestEstimate.additionalTotal)}</strong></p><p>Nuevo total: <strong>{formatPortalMoney(guestEstimate.newTotal)}</strong></p><p className="text-xs text-slate-500">Incluye ajuste anual de {annualAdjustmentPercent}%.</p></div>
                 </div>
                 <Textarea className="mt-3" value={guestNote} onChange={event => setGuestNote(event.target.value)} placeholder="Nota para AK, por ejemplo: necesito sumar 10 personas" />
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <Button onClick={submitGuestRequest} disabled={guestRequestLoading} style={{ background: eventColor }}>
-                    <Send className="h-4 w-4" /> {guestRequestLoading ? 'Enviando' : 'Enviar solicitud'}
-                  </Button>
+                  <Button onClick={submitGuestRequest} disabled={guestRequestLoading} style={{ background: eventColor }}><Send className="h-4 w-4" /> {guestRequestLoading ? 'Enviando' : 'Enviar solicitud'}</Button>
                   {activeGuestRequests.length > 0 && <InfoBadge tone="action">{activeGuestRequests.length} solicitud(es) pendiente(s)</InfoBadge>}
                 </div>
                 {guestRequestNotice && <div className="mt-3"><NoticeBox notice={guestRequestNotice} /></div>}
@@ -856,9 +750,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </AccordionItem>
 
           <AccordionItem value="invitados" id="portal-invitados" className="rounded-lg border bg-white px-4 shadow-sm">
-            <AccordionTrigger className="text-left text-lg font-black hover:no-underline">
-              <span className="flex items-center gap-3"><IconBlock icon={Users} color={eventColor} /> Invitados</span>
-            </AccordionTrigger>
+            <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={Users} color={eventColor} /> Invitados</span></AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 <StatTile label="Total" value={guestStats.total} icon={Users} tone="bg-slate-50 text-slate-700" />
@@ -876,18 +768,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </AccordionItem>
 
           <AccordionItem value="reglas" id="portal-reglas" className="rounded-lg border bg-white px-4 shadow-sm">
-            <AccordionTrigger className="text-left text-lg font-black hover:no-underline">
-              <span className="flex items-center gap-3"><IconBlock icon={ShieldCheck} color={eventColor} /> Reglas y preguntas</span>
-            </AccordionTrigger>
+            <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={ShieldCheck} color={eventColor} /> Reglas y preguntas</span></AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
-              {faqItems.length === 0 ? (
-                <EmptyLine text="No hay reglas o preguntas frecuentes cargadas todavía." />
-              ) : faqItems.map((faq: any) => (
-                <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4">
-                  <p className="font-black text-slate-900">{faq.pregunta}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p>
-                </div>
-              ))}
+              {faqItems.length === 0 ? <EmptyLine text="No hay reglas o preguntas frecuentes cargadas todavía." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -897,24 +780,15 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-lg bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b p-4">
-              <div>
-                <p className="text-lg font-black">Informar pago</p>
-                <p className="text-sm text-slate-500">AK lo confirma después de revisarlo.</p>
-              </div>
-              <Button variant="ghost" size="icon" aria-label="Cerrar" onClick={() => setPaymentModalOpen(false)}>
-                <X className="h-4 w-4" />
-              </Button>
+              <div><p className="text-lg font-black">Informar pago</p><p className="text-sm text-slate-500">AK lo confirma después de revisarlo.</p></div>
+              <Button variant="ghost" size="icon" aria-label="Cerrar" onClick={() => setPaymentModalOpen(false)}><X className="h-4 w-4" /></Button>
             </div>
             <div className="space-y-3 p-4">
               <Input type="number" min={0} value={paymentAmount} onChange={event => setPaymentAmount(event.target.value)} placeholder="Monto pagado" />
               <Textarea value={paymentNote} onChange={event => setPaymentNote(event.target.value)} placeholder="Nota opcional" />
               <input ref={fileInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={event => handlePaymentFile(event.target.files?.[0])} />
-              <Button variant="outline" className="w-full justify-start" onClick={() => fileInputRef.current?.click()}>
-                <Upload className="h-4 w-4" /> {paymentFile ? paymentFile.name : 'Subir comprobante'}
-              </Button>
-              <Button className="w-full" onClick={submitPayment} disabled={paymentLoading} style={{ background: eventColor }}>
-                <Send className="h-4 w-4" /> {paymentLoading ? 'Enviando' : 'Enviar pago'}
-              </Button>
+              <Button variant="outline" className="w-full justify-start" onClick={() => fileInputRef.current?.click()}><Upload className="h-4 w-4" /> {paymentFile ? paymentFile.name : 'Subir comprobante'}</Button>
+              <Button className="w-full" onClick={submitPayment} disabled={paymentLoading} style={{ background: eventColor }}><Send className="h-4 w-4" /> {paymentLoading ? 'Enviando' : 'Enviar pago'}</Button>
               {paymentNotice && <NoticeBox notice={paymentNotice} />}
             </div>
           </div>
