@@ -26,7 +26,10 @@ export function checkBackupReadiness(collections: BackupCollectionSummary): Back
     }
   }
 
-  const totalItems = Object.values(collections).reduce((sum, value) => sum + Math.max(0, value ?? 0), 0);
+  const totalItems = Object.values(collections).reduce<number>(
+    (sum, value) => sum + Math.max(0, value ?? 0),
+    0
+  );
   if (totalItems === 0) {
     warnings.push('El backup no contiene datos.');
   }
