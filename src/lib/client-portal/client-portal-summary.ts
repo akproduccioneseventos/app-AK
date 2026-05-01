@@ -172,14 +172,14 @@ export function getPortalPaymentSummary(input: {
   const pendingNotifications = notifications.filter(notification => normalizeText(notification.estado) === 'pendiente');
   const approvedNotifications = notifications.filter(notification => normalizeText(notification.estado) === 'aprobado');
 
-  const paidFromBudget = confirmedPayments.reduce((sum, payment) => sum + positiveAmount(payment.monto), 0);
+  const paidFromBudget = confirmedPayments.reduce<number>((sum, payment) => sum + positiveAmount(payment.monto), 0);
   const paidFromNotifications = payments.length === 0
-    ? approvedNotifications.reduce((sum, notification) => sum + positiveAmount(notification.monto), 0)
+    ? approvedNotifications.reduce<number>((sum, notification) => sum + positiveAmount(notification.monto), 0)
     : 0;
   const pendingReviewAmount = [
     ...pendingPayments.map(payment => payment.monto),
     ...pendingNotifications.map(notification => notification.monto),
-  ].reduce((sum, amount) => sum + positiveAmount(amount), 0);
+  ].reduce<number>((sum, amount) => sum + positiveAmount(amount), 0);
 
   const paid = roundMoney(paidFromBudget + paidFromNotifications);
   const balance = roundMoney(Math.max(0, total - paid));
