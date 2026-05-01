@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useMemo, useRef, useState } from 'react';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { Presupuesto } from '@/types/presupuesto';
 import {
   Calendar,
   Camera,
@@ -34,10 +32,10 @@ import { submitClientPayment } from '@/app/actions/fiesta/portal.actions';
 import { PublicFooter } from '@/components/public-footer';
 
 interface PublicPortalProViewProps {
-  fiesta: FiestaEnPlanificacion;
+  fiesta: any;
   companyContact: string;
   companyName: string;
-  presupuesto?: Presupuesto | null;
+  presupuesto?: any | null;
 }
 
 const formatCurrency = (amount?: number | null) => {
@@ -66,15 +64,17 @@ const daysUntilEvent = (date?: string) => {
   if (!date) return null;
   const value = new Date(date.includes('T') ? date : `${date}T00:00:00`);
   if (Number.isNaN(value.getTime())) return null;
-  const diff = value.getTime() - Date.now();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return Math.ceil((value.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 };
 
 const normalize = (value: unknown) => String(value ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-function getBudgetSearchText(presupuesto?: Presupuesto | null) {
+function getBudgetSearchText(presupuesto?: any | null) {
   const items = presupuesto?.itemsPresupuestados ?? [];
-  return items.map((item: any) => [item.nombre, item.descripcion, item.categoria, item.subcategoria].filter(Boolean).join(' ')).join(' ').toLowerCase();
+  return items
+    .map((item: any) => [item.nombre, item.descripcion, item.categoria, item.subcategoria, item.name, item.title].filter(Boolean).join(' '))
+    .join(' ')
+    .toLowerCase();
 }
 
 function hasBudgetService(text: string, keywords: string[]) {
@@ -82,21 +82,21 @@ function hasBudgetService(text: string, keywords: string[]) {
   return keywords.some(keyword => normalized.includes(normalize(keyword)));
 }
 
-function getTotalPresupuesto(presupuesto?: Presupuesto | null) {
+function getTotalPresupuesto(presupuesto?: any | null) {
   if (!presupuesto) return 0;
-  return (
-    (presupuesto as any).totalConDescuento ??
-    (presupuesto as any).totalFinal ??
-    (presupuesto as any).costoTotalEstimado ??
-    (presupuesto as any).total ??
+  return Number(
+    presupuesto.totalConDescuento ??
+    presupuesto.totalFinal ??
+    presupuesto.costoTotalEstimado ??
+    presupuesto.total ??
     0
   );
 }
 
 export default function PublicPortalProView({ fiesta, companyContact, companyName, presupuesto }: PublicPortalProViewProps) {
-  const config = fiesta.configuracion ?? {};
-  const settings = fiesta.clientPortalSettings;
-  const portalExperience = fiesta.clientePortalExperience ?? {};
+  const config = fiesta?.configuracion ?? {};
+  const settings = fiesta?.clientPortalSettings ?? {};
+  const portalExperience = fiesta?.clientePortalExperience ?? {};
   const presupuestoText = getBudgetSearchText(presupuesto);
 
   const eventNameRaw = portalExperience.eventDisplayName || config.nombreEvento;
@@ -107,16 +107,21 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
 
   const eventColor =
     portalExperience.primaryColor ||
-    (config as any).primaryColor ||
-    fiesta.invitacionDigital?.cabecera?.paletaColores?.primary ||
-    fiesta.decoracion?.paletaColores?.primary ||
+    config.primaryColor ||
+    fiesta?.invitacionDigital?.cabecera?.paletaColores?.primary ||
+    fiesta?.decoracion?.paletaColores?.primary ||
     '#7c3aed';
 
-  const heroImage = portalExperience.heroImageUrl || (config as any).protagonistaFotoUrl || fiesta.invitacionDigital?.detallesEvento?.celebracion?.imagenUrl || '';
+  const heroImage =
+    portalExperience.heroImageUrl ||
+    config.protagonistaFotoUrl ||
+    fiesta?.invitacionDigital?.detallesEvento?.celebracion?.imagenUrl ||
+    '';
+
   const eventDate = formatDate(config.fechaEvento);
   const days = daysUntilEvent(config.fechaEvento);
 
-  const invitados = fiesta.invitados ?? [];
+  const invitados = fiesta?.invitados ?? [];
   const confirmados = invitados.filter((inv: any) => inv.rsvp === 'Confirmado');
   const cancelados = invitados.filter((inv: any) => inv.rsvp === 'Rechazado' || inv.rsvp === 'Cancelado');
   const pendientes = invitados.filter((inv: any) => !inv.rsvp || inv.rsvp === 'Pendiente' || inv.rsvp === 'Tal vez');
@@ -129,17 +134,17 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
   const porcentajePagado = totalPresupuesto > 0 ? Math.min(100, Math.round((totalPagado / totalPresupuesto) * 100)) : 0;
 
   const pendingTasks = [
-    ...(fiesta.clienteDebeLlevar ?? []).map((item: any) => ({ id: item.id, text: item.texto, done: item.completado || item.estado === 'listo' || item.estado === 'revisado' })),
-    ...(fiesta.clientChecklist ?? []).map((item: any) => ({ id: item.id, text: item.texto || item.titulo, done: item.completada })),
+    ...(fiesta?.clienteDebeLlevar ?? []).map((item: any) => ({ id: item.id, text: item.texto || item.nombre, done: item.completado || item.estado === 'listo' || item.estado === 'revisado' })),
+    ...(fiesta?.clientChecklist ?? []).map((item: any) => ({ id: item.id, text: item.texto || item.titulo, done: item.completada })),
   ].filter(task => task.text && !task.done);
 
   const nextStep = useMemo(() => {
-    if (isDefaultLink) return { title: 'Personalizar link del portal', text: 'Este portal sigue usando CLIENTE1. AK debe cambiarlo antes de enviarlo al cliente.', action: 'Pendiente de AK' };
-    if (!presupuesto) return { title: 'Presupuesto pendiente', text: 'Todavía no hay un presupuesto vinculado a este portal.', action: 'Pendiente de AK' };
-    if (saldoPendiente > 0) return { title: 'Próximo pago pendiente', text: `Saldo actual: ${formatCurrency(saldoPendiente)}.`, action: 'Hacer pago' };
-    if (pendingTasks.length > 0) return { title: 'Tarea pendiente', text: pendingTasks[0].text, action: 'Ver tareas' };
-    if (pendientes.length > 0) return { title: 'Invitados pendientes', text: `Hay ${pendientes.length} invitado(s) sin confirmar.`, action: 'Revisar invitados' };
-    return { title: 'Todo viene bien', text: 'La información principal del evento está encaminada.', action: 'Ver organización' };
+    if (isDefaultLink) return { title: 'Personalizar link del portal', text: 'Este portal sigue usando CLIENTE1. AK debe cambiarlo antes de enviarlo al cliente.' };
+    if (!presupuesto) return { title: 'Presupuesto pendiente', text: 'Todavía no hay un presupuesto vinculado a este portal.' };
+    if (saldoPendiente > 0) return { title: 'Próximo pago pendiente', text: `Saldo actual: ${formatCurrency(saldoPendiente)}.` };
+    if (pendingTasks.length > 0) return { title: 'Tarea pendiente', text: pendingTasks[0].text };
+    if (pendientes.length > 0) return { title: 'Invitados pendientes', text: `Hay ${pendientes.length} invitado(s) sin confirmar.` };
+    return { title: 'Todo viene bien', text: 'La información principal del evento está encaminada.' };
   }, [isDefaultLink, presupuesto, saldoPendiente, pendingTasks, pendientes.length]);
 
   const services = [
@@ -176,15 +181,15 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
     {
       title: 'Cartelería y detalles',
       icon: ImageIcon,
-      active: !!fiesta.menuMesa || !!fiesta.numerosMesa || !!settings?.cartaTragos?.visible,
+      active: !!fiesta?.menuMesa || !!fiesta?.numerosMesa || !!settings?.cartaTragos?.visible,
       text: 'Menú de mesa, números de mesa, carta de tragos y diseños.',
     },
   ].filter(service => service.active || !presupuesto);
 
-  const reuniones = fiesta.reuniones ?? [];
+  const reuniones = fiesta?.reuniones ?? [];
   const documentos = [
-    ...(fiesta.othersDocumentos ?? []),
-    ...((fiesta as any).documentos ?? []),
+    ...(fiesta?.otrosDocumentos ?? []),
+    ...(fiesta?.documentos ?? []),
   ];
 
   const whatsappNumber = companyContact.replace(/\D/g, '');
@@ -251,6 +256,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
 
               <div className="flex flex-wrap gap-2 text-sm">
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2"><Calendar className="w-4 h-4" />{eventDate}</span>
+                {days !== null && <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2"><PartyPopper className="w-4 h-4" />{days > 0 ? `Faltan ${days} días` : 'Evento en curso'}</span>}
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2"><Clock className="w-4 h-4" />{config.horaInicio || 'Hora a confirmar'}</span>
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2"><MapPin className="w-4 h-4" />{config.nombreLugar && config.nombreLugar !== 'Salón a definir' ? config.nombreLugar : 'Lugar a confirmar'}</span>
               </div>
@@ -306,7 +312,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
             <Card className="rounded-3xl border-0 shadow-sm">
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><MessageSquare className="w-5 h-5" /> Mensajes con AK</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-slate-600">{fiesta.clientNotes || 'No hay mensajes cargados todavía.'}</p>
+                <p className="text-sm text-slate-600">{fiesta?.clientNotes || 'No hay mensajes cargados todavía.'}</p>
                 <Button variant="outline" className="w-full rounded-2xl" asChild>
                   <a href={whatsappHref} target="_blank" rel="noopener noreferrer">Enviar mensaje</a>
                 </Button>
@@ -318,7 +324,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
               <CardContent className="space-y-2">
                 {pendingTasks.length === 0 ? (
                   <p className="text-sm text-slate-500">No tenés tareas pendientes por ahora.</p>
-                ) : pendingTasks.slice(0, 5).map(task => (
+                ) : pendingTasks.slice(0, 5).map((task: any) => (
                   <div key={task.id} className="rounded-2xl bg-slate-50 border p-3 text-sm">{task.text}</div>
                 ))}
               </CardContent>
@@ -346,7 +352,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
                   <Button variant="outline" className="rounded-2xl"><FileText className="w-4 h-4 mr-2" /> Ver documentos</Button>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <div className="rounded-2xl border p-3 text-sm">Contrato: {fiesta.contratoServicioTexto ? 'Cargado' : 'Sin configurar'}</div>
+                  <div className="rounded-2xl border p-3 text-sm">Contrato: {fiesta?.contratoServicioTexto ? 'Cargado' : 'Sin configurar'}</div>
                   <div className="rounded-2xl border p-3 text-sm">Documentos: {documentos.length || 'Sin documentos cargados'}</div>
                 </div>
               </CardContent>
@@ -379,7 +385,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
               <Card className="rounded-3xl border-0 shadow-sm">
                 <CardHeader><CardTitle className="text-base flex items-center gap-2"><HelpCircle className="w-5 h-5" /> Preguntas frecuentes</CardTitle></CardHeader>
                 <CardContent className="space-y-2 text-sm text-slate-600">
-                  {(fiesta.faqPortal ?? []).length === 0 ? 'Todavía no hay preguntas frecuentes cargadas.' : (fiesta.faqPortal ?? []).slice(0, 3).map((faq: any) => <div key={faq.id} className="rounded-2xl border p-3"><strong>{faq.pregunta}</strong><br />{faq.respuesta}</div>)}
+                  {(fiesta?.faqPortal ?? []).length === 0 ? 'Todavía no hay preguntas frecuentes cargadas.' : (fiesta?.faqPortal ?? []).slice(0, 3).map((faq: any) => <div key={faq.id} className="rounded-2xl border p-3"><strong>{faq.pregunta}</strong><br />{faq.respuesta}</div>)}
                 </CardContent>
               </Card>
             </div>
