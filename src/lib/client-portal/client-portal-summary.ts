@@ -75,6 +75,39 @@ function roundMoney(value: number): number {
   return Math.round((Number.isFinite(value) ? value : 0) * 100) / 100;
 }
 
+export function parsePortalMoneyInput(value: unknown): number {
+  if (typeof value === 'number') return positiveAmount(value);
+
+  const raw = String(value ?? '').trim();
+  if (!raw) return 0;
+
+  const onlyMoneyChars = raw.replace(/[^\d.,-]/g, '');
+  if (!onlyMoneyChars) return 0;
+
+  const hasComma = onlyMoneyChars.includes(',');
+  const hasDot = onlyMoneyChars.includes('.');
+
+  let normalized = onlyMoneyChars;
+
+  if (hasComma && hasDot) {
+    // Uruguay/common LATAM: 67.660,50 => 67660.50
+    normalized = onlyMoneyChars.replace(/\./g, '').replace(',', '.');
+  } else if (hasComma) {
+    const [, decimals = ''] = onlyMoneyChars.split(',');
+    normalized = decimals.length > 0 && decimals.length <= 2
+      ? onlyMoneyChars.replace(',', '.')
+      : onlyMoneyChars.replace(/,/g, '');
+  } else if (hasDot) {
+    const parts = onlyMoneyChars.split('.');
+    const last = parts[parts.length - 1] ?? '';
+    const looksLikeThousands = parts.length > 1 && last.length === 3;
+    normalized = looksLikeThousands ? parts.join('') : onlyMoneyChars;
+  }
+
+  const amount = Number(normalized);
+  return Number.isFinite(amount) && amount > 0 ? amount : 0;
+}
+
 export function formatPortalMoney(amount?: number | null): string {
   const value = Number(amount);
   if (!Number.isFinite(value) || value <= 0) return 'Sin monto';
