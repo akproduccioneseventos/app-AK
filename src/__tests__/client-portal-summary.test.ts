@@ -2,6 +2,7 @@ import {
   estimateGuestIncrease,
   getGuestStats,
   getPortalPaymentSummary,
+  parsePortalMoneyInput,
 } from '@/lib/client-portal/client-portal-summary';
 
 describe('client portal summary helpers', () => {
@@ -39,6 +40,14 @@ describe('client portal summary helpers', () => {
     expect(summary.paidPercent).toBe(20);
     expect(summary.pendingReviewCount).toBe(2);
     expect(summary.pendingReviewAmount).toBe(12000);
+  });
+
+  it('parses Uruguayan money formats from client inputs', () => {
+    expect(parsePortalMoneyInput('5.000')).toBe(5000);
+    expect(parsePortalMoneyInput('$ 67.660')).toBe(67660);
+    expect(parsePortalMoneyInput('67.660,50')).toBe(67660.5);
+    expect(parsePortalMoneyInput('67660')).toBe(67660);
+    expect(parsePortalMoneyInput('1,50')).toBe(1.5);
   });
 
   it('estimates added guests with the annual 15 percent adjustment', () => {
