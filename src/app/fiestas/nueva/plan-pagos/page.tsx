@@ -168,7 +168,7 @@ function PlanPagosContent() {
       <div className="max-w-2xl mx-auto p-8 text-center text-muted-foreground">
         <AlertTriangle className="w-10 h-10 mx-auto mb-3" />
         <p>No se especificó una fiesta. Accedé desde la página de la fiesta.</p>
-        <Link href="/fiestas"><Button variant="outline" className="mt-4">Ir a Fiestas</Button></Link>
+        <Link href="/eventos"><Button variant="outline" className="mt-4">Ir a Eventos</Button></Link>
       </div>
     );
   }
