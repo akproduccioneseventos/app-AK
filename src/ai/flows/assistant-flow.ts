@@ -2,6 +2,7 @@
 
 import { ai, geminiModel } from '@/ai/genkit';
 import { buildAssistantProCapabilitiesPrompt } from '@/lib/assistant/assistant-pro-capabilities';
+import { buildOperativeBudgetExtractionPrompt } from '@/lib/assistant/operative-budget-import';
 import { z } from 'genkit';
 
 const AssistantInputSchema = z.object({
@@ -47,6 +48,8 @@ const AssistantOutputSchema = z.object({
 
 export type AssistantInput = z.infer<typeof AssistantInputSchema>;
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
+
+const OPERATIVE_BUDGET_PROMPT = buildOperativeBudgetExtractionPrompt();
 
 const SYSTEM_PROMPT = `Sos el Asistente AK — el copiloto operativo de AK Producciones Eventos (Salto, Uruguay).
 No sos un chatbot genérico: podés ejecutar acciones reales en la app y accedés a los datos del negocio en tiempo real.
@@ -96,6 +99,8 @@ Setear \`action.type\` NO confirma éxito — el backend ejecuta y reemplaza tu 
 - **Texto pegado tipo presupuesto**: Si el mensaje contiene texto estructurado con nombres de servicios, precios ($/números grandes), nombre de cliente, tipo de evento o fecha — aunque NO tenga verbos de comando — usá \`create_budget\` y extraé todos los datos disponibles.
 - **PDF/imagen de presupuesto**: Si se adjuntó un archivo con datos de servicios y precios, usá \`import_budget_from_image\` incluso si el texto del mensaje es vago o no hay mensaje de texto.
 
+${OPERATIVE_BUDGET_PROMPT}
+
 ## SECCIONES DE LA APP (rutas para navigate)
 Dashboard: / · Presupuestos: /presupuestos/nuevo · Clientes: /customers · Fiestas: /fiestas/nueva · CRM: /contabilidad/crm · Empresa: /empresa · Marketing: /marketing · Config: /settings · Simulador rápido: /simulador · Simulador completo: /simulador-de-presupuesto · Facturas: /invoices · Asistente IA: /settings/ai-assistant
 
@@ -133,9 +138,12 @@ const assistantPrompt = ai.definePrompt({
 Respondé SIEMPRE con JSON estricto según el schema. El campo action.data.servicios debe ser un array de objetos con claves nombre, cantidad, precioUnitario y categoria. NUNCA pongas texto conversacional ni frases dentro de esos campos.
 
 ## DETECCIÓN DE PRESUPUESTO EN TEXTO:
-Si el mensaje contiene líneas con nombres de servicios y precios (ej: "Sonido $15000", "DJ 8000", "Fotografía: $12000"), o una tabla/lista de ítems con valores numéricos mayores a 100, tratalo como un presupuesto a crear. Usá \`create_budget\` y extraé todos los campos: clienteNombre (de líneas como "Cliente:", "Para:", nombres propios), eventoTipo, eventoFecha, invitados, y la lista completa de servicios con nombre, cantidad y precioUnitario. Si hay un total final mencionado, podés usarlo como referencia pero extraé los ítems individuales.`,
+Si el mensaje contiene líneas con nombres de servicios y precios (ej: "Sonido $15000", "DJ 8000", "Fotografía: $12000"), o una tabla/lista de ítems con valores numéricos mayores a 100, tratalo como un presupuesto a crear. Usá \`create_budget\` y extraé todos los campos: clienteNombre (de líneas como "Cliente:", "Para:", nombres propios), eventoTipo, eventoFecha, invitados, y la lista completa de servicios con nombre, cantidad y precioUnitario. Si hay un total final mencionado, podés usarlo como referencia pero extraé los ítems individuales.
+
+## DETECCIÓN DE PRESUPUESTO EN IMAGEN/PDF:
+Si hay imageDataUri y el archivo parece presupuesto, cotización, captura con precios o lista de servicios, usá action.type = import_budget_from_image. No devuelvas texto como servicio. No pongas frases de charla en action.data.servicios. Usá el catálogo del contexto cuando haya coincidencia.`,
   config: {
-    temperature: 0.2,
+    temperature: 0.1,
   },
 });
 
