@@ -103,7 +103,7 @@ export function updateRsvpProGuest(
     return { ok: false, guests, message: 'Este invitado no puede confirmar desde el link público.' };
   }
 
-  const updated = guests.map(guest => {
+  const updated: RsvpProGuest[] = guests.map(guest => {
     if (guest.id !== input.guestId) return guest;
     return {
       ...guest,
@@ -144,11 +144,12 @@ export function requestRsvpCancellation(
   }
 
   const directCancel = input.allowDirectCancel === true;
-  const updated = guests.map(guest => {
+  const cancellationStatus: RsvpProStatus = directCancel ? 'no_asiste' : 'cancelacion_solicitada';
+  const updated: RsvpProGuest[] = guests.map(guest => {
     if (guest.id !== input.guestId) return guest;
     return {
       ...guest,
-      status: directCancel ? 'no_asiste' : 'cancelacion_solicitada',
+      status: cancellationStatus,
       cancelledAt: now,
       notes: input.reason ? `Cancelacion: ${input.reason}` : guest.notes,
     };
