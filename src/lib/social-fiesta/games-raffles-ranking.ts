@@ -11,6 +11,8 @@ export type FiestaGameType =
 
 export type FiestaGameStatus = 'draft' | 'active' | 'closed' | 'archived';
 
+export type FiestaEventPreset = 'xv' | 'boda' | 'cumpleanos' | 'empresarial' | 'infantil' | 'general';
+
 export type FiestaGameChallenge = {
   id: string;
   fiestaId: string;
@@ -52,29 +54,39 @@ export type FiestaRaffleResult = {
   message: string;
 };
 
+export type FiestaReadyPrompt = {
+  id: string;
+  preset: FiestaEventPreset;
+  title: string;
+  prompt: string;
+  suggestedGameType: FiestaGameType;
+  showBeforeEvent: boolean;
+  showDuringEvent: boolean;
+};
+
 const DEFAULT_CHALLENGE_COPY: Record<FiestaGameType, Pick<FiestaGameChallenge, 'title' | 'description' | 'softSellingText'>> = {
   foto_mas_divertida: {
-    title: 'Foto mas divertida',
-    description: 'Subi una foto divertida y participá por aparecer en la pantalla de la fiesta.',
-    softSellingText: 'AK convierte cada momento espontaneo en parte de la experiencia.',
+    title: 'Foto más divertida',
+    description: 'Subí una foto divertida y participá por aparecer en la pantalla de la fiesta.',
+    softSellingText: 'AK convierte cada momento espontáneo en parte de la experiencia.',
   },
   mesa_mas_activa: {
-    title: 'Mesa mas activa',
-    description: 'La mesa que mas participe suma puntos para el ranking en vivo.',
-    softSellingText: 'Cuando la fiesta esta conectada, todos participan.',
+    title: 'Mesa más activa',
+    description: 'La mesa que más participe suma puntos para el ranking en vivo.',
+    softSellingText: 'Cuando la fiesta está conectada, todos participan.',
   },
   selfie_con_homenajeado: {
     title: 'Selfie con el protagonista',
     description: 'Buscá al homenajeado, sacate una selfie y subila al muro.',
-    softSellingText: 'Los recuerdos mas lindos tambien nacen de los invitados.',
+    softSellingText: 'Los recuerdos más lindos también nacen de los invitados.',
   },
   foto_bailando: {
     title: 'Foto bailando',
     description: 'Capturá el mejor momento de la pista y subilo al muro social.',
-    softSellingText: 'La pista tambien cuenta la historia de la noche.',
+    softSellingText: 'La pista también cuenta la historia de la noche.',
   },
   mensaje_mas_emotivo: {
-    title: 'Mensaje mas emotivo',
+    title: 'Mensaje más emotivo',
     description: 'Dejá un mensaje especial para guardar como recuerdo de la fiesta.',
     softSellingText: 'No solo entregamos fotos: ayudamos a guardar emociones.',
   },
@@ -84,11 +96,26 @@ const DEFAULT_CHALLENGE_COPY: Record<FiestaGameType, Pick<FiestaGameChallenge, '
     softSellingText: 'Una experiencia interactiva creada por AK Producciones.',
   },
   pedido_musica: {
-    title: 'Pedido de musica',
+    title: 'Pedido de música',
     description: 'Pedí una canción para la fiesta. El equipo decide si entra en la playlist.',
-    softSellingText: 'La música tambien puede estar conectada con los invitados.',
+    softSellingText: 'La música también puede estar conectada con los invitados.',
   },
 };
+
+export const READY_TO_USE_PROMPTS: FiestaReadyPrompt[] = [
+  { id: 'xv_cancion_entrada', preset: 'xv', title: 'Canción de entrada', prompt: '¿Qué canción no puede faltar en la entrada de la quinceañera?', suggestedGameType: 'pedido_musica', showBeforeEvent: true, showDuringEvent: false },
+  { id: 'xv_mensaje_sorpresa', preset: 'xv', title: 'Mensaje sorpresa', prompt: 'Dejá un mensaje sorpresa para que la quinceañera lo lea después de la fiesta.', suggestedGameType: 'mensaje_mas_emotivo', showBeforeEvent: true, showDuringEvent: true },
+  { id: 'xv_selfie', preset: 'xv', title: 'Selfie con la quinceañera', prompt: 'Sacate una selfie con la quinceañera y subila al muro.', suggestedGameType: 'selfie_con_homenajeado', showBeforeEvent: false, showDuringEvent: true },
+  { id: 'boda_consejo', preset: 'boda', title: 'Consejo para los novios', prompt: 'Dejá un consejo lindo para los novios.', suggestedGameType: 'mensaje_mas_emotivo', showBeforeEvent: true, showDuringEvent: true },
+  { id: 'boda_foto_brindis', preset: 'boda', title: 'Foto del brindis', prompt: 'Subí una foto del brindis o de un momento emotivo.', suggestedGameType: 'foto_mas_divertida', showBeforeEvent: false, showDuringEvent: true },
+  { id: 'cumple_foto_divertida', preset: 'cumpleanos', title: 'Foto más divertida', prompt: 'Subí la foto más divertida de la noche.', suggestedGameType: 'foto_mas_divertida', showBeforeEvent: false, showDuringEvent: true },
+  { id: 'cumple_musica', preset: 'cumpleanos', title: 'Pedí tu canción', prompt: '¿Qué canción querés que suene en la fiesta?', suggestedGameType: 'pedido_musica', showBeforeEvent: true, showDuringEvent: true },
+  { id: 'empresarial_equipo', preset: 'empresarial', title: 'Foto de equipo', prompt: 'Subí una foto con tu equipo o mesa.', suggestedGameType: 'mesa_mas_activa', showBeforeEvent: false, showDuringEvent: true },
+  { id: 'empresarial_reconocimiento', preset: 'empresarial', title: 'Reconocimiento', prompt: 'Dejá un mensaje para destacar a alguien del equipo.', suggestedGameType: 'mensaje_mas_emotivo', showBeforeEvent: true, showDuringEvent: true },
+  { id: 'infantil_foto_familia', preset: 'infantil', title: 'Foto familiar', prompt: 'Subí una foto familiar del cumple.', suggestedGameType: 'foto_mas_divertida', showBeforeEvent: false, showDuringEvent: true },
+  { id: 'general_mesa_completa', preset: 'general', title: 'Mesa completa', prompt: 'Saquen una foto de toda la mesa y súbanla al muro.', suggestedGameType: 'mesa_mas_activa', showBeforeEvent: false, showDuringEvent: true },
+  { id: 'general_pista', preset: 'general', title: 'Momento de pista', prompt: 'Subí una foto bailando o disfrutando la música.', suggestedGameType: 'foto_bailando', showBeforeEvent: false, showDuringEvent: true },
+];
 
 function createId(prefix: string, value: string): string {
   return `${prefix}_${value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -127,6 +154,16 @@ export function buildDefaultFiestaGameSet(fiestaId: string): FiestaGameChallenge
     'mensaje_mas_emotivo',
     'sorteo_participantes',
   ].map(type => buildFiestaGameChallenge({ fiestaId, type: type as FiestaGameType, status: 'draft' }));
+}
+
+export function getReadyPromptsForPreset(preset: FiestaEventPreset): FiestaReadyPrompt[] {
+  return READY_TO_USE_PROMPTS.filter(prompt => prompt.preset === preset || prompt.preset === 'general');
+}
+
+export function buildPresetGameSet(input: { fiestaId: string; preset: FiestaEventPreset }): FiestaGameChallenge[] {
+  const prompts = getReadyPromptsForPreset(input.preset);
+  const uniqueTypes = Array.from(new Set(prompts.map(prompt => prompt.suggestedGameType)));
+  return uniqueTypes.map(type => buildFiestaGameChallenge({ fiestaId: input.fiestaId, type, status: 'draft' }));
 }
 
 export function buildParticipationFromPost(input: {
