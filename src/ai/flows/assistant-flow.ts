@@ -1,6 +1,7 @@
 'use server';
 
 import { ai, geminiModel } from '@/ai/genkit';
+import { buildAssistantProCapabilitiesPrompt } from '@/lib/assistant/assistant-pro-capabilities';
 import { z } from 'genkit';
 
 const AssistantInputSchema = z.object({
@@ -15,8 +16,6 @@ const AssistantInputSchema = z.object({
 
 const AssistantOutputSchema = z.object({
   response: z.string(),
-  // Gemini structured output returns null (not undefined) for optional fields it doesn't use.
-  // Using .nullish() (= .optional().nullable()) so both null and undefined are accepted.
   action: z.object({
     type: z.enum([
       'none',
@@ -93,12 +92,14 @@ Setear \`action.type\` NO confirma éxito — el backend ejecuta y reemplaza tu 
 - **Fechas relativas**: "mañana", "el viernes", "a las 3" → calculá la fecha ISO usando la FECHA ACTUAL del contexto.
 - **Confirmaciones cortas** ("dale", "sí", "crealo", "hacelo") → buscá los datos en el historial y ejecutá con lo que tengas.
 - **Respuestas de seguimiento con nombre** ("se llama Mirta", "Mirta", "el nombre es Ana") → si en el historial hay una pregunta sobre quién o para quién, extrae el nombre y continuá con la acción correspondiente (create_lead o schedule_meeting). No pidas más información si ya tenés el nombre.
-- **Imágenes**: analizá siempre. Presupuesto → \`import_budget_from_image\`. Foto de evento → describí y sugerí. Recibo → sugerí \`register_payment\`.
-- **Texto pegado tipo presupuesto**: Si el mensaje contiene texto estructurado con nombres de servicios, precios ($/números grandes), nombre de cliente, tipo de evento o fecha — aunque NO tenga verbos de comando — usá \`create_budget\` y extraé todos los datos disponibles. No esperes que el usuario pida explícitamente "crea el presupuesto". Si ves datos de presupuesto, actuá.
+- **Imágenes/PDF**: analizá siempre. Presupuesto → \`import_budget_from_image\`. Foto de evento → describí y sugerí. Recibo → \`register_payment\` si hay monto y cliente/presupuesto claro.
+- **Texto pegado tipo presupuesto**: Si el mensaje contiene texto estructurado con nombres de servicios, precios ($/números grandes), nombre de cliente, tipo de evento o fecha — aunque NO tenga verbos de comando — usá \`create_budget\` y extraé todos los datos disponibles.
 - **PDF/imagen de presupuesto**: Si se adjuntó un archivo con datos de servicios y precios, usá \`import_budget_from_image\` incluso si el texto del mensaje es vago o no hay mensaje de texto.
 
 ## SECCIONES DE LA APP (rutas para navigate)
 Dashboard: / · Presupuestos: /presupuestos/nuevo · Clientes: /customers · Fiestas: /fiestas/nueva · CRM: /contabilidad/crm · Empresa: /empresa · Marketing: /marketing · Config: /settings · Simulador rápido: /simulador · Simulador completo: /simulador-de-presupuesto · Facturas: /invoices · Asistente IA: /settings/ai-assistant
+
+${buildAssistantProCapabilitiesPrompt()}
 
 ## PRINCIPIOS
 - Nunca inventes datos, resultados ni confirmaciones que no vengan del backend
@@ -107,6 +108,7 @@ Dashboard: / · Presupuestos: /presupuestos/nuevo · Clientes: /customers · Fie
 - Si algo falló o no podés ejecutar, decilo directamente — sin rodeos, sin promesas vacías
 - Respondés siempre en español rioplatense/uruguayo
 - **Interpretá el contexto**: si el usuario da un nombre corto como respuesta a una pregunta tuya, usalo directamente — no pidas confirmación innecesaria ni trates el mensaje como incompleto`;
+
 const assistantPrompt = ai.definePrompt({
   name: 'assistantPrompt',
   model: geminiModel,
@@ -160,9 +162,6 @@ export const chatWithAssistant = ai.defineFlow(
       };
     }
 
-    // Normalize: Gemini 2.5 Flash sometimes returns null for action.type even when the
-    // intent is clear. Ensure type is always a valid non-null enum value (defaulting to 'none')
-    // so the backend action handlers in sendAssistantMessage always receive a usable type.
     const normalizedType = (output.action?.type ?? 'none') as NonNullable<typeof output.action>['type'];
     return {
       response: output.response,
