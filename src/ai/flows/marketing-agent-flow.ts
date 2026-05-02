@@ -1,6 +1,7 @@
 'use server';
 
 import { ai, geminiModel } from '@/ai/genkit';
+import { buildAttachmentContext } from '@/lib/assistant/assistant-pro-capabilities';
 
 const MARKETING_SYSTEM_PROMPT = `Sos el Agente de Marketing de AK Producciones Eventos (Salto, Uruguay).
 Sos un especialista en marketing digital para eventos sociales: XV años, casamientos, cumpleaños, fiestas corporativas.
@@ -10,6 +11,7 @@ Sos un especialista en marketing digital para eventos sociales: XV años, casami
 - Conocés el estilo de AK Producciones: profesional, cercano, uruguayo
 - Adaptás el tono y formato a cada plataforma (Instagram, Facebook, TikTok, WhatsApp)
 - Pensás en conversión: cada texto tiene un objetivo claro (captar, mostrar trabajo, cerrar venta, reactivar)
+- Si el operador adjunta una imagen o PDF, usás ese archivo como referencia principal para el contenido
 
 ## ESTILO DE MARCA AK
 - Tono: cercano, profesional, uruguayo ("vos", expresiones naturales: dale, bárbaro, ta, etc.)
@@ -24,6 +26,12 @@ Sos un especialista en marketing digital para eventos sociales: XV años, casami
 **TikTok / Reel**: HOOK impactante en primera línea, estructura ESCENA 1 / ESCENA 2 / ESCENA 3, CTA final con "Link en bio"
 **Facebook**: Más texto, tono levemente más formal que Instagram, menos hashtags, buena narrativa
 **WhatsApp**: Mensaje personal y cálido, sin exceso de mayúsculas, emojis moderados (máx 3), siempre terminar con pregunta abierta o CTA suave
+
+## CUANDO HAY IMAGEN O PDF
+- Imagen de decoración/salón/servicio: describí lo visual y transformalo en contenido comercial.
+- PDF de presupuesto/promoción: extraé la oferta principal y convertí en publicación clara.
+- Comprobante o contrato: no lo publiques; avisá que no corresponde usarlo para redes y proponé mensaje interno.
+- Nunca inventes datos que no están en el archivo o contexto.
 
 ## HASHTAGS BASE (usá los que correspondan al tipo de evento)
 #AKProducciones #EventosSalto #EventosUruguay #OrganizaciónDeEventos
@@ -45,6 +53,8 @@ export interface MarketingAgentInput {
   platform?: string;
   contentType?: string;
   eventType?: string;
+  fileName?: string;
+  attachmentDataUri?: string;
 }
 
 export interface MarketingAgentOutput {
@@ -59,17 +69,24 @@ export async function chatWithMarketingAgent(
   const platformNote = input.platform ? `\nPLATAFORMA SOLICITADA: ${input.platform}` : '';
   const typeNote = input.contentType ? `\nTIPO DE CONTENIDO: ${input.contentType}` : '';
   const eventNote = input.eventType ? `\nTIPO DE EVENTO: ${input.eventType}` : '';
+  const attachmentContext = buildAttachmentContext({
+    message: input.request,
+    fileName: input.fileName,
+    dataUri: input.attachmentDataUri,
+  });
+
+  const promptParts: Array<string | { media: { url: string } }> = [
+    `## CONTEXTO DEL NEGOCIO (datos reales, usálos para personalizar el contenido):\n${input.context}\n\n## SOLICITUD DEL OPERADOR:\n${input.request}${platformNote}${typeNote}${eventNote}\n${attachmentContext}\n\nGenerá el contenido completo listo para usar, sin preámbulos.`,
+  ];
+
+  if (input.attachmentDataUri) {
+    promptParts.push({ media: { url: input.attachmentDataUri } });
+  }
 
   const { text } = await ai.generate({
     model: geminiModel,
     system: MARKETING_SYSTEM_PROMPT,
-    prompt: `## CONTEXTO DEL NEGOCIO (datos reales, usálos para personalizar el contenido):
-${input.context}
-
-## SOLICITUD DEL OPERADOR:
-${input.request}${platformNote}${typeNote}${eventNote}
-
-Generá el contenido completo listo para usar, sin preámbulos.`,
+    prompt: promptParts,
     config: { temperature: 0.75 },
   });
 
