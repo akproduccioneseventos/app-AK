@@ -63,6 +63,8 @@ export interface MarketingAgentOutput {
   tipo?: string;
 }
 
+type GeneratePromptPart = { text: string } | { media: { url: string } };
+
 export async function chatWithMarketingAgent(
   input: MarketingAgentInput
 ): Promise<MarketingAgentOutput> {
@@ -75,8 +77,10 @@ export async function chatWithMarketingAgent(
     dataUri: input.attachmentDataUri,
   });
 
-  const promptParts: Array<string | { media: { url: string } }> = [
-    `## CONTEXTO DEL NEGOCIO (datos reales, usálos para personalizar el contenido):\n${input.context}\n\n## SOLICITUD DEL OPERADOR:\n${input.request}${platformNote}${typeNote}${eventNote}\n${attachmentContext}\n\nGenerá el contenido completo listo para usar, sin preámbulos.`,
+  const promptParts: GeneratePromptPart[] = [
+    {
+      text: `## CONTEXTO DEL NEGOCIO (datos reales, usálos para personalizar el contenido):\n${input.context}\n\n## SOLICITUD DEL OPERADOR:\n${input.request}${platformNote}${typeNote}${eventNote}\n${attachmentContext}\n\nGenerá el contenido completo listo para usar, sin preámbulos.`,
+    },
   ];
 
   if (input.attachmentDataUri) {
