@@ -6,16 +6,6 @@ import * as logger from '@/lib/logger';
 
 const VALID_ZIP_TYPES = new Set(['application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream', 'application/x-compressed']);
 
-async function writeToFirestoreDirect(filePath: string, data: any): Promise<boolean> {
-  try {
-    const { syncToFirestore } = await import('@/lib/firebase-sync');
-    await syncToFirestore(filePath, data);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -30,7 +20,6 @@ export async function POST(request: Request) {
     const jsonFiles = fileNames.filter(name => name.endsWith('.json') && name !== '_metadata.json' && name !== '_backup-metadata.json');
     if (jsonFiles.length === 0) return NextResponse.json({ error: 'El archivo ZIP no contiene datos validos para restaurar.' }, { status: 400 });
 
-    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
     const summary: Record<string, number> = {};
     const errors: string[] = [];
 
@@ -42,9 +31,7 @@ export async function POST(request: Request) {
       try {
         const content = await zip.files[fileName].async('string');
         const data = JSON.parse(content);
-        let written = false;
-        if (isProduction) written = await writeToFirestoreDirect(fileName, data);
-        if (!written) await writeData(fileName, data);
+        await writeData(fileName, data);
         summary[fileName.replace('.json', '')] = getBackupValueCount(data);
       } catch (err: any) {
         logger.error(`[Backup] Error restoring ${fileName}:`, err.message || err);
