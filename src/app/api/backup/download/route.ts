@@ -3,46 +3,9 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
 import { readData } from '@/lib/data-service';
+import { BACKUP_COLLECTIONS } from '@/lib/backup/backup-registry';
 import * as logger from '@/lib/logger';
 
-// Data collections to export
-const DATA_COLLECTIONS = [
-  { file: 'presupuestos.json', defaultValue: [] },
-  { file: 'customers.json', defaultValue: [] },
-  { file: 'servicios-empresa.json', defaultValue: [] },
-  { file: 'fiestas.json', defaultValue: [] },
-  { file: 'invoices.json', defaultValue: [] },
-  { file: 'empleados.json', defaultValue: [] },
-  { file: 'proveedores.json', defaultValue: [] },
-  { file: 'crm-leads.json', defaultValue: [] },
-  { file: 'crm-stages.json', defaultValue: [] },
-  { file: 'crm-meetings.json', defaultValue: [] },
-  { file: 'notifications.json', defaultValue: [] },
-  { file: 'scheduled-messages.json', defaultValue: [] },
-  { file: 'app-settings.json', defaultValue: {} },
-  { file: 'company-info.json', defaultValue: {} },
-  { file: 'contract-settings.json', defaultValue: {} },
-  { file: 'whatsapp-settings.json', defaultValue: {} },
-  { file: 'whatsapp-templates.json', defaultValue: {} },
-  { file: 'feature-flags.json', defaultValue: [] },
-  { file: 'galeria-publica.json', defaultValue: [] },
-  { file: 'menus.json', defaultValue: [] },
-  { file: 'reposteria-template.json', defaultValue: {} },
-  { file: 'bebidas-template.json', defaultValue: {} },
-  { file: 'insumos.json', defaultValue: [] },
-  { file: 'coupons.json', defaultValue: [] },
-  { file: 'ai-assistant-settings.json', defaultValue: {} },
-  { file: 'armado-rapido-config.json', defaultValue: {} },
-  { file: 'budget-display-settings.json', defaultValue: {} },
-  { file: 'social-connections.json', defaultValue: [] },
-  { file: 'accesos-personal.json', defaultValue: [] },
-  { file: 'invoice-template-settings.json', defaultValue: {} },
-  { file: 'automatizaciones-alertas.json', defaultValue: [] },
-  { file: 'playbooks.json', defaultValue: [] },
-  { file: 'recursos-multi-evento.json', defaultValue: [] },
-];
-
-/** Try to read a collection directly from Firestore via Admin SDK. Returns null on failure. */
 async function readFromFirestoreDirect(filePath: string): Promise<any | null> {
   try {
     const { readFromFirestore } = await import('@/lib/firebase-sync');
@@ -55,26 +18,19 @@ async function readFromFirestoreDirect(filePath: string): Promise<any | null> {
 export async function GET() {
   try {
     const zip = new JSZip();
-
     const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
     let source: 'firestore' | 'local' = 'local';
+    const appVersion = process.env.npm_package_version || '0.1.0';
 
-    // Read package.json version (best-effort)
-    let appVersion = '0.1.0';
-    appVersion = process.env.npm_package_version || appVersion;
-
-    // Read each collection — in production, try Firestore directly first
     let exportedCount = 0;
-    for (const collection of DATA_COLLECTIONS) {
+    for (const collection of BACKUP_COLLECTIONS) {
       try {
         let data: any = null;
         if (isProduction) {
           data = await readFromFirestoreDirect(collection.file);
           if (data !== null) source = 'firestore';
         }
-        if (data === null) {
-          data = await readData(collection.file, collection.defaultValue);
-        }
+        if (data === null) data = await readData(collection.file, collection.defaultValue);
         zip.file(collection.file, JSON.stringify(data, null, 2));
         exportedCount++;
       } catch (err) {
@@ -82,28 +38,17 @@ export async function GET() {
       }
     }
 
-    // Add metadata
-    const metadata = {
-      exportedAt: new Date().toISOString(),
-      source,
-      version: appVersion,
-      app: 'AK Producciones',
-    };
+    const metadata = { exportedAt: new Date().toISOString(), source, version: appVersion, app: 'AK Producciones', collections: exportedCount };
     zip.file('_backup-metadata.json', JSON.stringify(metadata, null, 2));
-
     logger.info(`[Backup] Export completed: ${exportedCount} collections exported (source: ${source}) at ${metadata.exportedAt}`);
 
     const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
-    
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `ak-producciones-backup-${timestamp}.zip`;
-
     const headers = new Headers();
     headers.set('Content-Type', 'application/zip');
     headers.set('Content-Disposition', `attachment; filename="${filename}"`);
-
     return new NextResponse(zipContent as BodyInit, { status: 200, headers });
-
   } catch (error: any) {
     logger.error('[Backup] Error creating backup:', error.message || error);
     return new NextResponse(JSON.stringify({ error: 'Failed to create backup.' }), { status: 500 });
