@@ -12,9 +12,7 @@ import { buildPresetGameSet, getReadyPromptsForPreset, type FiestaEventPreset } 
 import { buildModerationSummary } from '@/lib/social-fiesta/operator-moderation-panel';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
-type PageProps = {
-  searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }>;
-};
+type PageProps = { searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }> };
 
 function buildEventName(fiesta?: FiestaEnPlanificacion | null): string {
   return fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.tipoCelebracion || 'Evento AK';
@@ -81,24 +79,10 @@ export default async function SocialFiestaProPage({ searchParams }: PageProps) {
       akBrandingText: 'AK Producciones',
     },
   });
-  const fallbackSlide = buildLiveWallEmptyState({
-    eventName,
-    protagonistName: buildProtagonistName(fiesta),
-    primaryColor: config.theme.colorPrincipal,
-    accentColor: config.theme.colorAcento,
-    textColor: '#ffffff',
-    showAkBranding: true,
-    akBrandingText: 'AK Producciones',
-  });
+  const fallbackSlide = buildLiveWallEmptyState({ eventName, protagonistName: buildProtagonistName(fiesta), primaryColor: config.theme.colorPrincipal, accentColor: config.theme.colorAcento, textColor: '#ffffff', showAkBranding: true, akBrandingText: 'AK Producciones' });
   const gameSet = buildPresetGameSet({ fiestaId, preset });
   const prompts = getReadyPromptsForPreset(preset);
   const moderation = buildModerationSummary(seedPosts);
-
-  const actionLinks = [
-    { title: 'Muro social y pantalla', description: 'Panel real para moderar fotos, mensajes, juegos y pantalla gigante.', href: linkFor('/fiestas/nueva/muro-social', fiestaId), icon: Monitor },
-    { title: 'Invitacion web', description: 'Conecta RSVP, invitados y acciones simples desde celular.', href: linkFor('/fiestas/nueva/pagina-web', fiestaId), icon: QrCode },
-    { title: 'Evento en vivo', description: 'Lleva el contenido aprobado al control del dia de la fiesta.', href: linkFor('/fiestas/nueva/en-vivo', fiestaId), icon: Sparkles },
-  ];
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -114,7 +98,9 @@ export default async function SocialFiestaProPage({ searchParams }: PageProps) {
             <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">{eventName}</h1>
             <p className="max-w-3xl text-base text-muted-foreground">Este panel une invitacion, red social privada, fotos, mensajes, juegos, sorteos y pantalla gigante. La fiesta queda simple para el invitado y controlada para el operador.</p>
             <div className="grid gap-3 sm:grid-cols-3">
-              {actionLinks.map(item => <Button key={item.href} asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={item.href}><item.icon className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">{item.title}</span><span className="block text-xs font-normal text-muted-foreground">{item.description}</span></span></Link></Button>)}
+              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/muro-social', fiestaId)}><Monitor className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Muro social y pantalla</span><span className="block text-xs font-normal text-muted-foreground">Moderar fotos, mensajes, juegos y pantalla gigante.</span></span></Link></Button>
+              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/pagina-web', fiestaId)}><QrCode className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Invitacion web</span><span className="block text-xs font-normal text-muted-foreground">RSVP e invitados desde celular.</span></span></Link></Button>
+              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/en-vivo', fiestaId)}><Sparkles className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Evento en vivo</span><span className="block text-xs font-normal text-muted-foreground">Contenido aprobado en el dia de la fiesta.</span></span></Link></Button>
             </div>
           </CardContent></Card>
 
@@ -126,37 +112,22 @@ export default async function SocialFiestaProPage({ searchParams }: PageProps) {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            [MessageCircle, 'Contenido inicial', seedPosts.length, 'avisos AK listos'],
-            [Monitor, 'Pantalla', slides.length || 1, slides.length ? 'slides generados' : fallbackSlide.title],
-            [Gamepad2, 'Juegos', gameSet.length, 'desafios por tipo de evento'],
-            [ShieldCheck, 'Aprobados', moderation.bigScreen, 'aptos para pantalla'],
-          ].map(([Icon, label, value, helper]) => <Card key={String(label)}><CardContent className="flex items-center gap-4 p-5"><div className="rounded-lg bg-violet-100 p-3 text-violet-700"><Icon className="h-5 w-5" /></div><div><p className="text-sm text-muted-foreground">{label}</p><p className="text-2xl font-semibold text-slate-950">{value}</p><p className="text-xs text-muted-foreground">{helper}</p></div></CardContent></Card>)}
+          <Card><CardContent className="flex items-center gap-4 p-5"><MessageCircle className="h-5 w-5 text-violet-700" /><div><p className="text-sm text-muted-foreground">Contenido inicial</p><p className="text-2xl font-semibold text-slate-950">{seedPosts.length}</p><p className="text-xs text-muted-foreground">avisos AK listos</p></div></CardContent></Card>
+          <Card><CardContent className="flex items-center gap-4 p-5"><Monitor className="h-5 w-5 text-violet-700" /><div><p className="text-sm text-muted-foreground">Pantalla</p><p className="text-2xl font-semibold text-slate-950">{slides.length || 1}</p><p className="text-xs text-muted-foreground">slides generados</p></div></CardContent></Card>
+          <Card><CardContent className="flex items-center gap-4 p-5"><Gamepad2 className="h-5 w-5 text-violet-700" /><div><p className="text-sm text-muted-foreground">Juegos</p><p className="text-2xl font-semibold text-slate-950">{gameSet.length}</p><p className="text-xs text-muted-foreground">desafios por tipo de evento</p></div></CardContent></Card>
+          <Card><CardContent className="flex items-center gap-4 p-5"><ShieldCheck className="h-5 w-5 text-violet-700" /><div><p className="text-sm text-muted-foreground">Aprobados</p><p className="text-2xl font-semibold text-slate-950">{moderation.bigScreen}</p><p className="text-xs text-muted-foreground">aptos para pantalla</p></div></CardContent></Card>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2"><CardHeader><CardTitle>Lo que ve la gente en la fiesta</CardTitle></CardHeader><CardContent className="grid gap-4 sm:grid-cols-2">
             {(slides.length ? slides : [fallbackSlide]).slice(0, 4).map(slide => <div key={slide.id} className="rounded-lg border bg-white p-4"><Badge variant="outline">{slide.mode.replace(/_/g, ' ')}</Badge><h3 className="mt-3 font-semibold text-slate-950">{slide.title}</h3>{slide.subtitle && <p className="mt-2 text-sm text-muted-foreground">{slide.subtitle}</p>}<p className="mt-3 text-xs text-muted-foreground">{Math.round(slide.durationMs / 1000)} segundos en pantalla</p></div>)}
           </CardContent></Card>
-
-          <Card><CardHeader><CardTitle>Prompts listos</CardTitle></CardHeader><CardContent className="space-y-3">
-            {prompts.slice(0, 5).map(prompt => <div key={prompt.id} className="rounded-lg border bg-white p-3"><p className="font-medium text-slate-950">{prompt.title}</p><p className="mt-1 text-sm text-muted-foreground">{prompt.prompt}</p></div>)}
-          </CardContent></Card>
+          <Card><CardHeader><CardTitle>Prompts listos</CardTitle></CardHeader><CardContent className="space-y-3">{prompts.slice(0, 5).map(prompt => <div key={prompt.id} className="rounded-lg border bg-white p-3"><p className="font-medium text-slate-950">{prompt.title}</p><p className="mt-1 text-sm text-muted-foreground">{prompt.prompt}</p></div>)}</CardContent></Card>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          <Card><CardHeader><CardTitle>Juegos y sorteos activables</CardTitle></CardHeader><CardContent className="space-y-3">
-            {gameSet.map(game => <div key={game.id} className="flex gap-3 rounded-lg border bg-white p-4"><Trophy className="mt-1 h-5 w-5 shrink-0 text-amber-600" /><div><p className="font-semibold text-slate-950">{game.title}</p><p className="text-sm text-muted-foreground">{game.description}</p></div></div>)}
-          </CardContent></Card>
-
-          <Card><CardHeader><CardTitle>Reglas simples para que no se rompa</CardTitle></CardHeader><CardContent className="space-y-3">
-            {[
-              ['Cliente', 'Puede ver, elegir musica, coordinar reuniones y enviar material.'],
-              ['Invitado', 'Usa el celular: confirma, sube fotos, deja mensajes y participa.'],
-              ['Operador', 'Aprueba u oculta antes de mostrar en pantalla gigante.'],
-              ['AK', 'Mantiene presencia sutil: se ve profesional sin invadir la fiesta.'],
-            ].map(([title, text]) => <div key={title} className="flex gap-3 rounded-lg bg-slate-100 p-4"><Users className="mt-1 h-5 w-5 shrink-0 text-slate-700" /><div><p className="font-semibold text-slate-950">{title}</p><p className="text-sm text-muted-foreground">{text}</p></div></div>)}
-          </CardContent></Card>
+          <Card><CardHeader><CardTitle>Juegos y sorteos activables</CardTitle></CardHeader><CardContent className="space-y-3">{gameSet.map(game => <div key={game.id} className="flex gap-3 rounded-lg border bg-white p-4"><Trophy className="mt-1 h-5 w-5 shrink-0 text-amber-600" /><div><p className="font-semibold text-slate-950">{game.title}</p><p className="text-sm text-muted-foreground">{game.description}</p></div></div>)}</CardContent></Card>
+          <Card><CardHeader><CardTitle>Reglas simples para que no se rompa</CardTitle></CardHeader><CardContent className="space-y-3">{[['Cliente', 'Puede ver, elegir musica, coordinar reuniones y enviar material.'], ['Invitado', 'Usa el celular: confirma, sube fotos, deja mensajes y participa.'], ['Operador', 'Aprueba u oculta antes de mostrar en pantalla gigante.'], ['AK', 'Mantiene presencia sutil: se ve profesional sin invadir la fiesta.']].map(([title, text]) => <div key={title} className="flex gap-3 rounded-lg bg-slate-100 p-4"><Users className="mt-1 h-5 w-5 shrink-0 text-slate-700" /><div><p className="font-semibold text-slate-950">{title}</p><p className="text-sm text-muted-foreground">{text}</p></div></div>)}</CardContent></Card>
         </section>
 
         <Card><CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold text-slate-950">Siguiente paso operativo</h2><p className="text-sm text-muted-foreground">Revisar el muro real, activar los desafios que correspondan y probar la pantalla antes del evento.</p></div><Button asChild><Link href={linkFor('/fiestas/nueva/muro-social', fiestaId)}><Camera className="mr-2 h-4 w-4" />Abrir muro social</Link></Button></CardContent></Card>
