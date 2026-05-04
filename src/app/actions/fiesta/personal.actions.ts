@@ -1,6 +1,7 @@
 'use server';
 
-import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
+import { syncFiestaToGoogleWorkspace } from '../google-workspace';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 export async function updatePersonal(fiestaId: string, personal: PersonalAsignadoDetalleStorage[]): Promise<{ success: boolean; error?: string }> {
@@ -10,6 +11,14 @@ export async function updatePersonal(fiestaId: string, personal: PersonalAsignad
     const updatedData = { ...currentData, personalAsignado: personal };
     const result = await saveFiesta(updatedData);
     if (!result.success) throw new Error(result.error);
+
+    syncFiestaToGoogleWorkspace(fiestaId, {
+      reason: 'personal',
+      sendEmails: true,
+    }).catch((syncError) => {
+      console.warn('[personal.actions] Google Workspace sync failed:', syncError);
+    });
+
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };

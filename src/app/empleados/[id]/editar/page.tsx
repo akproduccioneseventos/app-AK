@@ -41,6 +41,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
   const [nombre, setNombre] = useState('');
   const [cedula, setCedula] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
   const [rolIds, setRolIds] = useState<string[]>([]);
   const [contractFile, setContractFile] = useState<File | null>(null);
@@ -68,6 +69,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
         setNombre(loadedEmpleado.nombre);
         setCedula(loadedEmpleado.cedula);
         setTelefono(loadedEmpleado.telefono || '');
+        setEmail(loadedEmpleado.email || loadedEmpleado.googleWorkspaceEmail || '');
         setFechaNacimiento(loadedEmpleado.fechaNacimiento ? new Date(loadedEmpleado.fechaNacimiento) : undefined);
         setRolIds(loadedEmpleado.rolIds || []);
         setPhotoUrl(loadedEmpleado.photoUrl || '');
@@ -124,6 +126,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
     formData.append('nombre', nombre.trim());
     formData.append('cedula', cedula.trim());
     formData.append('telefono', telefono.trim());
+    formData.append('email', email.trim());
     if (fechaNacimiento) {
       formData.append('fechaNacimiento', fechaNacimiento.toISOString());
     }
@@ -248,6 +251,10 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
             <div className="space-y-2">
               <Label htmlFor="empleado-telefono" className="text-base">Teléfono / WhatsApp</Label>
               <Input id="empleado-telefono" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Ej: 59899123456 (con código de país)" className="text-base p-3" disabled={isSaving || isDeleting} type="tel" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empleado-email" className="text-base">Email para avisos y Google</Label>
+              <Input id="empleado-email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ejemplo@correo.com" className="text-base p-3" disabled={isSaving || isDeleting} type="email" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="empleado-fechaNacimiento" className="text-base">Fecha de Nacimiento</Label>

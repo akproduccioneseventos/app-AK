@@ -32,6 +32,10 @@ export async function saveEmpleado(
     empleadoToSave.cedula = empleadoData.get('cedula') as string | undefined;
     empleadoToSave.fechaNacimiento = empleadoData.get('fechaNacimiento') as string | undefined;
     empleadoToSave.telefono = empleadoData.get('telefono') as string | undefined;
+    empleadoToSave.email = empleadoData.get('email') as string | undefined;
+    empleadoToSave.googleWorkspaceEmail = empleadoData.get('googleWorkspaceEmail') as string | undefined;
+    empleadoToSave.googleCalendarId = empleadoData.get('googleCalendarId') as string | undefined;
+    empleadoToSave.portalNotas = empleadoData.get('portalNotas') as string | undefined;
     const rolIdsStr = empleadoData.get('rolIds') as string | null;
     empleadoToSave.rolIds = rolIdsStr ? rolIdsStr.split(',') : [];
     contractFile = empleadoData.get('contract') as File | null;

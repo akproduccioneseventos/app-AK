@@ -6,6 +6,9 @@ export interface Empleado {
   fechaNacimiento: string;
   telefono?: string;
   email?: string;
+  googleWorkspaceEmail?: string;
+  googleCalendarId?: string;
+  portalNotas?: string;
   rolIds?: string[];
   contractFileName?: string; // Nuevo campo para el contrato
   photoUrl?: string; // Foto de perfil del empleado
@@ -31,6 +34,9 @@ export interface NuevoEmpleadoFormData {
   fechaNacimiento?: string;
   telefono?: string;
   email?: string;
+  googleWorkspaceEmail?: string;
+  googleCalendarId?: string;
+  portalNotas?: string;
   rolIds?: string[];
   contractFileName?: string; // Nuevo campo para el contrato
   photoUrl?: string; // Foto de perfil del empleado
