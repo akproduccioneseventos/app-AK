@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './ak-global-premium.css';
 import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 import localFont from 'next/font/local';
