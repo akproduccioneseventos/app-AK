@@ -24,6 +24,7 @@ export default function NuevoEmpleadoPage() {
   const [nombre, setNombre] = useState('');
   const [cedula, setCedula] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState<Date | undefined>(undefined);
   const [rolIds, setRolIds] = useState<string[]>([]);
   const [rolesDisponibles, setRolesDisponibles] = useState<Rol[]>([]);
@@ -79,6 +80,7 @@ export default function NuevoEmpleadoPage() {
       nombre: nombre.trim(),
       cedula: cedula.trim() || undefined,
       telefono: telefono.trim() || undefined,
+      email: email.trim() || undefined,
       fechaNacimiento: fechaNacimiento ? fechaNacimiento.toISOString() : undefined,
       rolIds: rolIds,
       photoUrl: photoUrl.trim() || undefined,
@@ -198,6 +200,18 @@ export default function NuevoEmpleadoPage() {
                 className="text-base p-3"
                 disabled={isSaving}
                 type="tel"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empleado-email" className="text-base">Email para avisos y Google</Label>
+              <Input
+                id="empleado-email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ejemplo@correo.com"
+                className="text-base p-3"
+                disabled={isSaving}
+                type="email"
               />
             </div>
             <div className="space-y-2">
