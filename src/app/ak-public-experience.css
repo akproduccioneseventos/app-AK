@@ -1,0 +1,268 @@
+@layer components {
+  .ak-red-premium-public,
+  .ak-red-premium-client,
+  .ak-red-premium-live {
+    --ak-brand-red: #d71920;
+    --ak-brand-red-dark: #7f1d1d;
+    --ak-brand-red-soft: #fff1f2;
+    --ak-brand-ink: #111111;
+    --ak-brand-border: rgba(185, 28, 28, 0.18);
+    --ak-brand-shadow: 0 24px 70px rgba(127, 29, 29, 0.14);
+    text-rendering: geometricPrecision;
+  }
+
+  .ak-red-premium-public,
+  .ak-red-premium-client {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,246,246,0.98) 52%, rgba(255,255,255,0.98) 100%);
+  }
+
+  .ak-red-premium-public :where(h1, h2, h3),
+  .ak-red-premium-client :where(h1, h2, h3),
+  .ak-red-premium-live :where(h1, h2, h3) {
+    letter-spacing: 0 !important;
+    text-wrap: balance;
+  }
+
+  .ak-red-premium-public :where(button, a),
+  .ak-red-premium-client :where(button, a),
+  .ak-red-premium-live :where(button, a) {
+    touch-action: manipulation;
+  }
+
+  .ak-red-premium-public :where(a, button),
+  .ak-red-premium-client :where(a, button) {
+    transition-property: transform, box-shadow, background-color, border-color, color, opacity;
+    transition-duration: 180ms;
+  }
+
+  .ak-red-premium-public :where(a:hover, button:hover),
+  .ak-red-premium-client :where(a:hover, button:hover) {
+    transform: translateY(-1px);
+  }
+
+  .ak-red-premium-public :where(.shadow-xl, .shadow-2xl, .shadow-lg),
+  .ak-red-premium-client :where(.shadow-xl, .shadow-2xl, .shadow-lg) {
+    box-shadow: var(--ak-brand-shadow) !important;
+  }
+
+  .ak-red-premium-public :where(.rounded-3xl, .rounded-\[2rem\], .rounded-\[1\.5rem\]) ,
+  .ak-red-premium-client :where(.rounded-3xl, .rounded-\[2rem\], .rounded-\[1\.5rem\]) {
+    border-radius: 1rem !important;
+  }
+
+  .ak-red-premium-public :where(input, textarea, select),
+  .ak-red-premium-client :where(input, textarea, select) {
+    min-height: 44px;
+    border-radius: 0.875rem !important;
+    border-color: var(--ak-brand-border) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 10px 28px rgba(127,29,29,0.06);
+    font-size: 16px;
+  }
+
+  .ak-red-premium-public :where(input:focus, textarea:focus, select:focus),
+  .ak-red-premium-client :where(input:focus, textarea:focus, select:focus) {
+    border-color: rgba(215, 25, 32, 0.62) !important;
+    box-shadow: 0 0 0 4px rgba(215, 25, 32, 0.12), 0 14px 32px rgba(127,29,29,0.08) !important;
+  }
+
+  .ak-red-premium-public :where(label),
+  .ak-red-premium-client :where(label) {
+    color: #18181b;
+    font-weight: 800;
+  }
+
+  .ak-red-premium-public [data-testid="hero-section"] {
+    min-height: 94svh !important;
+    border-bottom: 1px solid rgba(215, 25, 32, 0.18);
+  }
+
+  .ak-red-premium-public [data-testid="hero-section"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8rem;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.98) 100%);
+    z-index: 2;
+  }
+
+  .ak-red-premium-public [data-testid="hero-section"] h1 {
+    max-width: 12ch;
+    text-shadow: 0 26px 70px rgba(0,0,0,0.58);
+  }
+
+  .ak-red-premium-public [data-testid="hero-section"] a {
+    min-height: 52px;
+    border-radius: 0.95rem !important;
+  }
+
+  .ak-red-premium-public [data-testid="gallery-section"] {
+    background:
+      linear-gradient(180deg, #111111 0%, #2a0506 54%, #111111 100%) !important;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .ak-red-premium-public [data-testid="gallery-section"] button {
+    border-radius: 0.9rem !important;
+  }
+
+  .ak-red-premium-public [data-testid="gallery-section"] img {
+    filter: saturate(1.05) contrast(1.02);
+  }
+
+  .ak-red-premium-public :where([id="servicios"], [id="videos"], [id="testimonios"], [id="faq"], [id="proceso"]) {
+    position: relative;
+  }
+
+  .ak-red-premium-public :where([id="servicios"], [id="videos"], [id="testimonios"], [id="faq"], [id="proceso"])::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: linear-gradient(180deg, transparent, rgba(215,25,32,0.86), transparent);
+    pointer-events: none;
+  }
+
+  .ak-red-premium-client {
+    color: var(--ak-brand-ink);
+    background:
+      linear-gradient(90deg, rgba(127,29,29,0.05) 0 1px, transparent 1px 100%),
+      linear-gradient(180deg, #ffffff 0%, #fff7f7 58%, #ffffff 100%);
+    background-size: 76px 100%, auto;
+  }
+
+  .ak-red-premium-client section:first-of-type {
+    isolation: isolate;
+  }
+
+  .ak-red-premium-client section:first-of-type h1 {
+    text-shadow: 0 22px 54px rgba(0, 0, 0, 0.54);
+  }
+
+  .ak-red-premium-client section:first-of-type :where(p, span) {
+    text-shadow: 0 12px 34px rgba(0,0,0,0.42);
+  }
+
+  .ak-red-premium-client :where(form) {
+    width: 100%;
+  }
+
+  .ak-red-premium-client :where(form) button[type="submit"],
+  .ak-red-premium-client :where(main) > button,
+  .ak-red-premium-client :where(.fixed) a,
+  .ak-red-premium-client :where(.fixed) button {
+    min-height: 48px;
+  }
+
+  .ak-red-premium-client :where(.bg-purple-50, .bg-violet-50, .bg-indigo-50, .bg-blue-50, .bg-pink-50) {
+    background-color: var(--ak-brand-red-soft) !important;
+  }
+
+  .ak-red-premium-client :where(.border-purple-100, .border-violet-100, .border-indigo-100, .border-blue-100, .border-pink-100) {
+    border-color: var(--ak-brand-border) !important;
+  }
+
+  .ak-red-premium-client :where(.text-purple-600, .text-violet-600, .text-indigo-600, .text-blue-600, .text-pink-600),
+  .ak-red-premium-client :where(.text-purple-700, .text-violet-700, .text-indigo-700, .text-blue-700, .text-pink-700),
+  .ak-red-premium-client :where(.text-purple-800, .text-violet-800, .text-indigo-800, .text-blue-800, .text-pink-800) {
+    color: var(--ak-brand-red-dark) !important;
+  }
+
+  .ak-red-premium-client :where(.bg-purple-600, .bg-violet-600, .bg-indigo-600, .bg-blue-600, .bg-pink-600) {
+    background-color: var(--ak-brand-red) !important;
+  }
+
+  .ak-red-premium-client :where(.bg-gradient-to-br, .bg-gradient-to-r) {
+    --tw-gradient-from: #d71920 var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: #7f1d1d var(--tw-gradient-to-position) !important;
+  }
+
+  .ak-red-premium-client :where(.max-w-md, .max-w-lg) > .overflow-hidden,
+  .ak-red-premium-client :where(main) > .overflow-hidden,
+  .ak-red-premium-client :where(main) > div > .overflow-hidden {
+    border: 1px solid rgba(185, 28, 28, 0.14) !important;
+  }
+
+  .ak-red-premium-client :where(.grid) > a,
+  .ak-red-premium-client :where(.grid) > button {
+    min-height: 76px;
+  }
+
+  .ak-red-premium-client footer {
+    border-top: 1px solid rgba(185,28,28,0.14);
+  }
+
+  .ak-red-premium-live {
+    min-height: 100%;
+    color: #ffffff;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 88px),
+      linear-gradient(135deg, #111111 0%, #520708 42%, #d71920 100%);
+  }
+
+  .ak-red-premium-live::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.10), transparent 18%, transparent 82%, rgba(255,255,255,0.10)),
+      linear-gradient(180deg, rgba(0,0,0,0.18), transparent 34%, rgba(0,0,0,0.28));
+    z-index: 0;
+  }
+
+  .ak-red-premium-live > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ak-red-premium-live :where(img, video, canvas) {
+    border-radius: 1rem;
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: 0 30px 100px rgba(0,0,0,0.38);
+  }
+
+  .ak-red-premium-live :where(button, a) {
+    min-height: 44px;
+    border-radius: 0.9rem !important;
+  }
+
+  .ak-red-premium-live :where(.shadow-xl, .shadow-2xl, .shadow-lg) {
+    box-shadow: 0 28px 90px rgba(0,0,0,0.34) !important;
+  }
+
+  .ak-red-premium-live :where(.bg-purple-600, .bg-violet-600, .bg-indigo-600, .bg-blue-600) {
+    background-color: #d71920 !important;
+  }
+
+  .ak-red-premium-live :where(.text-purple-600, .text-violet-600, .text-indigo-600, .text-blue-600),
+  .ak-red-premium-live :where(.text-purple-700, .text-violet-700, .text-indigo-700, .text-blue-700) {
+    color: #fecaca !important;
+  }
+
+  @media (max-width: 640px) {
+    .ak-red-premium-public [data-testid="hero-section"] h1 {
+      max-width: 100%;
+    }
+
+    .ak-red-premium-public [data-testid="hero-section"] a,
+    .ak-red-premium-client :where(button, a[role="button"], a.inline-flex) {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .ak-red-premium-client :where(main) {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .ak-red-premium-client section:first-of-type {
+      min-height: 88svh !important;
+    }
+  }
+}
