@@ -135,7 +135,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               Fotos reales, momentos reales y una muestra clara de cómo puede verse tu evento.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/8 py-16 px-6 text-center shadow-2xl">
+          <div className="rounded-2xl border border-white/10 bg-white/10 py-16 px-6 text-center shadow-2xl">
             <Camera className="w-12 h-12 text-red-200 mx-auto mb-4" />
             <p className="text-zinc-200 font-semibold">Próximamente agregaremos fotos de nuestros eventos.</p>
           </div>
@@ -165,7 +165,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               La galería tiene que vender sola: fotos grandes, filtros simples y detalles claros para que el futuro cliente imagine su fiesta.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/8 p-4 sm:p-5 shadow-2xl">
+          <div className="rounded-2xl border border-white/10 bg-white/10 p-4 sm:p-5 shadow-2xl">
             <div className="flex flex-wrap gap-2">
               {FIESTA_FILTERS.map((fiesta) => (
                 <button
@@ -178,7 +178,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                     'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200',
                     activeFiesta === fiesta.value
                       ? 'bg-red-600 text-white shadow-lg shadow-red-950/30'
-                      : 'bg-white/10 text-zinc-200 hover:bg-white/18'
+                      : 'bg-white/10 text-zinc-200 hover:bg-white/20'
                   )}
                 >
                   {fiesta.label}
@@ -197,7 +197,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 'px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border',
                 activeServicio === servicio
                   ? 'bg-white text-red-700 border-white shadow-lg'
-                  : 'bg-transparent text-zinc-300 border-white/15 hover:bg-white/10 hover:text-white'
+                  : 'bg-transparent text-zinc-300 border-white/20 hover:bg-white/10 hover:text-white'
               )}
             >
               {servicio}
@@ -226,7 +226,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                   data-ai-hint={image.hint}
                   unoptimized={!isNextJsOptimizableUrl(image.src)}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/16 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 {image.destacada && (
                   <div className="absolute top-3 left-3 bg-white text-red-700 text-[10px] font-black px-3 py-1 rounded-lg shadow-lg">
                     Destacada
@@ -240,10 +240,10 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                     {image.titulo || image.alt || 'Evento AK'}
                   </p>
                   {image.descripcion && (
-                    <p className="hidden sm:block text-xs text-white/72 mt-1 line-clamp-2">{image.descripcion}</p>
+                    <p className="hidden sm:block text-xs text-white/70 mt-1 line-clamp-2">{image.descripcion}</p>
                   )}
                 </div>
-                <div className="absolute inset-0 bg-red-950/0 group-hover:bg-red-950/22 transition-colors duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-red-950/0 group-hover:bg-red-950/20 transition-colors duration-300 flex items-center justify-center">
                   <ZoomIn className="w-9 h-9 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
                 </div>
               </button>
@@ -294,7 +294,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               />
             </div>
             {(filtered[lightboxIndex].titulo || filtered[lightboxIndex].servicio || filtered[lightboxIndex].descripcion) && (
-              <div className="bg-zinc-950/92 border border-white/10 text-white p-4 rounded-2xl mt-3 flex items-center justify-between gap-3">
+              <div className="bg-zinc-950/90 border border-white/10 text-white p-4 rounded-2xl mt-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   {filtered[lightboxIndex].titulo && (
                     <p className="font-black text-base truncate">{filtered[lightboxIndex].titulo}</p>
@@ -308,7 +308,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 </div>
                 <button
                   onClick={() => handleShareWhatsApp(filtered[lightboxIndex])}
-                  className="w-11 h-11 rounded-xl bg-green-500/20 hover:bg-green-500/35 flex items-center justify-center text-green-300 shrink-0 transition-colors"
+                  className="w-11 h-11 rounded-xl bg-green-500/20 hover:bg-green-500/30 flex items-center justify-center text-green-300 shrink-0 transition-colors"
                   title="Compartir por WhatsApp"
                 >
                   <Share2 className="w-4 h-4" />
