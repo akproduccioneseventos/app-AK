@@ -116,7 +116,7 @@ export async function getControlTowerData() {
     }
   }
 
-  const unreadNotifications = (notifications as any[])
+  const unreadNotifications: ControlTowerItem[] = (notifications as any[])
     .filter(n => !n.leida)
     .slice(0, 6)
     .map(n => ({
@@ -125,7 +125,7 @@ export async function getControlTowerData() {
       description: n.mensaje || 'Hay una notificación para revisar.',
       href: n.href || '/alertas',
       priority: n.tipo === 'urgente' ? 'alta' : 'normal',
-      area: 'sistema' as const,
+      area: 'sistema',
     }));
 
   items.push(...unreadNotifications);
