@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AlertCircle, BellRing, CalendarCheck, CheckCircle2, ClipboardList, DollarSign, Sparkles, Users } from 'lucide-react';
+import { AlertCircle, BellRing, CalendarCheck, CheckCircle2, ClipboardList, DollarSign, Sparkles, Users, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,11 +36,18 @@ export default async function ControlTowerPage() {
               Tu vista diaria de prioridades, pendientes importantes y próximos pasos. Sin ruido: solo lo que conviene revisar primero.
             </p>
           </div>
-          <Link href="/secretaria-ak">
-            <Button className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">
-              <Sparkles className="mr-2 h-4 w-4" /> Abrir Secretaria AK
-            </Button>
-          </Link>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link href="/control-tower/automatizaciones">
+              <Button variant="outline" className="rounded-2xl font-bold">
+                <Wand2 className="mr-2 h-4 w-4" /> Automatizaciones
+              </Button>
+            </Link>
+            <Link href="/secretaria-ak">
+              <Button className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">
+                <Sparkles className="mr-2 h-4 w-4" /> Secretaria AK
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -96,8 +103,9 @@ export default async function ControlTowerPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Link href="/multiagente/acciones"><Button className="h-14 w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700">Acciones del Multiagente</Button></Link>
+      <div className="grid gap-4 md:grid-cols-4">
+        <Link href="/control-tower/automatizaciones"><Button className="h-14 w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700">Ejecutar automatizaciones</Button></Link>
+        <Link href="/multiagente/acciones"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Acciones del Multiagente</Button></Link>
         <Link href="/multiagente/memoria"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Memoria y aprendizajes</Button></Link>
         <Link href="/multiagente/contable"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Agente contable</Button></Link>
       </div>
