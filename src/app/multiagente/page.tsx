@@ -1,10 +1,17 @@
 import Link from 'next/link';
-import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users, Rocket, Wrench } from 'lucide-react';
+import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users, Rocket, Wrench, Radar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 const agents = [
+  {
+    name: 'Control Tower AK',
+    href: '/control-tower',
+    icon: Radar,
+    description: 'Centro diario de prioridades, pendientes importantes y próximos pasos recomendados.',
+    status: 'Nuevo',
+  },
   {
     name: 'Secretaria AK',
     href: '/secretaria-ak',
@@ -23,7 +30,7 @@ const agents = [
     name: 'Coordinador General de Fiestas',
     href: '/multiagente/fiestas',
     icon: Users,
-    description: 'Agente que cruza todas las fiestas, detecta riesgos y recibe aprendizajes de eventos terminados.',
+    description: 'Agente que cruza todas las fiestas, detecta prioridades y recibe aprendizajes de eventos terminados.',
     status: 'Operativo',
   },
   {
@@ -52,7 +59,7 @@ const agents = [
     href: '/multiagente/acciones',
     icon: Wrench,
     description: 'Crea tareas, recordatorios, aprendizajes y cierre de fiesta con retroalimentación al agente general.',
-    status: 'Nuevo',
+    status: 'Operativo',
   },
 ];
 
