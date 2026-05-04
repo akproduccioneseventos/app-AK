@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users, Rocket } from 'lucide-react';
+import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users, Rocket, Wrench } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,14 +24,14 @@ const agents = [
     href: '/multiagente/fiestas',
     icon: Users,
     description: 'Agente que cruza todas las fiestas, detecta riesgos y recibe aprendizajes de eventos terminados.',
-    status: 'Nuevo',
+    status: 'Operativo',
   },
   {
     name: 'Agente Contable',
     href: '/multiagente/contable',
     icon: DollarSign,
     description: 'Agente para pagos, saldos, costos, rentabilidad y alertas financieras.',
-    status: 'Nuevo',
+    status: 'Operativo',
   },
   {
     name: 'Agente Marketing',
@@ -45,6 +45,13 @@ const agents = [
     href: '/multiagente/memoria',
     icon: Brain,
     description: 'Pantalla para ver y guardar aprendizajes que los agentes pueden usar con el tiempo.',
+    status: 'Operativo',
+  },
+  {
+    name: 'Acciones reales',
+    href: '/multiagente/acciones',
+    icon: Wrench,
+    description: 'Crea tareas, recordatorios, aprendizajes y cierre de fiesta con retroalimentación al agente general.',
     status: 'Nuevo',
   },
 ];
@@ -58,10 +65,10 @@ export default function MultiagentePage() {
             <Badge className="mb-3 bg-red-600 text-white">Sistema operativo</Badge>
             <h1 className="text-3xl font-black tracking-tight text-slate-950">Multiagente AK</h1>
             <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-600">
-              Centro de agentes de AK Producciones. Cada agente trabaja por área y usa memoria para ir acumulando aprendizajes.
+              Centro de agentes de AK Producciones. Cada agente trabaja por área, usa memoria y puede ejecutar acciones reales controladas.
             </p>
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-red-100 bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-red-700 shadow-sm">
-              <Rocket className="h-4 w-4" /> Paquete operativo multiagente
+              <Rocket className="h-4 w-4" /> Multiagente funcional
             </div>
           </div>
           <div className="rounded-2xl bg-red-600 p-4 text-white shadow-lg shadow-red-700/20">
@@ -87,7 +94,7 @@ export default function MultiagentePage() {
               </CardHeader>
               <CardContent>
                 <Link href={agent.href}>
-                  <Button className="w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700">Abrir agente</Button>
+                  <Button className="w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700">Abrir</Button>
                 </Link>
               </CardContent>
             </Card>
