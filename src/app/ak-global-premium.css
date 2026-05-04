@@ -1,0 +1,129 @@
+@layer base {
+  :root {
+    --background: 210 33% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 168 76% 26%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 32% 92%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 24% 96%;
+    --muted-foreground: 215 16% 42%;
+    --accent: 41 83% 55%;
+    --accent-foreground: 222 47% 11%;
+    --border: 214 32% 88%;
+    --input: 214 32% 88%;
+    --ring: 168 76% 26%;
+    --radius: 0.85rem;
+    --chart-1: 168 76% 26%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 41 83% 55%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 340 82% 52%;
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 41 83% 55%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 18%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 217 33% 18%;
+    --sidebar-ring: 41 83% 55%;
+  }
+
+  body {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(241,245,249,0.98) 45%, rgba(236,253,245,0.65) 100%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: 0;
+  }
+}
+
+@layer components {
+  .ak-global-main-surface {
+    background:
+      linear-gradient(180deg, rgba(248,250,252,0.98) 0%, rgba(241,245,249,0.98) 55%, rgba(236,253,245,0.56) 100%) !important;
+  }
+
+  header.sticky {
+    border-bottom-color: rgba(148, 163, 184, 0.22) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06) !important;
+  }
+
+  header.sticky h1 {
+    color: #0f172a !important;
+    font-family: var(--font-inter), sans-serif !important;
+    font-weight: 900 !important;
+  }
+
+  [data-sidebar="sidebar"] {
+    background:
+      linear-gradient(180deg, #0f172a 0%, #111827 48%, #0b1120 100%) !important;
+    color: #e2e8f0 !important;
+    border-right: 1px solid rgba(148, 163, 184, 0.18) !important;
+  }
+
+  [data-sidebar="header"] a > div {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 44px rgba(0,0,0,0.22) !important;
+  }
+
+  [data-sidebar="group-label"] {
+    color: rgba(226, 232, 240, 0.58) !important;
+  }
+
+  [data-sidebar="menu-button"] {
+    border: 1px solid transparent !important;
+    color: rgba(226, 232, 240, 0.72) !important;
+    background: transparent !important;
+  }
+
+  [data-sidebar="menu-button"]:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  [data-sidebar="menu-button"][data-active="true"] {
+    color: #0f172a !important;
+    background: linear-gradient(135deg, #f7c948 0%, #f59e0b 100%) !important;
+    border-color: rgba(255, 255, 255, 0.26) !important;
+    box-shadow: 0 14px 30px rgba(245, 158, 11, 0.18) !important;
+  }
+
+  [data-sidebar="menu-button"] svg {
+    color: currentColor !important;
+  }
+
+  [data-sidebar="footer"] {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .premium-shadow {
+    box-shadow: 0 16px 48px rgba(15, 23, 42, 0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
+  }
+
+  .text-gradient-primary {
+    background: linear-gradient(135deg, #0f766e 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-primary,
+  .btn-gradient-primary {
+    background: linear-gradient(135deg, #0f766e 0%, #d97706 100%) !important;
+  }
+
+  .ak-executive-panel {
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+  }
+}
