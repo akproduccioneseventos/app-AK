@@ -1,4 +1,5 @@
-import { BACKUP_COLLECTIONS, getBackupValueCount, isRestorableDataFile, isSafeTopLevelJsonFile } from '@/lib/backup/backup-registry';
+import { BACKUP_COLLECTIONS, findMissingBackupFiles, getBackupValueCount, isBackupMetadataFile, isRestorableDataFile, isSafeTopLevelJsonFile } from '@/lib/backup/backup-registry';
+import { buildBackupReadinessReport } from '@/lib/backup/backup-health';
 
 describe('backup registry', () => {
   it('includes core event files', () => {
@@ -15,10 +16,28 @@ describe('backup registry', () => {
     expect(isSafeTopLevelJsonFile('nested/file.json')).toBe(false);
   });
 
+  it('detects backup metadata files', () => {
+    expect(isBackupMetadataFile('_backup-metadata.json')).toBe(true);
+    expect(isBackupMetadataFile('_backup-readiness.json')).toBe(true);
+    expect(isBackupMetadataFile('fiestas.json')).toBe(false);
+  });
+
   it('allows known and safe restore files', () => {
     expect(isRestorableDataFile('fiestas.json')).toBe(true);
     expect(isRestorableDataFile('new-module.json')).toBe(true);
     expect(isRestorableDataFile('../new-module.json')).toBe(false);
+  });
+
+  it('finds missing required backup files', () => {
+    expect(findMissingBackupFiles(['fiestas.json', 'missing-module.json'])).toEqual(['missing-module.json']);
+  });
+
+  it('builds a ready report for critical modules', () => {
+    const report = buildBackupReadinessReport(new Date('2026-05-04T00:00:00.000Z'));
+    expect(report.ready).toBe(true);
+    expect(report.totalFiles).toBe(BACKUP_COLLECTIONS.length);
+    expect(report.areas.length).toBeGreaterThan(0);
+    expect(report.areas.every(area => area.ready)).toBe(true);
   });
 
   it('counts backup values for summaries', () => {
