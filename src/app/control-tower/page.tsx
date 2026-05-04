@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AlertCircle, BellRing, CalendarCheck, CheckCircle2, ClipboardCheck, ClipboardList, DollarSign, PhoneCall, Sparkles, Users, Wand2 } from 'lucide-react';
+import { AlertCircle, BellRing, CalendarCheck, CheckCircle2, ClipboardCheck, ClipboardList, DollarSign, PhoneCall, PartyPopper, Sparkles, Users, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,11 @@ export default async function ControlTowerPage() {
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
+            <Link href="/control-tower/post-fiesta">
+              <Button variant="outline" className="rounded-2xl font-bold">
+                <PartyPopper className="mr-2 h-4 w-4" /> Post-fiesta
+              </Button>
+            </Link>
             <Link href="/control-tower/comercial">
               <Button variant="outline" className="rounded-2xl font-bold">
                 <PhoneCall className="mr-2 h-4 w-4" /> Comercial
@@ -114,11 +119,11 @@ export default async function ControlTowerPage() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-5">
-        <Link href="/control-tower/comercial"><Button className="h-14 w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700">Seguimientos</Button></Link>
+        <Link href="/control-tower/post-fiesta"><Button className="h-14 w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700">Post-fiesta</Button></Link>
+        <Link href="/control-tower/comercial"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Seguimientos</Button></Link>
         <Link href="/control-tower/preparacion"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Preparación</Button></Link>
         <Link href="/control-tower/automatizaciones"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Automatizaciones</Button></Link>
         <Link href="/multiagente/memoria"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Memoria</Button></Link>
-        <Link href="/multiagente/contable"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Contable</Button></Link>
       </div>
     </div>
   );
