@@ -44,6 +44,7 @@
 }
 
 @layer components {
+  main.flex-1,
   .ak-global-main-surface {
     background:
       linear-gradient(180deg, rgba(248,250,252,0.98) 0%, rgba(241,245,249,0.98) 55%, rgba(236,253,245,0.56) 100%) !important;
