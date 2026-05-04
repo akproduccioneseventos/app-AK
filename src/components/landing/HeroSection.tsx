@@ -43,7 +43,7 @@ export function HeroSection({
           {promoActiva && (
             <a
               href="#promo"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/12 border border-white/20 text-white text-xs font-black uppercase tracking-widest mb-4 hover:bg-white/18 transition-colors backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black uppercase tracking-widest mb-4 hover:bg-white/20 transition-colors backdrop-blur-md"
             >
               <Zap className="w-3.5 h-3.5 text-red-200" />
               Promo activa: {promoActiva.titulo}
@@ -63,7 +63,7 @@ export function HeroSection({
             ))}
           </h1>
 
-          <p className="text-lg sm:text-xl md:text-2xl text-white/84 font-medium max-w-2xl mb-10 leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-medium max-w-2xl mb-10 leading-relaxed">
             {subheadline}
           </p>
 
@@ -107,9 +107,9 @@ export function HeroSection({
               { value: '10+', label: 'Años' },
               { value: '24/7', label: 'Acompañamiento' },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-xl border border-white/16 bg-white/10 backdrop-blur-md px-4 py-3 text-center">
+              <div key={stat.label} className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3 text-center">
                 <div className="text-2xl sm:text-3xl font-black text-white drop-shadow">{stat.value}</div>
-                <div className="text-[10px] font-bold text-white/64 uppercase tracking-widest mt-1">{stat.label}</div>
+                <div className="text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
