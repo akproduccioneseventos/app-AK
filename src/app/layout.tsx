@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './ak-global-premium.css';
+import './ak-public-experience.css';
 import { AppShell } from '@/components/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 import localFont from 'next/font/local';
@@ -45,7 +47,7 @@ const dancingScript = localFont({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#0f172a',
+  themeColor: '#d71920',
   width: 'device-width',
   initialScale: 1,
 };

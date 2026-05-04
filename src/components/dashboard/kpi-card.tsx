@@ -22,32 +22,32 @@ export const KpiCard: React.FC<KpiCardProps> = ({ title, value, description, ico
     transition={{ duration: 0.4 }}
   >
     <Card className={cn(
-      "relative overflow-hidden border-none bg-white rounded-[1.5rem] premium-shadow group hover:bg-indigo-50/30 transition-all duration-500",
+      "group relative overflow-hidden border-red-100/90 bg-white/95 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-[0_22px_60px_rgba(127,29,29,0.12)]",
       className
     )}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 p-6">
-        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-indigo-600 transition-colors">
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-700 via-red-500 to-red-900" />
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 p-5 sm:p-6">
+        <CardTitle className="text-[11px] font-black uppercase tracking-normal text-slate-500 transition-colors group-hover:text-red-800">
           {title}
         </CardTitle>
-        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-400 group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner">
+        <div className="rounded-lg border border-red-100 bg-red-50 p-2.5 text-red-700 transition-all duration-300 group-hover:border-red-200 group-hover:bg-red-600 group-hover:text-white">
           <Icon className="h-4 w-4" />
         </div>
       </CardHeader>
-      <CardContent className="px-6 pb-6">
+      <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6">
         {isLoading ? (
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-300" />
+          <Loader2 className="h-8 w-8 animate-spin text-red-700" />
         ) : (
-          <div className="text-3xl font-black text-slate-800 tracking-tighter group-hover:scale-105 transition-transform origin-left duration-500">
+          <div className="text-3xl font-black tracking-normal text-slate-950 transition-transform duration-300 group-hover:scale-[1.02] origin-left">
               {value}
           </div>
         )}
         {description && (
-          <p className="text-[10px] text-muted-foreground mt-3 font-bold bg-slate-100/80 inline-block px-3 py-1 rounded-full border border-slate-200/50">
+          <p className="mt-3 inline-block rounded-md border border-red-100 bg-red-50 px-3 py-1 text-[11px] font-semibold text-red-800">
               {description}
           </p>
         )}
       </CardContent>
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
     </Card>
   </motion.div>
 );

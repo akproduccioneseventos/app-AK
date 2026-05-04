@@ -36,34 +36,34 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-purple-100'
+          ? 'bg-white/95 backdrop-blur-md shadow-xl border-b border-red-100'
           : 'bg-transparent'
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link href="/landing" className="flex items-center gap-3 shrink-0">
+          <Link href="/landing" className="flex items-center gap-3 shrink-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400">
             <CompanyLogo size="sm" />
             <span
               className={cn(
-                'font-headline font-bold text-lg hidden sm:block transition-colors',
-                isScrolled ? 'text-slate-800' : 'text-white drop-shadow'
+                'font-headline font-black text-lg hidden sm:block transition-colors',
+                isScrolled ? 'text-zinc-950' : 'text-white drop-shadow'
               )}
             >
               AK Producciones
             </span>
           </Link>
 
-          {/* Desktop nav links */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-2 py-1 backdrop-blur-md">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'text-sm font-bold uppercase tracking-wider transition-colors hover:text-primary',
-                  isScrolled ? 'text-slate-600' : 'text-white/90 drop-shadow hover:text-white'
+                  'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
+                  isScrolled
+                    ? 'text-zinc-600 hover:bg-red-50 hover:text-red-700'
+                    : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
                 )}
               >
                 {link.label}
@@ -71,26 +71,25 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
             ))}
           </nav>
 
-          {/* CTA + Mobile menu toggle */}
           <div className="flex items-center gap-3">
             <a
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                'hidden sm:flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-xs uppercase tracking-widest',
-                'bg-[#25D366] text-white shadow-lg hover:bg-[#1eb356]',
-                'transition-all duration-200 hover:scale-105 active:scale-95'
+                'hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest',
+                'bg-red-600 text-white shadow-lg shadow-red-950/20 hover:bg-red-700',
+                'transition-all duration-200 hover:scale-[1.03] active:scale-95'
               )}
             >
               <MessageSquare className="w-4 h-4" />
-              ¡Cotizá!
+              Cotizá
             </a>
             <button
               onClick={() => setIsMenuOpen((o) => !o)}
               className={cn(
                 'md:hidden p-2 rounded-xl transition-colors',
-                isScrolled ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/10'
+                isScrolled ? 'text-zinc-800 hover:bg-red-50' : 'text-white hover:bg-white/10'
               )}
               aria-label="Abrir menú"
             >
@@ -100,16 +99,15 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-b border-purple-100 shadow-xl">
+        <div className="md:hidden bg-white border-b border-red-100 shadow-xl">
           <div className="px-4 py-4 space-y-2">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider text-slate-700 hover:bg-purple-50 hover:text-primary transition-colors"
+                className="block px-4 py-3 rounded-xl text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-red-50 hover:text-red-700 transition-colors"
               >
                 {link.label}
               </a>
@@ -118,10 +116,10 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-2xl font-black text-sm uppercase tracking-widest bg-[#25D366] text-white"
+              className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-xl font-black text-sm uppercase tracking-widest bg-red-600 hover:bg-red-700 text-white"
             >
               <MessageSquare className="w-5 h-5" />
-              ¡Cotizá tu evento!
+              Cotizá tu evento
             </a>
           </div>
         </div>
