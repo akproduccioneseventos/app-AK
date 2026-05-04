@@ -1,6 +1,7 @@
 'use server';
 
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
+import { syncFiestaToGoogleWorkspace } from './google-workspace';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 export interface CalendarEvent {
@@ -85,7 +86,17 @@ export async function updateFiestaDate(
       },
     };
     const result = await saveFiesta(updatedFiesta);
-    return result.success ? { success: true } : { success: false, error: result.error };
+    if (!result.success) return { success: false, error: result.error };
+
+    syncFiestaToGoogleWorkspace(fiestaId, {
+      reason: 'date-change',
+      sendEmails: true,
+      forceEmail: true,
+    }).catch((syncError) => {
+      console.warn('[agenda] Google Workspace sync failed:', syncError);
+    });
+
+    return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
