@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NotificationsHub } from '@/components/notifications-hub';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { MainNav } from './main-nav';
-import { AKAssistantWidget } from '@/components/assistant/ak-assistant-widget';
+import { MultiAgentWidget } from '@/components/multiagent/multiagent-widget';
 
 
 const getPageTitle = (pathname: string): string => {
@@ -110,6 +110,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/proveedores-portal') return 'Portal de Proveedores';
   if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
+  if (pathname === '/multiagente') return 'Multiagente AK';
   if (pathname === '/playbooks') return 'Playbooks Inteligentes';
   if (pathname === '/aprobaciones') return 'Centro de Aprobaciones';
   if (pathname === '/auditoria') return 'Registro de Auditoría';
@@ -156,6 +157,7 @@ const getPageTitle = (pathname: string): string => {
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/') return LayoutDashboard;
+  if (pathname === '/multiagente') return Bot;
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;
     if (pathname === '/fiestas/nueva/personal/recibos') return Printer;
@@ -381,7 +383,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
       </SidebarInset>
-      <AKAssistantWidget />
+      <MultiAgentWidget />
     </SidebarProvider>
   );
 }
