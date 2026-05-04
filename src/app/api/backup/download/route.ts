@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
 import { readData } from '@/lib/data-service';
 import { BACKUP_COLLECTIONS } from '@/lib/backup/backup-registry';
+import { buildBackupReadinessReport } from '@/lib/backup/backup-health';
 import * as logger from '@/lib/logger';
 
 async function readFromFirestoreDirect(filePath: string): Promise<any | null> {
@@ -23,6 +24,7 @@ export async function GET() {
     const appVersion = process.env.npm_package_version || '0.1.0';
 
     let exportedCount = 0;
+    const exportedFiles: string[] = [];
     for (const collection of BACKUP_COLLECTIONS) {
       try {
         let data: any = null;
@@ -32,14 +34,25 @@ export async function GET() {
         }
         if (data === null) data = await readData(collection.file, collection.defaultValue);
         zip.file(collection.file, JSON.stringify(data, null, 2));
+        exportedFiles.push(collection.file);
         exportedCount++;
       } catch (err) {
         logger.warn(`[Backup] Could not export ${collection.file}:`, err);
       }
     }
 
-    const metadata = { exportedAt: new Date().toISOString(), source, version: appVersion, app: 'AK Producciones', collections: exportedCount };
+    const readiness = buildBackupReadinessReport();
+    const metadata = {
+      exportedAt: new Date().toISOString(),
+      source,
+      version: appVersion,
+      app: 'AK Producciones',
+      collections: exportedCount,
+      exportedFiles,
+      readyForCriticalModules: readiness.ready,
+    };
     zip.file('_backup-metadata.json', JSON.stringify(metadata, null, 2));
+    zip.file('_backup-readiness.json', JSON.stringify(readiness, null, 2));
     logger.info(`[Backup] Export completed: ${exportedCount} collections exported (source: ${source}) at ${metadata.exportedAt}`);
 
     const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
