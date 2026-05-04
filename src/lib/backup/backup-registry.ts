@@ -83,15 +83,29 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'personal-recibos.json', defaultValue: [] },
 ];
 
+export const BACKUP_METADATA_FILES = new Set([
+  '_metadata.json',
+  '_backup-metadata.json',
+  '_backup-readiness.json',
+]);
+
 export const RESTORABLE_BACKUP_FILES = new Set(BACKUP_COLLECTIONS.map((collection) => collection.file));
 
+export function normalizeBackupFileName(fileName: string): string {
+  return fileName.replace(/\\/g, '/').trim();
+}
+
+export function isBackupMetadataFile(fileName: string): boolean {
+  return BACKUP_METADATA_FILES.has(normalizeBackupFileName(fileName));
+}
+
 export function isSafeTopLevelJsonFile(fileName: string): boolean {
-  const normalized = fileName.replace(/\\/g, '/');
+  const normalized = normalizeBackupFileName(fileName);
   return /^[A-Za-z0-9][A-Za-z0-9._-]*\.json$/.test(normalized) && !normalized.startsWith('_');
 }
 
 export function isRestorableDataFile(fileName: string): boolean {
-  const normalized = fileName.replace(/\\/g, '/');
+  const normalized = normalizeBackupFileName(fileName);
   return RESTORABLE_BACKUP_FILES.has(normalized) || isSafeTopLevelJsonFile(normalized);
 }
 
@@ -99,4 +113,13 @@ export function getBackupValueCount(value: any): number {
   if (Array.isArray(value)) return value.length;
   if (value && typeof value === 'object') return Object.keys(value).length || 1;
   return value == null ? 0 : 1;
+}
+
+export function getRegisteredBackupFiles(): string[] {
+  return BACKUP_COLLECTIONS.map((collection) => collection.file);
+}
+
+export function findMissingBackupFiles(requiredFiles: string[]): string[] {
+  const registered = new Set(getRegisteredBackupFiles());
+  return requiredFiles.map(normalizeBackupFileName).filter((file) => !registered.has(file));
 }
