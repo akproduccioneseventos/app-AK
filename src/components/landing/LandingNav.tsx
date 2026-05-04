@@ -36,7 +36,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled
-          ? 'bg-white/96 backdrop-blur-md shadow-xl border-b border-red-100'
+          ? 'bg-white/95 backdrop-blur-md shadow-xl border-b border-red-100'
           : 'bg-transparent'
       )}
     >
@@ -54,7 +54,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-2 rounded-2xl border border-white/12 bg-white/10 px-2 py-1 backdrop-blur-md">
+          <nav className="hidden md:flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-2 py-1 backdrop-blur-md">
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -63,7 +63,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
                   'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
                   isScrolled
                     ? 'text-zinc-600 hover:bg-red-50 hover:text-red-700'
-                    : 'text-white/90 drop-shadow hover:bg-white/12 hover:text-white'
+                    : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
                 )}
               >
                 {link.label}
