@@ -1,4 +1,4 @@
-import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users } from 'lucide-react';
+import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users, Rocket } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -52,6 +52,9 @@ export default function MultiagentePage() {
             <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-600">
               Base técnica del nuevo sistema de agentes de AK Producciones. Esta primera etapa crea memoria, perfiles y motor para que los agentes puedan especializarse con el tiempo.
             </p>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-red-100 bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-red-700 shadow-sm">
+              <Rocket className="h-4 w-4" /> Listo para despliegue Firebase
+            </div>
           </div>
           <div className="rounded-2xl bg-red-600 p-4 text-white shadow-lg shadow-red-700/20">
             <Bot className="h-10 w-10" />
