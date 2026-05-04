@@ -21,6 +21,18 @@ function detectAgent(input: AkMultiAgentInput): AkAgentType {
   return 'secretaria';
 }
 
+function getFiestaNombre(fiesta: any): string | undefined {
+  return fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.nombreFiesta || fiesta?.nombreEvento || fiesta?.nombre;
+}
+
+function getFiestaTipo(fiesta: any): string | undefined {
+  return fiesta?.configuracion?.tipoEvento || fiesta?.configuracion?.tipoFiesta || fiesta?.tipoEvento || fiesta?.tipo;
+}
+
+function getFiestaInvitados(fiesta: any): number | undefined {
+  return fiesta?.configuracion?.invitadosEstimados || fiesta?.configuracion?.numeroInvitados || fiesta?.invitadosEstimados;
+}
+
 function agentName(agentType: AkAgentType, fiestaName?: string): string {
   const names: Record<AkAgentType, string> = {
     secretaria: 'Secretaria AK',
@@ -67,6 +79,7 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
   });
 
   const kpi = kpiResult && kpiResult.success ? kpiResult.data : null;
+  const fiestaNombre = getFiestaNombre(fiesta);
 
   return {
     fiesta,
@@ -74,7 +87,7 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
     memory,
     text: `
 FECHA ACTUAL: ${new Date().toLocaleString('es-UY', { timeZone: 'America/Montevideo' })}
-AGENTE ACTIVO: ${agentName(agentType, fiesta?.configuracion?.nombreFiesta)}
+AGENTE ACTIVO: ${agentName(agentType, fiestaNombre)}
 
 MEMORIA DEL AGENTE:
 ${memory.summary || 'Sin memoria todavía.'}
@@ -85,10 +98,10 @@ ${memory.learnings.slice(0, 12).map(item => `- ${item.title}: ${item.content}`).
 FIESTA ACTUAL:
 ${fiesta ? JSON.stringify({
   id: fiesta.id,
-  nombre: fiesta.configuracion?.nombreFiesta,
-  tipo: fiesta.configuracion?.tipoFiesta,
+  nombre: fiestaNombre,
+  tipo: getFiestaTipo(fiesta),
   fecha: fiesta.configuracion?.fechaEvento,
-  invitados: fiesta.configuracion?.numeroInvitados,
+  invitados: getFiestaInvitados(fiesta),
   estado: fiesta.estado,
   modulos: fiesta.modulosContratados,
   tareas: fiesta.tareas?.slice?.(0, 20),
@@ -104,10 +117,10 @@ PRESUPUESTOS RECIENTES:
 ${presupuestos.slice(-8).map(p => `- ${p.clienteNombre} | ${p.eventoTipo} | ${p.estado} | $${p.totalConDescuento ?? p.costoTotalEstimado ?? 0}`).join('\n') || 'Sin presupuestos.'}
 
 LEADS RECIENTES:
-${leads.slice(-8).map(l => `- ${l.name} | ${l.stageId || 'sin etapa'} | ${l.followUpDate || 'sin fecha'}`).join('\n') || 'Sin leads.'}
+${leads.slice(-8).map(l => `- ${l.name} | ${(l as any).stageId || (l as any).currentStageId || 'sin etapa'} | ${l.followUpDate || 'sin fecha'}`).join('\n') || 'Sin leads.'}
 
 FIESTAS REVISADAS:
-${fiestas.slice(0, 12).map(f => `- ${f.configuracion?.nombreFiesta || f.id} | ${f.configuracion?.tipoFiesta || 'sin tipo'} | ${f.configuracion?.fechaEvento || 'sin fecha'} | ${f.estado || 'sin estado'}`).join('\n') || 'No aplica.'}
+${fiestas.slice(0, 12).map(f => `- ${getFiestaNombre(f) || f.id} | ${getFiestaTipo(f) || 'sin tipo'} | ${f.configuracion?.fechaEvento || 'sin fecha'} | ${f.estado || 'sin estado'}`).join('\n') || 'No aplica.'}
 `,
   };
 }
@@ -115,7 +128,7 @@ ${fiestas.slice(0, 12).map(f => `- ${f.configuracion?.nombreFiesta || f.id} | ${
 export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAgentOutput> {
   const agentType = detectAgent(input);
   const context = await buildContext(input, agentType);
-  const name = agentName(agentType, context.fiesta?.configuracion?.nombreFiesta);
+  const name = agentName(agentType, getFiestaNombre(context.fiesta));
 
   const { text } = await ai.generate({
     model: geminiModel,
