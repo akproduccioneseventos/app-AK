@@ -63,7 +63,9 @@ export default function MultiagenteEquipoPage() {
       const result = await runMultiAgentTeamReview();
       if (result.success) {
         setBriefing(result.briefing);
-        setStatus(`Revisión guardada en la memoria de ${result.saved} agente(s).`);
+        setStatus(result.failed > 0
+          ? `Se guardó en ${result.saved} agente(s). ${result.failed} no se pudieron guardar.`
+          : `Revisión guardada en la memoria de ${result.saved} agente(s).`);
       }
     } finally {
       setSaving(false);
