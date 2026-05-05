@@ -4,6 +4,7 @@ import { getCrmLeads } from '@/app/actions/crm';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { createNotification, getNotifications } from '@/app/actions/notifications';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
+import type { Notificacion } from '@/types/fiesta';
 
 export interface CommercialFollowupItem {
   id: string;
@@ -45,7 +46,7 @@ function messageForBudget(name: string, eventType?: string) {
   return `Hola ${name}, ¿cómo estás? Te escribo por el presupuesto${tipo} que vimos con AK Producciones. Quería saber si pudiste revisarlo y si querés que coordinemos una entrevista para ajustar detalles y asegurar la fecha.`;
 }
 
-function isRecentDuplicate(notifications: any[], item: CommercialFollowupItem) {
+function isRecentDuplicate(notifications: Notificacion[], item: CommercialFollowupItem) {
   const cutoff = Date.now() - RECENT_NOTIFICATION_WINDOW_MS;
   const title = `Seguimiento comercial: ${item.name}`;
   return notifications.some(notification => {
@@ -135,7 +136,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
 
 export async function createCommercialFollowupAlerts() {
   const result = await getCommercialFollowups();
-  const existing = await getNotifications().catch(() => []);
+  const existing: Notificacion[] = await getNotifications().catch((): Notificacion[] => []);
   let created = 0;
   let skipped = 0;
 
