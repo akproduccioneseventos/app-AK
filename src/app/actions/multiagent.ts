@@ -68,15 +68,25 @@ export async function getMultiAgentTeamBriefing() {
   return { success: true, data: briefing };
 }
 
+async function persistAgentLearning(input: Parameters<typeof saveAgentLearning>[0]) {
+  try {
+    await saveAgentLearning(input);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function runMultiAgentTeamReview() {
   const briefing = await buildMultiAgentTeamBriefing();
   const agentsToPersist: AkAgentType[] = ['secretaria', 'fiestas_general', 'contable', 'marketing', 'comercial'];
   let saved = 0;
+  let failed = 0;
 
   for (const agentType of agentsToPersist) {
     const items = briefing.byAgent[agentType] || [];
     if (items.length === 0) continue;
-    await saveAgentLearning({
+    const persisted = await persistAgentLearning({
       agentType,
       module: agentType,
       title: 'Revisión automática del equipo AK',
@@ -84,15 +94,16 @@ export async function runMultiAgentTeamReview() {
       tags: ['revision-equipo', 'diagnostico', 'multiagente'],
       source: 'system',
       confidence: 'high',
-    }).catch(() => null);
-    saved++;
+    });
+    if (persisted) saved++;
+    else failed++;
   }
 
   const fiestaItems = briefing.items.filter(item => item.agentType === 'fiesta' && item.fiestaId);
   const fiestaIds = Array.from(new Set(fiestaItems.map(item => item.fiestaId).filter(Boolean))) as string[];
   for (const fiestaId of fiestaIds.slice(0, 20)) {
     const items = fiestaItems.filter(item => item.fiestaId === fiestaId);
-    await saveAgentLearning({
+    const persisted = await persistAgentLearning({
       agentType: 'fiesta',
       fiestaId,
       title: 'Revisión automática de esta fiesta',
@@ -100,8 +111,9 @@ export async function runMultiAgentTeamReview() {
       tags: ['revision-fiesta', 'diagnostico', 'multiagente'],
       source: 'system',
       confidence: 'high',
-    }).catch(() => null);
-    saved++;
+    });
+    if (persisted) saved++;
+    else failed++;
   }
 
   await createNotification({
@@ -113,7 +125,7 @@ export async function runMultiAgentTeamReview() {
     rolDestino: 'admin',
   }).catch(() => null);
 
-  return { success: true, briefing, saved };
+  return { success: true, briefing, saved, failed };
 }
 
 export async function crearTareaDesdeMultiagente(input: {
