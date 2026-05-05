@@ -28,6 +28,13 @@ export interface SalonGerente {
   email?: string;
 }
 
+export interface SalonExperiencia3D {
+  videoUrl?: string;       // Video simple del salón o link subido a Drive/YouTube/etc.
+  recorridoUrl?: string;   // Link de recorrido 360/3D externo si existe.
+  modelo3dUrl?: string;    // Archivo GLB/GLTF o visor futuro, opcional.
+  notas?: string;          // Instrucciones simples para el equipo.
+}
+
 export interface Salon {
   id: string;
   nombre: string;
@@ -37,6 +44,7 @@ export interface Salon {
   descripcion?: string;
   fotos?: string[];
   salonLayout?: DecoracionData;
+  experiencia3D?: SalonExperiencia3D;
   esClubUruguay?: boolean;
   gerente?: SalonGerente;
   pagos?: SalonPago[];
