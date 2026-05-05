@@ -17,10 +17,10 @@ const SYNCS = [
   {
     title: 'Diseno de salon 2D/3D',
     source: 'Salon + layout guardado',
-    publicSide: '/empresa/salones/[id]/diseno',
+    publicSide: '/empresa/salones/experiencia-visual',
     adminSide: '/empresa/salones',
     status: 'Conectado',
-    detail: 'La ruta correcta de diseno reutiliza la pantalla existente de croquis para no duplicar motores ni perder lo ya hecho.',
+    detail: 'La ruta correcta de diseno reutiliza la pantalla existente de croquis para no duplicar motores ni perder lo ya hecho. Desde el gestor se entra al salon real y su diseno.',
   },
   {
     title: 'Backup manual y final',
