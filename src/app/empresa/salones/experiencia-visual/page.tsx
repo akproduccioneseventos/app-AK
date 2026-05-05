@@ -111,14 +111,14 @@ export default function SalonVisualExperiencePage() {
               Volver a salones
             </Link>
           </Button>
-          <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Cierre CTO</Badge>
+          <Badge className="bg-slate-900 text-white hover:bg-slate-900">Cierre CTO</Badge>
         </div>
 
         <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <Card>
+          <Card className="border-slate-200 bg-white">
             <CardContent className="space-y-4 p-6 sm:p-8">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 shadow-sm">
-                <Sparkles className="h-4 w-4 text-red-700" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+                <Sparkles className="h-4 w-4" />
                 Video, recorrido y modelo 3D por salon
               </div>
               <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Experiencia visual de salones</h1>
@@ -127,7 +127,7 @@ export default function SalonVisualExperiencePage() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-slate-200 bg-white">
             <CardHeader><CardTitle>Estado simple</CardTitle></CardHeader>
             <CardContent className="grid gap-3 text-sm">
               <div className="flex items-center justify-between rounded-md bg-slate-100 p-3"><span>Salones cargados</span><strong>{salones.length}</strong></div>
@@ -138,7 +138,7 @@ export default function SalonVisualExperiencePage() {
         </section>
 
         {isLoading ? (
-          <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-red-700" /></div>
+          <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-slate-700" /></div>
         ) : salones.length === 0 ? (
           <Card><CardContent className="p-10 text-center text-muted-foreground">Todavia no hay salones cargados.</CardContent></Card>
         ) : (
@@ -148,7 +148,7 @@ export default function SalonVisualExperiencePage() {
               const club = salon.esClubUruguay || isClubUruguay(salon.nombre);
               const saving = savingId === salon.id;
               return (
-                <Card key={salon.id} className={club ? 'border-amber-200 bg-amber-50/30' : undefined}>
+                <Card key={salon.id} className={club ? 'border-amber-200 bg-amber-50/30' : 'border-slate-200 bg-white'}>
                   <CardHeader className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <CardTitle className="flex items-center gap-2 text-lg">
@@ -187,7 +187,7 @@ export default function SalonVisualExperiencePage() {
                       <Label>Notas para vender mejor este salon</Label>
                       <Textarea value={draft.notas} onChange={(event) => updateDraft(salon.id, 'notas', event.target.value)} rows={3} placeholder="Ej: ideal para bodas, entrada por calle principal, mejor ubicacion de pista..." />
                     </div>
-                    <Button onClick={() => handleSave(salon)} disabled={saving} className="w-full bg-red-700 hover:bg-red-800">
+                    <Button onClick={() => handleSave(salon)} disabled={saving} className="w-full bg-slate-900 hover:bg-slate-800">
                       {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                       {saving ? 'Guardando...' : 'Guardar experiencia visual'}
                     </Button>
