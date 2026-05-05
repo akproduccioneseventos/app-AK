@@ -2,7 +2,7 @@
 
 import { getCrmLeads } from '@/app/actions/crm';
 import { getPresupuestos } from '@/app/actions/presupuestos';
-import { createNotification } from '@/app/actions/notifications';
+import { createNotification, getNotifications } from '@/app/actions/notifications';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 
 export interface CommercialFollowupItem {
@@ -15,6 +15,8 @@ export interface CommercialFollowupItem {
   href: string;
   suggestedMessage: string;
 }
+
+const RECENT_NOTIFICATION_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 function toDate(value?: string | Date | null): Date | null {
   if (!value) return null;
@@ -41,6 +43,20 @@ function messageForLead(name: string, reason: string) {
 function messageForBudget(name: string, eventType?: string) {
   const tipo = eventType ? ` para ${eventType}` : '';
   return `Hola ${name}, ¿cómo estás? Te escribo por el presupuesto${tipo} que vimos con AK Producciones. Quería saber si pudiste revisarlo y si querés que coordinemos una entrevista para ajustar detalles y asegurar la fecha.`;
+}
+
+function isRecentDuplicate(notifications: any[], item: CommercialFollowupItem) {
+  const cutoff = Date.now() - RECENT_NOTIFICATION_WINDOW_MS;
+  const title = `Seguimiento comercial: ${item.name}`;
+  return notifications.some(notification => {
+    const date = new Date(notification.fecha).getTime();
+    if (!date || date < cutoff) return false;
+    return notification.entidadRelacionadaId === item.id
+      || (
+        notification.href === item.href
+        && (notification.titulo === title || notification.mensaje === item.reason)
+      );
+  });
 }
 
 export async function getCommercialFollowups(): Promise<{ success: boolean; data: CommercialFollowupItem[] }> {
@@ -119,9 +135,16 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
 
 export async function createCommercialFollowupAlerts() {
   const result = await getCommercialFollowups();
+  const existing = await getNotifications().catch(() => []);
   let created = 0;
+  let skipped = 0;
 
   for (const item of result.data.slice(0, 12)) {
+    if (isRecentDuplicate(existing, item)) {
+      skipped++;
+      continue;
+    }
+
     const response = await createNotification({
       titulo: `Seguimiento comercial: ${item.name}`,
       mensaje: item.reason,
@@ -131,18 +154,21 @@ export async function createCommercialFollowupAlerts() {
       entidadRelacionadaId: item.id,
       rolDestino: 'admin',
     }).catch(() => null);
-    if (response?.success) created++;
+    if (response?.success) {
+      created++;
+      if (response.notification) existing.unshift(response.notification);
+    }
   }
 
   await saveAgentLearning({
     agentType: 'comercial',
     module: 'comercial',
     title: 'Revisión comercial automática',
-    content: `Se detectaron ${result.data.length} seguimiento(s) comerciales y se crearon ${created} aviso(s).`,
+    content: `Se detectaron ${result.data.length} seguimiento(s) comerciales, se crearon ${created} aviso(s) y se evitaron ${skipped} repetido(s).`,
     tags: ['crm', 'seguimiento', 'comercial'],
     source: 'system',
     confidence: 'high',
   }).catch(() => null);
 
-  return { success: true, created, total: result.data.length };
+  return { success: true, created, skipped, total: result.data.length };
 }

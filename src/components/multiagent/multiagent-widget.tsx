@@ -129,9 +129,9 @@ export function MultiAgentWidget() {
   }
 
   const quickPrompts = activeAgent === 'fiesta'
-    ? ['¿Qué le falta a esta fiesta?', 'Dame riesgos de esta fiesta', 'Qué tengo que hacer hoy']
+    ? ['¿Qué le falta a esta fiesta?', 'Qué está a revisar', 'Qué tengo que hacer hoy']
     : activeAgent === 'contable'
-      ? ['Revisá rentabilidad', 'Pagos pendientes', 'Qué fiesta está floja']
+      ? ['Revisá rentabilidad', 'Pagos pendientes', 'Qué saldo reviso primero']
       : activeAgent === 'marketing'
         ? ['Haceme un post', 'Ideas para historias', 'WhatsApp para vender']
         : ['Qué tengo pendiente hoy', 'A quién tengo que llamar', 'Resumen rápido'];

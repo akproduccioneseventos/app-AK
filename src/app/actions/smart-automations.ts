@@ -3,7 +3,7 @@
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getCrmLeads } from '@/app/actions/crm';
-import { createNotification } from '@/app/actions/notifications';
+import { createNotification, getNotifications } from '@/app/actions/notifications';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 
 export interface SmartAutomationResult {
@@ -13,6 +13,8 @@ export interface SmartAutomationResult {
   created: boolean;
   href?: string;
 }
+
+const RECENT_NOTIFICATION_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 function toDate(value?: string | Date | null): Date | null {
   if (!value) return null;
@@ -32,15 +34,72 @@ function daysSince(date: Date) {
   return Math.max(0, -daysUntil(date));
 }
 
+function hasText(value?: unknown) {
+  return value !== undefined && value !== null && String(value).trim().length > 0;
+}
+
+function hasArray(value: unknown) {
+  return Array.isArray(value) && value.length > 0;
+}
+
+function hasObjectData(value: unknown) {
+  return Boolean(value && typeof value === 'object' && JSON.stringify(value).length > 30);
+}
+
+function hasMenuMesaData(menuMesa: any) {
+  return Boolean(menuMesa && (
+    hasText(menuMesa.entrada)
+    || hasText(menuMesa.platoPrincipal)
+    || hasText(menuMesa.adolescentes)
+    || hasText(menuMesa.postres)
+    || hasText(menuMesa.bebidas)
+    || hasText(menuMesa.titulo)
+  ));
+}
+
+function hasPortalMenuData(menuSeleccionPortal: any) {
+  return Boolean(menuSeleccionPortal && (
+    hasText(menuSeleccionPortal.entrada)
+    || hasText(menuSeleccionPortal.principal)
+    || hasText(menuSeleccionPortal.postre)
+    || hasText(menuSeleccionPortal.bebidas)
+    || hasText(menuSeleccionPortal.restriccionesAlimentarias)
+    || menuSeleccionPortal.confirmado === true
+  ));
+}
+
+function hasFoodCategoryData(value: any) {
+  return Array.isArray(value?.categorias)
+    && value.categorias.some((category: any) => category?.activada === true || hasArray(category?.items));
+}
+
 function hasMenuData(fiesta: any) {
-  const catering = fiesta?.catering || fiesta?.menuMesa || fiesta?.menu;
-  const notes = JSON.stringify(catering || '').toLowerCase();
-  return Boolean(notes && notes.length > 20 && !notes.includes('pendiente'));
+  return hasText(fiesta?.menuAsignadoId)
+    || hasMenuMesaData(fiesta?.menuMesa)
+    || hasPortalMenuData(fiesta?.menuSeleccionPortal)
+    || hasFoodCategoryData(fiesta?.bebidas)
+    || hasFoodCategoryData(fiesta?.reposteria)
+    || hasObjectData(fiesta?.cartaTragos)
+    || hasObjectData(fiesta?.catering)
+    || hasObjectData(fiesta?.menu);
 }
 
 function hasGuestData(fiesta: any) {
   const invitados = fiesta?.invitados || fiesta?.guestList || [];
   return Array.isArray(invitados) && invitados.length > 0;
+}
+
+function isRecentDuplicate(notifications: any[], input: { id: string; title: string; message: string; href: string }) {
+  const cutoff = Date.now() - RECENT_NOTIFICATION_WINDOW_MS;
+  return notifications.some(notification => {
+    const date = new Date(notification.fecha).getTime();
+    if (!date || date < cutoff) return false;
+    return notification.entidadRelacionadaId === input.id
+      || (
+        notification.href === input.href
+        && (notification.titulo === input.title || notification.mensaje === input.message)
+      );
+  });
 }
 
 async function notifyOnce(input: {
@@ -51,6 +110,9 @@ async function notifyOnce(input: {
   icono?: string;
   tipo?: 'info' | 'aviso' | 'urgente' | 'exito';
 }) {
+  const existing = await getNotifications().catch(() => []);
+  if (isRecentDuplicate(existing, input)) return false;
+
   const result = await createNotification({
     titulo: input.title,
     mensaje: input.message,
