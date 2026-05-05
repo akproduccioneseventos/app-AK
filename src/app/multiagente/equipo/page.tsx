@@ -29,7 +29,7 @@ function groupByAgent(items: AkAgentDiagnosticItem[]) {
   return items.reduce((acc, item) => {
     if (item.agentType === 'central') return acc;
     if (!acc[item.agentType]) acc[item.agentType] = [];
-    acc[item.agentType].push(item);
+    acc[item.agentType]?.push(item);
     return acc;
   }, {} as Partial<Record<AkAgentType, AkAgentDiagnosticItem[]>>);
 }
@@ -40,7 +40,10 @@ export default function MultiagenteEquipoPage() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState('');
 
-  const grouped = useMemo(() => groupByAgent(briefing?.items || []), [briefing]);
+  const groupedEntries = useMemo(() => {
+    const entries = Object.entries(groupByAgent(briefing?.items || []));
+    return entries.filter((entry): entry is [AkAgentType, AkAgentDiagnosticItem[]] => Array.isArray(entry[1]) && entry[1].length > 0);
+  }, [briefing]);
 
   async function load() {
     setLoading(true);
@@ -121,11 +124,11 @@ export default function MultiagenteEquipoPage() {
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {Object.entries(grouped).map(([agentType, items]) => (
+        {groupedEntries.map(([agentType, items]) => (
           <Card key={agentType} className="rounded-3xl border-red-100 bg-white shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center justify-between gap-3 text-lg font-black text-slate-950">
-                <span>{agentLabels[agentType as AkAgentType] || agentType}</span>
+                <span>{agentLabels[agentType]}</span>
                 <Badge variant="outline" className="border-red-200 text-red-700">{items.length}</Badge>
               </CardTitle>
             </CardHeader>
