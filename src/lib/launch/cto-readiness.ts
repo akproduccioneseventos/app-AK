@@ -13,9 +13,29 @@ export interface LaunchReadinessArea {
 
 export const CTO_LAUNCH_READINESS_AREAS: LaunchReadinessArea[] = [
   {
+    id: 'sync_matrix',
+    title: 'Sincronizaciones generales',
+    status: 'listo',
+    simpleGoal: 'Que cada motor tenga ruta visible, ruta de edicion y una explicacion simple de donde salen los datos.',
+    whatWasMissing: 'No habia una pantalla unica para detectar si algo quedaba suelto entre PRs.',
+    visibleRoute: '/settings/sincronizaciones',
+    owner: 'CTO AK',
+    checks: ['Mapa de conexiones', 'Vista publica', 'Vista interna', 'Estado simple por modulo'],
+  },
+  {
+    id: 'assistants',
+    title: 'Asistentes contextuales',
+    status: 'listo',
+    simpleGoal: 'Que el asistente que ves cambie segun la pantalla y se pueda diferenciar por foto y color.',
+    whatWasMissing: 'El asistente estaba conectado a la app, pero siempre se veia como un asistente generico.',
+    visibleRoute: '/settings/asistentes-contextuales',
+    owner: 'Operacion AK',
+    checks: ['Secretaria por CRM/clientes', 'Contador por pagos/facturas', 'Marketing por ventas', 'Salones y decoracion', 'CTO por ajustes'],
+  },
+  {
     id: 'backup',
     title: 'Backup y restauracion',
-    status: 'critico',
+    status: 'revisar',
     simpleGoal: 'Que la app pueda guardar y recuperar informacion sin depender del deploy.',
     whatWasMissing: 'Habia rutas nuevas de control final apuntando a /configuracion, pero el modulo real vive en /settings.',
     visibleRoute: '/settings/backup-final',
