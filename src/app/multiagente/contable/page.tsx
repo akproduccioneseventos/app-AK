@@ -12,7 +12,7 @@ import type { AkMultiAgentMessage } from '@/types/multiagent';
 type ChatMessage = AkMultiAgentMessage & { id: string; agentName?: string };
 
 const prompts = [
-  'Revisá la rentabilidad general y marcame riesgos.',
+  'Revisá la rentabilidad general y marcame lo más importante.',
   'Decime qué pagos o saldos tengo que controlar.',
   'Qué fiestas pueden estar dejando poca ganancia.',
   'Dame un resumen contable simple de la empresa.',

@@ -2,6 +2,7 @@
 
 import { runMultiAgent } from '@/ai/flows/multiagent-flow';
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
+import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from '@/app/actions/notifications';
 import type { Tarea } from '@/types/fiesta';
@@ -60,6 +61,71 @@ export async function guardarAprendizajeAgente(input: {
 
 export async function getMemoriasMultiagente() {
   return listAgentMemoryProfiles();
+}
+
+export async function getMultiAgentTeamBriefing() {
+  const briefing = await buildMultiAgentTeamBriefing();
+  return { success: true, data: briefing };
+}
+
+async function persistAgentLearning(input: Parameters<typeof saveAgentLearning>[0]) {
+  try {
+    await saveAgentLearning(input);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function runMultiAgentTeamReview() {
+  const briefing = await buildMultiAgentTeamBriefing();
+  const agentsToPersist: AkAgentType[] = ['secretaria', 'fiestas_general', 'contable', 'marketing', 'comercial'];
+  let saved = 0;
+  let failed = 0;
+
+  for (const agentType of agentsToPersist) {
+    const items = briefing.byAgent[agentType] || [];
+    if (items.length === 0) continue;
+    const persisted = await persistAgentLearning({
+      agentType,
+      module: agentType,
+      title: 'Revisión automática del equipo AK',
+      content: summarizeDiagnosticsForLearning(agentType, items),
+      tags: ['revision-equipo', 'diagnostico', 'multiagente'],
+      source: 'system',
+      confidence: 'high',
+    });
+    if (persisted) saved++;
+    else failed++;
+  }
+
+  const fiestaItems = briefing.items.filter(item => item.agentType === 'fiesta' && item.fiestaId);
+  const fiestaIds = Array.from(new Set(fiestaItems.map(item => item.fiestaId).filter(Boolean))) as string[];
+  for (const fiestaId of fiestaIds.slice(0, 20)) {
+    const items = fiestaItems.filter(item => item.fiestaId === fiestaId);
+    const persisted = await persistAgentLearning({
+      agentType: 'fiesta',
+      fiestaId,
+      title: 'Revisión automática de esta fiesta',
+      content: summarizeDiagnosticsForLearning('fiesta', items),
+      tags: ['revision-fiesta', 'diagnostico', 'multiagente'],
+      source: 'system',
+      confidence: 'high',
+    });
+    if (persisted) saved++;
+    else failed++;
+  }
+
+  await createNotification({
+    titulo: 'Revisión del equipo multiagente lista',
+    mensaje: briefing.summary,
+    tipo: briefing.items.some(item => item.priority === 'alta') ? 'urgente' : 'aviso',
+    href: '/multiagente/equipo',
+    icono: 'Brain',
+    rolDestino: 'admin',
+  }).catch(() => null);
+
+  return { success: true, briefing, saved, failed };
 }
 
 export async function crearTareaDesdeMultiagente(input: {

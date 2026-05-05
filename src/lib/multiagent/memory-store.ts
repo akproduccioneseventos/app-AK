@@ -35,7 +35,7 @@ function getDefaultProfile(agentType: AkAgentType, scope: AkAgentMemoryScope, fi
 
   const descriptions: Record<AkAgentType, string> = {
     secretaria: 'Asistente personal del organizador: recordatorios, tareas, llamadas, pagos y seguimiento diario.',
-    fiesta: 'Asistente especializado en una fiesta concreta: pendientes, riesgos, decisiones y aprendizajes del evento.',
+    fiesta: 'Asistente especializado en una fiesta concreta: pendientes, puntos a revisar, decisiones y aprendizajes del evento.',
     fiestas_general: 'Agente que cruza todas las fiestas y aprende de los eventos terminados.',
     contable: 'Agente especializado en pagos, costos, saldos, rentabilidad y alertas financieras.',
     marketing: 'Agente especializado en redes, campañas, publicaciones, WhatsApp y estilo comercial de AK.',

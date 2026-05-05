@@ -12,7 +12,7 @@ import type { AkMultiAgentMessage } from '@/types/multiagent';
 type ChatMessage = AkMultiAgentMessage & { id: string; agentName?: string };
 
 const prompts = [
-  'Revisá todas las fiestas y decime cuáles están en riesgo.',
+  'Revisá todas las fiestas y decime cuáles necesitan atención primero.',
   'Decime qué fiestas tienen cosas pendientes importantes.',
   'Ordename las próximas fiestas por prioridad de trabajo.',
   'Qué aprendizajes generales podemos sacar de las fiestas actuales.',

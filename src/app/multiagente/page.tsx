@@ -1,10 +1,17 @@
 import Link from 'next/link';
-import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users, Rocket, Wrench, Radar } from 'lucide-react';
+import { Bot, Brain, CalendarCheck, DollarSign, Megaphone, PartyPopper, Users, Rocket, Wrench, Radar, ClipboardCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 const agents = [
+  {
+    name: 'Equipo multiagente',
+    href: '/multiagente/equipo',
+    icon: ClipboardCheck,
+    description: 'Revisión real por agente: secretaria, fiestas, contable, marketing y comercial con aprendizaje guardable.',
+    status: 'Clave',
+  },
   {
     name: 'Control Tower AK',
     href: '/control-tower',
@@ -44,8 +51,8 @@ const agents = [
     name: 'Agente Marketing',
     href: '/empresa/redes-sociales/ia-marketing',
     icon: Megaphone,
-    description: 'Agente para redes, campañas, WhatsApp y publicaciones con estilo AK.',
-    status: 'Existente',
+    description: 'Agente de marketing existente, ahora alineado al multiagente para contenido, WhatsApp, redes y post-fiesta.',
+    status: 'Base alineada',
   },
   {
     name: 'Memoria del Multiagente',
@@ -72,7 +79,7 @@ export default function MultiagentePage() {
             <Badge className="mb-3 bg-red-600 text-white">Sistema operativo</Badge>
             <h1 className="text-3xl font-black tracking-tight text-slate-950">Multiagente AK</h1>
             <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-600">
-              Centro de agentes de AK Producciones. Cada agente trabaja por área, usa memoria y puede ejecutar acciones reales controladas.
+              Centro de agentes de AK Producciones. Cada agente trabaja por área, usa memoria, mira datos reales y puede ejecutar acciones controladas.
             </p>
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-red-100 bg-white px-4 py-2 text-xs font-black uppercase tracking-wider text-red-700 shadow-sm">
               <Rocket className="h-4 w-4" /> Multiagente funcional
