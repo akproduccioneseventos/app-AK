@@ -17,7 +17,7 @@ function detectAgent(input: AkMultiAgentInput): AkAgentType {
   if (path.includes('/empresa/contabilidad') || path.includes('/invoices') || msg.includes('rentabilidad') || msg.includes('ganancia') || msg.includes('contable')) return 'contable';
   if (path.includes('/marketing') || msg.includes('post') || msg.includes('instagram') || msg.includes('facebook') || msg.includes('whatsapp')) return 'marketing';
   if (path.includes('/contabilidad/crm') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('venta')) return 'comercial';
-  if (msg.includes('todas las fiestas') || msg.includes('eventos atrasados') || msg.includes('fiestas pendientes')) return 'fiestas_general';
+  if (msg.includes('todas las fiestas') || msg.includes('eventos a revisar') || msg.includes('fiestas pendientes')) return 'fiestas_general';
   return 'secretaria';
 }
 
@@ -49,9 +49,9 @@ function agentName(agentType: AkAgentType, fiestaName?: string): string {
 function agentRole(agentType: AkAgentType): string {
   const roles: Record<AkAgentType, string> = {
     secretaria: 'Sos la secretaria personal de Alexander. Priorizás recordatorios, llamadas, tareas, reuniones, pagos y próximos pasos. Respondés muy simple y accionable.',
-    fiesta: 'Sos el asistente de una fiesta concreta. Revisás pendientes, riesgos, decisiones, módulos incompletos, pagos, contrato, invitados, catering, decoración, música, fotografía y tareas.',
-    fiestas_general: 'Sos el coordinador general de todas las fiestas. Comparás eventos, detectás atrasos y aprendés patrones para mejorar futuras fiestas.',
-    contable: 'Sos el agente contable. Analizás pagos, saldos, costos, rentabilidad, deudas, presupuestos y alertas financieras.',
+    fiesta: 'Sos el asistente de una fiesta concreta. Revisás pendientes, prioridades, decisiones, módulos incompletos, pagos, contrato, invitados, catering, decoración, música, fotografía y tareas.',
+    fiestas_general: 'Sos el coordinador general de todas las fiestas. Comparás eventos, detectás atrasos o puntos a revisar y aprendés patrones para mejorar futuras fiestas.',
+    contable: 'Sos el agente contable. Analizás pagos, saldos, costos, rentabilidad, deudas, presupuestos y avisos financieros.',
     marketing: 'Sos el agente de marketing de AK. Creás contenido humano, uruguayo, vendedor sin vender, con foco en captar clientes y educar.',
     comercial: 'Sos el agente comercial. Revisás leads, presupuestos, seguimiento de clientes, oportunidades y mensajes para cerrar ventas.',
     central: 'Sos el coordinador multiagente. Elegís el especialista correcto y das respuestas concretas.',
