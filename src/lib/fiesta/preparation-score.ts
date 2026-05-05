@@ -15,17 +15,79 @@ export interface PreparationScore {
   importantPending: PreparationCheck[];
 }
 
-function hasText(value?: string | null) {
-  return Boolean(value && String(value).trim().length > 0);
+function hasText(value?: unknown) {
+  return value !== undefined && value !== null && String(value).trim().length > 0;
 }
 
 function hasArray(value: unknown) {
   return Array.isArray(value) && value.length > 0;
 }
 
+function hasUsefulValue(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  if (typeof value === 'string') return hasText(value);
+  if (typeof value === 'number') return Number.isFinite(value) && value !== 0;
+  if (typeof value === 'boolean') return value;
+  if (Array.isArray(value)) return value.some(hasUsefulValue);
+  if (typeof value === 'object') return Object.values(value as Record<string, unknown>).some(hasUsefulValue);
+  return false;
+}
+
 function hasObjectData(value: unknown) {
-  if (!value || typeof value !== 'object') return false;
-  return JSON.stringify(value).length > 30;
+  return Boolean(value && typeof value === 'object' && hasUsefulValue(value));
+}
+
+function hasAssignedStaff(fiesta: any) {
+  return Array.isArray(fiesta?.personalAsignado)
+    && fiesta.personalAsignado.some((item: any) => hasText(item?.empleadoId));
+}
+
+function hasMenuMesaData(menuMesa: any) {
+  return Boolean(menuMesa && (
+    hasText(menuMesa.entrada)
+    || hasText(menuMesa.platoPrincipal)
+    || hasText(menuMesa.adolescentes)
+    || hasText(menuMesa.postres)
+    || hasText(menuMesa.bebidas)
+    || hasText(menuMesa.titulo)
+  ));
+}
+
+function hasPortalMenuData(menuSeleccionPortal: any) {
+  return Boolean(menuSeleccionPortal && (
+    hasText(menuSeleccionPortal.entrada)
+    || hasText(menuSeleccionPortal.principal)
+    || hasText(menuSeleccionPortal.postre)
+    || hasText(menuSeleccionPortal.bebidas)
+    || hasText(menuSeleccionPortal.restriccionesAlimentarias)
+    || menuSeleccionPortal.confirmado === true
+  ));
+}
+
+function hasFoodCategoryData(value: any) {
+  return Array.isArray(value?.categorias)
+    && value.categorias.some((category: any) => category?.activada === true || hasArray(category?.items));
+}
+
+function hasMenuData(fiesta: any) {
+  return hasText(fiesta?.menuAsignadoId)
+    || hasMenuMesaData(fiesta?.menuMesa)
+    || hasPortalMenuData(fiesta?.menuSeleccionPortal)
+    || hasFoodCategoryData(fiesta?.bebidas)
+    || hasFoodCategoryData(fiesta?.reposteria)
+    || hasObjectData(fiesta?.cartaTragos)
+    || hasObjectData(fiesta?.catering);
+}
+
+function hasDocumentPaymentData(fiesta: any) {
+  return hasText(fiesta?.presupuestoId)
+    || hasArray(fiesta?.invoiceIds)
+    || hasObjectData(fiesta?.contratoGenerado)
+    || fiesta?.contratoFirmaInfo?.isSigned === true
+    || hasObjectData(fiesta?.contratoDatos)
+    || hasArray(fiesta?.othersDocumentos)
+    || hasArray(fiesta?.planDePagos?.cuotas)
+    || hasArray(fiesta?.clientPaymentNotifications);
 }
 
 function eventHref(fiestaId: string | undefined, path: string) {
@@ -64,7 +126,7 @@ export function calculateFiestaPreparationScore(fiesta: any): PreparationScore {
     {
       id: 'catering',
       label: 'Catering / menú',
-      completed: hasObjectData(fiesta?.catering) || hasObjectData(fiesta?.menuMesa),
+      completed: hasMenuData(fiesta),
       detail: 'Menú, catering o datos gastronómicos definidos.',
       href: eventHref(fiestaId, '/fiestas/nueva/catering'),
     },
@@ -78,21 +140,21 @@ export function calculateFiestaPreparationScore(fiesta: any): PreparationScore {
     {
       id: 'musica',
       label: 'Música',
-      completed: hasObjectData(fiesta?.musica),
+      completed: hasObjectData(fiesta?.musica) || hasObjectData(fiesta?.listaMusicaPortal),
       detail: 'Entrada, vals, canciones o indicaciones musicales.',
       href: eventHref(fiestaId, '/fiestas/nueva/musica'),
     },
     {
       id: 'personal',
       label: 'Personal asignado',
-      completed: hasArray(fiesta?.personalAsignado),
+      completed: hasAssignedStaff(fiesta),
       detail: 'Equipo asignado para el evento.',
       href: eventHref(fiestaId, '/fiestas/nueva/personal'),
     },
     {
       id: 'documentos',
       label: 'Documentos / pagos',
-      completed: hasObjectData(fiesta?.gestionDocumental) || hasObjectData(fiesta?.documentos) || hasObjectData(fiesta?.pagos),
+      completed: hasDocumentPaymentData(fiesta),
       detail: 'Contrato, pagos, documentos o gestión financiera.',
       href: eventHref(fiestaId, '/fiestas/nueva/gestion-documental'),
     },
@@ -108,7 +170,7 @@ export function calculateFiestaPreparationScore(fiesta: any): PreparationScore {
       label: 'Portal cliente',
       completed: Boolean(fiesta?.portalSettings?.enabled || fiesta?.clientPortalSettings?.enabled),
       detail: 'Portal del cliente activado o configurado.',
-      href: eventHref(fiestaId, '/fiestas/nueva/reuniones'),
+      href: eventHref(fiestaId, '/fiestas/nueva/portal-cliente'),
     },
   ];
 
