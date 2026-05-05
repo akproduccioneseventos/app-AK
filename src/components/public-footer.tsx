@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
+import { Facebook, Instagram, Music, MessageSquare, Building2 } from 'lucide-react';
 import { CompanyLogo } from '@/components/company-logo';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
@@ -88,6 +88,18 @@ export function PublicFooter({ className, variant = 'light' }: PublicFooterProps
         >
           AK Producciones
         </span>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-black uppercase tracking-[0.16em]">
+        <a
+          href="/club-uruguay"
+          className={cn(
+            'inline-flex items-center gap-2 rounded-full border px-4 py-2 transition hover:scale-105',
+            isDark ? 'border-slate-700 text-slate-200 hover:bg-slate-800' : 'border-purple-200 text-purple-700 hover:bg-purple-50'
+          )}
+        >
+          <Building2 className="h-3.5 w-3.5" /> Club Uruguay
+        </a>
       </div>
 
       {/* Call to action */}
