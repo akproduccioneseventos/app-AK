@@ -48,14 +48,6 @@ function daysSince(date: Date) {
   return Math.max(0, -daysUntil(date));
 }
 
-function money(value: number) {
-  return new Intl.NumberFormat('es-UY', {
-    style: 'currency',
-    currency: 'UYU',
-    maximumFractionDigits: 0,
-  }).format(value || 0);
-}
-
 function eventName(fiesta: any) {
   return fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.clienteNombre || fiesta?.nombreEvento || 'Fiesta sin nombre';
 }
@@ -321,7 +313,7 @@ export function formatAgentDiagnosticsForPrompt(briefing: AkAgentTeamBriefing, a
   ].join('\n');
 }
 
-export function summarizeDiagnosticsForLearning(agentType: AkAgentType, items: AkAgentDiagnosticItem[]) {
+export function summarizeDiagnosticsForLearning(_agentType: AkAgentType, items: AkAgentDiagnosticItem[]) {
   const selected = items.slice(0, 10);
   if (selected.length === 0) return 'Sin pendientes importantes detectados para este agente.';
   return selected.map(item => `- ${item.title}: ${item.detail}`).join('\n');
