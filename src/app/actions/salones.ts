@@ -2,7 +2,7 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { Salon, SalonPago } from '@/types/salon';
+import type { Salon, SalonPago, SalonExperiencia3D } from '@/types/salon';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 
 const SALONES_FILE = 'salones.json';
@@ -10,6 +10,11 @@ const SALONES_STORAGE_PREFIX = 'salones';
 
 export async function getSalones(): Promise<Salon[]> {
   return readData<Salon[]>(SALONES_FILE, []);
+}
+
+export async function getSalonById(id: string): Promise<Salon | null> {
+  const salones = await getSalones();
+  return salones.find((s) => s.id === id) || null;
 }
 
 export async function saveSalon(
@@ -36,6 +41,30 @@ export async function saveSalon(
 
   await writeData(SALONES_FILE, salones);
   return { success: true, salon: savedSalon };
+}
+
+export async function saveSalonExperiencia3D(
+  salonId: string,
+  experiencia3D: SalonExperiencia3D
+): Promise<{ success: boolean; salon?: Salon; error?: string }> {
+  const salones = await getSalones();
+  const idx = salones.findIndex((s) => s.id === salonId);
+  if (idx === -1) {
+    return { success: false, error: 'Salón no encontrado.' };
+  }
+
+  salones[idx] = {
+    ...salones[idx],
+    experiencia3D: {
+      videoUrl: experiencia3D.videoUrl?.trim() || '',
+      recorridoUrl: experiencia3D.recorridoUrl?.trim() || '',
+      modelo3dUrl: experiencia3D.modelo3dUrl?.trim() || '',
+      notas: experiencia3D.notas?.trim() || '',
+    },
+  };
+
+  await writeData(SALONES_FILE, salones);
+  return { success: true, salon: salones[idx] };
 }
 
 export async function deleteSalon(
@@ -110,15 +139,10 @@ export async function deleteSalonFoto(
     };
     await writeData(SALONES_FILE, salones);
 
-    // Best-effort delete from Storage (storage path derived from URL)
     try {
       const url = new URL(fotoUrl);
-      // Only attempt deletion for known Firebase Storage public URLs
-      // Pattern: https://storage.googleapis.com/BUCKET/path/to/file
       if (url.hostname === 'storage.googleapis.com') {
-        // pathname: /BUCKET/path/to/file → split → ['', 'BUCKET', 'path', 'to', 'file'] → slice(2) → ['path', 'to', 'file']
         const pathParts = url.pathname.split('/').slice(2);
-        // Require at least 2 path segments (sub-folder + filename) to avoid accidentally deleting bucket roots
         if (pathParts.length >= 2 && pathParts.every((p) => p.length > 0)) {
           const storagePath = pathParts.join('/');
           await deleteFromStorage(storagePath);
