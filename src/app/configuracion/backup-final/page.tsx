@@ -14,7 +14,7 @@ export default function BackupFinalPage() {
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="ghost">
-            <Link href="/configuracion">
+            <Link href="/settings">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver
             </Link>
@@ -43,7 +43,7 @@ export default function BackupFinalPage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link href="/configuracion/backup">
+                  <Link href="/settings/backup">
                     Abrir backup manual
                   </Link>
                 </Button>
