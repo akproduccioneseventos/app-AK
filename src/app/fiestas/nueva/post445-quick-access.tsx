@@ -5,6 +5,7 @@ import { BadgeDollarSign, DatabaseBackup, GitPullRequest, KeyRound, Monitor, Roc
 import { useSearchParams } from 'next/navigation';
 
 const links = [
+  { label: 'Experiencia', href: '/eventos', icon: Sparkles, eventRoute: true },
   { label: 'CTO', href: '/settings/lanzamiento-cto', icon: ShieldCheck },
   { label: 'Integracion', href: '/fiestas/nueva/integracion-post-445', icon: GitPullRequest },
   { label: 'Cierre 100', href: '/fiestas/nueva/cierre-100', icon: Rocket },
@@ -17,6 +18,14 @@ const links = [
 function withFiestaId(href: string, fiestaId: string | null): string {
   if (!fiestaId) return href;
   return `${href}?fiestaId=${encodeURIComponent(fiestaId)}`;
+}
+
+function resolveHref(item: (typeof links)[number], fiestaId: string | null): string {
+  if ('eventRoute' in item && item.eventRoute) {
+    return fiestaId ? `/fiestas/${encodeURIComponent(fiestaId)}/centro-experiencia` : '/eventos';
+  }
+
+  return withFiestaId(item.href, fiestaId);
 }
 
 export function Post445QuickAccess() {
@@ -32,8 +41,8 @@ export function Post445QuickAccess() {
         </div>
         {links.map(item => (
           <Link
-            key={item.href}
-            href={withFiestaId(item.href, fiestaId)}
+            key={item.href + item.label}
+            href={resolveHref(item, fiestaId)}
             className="flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-700 transition hover:border-primary hover:text-primary"
           >
             <item.icon className="h-4 w-4" />
