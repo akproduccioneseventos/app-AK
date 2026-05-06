@@ -161,7 +161,7 @@ function countRejectedGuests(fiesta: FiestaEnPlanificacion): number {
 function countFilledStaff(fiesta: FiestaEnPlanificacion): number {
   return (fiesta.personalAsignado ?? []).filter((assignment) => {
     if (!isRecord(assignment)) return true;
-    return hasText(assignment.empleadoId) || hasText(assignment.nombre) || hasText(assignment.rol);
+    return hasText(assignment.empleadoId) || hasText(assignment.rolId);
   }).length;
 }
 
@@ -176,6 +176,24 @@ function countUpcomingMeetings(fiesta: FiestaEnPlanificacion): number {
     const date = new Date(String(meeting.fecha));
     return !Number.isNaN(date.getTime()) && date.getTime() >= now - 1000 * 60 * 60 * 24;
   }).length;
+}
+
+function countLoadItems(fiesta: FiestaEnPlanificacion): number {
+  const categorias = fiesta.listaDeCargaOperativa?.categorias ?? [];
+  const items = categorias.reduce((total, categoria) => total + (categoria.items?.length ?? 0), 0);
+  return items > 0 ? items : collectionLength(fiesta.listaDeCargaOperativa);
+}
+
+function countLiveContent(fiesta: FiestaEnPlanificacion): number {
+  const live = fiesta.eventoEnVivo;
+  return collectionLength(live?.fotos)
+    + collectionLength(live?.mensajes)
+    + collectionLength(live?.solicitudesCanciones)
+    + collectionLength(live?.votaciones);
+}
+
+function countScreenPlaylistItems(fiesta: FiestaEnPlanificacion): number {
+  return collectionLength(fiesta.screenPlaylist?.items) + collectionLength(fiesta.socialGallerySettings?.screenMode?.playlist);
 }
 
 function countVisualAssets(fiesta: FiestaEnPlanificacion): number {
@@ -211,6 +229,12 @@ function hasInvitationAccess(fiesta: FiestaEnPlanificacion): boolean {
     || hasText(fiesta.clientPortalSettings?.accessKey)
     || fiesta.clientPortalSettings?.paginaPublica?.visible === true
   );
+}
+
+function hasPostEventFeedback(fiesta: FiestaEnPlanificacion): boolean {
+  if (typeof fiesta.npsScore === 'number') return true;
+  const others = fiesta.others as unknown;
+  return isRecord(others) && (hasText(others.testimonioCliente) || hasText(others.feedbackCliente));
 }
 
 function buildQuickActions(fiesta: FiestaEnPlanificacion): ExperienceQuickAction[] {
@@ -277,13 +301,15 @@ export function buildExperienceCenter(fiesta: FiestaEnPlanificacion): Experience
   const visualAssets = countVisualAssets(fiesta);
   const clientModuleCount = visibleClientModules(fiesta);
   const programItems = collectionLength(fiesta.programa);
-  const loadItems = collectionLength(fiesta.listaDeCargaOperativa) + nestedCount(fiesta.listaDeCargaOperativa, ['items', 'tareas', 'equipos']);
-  const socialEnabled = fiesta.socialGallerySettings?.enabled === true || fiesta.eventoEnVivo?.enabled === true;
+  const loadItems = countLoadItems(fiesta);
+  const liveContent = countLiveContent(fiesta);
+  const playlistItems = countScreenPlaylistItems(fiesta);
+  const socialEnabled = fiesta.socialGallerySettings?.enabled === true || liveContent > 0;
   const screenReady = Boolean(
-    fiesta.socialGallerySettings?.screenMode
-    || collectionLength(fiesta.screenPlaylist) > 0
+    fiesta.socialGallerySettings?.screenMode?.enabled
+    || playlistItems > 0
     || collectionLength(fiesta.socialGallerySettings?.screenMediaLibrary) > 0
-    || fiesta.eventoEnVivo?.enabled === true
+    || liveContent > 0
   );
 
   const areas: ExperienceArea[] = [
@@ -352,7 +378,7 @@ export function buildExperienceCenter(fiesta: FiestaEnPlanificacion): Experience
         },
         {
           label: 'FAQ, notas o checklist de seguimiento',
-          ready: collectionLength(fiesta.faqPortal) > 0 || collectionLength(fiesta.clientChecklist) > 0 || collectionLength(fiesta.clientNotes) > 0,
+          ready: collectionLength(fiesta.faqPortal) > 0 || collectionLength(fiesta.clientChecklist) > 0 || hasText(fiesta.clientNotes),
           detail: 'Ayuda a que el cliente no dependa de mensajes sueltos.',
         },
       ],
@@ -422,7 +448,7 @@ export function buildExperienceCenter(fiesta: FiestaEnPlanificacion): Experience
         },
         {
           label: 'Contenido para pantalla o muro',
-          ready: collectionLength(fiesta.mediaLibrary) > 0 || collectionLength(fiesta.socialGallerySettings?.screenMediaLibrary) > 0 || collectionLength(fiesta.screenPlaylist) > 0,
+          ready: collectionLength(fiesta.mediaLibrary) > 0 || collectionLength(fiesta.socialGallerySettings?.screenMediaLibrary) > 0 || playlistItems > 0,
           detail: `${visualAssets} recursos visuales detectados en la fiesta.`,
         },
       ],
@@ -458,7 +484,7 @@ export function buildExperienceCenter(fiesta: FiestaEnPlanificacion): Experience
         },
         {
           label: 'Acuerdos o notas del cliente',
-          ready: collectionLength(fiesta.clientNotes) > 0 || (fiesta.reuniones ?? []).some((meeting) => isRecord(meeting) && (hasText(meeting.notas) || collectionLength(meeting.acuerdos) > 0)),
+          ready: hasText(fiesta.clientNotes) || (fiesta.reuniones ?? []).some((meeting) => isRecord(meeting) && (hasText(meeting.notas) || hasText(meeting.acuerdos))),
           detail: 'Sirve para que secretaria, vendedor y produccion trabajen con la misma informacion.',
         },
       ],
@@ -555,7 +581,7 @@ export function buildExperienceCenter(fiesta: FiestaEnPlanificacion): Experience
         },
         {
           label: 'Feedback o NPS registrado',
-          ready: typeof fiesta.npsScore === 'number' || hasText(fiesta.testimonioCliente),
+          ready: hasPostEventFeedback(fiesta),
           detail: typeof fiesta.npsScore === 'number' ? `NPS registrado: ${fiesta.npsScore}.` : 'Falta feedback o testimonio.',
         },
         {
