@@ -48,7 +48,7 @@ export function PortadaSlide({
             transition={{ delay: 0.1, duration: 0.55 }}
             className="mb-7 flex flex-wrap items-center gap-3"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black uppercase tracking-wider text-white/85 backdrop-blur-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black uppercase tracking-wider text-white/80 backdrop-blur-sm">
               <MonitorPlay className="h-4 w-4 text-red-300" />
               Modo pantalla gigante
             </span>
@@ -91,7 +91,7 @@ export function PortadaSlide({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.55 }}
-            className="mb-3 max-w-3xl text-2xl font-black leading-tight text-white/88 md:text-3xl"
+            className="mb-3 max-w-3xl text-2xl font-black leading-tight text-white/90 md:text-3xl"
           >
             {contenido.tagline}
           </motion.p>
@@ -100,7 +100,7 @@ export function PortadaSlide({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.55 }}
-            className="mb-8 max-w-3xl text-lg font-medium leading-8 text-white/62 md:text-xl"
+            className="mb-8 max-w-3xl text-lg font-medium leading-8 text-white/60 md:text-xl"
           >
             {subtitulo || contenido.subtitulo}
           </motion.p>
@@ -118,7 +118,7 @@ export function PortadaSlide({
               Empezar propuesta
               <ChevronRight className="h-6 w-6" />
             </button>
-            <span className="inline-flex items-center gap-2 text-sm font-bold text-white/58">
+            <span className="inline-flex items-center gap-2 text-sm font-bold text-white/60">
               <ShieldCheck className="h-4 w-4 text-emerald-300" />
               Pensado para vender en vivo, sin aspecto de catalogo interno
             </span>
@@ -132,7 +132,7 @@ export function PortadaSlide({
           className="relative hidden lg:block"
         >
           <div className="absolute -inset-4 rounded-[2rem] border border-white/10" />
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/8 shadow-2xl">
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 shadow-2xl">
             {safeBackgroundUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -148,7 +148,7 @@ export function PortadaSlide({
                 className="min-h-[460px] shadow-2xl"
               />
             )}
-            <div className="absolute inset-x-0 bottom-0 bg-black/62 p-6 text-left backdrop-blur-sm">
+            <div className="absolute inset-x-0 bottom-0 bg-black/60 p-6 text-left backdrop-blur-sm">
               <p className="text-xs font-black uppercase tracking-widest text-red-200">Experiencia AK</p>
               <p className="mt-1 text-2xl font-black text-white">Evento completo, claro y listo para decidir</p>
             </div>
