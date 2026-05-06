@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { BadgeDollarSign, DatabaseBackup, GitPullRequest, KeyRound, Monitor, Rocket, Sparkles } from 'lucide-react';
+import { BadgeDollarSign, DatabaseBackup, GitPullRequest, KeyRound, Monitor, Rocket, ShieldCheck, Sparkles } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 const links = [
+  { label: 'CTO', href: '/settings/lanzamiento-cto', icon: ShieldCheck },
   { label: 'Integracion', href: '/fiestas/nueva/integracion-post-445', icon: GitPullRequest },
   { label: 'Cierre 100', href: '/fiestas/nueva/cierre-100', icon: Rocket },
-  { label: 'Backup', href: '/configuracion/backup-final', icon: DatabaseBackup },
+  { label: 'Backup', href: '/settings/backup-final', icon: DatabaseBackup },
   { label: 'Social Fiesta', href: '/fiestas/nueva/social-fiesta-pro', icon: Monitor },
   { label: 'Cliente', href: '/fiestas/nueva/portal-cliente/experiencia-mundial', icon: KeyRound },
   { label: 'Comercial 360', href: '/contabilidad/comercial-360', icon: BadgeDollarSign },

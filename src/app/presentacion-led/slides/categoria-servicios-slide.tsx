@@ -31,17 +31,17 @@ interface CategoriaServiciosSlideProps {
   totalCategorias: number;
   catalogoFotos?: CatalogoFoto[];
   tipoFiesta?: string;
-  /** Map of service ID → uploaded LED photo URL */
+  /** Map of service ID -> uploaded LED photo URL */
   ledFotoMap?: Record<string, string>;
 }
 
 function getServiceIcon(categoria?: string) {
   if (!categoria) return <Package className="h-8 w-8" />;
   const c = categoria.toLowerCase();
-  if (c.includes('música') || c.includes('discoteca') || c.includes('dj') || c.includes('sonido')) return <Music className="h-8 w-8" />;
-  if (c.includes('fotografía') || c.includes('filmación') || c.includes('video') || c.includes('foto')) return <Camera className="h-8 w-8" />;
-  if (c.includes('catering') || c.includes('bebida') || c.includes('repostería') || c.includes('menú') || c.includes('gastro')) return <Utensils className="h-8 w-8" />;
-  if (c.includes('decoración') || c.includes('decoracion')) return <Palette className="h-8 w-8" />;
+  if (c.includes('musica') || c.includes('música') || c.includes('discoteca') || c.includes('dj') || c.includes('sonido')) return <Music className="h-8 w-8" />;
+  if (c.includes('fotografia') || c.includes('fotografía') || c.includes('filmacion') || c.includes('filmación') || c.includes('video') || c.includes('foto')) return <Camera className="h-8 w-8" />;
+  if (c.includes('catering') || c.includes('bebida') || c.includes('reposteria') || c.includes('repostería') || c.includes('menu') || c.includes('menú') || c.includes('gastro')) return <Utensils className="h-8 w-8" />;
+  if (c.includes('decoracion') || c.includes('decoración')) return <Palette className="h-8 w-8" />;
   if (c.includes('personal') || c.includes('coordinac')) return <Users className="h-8 w-8" />;
   if (c.includes('entretenimiento') || c.includes('show') || c.includes('animac')) return <Zap className="h-8 w-8" />;
   if (c.includes('regalo')) return <Gift className="h-8 w-8" />;
@@ -81,7 +81,6 @@ function findPhotoForService(
   const nombreLower = (servicio.nombre ?? '').toLowerCase();
   const catLower = (servicio.categoria ?? '').toLowerCase();
 
-  // Try to match by service name first (most specific)
   const byNombre = safeFotos.filter(f => {
     const tituloLower = (f.titulo ?? '').toLowerCase();
     return tituloLower && nombreLower && (
@@ -89,7 +88,6 @@ function findPhotoForService(
     );
   });
 
-  // Then by catalog categoria matching service name
   const byCategoria = safeFotos.filter(f =>
     f.categoriaServicio.toLowerCase() === catLower,
   );
@@ -97,7 +95,6 @@ function findPhotoForService(
   const candidates = byNombre.length > 0 ? byNombre : byCategoria;
   if (candidates.length === 0) return null;
 
-  // Prefer photos matching the event type
   if (tipoFiesta) {
     const byTipo = candidates.filter(
       f => f.tipoFiesta && f.tipoFiesta.toLowerCase() === tipoFiesta.toLowerCase(),
@@ -146,10 +143,10 @@ function ServicioCard({
   return (
     <div
       className={cn(
-        'rounded-2xl border-2 transition-all duration-200 overflow-hidden',
+        'overflow-hidden rounded-2xl border-2 transition-all duration-200',
         isSelected
-          ? 'border-emerald-400 bg-emerald-500/10'
-          : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20',
+          ? 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_32px_rgba(16,185,129,0.16)]'
+          : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10',
       )}
     >
       {showPhoto && (
@@ -157,63 +154,63 @@ function ServicioCard({
         <img
           src={fotoUrl!}
           alt={servicio.nombre}
-          className="w-full h-36 object-cover"
+          className="h-40 w-full object-cover md:h-48"
           onError={() => setImgFailed(true)}
         />
       )}
       {!showPhoto && (
-        <div className="w-full h-28 bg-gradient-to-br from-slate-800/60 to-slate-700/40 flex items-center justify-center border-b border-white/10">
-          <div className="flex flex-col items-center gap-1 opacity-40">
-            <Camera className="h-6 w-6 text-white/60" />
-            <span className="text-white/50 text-xs">Sin foto</span>
+        <div className="flex h-32 w-full items-center justify-center border-b border-white/10 bg-slate-900/80 md:h-40">
+          <div className="flex flex-col items-center gap-1 opacity-50">
+            <Camera className="h-7 w-7 text-white/70" />
+            <span className="text-xs font-bold text-white/55">Visual pendiente</span>
           </div>
         </div>
       )}
-      <div className="p-4">
+      <div className="p-4 md:p-5">
         <div className="flex items-start gap-3">
-          {/* Select button */}
           <button
             onClick={onToggle}
             className={cn(
-              'shrink-0 h-7 w-7 rounded-full border-2 flex items-center justify-center mt-0.5 transition-all',
+              'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-all',
               isSelected ? 'border-emerald-400 bg-emerald-500' : 'border-white/30 hover:border-white/60',
             )}
+            aria-label={isSelected ? 'Quitar de la propuesta' : 'Agregar a la propuesta'}
           >
             {isSelected && <Check className="h-4 w-4 text-white" />}
           </button>
 
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="text-white font-bold text-base leading-tight">{servicio.nombre}</h3>
+              <h3 className="text-base font-black leading-tight text-white md:text-lg">{servicio.nombre}</h3>
               {price && (
-                <span className="text-emerald-400 font-bold text-sm shrink-0">{price}</span>
+                <span className="shrink-0 text-sm font-black text-emerald-300">{price}</span>
               )}
             </div>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-white/38">Agregar a propuesta</p>
           </div>
         </div>
 
-        {/* Action buttons row */}
-        <div className="flex flex-wrap gap-2 mt-3">
-          {(servicio.notas) && (
+        <div className="mt-4 flex flex-wrap gap-3">
+          {servicio.notas && (
             <button
               onClick={() => setShowDesc(v => !v)}
-              className="flex items-center gap-1 text-xs text-indigo-300 hover:text-indigo-200 font-semibold transition-colors"
+              className="flex items-center gap-1 text-xs font-bold text-red-200 transition-colors hover:text-red-100"
             >
               <Info className="h-3.5 w-3.5" />
-              {showDesc ? 'Ocultar' : 'Descripción'}
+              {showDesc ? 'Ocultar' : 'Detalle'}
             </button>
           )}
           <button
             onClick={handleGallery}
-            className="flex items-center gap-1 text-xs text-emerald-300 hover:text-emerald-200 font-semibold transition-colors"
+            className="flex items-center gap-1 text-xs font-bold text-emerald-200 transition-colors hover:text-emerald-100"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            Ver galería
+            Ver experiencia visual
           </button>
           {specs.length > 0 && (
             <button
               onClick={() => setShowSpecs(v => !v)}
-              className="flex items-center gap-1 text-xs text-white/50 hover:text-white/70 transition-colors ml-auto"
+              className="ml-auto flex items-center gap-1 text-xs text-white/50 transition-colors hover:text-white/70"
             >
               <ListChecks className="h-3.5 w-3.5" />
               {showSpecs ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -221,7 +218,6 @@ function ServicioCard({
           )}
         </div>
 
-        {/* Description panel */}
         <AnimatePresence>
           {showDesc && servicio.notas && (
             <motion.div
@@ -231,7 +227,7 @@ function ServicioCard({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <p className="text-white/60 text-sm mt-2 leading-relaxed pt-2 border-t border-white/10">
+              <p className="mt-3 border-t border-white/10 pt-3 text-sm leading-relaxed text-white/66">
                 {servicio.notas}
               </p>
             </motion.div>
@@ -248,11 +244,11 @@ function ServicioCard({
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 border-t border-white/10 pt-3">
+            <div className="border-t border-white/10 px-4 pb-4 pt-3">
               <ul className="space-y-1.5">
                 {specs.map((spec, i) => (
-                  <li key={i} className="flex items-start gap-2 text-white/70 text-sm">
-                    <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
                     <span>{spec}</span>
                   </li>
                 ))}
@@ -283,7 +279,6 @@ export function CategoriaServiciosSlide({
 
   const categorySlug = slugify(categoria);
 
-  // Memoize filtered catalog photos to avoid recalculating on every render
   const fotosCategoria = useMemo(() => {
     const byCategoria = catalogoFotos.filter(
       f => isSafeHttpsUrl(f.url)
@@ -311,37 +306,35 @@ export function CategoriaServiciosSlide({
 
   return (
     <SlideLayout overflowScroll>
-      <div className="w-full max-w-5xl mx-auto">
-        {/* Header */}
+      <div className="mx-auto w-full max-w-7xl 2xl:max-w-[1680px]">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center gap-4 mb-6"
+          className="mb-6 flex items-center gap-5"
         >
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-emerald-500/30 border border-white/20 flex items-center justify-center text-white/80 shrink-0">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white/85 md:h-20 md:w-20">
             {getServiceIcon(categoria)}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Badge className="text-xs px-3 py-1 bg-white/10 text-white/60 border border-white/20 uppercase tracking-widest font-medium">
-                Servicio {categoriaIndex + 1} de {totalCategorias}
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Badge className="border border-white/20 bg-white/10 px-3 py-1 text-xs font-black uppercase tracking-widest text-white/64">
+                Experiencia {categoriaIndex + 1} de {totalCategorias}
               </Badge>
               {anySelected && (
-                <Badge className="text-xs px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                  <Check className="h-3 w-3 mr-1" />
-                  {servicios.filter(s => selectedServices.includes(s.id)).length} seleccionado{servicios.filter(s => selectedServices.includes(s.id)).length !== 1 ? 's' : ''}
+                <Badge className="border border-emerald-400/30 bg-emerald-500/20 px-3 py-1 text-xs text-emerald-300">
+                  <Check className="mr-1 h-3 w-3" />
+                  {servicios.filter(s => selectedServices.includes(s.id)).length} en propuesta
                 </Badge>
               )}
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-lg">
+            <h1 className="text-4xl font-black tracking-normal text-white drop-shadow-lg md:text-6xl xl:text-7xl">
               {categoria}
             </h1>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Category-level images (shown when multiple photos exist) */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.05fr] 2xl:gap-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -350,7 +343,7 @@ export function CategoriaServiciosSlide({
           >
             {visibleFotos.length > 0 ? (
               <div className={cn(
-                'grid gap-2 rounded-2xl overflow-hidden',
+                'grid gap-2 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2',
                 visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
               )}>
                 {visibleFotos.map((foto) => (
@@ -360,8 +353,8 @@ export function CategoriaServiciosSlide({
                      src={foto.url}
                      alt={foto.titulo ?? categoria}
                      className={cn(
-                       'w-full object-cover rounded-xl',
-                       visibleFotos.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
+                       'w-full rounded-xl object-cover',
+                       visibleFotos.length === 1 ? 'aspect-[16/10]' : 'aspect-square',
                      )}
                      onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
                    />
@@ -370,12 +363,11 @@ export function CategoriaServiciosSlide({
             ) : (
               <ImagePlaceholder
                 id={`categoria-${categorySlug}-hero`}
-                label={`Foto de ${categoria}`}
+                label={`Visual de ${categoria}`}
                 aspectRatio="4/3"
               />
             )}
 
-            {/* Select all / deselect all shortcut */}
             {servicios.length > 1 && (
               <button
                 onClick={() => {
@@ -386,27 +378,26 @@ export function CategoriaServiciosSlide({
                   }
                 }}
                 className={cn(
-                  'w-full py-2.5 rounded-xl text-sm font-semibold border transition-all',
+                  'w-full rounded-xl border py-3 text-sm font-black transition-all',
                   allSelected
-                    ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/30'
-                    : 'bg-white/5 border-white/20 text-white/60 hover:bg-white/10',
+                    ? 'border-emerald-400/40 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30'
+                    : 'border-white/20 bg-white/5 text-white/64 hover:bg-white/10',
                 )}
               >
-                {allSelected ? '✓ Todo seleccionado' : 'Seleccionar todos'}
+                {allSelected ? 'Todo incluido en la propuesta' : 'Incluir todas las opciones'}
               </button>
             )}
           </motion.div>
 
-          {/* Right: Service cards — each with its own photo */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.25 }}
-            className="flex flex-col gap-3 overflow-y-auto max-h-[50vh] lg:max-h-none pr-1"
+            className="grid max-h-[56vh] gap-3 overflow-y-auto pr-1 md:grid-cols-2 lg:block lg:space-y-3 lg:max-h-none"
           >
             {servicios.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-                Elegí el tipo de fiesta para ver las opciones personalizadas.
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
+                Elegi el tipo de fiesta para ver opciones personalizadas.
               </div>
             ) : (
               servicios.map((servicio, i) => (

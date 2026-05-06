@@ -4,10 +4,14 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
   AlertTriangle,
+  BellRing,
   CalendarCheck,
   CheckCircle2,
+  CreditCard,
   ExternalLink,
+  FileSignature,
   Mail,
+  PartyPopper,
   RefreshCw,
   Settings2,
   Users,
@@ -27,6 +31,39 @@ function formatDate(value?: string) {
     timeZone: 'America/Montevideo',
   }).format(new Date(value));
 }
+
+const automationFlows = [
+  {
+    title: 'Fiestas y personal',
+    description: 'Sincroniza la fiesta con el calendario general de AK y con el calendario personal del equipo asignado.',
+    icon: Users,
+  },
+  {
+    title: 'Reuniones con clientes',
+    description: 'Cuando se crea o cambia una reunion con fecha, queda lista para Google Calendar y puede avisar por Gmail al cliente.',
+    icon: CalendarCheck,
+  },
+  {
+    title: 'Pagos',
+    description: 'El motor extendido prepara mails para pago informado, aprobado o rechazado, con aviso al cliente y a AK.',
+    icon: CreditCard,
+  },
+  {
+    title: 'Contrato firmado',
+    description: 'Al confirmar contrato, el cliente puede recibir mail de evento confirmado con link para agregar la fecha a Calendar.',
+    icon: FileSignature,
+  },
+  {
+    title: 'Invitados',
+    description: 'Los invitados con email pueden recibir la fecha del evento y un link para agregarla a su calendario.',
+    icon: PartyPopper,
+  },
+  {
+    title: 'Recordatorios',
+    description: 'La estructura ya distingue reuniones, pagos, contratos, clientes, invitados y recordatorios para crecer sin mezclar todo.',
+    icon: BellRing,
+  },
+];
 
 export default function GoogleWorkspaceSettingsPage() {
   const [dashboard, setDashboard] = useState<GoogleWorkspaceDashboard | null>(null);
@@ -64,17 +101,17 @@ export default function GoogleWorkspaceSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-red-200 bg-gradient-to-br from-white via-red-50 to-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-semibold text-red-700">
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-sm font-semibold text-red-700">
               <Settings2 className="h-4 w-4" />
               Google Workspace
             </div>
             <div>
-              <h1 className="font-headline text-3xl font-bold tracking-tight text-slate-950">Calendario, Gmail y personal</h1>
+              <h1 className="font-headline text-3xl font-bold tracking-tight text-slate-950">Calendario, Gmail, clientes, invitados y personal</h1>
               <p className="max-w-3xl text-sm text-slate-600">
-                Conecta la cuenta de AK para que cada fiesta pueda aparecer en Google Calendar, avisar por Gmail y alimentar la pagina personal del equipo.
+                Conecta la cuenta de AK para que fechas, reuniones, mails y recordatorios trabajen desde un solo lugar: empresa, equipo, clientes e invitados.
               </p>
             </div>
           </div>
@@ -87,7 +124,7 @@ export default function GoogleWorkspaceSettingsPage() {
             </Button>
             <Button variant="outline" onClick={handleSyncAll} disabled={isPending || !dashboard?.companyAccount}>
               <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
-              Sincronizar todo
+              Sincronizar fiestas
             </Button>
           </div>
         </div>
@@ -172,15 +209,34 @@ export default function GoogleWorkspaceSettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            La sincronizacion manual no reenvia mails para evitar ruido.
+            La sincronizacion masiva no reenvia mails para evitar ruido.
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
+          <CardTitle>Flujos que quedan conectados</CardTitle>
+          <CardDescription>La cuenta de AK es la salida central para Calendar y Gmail.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {automationFlows.map((flow) => {
+            const Icon = flow.icon;
+            return (
+              <div key={flow.title} className="rounded-xl border bg-white p-4 text-sm shadow-sm">
+                <Icon className="mb-3 h-5 w-5 text-red-700" />
+                <p className="font-semibold text-slate-950">{flow.title}</p>
+                <p className="mt-1 leading-6 text-muted-foreground">{flow.description}</p>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Como se usa en la diaria</CardTitle>
-          <CardDescription>Una vez conectado, el trabajo normal de la app dispara Google automaticamente.</CardDescription>
+          <CardDescription>Una vez conectado, el trabajo normal de la app dispara Google automaticamente donde ya hay datos suficientes.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
           <div className="grid gap-3 md:grid-cols-3">
@@ -189,12 +245,12 @@ export default function GoogleWorkspaceSettingsPage() {
               <p className="mt-1 text-muted-foreground">La fiesta se actualiza en el calendario general de AK.</p>
             </div>
             <div className="rounded-xl border bg-white p-4">
-              <p className="font-semibold">2. Asignas personal</p>
-              <p className="mt-1 text-muted-foreground">Cada integrante recibe su detalle por mail y, si conecto Google, tambien en su calendario.</p>
+              <p className="font-semibold">2. Asignas personal o reunion</p>
+              <p className="mt-1 text-muted-foreground">El personal recibe su detalle y las reuniones quedan listas para mail y Calendar.</p>
             </div>
             <div className="rounded-xl border bg-slate-50 p-4">
-              <p className="font-semibold">3. El equipo mira su pagina</p>
-              <p className="mt-1 text-muted-foreground">Ven fiestas, rol, lugar, pago y boton para agregar a Google si todavia no conectaron.</p>
+              <p className="font-semibold">3. Cliente e invitados</p>
+              <p className="mt-1 text-muted-foreground">Pagos, contrato e invitados pueden usar Gmail y links de Google Calendar sin duplicar canales.</p>
             </div>
           </div>
 
@@ -205,6 +261,12 @@ export default function GoogleWorkspaceSettingsPage() {
               <Link href="/empleados">
                 <Users className="mr-2 h-4 w-4" />
                 Ver empleados
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/fiestas/nueva/reuniones">
+                <CalendarCheck className="mr-2 h-4 w-4" />
+                Ver reuniones
               </Link>
             </Button>
             <Button asChild variant="ghost">

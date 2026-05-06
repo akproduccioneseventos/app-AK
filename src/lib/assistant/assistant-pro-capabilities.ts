@@ -12,6 +12,15 @@ export type AssistantDocumentIntent =
   | 'marketing_asset'
   | 'unknown';
 
+export type AssistantAgentRole =
+  | 'responsable_evento'
+  | 'secretaria'
+  | 'contable'
+  | 'marketing'
+  | 'operaciones'
+  | 'cliente'
+  | 'invitados';
+
 export type AssistantModuleCapability = {
   module: string;
   route: string;
@@ -20,6 +29,16 @@ export type AssistantModuleCapability = {
   safeCommands: string[];
   protectedCommands: string[];
   preferredAction?: string;
+};
+
+export type AssistantAgentProfile = {
+  role: AssistantAgentRole;
+  label: string;
+  color: string;
+  focus: string;
+  routes: string[];
+  mustCheck: string[];
+  mustNotInvent: string[];
 };
 
 const MODULE_CAPABILITIES: AssistantModuleCapability[] = [
@@ -115,8 +134,78 @@ const MODULE_CAPABILITIES: AssistantModuleCapability[] = [
   },
 ];
 
+const AGENT_PROFILES: AssistantAgentProfile[] = [
+  {
+    role: 'responsable_evento',
+    label: 'Responsable general de fiesta',
+    color: '#dc2626',
+    focus: 'estado completo de la fiesta, pendientes, riesgos, fecha, salon, personal, invitados y decisiones del cliente',
+    routes: ['/fiestas/nueva', '/fiestas/nueva/resumen-planificacion', '/settings/lanzamiento-cto'],
+    mustCheck: ['fecha', 'salon', 'presupuesto', 'contrato', 'personal asignado', 'tareas vencidas', 'invitados', 'portal cliente'],
+    mustNotInvent: ['confirmacion de proveedor', 'pago recibido', 'contrato firmado', 'cliente avisado'],
+  },
+  {
+    role: 'secretaria',
+    label: 'Secretaria',
+    color: '#2563eb',
+    focus: 'agenda, reuniones, llamadas, citas, recordatorios, mensajes y seguimiento simple para el operador',
+    routes: ['/contabilidad/crm', '/settings/google-workspace', '/agenda'],
+    mustCheck: ['proximo contacto', 'reunion agendada', 'telefono', 'email', 'Google Calendar', 'recordatorio pendiente'],
+    mustNotInvent: ['horarios acordados', 'emails enviados', 'respuesta del cliente'],
+  },
+  {
+    role: 'contable',
+    label: 'Agente contable',
+    color: '#059669',
+    focus: 'presupuesto, pagos, senas, saldo, facturas, contrato, plan de pagos y aumento anual',
+    routes: ['/presupuestos', '/invoices', '/pagos-rapidos', '/fiestas/nueva/gestion-documental'],
+    mustCheck: ['total contratado', 'pagado', 'saldo', 'cuotas', 'pagos pendientes de confirmar', 'ajuste anual'],
+    mustNotInvent: ['pago aprobado', 'factura emitida', 'saldo cero', 'seña recibida'],
+  },
+  {
+    role: 'marketing',
+    label: 'Agente de marketing',
+    color: '#db2777',
+    focus: 'web publica, Club Uruguay, presentacion LED, redes, galeria, invitacion y material para vender mas',
+    routes: ['/marketing', '/club-uruguay', '/presentacion-led', '/galeria-led', '/empresa/redes-sociales'],
+    mustCheck: ['tipo de evento', 'publico objetivo', 'servicio a vender', 'CTA', 'foto o video disponible', 'tono de marca'],
+    mustNotInvent: ['promociones activas', 'precios cerrados', 'fotos inexistentes', 'publicaciones ya realizadas'],
+  },
+  {
+    role: 'operaciones',
+    label: 'Agente de operaciones',
+    color: '#f59e0b',
+    focus: 'montaje, carga operativa, decoracion, salon, proveedores, personal y checklist del dia del evento',
+    routes: ['/fiestas/nueva/decoracion', '/fiestas/nueva/lista-de-carga', '/empresa/salones/experiencia-visual'],
+    mustCheck: ['lista de carga', 'decoracion', 'proveedores', 'horarios de armado', 'salon', 'pista', 'mesas'],
+    mustNotInvent: ['stock disponible', 'proveedor confirmado', 'material cargado', 'salon armado'],
+  },
+  {
+    role: 'cliente',
+    label: 'Agente de experiencia cliente',
+    color: '#7c3aed',
+    focus: 'portal cliente, tareas del cliente, documentos, pagos, reuniones, invitados, musica y decisiones faciles desde celular',
+    routes: ['/portal', '/fiestas/nueva/portal-cliente', '/settings/google-workspace'],
+    mustCheck: ['portal activo', 'link de acceso', 'tareas visibles', 'documentos', 'pagos', 'reuniones', 'mensaje unico de contacto'],
+    mustNotInvent: ['cliente vio el portal', 'cliente acepto cambios', 'mail recibido'],
+  },
+  {
+    role: 'invitados',
+    label: 'Agente de invitados y social',
+    color: '#0f766e',
+    focus: 'invitacion, RSVP, portal invitado, muro social, canciones, fotos, mesa y experiencia de la fiesta',
+    routes: ['/invitacion', '/evento/social', '/fiestas/nueva/muro-social', '/fiestas/nueva/modulo-invitado'],
+    mustCheck: ['confirmados', 'pendientes', 'rechazados', 'link invitacion', 'QR social', 'canciones', 'fotos', 'mesa'],
+    mustNotInvent: ['asistencia confirmada', 'foto subida', 'mensaje recibido', 'mesa asignada'],
+  },
+];
+
 export function getAssistantModuleCapabilities(): AssistantModuleCapability[] {
   return MODULE_CAPABILITIES;
+}
+
+export function getAssistantAgentProfiles(): AssistantAgentProfile[] {
+  return AGENT_PROFILES;
 }
 
 export function detectAttachmentKind(dataUri?: string): AssistantAttachmentKind {
@@ -137,16 +226,22 @@ export function inferDocumentIntent(input: {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
-  if (/presupuesto|cotizacion|cotizacion|servicios|subtotal|descuento|total/.test(text)) return 'budget';
+  if (/presupuesto|cotizacion|servicios|subtotal|descuento|total/.test(text)) return 'budget';
   if (/comprobante|recibo|transferencia|pago|deposito|seña|senia/.test(text)) return 'payment_receipt';
   if (/contrato|clausula|firma|arrendamiento|servicio/.test(text)) return 'contract';
   if (/invitados|lista|rsvp|mesa|confirmados/.test(text)) return 'guest_list';
-  if (/decoracion|decoracion|moodboard|flores|globos|ambientacion|colores/.test(text)) return 'event_decoration';
+  if (/decoracion|moodboard|flores|globos|ambientacion|colores/.test(text)) return 'event_decoration';
   if (/post|historia|reel|instagram|facebook|whatsapp|marketing|publicacion/.test(text)) return 'marketing_asset';
 
   const kind = detectAttachmentKind(input.dataUri);
   if (kind === 'image') return 'event_decoration';
   return 'unknown';
+}
+
+function buildAgentProfileLines() {
+  return AGENT_PROFILES.map((agent) => {
+    return `- ${agent.label} (${agent.role}) color ${agent.color}. Foco: ${agent.focus}. Rutas: ${agent.routes.join(', ')}. Debe revisar: ${agent.mustCheck.join('; ')}. No puede inventar: ${agent.mustNotInvent.join('; ')}.`;
+  }).join('\n');
 }
 
 export function buildAssistantProCapabilitiesPrompt(): string {
@@ -159,28 +254,44 @@ export function buildAssistantProCapabilitiesPrompt(): string {
   }).join('\n');
 
   return `
-## ASISTENTE AK PRO — CONTROL REAL POR MÓDULOS
-El operador no es programador. Interpretá órdenes simples y convertí la intención en una acción real cuando exista una herramienta disponible.
+## ASISTENTE AK PRO — CONTROL REAL POR MODULOS
+El operador no es programador. Interpreta ordenes simples y converti la intencion en una accion real cuando exista una herramienta disponible.
 
-### Mapa de módulos y acciones permitidas
+### Mapa de modulos y acciones permitidas
 ${moduleLines}
 
-### Regla de ejecución real
-- Si existe una acción de backend para lo pedido, usala.
-- Si la orden toca varios módulos, ejecutá primero la acción más importante y explicá en una frase qué queda como siguiente paso.
-- Si la acción es protegida, pedí una confirmación corta antes de ejecutarla.
-- No digas que guardaste, creaste, cambiaste o registraste algo si el backend no lo confirmó.
+### Multiagente real, sin inventar
+Antes de contestar, elegi mentalmente cual agente corresponde. No digas cualquier cosa: responde desde ese rol, con datos verificables y con el modulo correcto.
+${buildAgentProfileLines()}
+
+Reglas duras del multiagente:
+- Si el pedido es de agenda, reunion, mail o calendario, responde como Secretaria y prioriza schedule_meeting o navigate a /settings/google-workspace.
+- Si el pedido es de pagos, seña, saldo, factura, contrato o aumento anual, responde como Agente contable.
+- Si el pedido es Club Uruguay, web, redes, presentacion LED, invitacion o galeria, responde como Agente de marketing.
+- Si el pedido es montaje, decoracion, salon, 2D/3D, mesas o proveedores, responde como Agente de operaciones.
+- Si el pedido es portal cliente, tareas del cliente, documentos o experiencia desde celular, responde como Agente de experiencia cliente.
+- Si el pedido es invitados, RSVP, muro social, canciones, fotos o QR de fiesta, responde como Agente de invitados y social.
+- Si el operador pregunta por una fiesta completa, responde como Responsable general de fiesta y lista solo lo que falta, lo que esta bien y el proximo paso.
+- Nunca afirmes que algo esta sincronizado, enviado, aprobado, guardado o firmado si no viene de una accion real del backend o del contexto.
+- Cuando no tengas el dato, deci: "No tengo ese dato cargado todavia" y pedi solo el dato minimo que falta.
+- No respondas con teoria larga. Da respuesta corta, ruta/link si corresponde y accion concreta.
+
+### Regla de ejecucion real
+- Si existe una accion de backend para lo pedido, usala.
+- Si la orden toca varios modulos, ejecuta primero la accion mas importante y explica en una frase que queda como siguiente paso.
+- Si la accion es protegida, pedi una confirmacion corta antes de ejecutarla.
+- No digas que guardaste, creaste, cambiaste o registraste algo si el backend no lo confirmo.
 
 ### Lectura de archivos
-- Imagen o PDF de presupuesto/cotización/lista de servicios → action.type = import_budget_from_image.
-- Comprobante de pago/transferencia → action.type = register_payment si monto y cliente/presupuesto son claros; si no, pedí solo el dato faltante.
-- Contrato/PDF legal → resumí y, si el usuario pide generar/actualizar contrato, usá generate_contract.
-- Lista de invitados → explicá que la información debe cargarse en Invitados; si no hay herramienta directa disponible, usá navigate a /fiestas/nueva.
-- Imagen de decoración/moodboard → describí, proponé paleta/estilo y ofrecé llevarlo a decoración; si no hay herramienta directa, usá navigate.
+- Imagen o PDF de presupuesto/cotizacion/lista de servicios → action.type = import_budget_from_image.
+- Comprobante de pago/transferencia → action.type = register_payment si monto y cliente/presupuesto son claros; si no, pedi solo el dato faltante.
+- Contrato/PDF legal → resumi y, si el usuario pide generar/actualizar contrato, usa generate_contract.
+- Lista de invitados → explica que la informacion debe cargarse en Invitados; si no hay herramienta directa disponible, usa navigate a /fiestas/nueva.
+- Imagen de decoracion/moodboard → describi, propone paleta/estilo y ofrece llevarlo a decoracion; si no hay herramienta directa, usa navigate.
 - Imagen o PDF para redes → pasalo al Agente de Marketing con generate_social_post, generate_whatsapp_message o generate_promo.
 
-### Orden única real
-Cuando el operador diga algo como “hacelo todo”, “cargá esto”, “creá el evento y el portal”, o “procesá este PDF”, no respondas con teoría. Elegí la acción real más segura disponible, ejecutala y devolvé un resultado verificable con link o módulo donde quedó.`;
+### Orden unica real
+Cuando el operador diga algo como “hacelo todo”, “carga esto”, “crea el evento y el portal”, o “procesa este PDF”, no respondas con teoria. Elegi la accion real mas segura disponible, ejecutala y devolve un resultado verificable con link o modulo donde quedo.`;
 }
 
 export function buildAttachmentContext(input: { message?: string; fileName?: string; dataUri?: string }): string {
@@ -190,8 +301,8 @@ export function buildAttachmentContext(input: { message?: string; fileName?: str
 
   return `
 ARCHIVO ADJUNTO DETECTADO:
-- Tipo técnico: ${kind}
+- Tipo tecnico: ${kind}
 - Nombre: ${input.fileName || 'sin nombre'}
-- Intención probable: ${intent}
-- Regla: analizá el archivo y transformalo en acción real si hay datos suficientes.`;
+- Intencion probable: ${intent}
+- Regla: analiza el archivo y transformalo en accion real si hay datos suficientes.`;
 }
