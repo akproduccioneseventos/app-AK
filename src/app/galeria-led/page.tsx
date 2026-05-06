@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, Camera, Loader2, X } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, MonitorPlay, X } from 'lucide-react';
 import { getGaleriaItems } from '@/app/actions/galeria';
 import type { GaleriaFoto } from '@/types/galeria';
 
@@ -24,17 +24,11 @@ function GaleriaLedContent() {
   const [loading, setLoading] = useState(true);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [desdePresLed, setDesdePresLed] = useState(false);
-  const [slideRegreso, setSlideRegreso] = useState<string | null>(null);
 
   useEffect(() => {
-    // Detect if coming from LED presentation
     try {
       const desde = sessionStorage.getItem('desde_presentacion_led');
-      const slide = sessionStorage.getItem('presentacion_slide_regreso');
-      if (desde === 'true') {
-        setDesdePresLed(true);
-        setSlideRegreso(slide);
-      }
+      if (desde === 'true') setDesdePresLed(true);
     } catch {
       // sessionStorage not available
     }
@@ -62,60 +56,59 @@ function GaleriaLedContent() {
   }, [fotos, categoria, subCategoria]);
 
   const handleVolver = () => {
-    // Clear LED flags
     try {
       sessionStorage.removeItem('desde_presentacion_led');
     } catch {
       // ignore
     }
-    // Hardcoded safe path — never derived from user input
     window.location.assign('/presentacion-led');
   };
 
   const titulo = subCategoria
-    ? `${categoria} — ${subCategoria}`
-    : categoria || 'Galería';
+    ? `${categoria} - ${subCategoria}`
+    : categoria || 'Experiencia visual';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
-      {/* Top bar */}
-      <div className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur-sm border-b border-white/10 px-6 py-4 flex items-center gap-4">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="sticky top-0 z-20 flex items-center gap-4 border-b border-white/10 bg-slate-950/92 px-6 py-4 backdrop-blur-sm">
         {desdePresLed && (
           <button
             onClick={handleVolver}
-            className="flex items-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 font-bold rounded-xl px-4 py-2 transition-colors"
+            className="flex items-center gap-2 rounded-xl border border-red-300/35 bg-red-500/18 px-4 py-2 font-black text-red-100 transition-colors hover:bg-red-500/28"
           >
             <ArrowLeft className="h-5 w-5" />
-            Volver a la presentación
+            Volver a la presentacion comercial
           </button>
         )}
-        <div className="flex-1 min-w-0">
-          <h1 className="text-white font-black text-xl truncate">{titulo}</h1>
-          <p className="text-white/40 text-sm">{fotosFiltradas.length} foto{fotosFiltradas.length !== 1 ? 's' : ''}</p>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-red-200/80">
+            <MonitorPlay className="h-4 w-4" /> Pantalla LED
+          </div>
+          <h1 className="truncate text-2xl font-black text-white md:text-4xl">{titulo}</h1>
+          <p className="text-sm font-medium text-white/45">{fotosFiltradas.length} visual{fotosFiltradas.length !== 1 ? 'es' : ''} disponibles</p>
         </div>
-        <Camera className="h-6 w-6 text-white/30" />
+        <Camera className="h-7 w-7 text-white/32" />
       </div>
 
-      {/* Content */}
-      <div className="px-6 py-8">
+      <div className="px-6 py-8 md:px-10">
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="h-12 w-12 text-indigo-400 animate-spin" />
+            <Loader2 className="h-12 w-12 animate-spin text-red-300" />
           </div>
         ) : fotosFiltradas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <Camera className="h-16 w-16 text-white/20 mb-4" />
-            <p className="text-white/50 text-xl font-semibold">No hay fotos en esta categoría aún.</p>
-            <p className="text-white/30 text-sm mt-2">Las fotos aparecerán aquí cuando se agreguen en la galería.</p>
+          <div className="mx-auto flex max-w-2xl flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-8 py-24 text-center">
+            <Camera className="mb-4 h-16 w-16 text-white/20" />
+            <p className="text-xl font-black text-white/62">Todavia no hay visuales cargados para esta parte.</p>
+            <p className="mt-2 text-sm text-white/36">Cuando agregues fotos a la galeria, aparecen aca para usarlas en la pantalla de venta.</p>
           </div>
         ) : (
-          <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3">
+          <div className="columns-2 gap-4 space-y-4 sm:columns-3 lg:columns-4 2xl:columns-5">
             {fotosFiltradas.map(foto => (
               <button
                 key={foto.id}
                 type="button"
                 onClick={() => { if (isSafeUrl(foto.url)) setLightboxUrl(foto.url); }}
-                className="block w-full break-inside-avoid rounded-xl overflow-hidden hover:scale-[1.02] transition-transform duration-200"
+                className="block w-full break-inside-avoid overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl transition-transform duration-200 hover:-translate-y-1"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -130,32 +123,32 @@ function GaleriaLedContent() {
         )}
       </div>
 
-      {/* Lightbox */}
       {lightboxUrl && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 p-4"
           onClick={() => setLightboxUrl(null)}
         >
           <button
-            className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/40 rounded-full p-2"
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white/80 hover:text-white"
             onClick={() => setLightboxUrl(null)}
+            aria-label="Cerrar visual"
           >
             <X className="h-6 w-6" />
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={lightboxUrl && isSafeUrl(lightboxUrl) ? lightboxUrl : ''}
-            alt="Foto ampliada"
-            className="max-w-full max-h-[90vh] object-contain rounded-xl"
+            alt="Visual ampliado"
+            className="max-h-[90vh] max-w-full rounded-2xl object-contain"
             onClick={e => e.stopPropagation()}
           />
           {desdePresLed && (
             <button
               onClick={handleVolver}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-indigo-500/80 hover:bg-indigo-500 border border-indigo-400 text-white font-bold rounded-xl px-6 py-3 transition-colors shadow-lg"
+              className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-red-300/40 bg-red-600 px-6 py-3 font-black text-white shadow-lg transition-colors hover:bg-red-700"
             >
               <ArrowLeft className="h-5 w-5" />
-              Volver a la presentación
+              Volver a la presentacion comercial
             </button>
           )}
         </div>
@@ -167,8 +160,8 @@ function GaleriaLedContent() {
 export default function GaleriaLedPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="h-12 w-12 text-indigo-400 animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <Loader2 className="h-12 w-12 animate-spin text-red-300" />
       </div>
     }>
       <GaleriaLedContent />
