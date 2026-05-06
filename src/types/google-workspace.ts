@@ -21,7 +21,11 @@ export interface GoogleWorkspaceSyncRecord {
   fiestaId: string;
   companyCalendarEventId?: string;
   employeeCalendarEventIds: Record<string, string>;
+  meetingCalendarEventIds?: Record<string, string>;
+  guestCalendarEventIds?: Record<string, string>;
   lastEmailAtByEmployee: Record<string, string>;
+  lastEmailAtByClient?: Record<string, string>;
+  lastEmailAtByGuest?: Record<string, string>;
   lastSyncedAt?: string;
   lastError?: string;
   warnings?: string[];
@@ -64,5 +68,5 @@ export interface GoogleTokenResponse {
 export interface GoogleWorkspaceSyncOptions {
   sendEmails?: boolean;
   forceEmail?: boolean;
-  reason?: 'manual' | 'personal' | 'date-change' | 'bulk';
+  reason?: 'manual' | 'personal' | 'date-change' | 'bulk' | 'meeting' | 'payment' | 'contract' | 'client' | 'guest' | 'reminder';
 }
