@@ -61,10 +61,14 @@ function getFiestaClientName(fiesta: FiestaEnPlanificacion) {
   );
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return (value ?? {}) as Record<string, unknown>;
+}
+
 function getFiestaClientEmail(fiesta: FiestaEnPlanificacion, fallback?: string | null) {
-  const config = fiesta.configuracion as Record<string, unknown>;
-  const portal = fiesta.clientePortalExperience as Record<string, unknown> | undefined;
-  const other = fiesta.others as Record<string, unknown> | undefined;
+  const config = asRecord(fiesta.configuracion);
+  const portal = asRecord(fiesta.clientePortalExperience);
+  const other = asRecord(fiesta.others);
   const candidates = [
     fallback,
     config.clienteEmail,
@@ -72,11 +76,11 @@ function getFiestaClientEmail(fiesta: FiestaEnPlanificacion, fallback?: string |
     config.email,
     config.contactoCliente,
     config.clienteContacto,
-    portal?.clienteEmail,
-    portal?.emailCliente,
-    other?.clienteEmail,
-    other?.emailCliente,
-    other?.email,
+    portal.clienteEmail,
+    portal.emailCliente,
+    other.clienteEmail,
+    other.emailCliente,
+    other.email,
   ];
 
   for (const candidate of candidates) {
