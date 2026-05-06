@@ -55,11 +55,18 @@
   pointer-events: none;
 }
 
-.ak-led-stage-safe {
-  background-color: #020617;
-  background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
-  background-size: 100% 42px;
+.ak-led-stage-safe,
+.bg-gradient-to-br.from-slate-950.via-indigo-950.to-slate-900 {
+  background-color: #020617 !important;
+  background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px) !important;
+  background-size: 100% 42px !important;
   animation: ak-motion-led-scan 16s linear infinite;
+}
+
+.bg-indigo-600\/20.blur-3xl,
+.bg-emerald-600\/20.blur-3xl,
+.bg-purple-600\/10.blur-3xl {
+  display: none !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -97,7 +104,8 @@
   }
 
   .ak-red-premium-live [class*='rounded'],
-  .ak-led-stage-safe [class*='rounded'] {
+  .ak-led-stage-safe [class*='rounded'],
+  .bg-gradient-to-br.from-slate-950.via-indigo-950.to-slate-900 [class*='rounded'] {
     animation: ak-motion-soft-pulse 6.8s ease-in-out infinite;
   }
 }
