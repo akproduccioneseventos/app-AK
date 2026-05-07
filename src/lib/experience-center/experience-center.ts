@@ -72,6 +72,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return isRecord(value) ? value : {};
+}
+
 function hasText(value: unknown): boolean {
   return typeof value === 'string' && value.trim().length > 0;
 }
@@ -145,7 +149,7 @@ function visibleClientModules(fiesta: FiestaEnPlanificacion): number {
 function countConfirmedGuests(fiesta: FiestaEnPlanificacion): number {
   const guests = fiesta.invitados ?? [];
   return guests.filter((guest) => {
-    const rsvp = String((guest as Record<string, unknown>).rsvp ?? '').toLowerCase();
+    const rsvp = String(asRecord(guest).rsvp ?? '').toLowerCase();
     return rsvp.includes('confirm') || rsvp === 'si' || rsvp === 'sí';
   }).length;
 }
@@ -153,7 +157,7 @@ function countConfirmedGuests(fiesta: FiestaEnPlanificacion): number {
 function countRejectedGuests(fiesta: FiestaEnPlanificacion): number {
   const guests = fiesta.invitados ?? [];
   return guests.filter((guest) => {
-    const rsvp = String((guest as Record<string, unknown>).rsvp ?? '').toLowerCase();
+    const rsvp = String(asRecord(guest).rsvp ?? '').toLowerCase();
     return rsvp.includes('rechaz') || rsvp.includes('no asiste') || rsvp === 'no';
   }).length;
 }
