@@ -5,7 +5,8 @@ import { BadgeDollarSign, DatabaseBackup, GitPullRequest, KeyRound, Monitor, Roc
 import { useSearchParams } from 'next/navigation';
 
 const links = [
-  { label: 'Experiencia', href: '/eventos', icon: Sparkles, eventRoute: true },
+  { label: 'Experiencia', href: '/eventos', icon: Sparkles, eventPath: 'centro-experiencia' },
+  { label: 'Cierre mundial', href: '/eventos', icon: Rocket, eventPath: 'cierre-mundial' },
   { label: 'CTO', href: '/settings/lanzamiento-cto', icon: ShieldCheck },
   { label: 'Integracion', href: '/fiestas/nueva/integracion-post-445', icon: GitPullRequest },
   { label: 'Cierre 100', href: '/fiestas/nueva/cierre-100', icon: Rocket },
@@ -21,8 +22,8 @@ function withFiestaId(href: string, fiestaId: string | null): string {
 }
 
 function resolveHref(item: (typeof links)[number], fiestaId: string | null): string {
-  if ('eventRoute' in item && item.eventRoute) {
-    return fiestaId ? `/fiestas/${encodeURIComponent(fiestaId)}/centro-experiencia` : '/eventos';
+  if ('eventPath' in item && item.eventPath) {
+    return fiestaId ? `/fiestas/${encodeURIComponent(fiestaId)}/${item.eventPath}` : '/eventos';
   }
 
   return withFiestaId(item.href, fiestaId);
