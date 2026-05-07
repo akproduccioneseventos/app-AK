@@ -13,7 +13,6 @@ import {
   Monitor,
   PlayCircle,
   Sparkles,
-  UserCheck,
   Users,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
