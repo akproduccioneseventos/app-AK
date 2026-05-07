@@ -172,7 +172,7 @@ export function ConversionClosingLayer() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -18 }}
               transition={{ duration: 0.35 }}
-              className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 shadow-2xl shadow-slate-950/16"
+              className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 shadow-2xl shadow-slate-950/20"
             >
               <div className="grid min-h-[560px] lg:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative min-h-[360px] overflow-hidden">
@@ -191,12 +191,12 @@ export function ConversionClosingLayer() {
                         <Star className="h-5 w-5 text-red-200" />
                       </span>
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/45">Respuesta clara</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/50">Respuesta clara</p>
                         <p className="text-sm font-bold text-white/80">Para usar en la reunion comercial</p>
                       </div>
                     </div>
                     <p className="text-2xl font-black leading-tight">{activeTopic.shortAnswer}</p>
-                    <p className="mt-5 text-base font-medium leading-8 text-white/68">{activeTopic.proof}</p>
+                    <p className="mt-5 text-base font-medium leading-8 text-white/70">{activeTopic.proof}</p>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -206,7 +206,7 @@ export function ConversionClosingLayer() {
                         <div key={signal.label} className="rounded-2xl border border-white/10 bg-white/10 p-4">
                           <Icon className="h-5 w-5 text-red-200" />
                           <p className="mt-3 text-sm font-black">{signal.label}</p>
-                          <p className="mt-1 text-xs font-semibold leading-5 text-white/58">{signal.text}</p>
+                          <p className="mt-1 text-xs font-semibold leading-5 text-white/60">{signal.text}</p>
                         </div>
                       );
                     })}
@@ -237,7 +237,7 @@ export function ConversionClosingLayer() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-red-200 bg-red-50 p-5 shadow-2xl shadow-red-950/8 sm:p-7">
+          <div className="rounded-[2rem] border border-red-200 bg-red-50 p-5 shadow-2xl shadow-red-950/10 sm:p-7">
             <div className="mb-6 flex items-center gap-3">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-600 text-white">
                 <Wand2 className="h-5 w-5" />
@@ -258,7 +258,7 @@ export function ConversionClosingLayer() {
           </div>
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 text-white shadow-2xl shadow-slate-950/18">
+        <div className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 text-white shadow-2xl shadow-slate-950/20">
           <div className="grid gap-0 lg:grid-cols-[1fr_0.82fr]">
             <div className="p-6 sm:p-10">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-red-200">
@@ -268,7 +268,7 @@ export function ConversionClosingLayer() {
               <h3 className="mt-6 max-w-4xl text-3xl font-black leading-tight sm:text-5xl">
                 “No solo organizamos tu fiesta: hacemos que tu familia, tus invitados y vos la vivan desde antes.”
               </h3>
-              <p className="mt-5 max-w-3xl text-base font-medium leading-8 text-white/68">
+              <p className="mt-5 max-w-3xl text-base font-medium leading-8 text-white/70">
                 Ese es el mensaje que tiene que quedar cuando el prospecto termina de mirar el portafolio. La tecnologia se convierte en tranquilidad, emocion y diferenciacion.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -276,7 +276,7 @@ export function ConversionClosingLayer() {
                   Abrir presentacion
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <a href="#mapa" className="inline-flex items-center gap-2 rounded-full border border-white/18 px-5 py-3 text-xs font-black uppercase tracking-[0.14em] text-white transition hover:bg-white/10">
+                <a href="#mapa" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-xs font-black uppercase tracking-[0.14em] text-white transition hover:bg-white/10">
                   Ver mapa de servicios
                   <Users className="h-4 w-4" />
                 </a>
@@ -286,11 +286,11 @@ export function ConversionClosingLayer() {
               <img src="https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1500&q=82" alt="Cierre de fiesta AK" className="absolute inset-0 h-full w-full object-cover" />
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.74)_0%,rgba(15,23,42,0.08)_100%)]" />
               <div className="absolute bottom-6 left-6 right-6 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-white/12 p-4 backdrop-blur">
+                <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
                   <Smartphone className="h-5 w-5 text-red-200" />
                   <p className="mt-3 text-sm font-black">Celular primero</p>
                 </div>
-                <div className="rounded-2xl bg-white/12 p-4 backdrop-blur">
+                <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
                   <MonitorPlay className="h-5 w-5 text-red-200" />
                   <p className="mt-3 text-sm font-black">LED preparado</p>
                 </div>
