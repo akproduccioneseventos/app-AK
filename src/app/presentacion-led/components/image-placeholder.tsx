@@ -81,7 +81,7 @@ export function ImagePlaceholder({ id, label, aspectRatio = '16/9', className, i
 
   return (
     <div
-      className={cn('relative w-full overflow-hidden rounded-2xl border border-white/18 bg-slate-900 shadow-2xl shadow-slate-950/18', className)}
+      className={cn('relative w-full overflow-hidden rounded-2xl border border-white/20 bg-slate-900 shadow-2xl shadow-slate-950/20', className)}
       data-placeholder-id={id}
     >
       <div className={paddingMap[aspectRatio]} />
@@ -93,11 +93,11 @@ export function ImagePlaceholder({ id, label, aspectRatio = '16/9', className, i
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.05)_0%,rgba(15,23,42,0.78)_100%)]" />
       <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/14 backdrop-blur">
+        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur">
           <Camera className="h-5 w-5 text-white" />
         </div>
         <p className="text-sm font-black leading-tight text-white sm:text-base">{label}</p>
-        <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/45">
+        <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em] text-white/50">
           Imagen de ejemplo reemplazable - ID {id}
         </p>
       </div>
