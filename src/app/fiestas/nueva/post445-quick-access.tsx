@@ -1,12 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import { BadgeDollarSign, DatabaseBackup, GitPullRequest, KeyRound, Monitor, Rocket, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  BadgeDollarSign,
+  ClipboardCheck,
+  DatabaseBackup,
+  GitPullRequest,
+  ImagePlus,
+  KeyRound,
+  Monitor,
+  Rocket,
+  Route,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 const links = [
+  { label: 'Comando', href: '/eventos', icon: ClipboardCheck, eventPath: 'comando-total' },
   { label: 'Experiencia', href: '/eventos', icon: Sparkles, eventPath: 'centro-experiencia' },
   { label: 'Cierre mundial', href: '/eventos', icon: Rocket, eventPath: 'cierre-mundial' },
+  { label: 'Global', href: '/settings/cierre-global-producto', icon: Route },
+  { label: 'Visuales', href: '/settings/biblioteca-visual-ak', icon: ImagePlus },
+  { label: 'Portfolio', href: '/presentacion-led/portafolio', icon: Monitor },
   { label: 'CTO', href: '/settings/lanzamiento-cto', icon: ShieldCheck },
   { label: 'Integracion', href: '/fiestas/nueva/integracion-post-445', icon: GitPullRequest },
   { label: 'Cierre 100', href: '/fiestas/nueva/cierre-100', icon: Rocket },
