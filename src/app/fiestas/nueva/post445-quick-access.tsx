@@ -18,6 +18,8 @@ import { useSearchParams } from 'next/navigation';
 
 const links = [
   { label: 'Comando', href: '/eventos', icon: ClipboardCheck, eventPath: 'comando-total' },
+  { label: 'Final', href: '/settings/cierre-operativo-final', icon: Rocket },
+  { label: 'Portfolio fiesta', href: '/presentacion-led/portafolio', icon: Monitor, portfolioEvent: true },
   { label: 'Experiencia', href: '/eventos', icon: Sparkles, eventPath: 'centro-experiencia' },
   { label: 'Cierre mundial', href: '/eventos', icon: Rocket, eventPath: 'cierre-mundial' },
   { label: 'Global', href: '/settings/cierre-global-producto', icon: Route },
@@ -40,6 +42,10 @@ function withFiestaId(href: string, fiestaId: string | null): string {
 function resolveHref(item: (typeof links)[number], fiestaId: string | null): string {
   if ('eventPath' in item && item.eventPath) {
     return fiestaId ? `/fiestas/${encodeURIComponent(fiestaId)}/${item.eventPath}` : '/eventos';
+  }
+
+  if ('portfolioEvent' in item && item.portfolioEvent) {
+    return fiestaId ? `/presentacion-led/portafolio/fiesta/${encodeURIComponent(fiestaId)}` : item.href;
   }
 
   return withFiestaId(item.href, fiestaId);
