@@ -130,20 +130,25 @@ export default function OutboxPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <MessageCircle className="w-8 h-8 text-green-500" />
           <div>
             <h1 className="text-3xl font-bold tracking-tight font-headline">Cola de Mensajes WhatsApp</h1>
-            <p className="text-muted-foreground text-sm">Mensajes programados para enviar</p>
+            <p className="text-muted-foreground text-sm">CRM / Agenda / mensajes programados para enviar</p>
           </div>
         </div>
-        <Link href="/contabilidad/crm/agenda">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Agenda
-          </Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/contabilidad/crm">
+            <Button variant="ghost">CRM</Button>
+          </Link>
+          <Link href="/contabilidad/crm/agenda">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver a Agenda
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (
