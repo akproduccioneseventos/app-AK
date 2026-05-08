@@ -32,10 +32,10 @@ export default async function PortfolioFiestaPage({ params }: PageProps) {
   const totalGuests = fiesta.invitados?.length ?? config.invitadosEstimados ?? 0;
   const confirmedGuests = fiesta.invitados?.filter((guest) => guest.rsvp === 'Confirmado').length ?? 0;
   const tasks = fiesta.tareas ?? [];
-  const completedTasks = tasks.filter((task) => task.completed).length;
+  const completedTasks = tasks.filter((task) => task.completada).length;
   const eventName = config.nombreEvento || config.tipoCelebracion || 'Fiesta AK';
   const protagonist = config.protagonista1Nombre || config.nombreAgasajado || config.clienteNombre || eventName;
-  const heroImage = fiesta.clientePortalExperience?.heroImageUrl || fiesta.clientPortalSettings?.coverImageUrl || config.protagonistaFotoUrl;
+  const heroImage = fiesta.clientePortalExperience?.heroImageUrl || config.protagonistaFotoUrl;
   const readinessItems = [
     Boolean(config.fechaEvento),
     Boolean(config.nombreLugar),
