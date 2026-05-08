@@ -58,6 +58,8 @@ export function ScheduleNewMeetingDialog({ isOpen, onOpenChange, onMeetingSchedu
           setAllLeads(leads);
           setFilteredLeads(leads);
         } catch (err) {
+          setAllLeads([]);
+          setFilteredLeads([]);
           toast({ title: "Error", description: "No se pudieron cargar los prospectos." });
         } finally {
           setIsLoading(false);
@@ -124,7 +126,12 @@ export function ScheduleNewMeetingDialog({ isOpen, onOpenChange, onMeetingSchedu
                 <ScrollArea className="h-40 border rounded-md">
                     {isLoading ? <div className="p-4 text-center"><Loader2 className="w-5 h-5 animate-spin"/></div> :
                      <div className="p-1">
-                        {filteredLeads.map(lead => (
+                        {filteredLeads.length === 0 ? (
+                          <div className="flex h-32 flex-col items-center justify-center p-4 text-center">
+                            <p className="text-sm font-semibold text-muted-foreground">No hay prospectos disponibles.</p>
+                            <p className="mt-1 text-xs text-muted-foreground">Primero crea un prospecto en el CRM y después agenda la reunión.</p>
+                          </div>
+                        ) : filteredLeads.map(lead => (
                             <Button
                                 key={lead.id}
                                 type="button"
