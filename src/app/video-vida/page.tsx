@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+export const dynamic = 'force-dynamic';
+
 function formatDate(date?: string) {
   if (!date) return 'Fecha a definir';
   const parsed = new Date(date);
@@ -14,7 +16,7 @@ function formatDate(date?: string) {
 }
 
 export default async function VideoVidaHubPage() {
-  const fiestas = (await getFiestas(false)).slice(0, 8);
+  const fiestas = (await getFiestas(false).catch(() => [])).slice(0, 8);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_58%,#ffffff_100%)] px-4 py-8 text-slate-950 sm:px-6 lg:px-8">
