@@ -334,8 +334,9 @@ export async function processReunionIntelligence(formData: FormData) {
     await saveFiesta(nextFiesta);
 
     try {
-      const syncResult = await syncReunionToGoogleWorkspace(fiestaId, updatedReunion, { sendEmails: true, forceEmail: true });
-      if (!syncResult.success && syncResult.message) warnings.push(syncResult.message);
+      const syncResult: any = await syncReunionToGoogleWorkspace(fiestaId, updatedReunion, { sendEmails: true, forceEmail: true });
+      if (Array.isArray(syncResult?.warnings)) warnings.push(...syncResult.warnings);
+      if (!syncResult?.success && syncResult?.error) warnings.push(syncResult.error);
     } catch (error) {
       console.error('Error syncing meeting intelligence to Google Workspace:', error);
       warnings.push('La reunion se guardo, pero Google Calendar/Gmail no se sincronizo en este intento.');
