@@ -41,6 +41,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { MeetingIntelligenceRecorder } from '@/components/reuniones/MeetingIntelligenceRecorder';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no especificada";
@@ -49,7 +50,7 @@ const formatDate = (dateString?: string) => {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
   } catch (e) {
-    return "Fecha inválida";
+    return "Fecha invalida";
   }
 };
 
@@ -80,7 +81,7 @@ function GestionReunionesContent() {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      setError("No se ha especificado un evento. Serás redirigido.");
+      setError("No se ha especificado un evento. Seras redirigido.");
       setTimeout(() => router.push('/eventos'), 2000);
       return;
     }
@@ -91,14 +92,14 @@ function GestionReunionesContent() {
         getFiestaById(fiestaId),
         getMeetingMasterTemplate()
       ]);
-      if (!fiestaData) throw new Error("No se encontró el evento.");
+      if (!fiestaData) throw new Error("No se encontro el evento.");
       setFiesta(fiestaData);
       setMasterTemplate(templateData);
       setReuniones((fiestaData.reuniones || []).sort((a,b) => new Date(a.fecha || 0).getTime() - new Date(b.fecha || 0).getTime()));
     } catch (err: any) {
       console.error("Error loading meetings:", err);
       setError("No se pudieron cargar las reuniones.");
-      toast({ title: "Error", description: err.message || "Ocurrió un problema inesperado.", variant: "destructive" });
+      toast({ title: "Error", description: err.message || "Ocurrio un problema inesperado.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +112,7 @@ function GestionReunionesContent() {
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formTitulo.trim()) {
-      toast({ title: "Título Requerido", description: "Por favor, ingresa un título para la reunión.", variant: "destructive" });
+      toast({ title: "Titulo Requerido", description: "Por favor, ingresa un titulo para la reunion.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
@@ -151,11 +152,11 @@ function GestionReunionesContent() {
       }
 
       if (result.success) {
-        toast({ title: `¡Reunión ${currentReunion ? 'Actualizada' : 'Añadida'}!`});
+        toast({ title: `Reunion ${currentReunion ? 'Actualizada' : 'Anadida'}!`});
         setIsFormModalOpen(false);
         await loadData();
       } else {
-        throw new Error(result.error || `Error al ${currentReunion ? 'actualizar' : 'añadir'} la reunión.`);
+        throw new Error(result.error || `Error al ${currentReunion ? 'actualizar' : 'anadir'} la reunion.`);
       }
     } catch (err: any) {
       toast({ title: "Error al Guardar", description: err.message, variant: "destructive" });
@@ -180,7 +181,6 @@ function GestionReunionesContent() {
       setFormHora('');
       setFormNotas('');
       setFormAcuerdos('');
-      // Cargar del maestro si es nueva
       setFormChecklist(masterTemplate?.checklist.map((i: any) => ({ ...i, completed: false })) || []);
     }
     setIsFormModalOpen(true);
@@ -198,10 +198,10 @@ function GestionReunionesContent() {
     try {
       const result = await deleteReunionFromFiestaActual(fiestaId, reunionId);
       if (result.success) {
-        toast({ title: "Reunión Eliminada", variant: "destructive" });
+        toast({ title: "Reunion Eliminada", variant: "destructive" });
         await loadData();
       } else {
-        throw new Error(result.error || "No se pudo eliminar la reunión.");
+        throw new Error(result.error || "No se pudo eliminar la reunion.");
       }
     } catch (err: any) {
       toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
@@ -219,36 +219,36 @@ function GestionReunionesContent() {
           <DialogHeader>
             <DialogTitle className="font-headline text-2xl flex items-center gap-2">
                 {currentReunion ? <Edit3 className="w-6 h-6 text-primary"/> : <PlusCircle className="w-6 h-6 text-primary"/>}
-                {currentReunion ? 'Editar Reunión' : 'Agendar Nueva Reunión'}
+                {currentReunion ? 'Editar Reunion' : 'Agendar Nueva Reunion'}
             </DialogTitle>
           </DialogHeader>
           
           <Tabs defaultValue="detalles" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="detalles">Datos y Acuerdos</TabsTrigger>
-                <TabsTrigger value="guia"><ListChecks className="w-4 h-4 mr-2"/>Guía y Checklist</TabsTrigger>
+                <TabsTrigger value="guia"><ListChecks className="w-4 h-4 mr-2"/>Guia y Checklist</TabsTrigger>
             </TabsList>
             
             <TabsContent value="detalles" className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-                <div className="space-y-1"><Label htmlFor="reunion-titulo">Título de la Reunión*</Label><Input id="reunion-titulo" value={formTitulo} onChange={e => setFormTitulo(e.target.value)} placeholder="Ej: Definir decoración, Degustación menú" required /></div>
+                <div className="space-y-1"><Label htmlFor="reunion-titulo">Titulo de la Reunion*</Label><Input id="reunion-titulo" value={formTitulo} onChange={e => setFormTitulo(e.target.value)} placeholder="Ej: Definir decoracion, Degustacion menu" required /></div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
                     <div className="space-y-1"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} disabled={!formFecha}/></div>
                 </div>
                 
-                <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={3} placeholder="Puntos a discutir en la reunión..."/></div>
+                <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={3} placeholder="Puntos a discutir en la reunion..."/></div>
                 
                 <div className="space-y-2 p-4 bg-primary/5 rounded-lg border border-primary/10">
                     <Label htmlFor="reunion-acuerdos" className="text-primary font-bold flex items-center gap-2">
                         <ClipboardCheck className="w-4 h-4"/> Acuerdos Alcanzados
                     </Label>
-                    <CardDescription>Documenta aquí las decisiones finales tomadas.</CardDescription>
+                    <CardDescription>Documenta aqui las decisiones finales tomadas.</CardDescription>
                     <Textarea 
                         id="reunion-acuerdos" 
                         value={formAcuerdos} 
                         onChange={(e) => setFormAcuerdos(e.target.value)} 
                         rows={6} 
-                        placeholder="Ej: Se acordó cambiar el plato principal a Pollo Relleno..."
+                        placeholder="Ej: Se acordo cambiar el plato principal a Pollo Relleno..."
                         className="bg-white"
                     />
                 </div>
@@ -258,7 +258,7 @@ function GestionReunionesContent() {
                 {masterTemplate?.guideNotes && (
                     <Alert className="bg-blue-50 border-blue-200">
                         <Info className="h-4 w-4 text-blue-600"/>
-                        <AlertTitle className="text-blue-800 font-bold">Guía de Planificación</AlertTitle>
+                        <AlertTitle className="text-blue-800 font-bold">Guia de Planificacion</AlertTitle>
                         <div className="text-xs text-blue-700 whitespace-pre-line">
                             {masterTemplate.guideNotes}
                         </div>
@@ -267,9 +267,9 @@ function GestionReunionesContent() {
 
                 <div className="space-y-2">
                     <Label className="font-bold text-lg flex items-center gap-2">
-                        <ListChecks className="w-5 h-5 text-primary"/> Checklist de Revisión
+                        <ListChecks className="w-5 h-5 text-primary"/> Checklist de Revision
                     </Label>
-                    <p className="text-xs text-muted-foreground mb-4">Usa esta lista para no olvidar ningún punto clave durante la charla.</p>
+                    <p className="text-xs text-muted-foreground mb-4">Usa esta lista para no olvidar ningun punto clave durante la charla.</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {formChecklist.map(item => (
@@ -296,7 +296,7 @@ function GestionReunionesContent() {
             <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
             <Button onClick={handleFormSubmit} disabled={isSaving}>
                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                {currentReunion ? 'Guardar Cambios' : 'Agendar Reunión'}
+                {currentReunion ? 'Guardar Cambios' : 'Agendar Reunion'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -310,7 +310,7 @@ function GestionReunionesContent() {
         <div className="flex gap-2">
             <Link href={`/fiestas/nueva/resumen-planificacion?fiestaId=${fiestaId}`}>
                 <Button variant="secondary" size="sm">
-                    <ClipboardCheck className="w-4 h-4 mr-2"/> Ver Planificación Actual
+                    <ClipboardCheck className="w-4 h-4 mr-2"/> Ver Planificacion Actual
                 </Button>
             </Link>
             <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline" disabled={isSaving}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button></Link>
@@ -319,14 +319,14 @@ function GestionReunionesContent() {
 
       <Card className="shadow-md border-primary/20 bg-primary/5">
         <CardHeader>
-          <CardTitle className="text-primary flex items-center gap-2"><CalendarPlus className="w-5 h-5"/>Planificación de Reuniones</CardTitle>
-          <CardDescription>Agenda y mantén un registro de cada decisión tomada con tu cliente.</CardDescription>
+          <CardTitle className="text-primary flex items-center gap-2"><CalendarPlus className="w-5 h-5"/>Planificacion de Reuniones</CardTitle>
+          <CardDescription>Agenda y manten un registro de cada decision tomada con tu cliente.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-3">
-          <Button onClick={() => openFormModal()} className="flex-1"><PlusCircle className="w-4 h-4 mr-2"/>Agendar Nueva Reunión</Button>
+          <Button onClick={() => openFormModal()} className="flex-1"><PlusCircle className="w-4 h-4 mr-2"/>Agendar Nueva Reunion</Button>
           <Link href={`/fiestas/nueva/resumen-planificacion?fiestaId=${fiestaId}`} className="flex-1">
             <Button variant="outline" className="w-full">
-                Consolidado de Planificación <ArrowRight className="w-4 h-4 ml-2"/>
+                Consolidado de Planificacion <ArrowRight className="w-4 h-4 ml-2"/>
             </Button>
           </Link>
         </CardContent>
@@ -336,7 +336,7 @@ function GestionReunionesContent() {
         <CardHeader>
           <CardTitle>Historial de Reuniones</CardTitle>
           <CardDescription>
-            {proximasReuniones.length > 0 ? `Tienes ${proximasReuniones.length} reunión(es) próxima(s).` : "No hay reuniones futuras agendadas."}
+            {proximasReuniones.length > 0 ? `Tienes ${proximasReuniones.length} reunion(es) proxima(s).` : "No hay reuniones futuras agendadas."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -370,6 +370,14 @@ function GestionReunionesContent() {
                             <p className="bg-primary/5 p-3 rounded-md border border-primary/10 whitespace-pre-wrap">{reunion.acuerdos}</p>
                         </div>
                       )}
+
+                      {fiestaId && (
+                        <MeetingIntelligenceRecorder
+                          fiestaId={fiestaId}
+                          reunion={reunion}
+                          onProcessed={loadData}
+                        />
+                      )}
                     </div>
                     
                     <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
@@ -381,7 +389,7 @@ function GestionReunionesContent() {
                               </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
-                              <AlertDialogHeader><AlertDialogTitle>¿Eliminar esta reunión?</AlertDialogTitle><AlertDialogDescription>"{reunion.titulo}" será eliminada.</AlertDialogDescription></AlertDialogHeader>
+                              <AlertDialogHeader><AlertDialogTitle>Eliminar esta reunion?</AlertDialogTitle><AlertDialogDescription>"{reunion.titulo}" sera eliminada.</AlertDialogDescription></AlertDialogHeader>
                               <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteReunion(reunion.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
                           </AlertDialogContent>
                       </AlertDialog>
@@ -392,7 +400,7 @@ function GestionReunionesContent() {
            ) : <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
                 <MessageSquareText className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
                 <p className="text-muted-foreground font-medium">No hay reuniones agendadas.</p>
-                <p className="text-xs text-muted-foreground mt-1">Usa reuniones para documentar cada cambio en la planificación.</p>
+                <p className="text-xs text-muted-foreground mt-1">Usa reuniones para documentar cada cambio en la planificacion.</p>
             </div>
           }
         </CardContent>
