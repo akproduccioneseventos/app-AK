@@ -12,7 +12,6 @@ import {
   MonitorPlay,
   Route,
   Sparkles,
-  Users,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { buildEventCommandCenter, type CommandStatus } from '@/lib/product-launch/event-command-center';
