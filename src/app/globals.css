@@ -92,6 +92,17 @@
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+  [data-testid="presupuesto-wizard"] {
+    padding-bottom: 8rem;
+    scroll-padding-bottom: 8rem;
+  }
+
+  [data-testid="presupuesto-wizard"] [data-testid="btn-siguiente-paso"],
+  [data-testid="presupuesto-wizard"] [data-testid="btn-guardar-presupuesto"] {
+    position: relative;
+    z-index: 60;
+  }
+
   .shimmer {
     background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
     background-size: 200% 100%;

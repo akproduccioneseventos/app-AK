@@ -27,6 +27,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error(`${label} demoro demasiado en responder.`)), ms);
+        promise
+            .then(resolve)
+            .catch(reject)
+            .finally(() => clearTimeout(timer));
+    });
+}
+
 function PresupuestoDashboardContent() {
     const router = useRouter();
     const { toast } = useToast();
@@ -39,13 +49,35 @@ function PresupuestoDashboardContent() {
 
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
+        const visibleRequest = withTimeout(getPresupuestos(showArchived), 12000, 'La lista de presupuestos');
+        const countRequest = withTimeout(getPresupuestos(true), 12000, 'El conteo total de presupuestos');
+
         try {
-            const guardados = await getPresupuestos(showArchived);
-            const allPresupuestos = await getPresupuestos(true);
-            setPresupuestos((Array.isArray(guardados) ? guardados : []).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
-            setTotalPresupuestosCount(Array.isArray(allPresupuestos) ? allPresupuestos.length : 0);
-        } catch(e) {
-            toast({ title: "Error", description: "No se pudieron cargar los presupuestos."});
+            const [visibleResult, countResult] = await Promise.allSettled([visibleRequest, countRequest]);
+
+            if (visibleResult.status === 'fulfilled') {
+                const guardados = Array.isArray(visibleResult.value) ? visibleResult.value : [];
+                setPresupuestos(guardados.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+            } else {
+                setPresupuestos([]);
+                toast({
+                    title: 'No se pudo cargar la lista',
+                    description: 'La base demoro o rechazo la consulta. La pantalla queda disponible para volver a intentar.',
+                    variant: 'destructive',
+                });
+            }
+
+            if (countResult.status === 'fulfilled') {
+                setTotalPresupuestosCount(Array.isArray(countResult.value) ? countResult.value.length : 0);
+            } else if (visibleResult.status === 'fulfilled') {
+                setTotalPresupuestosCount(Array.isArray(visibleResult.value) ? visibleResult.value.length : 0);
+                toast({
+                    title: 'Conteo parcial',
+                    description: 'Se cargo la lista, pero no se pudo confirmar el total de archivados.',
+                });
+            } else {
+                setTotalPresupuestosCount(0);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -152,8 +184,10 @@ function PresupuestoDashboardContent() {
                     size="sm"
                     onClick={() => setShowArchived(v => !v)}
                     className="rounded-xl text-xs"
+                    disabled={isLoading}
                   >
-                    {showArchived ? '✅ Mostrando archivados' : '🗂️ Ver archivados'}
+                    {isLoading ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> : null}
+                    {showArchived ? 'Mostrando activos + archivados' : 'Incluir archivados'}
                   </Button>
                   <div className="relative w-full md:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
@@ -174,17 +208,36 @@ function PresupuestoDashboardContent() {
                   {isLoading ? <div className="text-center p-8"><Loader2 className="w-8 h-8 animate-spin mx-auto"/></div> : (
                     <>
                       <TabsContent value="todos">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filteredPresupuestos.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
-                        </div>
+                        {filteredPresupuestos.length === 0 ? (
+                          <div className="rounded-2xl border border-dashed bg-muted/30 p-8 text-center text-muted-foreground">
+                            <FileText className="mx-auto mb-3 h-10 w-10 opacity-50" />
+                            <p className="font-semibold text-foreground">
+                              {searchTerm ? 'No hay presupuestos con esa busqueda.' : showArchived ? 'No hay presupuestos cargados, ni activos ni archivados.' : 'No hay presupuestos activos.'}
+                            </p>
+                            <p className="mt-1 text-sm">Crea uno nuevo o importa un texto para probar el flujo completo.</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {filteredPresupuestos.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
+                          </div>
+                        )}
                       </TabsContent>
-                       {['Borrador', 'Enviado', 'Aceptado', 'Facturado', 'Rechazado'].map(estado => (
-                           <TabsContent key={estado} value={estado}>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {filteredPresupuestos.filter(p => p.estado === estado).map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
-                              </div>
-                           </TabsContent>
-                        ))}
+                       {['Borrador', 'Enviado', 'Aceptado', 'Facturado', 'Rechazado'].map(estado => {
+                           const byStatus = filteredPresupuestos.filter(p => p.estado === estado);
+                           return (
+                             <TabsContent key={estado} value={estado}>
+                                {byStatus.length === 0 ? (
+                                  <div className="rounded-2xl border border-dashed bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+                                    No hay presupuestos en estado {estado}.
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {byStatus.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
+                                  </div>
+                                )}
+                             </TabsContent>
+                           );
+                        })}
                     </>
                   )}
                 </Tabs>

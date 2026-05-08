@@ -243,7 +243,7 @@ export default function CrmPage() {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="sticky top-0 z-20 -mx-2 flex flex-col items-start justify-between gap-4 rounded-2xl border bg-white/95 p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center">
           <div>
             <p className="text-xs text-muted-foreground mb-1">
               Contabilidad › <span className="text-foreground font-medium">CRM de Prospectos</span>
@@ -257,7 +257,14 @@ export default function CrmPage() {
             <Link href="/contabilidad/crm/agenda" className="flex-1 sm:flex-none">
               <Button variant="outline" className="w-full h-11"><Clock className="w-4 h-4 mr-2"/>Agenda</Button>
             </Link>
-            {stages.length > 0 && <AddLeadDialog stages={stages} onLeadAdded={() => fetchData(true)} defaultStageId={stages[0].id} />}
+            {stages.length > 0 ? (
+              <AddLeadDialog stages={stages} onLeadAdded={() => fetchData(true)} defaultStageId={stages[0].id} />
+            ) : (
+              <Button variant="outline" className="flex-1 sm:flex-none h-11" disabled>
+                <Users className="w-4 h-4 mr-2" />
+                Nuevo Prospecto
+              </Button>
+            )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" className="flex-1 sm:flex-none h-11 text-destructive border-destructive/30 hover:bg-destructive/10" disabled={isResettingCrm}>
