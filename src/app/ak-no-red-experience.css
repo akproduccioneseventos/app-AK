@@ -1,0 +1,225 @@
+/*
+ * Final visual safety layer for client, guest and social experiences.
+ * Goal: keep AK red as an accent, but never as a heavy page/card background.
+ */
+:root {
+  --ak-experience-ink: #0f172a;
+  --ak-experience-muted: #64748b;
+  --ak-experience-paper: #ffffff;
+  --ak-experience-soft: #f8fafc;
+  --ak-experience-line: rgba(15, 23, 42, 0.10);
+  --ak-experience-red: #d71920;
+  --ak-experience-blue: #2563eb;
+  --ak-experience-gold: #f59e0b;
+  --ak-experience-shadow: 0 18px 56px rgba(15, 23, 42, 0.10);
+  --ak-experience-shadow-strong: 0 26px 86px rgba(15, 23, 42, 0.16);
+}
+
+@keyframes ak-experience-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes ak-experience-shine {
+  from { background-position: -180% 0; }
+  to { background-position: 180% 0; }
+}
+
+/* Remove heavy red/rose backgrounds globally, while allowing red text and borders as accents. */
+body :where([class*="bg-red-50"], [class*="bg-red-100"], [class*="bg-rose-50"], [class*="bg-rose-100"]) {
+  background-color: var(--ak-experience-paper) !important;
+  background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+body :where([class*="bg-red-200"], [class*="bg-red-300"], [class*="bg-red-400"], [class*="bg-red-500"], [class*="bg-red-600"], [class*="bg-red-700"], [class*="bg-red-800"], [class*="bg-red-900"], [class*="bg-rose-200"], [class*="bg-rose-300"], [class*="bg-rose-400"], [class*="bg-rose-500"], [class*="bg-rose-600"], [class*="bg-rose-700"], [class*="bg-rose-800"], [class*="bg-rose-900"]) {
+  background-color: #111827 !important;
+  background-image: linear-gradient(135deg, #111827 0%, #334155 100%) !important;
+}
+
+body :where([class*="bg-red-"][class*="/"], [class*="bg-rose-"][class*="/"]) {
+  background-color: rgba(248, 250, 252, 0.9) !important;
+  background-image: none !important;
+}
+
+body :where([class*="hover:bg-red"]:hover, [class*="hover:bg-rose"]:hover) {
+  background-color: #f8fafc !important;
+  background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+body :where([class*="from-red"], [class*="via-red"], [class*="to-red"], [class*="from-rose"], [class*="via-rose"], [class*="to-rose"]) {
+  --tw-gradient-from: #ffffff !important;
+  --tw-gradient-via: #f8fafc !important;
+  --tw-gradient-to: #ffffff !important;
+  --tw-gradient-stops: #ffffff, #f8fafc, #ffffff !important;
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(215, 25, 32, 0.07), transparent 24rem),
+    radial-gradient(circle at 92% 8%, rgba(37, 99, 235, 0.07), transparent 24rem),
+    linear-gradient(135deg, #ffffff 0%, #f8fafc 58%, #ffffff 100%) !important;
+}
+
+body :where(main, section, div)[class*="min-h-screen"][class*="bg-red"],
+body :where(main, section, div)[class*="min-h-screen"][class*="bg-rose"],
+body :where(main, section, div)[class*="min-h-screen"][class*="from-red"],
+body :where(main, section, div)[class*="min-h-screen"][class*="from-rose"] {
+  color: var(--ak-experience-ink) !important;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(215, 25, 32, 0.08), transparent 24rem),
+    radial-gradient(circle at 90% 10%, rgba(37, 99, 235, 0.07), transparent 24rem),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+body :where(section[style*="linear-gradient(135deg"]:not([style*="url("])) {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(215, 25, 32, 0.08), transparent 24rem),
+    radial-gradient(circle at 92% 8%, rgba(37, 99, 235, 0.08), transparent 24rem),
+    linear-gradient(135deg, #ffffff 0%, #f8fafc 60%, #ffffff 100%) !important;
+  color: var(--ak-experience-ink) !important;
+}
+
+body :where(section[style*="linear-gradient(135deg"]:not([style*="url("])) :where([class*="text-white"], [class*="text-zinc-100"], [class*="text-slate-100"]) {
+  color: var(--ak-experience-ink) !important;
+  text-shadow: none !important;
+}
+
+/* Global surface polish for the modules that clients and guests see. */
+body :where(main, section, article, aside, div)[class*="min-h-screen"] {
+  overflow-x: hidden;
+  scroll-padding-bottom: 7rem;
+}
+
+body :where(.bg-white, .bg-white\/70, .bg-white\/80, .bg-white\/90, .bg-white\/95, .bg-slate-50, .bg-zinc-50) {
+  border-color: var(--ak-experience-line) !important;
+}
+
+body :where(.shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+  box-shadow: var(--ak-experience-shadow) !important;
+}
+
+body :where(.rounded-3xl, .rounded-\[2rem\], .rounded-\[1\.75rem\], .rounded-\[1\.5rem\]) {
+  border-radius: 1rem !important;
+}
+
+body :where(button, a[role="button"], a.inline-flex, a[class*="rounded"]) {
+  touch-action: manipulation;
+  min-height: 44px;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+body :where(button:hover, a[role="button"]:hover, a.inline-flex:hover, a[class*="rounded"]:hover) {
+  transform: translateY(-1px);
+}
+
+body :where(button:disabled, a[aria-disabled="true"]) {
+  transform: none !important;
+}
+
+body :where(input, textarea, select) {
+  min-height: 42px;
+}
+
+body :where(input[type="color"]) {
+  min-height: 38px;
+  border-radius: 0.75rem;
+}
+
+body :where(.line-clamp-2, .line-clamp-3, p, span, h1, h2, h3, h4, button, a) {
+  overflow-wrap: anywhere;
+}
+
+body :where(img, video) {
+  image-rendering: auto;
+  filter: saturate(1.04) contrast(1.02);
+}
+
+body :where([class*="aspect-square"], [style*="aspect-ratio"]) img {
+  object-position: center;
+}
+
+/* Social wall and private party network: more legible, more touch-friendly, more premium. */
+body :where(a[href*="/evento/social"], a[href*="/evento/muro-en-vivo"], a[href*="/evento/en-vivo"], a[href*="/invitacion"], a[href*="/portal/c"], a[href*="/portal-invitado"]) {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+body :where([class*="grid-cols-2"] > button, [class*="grid-cols-2"] > a) {
+  min-height: 5.75rem;
+}
+
+body :where([class*="backdrop-blur"], [class*="bg-white/"]) {
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+body :where([class*="border-dashed"]) {
+  border-color: rgba(100, 116, 139, 0.28) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.9)) !important;
+}
+
+/* Prevent floating assistant/widgets from covering final actions on mobile/public workflows. */
+body :where(form, [data-testid="presupuesto-wizard"], main[class*="max-w"], div[class*="max-w-sm"], div[class*="max-w-lg"]) {
+  scroll-padding-bottom: 8rem;
+}
+
+body :where([class*="sticky"][class*="top-0"]) {
+  backdrop-filter: blur(18px) saturate(1.05);
+}
+
+/* Softer premium motion. */
+@media (prefers-reduced-motion: no-preference) {
+  body :where(main > section, main > div, [class*="min-h-screen"] > section, [class*="min-h-screen"] > div):not([data-radix-popper-content-wrapper]) {
+    animation: ak-experience-enter 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  body :where(.shadow-lg, .shadow-xl, .shadow-2xl):hover {
+    box-shadow: var(--ak-experience-shadow-strong) !important;
+  }
+
+  body :where([class*="bg-white"], [class*="bg-slate-50"]):hover {
+    background-size: 180% 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  body :where(main, section, div)[class*="min-h-screen"] {
+    padding-left: max(env(safe-area-inset-left), 0px);
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+
+  body :where(.max-w-sm, .max-w-lg, .max-w-xl) {
+    max-width: 100% !important;
+  }
+
+  body :where(button, a[role="button"], a.inline-flex, a[class*="rounded"]) {
+    min-height: 46px;
+  }
+
+  body :where([class*="grid-cols-2"] > button, [class*="grid-cols-2"] > a) {
+    min-height: 5.5rem;
+  }
+
+  body :where(.text-6xl, .text-7xl, .text-8xl, .text-9xl) {
+    line-height: 0.95;
+  }
+}
+
+@media (max-width: 420px) {
+  body :where([class*="grid-cols-2"] > button, [class*="grid-cols-2"] > a) {
+    padding: 0.85rem !important;
+  }
+
+  body :where(button, a) {
+    font-size: clamp(0.75rem, 3.2vw, 0.95rem);
+  }
+}
