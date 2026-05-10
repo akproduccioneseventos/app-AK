@@ -46,7 +46,7 @@ import {
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
 
-type StationId = 'fotocabina' | 'plataforma360';
+type StationId = 'fotocabina' | 'plataforma360' | 'bogue' | 'espejoMagico';
 type StationStatus = 'preparando' | 'listo' | 'en-vivo' | 'pausado';
 
 interface EntertainmentChecklistItem {
@@ -103,6 +103,35 @@ const STATUS_META: Record<StationStatus, { label: string; className: string }> =
   pausado: { label: 'Pausado', className: 'bg-amber-100 text-amber-700 border-amber-200' },
 };
 
+const STATION_IDS: StationId[] = ['fotocabina', 'plataforma360', 'bogue', 'espejoMagico'];
+
+const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ElementType }> = {
+  fotocabina: {
+    shortLabel: 'Fotocabina',
+    description: 'Captura fotos, GIFs y boomerangs con marca del evento, QR y galeria.',
+    caption: 'Captura fotocabina',
+    icon: Camera,
+  },
+  plataforma360: {
+    shortLabel: 'Plataforma 360',
+    description: 'Control de clips 360 usando celular, subida rapida y salida lista para compartir.',
+    caption: 'Captura 360',
+    icon: RotateCcw,
+  },
+  bogue: {
+    shortLabel: 'Bogue',
+    description: 'Clips boomerang cortos con loop, musica, overlay y QR para compartir al instante.',
+    caption: 'Clip Bogue / Boomerang',
+    icon: Video,
+  },
+  espejoMagico: {
+    shortLabel: 'Espejo magico',
+    description: 'Experiencia de espejo tactil con prompts, firma, dibujo, props y salida premium.',
+    caption: 'Captura Espejo Magico',
+    icon: Sparkles,
+  },
+};
+
 const CHANNELS = [
   { id: 'qr', label: 'QR', icon: QrCode },
   { id: 'mail', label: 'Mail', icon: Mail },
@@ -114,6 +143,8 @@ const CHANNELS = [
 const FEATURE_LIBRARY: Record<StationId, string[]> = {
   fotocabina: ['Foto', 'GIF', 'Boomerang', 'Filtros', 'Marcos', 'Impresion'],
   plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Musica', 'QR por video'],
+  bogue: ['Boomerang', 'Loop forward/reverse', 'Video corto', 'Musica', 'Overlay animado', 'QR por clip'],
+  espejoMagico: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos', 'Impresion', 'Galeria QR'],
 };
 
 function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
@@ -124,10 +155,13 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
     'Prueba de envio realizada',
     'Responsable asignado',
   ];
-  const specific =
-    type === 'fotocabina'
-      ? ['Plantilla de foto aprobada', 'Fondo o marco elegido', 'Impresora / salida digital verificada']
-      : ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha'];
+  const specificByType: Record<StationId, string[]> = {
+    fotocabina: ['Plantilla de foto aprobada', 'Fondo o marco elegido', 'Impresora / salida digital verificada'],
+    plataforma360: ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha'],
+    bogue: ['Duracion del loop configurada', 'Musica o sonido corto elegido', 'Prueba de ida y vuelta realizada'],
+    espejoMagico: ['Espejo/pantalla tactil limpia', 'Firma y sellos probados', 'Plantilla de impresion aprobada'],
+  };
+  const specific = specificByType[type];
 
   return [...specific, ...shared].map((text, index) => ({
     id: `${type}_check_${index + 1}`,
@@ -156,6 +190,48 @@ function makeStation(type: StationId, fiesta?: FiestaEnPlanificacion | null): En
       checklist: makeChecklist('fotocabina'),
       script: 'Captura, aplica marco AK, muestra QR y deja la foto lista para galeria y muro social.',
       notes: '',
+      media: [],
+    };
+  }
+
+  if (type === 'bogue') {
+    return {
+      id: 'bogue',
+      title: 'Bogue AK',
+      enabled: true,
+      status: 'listo',
+      operatorName: '',
+      deviceName: 'Celular / tablet con soporte',
+      location: 'Zona de activacion',
+      startTime: '23:30',
+      overlayName: `${eventName} - loop social`,
+      accentColor: '#0ea5e9',
+      captureModes: ['Boomerang', 'Loop forward/reverse', 'Video corto'],
+      deliveryChannels: ['qr', 'whatsapp', 'galeria', 'descarga'],
+      checklist: makeChecklist('bogue'),
+      script: 'Grabar clips cortos de movimiento, aplicar marca AK y publicarlos como loop para QR, galeria y muro social.',
+      notes: 'Ideal para entrada, cotillon o momento de pista con mucha energia.',
+      media: [],
+    };
+  }
+
+  if (type === 'espejoMagico') {
+    return {
+      id: 'espejoMagico',
+      title: 'Espejo Magico AK',
+      enabled: true,
+      status: 'preparando',
+      operatorName: '',
+      deviceName: 'Espejo / pantalla tactil / camara',
+      location: 'Recepcion o salon principal',
+      startTime: '21:30',
+      overlayName: `${eventName} - espejo interactivo`,
+      accentColor: '#f59e0b',
+      captureModes: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos'],
+      deliveryChannels: ['qr', 'mail', 'whatsapp', 'galeria', 'descarga'],
+      checklist: makeChecklist('espejoMagico'),
+      script: 'El invitado toca el espejo, sigue prompts, firma o dibuja sobre la foto y la recibe por QR o galeria.',
+      notes: 'Pensado como experiencia premium de entrada, elegante y muy visual.',
       media: [],
     };
   }
@@ -195,6 +271,8 @@ function makeDefaultEntertainment(fiesta?: FiestaEnPlanificacion | null, origin 
     modules: {
       fotocabina: makeStation('fotocabina', fiesta),
       plataforma360: makeStation('plataforma360', fiesta),
+      bogue: makeStation('bogue', fiesta),
+      espejoMagico: makeStation('espejoMagico', fiesta),
     },
   };
 }
@@ -205,16 +283,16 @@ function mergeEntertainmentData(
   origin = ''
 ): EntertainmentData {
   const defaults = makeDefaultEntertainment(fiesta, origin);
-  const modules = {
-    fotocabina: { ...defaults.modules.fotocabina, ...(stored?.modules?.fotocabina || {}) },
-    plataforma360: { ...defaults.modules.plataforma360, ...(stored?.modules?.plataforma360 || {}) },
-  };
-
-  modules.fotocabina.checklist = stored?.modules?.fotocabina?.checklist || defaults.modules.fotocabina.checklist;
-  modules.plataforma360.checklist =
-    stored?.modules?.plataforma360?.checklist || defaults.modules.plataforma360.checklist;
-  modules.fotocabina.media = stored?.modules?.fotocabina?.media || [];
-  modules.plataforma360.media = stored?.modules?.plataforma360?.media || [];
+  const modules = STATION_IDS.reduce((acc, stationId) => {
+    const storedStation = stored?.modules?.[stationId];
+    acc[stationId] = {
+      ...defaults.modules[stationId],
+      ...(storedStation || {}),
+      checklist: storedStation?.checklist || defaults.modules[stationId].checklist,
+      media: storedStation?.media || [],
+    };
+    return acc;
+  }, {} as Record<StationId, EntertainmentStation>);
 
   return {
     ...defaults,
@@ -277,9 +355,9 @@ function StationPanel({
   onToggleArrayValue,
   onUpload,
 }: StationPanelProps) {
-  const Icon = station.id === 'fotocabina' ? Camera : RotateCcw;
+  const Icon = STATION_META[station.id].icon;
   const score = stationScore(station);
-  const captureAccept = station.id === 'plataforma360' ? 'video/*,image/*' : 'image/*,video/*';
+  const captureAccept = station.id === 'plataforma360' || station.id === 'bogue' ? 'video/*,image/*' : 'image/*,video/*';
 
   return (
     <div className="space-y-5">
@@ -296,9 +374,7 @@ function StationPanel({
                   <StatusBadge status={station.status} />
                 </div>
                 <p className="mt-2 max-w-2xl text-sm font-semibold text-slate-500">
-                  {station.id === 'fotocabina'
-                    ? 'Captura fotos, GIFs y boomerangs con marca del evento, QR y galeria.'
-                    : 'Control de clips 360 usando celular, subida rapida y salida lista para compartir.'}
+                  {STATION_META[station.id].description}
                 </p>
               </div>
             </div>
@@ -484,7 +560,7 @@ function StationPanel({
                     <input
                       type="file"
                       accept={captureAccept}
-                      capture={station.id === 'plataforma360' ? 'environment' : undefined}
+                      capture={station.id === 'plataforma360' || station.id === 'bogue' ? 'environment' : undefined}
                       className="hidden"
                       disabled={uploading}
                       onChange={async (event) => {
@@ -583,7 +659,7 @@ function EntretenimientoContent() {
 
   const overallScore = useMemo(() => {
     if (!data) return 0;
-    return Math.round((stationScore(data.modules.fotocabina) + stationScore(data.modules.plataforma360)) / 2);
+    return Math.round(STATION_IDS.reduce((sum, stationId) => sum + stationScore(data.modules[stationId]), 0) / STATION_IDS.length);
   }, [data]);
 
   const updateStation = useCallback((stationId: StationId, patch: Partial<EntertainmentStation>) => {
@@ -648,7 +724,7 @@ function EntretenimientoContent() {
       return;
     }
     setData(mergeEntertainmentData(result.data, fiesta, origin));
-    toast({ title: 'Entretenimiento guardado', description: 'Fotocabina y Plataforma 360 quedaron actualizadas.' });
+    toast({ title: 'Entretenimiento guardado', description: 'Todas las estaciones quedaron actualizadas.' });
   }, [data, fiesta, fiestaId, origin, toast]);
 
   const uploadMedia = useCallback(async (file: File, stationId: StationId) => {
@@ -659,7 +735,7 @@ function EntretenimientoContent() {
     formData.append('moduleId', stationId);
     formData.append('file', file);
     formData.append('authorName', 'AK Producciones');
-    formData.append('caption', stationId === 'plataforma360' ? 'Captura 360' : 'Captura fotocabina');
+    formData.append('caption', STATION_META[stationId].caption);
 
     const result = await uploadEntretenimientoMedia(formData);
     setUploadingStation(null);
@@ -710,7 +786,7 @@ function EntretenimientoContent() {
                 Entretenimiento
               </h1>
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-slate-500 sm:text-base">
-                Fotocabina y Plataforma 360 como estaciones profesionales conectadas al evento, al QR y al muro social.
+                Fotocabina, Plataforma 360, Bogue y Espejo Magico como estaciones profesionales conectadas al evento, al QR y al muro social.
               </p>
             </div>
           </div>
@@ -757,8 +833,8 @@ function EntretenimientoContent() {
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <Sparkles className="mb-2 h-5 w-5 text-violet-600" />
-                    <p className="text-2xl font-black text-slate-950">{data.eventHashtag}</p>
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Hashtag</p>
+                    <p className="text-2xl font-black text-slate-950">{STATION_IDS.length}</p>
+                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Estaciones</p>
                   </div>
                 </div>
               </div>
@@ -821,7 +897,7 @@ function EntretenimientoContent() {
         </div>
 
         <Tabs defaultValue="fotocabina" className="space-y-5">
-          <TabsList className="grid h-auto grid-cols-2 rounded-2xl bg-white p-1 shadow-lg">
+          <TabsList className="grid h-auto grid-cols-2 rounded-2xl bg-white p-1 shadow-lg lg:grid-cols-4">
             <TabsTrigger value="fotocabina" className="rounded-xl py-3 font-black">
               <Camera className="mr-2 h-4 w-4" />
               Fotocabina
@@ -829,6 +905,14 @@ function EntretenimientoContent() {
             <TabsTrigger value="plataforma360" className="rounded-xl py-3 font-black">
               <RotateCcw className="mr-2 h-4 w-4" />
               Plataforma 360
+            </TabsTrigger>
+            <TabsTrigger value="bogue" className="rounded-xl py-3 font-black">
+              <Video className="mr-2 h-4 w-4" />
+              Bogue
+            </TabsTrigger>
+            <TabsTrigger value="espejoMagico" className="rounded-xl py-3 font-black">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Espejo magico
             </TabsTrigger>
           </TabsList>
 
@@ -854,6 +938,32 @@ function EntretenimientoContent() {
               onUpdate={(patch) => updateStation('plataforma360', patch)}
               onToggleChecklist={(checkId) => toggleChecklist('plataforma360', checkId)}
               onToggleArrayValue={(field, value) => toggleArrayValue('plataforma360', field, value)}
+              onUpload={uploadMedia}
+            />
+          </TabsContent>
+
+          <TabsContent value="bogue">
+            <StationPanel
+              station={data.modules.bogue}
+              galleryUrl={data.galleryUrl}
+              eventHashtag={data.eventHashtag}
+              uploading={uploadingStation === 'bogue'}
+              onUpdate={(patch) => updateStation('bogue', patch)}
+              onToggleChecklist={(checkId) => toggleChecklist('bogue', checkId)}
+              onToggleArrayValue={(field, value) => toggleArrayValue('bogue', field, value)}
+              onUpload={uploadMedia}
+            />
+          </TabsContent>
+
+          <TabsContent value="espejoMagico">
+            <StationPanel
+              station={data.modules.espejoMagico}
+              galleryUrl={data.galleryUrl}
+              eventHashtag={data.eventHashtag}
+              uploading={uploadingStation === 'espejoMagico'}
+              onUpdate={(patch) => updateStation('espejoMagico', patch)}
+              onToggleChecklist={(checkId) => toggleChecklist('espejoMagico', checkId)}
+              onToggleArrayValue={(field, value) => toggleArrayValue('espejoMagico', field, value)}
               onUpload={uploadMedia}
             />
           </TabsContent>
