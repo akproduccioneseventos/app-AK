@@ -29,7 +29,8 @@ export function HeroSection({
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(17,17,17,0.92)_0%,rgba(127,29,29,0.78)_50%,rgba(17,17,17,0.44)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.94)_0%,rgba(15,23,42,0.86)_52%,rgba(30,41,59,0.54)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_24%,rgba(215,25,32,0.22),transparent_18rem),radial-gradient(circle_at_76%_18%,rgba(37,99,235,0.20),transparent_22rem)]" />
       <div
         className="absolute inset-0 opacity-25"
         style={{
@@ -45,19 +46,19 @@ export function HeroSection({
               href="#promo"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-xs font-black uppercase tracking-widest mb-4 hover:bg-white/20 transition-colors backdrop-blur-md"
             >
-              <Zap className="w-3.5 h-3.5 text-red-200" />
+              <Zap className="w-3.5 h-3.5 text-amber-200" />
               Promo activa: {promoActiva.titulo}
             </a>
           )}
 
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-black uppercase tracking-widest mb-7">
-            <span className="h-2 w-8 rounded-full bg-red-500 shadow-[0_0_24px_rgba(239,68,68,0.82)]" />
+            <span className="h-2 w-8 rounded-full bg-white shadow-[0_0_24px_rgba(255,255,255,0.62)]" />
             AK Producciones Eventos
           </div>
 
           <h1 className="font-headline text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-none mb-6 drop-shadow-2xl">
             {headline.split('\n').map((line, i) => (
-              <span key={i} className={cn('block', i === 1 && 'text-red-100')}>
+              <span key={i} className={cn('block', i === 1 && 'text-white/90')}>
                 {line}
               </span>
             ))}
@@ -75,9 +76,9 @@ export function HeroSection({
               data-testid="hero-cta-button"
               className={cn(
                 'flex items-center gap-3 px-8 py-4 rounded-2xl',
-                'bg-red-600 hover:bg-red-700',
-                'text-white font-black text-base uppercase tracking-widest',
-                'shadow-2xl shadow-red-950/40',
+                'bg-white hover:bg-slate-100',
+                'text-slate-950 font-black text-base uppercase tracking-widest',
+                'shadow-2xl shadow-slate-950/40',
                 'transition-all duration-300 hover:scale-[1.02] active:scale-95',
                 'min-w-[220px] justify-center'
               )}
@@ -89,7 +90,7 @@ export function HeroSection({
               href="/simulador-ak"
               className={cn(
                 'flex items-center gap-3 px-8 py-4 rounded-2xl',
-                'bg-white text-zinc-950 hover:bg-red-50',
+                'bg-white/10 text-white hover:bg-white/15',
                 'font-black text-base uppercase tracking-widest',
                 'border border-white/70',
                 'transition-all duration-300 hover:scale-[1.02] active:scale-95',

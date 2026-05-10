@@ -250,7 +250,7 @@ export const defaultModulosContratados: ModulosContratados = {
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
     reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
-    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, carteleria: true
+    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, entretenimiento: true, carteleria: true
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {

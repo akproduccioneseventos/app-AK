@@ -52,6 +52,11 @@ body :where([class*="hover:bg-red"]:hover, [class*="hover:bg-rose"]:hover) {
   background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
 }
 
+body :where([class*="bg-destructive"], [class*="hover:bg-destructive"]:hover) {
+  background-color: #111827 !important;
+  background-image: linear-gradient(135deg, #111827 0%, #334155 100%) !important;
+}
+
 body :where([class*="from-red"], [class*="via-red"], [class*="to-red"], [class*="from-rose"], [class*="via-rose"], [class*="to-rose"]) {
   --tw-gradient-from: #ffffff !important;
   --tw-gradient-via: #f8fafc !important;
@@ -85,6 +90,11 @@ body :where(section[style*="linear-gradient(135deg"]:not([style*="url("])) {
 body :where(section[style*="linear-gradient(135deg"]:not([style*="url("])) :where([class*="text-white"], [class*="text-zinc-100"], [class*="text-slate-100"]) {
   color: var(--ak-experience-ink) !important;
   text-shadow: none !important;
+}
+
+body :where([style*="background-color: rgb(220, 38, 38)"], [style*="background-color:#dc2626"], [style*="background:#dc2626"]) {
+  background-color: #111827 !important;
+  background-image: linear-gradient(135deg, #111827, #334155) !important;
 }
 
 /* Global surface polish for the modules that clients and guests see. */
@@ -188,6 +198,14 @@ body :where([class*="sticky"][class*="top-0"]) {
 
   body :where([class*="bg-white"], [class*="bg-slate-50"]):hover {
     background-size: 180% 100%;
+  }
+
+  body :where(.ak-entertainment-page .rounded-\[2rem\], .ak-entertainment-page .rounded-2xl, section[data-testid="hero-section"] a, section[data-testid="services-section"] a) {
+    transition:
+      transform 190ms ease,
+      box-shadow 190ms ease,
+      border-color 190ms ease,
+      background-color 190ms ease;
   }
 }
 

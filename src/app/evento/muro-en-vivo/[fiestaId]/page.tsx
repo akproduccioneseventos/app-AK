@@ -961,6 +961,7 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
   if (posts.length === 0) return null;
 
   const post = posts[currentIndex] ?? posts[0];
+  const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
 
   return (
     <div className="absolute inset-0 bg-black">
@@ -973,6 +974,10 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
           transition={{ duration: 0.9, ease: 'easeInOut' }}
           className="absolute inset-0 flex items-center justify-center"
         >
+          {isVideo ? (
+            <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted loop playsInline />
+          ) : (
+            <>
           {/* Blurred background fill (handles portrait photos on landscape screen) */}
           <NextImage
             src={post.imageUrl}
@@ -991,6 +996,8 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
             unoptimized
             priority
           />
+            </>
+          )}
           {/* Author badge */}
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-5 py-1.5 backdrop-blur-sm border border-white/20">
             <span className="text-sm font-bold text-white/90">{post.authorName}</span>
@@ -1079,6 +1086,7 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
   const [imgError, setImgError] = useState(false);
   const isFreshPost = Date.now() - new Date(post.timestamp).getTime() < FRESH_POST_POLAROID_DURATION_MS;
   const polaroidRotation = ((index % 7) - 3) * 1.8;
+  const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
 
   return (
     <motion.div
@@ -1093,7 +1101,16 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
         borderBottomWidth: isFreshPost ? '24px' : undefined,
       }}
     >
-      {!imgError ? (
+      {isVideo ? (
+        <video
+          src={post.imageUrl}
+          className="h-full w-full object-cover transition-transform duration-[8000ms] group-hover:scale-105"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      ) : !imgError ? (
         <NextImage
           src={post.imageUrl}
           alt={post.authorName}
@@ -1135,8 +1152,8 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
 const GAME_TYPE_META: Record<string, { emoji: string; label: string; bg: string }> = {
   siONo:           { emoji: '🤔', label: '¿Sí o No?',           bg: 'from-violet-900 via-indigo-900 to-purple-900' },
   trivia:          { emoji: '🧠', label: 'Trivia',               bg: 'from-blue-900 via-cyan-900 to-teal-900' },
-  encuesta:        { emoji: '📊', label: 'Encuesta',             bg: 'from-amber-900 via-orange-900 to-red-900' },
-  baileLibre:      { emoji: '🕺', label: '¡Baile libre!',        bg: 'from-fuchsia-900 via-pink-900 to-rose-900' },
+  encuesta:        { emoji: '📊', label: 'Encuesta',             bg: 'from-amber-900 via-orange-900 to-slate-950' },
+  baileLibre:      { emoji: '🕺', label: '¡Baile libre!',        bg: 'from-fuchsia-900 via-indigo-900 to-slate-950' },
   verdadODesafio:  { emoji: '🎯', label: 'Verdad o Desafío',     bg: 'from-green-900 via-emerald-900 to-teal-900' },
   preguntaAbierta: { emoji: '💬', label: 'Pregunta abierta',     bg: 'from-slate-800 via-slate-900 to-neutral-900' },
 };
