@@ -77,6 +77,10 @@ function mergeGuestSettings(
   };
 }
 
+function isVideoPost(post: SocialGalleryPost) {
+  return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
+}
+
 /** Large touchable feature card shown on the guest home screen. */
 const GuestFeatureButton: React.FC<{
   icon: React.ReactNode;
@@ -202,13 +206,23 @@ const PostCard: React.FC<{
         <CardContent className="p-0 flex-grow">
             {/* 4:3 container with object-contain so the full photo is always visible */}
             <div className="relative w-full bg-slate-100" style={{ aspectRatio: '4 / 3' }}>
-              <NextImage
-                src={post.imageUrl}
-                alt={`Foto de ${post.authorName}`}
-                fill
-                className="object-contain"
-                unoptimized
-              />
+              {isVideoPost(post) ? (
+                <video
+                  src={post.imageUrl}
+                  className="h-full w-full object-contain"
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
+                <NextImage
+                  src={post.imageUrl}
+                  alt={`Foto de ${post.authorName}`}
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              )}
             </div>
         </CardContent>
         <CardFooter className="p-4 flex flex-col items-start gap-3">
@@ -1529,14 +1543,14 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                 <Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100" onClick={handleDownloadChat}><Download className="w-3 h-3 mr-1.5"/>CHAT</Button>
                 <a href={`/api/social-gallery/${params.fiestaId}/download`} download><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100"><Download className="w-3 h-3 mr-1.5"/>FOTOS</Button></a>
                 <AlertDialog>
-                    <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-red-50" disabled={isDownloadingAndClearing} aria-label="Descargar ZIP y limpiar galería"><Download className="w-3 h-3 mr-1.5"/><Trash2 className="w-3 h-3 mr-1.5"/>ZIP + LIMPIAR</Button></AlertDialogTrigger>
+                    <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-slate-100" disabled={isDownloadingAndClearing} aria-label="Descargar ZIP y limpiar galería"><Download className="w-3 h-3 mr-1.5"/><Trash2 className="w-3 h-3 mr-1.5"/>ZIP + LIMPIAR</Button></AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader><AlertDialogTitle>¿Descargar ZIP y limpiar?</AlertDialogTitle><AlertDialogDescription>Se descargará el ZIP con todas las fotos y luego se eliminarán permanentemente del servidor.</AlertDialogDescription></AlertDialogHeader>
                         <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleDownloadAndClear} className="bg-destructive hover:bg-destructive/90">Confirmar</AlertDialogAction></AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
                 <AlertDialog>
-                    <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-red-50" disabled={isClearing}><Trash2 className="w-3 h-3 mr-1.5"/>VACIAR</Button></AlertDialogTrigger>
+                    <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-slate-100" disabled={isClearing}><Trash2 className="w-3 h-3 mr-1.5"/>VACIAR</Button></AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader><AlertDialogTitle>¿Vaciar el mural?</AlertDialogTitle><AlertDialogDescription>Se eliminarán permanentemente todas las fotos y mensajes.</AlertDialogDescription></AlertDialogHeader>
                         <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleClearGallery} className="bg-destructive hover:bg-destructive/90">Confirmar</AlertDialogAction></AlertDialogFooter>
@@ -1767,7 +1781,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             <div className="relative flex-grow h-full w-full md:w-3/4">
                 {posts.map((post, index) => (
                     <div key={post.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
-                        <WatermarkedImage src={post.imageUrl} layout="fill" objectFit="contain" alt={`Foto de ${post.authorName}`} />
+                        {isVideoPost(post) ? (
+                          <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted loop playsInline />
+                        ) : (
+                          <WatermarkedImage src={post.imageUrl} layout="fill" objectFit="contain" alt={`Foto de ${post.authorName}`} />
+                        )}
                     </div>
                 ))}
             </div>

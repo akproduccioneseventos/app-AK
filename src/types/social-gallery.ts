@@ -11,12 +11,16 @@ export interface SocialGalleryPost {
   id: string;
   fiestaId: string;
   imageUrl: string;
+  mediaType?: 'image' | 'video';
   authorName: string;
   timestamp: string; // ISO Date String
   likes: number;
   comments: SocialComment[];
   dedication?: string;
   momentTag?: string;
+  source?: 'guest' | 'entertainment' | string;
+  sourceModule?: string;
+  caption?: string;
   /** SHA-256 hex hash of the image content — used to reject duplicate uploads */
   imageHash?: string;
 }

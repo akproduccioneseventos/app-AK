@@ -19,7 +19,7 @@ const steps = [
     icon: '✨',
     title: '¡Disfrutá tu Evento!',
     description: 'Nosotros nos encargamos de todo. Vos solo disfrutás el día más especial.',
-    color: 'from-pink-500 to-rose-500',
+    color: 'from-amber-400 to-orange-500',
   },
 ];
 
@@ -28,7 +28,7 @@ export function ProcessSection() {
     <section className="py-24 bg-white" id="proceso">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-700 text-xs font-black uppercase tracking-widest mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-widest mb-6">
             🚀 Cómo Trabajamos
           </div>
           <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4">
@@ -42,7 +42,7 @@ export function ProcessSection() {
         {/* Desktop: horizontal timeline */}
         <div className="hidden md:flex items-start justify-between relative">
           {/* Connector line */}
-          <div className="absolute top-10 left-[16.66%] right-[16.66%] h-0.5 bg-gradient-to-r from-purple-300 via-fuchsia-300 to-pink-300" />
+          <div className="absolute top-10 left-[16.66%] right-[16.66%] h-0.5 bg-gradient-to-r from-purple-300 via-blue-300 to-amber-300" />
 
           {steps.map((step, i) => (
             <div key={i} className="flex flex-col items-center text-center w-1/3 px-6 relative">
@@ -75,7 +75,7 @@ export function ProcessSection() {
                   {step.icon}
                 </div>
                 {i < steps.length - 1 && (
-                  <div className="w-0.5 flex-1 bg-gradient-to-b from-purple-300 to-pink-300 my-2 min-h-[2rem]" />
+                  <div className="w-0.5 flex-1 bg-gradient-to-b from-purple-300 to-amber-300 my-2 min-h-[2rem]" />
                 )}
               </div>
               <div className="pt-2 pb-4">

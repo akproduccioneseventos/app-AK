@@ -129,14 +129,14 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
       <section id="galeria" data-testid="gallery-section" className="py-24 bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-black uppercase tracking-[0.4em] text-red-300 mb-4">Nuestro trabajo</p>
+            <p className="text-xs font-black uppercase tracking-[0.4em] text-blue-200 mb-4">Nuestro trabajo</p>
             <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-6">Galería AK</h2>
             <p className="text-zinc-300 text-lg max-w-xl mx-auto">
               Fotos reales, momentos reales y una muestra clara de cómo puede verse tu evento.
             </p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/10 py-16 px-6 text-center shadow-2xl">
-            <Camera className="w-12 h-12 text-red-200 mx-auto mb-4" />
+            <Camera className="w-12 h-12 text-blue-200 mx-auto mb-4" />
             <p className="text-zinc-200 font-semibold">Próximamente agregaremos fotos de nuestros eventos.</p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-12 items-end mb-12">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.4em] text-red-300 mb-4">Nuestro trabajo</p>
+            <p className="text-xs font-black uppercase tracking-[0.4em] text-blue-200 mb-4">Nuestro trabajo</p>
             <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-5">Galería AK</h2>
             <p className="text-zinc-300 text-lg max-w-xl leading-relaxed">
               La galería tiene que vender sola: fotos grandes, filtros simples y detalles claros para que el futuro cliente imagine su fiesta.
@@ -177,7 +177,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                   className={cn(
                     'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200',
                     activeFiesta === fiesta.value
-                      ? 'bg-red-600 text-white shadow-lg shadow-red-950/30'
+                      ? 'bg-white text-slate-950 shadow-lg shadow-slate-950/30'
                       : 'bg-white/10 text-zinc-200 hover:bg-white/20'
                   )}
                 >
@@ -196,7 +196,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               className={cn(
                 'px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border',
                 activeServicio === servicio
-                  ? 'bg-white text-red-700 border-white shadow-lg'
+                  ? 'bg-white text-slate-950 border-white shadow-lg'
                   : 'bg-transparent text-zinc-300 border-white/20 hover:bg-white/10 hover:text-white'
               )}
             >
@@ -213,7 +213,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 key={image.id}
                 onClick={() => openLightbox(index)}
                 className={cn(
-                  'relative rounded-2xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-red-400 bg-zinc-900 border border-white/10 text-left shadow-2xl',
+                  'relative rounded-2xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-blue-300 bg-zinc-900 border border-white/10 text-left shadow-2xl',
                   featured ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1'
                 )}
               >
@@ -228,11 +228,11 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 {image.destacada && (
-                  <div className="absolute top-3 left-3 bg-white text-red-700 text-[10px] font-black px-3 py-1 rounded-lg shadow-lg">
+                  <div className="absolute top-3 left-3 bg-white text-slate-950 text-[10px] font-black px-3 py-1 rounded-lg shadow-lg">
                     Destacada
                   </div>
                 )}
-                <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-lg shadow-lg max-w-[70%] truncate">
+                <div className="absolute top-3 right-3 bg-slate-950/85 text-white text-[10px] font-black px-3 py-1 rounded-lg shadow-lg max-w-[70%] truncate">
                   {image.servicio}
                 </div>
                 <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
@@ -243,7 +243,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                     <p className="hidden sm:block text-xs text-white/70 mt-1 line-clamp-2">{image.descripcion}</p>
                   )}
                 </div>
-                <div className="absolute inset-0 bg-red-950/0 group-hover:bg-red-950/20 transition-colors duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/20 transition-colors duration-300 flex items-center justify-center">
                   <ZoomIn className="w-9 h-9 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
                 </div>
               </button>
@@ -300,7 +300,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                     <p className="font-black text-base truncate">{filtered[lightboxIndex].titulo}</p>
                   )}
                   {filtered[lightboxIndex].servicio && (
-                    <p className="text-xs text-red-200 font-bold uppercase tracking-widest mt-1">{filtered[lightboxIndex].servicio}</p>
+                    <p className="text-xs text-blue-200 font-bold uppercase tracking-widest mt-1">{filtered[lightboxIndex].servicio}</p>
                   )}
                   {filtered[lightboxIndex].descripcion && (
                     <p className="text-xs text-white/70 mt-1 line-clamp-2">{filtered[lightboxIndex].descripcion}</p>

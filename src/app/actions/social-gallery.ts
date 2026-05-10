@@ -137,10 +137,12 @@ export async function uploadSocialPost(
       id: postId,
       fiestaId,
       imageUrl,
+      mediaType: 'image',
       timestamp: new Date().toISOString(),
       authorName,
       likes: 0,
       comments: [],
+      source: 'guest',
       ...(dedication ? { dedication } : {}),
       ...(momentTag ? { momentTag } : {}),
       ...(imageHash ? { imageHash } : {}),
@@ -153,6 +155,46 @@ export async function uploadSocialPost(
     return { success: true, post: newPost };
   } catch (error: any) {
     return { success: false, error: 'Error al guardar la imagen: ' + error.message };
+  }
+}
+
+export async function createSocialMediaPostFromUrl(input: {
+  fiestaId: string;
+  mediaUrl: string;
+  mediaType?: 'image' | 'video';
+  authorName?: string;
+  caption?: string;
+  momentTag?: string;
+  source?: string;
+  sourceModule?: string;
+}): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
+  if (!input.fiestaId || !input.mediaUrl) {
+    return { success: false, error: 'Faltan datos para publicar en el muro social.' };
+  }
+
+  try {
+    const db = await getDb();
+    const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const newPost: SocialGalleryPost = {
+      id: postId,
+      fiestaId: input.fiestaId,
+      imageUrl: input.mediaUrl,
+      mediaType: input.mediaType ?? 'image',
+      timestamp: new Date().toISOString(),
+      authorName: input.authorName || 'AK Producciones',
+      likes: 0,
+      comments: [],
+      source: input.source || 'entertainment',
+      ...(input.sourceModule ? { sourceModule: input.sourceModule } : {}),
+      ...(input.caption ? { caption: input.caption, dedication: input.caption } : {}),
+      ...(input.momentTag ? { momentTag: input.momentTag } : {}),
+    };
+
+    await db.collection(GALLERY_COLLECTION).doc(postId).set(newPost);
+    return { success: true, post: newPost };
+  } catch (error: any) {
+    logger.warn('[social-gallery] createSocialMediaPostFromUrl failed:', error);
+    return { success: false, error: error.message || 'No se pudo publicar en el muro social.' };
   }
 }
 

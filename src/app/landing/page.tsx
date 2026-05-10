@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ServicesSection } from '@/components/landing/ServicesSection';
+import { TechnologyExperienceSection } from '@/components/landing/TechnologyExperienceSection';
 import { GallerySection } from '@/components/landing/GallerySection';
 import { VideoSection } from '@/components/landing/VideoSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
@@ -98,6 +99,7 @@ export default async function LandingPage() {
       />
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
       <ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />
+      <TechnologyExperienceSection whatsappNumber={whatsapp} />
       <ProcessSection />
       <GallerySection galeriaFotos={fotosCombinadas} />
       <VideoSection galeriaVideos={videos} />

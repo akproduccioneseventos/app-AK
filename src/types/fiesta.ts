@@ -1059,6 +1059,7 @@ export interface ModulosContratados {
   mesasCliente: boolean;
   resumenPlanificacion: boolean;
   enVivo: boolean;
+  entretenimiento?: boolean;
   carteleria?: boolean;
 }
 

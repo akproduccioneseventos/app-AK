@@ -42,7 +42,7 @@ const MODULES: TestModule[] = [
 
   // PRODUCCIÓN MULTIMEDIA
   { id: 'fotografia',          href: 'fotografia',                      category: 'PRODUCCIÓN MULTIMEDIA',                    badge: 'Interno' },
-  { id: 'muroSocial',          href: 'muro-social',                     category: 'PRODUCCIÓN MULTIMEDIA',                    badge: 'Invitado' },
+  { id: 'entretenimiento',     href: 'entretenimiento',                 category: 'PRODUCCIÓN MULTIMEDIA',                    badge: 'Invitado' },
   { id: 'regalos',             href: 'regalos',                         category: 'PRODUCCIÓN MULTIMEDIA',                    badge: 'Invitado' },
   { id: 'postEvento',          href: 'post-evento',                     category: 'PRODUCCIÓN MULTIMEDIA',                    badge: 'Interno' },
 
@@ -55,7 +55,7 @@ const MODULES: TestModule[] = [
   // PANTALLA GIGANTE AK
   { id: 'enVivo',              href: 'en-vivo',                         category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'missionControl',      href: 'mission-control',                 category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
-  { id: 'playlistPantalla',    href: 'playlist-pantalla',               category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
+  { id: 'muroSocial',          href: 'muro-social',                     category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'readiness',           href: 'readiness',                       category: 'PANTALLA GIGANTE AK',                      badge: 'Interno' },
 
   // DISEÑO, SALÓN Y AMBIENTACIÓN
@@ -91,10 +91,10 @@ const CATEGORIES = [
 ];
 
 const QUICK_MODES: Record<string, string[]> = {
-  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'playlistPantalla'],
+  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento'],
   'preparacion': ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'],
   'cliente':     ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'],
-  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'enVivo', 'playlistPantalla', 'checkin'],
+  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'enVivo', 'checkin'],
 };
 
 const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion'];
@@ -164,8 +164,8 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(getModule('muroSocial')?.href).toBe('muro-social');
     });
 
-    it('playlist pantalla sigue accesible', () => {
-      expect(getModule('playlistPantalla')?.href).toBe('playlist-pantalla');
+    it('entretenimiento sigue accesible', () => {
+      expect(getModule('entretenimiento')?.href).toBe('entretenimiento');
     });
 
     it('invitados sigue accesible', () => {
@@ -180,8 +180,8 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(getModule('checkin')?.href).toBe('invitados/checkin-scanner');
     });
 
-    it('muro social está en PRODUCCIÓN MULTIMEDIA', () => {
-      expect(getModule('muroSocial')?.category).toBe('PRODUCCIÓN MULTIMEDIA');
+    it('muro social está en PANTALLA GIGANTE AK', () => {
+      expect(getModule('muroSocial')?.category).toBe('PANTALLA GIGANTE AK');
     });
   });
 
@@ -238,11 +238,11 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(ids).toContain('musica');
     });
 
-    it('modo tecnología AK incluye paginaWeb, muroSocial, playlistPantalla', () => {
+    it('modo tecnología AK incluye paginaWeb, muroSocial y entretenimiento', () => {
       const ids = QUICK_MODES['tecnologia'];
       expect(ids).toContain('paginaWeb');
       expect(ids).toContain('muroSocial');
-      expect(ids).toContain('playlistPantalla');
+      expect(ids).toContain('entretenimiento');
     });
 
     it('todos los IDs de modos apuntan a módulos existentes', () => {

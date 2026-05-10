@@ -77,8 +77,9 @@ const modules: ModuleDefinition[] = [
 
   // 4. PRODUCCIÓN MULTIMEDIA
   { id: 'fotografia', title: "Foto y Video", href: "fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
-  { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-rose-100 text-rose-600", badge: 'Invitado' },
-  { id: 'postEvento', title: "Post-Evento", href: "post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-rose-100 text-rose-600", badge: 'Interno' },
+  { id: 'entretenimiento', title: "Entretenimiento", href: "entretenimiento", icon: Sparkles, description: "Fotocabina y Plataforma 360 conectadas al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
+  { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
+  { id: 'postEvento', title: "Post-Evento", href: "post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-amber-100 text-amber-700", badge: 'Interno' },
 
   // 5. EXPERIENCIA DEL INVITADO VIP
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva para invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-blue-100 text-blue-600", badge: 'Invitado' },
@@ -99,7 +100,7 @@ const modules: ModuleDefinition[] = [
   { id: 'catering', title: "Gastronomía / Catering", href: "catering", icon: UtensilsCrossed, description: "Cálculo de menú, insumos y porciones.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
   { id: 'listaCompras', title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios para el catering.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
   { id: 'alergias', title: "Gestión Alimentaria", href: "alergias", icon: Users2, description: "Celíacos, alergias y dietas especiales.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Operativo' },
-  { id: 'cartaTragos', title: "Carta de Tragos", href: "carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-rose-100 text-rose-600", badge: 'Impresión' },
+  { id: 'cartaTragos', title: "Carta de Tragos", href: "carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'Impresión' },
 
   // 9. CARTELERÍA Y MATERIAL IMPRESO
   { id: 'carteleria', title: "Cartelería de Mesas", href: "carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-violet-100 text-violet-600", badge: 'Impresión' },
@@ -149,14 +150,14 @@ const badgeColors: Record<ModuleBadge, string> = {
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
 
 const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color: string; moduleIds: string[] }[] = [
-  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial'] },
+  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento'] },
   { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'enVivo', 'checkin'] },
+  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'enVivo', 'checkin'] },
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion'];
+const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento'];
 
 function PlannerDashboardContent() {
   const { toast } = useToast();
@@ -272,7 +273,7 @@ function PlannerDashboardContent() {
         if (daysLeft < 0 || daysLeft > 7) return null;
 
         const alertConfig =
-          daysLeft <= 1 ? { bg: 'bg-red-50 border-red-200', text: 'text-red-800', icon: 'text-red-500', label: daysLeft <= 0 ? '¡HOY ES EL EVENTO! 🎉' : '¡MAÑANA ES EL EVENTO! 🚨' } :
+          daysLeft <= 1 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-900', icon: 'text-amber-600', label: daysLeft <= 0 ? '¡HOY ES EL EVENTO! 🎉' : '¡MAÑANA ES EL EVENTO! 🚨' } :
           daysLeft <= 2 ? { bg: 'bg-orange-50 border-orange-200', text: 'text-orange-800', icon: 'text-orange-500', label: `Faltan ${daysLeft} días para el evento 🔔` } :
           daysLeft <= 3 ? { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', icon: 'text-amber-500', label: `Faltan ${daysLeft} días para el evento ⏰` } :
           { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-800', icon: 'text-blue-500', label: `Faltan ${daysLeft} días para el evento 📅` };
