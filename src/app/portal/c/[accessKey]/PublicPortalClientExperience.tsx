@@ -45,6 +45,7 @@ import {
   getGuestStats,
   getPortalPaymentSummary,
 } from '@/lib/client-portal/client-portal-summary';
+import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 
 type PublicPortalClientExperienceProps = {
   fiesta: any;
@@ -153,9 +154,9 @@ function IconBlock({ icon: Icon, color }: { icon: DisplayIcon; color: string }) 
   );
 }
 
-function QuickButton({ href, icon: Icon, label, helper, color }: { href: string; icon: DisplayIcon; label: string; helper: string; color: string }) {
+function QuickButton({ href, icon: Icon, label, helper, color, external = false }: { href: string; icon: DisplayIcon; label: string; helper: string; color: string; external?: boolean }) {
   return (
-    <a href={href} className="group flex min-h-[88px] items-center gap-3 rounded-lg border bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className="group flex min-h-[88px] items-center gap-3 rounded-lg border bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <IconBlock icon={Icon} color={color} />
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-black text-slate-900">{label}</span>
@@ -216,6 +217,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const eventDate = formatDate(config.fechaEvento);
   const days = daysUntilEvent(config.fechaEvento);
   const whatsappHref = buildWhatsAppHref(companyContact, eventName);
+  const calendarUrl = buildGoogleCalendarUrl({
+    title: eventName,
+    startDate: config.fechaEvento,
+    startTime: config.horaInicio,
+    endTime: config.horaFin,
+    location: [config.nombreLugar, config.direccionLugar].filter(Boolean).join(' - '),
+    details: `Evento coordinado por ${companyName}.`,
+  });
 
   const invitados = fiesta?.invitados ?? [];
   const guestStats = getGuestStats(invitados);
@@ -513,10 +522,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         )}
 
-        <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <QuickButton href="#portal-organizacion" icon={ClipboardList} label="Organización" helper="Música, reuniones, fotos y cronograma" color={eventColor} />
           <QuickButton href="#portal-contable" icon={Wallet} label="Pagos y contrato" helper="Presupuesto, documentos y simulador" color={eventColor} />
           <QuickButton href="#portal-invitados" icon={Users} label="Invitados" helper="Confirmados, pendientes y cambios" color={eventColor} />
+          {calendarUrl && <QuickButton href={calendarUrl} icon={Calendar} label="Agenda" helper="Guardar la fecha en Google Calendar" color={eventColor} external />}
         </div>
 
         <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

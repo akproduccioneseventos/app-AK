@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useRef, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment } from '@/app/actions/social-gallery';
+import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication } from '@/app/actions/social-interactive';
 import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
@@ -74,11 +74,20 @@ function mergeGuestSettings(
     chatEnabled: incoming.chatEnabled ?? prev.chatEnabled ?? true,
     showSongRequests: incoming.showSongRequests ?? prev.showSongRequests ?? true,
     showDedications: incoming.showDedications ?? prev.showDedications ?? true,
+    requireApproval: incoming.requireApproval ?? prev.requireApproval ?? false,
   };
 }
 
 function isVideoPost(post: SocialGalleryPost) {
   return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
+}
+
+function getPostModerationStatus(post: SocialGalleryPost) {
+  return post.moderationStatus ?? 'approved';
+}
+
+function isPostVisibleForAudience(post: SocialGalleryPost) {
+  return getPostModerationStatus(post) === 'approved';
 }
 
 /** Large touchable feature card shown on the guest home screen. */
@@ -133,6 +142,7 @@ const PostCard: React.FC<{
   onLike: (postId: string) => void; 
   onComment: (postId: string, text: string) => Promise<void>; 
   onDelete?: (postId: string) => void;
+  onModerate?: (postId: string, status: 'pending' | 'approved' | 'hidden') => Promise<void>;
   onHighlightComment?: (postId: string, commentId: string, highlighted: boolean) => Promise<void>;
   isAdminView: boolean;
   authorName: string;
@@ -140,10 +150,12 @@ const PostCard: React.FC<{
   allowLikes: boolean;
   allowComments: boolean;
   hasLiked: boolean;
-}> = ({ post, onLike, onComment, onDelete, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments, hasLiked }) => {
+}> = ({ post, onLike, onComment, onDelete, onModerate, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments, hasLiked }) => {
   const [commentText, setCommentText] = useState('');
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number }[]>([]);
   const heartIdRef = useRef(0);
+  const moderationStatus = getPostModerationStatus(post);
+  const moderationLabel = moderationStatus === 'pending' ? 'Pendiente' : moderationStatus === 'hidden' ? 'Oculto' : 'Aprobado';
   
   const handleCommentSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -191,6 +203,28 @@ const PostCard: React.FC<{
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{formattedTimestamp}</p>
             </div>
             </div>
+            {isAdminView && (
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <span className={cn(
+                  'rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider',
+                  moderationStatus === 'approved' && 'bg-emerald-50 text-emerald-700',
+                  moderationStatus === 'pending' && 'bg-amber-50 text-amber-700',
+                  moderationStatus === 'hidden' && 'bg-slate-100 text-slate-500'
+                )}>
+                  {moderationLabel}
+                </span>
+                {onModerate && moderationStatus !== 'approved' && (
+                  <Button type="button" variant="outline" size="sm" className="h-8 rounded-full px-3 text-xs font-bold text-emerald-700" onClick={() => onModerate(post.id, 'approved')}>
+                    Aprobar
+                  </Button>
+                )}
+                {onModerate && moderationStatus !== 'hidden' && (
+                  <Button type="button" variant="outline" size="sm" className="h-8 rounded-full px-3 text-xs font-bold text-slate-600" onClick={() => onModerate(post.id, 'hidden')}>
+                    Ocultar
+                  </Button>
+                )}
+              </div>
+            )}
             {isAdminView && onDelete && (
             <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -372,6 +406,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       chatEnabled: true,
       showSongRequests: true,
       showDedications: true,
+      requireApproval: false,
       title: '',
       subtitle: '',
       maxPhotos: 200
@@ -470,15 +505,23 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     }, 4000); 
     return () => clearInterval(interval);
   }, [fetchData]);
+
+  const visiblePosts = useMemo(() => posts.filter(isPostVisibleForAudience), [posts]);
+  const galleryPosts = isAdminView ? posts : visiblePosts;
+  const screenPosts = visiblePosts;
   
   useEffect(() => {
-    if (projectionMode && posts.length > 0) {
+    if (projectionMode && screenPosts.length > 0) {
         const timer = setInterval(() => {
-            setCurrentSlide(prev => (prev + 1) % posts.length);
+            setCurrentSlide(prev => (prev + 1) % screenPosts.length);
         }, 7000);
         return () => clearInterval(timer);
     }
-  }, [projectionMode, posts.length]);
+  }, [projectionMode, screenPosts.length]);
+
+  useEffect(() => {
+    if (screenPosts.length > 0 && currentSlide >= screenPosts.length) setCurrentSlide(0);
+  }, [currentSlide, screenPosts.length]);
   
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -488,8 +531,15 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-         toast({ title: "Archivo demasiado grande", description: "El tamaño máximo es 10MB.", variant: "destructive" });
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+      if (!isImage && !isVideo) {
+         toast({ title: "Formato no compatible", description: "Subi una foto o un video corto del evento.", variant: "destructive" });
+         return;
+      }
+      const maxSize = isVideo ? 60 * 1024 * 1024 : 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+         toast({ title: "Archivo demasiado grande", description: isVideo ? "El video puede pesar hasta 60MB." : "La foto puede pesar hasta 10MB.", variant: "destructive" });
          return;
       }
       setFileToUpload(file);
@@ -539,8 +589,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     setIsUploading(true);
 
     try {
-      // Compute image hash for duplicate detection
-      const imageHash = await computeImageHash(fileToUpload);
+      // Compute image hash only for photos; videos can be large and do not need duplicate detection here.
+      const imageHash = fileToUpload.type.startsWith('image/') ? await computeImageHash(fileToUpload) : null;
 
       const formData = new FormData();
       formData.append('fiestaId', params.fiestaId);
@@ -550,7 +600,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
       const result = await uploadSocialPost(formData);
       if (result.success) {
-        toast({ title: "¡Foto publicada!", description: "Tu momento ya está en el mural." });
+        toast({
+          title: localSettings.requireApproval ? "Momento enviado" : "Momento publicado",
+          description: localSettings.requireApproval ? "La organizacion lo revisa antes de mostrarlo." : "Ya esta en el mural.",
+        });
         await fetchData(false);
         setIsUploadDialogOpen(false);
         setFileToUpload(null);
@@ -737,6 +790,18 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     }
   };
 
+  const handleModeratePost = async (postId: string, status: 'pending' | 'approved' | 'hidden') => {
+    const result = await moderateSocialPost(postId, status, 'AK Producciones');
+    if (result.success && result.post) {
+      setPosts(prev => prev.map(post => post.id === postId ? { ...post, ...result.post } : post));
+      toast({
+        title: status === 'approved' ? 'Contenido aprobado' : status === 'hidden' ? 'Contenido oculto' : 'Contenido pendiente',
+      });
+    } else {
+      toast({ title: 'Error', description: result.error || 'No se pudo actualizar la publicacion.', variant: 'destructive' });
+    }
+  };
+
   const handleDelete = async (postId: string) => {
     await deleteSocialPost(postId);
     toast({ title: "Foto eliminada" });
@@ -883,12 +948,16 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             <DialogContent className="rounded-3xl border-none">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold">Publicar Momento</DialogTitle>
-                <DialogDescription>Sube una foto para que todos la vean.</DialogDescription>
+                <DialogDescription>Sube una foto o video corto para compartir el momento.</DialogDescription>
               </DialogHeader>
               <form onSubmit={handleUploadSubmit} className="space-y-6 py-2">
                 {uploadPreview ? (
                   <div className="relative aspect-square rounded-2xl overflow-hidden shadow-inner border bg-slate-50">
-                    <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" />
+                    {fileToUpload?.type.startsWith('video/') ? (
+                      <video src={uploadPreview} controls playsInline className="h-full w-full object-contain" />
+                    ) : (
+                      <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" />
+                    )}
                     <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 rounded-full h-8 w-8" onClick={() => { setFileToUpload(null); setUploadPreview(null); }}>
                       <X className="w-4 h-4" />
                     </Button>
@@ -901,10 +970,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       </div>
                       <div className="space-y-1">
                         <p className="font-bold text-slate-600">Toca para seleccionar</p>
-                        <p className="text-xs">JPG, PNG o GIF (Máx 10MB)</p>
+                        <p className="text-xs">Fotos hasta 10MB · videos hasta 60MB</p>
                       </div>
                     </Label>
-                    <Input id="file-upload-guest" type="file" onChange={handleFileSelect} className="hidden" accept="image/*" disabled={!localSettings.uploadsActive} />
+                    <Input id="file-upload-guest" type="file" onChange={handleFileSelect} className="hidden" accept="image/*,video/*" disabled={!localSettings.uploadsActive} />
                   </div>
                 )}
                 <DialogFooter>
@@ -995,19 +1064,19 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       {localSettings.uploadsActive && (
                         <GuestFeatureButton
                           icon={<CameraIcon className="w-8 h-8" />}
-                          label="Subir Foto"
-                          sublabel={posts.length > 0 ? `${posts.length} en el mural` : 'Sé el primero'}
+                          label="Subir Momento"
+                          sublabel={galleryPosts.length > 0 ? `${galleryPosts.length} en el mural` : 'Sé el primero'}
                           color={accentColor}
                           onClick={() => setIsUploadDialogOpen(true)}
                           primary
                         />
                       )}
 
-                      {posts.length > 0 && (
+                      {galleryPosts.length > 0 && (
                         <GuestFeatureButton
                           icon={<LayoutGrid className="w-8 h-8" />}
                           label="Ver Fotos"
-                          sublabel={`${posts.length} foto${posts.length !== 1 ? 's' : ''}`}
+                          sublabel={`${galleryPosts.length} foto${galleryPosts.length !== 1 ? 's' : ''}`}
                           color={accentColor}
                           onClick={() => setGuestSection('photos')}
                         />
@@ -1075,7 +1144,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                      localSettings.showDedications === false &&
                      !activePoll &&
                      !localSettings.activeGame &&
-                     posts.length === 0 && (
+                     galleryPosts.length === 0 && (
                       <div className="text-center pt-20 space-y-3">
                         <div className="text-5xl">🎉</div>
                         <p className="font-bold text-slate-500">El evento está comenzando...</p>
@@ -1139,11 +1208,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                           <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-3xl" />
                         ))}
                       </div>
-                    ) : posts.length === 0 ? (
+                    ) : galleryPosts.length === 0 ? (
                       <div className="text-center py-16 text-slate-400">No hay fotos aún.</div>
                     ) : (
                       <div className="grid grid-cols-1 gap-4">
-                        {posts.map(post => (
+                        {galleryPosts.map(post => (
                           <PostCard
                             key={post.id}
                             post={post}
@@ -1462,15 +1531,19 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                 <DialogTrigger asChild>
                     <Button className="h-11 rounded-2xl px-6 font-bold shadow-lg shadow-primary/20 transition-transform active:scale-95" disabled={!authorName || !localSettings.uploadsActive} style={{ backgroundColor: accentColor }}>
                         <Upload className="w-5 h-5 mr-2"/>
-                        <span className="hidden sm:inline">Subir Foto</span>
+                        <span className="hidden sm:inline">Subir Momento</span>
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="rounded-3xl border-none">
-                    <DialogHeader><DialogTitle className="text-xl font-bold">Publicar Momento</DialogTitle><DialogDescription>Sube una foto para que todos la vean.</DialogDescription></DialogHeader>
+                    <DialogHeader><DialogTitle className="text-xl font-bold">Publicar Momento</DialogTitle><DialogDescription>Sube una foto o video corto para compartir el momento.</DialogDescription></DialogHeader>
                     <form onSubmit={handleUploadSubmit} className="space-y-6 py-2">
                         {uploadPreview ? (
                             <div className="relative aspect-square rounded-2xl overflow-hidden shadow-inner border bg-slate-50">
-                                <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" />
+                                {fileToUpload?.type.startsWith('video/') ? (
+                                  <video src={uploadPreview} controls playsInline className="h-full w-full object-contain" />
+                                ) : (
+                                  <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" />
+                                )}
                                 <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 rounded-full h-8 w-8" onClick={() => {setFileToUpload(null); setUploadPreview(null);}}><X className="w-4 h-4"/></Button>
                             </div>
                         ) : (
@@ -1481,10 +1554,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                                     </div>
                                     <div className="space-y-1">
                                         <p className="font-bold text-slate-600">Toca para seleccionar</p>
-                                        <p className="text-xs">JPG, PNG o GIF (Máx 10MB)</p>
+                                        <p className="text-xs">Fotos hasta 10MB · videos hasta 60MB</p>
                                     </div>
                                 </Label>
-                                 <Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/*" disabled={!localSettings.uploadsActive} />
+                                 <Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/*,video/*" disabled={!localSettings.uploadsActive} />
                              </div>
                          )}
                         <DialogFooter>
@@ -1514,7 +1587,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                             </div>
                             <Separator/>
                             <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Chat en Vivo</Label><p className="text-xs text-muted-foreground">Activa el panel de conversación inferior.</p></div><Switch checked={localSettings.chatEnabled} onCheckedChange={v => setLocalSettings(p => ({...p, chatEnabled: v}))}/></div>
-                            <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Permitir Subidas</Label><p className="text-xs text-muted-foreground">Habilitar el botón de "Subir Foto".</p></div><Switch checked={localSettings.uploadsActive} onCheckedChange={v => setLocalSettings(p => ({...p, uploadsActive: v}))}/></div>
+                            <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Permitir Subidas</Label><p className="text-xs text-muted-foreground">Habilitar el boton de subir fotos o videos.</p></div><Switch checked={localSettings.uploadsActive} onCheckedChange={v => setLocalSettings(p => ({...p, uploadsActive: v}))}/></div>
+                            <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Revisar antes de publicar</Label><p className="text-xs text-muted-foreground">Los invitados envian contenido y vos lo aprobas antes de verlo en pantalla.</p></div><Switch checked={localSettings.requireApproval === true} onCheckedChange={v => setLocalSettings(p => ({...p, requireApproval: v}))}/></div>
                             <Separator/>
                             <div className="space-y-1.5">
                                 <Label className="text-base font-bold">Límite de Fotos</Label>
@@ -1564,11 +1638,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       <main className="max-w-6xl mx-auto p-6 md:p-8 space-y-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
             <AnimatePresence>
-                {posts.length === 0 && isLoading ? (
+                {galleryPosts.length === 0 && isLoading ? (
                     Array.from({length:4}).map((_, i) => (
                         <div key={i} className="aspect-square bg-white/50 animate-pulse rounded-3xl border border-white"></div>
                     ))
-                ) : posts.map(post => (
+                ) : galleryPosts.map(post => (
                     <PostCard
                       key={post.id}
                       post={post}
@@ -1576,6 +1650,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       onComment={handleComment}
                       isAdminView={isAdminView}
                       onDelete={handleDelete}
+                      onModerate={isAdminView ? handleModeratePost : undefined}
                       onHighlightComment={isAdminView ? handleHighlightComment : undefined}
                       authorName={authorName}
                       accentColor={accentColor}
@@ -1587,7 +1662,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             </AnimatePresence>
         </div>
         
-        {posts.length === 0 && !isLoading && (
+        {galleryPosts.length === 0 && !isLoading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24 flex flex-col items-center gap-6">
                 <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-xl shadow-slate-200">
                     <CameraIcon className="w-10 h-10 text-slate-300"/>
@@ -1779,7 +1854,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         <div className="fixed inset-0 bg-black z-50 flex flex-col md:flex-row p-4 gap-4">
             <Button onClick={() => setProjectionMode(false)} variant="ghost" size="icon" className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white hover:text-white h-10 w-10"><X className="w-6 h-6"/></Button>
             <div className="relative flex-grow h-full w-full md:w-3/4">
-                {posts.map((post, index) => (
+                {screenPosts.map((post, index) => (
                     <div key={post.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
                         {isVideoPost(post) ? (
                           <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted loop playsInline />

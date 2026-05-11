@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { SplashScreen } from '@/components/invitacion/SplashScreen';
+import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -479,6 +480,13 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   };
 
   const hasLocation = !!(config.nombreSalon || config.direccionSalon || config.linkMaps);
+  const calendarUrl = buildGoogleCalendarUrl({
+    title: `${config.nombreHomenajeada || 'Fiesta'}${secondName ? ` & ${secondName}` : ''}`,
+    startDate: config.fechaEvento,
+    startTime: config.horaEvento,
+    location: [config.nombreSalon, config.direccionSalon].filter(Boolean).join(' - '),
+    details: `Invitacion digital de ${config.nombreHomenajeada || 'la fiesta'}.`,
+  });
   const hasDressCode = config.mostrarDressCode && !!(config.dressCode && config.dressCode.tipo);
   const hasGifts = config.regalos?.tipo !== 'ninguno';
   const hasGallery = config.galeriaFotos && config.galeriaFotos.length > 0;
@@ -813,6 +821,17 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
                 {formatDate(config.fechaEvento)}
                 {config.horaEvento && ` · ${config.horaEvento} hs`}
               </p>
+            )}
+            {calendarUrl && (
+              <a
+                href={calendarUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-sm font-bold text-slate-900 shadow-xl transition-transform hover:scale-105"
+              >
+                <Calendar className="h-4 w-4" />
+                Agendar fecha
+              </a>
             )}
           </motion.div>
 
