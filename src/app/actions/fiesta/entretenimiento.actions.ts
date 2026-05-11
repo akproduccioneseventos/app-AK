@@ -14,6 +14,7 @@ const MODULE_MOMENT_TAGS: Record<string, string> = {
   bogue: 'Bogue',
   espejoMagico: 'Espejo Magico',
 };
+const VALID_ENTERTAINMENT_MODULE_IDS = new Set(Object.keys(MODULE_MOMENT_TAGS));
 
 function normalizeEntertainmentData(data: any) {
   return {
@@ -73,6 +74,10 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
 
   if (!fiestaId || !moduleId || !file) {
     return { success: false, error: 'Faltan datos para subir el archivo.' };
+  }
+
+  if (!VALID_ENTERTAINMENT_MODULE_IDS.has(moduleId)) {
+    return { success: false, error: 'El modulo de entretenimiento no es valido.' };
   }
 
   if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
