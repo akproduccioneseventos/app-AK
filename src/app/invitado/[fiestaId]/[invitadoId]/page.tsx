@@ -23,6 +23,7 @@ import {
 import { InvitadoQR } from '@/components/invitados/InvitadoQR';
 import { useToast } from '@/hooks/use-toast';
 import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
+import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 
 // ─── Config helpers ───────────────────────────────────────────────────────────
 
@@ -253,15 +254,27 @@ export default function InvitadoPage() {
   const invitacionUrl = fiesta.invitacionSlug
     ? `${typeof window !== 'undefined' ? window.location.origin : ''}/invitacion/${fiesta.invitacionSlug}`
     : `${typeof window !== 'undefined' ? window.location.origin : ''}/invitacion/${fiestaId}`;
+  const calendarUrl = buildGoogleCalendarUrl({
+    title: config?.nombreEvento || 'Fiesta AK Producciones',
+    startDate: config?.fechaEvento,
+    startTime: config?.horaInicio,
+    endTime: config?.horaFin,
+    location: [config?.nombreLugar, config?.direccionLugar].filter(Boolean).join(' - '),
+    details: `Invitacion a ${config?.nombreEvento || 'la fiesta'}.`,
+  });
 
   const quickLinks = [
+    calendarUrl && {
+      icon: CalendarCheck, label: 'Agenda', color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100',
+      href: calendarUrl, external: true,
+    },
     gps.showInvitacionWeb && {
       icon: Globe, label: 'Invitación', color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100',
       href: invitacionUrl, external: true,
     },
     gps.showMural && {
       icon: Images, label: 'Muro', color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100',
-      href: `/evento/muro-en-vivo/${fiestaId}`, external: true,
+      href: `/evento/social/${fiestaId}`, external: true,
     },
     gps.showMusica && {
       icon: Music, label: 'Canciones', color: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-100',

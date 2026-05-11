@@ -730,6 +730,7 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
+  requireApproval?: boolean;
   marketingTickerText?: string;
   /** Whether the marketing ticker (social/network footer bar) is enabled */
   marketingTickerEnabled?: boolean;

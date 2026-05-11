@@ -38,6 +38,10 @@ function isVideoUrl(url: string) {
   return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 }
 
+function isPostApprovedForScreen(post: SocialGalleryPost) {
+  return (post.moderationStatus ?? 'approved') === 'approved';
+}
+
 
 export default function MuroEnVivoPage() {
   const params = useParams();
@@ -112,7 +116,7 @@ export default function MuroEnVivoPage() {
         getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
       ]);
 
-      const sorted = [...fetchedPosts].sort(
+      const sorted = [...fetchedPosts].filter(isPostApprovedForScreen).sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 

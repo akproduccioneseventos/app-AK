@@ -12,6 +12,9 @@ export interface SocialGalleryPost {
   fiestaId: string;
   imageUrl: string;
   mediaType?: 'image' | 'video';
+  moderationStatus?: 'pending' | 'approved' | 'hidden';
+  moderatedAt?: string;
+  moderatedBy?: string;
   authorName: string;
   timestamp: string; // ISO Date String
   likes: number;

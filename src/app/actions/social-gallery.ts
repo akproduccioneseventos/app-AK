@@ -32,6 +32,8 @@ const GALLERY_COLLECTION = 'social_gallery_posts';
 const CHAT_COLLECTION = 'social_chat';
 const MAX_PHOTOS_PER_EVENT = 200;
 const MAX_PHOTOS_PER_PERSON = 10;
+const MAX_IMAGE_UPLOAD_SIZE = 10 * 1024 * 1024;
+const MAX_VIDEO_UPLOAD_SIZE = 60 * 1024 * 1024;
 
 /** Returns the Firestore Admin instance; throws if Firebase is not configured. */
 async function getDb(): Promise<FirebaseFirestore.Firestore> {
@@ -74,8 +76,13 @@ export async function uploadSocialPost(
   const imageHash = (formData.get('imageHash') as string) || undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
-  if (!file.type.startsWith('image/')) return { success: false, error: 'Solo se aceptan archivos de imagen.' };
-  if (file.size > 10 * 1024 * 1024) return { success: false, error: 'El archivo no puede superar los 10MB.' };
+  const isVideo = file.type.startsWith('video/');
+  const isImage = file.type.startsWith('image/');
+  if (!isImage && !isVideo) return { success: false, error: 'Solo se aceptan fotos o videos.' };
+  const maxSize = isVideo ? MAX_VIDEO_UPLOAD_SIZE : MAX_IMAGE_UPLOAD_SIZE;
+  if (file.size > maxSize) {
+    return { success: false, error: isVideo ? 'El video no puede superar los 60MB.' : 'La imagen no puede superar los 10MB.' };
+  }
 
   try {
     const db = await getDb();
@@ -133,11 +140,13 @@ export async function uploadSocialPost(
       true
     );
 
+    const requireApproval = fiestaData?.socialGallerySettings?.requireApproval === true;
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId,
       imageUrl,
-      mediaType: 'image',
+      mediaType: isVideo ? 'video' : 'image',
+      moderationStatus: requireApproval ? 'pending' : 'approved',
       timestamp: new Date().toISOString(),
       authorName,
       likes: 0,
@@ -180,6 +189,7 @@ export async function createSocialMediaPostFromUrl(input: {
       fiestaId: input.fiestaId,
       imageUrl: input.mediaUrl,
       mediaType: input.mediaType ?? 'image',
+      moderationStatus: 'approved',
       timestamp: new Date().toISOString(),
       authorName: input.authorName || 'AK Producciones',
       likes: 0,
@@ -195,6 +205,27 @@ export async function createSocialMediaPostFromUrl(input: {
   } catch (error: any) {
     logger.warn('[social-gallery] createSocialMediaPostFromUrl failed:', error);
     return { success: false, error: error.message || 'No se pudo publicar en el muro social.' };
+  }
+}
+
+export async function moderateSocialPost(
+  postId: string,
+  moderationStatus: 'pending' | 'approved' | 'hidden',
+  moderatedBy: string = 'AK Producciones'
+): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
+  try {
+    const db = await getDb();
+    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+    await ref.update({
+      moderationStatus,
+      moderatedAt: new Date().toISOString(),
+      moderatedBy,
+    });
+    const updated = await ref.get();
+    if (!updated.exists) return { success: false, error: 'Publicacion no encontrada.' };
+    return { success: true, post: { ...updated.data() } as SocialGalleryPost };
+  } catch (e: any) {
+    return { success: false, error: e.message || 'No se pudo moderar la publicacion.' };
   }
 }
 
