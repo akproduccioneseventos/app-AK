@@ -112,6 +112,14 @@ export default async function ComandoTotalPage({ params }: PageProps) {
                   {command.eventPlaceLabel}
                 </span>
               </div>
+              <div>
+                <Button asChild className="rounded-2xl bg-red-600 font-black hover:bg-red-700">
+                  <Link href={`/fiestas/${encodeURIComponent(params.id)}/experiencia-tecnologica-ak`}>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Ver Tecnología AK
+                  </Link>
+                </Button>
+              </div>
             </div>
             <ScoreBlock score={command.globalScore} status={command.status} />
           </div>
@@ -198,7 +206,12 @@ export default async function ComandoTotalPage({ params }: PageProps) {
           </Card>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-4">
+          <Link href={`/fiestas/${encodeURIComponent(params.id)}/experiencia-tecnologica-ak`} className="rounded-3xl border border-red-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-red-300 hover:shadow-lg hover:shadow-red-950/10">
+            <Sparkles className="h-6 w-6 text-red-600" />
+            <h2 className="mt-4 text-xl font-black text-slate-950">Tecnología AK</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">Mostrar demo, pase invitado, vivo e IA operativa.</p>
+          </Link>
           <Link href="/settings/cierre-global-producto" className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-red-200 hover:shadow-lg hover:shadow-red-950/10">
             <Sparkles className="h-6 w-6 text-red-600" />
             <h2 className="mt-4 text-xl font-black text-slate-950">Cierre global</h2>
