@@ -1,0 +1,35 @@
+{
+  "name": "AK Producciones Eventos",
+  "short_name": "AK Producciones",
+  "description": "Plataforma inteligente de AK Producciones para organizar eventos, clientes, invitados y operación.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+  "background_color": "#ffffff",
+  "theme_color": "#d71920",
+  "orientation": "portrait-primary",
+  "lang": "es-UY",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/ak-icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/ak-icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/ak-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
