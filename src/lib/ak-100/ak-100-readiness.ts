@@ -72,6 +72,15 @@ function eventHref(fiestaId: string, path: string): string {
   return fiestaId ? `/fiestas/${encodeURIComponent(fiestaId)}/${path}` : '/eventos';
 }
 
+function eventQueryHref(fiestaId: string, path: string): string {
+  return fiestaId ? `${path}?fiestaId=${encodeURIComponent(fiestaId)}` : path;
+}
+
+function portalHref(fiestaId: string, accessKey: unknown): string {
+  if (hasText(accessKey)) return `/portal/c/${encodeURIComponent(String(accessKey).trim())}`;
+  return eventHref(fiestaId, 'comando-total');
+}
+
 export function buildAk100Readiness(fiestaInput: unknown): Ak100Readiness {
   const fiesta = asRecord(fiestaInput);
   const cfg = asRecord(fiesta.configuracion);
@@ -100,7 +109,7 @@ export function buildAk100Readiness(fiestaInput: unknown): Ak100Readiness {
   const hasGuests = invitados.length > 0;
   const hasTables = invitados.some((guest) => {
     const item = asRecord(guest);
-    return hasText(item.mesa) || hasText(item.mesaId) || hasText(item.numeroMesa);
+    return hasText(item.mesa) || hasText(item.mesaId) || hasText(item.numeroMesa) || hasText(item.tableNumber);
   }) || count(fiesta.numerosMesa) > 0 || count(fiesta.menuMesa) > 0;
   const hasInvite = hasText(fiesta.invitacionSlug) || guestSettings.enabled === true;
   const hasCheckin = count(fiesta.checkin) > 0 || count(fiesta.portero) > 0 || guestSettings.checkinEnabled === true;
@@ -122,118 +131,72 @@ export function buildAk100Readiness(fiestaInput: unknown): Ak100Readiness {
 
   const ventaScore = score([hasBudget, hasContract, hasClient, hasPayments, hasDocs]);
   areaInputs.push({
-    id: 'venta',
-    title: 'Venta cerrada y sincronizada',
-    score: ventaScore,
-    status: statusFromScore(ventaScore),
+    id: 'venta', title: 'Venta cerrada y sincronizada', score: ventaScore, status: statusFromScore(ventaScore),
     promise: 'El cliente pasa de prospecto a presupuesto, contrato, pagos y fiesta sin quedar cortado.',
-    ready: [
-      ...addIf(hasBudget, 'Presupuesto vinculado'),
-      ...addIf(hasContract, 'Contrato o firma registrada'),
-      ...addIf(hasClient, 'Cliente vinculado'),
-      ...addIf(hasPayments, 'Pagos o cuotas visibles'),
-      ...addIf(hasDocs, 'Documentos conectados'),
-    ],
-    missing: [
-      ...addIf(!hasBudget, 'Falta presupuesto vinculado'),
-      ...addIf(!hasContract, 'Falta contrato/firma'),
-      ...addIf(!hasClient, 'Falta cliente claro'),
-      ...addIf(!hasPayments, 'Falta plan de pagos'),
-      ...addIf(!hasDocs, 'Faltan documentos'),
-    ],
-    actionLabel: 'Abrir ciclo comercial',
-    href: '/contabilidad/crm/ciclo-comercial',
+    ready: [...addIf(hasBudget, 'Presupuesto vinculado'), ...addIf(hasContract, 'Contrato o firma registrada'), ...addIf(hasClient, 'Cliente vinculado'), ...addIf(hasPayments, 'Pagos o cuotas visibles'), ...addIf(hasDocs, 'Documentos conectados')],
+    missing: [...addIf(!hasBudget, 'Falta presupuesto vinculado'), ...addIf(!hasContract, 'Falta contrato/firma'), ...addIf(!hasClient, 'Falta cliente claro'), ...addIf(!hasPayments, 'Falta plan de pagos'), ...addIf(!hasDocs, 'Faltan documentos')],
+    actionLabel: 'Abrir ciclo comercial', href: '/contabilidad/crm/ciclo-comercial',
   });
 
   const clienteScore = score([hasPortal, hasPayments, hasDocs, hasProgram, hasGuests]);
   areaInputs.push({
-    id: 'cliente',
-    title: 'Portal cliente premium',
-    score: clienteScore,
-    status: statusFromScore(clienteScore),
+    id: 'cliente', title: 'Portal cliente premium', score: clienteScore, status: statusFromScore(clienteScore),
     promise: 'El cliente ve avance, pagos, documentos, programa e invitados sin perseguir al organizador.',
     ready: [...addIf(hasPortal, 'Portal activo'), ...addIf(hasPayments, 'Pagos visibles'), ...addIf(hasDocs, 'Documentos visibles'), ...addIf(hasProgram, 'Programa cargado'), ...addIf(hasGuests, 'Invitados cargados')],
     missing: [...addIf(!hasPortal, 'Falta portal activo'), ...addIf(!hasPayments, 'Faltan pagos visibles'), ...addIf(!hasDocs, 'Faltan documentos'), ...addIf(!hasProgram, 'Falta programa'), ...addIf(!hasGuests, 'Faltan invitados')],
-    actionLabel: 'Abrir portal cliente',
-    href: eventHref(fiestaId, 'portal-cliente'),
+    actionLabel: 'Abrir portal cliente', href: portalHref(fiestaId, portal.accessKey),
   });
 
   const invitadoScore = score([hasGuests, hasInvite, hasTables, hasCheckin, hasMusic, hasLiveWall]);
   areaInputs.push({
-    id: 'invitado',
-    title: 'Experiencia real del invitado',
-    score: invitadoScore,
-    status: statusFromScore(invitadoScore),
+    id: 'invitado', title: 'Experiencia real del invitado', score: invitadoScore, status: statusFromScore(invitadoScore),
     promise: 'El invitado confirma, ve mesa, usa QR, participa con música/fotos y queda en recuerdos.',
     ready: [...addIf(hasGuests, 'Lista de invitados'), ...addIf(hasInvite, 'Invitación o QR'), ...addIf(hasTables, 'Mesas'), ...addIf(hasCheckin, 'Check-in/portero'), ...addIf(hasMusic, 'Música'), ...addIf(hasLiveWall, 'Muro social')],
     missing: [...addIf(!hasGuests, 'Faltan invitados'), ...addIf(!hasInvite, 'Falta invitación/QR'), ...addIf(!hasTables, 'Faltan mesas'), ...addIf(!hasCheckin, 'Falta check-in'), ...addIf(!hasMusic, 'Falta música del invitado'), ...addIf(!hasLiveWall, 'Falta muro social')],
-    actionLabel: 'Abrir invitados',
-    href: '/fiestas/nueva/invitados',
+    actionLabel: 'Abrir invitados', href: eventQueryHref(fiestaId, '/fiestas/nueva/invitados'),
   });
 
   const operacionScore = score([hasFood, hasStaff, hasCarga, hasProgram, hasPlanB]);
   areaInputs.push({
-    id: 'operacion',
-    title: 'Operación del evento',
-    score: operacionScore,
-    status: statusFromScore(operacionScore),
+    id: 'operacion', title: 'Operación del evento', score: operacionScore, status: statusFromScore(operacionScore),
     promise: 'El equipo llega con comida, personal, carga, horarios y plan B claros.',
     ready: [...addIf(hasFood, 'Comida/menú'), ...addIf(hasStaff, 'Personal'), ...addIf(hasCarga, 'Carga operativa'), ...addIf(hasProgram, 'Programa'), ...addIf(hasPlanB, 'Plan B')],
     missing: [...addIf(!hasFood, 'Falta comida/menú'), ...addIf(!hasStaff, 'Falta personal'), ...addIf(!hasCarga, 'Falta carga operativa'), ...addIf(!hasProgram, 'Falta programa'), ...addIf(!hasPlanB, 'Falta plan B')],
-    actionLabel: 'Abrir comando total',
-    href: eventHref(fiestaId, 'comando-total'),
+    actionLabel: 'Abrir comando total', href: eventHref(fiestaId, 'comando-total'),
   });
 
   const iaScore = score([hasAiTasks, hasBudget, hasGuests, hasPayments, hasStaff, hasPost]);
   areaInputs.push({
-    id: 'ia',
-    title: 'IA operativa real',
-    score: iaScore,
-    status: statusFromScore(iaScore),
+    id: 'ia', title: 'IA operativa real', score: iaScore, status: statusFromScore(iaScore),
     promise: 'La IA detecta faltantes y empuja tareas/mensajes reales por fiesta.',
     ready: [...addIf(hasAiTasks, 'Tareas/acciones'), ...addIf(hasBudget, 'Presupuesto'), ...addIf(hasGuests, 'Invitados'), ...addIf(hasPayments, 'Pagos'), ...addIf(hasStaff, 'Personal'), ...addIf(hasPost, 'Post-fiesta')],
     missing: [...addIf(!hasAiTasks, 'Faltan acciones IA'), ...addIf(!hasBudget, 'Falta presupuesto'), ...addIf(!hasGuests, 'Faltan invitados'), ...addIf(!hasPayments, 'Faltan pagos'), ...addIf(!hasStaff, 'Falta personal'), ...addIf(!hasPost, 'Falta post-fiesta')],
-    actionLabel: 'Abrir IA operativa',
-    href: eventHref(fiestaId, 'ia-operativa-ak'),
+    actionLabel: 'Abrir control IA', href: eventHref(fiestaId, 'comando-total'),
   });
 
   const tecnologiaScore = score([hasPortal, hasInvite, hasScreen, hasLiveWall, hasEntertainment]);
   areaInputs.push({
-    id: 'tecnologia',
-    title: 'Tecnología vendible AK',
-    score: tecnologiaScore,
-    status: statusFromScore(tecnologiaScore),
+    id: 'tecnologia', title: 'Tecnología vendible AK', score: tecnologiaScore, status: statusFromScore(tecnologiaScore),
     promise: 'La tecnología se muestra como diferencial comercial, no como módulos escondidos.',
     ready: [...addIf(hasPortal, 'Portal'), ...addIf(hasInvite, 'QR/invitación'), ...addIf(hasScreen, 'Pantalla'), ...addIf(hasLiveWall, 'Muro social'), ...addIf(hasEntertainment, 'Entretenimiento conectado')],
     missing: [...addIf(!hasPortal, 'Falta portal'), ...addIf(!hasInvite, 'Falta QR/invitación'), ...addIf(!hasScreen, 'Falta pantalla'), ...addIf(!hasLiveWall, 'Falta muro social'), ...addIf(!hasEntertainment, 'Falta entretenimiento conectado')],
-    actionLabel: 'Abrir Tecnología AK',
-    href: eventHref(fiestaId, 'experiencia-tecnologica-ak'),
+    actionLabel: 'Abrir Tecnología AK', href: eventHref(fiestaId, 'experiencia-tecnologica-ak'),
   });
 
   const postScore = score([hasPost, hasLiveWall, hasTestimonial]);
   areaInputs.push({
-    id: 'post_fiesta',
-    title: 'Post-fiesta y marketing',
-    score: postScore,
-    status: statusFromScore(postScore),
+    id: 'post_fiesta', title: 'Post-fiesta y marketing', score: postScore, status: statusFromScore(postScore),
     promise: 'Después de la fiesta quedan recuerdos, testimonio y material para vender mejor.',
     ready: [...addIf(hasPost, 'Galería/recuerdos'), ...addIf(hasLiveWall, 'Contenido generado'), ...addIf(hasTestimonial, 'Testimonio/reseña')],
     missing: [...addIf(!hasPost, 'Falta galería final'), ...addIf(!hasLiveWall, 'Falta contenido de invitados'), ...addIf(!hasTestimonial, 'Falta testimonio/reseña')],
-    actionLabel: 'Abrir post-fiesta',
-    href: eventHref(fiestaId, 'post-fiesta'),
+    actionLabel: 'Abrir recuerdos y tecnología', href: eventHref(fiestaId, 'experiencia-tecnologica-ak'),
   });
 
   const installScore = score([hasInstall]);
   areaInputs.push({
-    id: 'instalacion',
-    title: 'Instalación Android y PC',
-    score: installScore,
-    status: statusFromScore(installScore),
+    id: 'instalacion', title: 'Instalación Android y PC', score: installScore, status: statusFromScore(installScore),
     promise: 'La plataforma puede instalarse como app en Android y PC cuando el navegador lo permite.',
-    ready: ['PWA preparada para instalación'],
-    missing: [],
-    actionLabel: 'Instalar app',
-    href: '/settings/instalar-app',
+    ready: ['PWA preparada para instalación'], missing: [], actionLabel: 'Instalar app', href: '/settings/instalar-app',
   });
 
   const globalScore = Math.round(areaInputs.reduce((sum, area) => sum + area.score, 0) / areaInputs.length);
