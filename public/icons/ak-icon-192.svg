@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 512 512" role="img" aria-label="AK Producciones">
+  <rect width="512" height="512" rx="112" fill="#d71920"/>
+  <circle cx="256" cy="256" r="188" fill="#ffffff" opacity="0.12"/>
+  <path d="M136 342L217 154h55l81 188h-55l-14-36h-92l-14 36h-42zm78-86h62l-31-78-31 78z" fill="#ffffff"/>
+  <path d="M342 154h54l-67 86 74 102h-60l-53-78v78h-51V154h51v73l52-73z" fill="#ffffff"/>
+</svg>
