@@ -77,7 +77,7 @@ const modules: ModuleDefinition[] = [
 
   // 4. PRODUCCIÓN MULTIMEDIA
   { id: 'fotografia', title: "Foto y Video", href: "fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
-  { id: 'entretenimiento', title: "Entretenimiento", href: "entretenimiento", icon: Sparkles, description: "Fotocabina y Plataforma 360 conectadas al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
+  { id: 'entretenimiento', title: "Entretenimiento", href: "entretenimiento", icon: Sparkles, description: "Fotocabina, 360, Bogue y Espejo Mágico conectados al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
   { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
   { id: 'postEvento', title: "Post-Evento", href: "post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-amber-100 text-amber-700", badge: 'Interno' },
 

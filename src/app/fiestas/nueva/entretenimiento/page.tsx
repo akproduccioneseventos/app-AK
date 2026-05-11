@@ -6,10 +6,15 @@ import { useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   ArrowLeft,
+  BarChart3,
   Camera,
   CheckCircle2,
+  ClipboardCheck,
   Clock,
+  Cloud,
   Download,
+  Eye,
+  Gauge,
   Image as ImageIcon,
   Loader2,
   Mail,
@@ -21,6 +26,8 @@ import {
   RotateCcw,
   Save,
   Share2,
+  ShieldCheck,
+  SlidersHorizontal,
   Smartphone,
   Sparkles,
   Upload,
@@ -46,8 +53,9 @@ import {
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
 
-type StationId = 'fotocabina' | 'plataforma360';
+type StationId = 'fotocabina' | 'plataforma360' | 'bogue' | 'espejoMagico';
 type StationStatus = 'preparando' | 'listo' | 'en-vivo' | 'pausado';
+type ModerationMode = 'auto' | 'revision' | 'solo-equipo';
 
 interface EntertainmentChecklistItem {
   id: string;
@@ -80,6 +88,23 @@ interface EntertainmentStation {
   startTime: string;
   overlayName: string;
   accentColor: string;
+  templateName: string;
+  outputFormat: string;
+  qualityPreset: string;
+  sessionGoal: string;
+  shareMessage: string;
+  printCopies: number;
+  maxRetakes: number;
+  estimatedDurationSeconds: number;
+  moderationMode: ModerationMode;
+  offlineQueueEnabled: boolean;
+  autoPublish: boolean;
+  leadCaptureEnabled: boolean;
+  analyticsEnabled: boolean;
+  backupPlan: string;
+  equipment: string[];
+  guestFlow: string[];
+  proHighlights: string[];
   captureModes: string[];
   deliveryChannels: string[];
   checklist: EntertainmentChecklistItem[];
@@ -103,6 +128,35 @@ const STATUS_META: Record<StationStatus, { label: string; className: string }> =
   pausado: { label: 'Pausado', className: 'bg-amber-100 text-amber-700 border-amber-200' },
 };
 
+const STATION_IDS: StationId[] = ['fotocabina', 'plataforma360', 'bogue', 'espejoMagico'];
+
+const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ElementType }> = {
+  fotocabina: {
+    shortLabel: 'Fotocabina',
+    description: 'Captura fotos, GIFs y boomerangs con marca del evento, QR y galeria.',
+    caption: 'Captura fotocabina',
+    icon: Camera,
+  },
+  plataforma360: {
+    shortLabel: 'Plataforma 360',
+    description: 'Control de clips 360 usando celular, subida rapida y salida lista para compartir.',
+    caption: 'Captura 360',
+    icon: RotateCcw,
+  },
+  bogue: {
+    shortLabel: 'Bogue',
+    description: 'Clips boomerang cortos con loop, musica, overlay y QR para compartir al instante.',
+    caption: 'Clip Bogue / Boomerang',
+    icon: Video,
+  },
+  espejoMagico: {
+    shortLabel: 'Espejo magico',
+    description: 'Experiencia de espejo tactil con prompts, firma, dibujo, props y salida premium.',
+    caption: 'Captura Espejo Magico',
+    icon: Sparkles,
+  },
+};
+
 const CHANNELS = [
   { id: 'qr', label: 'QR', icon: QrCode },
   { id: 'mail', label: 'Mail', icon: Mail },
@@ -114,6 +168,42 @@ const CHANNELS = [
 const FEATURE_LIBRARY: Record<StationId, string[]> = {
   fotocabina: ['Foto', 'GIF', 'Boomerang', 'Filtros', 'Marcos', 'Impresion'],
   plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Musica', 'QR por video'],
+  bogue: ['Boomerang', 'Loop forward/reverse', 'Video corto', 'Musica', 'Overlay animado', 'QR por clip'],
+  espejoMagico: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos', 'Impresion', 'Galeria QR'],
+};
+
+const MODERATION_LABELS: Record<ModerationMode, string> = {
+  auto: 'Publicar automatico',
+  revision: 'Revisar antes de publicar',
+  'solo-equipo': 'Solo equipo AK',
+};
+
+const PRO_EQUIPMENT: Record<StationId, string[]> = {
+  fotocabina: ['Camara o tablet', 'Aro de luz', 'Fondo o marco', 'Impresora opcional', 'QR visible'],
+  plataforma360: ['Celular AK', 'Soporte estable', 'Luz frontal', 'Plataforma fisica', 'Bateria externa'],
+  bogue: ['Celular o tablet', 'Soporte vertical', 'Luz continua', 'Musica corta', 'Cartel de QR'],
+  espejoMagico: ['Espejo/pantalla tactil', 'Camara', 'Impresora opcional', 'Props fisicos', 'Limpieza de pantalla'],
+};
+
+const PRO_FLOW: Record<StationId, string[]> = {
+  fotocabina: ['Invitado elige plantilla', 'Captura foto/GIF', 'Se aplica overlay', 'Ve QR o comparte', 'Aparece en galeria/muro'],
+  plataforma360: ['Invitado sube a plataforma', 'Se graba clip corto', 'Se aplica slow/speed ramp', 'Se sube al modulo', 'Se comparte por QR/muro'],
+  bogue: ['Invitado hace movimiento corto', 'Se graba loop', 'Se reproduce ida/vuelta', 'Se aplica musica/overlay', 'Se comparte como clip viral'],
+  espejoMagico: ['Invitado toca el espejo', 'Sigue prompts guiados', 'Firma o agrega sellos', 'Confirma o repite', 'Recibe QR/impresion/galeria'],
+};
+
+const PRO_HIGHLIGHTS: Record<StationId, string[]> = {
+  fotocabina: ['Plantillas por evento', 'Filtros en vivo', 'Impresion opcional', 'Galeria QR', 'Datos de invitados'],
+  plataforma360: ['Slow motion', 'Speed ramp', 'Intro/outro', 'Overlay animado', 'Salida social'],
+  bogue: ['Loop ida/vuelta', 'Clip rapido', 'Musica por evento', 'Overlay animado', 'Formato vertical'],
+  espejoMagico: ['Pantalla tactil', 'Firma y dibujo', 'Sellos/props', 'Prompts guiados', 'Experiencia premium'],
+};
+
+const OUTPUT_FORMATS: Record<StationId, string> = {
+  fotocabina: 'JPG + GIF + print 4x6',
+  plataforma360: 'MP4 vertical 1080p',
+  bogue: 'MP4 loop + GIF',
+  espejoMagico: 'JPG firmado + print 4x6',
 };
 
 function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
@@ -124,10 +214,13 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
     'Prueba de envio realizada',
     'Responsable asignado',
   ];
-  const specific =
-    type === 'fotocabina'
-      ? ['Plantilla de foto aprobada', 'Fondo o marco elegido', 'Impresora / salida digital verificada']
-      : ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha'];
+  const specificByType: Record<StationId, string[]> = {
+    fotocabina: ['Plantilla de foto aprobada', 'Fondo o marco elegido', 'Impresora / salida digital verificada'],
+    plataforma360: ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha'],
+    bogue: ['Duracion del loop configurada', 'Musica o sonido corto elegido', 'Prueba de ida y vuelta realizada'],
+    espejoMagico: ['Espejo/pantalla tactil limpia', 'Firma y sellos probados', 'Plantilla de impresion aprobada'],
+  };
+  const specific = specificByType[type];
 
   return [...specific, ...shared].map((text, index) => ({
     id: `${type}_check_${index + 1}`,
@@ -136,8 +229,54 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
   }));
 }
 
+function makeProDefaults(type: StationId, eventName: string): Pick<
+  EntertainmentStation,
+  | 'templateName'
+  | 'outputFormat'
+  | 'qualityPreset'
+  | 'sessionGoal'
+  | 'shareMessage'
+  | 'printCopies'
+  | 'maxRetakes'
+  | 'estimatedDurationSeconds'
+  | 'moderationMode'
+  | 'offlineQueueEnabled'
+  | 'autoPublish'
+  | 'leadCaptureEnabled'
+  | 'analyticsEnabled'
+  | 'backupPlan'
+  | 'equipment'
+  | 'guestFlow'
+  | 'proHighlights'
+> {
+  const label = STATION_META[type].shortLabel;
+  const isVideoExperience = type === 'plataforma360' || type === 'bogue';
+  return {
+    templateName: `${eventName} - ${label} Pro`,
+    outputFormat: OUTPUT_FORMATS[type],
+    qualityPreset: isVideoExperience ? 'Social HD 1080p' : 'Alta calidad + copia web',
+    sessionGoal: type === 'espejoMagico' ? 'Entrada premium y recuerdo firmado' : 'Contenido compartible durante la fiesta',
+    shareMessage: `Tu recuerdo de ${eventName} ya esta listo. Escanea el QR y compartilo con AK Producciones.`,
+    printCopies: type === 'fotocabina' || type === 'espejoMagico' ? 1 : 0,
+    maxRetakes: type === 'espejoMagico' ? 2 : 1,
+    estimatedDurationSeconds: type === 'plataforma360' ? 12 : type === 'bogue' ? 6 : 18,
+    moderationMode: isVideoExperience ? 'revision' : 'auto',
+    offlineQueueEnabled: true,
+    autoPublish: type !== 'espejoMagico',
+    leadCaptureEnabled: type === 'espejoMagico' || type === 'fotocabina',
+    analyticsEnabled: true,
+    backupPlan: isVideoExperience
+      ? 'Guardar copia local en el celular y subir al volver internet.'
+      : 'Guardar original local y repetir con modo digital si falla impresion.',
+    equipment: PRO_EQUIPMENT[type],
+    guestFlow: PRO_FLOW[type],
+    proHighlights: PRO_HIGHLIGHTS[type],
+  };
+}
+
 function makeStation(type: StationId, fiesta?: FiestaEnPlanificacion | null): EntertainmentStation {
   const eventName = fiesta?.configuracion?.nombreEvento || 'Evento AK';
+  const proDefaults = makeProDefaults(type, eventName);
 
   if (type === 'fotocabina') {
     return {
@@ -151,11 +290,56 @@ function makeStation(type: StationId, fiesta?: FiestaEnPlanificacion | null): En
       startTime: '22:30',
       overlayName: `${eventName} - marco premium`,
       accentColor: '#2563eb',
+      ...proDefaults,
       captureModes: ['Foto', 'GIF', 'Boomerang'],
       deliveryChannels: ['qr', 'mail', 'whatsapp', 'galeria'],
       checklist: makeChecklist('fotocabina'),
       script: 'Captura, aplica marco AK, muestra QR y deja la foto lista para galeria y muro social.',
       notes: '',
+      media: [],
+    };
+  }
+
+  if (type === 'bogue') {
+    return {
+      id: 'bogue',
+      title: 'Bogue AK',
+      enabled: true,
+      status: 'listo',
+      operatorName: '',
+      deviceName: 'Celular / tablet con soporte',
+      location: 'Zona de activacion',
+      startTime: '23:30',
+      overlayName: `${eventName} - loop social`,
+      accentColor: '#0ea5e9',
+      ...proDefaults,
+      captureModes: ['Boomerang', 'Loop forward/reverse', 'Video corto'],
+      deliveryChannels: ['qr', 'whatsapp', 'galeria', 'descarga'],
+      checklist: makeChecklist('bogue'),
+      script: 'Grabar clips cortos de movimiento, aplicar marca AK y publicarlos como loop para QR, galeria y muro social.',
+      notes: 'Ideal para entrada, cotillon o momento de pista con mucha energia.',
+      media: [],
+    };
+  }
+
+  if (type === 'espejoMagico') {
+    return {
+      id: 'espejoMagico',
+      title: 'Espejo Magico AK',
+      enabled: true,
+      status: 'preparando',
+      operatorName: '',
+      deviceName: 'Espejo / pantalla tactil / camara',
+      location: 'Recepcion o salon principal',
+      startTime: '21:30',
+      overlayName: `${eventName} - espejo interactivo`,
+      accentColor: '#f59e0b',
+      ...proDefaults,
+      captureModes: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos'],
+      deliveryChannels: ['qr', 'mail', 'whatsapp', 'galeria', 'descarga'],
+      checklist: makeChecklist('espejoMagico'),
+      script: 'El invitado toca el espejo, sigue prompts, firma o dibuja sobre la foto y la recibe por QR o galeria.',
+      notes: 'Pensado como experiencia premium de entrada, elegante y muy visual.',
       media: [],
     };
   }
@@ -171,6 +355,7 @@ function makeStation(type: StationId, fiesta?: FiestaEnPlanificacion | null): En
     startTime: '02:30',
     overlayName: `${eventName} - 360 cinematic`,
     accentColor: '#7c3aed',
+    ...proDefaults,
     captureModes: ['Video 360', 'Slow motion', 'Speed ramp'],
     deliveryChannels: ['qr', 'whatsapp', 'galeria', 'descarga'],
     checklist: makeChecklist('plataforma360'),
@@ -195,6 +380,8 @@ function makeDefaultEntertainment(fiesta?: FiestaEnPlanificacion | null, origin 
     modules: {
       fotocabina: makeStation('fotocabina', fiesta),
       plataforma360: makeStation('plataforma360', fiesta),
+      bogue: makeStation('bogue', fiesta),
+      espejoMagico: makeStation('espejoMagico', fiesta),
     },
   };
 }
@@ -205,16 +392,25 @@ function mergeEntertainmentData(
   origin = ''
 ): EntertainmentData {
   const defaults = makeDefaultEntertainment(fiesta, origin);
-  const modules = {
-    fotocabina: { ...defaults.modules.fotocabina, ...(stored?.modules?.fotocabina || {}) },
-    plataforma360: { ...defaults.modules.plataforma360, ...(stored?.modules?.plataforma360 || {}) },
-  };
-
-  modules.fotocabina.checklist = stored?.modules?.fotocabina?.checklist || defaults.modules.fotocabina.checklist;
-  modules.plataforma360.checklist =
-    stored?.modules?.plataforma360?.checklist || defaults.modules.plataforma360.checklist;
-  modules.fotocabina.media = stored?.modules?.fotocabina?.media || [];
-  modules.plataforma360.media = stored?.modules?.plataforma360?.media || [];
+  const modules = STATION_IDS.reduce((acc, stationId) => {
+    const storedStation = stored?.modules?.[stationId];
+    const defaultStation = defaults.modules[stationId];
+    acc[stationId] = {
+      ...defaultStation,
+      ...(storedStation || {}),
+      checklist: storedStation?.checklist || defaultStation.checklist,
+      media: storedStation?.media || [],
+      equipment: storedStation?.equipment || defaultStation.equipment,
+      guestFlow: storedStation?.guestFlow || defaultStation.guestFlow,
+      proHighlights: storedStation?.proHighlights || defaultStation.proHighlights,
+      moderationMode: storedStation?.moderationMode || defaultStation.moderationMode,
+      outputFormat: storedStation?.outputFormat || defaultStation.outputFormat,
+      qualityPreset: storedStation?.qualityPreset || defaultStation.qualityPreset,
+      shareMessage: storedStation?.shareMessage || defaultStation.shareMessage,
+      backupPlan: storedStation?.backupPlan || defaultStation.backupPlan,
+    };
+    return acc;
+  }, {} as Record<StationId, EntertainmentStation>);
 
   return {
     ...defaults,
@@ -236,7 +432,15 @@ function stationScore(station: EntertainmentStation) {
   if (station.deliveryChannels.length >= 3) score += 10;
   if (station.captureModes.length >= 2) score += 8;
   if (station.media.length > 0) score += 5;
+  if (station.offlineQueueEnabled) score += 2;
+  if (station.analyticsEnabled) score += 2;
+  if (station.templateName?.trim()) score += 2;
+  if (station.backupPlan?.trim()) score += 2;
   return Math.min(100, score);
+}
+
+function stationPendingCount(station: EntertainmentStation) {
+  return station.media.filter((item) => item.syncStatus === 'pendiente').length;
 }
 
 function formatDateTime(value?: string) {
@@ -277,9 +481,10 @@ function StationPanel({
   onToggleArrayValue,
   onUpload,
 }: StationPanelProps) {
-  const Icon = station.id === 'fotocabina' ? Camera : RotateCcw;
+  const Icon = STATION_META[station.id].icon;
   const score = stationScore(station);
-  const captureAccept = station.id === 'plataforma360' ? 'video/*,image/*' : 'image/*,video/*';
+  const pendingSync = stationPendingCount(station);
+  const captureAccept = station.id === 'plataforma360' || station.id === 'bogue' ? 'video/*,image/*' : 'image/*,video/*';
 
   return (
     <div className="space-y-5">
@@ -296,9 +501,7 @@ function StationPanel({
                   <StatusBadge status={station.status} />
                 </div>
                 <p className="mt-2 max-w-2xl text-sm font-semibold text-slate-500">
-                  {station.id === 'fotocabina'
-                    ? 'Captura fotos, GIFs y boomerangs con marca del evento, QR y galeria.'
-                    : 'Control de clips 360 usando celular, subida rapida y salida lista para compartir.'}
+                  {STATION_META[station.id].description}
                 </p>
               </div>
             </div>
@@ -357,6 +560,29 @@ function StationPanel({
                 </button>
               );
             })}
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <BarChart3 className="mb-2 h-5 w-5 text-blue-600" />
+              <p className="text-2xl font-black text-slate-950">{station.media.length}</p>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Capturas</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <Share2 className="mb-2 h-5 w-5 text-violet-600" />
+              <p className="text-2xl font-black text-slate-950">{station.deliveryChannels.length}</p>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Salidas</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <Cloud className="mb-2 h-5 w-5 text-emerald-600" />
+              <p className="text-2xl font-black text-slate-950">{pendingSync}</p>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Pendientes</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <Gauge className="mb-2 h-5 w-5 text-amber-600" />
+              <p className="text-2xl font-black text-slate-950">{station.estimatedDurationSeconds}s</p>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Sesion</p>
+            </div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
@@ -444,6 +670,158 @@ function StationPanel({
             </Card>
           </div>
 
+          <Card className="border-slate-200 bg-white">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-black">
+                <SlidersHorizontal className="h-5 w-5 text-slate-700" />
+                Control pro de la estacion
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="space-y-2">
+                  <Label>Plantilla activa</Label>
+                  <Input value={station.templateName} onChange={(event) => onUpdate({ templateName: event.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Formato de salida</Label>
+                  <Input value={station.outputFormat} onChange={(event) => onUpdate({ outputFormat: event.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Calidad</Label>
+                  <Input value={station.qualityPreset} onChange={(event) => onUpdate({ qualityPreset: event.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Objetivo</Label>
+                  <Input value={station.sessionGoal} onChange={(event) => onUpdate({ sessionGoal: event.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Duracion sesion</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={station.estimatedDurationSeconds}
+                    onChange={(event) => onUpdate({ estimatedDurationSeconds: Number(event.target.value) || 1 })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Reintentos</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={station.maxRetakes}
+                    onChange={(event) => onUpdate({ maxRetakes: Number(event.target.value) || 0 })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Copias impresion</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={station.printCopies}
+                    onChange={(event) => onUpdate({ printCopies: Number(event.target.value) || 0 })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Moderacion</Label>
+                  <select
+                    value={station.moderationMode}
+                    onChange={(event) => onUpdate({ moderationMode: event.target.value as ModerationMode })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {Object.entries(MODERATION_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {[
+                  { key: 'offlineQueueEnabled', label: 'Cola offline', icon: Cloud },
+                  { key: 'autoPublish', label: 'Auto publicar', icon: RadioTower },
+                  { key: 'leadCaptureEnabled', label: 'Captura datos', icon: ClipboardCheck },
+                  { key: 'analyticsEnabled', label: 'Metricas', icon: BarChart3 },
+                ].map((item) => {
+                  const ItemIcon = item.icon;
+                  const checked = Boolean(station[item.key as keyof EntertainmentStation]);
+                  return (
+                    <div key={item.key} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex items-center gap-3">
+                        <ItemIcon className="h-5 w-5 text-slate-500" />
+                        <span className="text-sm font-black text-slate-700">{item.label}</span>
+                      </div>
+                      <Switch checked={checked} onCheckedChange={(value) => onUpdate({ [item.key]: value } as Partial<EntertainmentStation>)} />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Mensaje de envio</Label>
+                  <Textarea value={station.shareMessage} onChange={(event) => onUpdate({ shareMessage: event.target.value })} rows={3} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Plan B operativo</Label>
+                  <Textarea value={station.backupPlan} onChange={(event) => onUpdate({ backupPlan: event.target.value })} rows={3} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <Card className="border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-black">
+                  <Eye className="h-5 w-5 text-blue-600" />
+                  Flujo invitado
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {station.guestFlow.map((step, index) => (
+                  <div key={`${step}-${index}`} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-950 text-xs font-black text-white">{index + 1}</span>
+                    <p className="text-sm font-bold leading-relaxed text-slate-600">{step}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-black">
+                  <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                  Equipo minimo
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {station.equipment.map((item) => (
+                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                    <span className="text-sm font-bold text-slate-600">{item}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-black">
+                  <Sparkles className="h-5 w-5 text-violet-600" />
+                  Funciones pro
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {station.proHighlights.map((item) => (
+                  <span key={item} className="rounded-full border border-violet-100 bg-violet-50 px-3 py-2 text-xs font-black uppercase tracking-widest text-violet-700">
+                    {item}
+                  </span>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-[.85fr_1.15fr]">
             <Card className="border-slate-200 bg-white">
               <CardHeader>
@@ -484,7 +862,7 @@ function StationPanel({
                     <input
                       type="file"
                       accept={captureAccept}
-                      capture={station.id === 'plataforma360' ? 'environment' : undefined}
+                      capture={station.id === 'plataforma360' || station.id === 'bogue' ? 'environment' : undefined}
                       className="hidden"
                       disabled={uploading}
                       onChange={async (event) => {
@@ -583,7 +961,7 @@ function EntretenimientoContent() {
 
   const overallScore = useMemo(() => {
     if (!data) return 0;
-    return Math.round((stationScore(data.modules.fotocabina) + stationScore(data.modules.plataforma360)) / 2);
+    return Math.round(STATION_IDS.reduce((sum, stationId) => sum + stationScore(data.modules[stationId]), 0) / STATION_IDS.length);
   }, [data]);
 
   const updateStation = useCallback((stationId: StationId, patch: Partial<EntertainmentStation>) => {
@@ -648,7 +1026,7 @@ function EntretenimientoContent() {
       return;
     }
     setData(mergeEntertainmentData(result.data, fiesta, origin));
-    toast({ title: 'Entretenimiento guardado', description: 'Fotocabina y Plataforma 360 quedaron actualizadas.' });
+    toast({ title: 'Entretenimiento guardado', description: 'Todas las estaciones quedaron actualizadas.' });
   }, [data, fiesta, fiestaId, origin, toast]);
 
   const uploadMedia = useCallback(async (file: File, stationId: StationId) => {
@@ -659,7 +1037,7 @@ function EntretenimientoContent() {
     formData.append('moduleId', stationId);
     formData.append('file', file);
     formData.append('authorName', 'AK Producciones');
-    formData.append('caption', stationId === 'plataforma360' ? 'Captura 360' : 'Captura fotocabina');
+    formData.append('caption', STATION_META[stationId].caption);
 
     const result = await uploadEntretenimientoMedia(formData);
     setUploadingStation(null);
@@ -710,7 +1088,7 @@ function EntretenimientoContent() {
                 Entretenimiento
               </h1>
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-slate-500 sm:text-base">
-                Fotocabina y Plataforma 360 como estaciones profesionales conectadas al evento, al QR y al muro social.
+                Fotocabina, Plataforma 360, Bogue y Espejo Magico como estaciones profesionales conectadas al evento, al QR y al muro social.
               </p>
             </div>
           </div>
@@ -757,8 +1135,8 @@ function EntretenimientoContent() {
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <Sparkles className="mb-2 h-5 w-5 text-violet-600" />
-                    <p className="text-2xl font-black text-slate-950">{data.eventHashtag}</p>
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Hashtag</p>
+                    <p className="text-2xl font-black text-slate-950">{STATION_IDS.length}</p>
+                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Estaciones</p>
                   </div>
                 </div>
               </div>
@@ -820,8 +1198,50 @@ function EntretenimientoContent() {
           </Card>
         </div>
 
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {STATION_IDS.map((stationId) => {
+            const station = data.modules[stationId];
+            const StationIcon = STATION_META[stationId].icon;
+            return (
+              <div key={stationId} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-2xl bg-slate-950 p-3 text-white">
+                      <StationIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-950">{STATION_META[stationId].shortLabel}</p>
+                      <p className="text-xs font-semibold text-slate-400">{station.outputFormat}</p>
+                    </div>
+                  </div>
+                  <StatusBadge status={station.status} />
+                </div>
+                <div className="mb-3 flex items-center justify-between text-xs font-black uppercase tracking-widest text-slate-400">
+                  <span>Pro readiness</span>
+                  <span className="text-slate-900">{stationScore(station)}%</span>
+                </div>
+                <Progress value={stationScore(station)} className="h-2" />
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-2xl bg-slate-50 p-2">
+                    <p className="text-lg font-black text-slate-950">{station.media.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">media</p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-2">
+                    <p className="text-lg font-black text-slate-950">{station.captureModes.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">modos</p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-2">
+                    <p className="text-lg font-black text-slate-950">{station.deliveryChannels.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">salidas</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         <Tabs defaultValue="fotocabina" className="space-y-5">
-          <TabsList className="grid h-auto grid-cols-2 rounded-2xl bg-white p-1 shadow-lg">
+          <TabsList className="grid h-auto grid-cols-2 rounded-2xl bg-white p-1 shadow-lg lg:grid-cols-4">
             <TabsTrigger value="fotocabina" className="rounded-xl py-3 font-black">
               <Camera className="mr-2 h-4 w-4" />
               Fotocabina
@@ -829,6 +1249,14 @@ function EntretenimientoContent() {
             <TabsTrigger value="plataforma360" className="rounded-xl py-3 font-black">
               <RotateCcw className="mr-2 h-4 w-4" />
               Plataforma 360
+            </TabsTrigger>
+            <TabsTrigger value="bogue" className="rounded-xl py-3 font-black">
+              <Video className="mr-2 h-4 w-4" />
+              Bogue
+            </TabsTrigger>
+            <TabsTrigger value="espejoMagico" className="rounded-xl py-3 font-black">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Espejo magico
             </TabsTrigger>
           </TabsList>
 
@@ -854,6 +1282,32 @@ function EntretenimientoContent() {
               onUpdate={(patch) => updateStation('plataforma360', patch)}
               onToggleChecklist={(checkId) => toggleChecklist('plataforma360', checkId)}
               onToggleArrayValue={(field, value) => toggleArrayValue('plataforma360', field, value)}
+              onUpload={uploadMedia}
+            />
+          </TabsContent>
+
+          <TabsContent value="bogue">
+            <StationPanel
+              station={data.modules.bogue}
+              galleryUrl={data.galleryUrl}
+              eventHashtag={data.eventHashtag}
+              uploading={uploadingStation === 'bogue'}
+              onUpdate={(patch) => updateStation('bogue', patch)}
+              onToggleChecklist={(checkId) => toggleChecklist('bogue', checkId)}
+              onToggleArrayValue={(field, value) => toggleArrayValue('bogue', field, value)}
+              onUpload={uploadMedia}
+            />
+          </TabsContent>
+
+          <TabsContent value="espejoMagico">
+            <StationPanel
+              station={data.modules.espejoMagico}
+              galleryUrl={data.galleryUrl}
+              eventHashtag={data.eventHashtag}
+              uploading={uploadingStation === 'espejoMagico'}
+              onUpdate={(patch) => updateStation('espejoMagico', patch)}
+              onToggleChecklist={(checkId) => toggleChecklist('espejoMagico', checkId)}
+              onToggleArrayValue={(field, value) => toggleArrayValue('espejoMagico', field, value)}
               onUpload={uploadMedia}
             />
           </TabsContent>

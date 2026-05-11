@@ -8,6 +8,14 @@ import * as logger from '@/lib/logger';
 
 const MAX_ENTERTAINMENT_UPLOAD_SIZE = 20 * 1024 * 1024;
 
+const MODULE_MOMENT_TAGS: Record<string, string> = {
+  fotocabina: 'Fotocabina',
+  plataforma360: 'Plataforma 360',
+  bogue: 'Bogue',
+  espejoMagico: 'Espejo Magico',
+};
+const VALID_ENTERTAINMENT_MODULE_IDS = new Set(Object.keys(MODULE_MOMENT_TAGS));
+
 function normalizeEntertainmentData(data: any) {
   return {
     ...(data || {}),
@@ -68,6 +76,10 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     return { success: false, error: 'Faltan datos para subir el archivo.' };
   }
 
+  if (!VALID_ENTERTAINMENT_MODULE_IDS.has(moduleId)) {
+    return { success: false, error: 'El modulo de entretenimiento no es valido.' };
+  }
+
   if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
     return { success: false, error: 'Solo se aceptan fotos o videos.' };
   }
@@ -94,7 +106,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       caption,
       source: 'entertainment',
       sourceModule: moduleId,
-      momentTag: moduleId === 'plataforma360' ? 'Plataforma 360' : 'Fotocabina',
+      momentTag: MODULE_MOMENT_TAGS[moduleId] || 'Entretenimiento',
     });
 
     const mediaItem = {
