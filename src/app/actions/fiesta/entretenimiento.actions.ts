@@ -113,9 +113,9 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
 
     const current = getStoredEntertainment(fiesta) || {};
     const modules = { ...(current.modules || {}) };
-    const module = { ...(modules[moduleId] || {}) };
-    module.media = [mediaItem, ...(module.media || [])];
-    modules[moduleId] = module;
+    const entertainmentModule = { ...(modules[moduleId] || {}) };
+    entertainmentModule.media = [mediaItem, ...(entertainmentModule.media || [])];
+    modules[moduleId] = entertainmentModule;
 
     const nextEntertainment = normalizeEntertainmentData({
       ...current,
