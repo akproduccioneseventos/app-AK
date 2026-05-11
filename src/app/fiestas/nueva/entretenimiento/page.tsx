@@ -88,7 +88,17 @@ interface EntertainmentStation {
   startTime: string;
   overlayName: string;
   accentColor: string;
+  activeTemplateId: string;
   templateName: string;
+  brandText: string;
+  footerText: string;
+  qrCallout: string;
+  logoUrl: string;
+  filterPreset: string;
+  musicTrack: string;
+  backgroundStyle: string;
+  printLayout: string;
+  animationStyle: string;
   outputFormat: string;
   qualityPreset: string;
   sessionGoal: string;
@@ -111,6 +121,21 @@ interface EntertainmentStation {
   script: string;
   notes: string;
   media: EntertainmentMediaItem[];
+}
+
+interface EntertainmentTemplatePreset {
+  id: string;
+  name: string;
+  mood: string;
+  overlayName: string;
+  accentColor: string;
+  outputFormat: string;
+  qualityPreset: string;
+  filterPreset: string;
+  musicTrack: string;
+  backgroundStyle: string;
+  printLayout: string;
+  animationStyle: string;
 }
 
 interface EntertainmentData {
@@ -206,6 +231,129 @@ const OUTPUT_FORMATS: Record<StationId, string> = {
   espejoMagico: 'JPG firmado + print 4x6',
 };
 
+const TEMPLATE_PRESETS: Record<StationId, EntertainmentTemplatePreset[]> = {
+  fotocabina: [
+    {
+      id: 'photo-premium',
+      name: 'Premium blanco',
+      mood: 'Elegante y limpio',
+      overlayName: 'Marco blanco premium con logo AK',
+      accentColor: '#2563eb',
+      outputFormat: 'JPG + GIF + print 4x6',
+      qualityPreset: 'Alta calidad + copia web',
+      filterPreset: 'Piel natural + contraste suave',
+      musicTrack: 'Sin musica, foco en captura',
+      backgroundStyle: 'Fondo claro con marco fino',
+      printLayout: 'Foto 4x6 + QR inferior',
+      animationStyle: 'Flash suave + entrada limpia',
+    },
+    {
+      id: 'photo-party',
+      name: 'Fiesta social',
+      mood: 'Colorido y compartible',
+      overlayName: 'Marco social con stickers del evento',
+      accentColor: '#7c3aed',
+      outputFormat: 'JPG + GIF + historia vertical',
+      qualityPreset: 'Social HD + copia impresion',
+      filterPreset: 'Brillo fiesta + piel calida',
+      musicTrack: 'Intro corta para GIF',
+      backgroundStyle: 'Fondo con luces y detalle del evento',
+      printLayout: 'Tira doble + QR de galeria',
+      animationStyle: 'Pop de stickers + brillo final',
+    },
+  ],
+  plataforma360: [
+    {
+      id: '360-cinematic',
+      name: 'Cinematico 360',
+      mood: 'Premium para pantalla grande',
+      overlayName: 'Overlay 360 cinematic con intro AK',
+      accentColor: '#0ea5e9',
+      outputFormat: 'MP4 vertical 1080p',
+      qualityPreset: 'Social HD 1080p',
+      filterPreset: 'Contraste alto + luces frias',
+      musicTrack: 'Beat elegante de 12 segundos',
+      backgroundStyle: 'Escena oscura con aro de luz',
+      printLayout: 'Video vertical + portada automatica',
+      animationStyle: 'Slow motion + speed ramp + outro',
+    },
+    {
+      id: '360-neon',
+      name: 'Neon viral',
+      mood: 'Energia de pista',
+      overlayName: 'Overlay neon con hashtag del evento',
+      accentColor: '#22c55e',
+      outputFormat: 'MP4/Reel 1080p + miniatura',
+      qualityPreset: 'Reel social con compresion liviana',
+      filterPreset: 'Neon vivo + piel natural',
+      musicTrack: 'Drop corto para redes',
+      backgroundStyle: 'Luces de pista y fondo oscuro',
+      printLayout: 'Miniatura vertical con QR',
+      animationStyle: 'Speed ramp agresivo + flash beat',
+    },
+  ],
+  bogue: [
+    {
+      id: 'bogue-loop',
+      name: 'Loop viral',
+      mood: 'Rapido y divertido',
+      overlayName: 'Overlay Bogue loop con marca del evento',
+      accentColor: '#8b5cf6',
+      outputFormat: 'MP4 loop + GIF',
+      qualityPreset: 'Loop HD liviano',
+      filterPreset: 'Color vivo + nitidez social',
+      musicTrack: 'Beat corto repetible',
+      backgroundStyle: 'Fondo vertical con luces suaves',
+      printLayout: 'GIF + portada para QR',
+      animationStyle: 'Ida/vuelta + rebote final',
+    },
+    {
+      id: 'bogue-glam',
+      name: 'Glam Bogue',
+      mood: 'Estetico tipo alfombra',
+      overlayName: 'Overlay glam con firma AK',
+      accentColor: '#f59e0b',
+      outputFormat: 'MP4 vertical + GIF social',
+      qualityPreset: 'Glam social HD',
+      filterPreset: 'Glow suave + piel premium',
+      musicTrack: 'Intro glam de 6 segundos',
+      backgroundStyle: 'Fondo claro con destellos',
+      printLayout: 'Portada vertical + QR',
+      animationStyle: 'Loop suave + destello de cierre',
+    },
+  ],
+  espejoMagico: [
+    {
+      id: 'mirror-signature',
+      name: 'Firma premium',
+      mood: 'Recuerdo elegante',
+      overlayName: 'Marco espejo con firma y sellos',
+      accentColor: '#f59e0b',
+      outputFormat: 'JPG firmado + print 4x6',
+      qualityPreset: 'Alta calidad + impresion',
+      filterPreset: 'Piel natural + brillo espejo',
+      musicTrack: 'Prompt sonoro suave',
+      backgroundStyle: 'Fondo espejo con borde luminoso',
+      printLayout: '4x6 firmado + QR discreto',
+      animationStyle: 'Prompt tactil + brillo de firma',
+    },
+    {
+      id: 'mirror-fun',
+      name: 'Espejo divertido',
+      mood: 'Juego con props',
+      overlayName: 'Marco espejo con props y stickers',
+      accentColor: '#ec4899',
+      outputFormat: 'JPG + GIF + print opcional',
+      qualityPreset: 'Social + impresion opcional',
+      filterPreset: 'Color fiesta + suavizado',
+      musicTrack: 'Sonidos de premio y captura',
+      backgroundStyle: 'Fondo con props y sellos',
+      printLayout: 'Collage 2 fotos + QR',
+      animationStyle: 'Prompts animados + confeti digital',
+    },
+  ],
+};
+
 function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
   const shared = [
     'Branding del evento cargado',
@@ -231,7 +379,17 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
 
 function makeProDefaults(type: StationId, eventName: string): Pick<
   EntertainmentStation,
+  | 'activeTemplateId'
   | 'templateName'
+  | 'brandText'
+  | 'footerText'
+  | 'qrCallout'
+  | 'logoUrl'
+  | 'filterPreset'
+  | 'musicTrack'
+  | 'backgroundStyle'
+  | 'printLayout'
+  | 'animationStyle'
   | 'outputFormat'
   | 'qualityPreset'
   | 'sessionGoal'
@@ -251,10 +409,21 @@ function makeProDefaults(type: StationId, eventName: string): Pick<
 > {
   const label = STATION_META[type].shortLabel;
   const isVideoExperience = type === 'plataforma360' || type === 'bogue';
+  const preset = TEMPLATE_PRESETS[type][0];
   return {
+    activeTemplateId: preset.id,
     templateName: `${eventName} - ${label} Pro`,
-    outputFormat: OUTPUT_FORMATS[type],
-    qualityPreset: isVideoExperience ? 'Social HD 1080p' : 'Alta calidad + copia web',
+    brandText: eventName,
+    footerText: 'AK Producciones',
+    qrCallout: 'Escanea y comparti tu recuerdo',
+    logoUrl: '',
+    filterPreset: preset.filterPreset,
+    musicTrack: preset.musicTrack,
+    backgroundStyle: preset.backgroundStyle,
+    printLayout: preset.printLayout,
+    animationStyle: preset.animationStyle,
+    outputFormat: preset.outputFormat || OUTPUT_FORMATS[type],
+    qualityPreset: preset.qualityPreset || (isVideoExperience ? 'Social HD 1080p' : 'Alta calidad + copia web'),
     sessionGoal: type === 'espejoMagico' ? 'Entrada premium y recuerdo firmado' : 'Contenido compartible durante la fiesta',
     shareMessage: `Tu recuerdo de ${eventName} ya esta listo. Escanea el QR y compartilo con AK Producciones.`,
     printCopies: type === 'fotocabina' || type === 'espejoMagico' ? 1 : 0,
@@ -404,6 +573,16 @@ function mergeEntertainmentData(
       guestFlow: storedStation?.guestFlow || defaultStation.guestFlow,
       proHighlights: storedStation?.proHighlights || defaultStation.proHighlights,
       moderationMode: storedStation?.moderationMode || defaultStation.moderationMode,
+      activeTemplateId: storedStation?.activeTemplateId || defaultStation.activeTemplateId,
+      brandText: storedStation?.brandText || defaultStation.brandText,
+      footerText: storedStation?.footerText || defaultStation.footerText,
+      qrCallout: storedStation?.qrCallout || defaultStation.qrCallout,
+      logoUrl: storedStation?.logoUrl || defaultStation.logoUrl,
+      filterPreset: storedStation?.filterPreset || defaultStation.filterPreset,
+      musicTrack: storedStation?.musicTrack || defaultStation.musicTrack,
+      backgroundStyle: storedStation?.backgroundStyle || defaultStation.backgroundStyle,
+      printLayout: storedStation?.printLayout || defaultStation.printLayout,
+      animationStyle: storedStation?.animationStyle || defaultStation.animationStyle,
       outputFormat: storedStation?.outputFormat || defaultStation.outputFormat,
       qualityPreset: storedStation?.qualityPreset || defaultStation.qualityPreset,
       shareMessage: storedStation?.shareMessage || defaultStation.shareMessage,
@@ -436,11 +615,35 @@ function stationScore(station: EntertainmentStation) {
   if (station.analyticsEnabled) score += 2;
   if (station.templateName?.trim()) score += 2;
   if (station.backupPlan?.trim()) score += 2;
+  if (station.activeTemplateId?.trim()) score += 3;
+  if (station.brandText?.trim()) score += 3;
+  if (station.qrCallout?.trim()) score += 2;
+  if (station.filterPreset?.trim()) score += 2;
+  if (station.musicTrack?.trim()) score += 2;
+  if (station.backgroundStyle?.trim()) score += 2;
+  if (station.printLayout?.trim()) score += 2;
+  if (station.animationStyle?.trim()) score += 2;
   return Math.min(100, score);
 }
 
 function stationPendingCount(station: EntertainmentStation) {
   return station.media.filter((item) => item.syncStatus === 'pendiente').length;
+}
+
+function templatePresetToPatch(station: EntertainmentStation, preset: EntertainmentTemplatePreset): Partial<EntertainmentStation> {
+  return {
+    activeTemplateId: preset.id,
+    templateName: `${station.title} - ${preset.name}`,
+    overlayName: preset.overlayName,
+    accentColor: preset.accentColor,
+    outputFormat: preset.outputFormat,
+    qualityPreset: preset.qualityPreset,
+    filterPreset: preset.filterPreset,
+    musicTrack: preset.musicTrack,
+    backgroundStyle: preset.backgroundStyle,
+    printLayout: preset.printLayout,
+    animationStyle: preset.animationStyle,
+  };
 }
 
 function formatDateTime(value?: string) {
@@ -605,6 +808,72 @@ function StationPanel({
                   </div>
                 </div>
                 <div className="space-y-3">
+                  <Label>Plantillas listas</Label>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {TEMPLATE_PRESETS[station.id].map((preset) => {
+                      const active = station.activeTemplateId === preset.id;
+                      return (
+                        <button
+                          type="button"
+                          key={preset.id}
+                          onClick={() => onUpdate(templatePresetToPatch(station, preset))}
+                          className={cn(
+                            'rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5',
+                            active ? 'border-slate-900 bg-slate-950 text-white shadow-xl' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'
+                          )}
+                        >
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className="h-4 w-4 rounded-full border border-white/40 shadow-inner" style={{ backgroundColor: preset.accentColor }} />
+                            <span className="text-sm font-black">{preset.name}</span>
+                          </div>
+                          <p className={cn('text-xs font-semibold leading-relaxed', active ? 'text-white/65' : 'text-slate-500')}>{preset.mood}</p>
+                          <p className={cn('mt-2 text-[10px] font-black uppercase tracking-widest', active ? 'text-white/45' : 'text-slate-400')}>{preset.outputFormat}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Texto principal</Label>
+                    <Input value={station.brandText} onChange={(event) => onUpdate({ brandText: event.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Pie / marca</Label>
+                    <Input value={station.footerText} onChange={(event) => onUpdate({ footerText: event.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Texto QR</Label>
+                    <Input value={station.qrCallout} onChange={(event) => onUpdate({ qrCallout: event.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Logo o imagen de marca</Label>
+                    <Input value={station.logoUrl} onChange={(event) => onUpdate({ logoUrl: event.target.value })} placeholder="URL opcional" />
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Filtro / look</Label>
+                    <Input value={station.filterPreset} onChange={(event) => onUpdate({ filterPreset: event.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Musica / sonido</Label>
+                    <Input value={station.musicTrack} onChange={(event) => onUpdate({ musicTrack: event.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Fondo / escena</Label>
+                    <Input value={station.backgroundStyle} onChange={(event) => onUpdate({ backgroundStyle: event.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Layout final</Label>
+                    <Input value={station.printLayout} onChange={(event) => onUpdate({ printLayout: event.target.value })} />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Animacion / edicion</Label>
+                    <Input value={station.animationStyle} onChange={(event) => onUpdate({ animationStyle: event.target.value })} />
+                  </div>
+                </div>
+                <div className="space-y-3">
                   <Label>Modos de captura</Label>
                   <div className="flex flex-wrap gap-2">
                     {FEATURE_LIBRARY[station.id].map((mode) => {
@@ -662,6 +931,26 @@ function StationPanel({
                 </div>
                 <div className="rounded-2xl bg-white p-4">
                   <QRCodeSVG value={galleryUrl || 'https://akproducciones.uy'} size={140} />
+                </div>
+                <div
+                  className="overflow-hidden rounded-2xl border border-white/10 p-4 shadow-inner"
+                  style={{
+                    background: `linear-gradient(135deg, ${station.accentColor} 0%, #020617 58%, #0f172a 100%)`,
+                  }}
+                >
+                  <div className="mb-8 flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-widest text-white/70">
+                    <span>{station.footerText || 'AK Producciones'}</span>
+                    <span>{station.outputFormat}</span>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-2xl font-black leading-tight text-white">{station.brandText}</p>
+                    <p className="text-xs font-semibold leading-relaxed text-white/70">{station.overlayName}</p>
+                  </div>
+                  <div className="mt-6 grid gap-2 text-[10px] font-black uppercase tracking-widest text-white/75">
+                    <span className="rounded-full bg-white/10 px-3 py-2">{station.filterPreset}</span>
+                    <span className="rounded-full bg-white/10 px-3 py-2">{station.animationStyle}</span>
+                    <span className="rounded-full bg-white px-3 py-2 text-slate-950">{station.qrCallout}</span>
+                  </div>
                 </div>
                 <p className="mt-4 text-xs font-semibold leading-relaxed text-white/60">
                   Este QR apunta a la experiencia social de la fiesta para que el invitado vea, comparta y participe.
