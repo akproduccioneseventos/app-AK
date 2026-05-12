@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { SESSION_COOKIE, verifySessionToken } from './lib/auth/session-token';
 
-// Rutas que NO requieren sesión activa.
+// Rutas que NO requieren sesion activa.
 // Deben coincidir con la lista en src/app/auth-guard.tsx (publicPathPrefixes).
 const PUBLIC_PATH_PREFIXES = [
   '/login',
@@ -27,46 +28,60 @@ const PUBLIC_PATH_PREFIXES = [
   '/presentacion-led',
   '/evento/mi-mesa',
   '/evento/en-vivo',
+  '/evento/dj',
   '/invitado',
   '/portal-proveedor',
 ];
 
-// Rutas exactas que son públicas pero que tienen un prefijo que coincidiría
-// con una ruta privada (/evento/ sin nada más, por ejemplo).
+const PUBLIC_API_PREFIXES = [
+  '/api/public-page-assets',
+  '/api/whatsapp/webhook',
+];
+
+const PUBLIC_API_FILE_REGEXES = [
+  /^\/api\/social-gallery\/[^/]+\/[^/]+\.[^/]+$/,
+  /^\/api\/video-vida-photos\/[^/]+\/[^/]+\.[^/]+$/,
+];
+
+// Rutas exactas que son publicas pero que tienen un prefijo que coincidiria
+// con una ruta privada (/evento/ sin nada mas, por ejemplo).
 const PUBLIC_EXACT_PATHS = new Set(['/evento', '/evento/']);
 
-// Regex para páginas de vista de presupuesto que pueden ser públicas con token.
+// Regex para paginas de vista de presupuesto que pueden ser publicas con token.
 const BUDGET_VIEW_REGEX = /^\/presupuestos\/[^/]+\/ver\/?$/;
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_EXACT_PATHS.has(pathname)) return true;
+  if (PUBLIC_API_PREFIXES.some(prefix => pathname.startsWith(prefix))) return true;
+  if (PUBLIC_API_FILE_REGEXES.some(regex => regex.test(pathname))) return true;
   if (PUBLIC_PATH_PREFIXES.some(prefix => pathname.startsWith(prefix))) return true;
 
-  // Presupuestos con token de compartir
-  if (BUDGET_VIEW_REGEX.test(pathname)) return true; // token se valida en el componente
+  // Presupuestos con token de compartir.
+  if (BUDGET_VIEW_REGEX.test(pathname)) return true; // token se valida en el componente.
 
-  // PDFs / resúmenes imprimibles con token
+  // PDFs / resumenes imprimibles con token.
   if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) return true;
 
   return false;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Add request ID header for tracing
+  // Add request ID header for tracing.
   const requestId = crypto.randomUUID().substring(0, 8);
 
-  // Si la ruta es pública, dejar pasar sin validación de sesión.
+  // Si la ruta es publica, dejar pasar sin validacion de sesion.
   if (isPublicPath(pathname)) {
     const response = NextResponse.next();
     response.headers.set('x-request-id', requestId);
     return response;
   }
 
-  // Verificar cookie de sesión para rutas protegidas.
-  const sessionCookie = request.cookies.get('ak_session');
-  if (!sessionCookie?.value) {
+  // Verificar cookie firmada para rutas protegidas.
+  const sessionCookie = request.cookies.get(SESSION_COOKIE);
+  const hasValidSession = await verifySessionToken(sessionCookie?.value);
+  if (!hasValidSession) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
@@ -78,6 +93,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // No ejecutar en archivos estáticos ni en rutas de API internas de Next.js
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
+  // Run on every API route, including file-style URLs such as .pdf/.jpg.
+  // Non-API static assets with dots stay excluded.
+  matcher: ['/api/:path*', '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 };
