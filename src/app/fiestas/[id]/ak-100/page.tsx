@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Bot, Briefcase, CheckCircle2, Download, MonitorPlay, PartyPopper, QrCode, Sparkles, Users } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { buildAk100Readiness, type Ak100AreaId, type Ak100Status } from '@/lib/ak-100/ak-100-readiness';
+import { Ak100CreateTasksButton } from '@/components/ak-100/ak100-create-tasks-button';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -71,6 +72,14 @@ export default async function Ak100Page({ params }: PageProps) {
               <p className="text-xs font-black uppercase tracking-widest text-red-600">Cierre total de la fiesta</p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">{readiness.eventName}</h1>
               <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-slate-600">{readiness.message}</p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Ak100CreateTasksButton fiestaId={params.id} disabled={readiness.nextWork.length === 0} />
+                <Button asChild variant="outline" className="rounded-2xl bg-white font-black">
+                  <Link href={`/fiestas/${encodeURIComponent(params.id)}/comando-total`}>
+                    Abrir Comando Total <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
             <div className="rounded-[2rem] bg-slate-950 p-6 text-white shadow-xl">
               <p className="text-xs font-black uppercase tracking-widest text-red-200">Preparación 100%</p>
