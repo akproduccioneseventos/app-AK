@@ -11,7 +11,7 @@ import { LogIn, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getSession, setSession } from '@/lib/auth';
+import { setSession } from '@/lib/auth';
 import { verifyPassword } from '@/app/actions/simple-auth';
 import { setSessionCookie } from '@/app/actions/session';
 
@@ -23,11 +23,6 @@ export default function LoginPage() {
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
-    if (getSession()) {
-      router.push('/');
-      return;
-    }
-
     async function fetchLogo() {
       try {
         const settings = await getInvoiceTemplateSettings();
@@ -37,7 +32,7 @@ export default function LoginPage() {
       }
     }
     fetchLogo();
-  }, [router]);
+  }, []);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,8 +47,14 @@ export default function LoginPage() {
         return;
       }
 
+      const cookieResult = await setSessionCookie();
+      if (!cookieResult.success) {
+        setError(cookieResult.error);
+        setIsSubmitting(false);
+        return;
+      }
+
       setSession();
-      await setSessionCookie();
       router.push('/');
     } catch {
       setError('Error al verificar la contraseña.');
@@ -123,4 +124,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
