@@ -2,13 +2,13 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Eye, EyeOff, Loader2, Lock, ShieldCheck, UserCog } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2, Lock, ShieldCheck, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { changeAppPassword, saveSecurityRecoverySettings } from '@/app/actions/simple-auth';
+import { changeAppPassword, generateBackupRecoveryCodes, saveSecurityRecoverySettings } from '@/app/actions/simple-auth';
 
 export default function AccountSettingsPage() {
   const { toast } = useToast();
@@ -16,6 +16,8 @@ export default function AccountSettingsPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [recoveryPassword, setRecoveryPassword] = useState('');
+  const [backupPassword, setBackupPassword] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [recoveryEmail, setRecoveryEmail] = useState('');
   const [questions, setQuestions] = useState({
     q1: { question: 'Nombre de tu primera mascota', answer: '' },
@@ -27,6 +29,7 @@ export default function AccountSettingsPage() {
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isSavingRecovery, setIsSavingRecovery] = useState(false);
+  const [isGeneratingBackupCodes, setIsGeneratingBackupCodes] = useState(false);
 
   const handleChangePassword = async (event: FormEvent) => {
     event.preventDefault();
@@ -34,8 +37,12 @@ export default function AccountSettingsPage() {
       toast({ title: 'Error', description: 'Las nuevas contraseñas no coinciden.', variant: 'destructive' });
       return;
     }
-    if (newPassword.length < 8) {
-      toast({ title: 'Contraseña debil', description: 'La nueva contraseña debe tener al menos 8 caracteres.', variant: 'destructive' });
+    if (newPassword.length < 10) {
+      toast({ title: 'Contraseña debil', description: 'La nueva contraseña debe tener al menos 10 caracteres.', variant: 'destructive' });
+      return;
+    }
+    if (!/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
+      toast({ title: 'Contraseña debil', description: 'La nueva contraseña debe combinar letras y numeros.', variant: 'destructive' });
       return;
     }
     setIsSavingPassword(true);
@@ -73,6 +80,21 @@ export default function AccountSettingsPage() {
     setIsSavingRecovery(false);
   };
 
+  const handleGenerateBackupCodes = async (event: FormEvent) => {
+    event.preventDefault();
+    setIsGeneratingBackupCodes(true);
+    setBackupCodes([]);
+    const result = await generateBackupRecoveryCodes(backupPassword);
+    if (result.success && result.codes) {
+      setBackupCodes(result.codes);
+      setBackupPassword('');
+      toast({ title: 'Codigos generados', description: 'Se muestran una sola vez para recuperar acceso si olvidas la contrasena.' });
+    } else {
+      toast({ title: 'Error', description: result.error || 'No se pudieron generar codigos.', variant: 'destructive' });
+    }
+    setIsGeneratingBackupCodes(false);
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="flex items-center justify-between gap-4">
@@ -94,7 +116,7 @@ export default function AccountSettingsPage() {
             <Lock className="w-6 h-6 text-primary" />
             <CardTitle className="font-headline text-xl">Cambiar contraseña</CardTitle>
           </div>
-          <CardDescription>La contraseña nueva queda guardada hasheada. La app mantiene entrada de emergencia para no bloquearte.</CardDescription>
+          <CardDescription>La contraseña nueva queda protegida. Usa minimo 10 caracteres con letras y numeros.</CardDescription>
         </CardHeader>
         <form onSubmit={handleChangePassword}>
           <CardContent className="space-y-4">
@@ -110,7 +132,7 @@ export default function AccountSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="new-password">Nueva contraseña</Label>
               <div className="relative">
-                <Input id="new-password" type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} required disabled={isSavingPassword} />
+                <Input id="new-password" type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={10} required disabled={isSavingPassword} />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowNewPassword(!showNewPassword)} tabIndex={-1}>
                   {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
@@ -119,7 +141,7 @@ export default function AccountSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="confirm-new-password">Confirmar nueva contraseña</Label>
               <div className="relative">
-                <Input id="confirm-new-password" type={showConfirmNewPassword ? 'text' : 'password'} value={confirmNewPassword} onChange={(event) => setConfirmNewPassword(event.target.value)} minLength={8} required disabled={isSavingPassword} />
+                <Input id="confirm-new-password" type={showConfirmNewPassword ? 'text' : 'password'} value={confirmNewPassword} onChange={(event) => setConfirmNewPassword(event.target.value)} minLength={10} required disabled={isSavingPassword} />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} tabIndex={-1}>
                   {showConfirmNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
@@ -170,6 +192,42 @@ export default function AccountSettingsPage() {
             <Button type="submit" disabled={isSavingRecovery}>
               {isSavingRecovery && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Guardar recuperacion
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <KeyRound className="w-6 h-6 text-primary" />
+            <CardTitle className="font-headline text-xl">Codigos de respaldo</CardTitle>
+          </div>
+          <CardDescription>Son codigos de un solo uso para entrar si olvidas la contrasena y no tenes mail disponible.</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleGenerateBackupCodes}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="backup-current-password">Contraseña actual para generar codigos</Label>
+              <Input id="backup-current-password" type="password" value={backupPassword} onChange={(event) => setBackupPassword(event.target.value)} required disabled={isGeneratingBackupCodes} />
+            </div>
+            {backupCodes.length > 0 && (
+              <div className="rounded-lg border bg-muted/40 p-4">
+                <p className="mb-3 text-sm font-semibold">Estos codigos se muestran una sola vez:</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {backupCodes.map((code) => (
+                    <code key={code} className="rounded-md bg-background px-3 py-2 text-center text-sm font-bold tracking-widest">
+                      {code}
+                    </code>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={isGeneratingBackupCodes}>
+              {isGeneratingBackupCodes && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Generar codigos
             </Button>
           </CardFooter>
         </form>

@@ -13,6 +13,13 @@ const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
 const SCRYPT_SALT_LEN = 16;
 const SCRYPT_KEY_LEN = 64;
 const RESET_CODE_TTL_MS = 15 * 60 * 1000;
+const LOCKOUT_MS = 15 * 60 * 1000;
+const MAX_FAILED_LOGIN_ATTEMPTS = 5;
+const MAX_FAILED_RECOVERY_ATTEMPTS = 5;
+const RESET_REQUEST_COOLDOWN_MS = 60 * 1000;
+const RESET_REQUEST_WINDOW_MS = 60 * 60 * 1000;
+const RESET_REQUEST_WINDOW_LIMIT = 5;
+const BACKUP_CODE_COUNT = 8;
 
 type SecurityQuestionKey = 'q1' | 'q2' | 'q3';
 
@@ -21,13 +28,34 @@ type SecurityQuestionConfig = {
   answerHash: string;
 };
 
+type BackupRecoveryCode = {
+  hash: string;
+  createdAt: string;
+  usedAt?: string;
+};
+
 type SimpleAuthConfig = {
   password?: string;
   passwordHash?: string;
   recoveryEmail?: string;
   securityQuestions?: Partial<Record<SecurityQuestionKey, SecurityQuestionConfig>>;
+  backupCodes?: BackupRecoveryCode[];
   resetCodeHash?: string;
   resetCodeExpiresAt?: string;
+  resetCodeRequestedAt?: string;
+  resetCodeRequestWindowStart?: string;
+  resetCodeRequestCount?: number;
+  failedLoginCount?: number;
+  loginLockedUntil?: string;
+  lastFailedLoginAt?: string;
+  recoveryFailedCount?: number;
+  recoveryLockedUntil?: string;
+  lastRecoveryFailedAt?: string;
+  lastSuccessfulLoginAt?: string;
+  lastSuccessfulRecoveryAt?: string;
+  lastEmergencyLoginAt?: string;
+  passwordChangedAt?: string;
+  recoveryUpdatedAt?: string;
   updatedAt?: string;
 };
 
@@ -39,8 +67,30 @@ function normalizeAnswer(value: string) {
   return value.trim().toLowerCase();
 }
 
+function normalizeBackupCode(value: string) {
+  return value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
 function isEmergencyPassword(password: string) {
   return process.env.AK_DISABLE_EMERGENCY_PASSWORD !== 'true' && password === HARDCODED_PASSWORD;
+}
+
+function getActiveLockMessage(lockUntil?: string, reason = 'Por seguridad, espera') {
+  if (!lockUntil) return undefined;
+  const until = new Date(lockUntil).getTime();
+  if (!Number.isFinite(until) || until <= Date.now()) return undefined;
+  const minutes = Math.max(1, Math.ceil((until - Date.now()) / 60000));
+  return `${reason} ${minutes} minuto(s) antes de volver a intentar.`;
+}
+
+function validateNewPassword(newPassword: string) {
+  if (newPassword.length < 10) {
+    return 'La nueva contrasena debe tener al menos 10 caracteres.';
+  }
+  if (!/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
+    return 'La nueva contrasena debe combinar letras y numeros.';
+  }
+  return undefined;
 }
 
 function hashValue(value: string) {
@@ -70,6 +120,11 @@ function createResetCode() {
   return String(crypto.randomInt(100000, 1000000));
 }
 
+function createBackupCode() {
+  const raw = crypto.randomBytes(6).toString('hex').toUpperCase();
+  return `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 12)}`;
+}
+
 async function getAuthDoc() {
   if (!dbAdmin) return null;
   const doc = await dbAdmin.collection(AUTH_COLLECTION).doc(AUTH_DOC_ID).get();
@@ -97,6 +152,81 @@ async function ensurePasswordHash(config: SimpleAuthConfig | null, plainPassword
   if (config?.password && config.password === plainPassword) {
     await saveAuthConfig({ passwordHash: hashValue(plainPassword), password: '' });
   }
+}
+
+async function registerFailedLogin(config: SimpleAuthConfig | null) {
+  const count = (config?.failedLoginCount || 0) + 1;
+  const patch: Partial<SimpleAuthConfig> = {
+    failedLoginCount: count,
+    lastFailedLoginAt: new Date().toISOString(),
+  };
+
+  if (count >= MAX_FAILED_LOGIN_ATTEMPTS) {
+    patch.loginLockedUntil = new Date(Date.now() + LOCKOUT_MS).toISOString();
+  }
+
+  await saveAuthConfig(patch).catch(() => undefined);
+  return patch.loginLockedUntil
+    ? 'Hubo demasiados intentos. El acceso queda pausado 15 minutos.'
+    : 'Contrasena incorrecta.';
+}
+
+async function clearLoginProtection(extra?: Partial<SimpleAuthConfig>) {
+  await saveAuthConfig({
+    failedLoginCount: 0,
+    loginLockedUntil: '',
+    lastSuccessfulLoginAt: new Date().toISOString(),
+    ...extra,
+  }).catch(() => undefined);
+}
+
+async function registerFailedRecovery(config: SimpleAuthConfig | null) {
+  const count = (config?.recoveryFailedCount || 0) + 1;
+  const patch: Partial<SimpleAuthConfig> = {
+    recoveryFailedCount: count,
+    lastRecoveryFailedAt: new Date().toISOString(),
+  };
+
+  if (count >= MAX_FAILED_RECOVERY_ATTEMPTS) {
+    patch.recoveryLockedUntil = new Date(Date.now() + LOCKOUT_MS).toISOString();
+  }
+
+  await saveAuthConfig(patch).catch(() => undefined);
+  return patch.recoveryLockedUntil
+    ? 'Hubo demasiados intentos de recuperacion. Espera 15 minutos.'
+    : 'Los datos de recuperacion no son correctos.';
+}
+
+async function clearRecoveryProtection(extra?: Partial<SimpleAuthConfig>) {
+  return saveAuthConfig({
+    recoveryFailedCount: 0,
+    recoveryLockedUntil: '',
+    lastSuccessfulRecoveryAt: new Date().toISOString(),
+    ...extra,
+  }).catch(() => ({ success: false, error: 'No se pudo guardar la recuperacion.' }));
+}
+
+function getResetRequestPatch(config: SimpleAuthConfig | null): { patch?: Partial<SimpleAuthConfig>; error?: string } {
+  const now = Date.now();
+  const lastRequest = config?.resetCodeRequestedAt ? new Date(config.resetCodeRequestedAt).getTime() : 0;
+  if (Number.isFinite(lastRequest) && now - lastRequest < RESET_REQUEST_COOLDOWN_MS) {
+    return { error: 'Espera un minuto antes de pedir otro codigo.' };
+  }
+
+  const windowStart = config?.resetCodeRequestWindowStart ? new Date(config.resetCodeRequestWindowStart).getTime() : 0;
+  const isSameWindow = Number.isFinite(windowStart) && now - windowStart < RESET_REQUEST_WINDOW_MS;
+  const currentCount = isSameWindow ? config?.resetCodeRequestCount || 0 : 0;
+  if (currentCount >= RESET_REQUEST_WINDOW_LIMIT) {
+    return { error: 'Ya se pidieron demasiados codigos en la ultima hora.' };
+  }
+
+  return {
+    patch: {
+      resetCodeRequestedAt: new Date(now).toISOString(),
+      resetCodeRequestWindowStart: isSameWindow ? config?.resetCodeRequestWindowStart : new Date(now).toISOString(),
+      resetCodeRequestCount: currentCount + 1,
+    },
+  };
 }
 
 async function getConnectedCompanyGoogleAccount() {
@@ -137,21 +267,31 @@ async function sendSecurityEmail(to: string, code: string) {
 export async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
     const config = await getAuthDoc();
+    const emergencyLogin = isEmergencyPassword(password);
+    const hasConfiguredPassword = Boolean(config?.passwordHash || config?.password);
 
     if (verifyHash(password, config?.passwordHash)) {
+      await clearLoginProtection();
       return { success: true };
     }
 
     if (config?.password && password === config.password) {
       await ensurePasswordHash(config, password);
+      await clearLoginProtection();
       return { success: true };
     }
 
-    if (isEmergencyPassword(password)) {
+    if (emergencyLogin && !hasConfiguredPassword) {
+      await clearLoginProtection({ lastEmergencyLoginAt: new Date().toISOString() });
       return { success: true };
     }
 
-    return { success: false };
+    const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
+    if (lockMessage) {
+      return { success: false, error: lockMessage };
+    }
+
+    return { success: false, error: await registerFailedLogin(config) };
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
     return { success: isEmergencyPassword(password) };
@@ -167,9 +307,8 @@ export async function changeAppPassword(
     return { success: false, error: 'La contraseña actual es incorrecta.' };
   }
 
-  if (newPassword.length < 8) {
-    return { success: false, error: 'La nueva contraseña debe tener al menos 8 caracteres.' };
-  }
+  const passwordError = validateNewPassword(newPassword);
+  if (passwordError) return { success: false, error: passwordError };
 
   try {
     return await saveAuthConfig({
@@ -177,6 +316,11 @@ export async function changeAppPassword(
       password: '',
       resetCodeHash: '',
       resetCodeExpiresAt: '',
+      failedLoginCount: 0,
+      loginLockedUntil: '',
+      recoveryFailedCount: 0,
+      recoveryLockedUntil: '',
+      passwordChangedAt: new Date().toISOString(),
     });
   } catch (err) {
     console.error('[simple-auth] changeAppPassword error:', err);
@@ -205,6 +349,9 @@ export async function saveSecurityRecoverySettings(input: {
 
   return saveAuthConfig({
     recoveryEmail,
+    recoveryUpdatedAt: new Date().toISOString(),
+    recoveryFailedCount: 0,
+    recoveryLockedUntil: '',
     securityQuestions: {
       q1: { question: questions.q1.question.trim(), answerHash: hashValue(normalizeAnswer(questions.q1.answer)) },
       q2: { question: questions.q2.question.trim(), answerHash: hashValue(normalizeAnswer(questions.q2.answer)) },
@@ -213,9 +360,36 @@ export async function saveSecurityRecoverySettings(input: {
   });
 }
 
+export async function generateBackupRecoveryCodes(currentPassword: string): Promise<{ success: boolean; codes?: string[]; error?: string }> {
+  const verify = await verifyPassword(currentPassword);
+  if (!verify.success) return { success: false, error: 'La contrasena actual es incorrecta.' };
+
+  const now = new Date().toISOString();
+  const codes = Array.from({ length: BACKUP_CODE_COUNT }, createBackupCode);
+  const backupCodes = codes.map((code) => ({
+    hash: hashValue(normalizeBackupCode(code)),
+    createdAt: now,
+  }));
+
+  const result = await saveAuthConfig({
+    backupCodes,
+    recoveryUpdatedAt: now,
+    recoveryFailedCount: 0,
+    recoveryLockedUntil: '',
+  });
+
+  if (!result.success) {
+    return { success: false, error: result.error || 'No se pudieron generar los codigos.' };
+  }
+
+  return { success: true, codes };
+}
+
 export async function getPublicSecurityRecoveryStatus(): Promise<{
   hasRecoveryEmail: boolean;
   hasSecurityQuestions: boolean;
+  hasBackupCodes: boolean;
+  backupCodeCount: number;
   recoveryEmailHint?: string;
   questions?: Record<SecurityQuestionKey, string>;
 }> {
@@ -224,10 +398,13 @@ export async function getPublicSecurityRecoveryStatus(): Promise<{
   const sq = config?.securityQuestions || {};
   const mask = email ? email.replace(/^(.{2}).*(@.*)$/, '$1***$2') : undefined;
   const hasSecurityQuestions = Boolean(sq.q1?.question && sq.q2?.question && sq.q3?.question);
+  const backupCodeCount = (config?.backupCodes || []).filter((code) => !code.usedAt).length;
 
   return {
     hasRecoveryEmail: Boolean(email),
     hasSecurityQuestions,
+    hasBackupCodes: backupCodeCount > 0,
+    backupCodeCount,
     recoveryEmailHint: mask,
     questions: hasSecurityQuestions
       ? {
@@ -246,10 +423,14 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
       return { success: false, error: 'No hay mail de recuperacion configurado. Usa la contraseña actual o configura recuperacion en Seguridad y Cuenta.' };
     }
 
+    const rateLimit = getResetRequestPatch(config);
+    if (rateLimit.error) return { success: false, error: rateLimit.error };
+
     const code = createResetCode();
     await saveAuthConfig({
       resetCodeHash: hashValue(code),
       resetCodeExpiresAt: new Date(Date.now() + RESET_CODE_TTL_MS).toISOString(),
+      ...rateLimit.patch,
     });
 
     const mail = await sendSecurityEmail(config.recoveryEmail, code);
@@ -262,6 +443,9 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
 
 export async function resetPasswordWithCode(code: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
   const config = await getAuthDoc().catch(() => null);
+  const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
+  if (recoveryLock) return { success: false, error: recoveryLock };
+
   if (!config?.resetCodeHash || !config.resetCodeExpiresAt) {
     return { success: false, error: 'No hay codigo de recuperacion activo.' };
   }
@@ -269,17 +453,23 @@ export async function resetPasswordWithCode(code: string, newPassword: string): 
     return { success: false, error: 'El codigo vencio. Pedi uno nuevo.' };
   }
   if (!verifyHash(code.trim(), config.resetCodeHash)) {
-    return { success: false, error: 'El codigo no es correcto.' };
+    return { success: false, error: await registerFailedRecovery(config) };
   }
-  if (newPassword.length < 8) {
-    return { success: false, error: 'La nueva contraseña debe tener al menos 8 caracteres.' };
-  }
-  return saveAuthConfig({
+
+  const passwordError = validateNewPassword(newPassword);
+  if (passwordError) return { success: false, error: passwordError };
+
+  const result = await clearRecoveryProtection({
     passwordHash: hashValue(newPassword),
     password: '',
     resetCodeHash: '',
     resetCodeExpiresAt: '',
+    failedLoginCount: 0,
+    loginLockedUntil: '',
+    passwordChangedAt: new Date().toISOString(),
   });
+
+  return result.success ? { success: true } : { success: false, error: result.error };
 }
 
 export async function resetPasswordWithSecurityAnswers(input: {
@@ -287,6 +477,9 @@ export async function resetPasswordWithSecurityAnswers(input: {
   newPassword: string;
 }): Promise<{ success: boolean; error?: string }> {
   const config = await getAuthDoc().catch(() => null);
+  const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
+  if (recoveryLock) return { success: false, error: recoveryLock };
+
   const sq = config?.securityQuestions || {};
   if (!sq.q1?.answerHash || !sq.q2?.answerHash || !sq.q3?.answerHash) {
     return { success: false, error: 'No hay preguntas de seguridad configuradas.' };
@@ -296,15 +489,61 @@ export async function resetPasswordWithSecurityAnswers(input: {
     verifyHash(normalizeAnswer(input.answers.q2), sq.q2.answerHash) &&
     verifyHash(normalizeAnswer(input.answers.q3), sq.q3.answerHash);
 
-  if (!valid) return { success: false, error: 'Una o mas respuestas no son correctas.' };
-  if (input.newPassword.length < 8) {
-    return { success: false, error: 'La nueva contraseña debe tener al menos 8 caracteres.' };
-  }
+  if (!valid) return { success: false, error: await registerFailedRecovery(config) };
 
-  return saveAuthConfig({
+  const passwordError = validateNewPassword(input.newPassword);
+  if (passwordError) return { success: false, error: passwordError };
+
+  const result = await clearRecoveryProtection({
     passwordHash: hashValue(input.newPassword),
     password: '',
     resetCodeHash: '',
     resetCodeExpiresAt: '',
+    failedLoginCount: 0,
+    loginLockedUntil: '',
+    passwordChangedAt: new Date().toISOString(),
   });
+
+  return result.success ? { success: true } : { success: false, error: result.error };
+}
+
+export async function resetPasswordWithRecoveryCode(
+  recoveryCode: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  const config = await getAuthDoc().catch(() => null);
+  const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
+  if (recoveryLock) return { success: false, error: recoveryLock };
+
+  const normalizedCode = normalizeBackupCode(recoveryCode);
+  if (!normalizedCode) {
+    return { success: false, error: 'Ingresa un codigo de respaldo.' };
+  }
+
+  const backupCodes = config?.backupCodes || [];
+  const matchIndex = backupCodes.findIndex((item) => !item.usedAt && verifyHash(normalizedCode, item.hash));
+  if (matchIndex < 0) {
+    return { success: false, error: await registerFailedRecovery(config) };
+  }
+
+  const passwordError = validateNewPassword(newPassword);
+  if (passwordError) return { success: false, error: passwordError };
+
+  const now = new Date().toISOString();
+  const updatedCodes = backupCodes.map((item, index) => (
+    index === matchIndex ? { ...item, usedAt: now } : item
+  ));
+
+  const result = await clearRecoveryProtection({
+    passwordHash: hashValue(newPassword),
+    password: '',
+    backupCodes: updatedCodes,
+    resetCodeHash: '',
+    resetCodeExpiresAt: '',
+    failedLoginCount: 0,
+    loginLockedUntil: '',
+    passwordChangedAt: now,
+  });
+
+  return result.success ? { success: true } : { success: false, error: result.error };
 }
