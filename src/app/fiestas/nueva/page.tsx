@@ -101,6 +101,7 @@ const modules: ModuleDefinition[] = [
   { id: 'listaCompras', title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios para el catering.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
   { id: 'alergias', title: "Gestión Alimentaria", href: "alergias", icon: Users2, description: "Celíacos, alergias y dietas especiales.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Operativo' },
   { id: 'cartaTragos', title: "Carta de Tragos", href: "carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'Impresión' },
+  { id: 'barraTecnologica', title: "Barra Tecnológica", href: "barra-tecnologica", icon: Wine, description: "Pantalla tactil de tragos, pantalla barman y fotos sociales con hashtag.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-rose-100 text-rose-700", badge: 'Invitado' },
 
   // 9. CARTELERÍA Y MATERIAL IMPRESO
   { id: 'carteleria', title: "Cartelería de Mesas", href: "carteleria", icon: Printer, description: "Kit completo: tragos, menú, QR y números.", category: 'CARTELERÍA Y MATERIAL IMPRESO', color: "bg-violet-100 text-violet-600", badge: 'Impresión' },
@@ -150,14 +151,14 @@ const badgeColors: Record<ModuleBadge, string> = {
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
 
 const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color: string; moduleIds: string[] }[] = [
-  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento'] },
+  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento', 'barraTecnologica'] },
   { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'enVivo', 'checkin'] },
+  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento'];
+const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'barraTecnologica'];
 
 function PlannerDashboardContent() {
   const { toast } = useToast();
