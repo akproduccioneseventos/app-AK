@@ -6,6 +6,7 @@
 'use server';
 
 import * as logger from './logger';
+import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 // Mapping of JSON file names to Firestore collection names
 const FILE_TO_COLLECTION: Record<string, string> = {
@@ -145,14 +146,14 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
  * This is called asynchronously from data-service.ts writeData() when USE_FIREBASE_DATA=true.
  */
 export async function syncToFirestore(filePath: string, data: any): Promise<void> {
-  let db: FirebaseFirestore.Firestore;
+  let db: Firestore;
 
   try {
     const { dbAdmin } = await import('./firebase/server');
     if (!dbAdmin) {
       throw new Error('[Firebase Sync] dbAdmin no disponible — Firebase no inicializado correctamente.');
     }
-    db = dbAdmin;
+    db = dbAdmin as Firestore;
   } catch (error) {
     throw error instanceof Error
       ? error
@@ -189,8 +190,8 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       // An empty array on a non-empty collection almost always indicates a partial write
       // or an unintended call — deleting all docs in that scenario would cause data loss.
       const existingSnapshot = await db.collection(collectionName).get();
-      const existingIds = new Set(existingSnapshot.docs.map((d: FirebaseFirestore.QueryDocumentSnapshot) => d.id));
-      const newIds = new Set(data.map(getItemDocId).filter((id): id is string => Boolean(id)));
+      const existingIds = new Set<string>(existingSnapshot.docs.map((d: QueryDocumentSnapshot) => d.id));
+      const newIds = new Set<string>(data.map(getItemDocId).filter((id: string | null): id is string => Boolean(id)));
       if (data.length === 0 && existingIds.size > 0) {
         logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada para prevenir pérdida de datos. (${existingIds.size} documentos existentes conservados)`);
         return;
@@ -270,12 +271,12 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
  * Returns null if no data is found or Firebase is unavailable.
  */
 export async function readFromFirestore(filePath: string): Promise<any> {
-  let db: FirebaseFirestore.Firestore;
+  let db: Firestore;
 
   try {
     const { dbAdmin } = await import('./firebase/server');
     if (!dbAdmin) return null;
-    db = dbAdmin;
+    db = dbAdmin as Firestore;
   } catch {
     return null; // Firebase not available
   }
@@ -300,7 +301,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
     if (collectionName) {
       const snapshot = await db.collection(collectionName).get();
       if (snapshot.empty) return null;
-      return snapshot.docs.map(doc => {
+      return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
         delete data._syncedAt;
         return data;
@@ -366,7 +367,7 @@ export async function forceDeleteCollectionFromFirestore(collectionName: string)
     const docs = snapshot.docs;
     for (let i = 0; i < docs.length; i += batchSize) {
       const batch = dbAdmin.batch();
-      docs.slice(i, i + batchSize).forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+      docs.slice(i, i + batchSize).forEach((doc: QueryDocumentSnapshot) => {
         batch.delete(doc.ref);
       });
       await withRetry(() => batch.commit(), `force-delete-all: ${collectionName} (batch ${Math.floor(i / batchSize) + 1})`);
@@ -389,7 +390,7 @@ export async function listCollectionFromFirestore(collectionName: string): Promi
     if (!dbAdmin) return [];
     const snapshot = await dbAdmin.collection(collectionName).get();
     if (snapshot.empty) return [];
-    return snapshot.docs.map(doc => {
+    return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
       const data = doc.data();
       delete data._syncedAt;
       return data;

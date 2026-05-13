@@ -19,6 +19,7 @@
 
 import type { SocialPoll, SongRequest, Dedication, SorteoParticipant, FiestaMomento } from '@/types/social-gallery';
 import type { SocialGallerySettings } from '@/types/fiesta';
+import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
@@ -29,10 +30,10 @@ const SONGS_COLLECTION = 'social_song_requests';
 const DEDICATIONS_COLLECTION = 'social_dedications';
 
 /** Returns the Firestore Admin instance; throws if Firebase is not configured. */
-async function getDb(): Promise<FirebaseFirestore.Firestore> {
+async function getDb(): Promise<Firestore> {
   const { dbAdmin } = await import('@/lib/firebase/server');
   if (!dbAdmin) throw new Error('Firestore no disponible.');
-  return dbAdmin;
+  return dbAdmin as Firestore;
 }
 
 // ─────────────────────────── POLLS ───────────────────────────
@@ -45,8 +46,8 @@ export async function getPolls(fiestaId: string): Promise<SocialPoll[]> {
       .where('fiestaId', '==', fiestaId)
       .get();
     return snapshot.docs
-      .map(doc => doc.data() as SocialPoll)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .map((doc: QueryDocumentSnapshot) => doc.data() as SocialPoll)
+      .sort((a: SocialPoll, b: SocialPoll) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch (e) {
     logger.warn('[social-interactive] getPolls failed:', e);
     return [];
@@ -60,7 +61,7 @@ export async function getActivePoll(fiestaId: string): Promise<SocialPoll | null
       .collection(POLLS_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .get();
-    return snapshot.docs.map(doc => doc.data() as SocialPoll).find(p => p.active) ?? null;
+    return snapshot.docs.map((doc: QueryDocumentSnapshot) => doc.data() as SocialPoll).find((p: SocialPoll) => p.active) ?? null;
   } catch {
     return null;
   }
@@ -80,8 +81,8 @@ export async function createPoll(
       .get();
     const deactivateBatch = db.batch();
     activeSnap.docs
-      .filter(doc => (doc.data() as SocialPoll).active)
-      .forEach(doc => deactivateBatch.update(doc.ref, { active: false }));
+      .filter((doc: QueryDocumentSnapshot) => (doc.data() as SocialPoll).active)
+      .forEach((doc: QueryDocumentSnapshot) => deactivateBatch.update(doc.ref, { active: false }));
     await deactivateBatch.commit();
 
     const newPoll: SocialPoll = {
@@ -108,7 +109,7 @@ export async function votePoll(
     const db = await getDb();
     const ref = db.collection(POLLS_COLLECTION).doc(pollId);
     // Transaction guarantees that every concurrent vote is counted — no vote is lost.
-    const updatedPoll = await db.runTransaction(async (tx) => {
+    const updatedPoll = await db.runTransaction(async (tx: Transaction) => {
       const snap = await tx.get(ref);
       if (!snap.exists) throw new Error('Encuesta no encontrada.');
       const data = snap.data() as SocialPoll;
@@ -150,8 +151,8 @@ export async function getSongRequests(fiestaId: string): Promise<SongRequest[]> 
       .where('fiestaId', '==', fiestaId)
       .get();
     return snapshot.docs
-      .map(doc => doc.data() as SongRequest)
-      .sort((a, b) => b.votes - a.votes);
+      .map((doc: QueryDocumentSnapshot) => doc.data() as SongRequest)
+      .sort((a: SongRequest, b: SongRequest) => b.votes - a.votes);
   } catch {
     return [];
   }
@@ -219,8 +220,8 @@ export async function getDedications(fiestaId: string): Promise<Dedication[]> {
       .where('fiestaId', '==', fiestaId)
       .get();
     return snapshot.docs
-      .map(doc => doc.data() as Dedication)
-      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      .map((doc: QueryDocumentSnapshot) => doc.data() as Dedication)
+      .sort((a: Dedication, b: Dedication) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   } catch {
     return [];
   }

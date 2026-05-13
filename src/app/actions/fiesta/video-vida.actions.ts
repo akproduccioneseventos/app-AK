@@ -17,6 +17,13 @@ const VIDEO_VIDA_STORAGE_PREFIX = 'video-vida-photos';
 /** Default signed URL validity: 7 days */
 const SIGNED_URL_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 
+type StorageFile = {
+  name: string;
+  getMetadata: () => Promise<Array<{ acl?: Array<{ entity?: string }> }>>;
+  getSignedUrl: (options: { action: 'read'; expires: Date }) => Promise<[string]>;
+  delete: () => Promise<unknown>;
+};
+
 export async function updateVideoVidaSettings(
     videoVidaData: VideoVidaData
   ): Promise<{ success: boolean; error?: string }> {
@@ -87,7 +94,7 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[
     if (!files.length) return [];
 
     const expiry = new Date(Date.now() + SIGNED_URL_EXPIRY_MS);
-    const urlPromises = files.map(async (file) => {
+    const urlPromises = (files as StorageFile[]).map(async (file) => {
       // If the file is public, return public URL; otherwise signed
       try {
         const [metadata] = await file.getMetadata();
@@ -117,7 +124,7 @@ export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ succ
     const bucket = admin.storage().bucket(STORAGE_BUCKET);
     const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;
     const [files] = await bucket.getFiles({ prefix });
-    await Promise.all(files.map(file => file.delete().catch(() => { /* ignore */ })));
+    await Promise.all((files as StorageFile[]).map((file) => file.delete().catch(() => { /* ignore */ })));
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

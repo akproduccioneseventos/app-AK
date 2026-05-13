@@ -1,6 +1,7 @@
 // src/lib/firebase/firestore.ts
 // Firestore CRUD helpers for server-side operations
 import { dbAdmin } from './server';
+import type { Query, QueryDocumentSnapshot, WhereFilterOp } from 'firebase-admin/firestore';
 
 // ============================================================
 // Collection names (centralized for consistency)
@@ -99,14 +100,14 @@ export async function getAllDocuments<T>(
     orderBy?: string;
     orderDirection?: 'asc' | 'desc';
     limit?: number;
-    where?: { field: string; op: FirebaseFirestore.WhereFilterOp; value: any }[];
+    where?: { field: string; op: WhereFilterOp; value: any }[];
   }
 ): Promise<{ success: boolean; data?: T[]; error?: string }> {
   const db = getDb();
   if (!db) return { success: false, error: 'Firestore not available' };
 
   try {
-    let query: FirebaseFirestore.Query = db.collection(collection);
+    let query: Query = db.collection(collection);
 
     // Apply where filters
     if (options?.where) {
@@ -126,7 +127,7 @@ export async function getAllDocuments<T>(
     }
 
     const snapshot = await query.get();
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[];
+    const data = snapshot.docs.map((doc: QueryDocumentSnapshot) => ({ id: doc.id, ...doc.data() })) as T[];
     return { success: true, data };
   } catch (error: any) {
     console.error(`Error getting documents from ${collection}:`, error);
