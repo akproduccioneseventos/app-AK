@@ -6,6 +6,11 @@ import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPa
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto } from '../presupuestos';
 import { createNotification } from '../notifications';
+import {
+  notifyClientPaymentApproved,
+  notifyClientPaymentRejected,
+  notifyClientPaymentSubmitted,
+} from '../google-workspace-extended';
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
 
@@ -173,6 +178,10 @@ export async function submitClientPayment(
       icono: 'CreditCard',
     });
 
+    notifyClientPaymentSubmitted(fiestaId, notification).catch((error) => {
+      console.warn('[Google Workspace] No se pudo enviar mail de pago informado:', error);
+    });
+
     return { success: true, notificationId: notification.id };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -265,6 +274,10 @@ export async function approveClientPayment(
       });
     }
 
+    notifyClientPaymentApproved(fiestaId, updatedNotif).catch((error) => {
+      console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);
+    });
+
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -275,12 +288,22 @@ export async function rejectClientPayment(
   fiestaId: string,
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
-  return updateFiestaData(fiestaId, fiesta => {
+  let rejectedNotification: ClientPaymentNotification | undefined;
+  const result = await updateFiestaData(fiestaId, fiesta => {
     const updated = (fiesta.clientPaymentNotifications ?? []).map(n =>
       n.id === notificationId ? { ...n, estado: 'rechazado' as const } : n
     );
+    rejectedNotification = updated.find(n => n.id === notificationId);
     return { ...fiesta, clientPaymentNotifications: updated };
   });
+
+  if (result.success && rejectedNotification) {
+    notifyClientPaymentRejected(fiestaId, rejectedNotification).catch((error) => {
+      console.warn('[Google Workspace] No se pudo enviar mail de pago rechazado:', error);
+    });
+  }
+
+  return result;
 }
 
 /**

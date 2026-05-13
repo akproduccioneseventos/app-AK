@@ -2,6 +2,15 @@
 
 import type { PlanDePagos, CuotaPlanPago, FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
+import { notifyClientPaymentApproved } from './google-workspace-extended';
+
+function buildMontevideoPaymentTimestamp(fechaPago?: string) {
+  if (!fechaPago) return new Date().toISOString();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fechaPago)) {
+    return `${fechaPago}T12:00:00-03:00`;
+  }
+  return fechaPago;
+}
 
 export async function getPlanDePagos(
   fiestaId: string
@@ -56,6 +65,22 @@ export async function updateCuotaEstado(
     };
 
     await saveFiesta({ ...fiesta, planDePagos: updatedPlan });
+
+    const updatedCuota = updatedCuotas.find((cuota) => cuota.id === cuotaId);
+    const paidAmount = updatedCuota?.montoPagado ?? updatedCuota?.monto ?? 0;
+    if (updates.estado === 'pagado' && paidAmount > 0) {
+      notifyClientPaymentApproved(fiestaId, {
+        id: `cuota_${cuotaId}`,
+        monto: paidAmount,
+        estado: 'aprobado',
+        timestamp: buildMontevideoPaymentTimestamp(updates.fechaPago),
+        approvedAt: new Date().toISOString(),
+        notas: updates.notas || updatedCuota?.descripcion,
+      }).catch((error) => {
+        console.warn('[Google Workspace] No se pudo enviar mail de cuota pagada:', error);
+      });
+    }
+
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };

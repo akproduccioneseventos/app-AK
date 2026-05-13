@@ -37,7 +37,7 @@ body :where([class*="bg-red-50"], [class*="bg-red-100"], [class*="bg-rose-50"], 
   background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
 }
 
-body :where([class*="bg-red-200"], [class*="bg-red-300"], [class*="bg-red-400"], [class*="bg-red-500"], [class*="bg-red-600"], [class*="bg-red-700"], [class*="bg-red-800"], [class*="bg-red-900"], [class*="bg-rose-200"], [class*="bg-rose-300"], [class*="bg-rose-400"], [class*="bg-rose-500"], [class*="bg-rose-600"], [class*="bg-rose-700"], [class*="bg-rose-800"], [class*="bg-rose-900"]) {
+body :where([class*="bg-red-200"], [class*="bg-red-300"], [class*="bg-red-400"], [class*="bg-red-500"], [class*="bg-red-600"], [class*="bg-red-700"], [class*="bg-red-800"], [class*="bg-red-900"], [class*="bg-rose-200"], [class*="bg-rose-300"], [class*="bg-rose-400"], [class*="bg-rose-500"], [class*="bg-rose-600"], [class*="bg-rose-700"], [class*="bg-rose-800"], [class*="bg-rose-900"]):not(button):not(a):not([role="button"]):not([data-ak-allow-red-bg]) {
   background-color: #111827 !important;
   background-image: linear-gradient(135deg, #111827 0%, #334155 100%) !important;
 }
@@ -47,7 +47,7 @@ body :where([class*="bg-red-"][class*="/"], [class*="bg-rose-"][class*="/"]) {
   background-image: none !important;
 }
 
-body :where([class*="hover:bg-red"]:hover, [class*="hover:bg-rose"]:hover) {
+body :where([class*="hover:bg-red"]:hover, [class*="hover:bg-rose"]:hover):not(button):not(a):not([role="button"]):not([data-ak-allow-red-bg]) {
   background-color: #f8fafc !important;
   background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
 }
