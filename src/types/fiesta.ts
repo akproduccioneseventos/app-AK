@@ -1061,6 +1061,7 @@ export interface ModulosContratados {
   resumenPlanificacion: boolean;
   enVivo: boolean;
   entretenimiento?: boolean;
+  barraTecnologica?: boolean;
   carteleria?: boolean;
 }
 

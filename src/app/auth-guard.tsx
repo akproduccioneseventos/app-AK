@@ -41,6 +41,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
       '/evento/actual',
       '/evento/social',
       '/evento/accesos',
+      '/evento/barra',
       '/evento/muro-en-vivo',
       '/evento/logistica',
       '/invitacion',

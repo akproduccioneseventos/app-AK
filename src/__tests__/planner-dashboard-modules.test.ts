@@ -66,6 +66,7 @@ const MODULES: TestModule[] = [
   { id: 'listaCompras',        href: 'catering/lista-compras',          category: 'GASTRONOMÍA Y SERVICIO',                   badge: 'Operativo' },
   { id: 'alergias',            href: 'alergias',                        category: 'GASTRONOMÍA Y SERVICIO',                   badge: 'Operativo' },
   { id: 'cartaTragos',         href: 'carta-tragos',                    category: 'GASTRONOMÍA Y SERVICIO',                   badge: 'Impresión' },
+  { id: 'barraTecnologica',    href: 'barra-tecnologica',               category: 'GASTRONOMÍA Y SERVICIO',                   badge: 'Invitado' },
 
   // CARTELERÍA Y MATERIAL IMPRESO
   { id: 'carteleria',          href: 'carteleria',                      category: 'CARTELERÍA Y MATERIAL IMPRESO',            badge: 'Impresión' },
@@ -91,13 +92,13 @@ const CATEGORIES = [
 ];
 
 const QUICK_MODES: Record<string, string[]> = {
-  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento'],
+  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento', 'barraTecnologica'],
   'preparacion': ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'],
   'cliente':     ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'],
-  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'enVivo', 'checkin'],
+  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
 };
 
-const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion'];
+const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'barraTecnologica'];
 
 describe('Planificador de Fiestas — Centro de Producción Premium', () => {
   describe('Estructura de categorías', () => {
@@ -168,6 +169,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(getModule('entretenimiento')?.href).toBe('entretenimiento');
     });
 
+    it('barra tecnologica sigue accesible', () => {
+      expect(getModule('barraTecnologica')?.href).toBe('barra-tecnologica');
+    });
+
     it('invitados sigue accesible', () => {
       expect(getModule('invitados')?.href).toBe('invitados');
     });
@@ -220,6 +225,7 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(ids).toContain('cargaOperativa');
       expect(ids).toContain('checkin');
       expect(ids).toContain('itinerario');
+      expect(ids).toContain('barraTecnologica');
     });
 
     it('modo preparación incluye tareas, invitados, decoracion, carteleria', () => {
@@ -243,6 +249,7 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(ids).toContain('paginaWeb');
       expect(ids).toContain('muroSocial');
       expect(ids).toContain('entretenimiento');
+      expect(ids).toContain('barraTecnologica');
     });
 
     it('todos los IDs de modos apuntan a módulos existentes', () => {
@@ -270,6 +277,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
 
     it('configuracion es siempre visible', () => {
       expect(ALWAYS_VISIBLE).toContain('configuracion');
+    });
+
+    it('barra tecnologica es siempre visible', () => {
+      expect(ALWAYS_VISIBLE).toContain('barraTecnologica');
     });
   });
 
