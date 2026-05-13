@@ -17,10 +17,11 @@ function detectAgent(input: AkMultiAgentInput): AkAgentType {
   const path = input.pathname || '';
   const msg = input.message.toLowerCase();
 
-  if (input.fiestaId || path.startsWith('/fiestas/nueva')) return 'fiesta';
-  if (path.includes('/empresa/contabilidad') || path.includes('/invoices') || msg.includes('rentabilidad') || msg.includes('ganancia') || msg.includes('contable')) return 'contable';
-  if (path.includes('/marketing') || msg.includes('post') || msg.includes('instagram') || msg.includes('facebook') || msg.includes('whatsapp')) return 'marketing';
-  if (path.includes('/contabilidad/crm') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('venta')) return 'comercial';
+  if (input.fiestaId || path.startsWith('/fiestas/nueva') || /^\/fiestas\/[^/]+/.test(path) || path.includes('/evento/')) return 'fiesta';
+  if (path.includes('/plan-pagos') || path.includes('/empresa/contabilidad') || path.includes('/invoices') || path.includes('/pagos') || msg.includes('rentabilidad') || msg.includes('ganancia') || msg.includes('contable') || msg.includes('pago')) return 'contable';
+  if (path.includes('/marketing') || path.includes('/galeria') || msg.includes('post') || msg.includes('instagram') || msg.includes('facebook') || msg.includes('whatsapp')) return 'marketing';
+  if (path.includes('/contabilidad/crm') || path.includes('/presupuestos') || path.includes('/simulador') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('venta')) return 'comercial';
+  if (path.includes('/settings/google-workspace') || path.includes('/calendario') || path.includes('/reuniones') || msg.includes('agenda') || msg.includes('reunion') || msg.includes('mail') || msg.includes('calendar')) return 'secretaria';
   if (msg.includes('todas las fiestas') || msg.includes('eventos a revisar') || msg.includes('fiestas pendientes')) return 'fiestas_general';
   return 'secretaria';
 }
@@ -30,7 +31,7 @@ function getFiestaNombre(fiesta: any): string | undefined {
 }
 
 function getFiestaTipo(fiesta: any): string | undefined {
-  return fiesta?.configuracion?.tipoEvento || fiesta?.configuracion?.tipoFiesta || fiesta?.tipoEvento || fiesta?.tipo;
+  return fiesta?.configuracion?.tipoCelebracion || fiesta?.configuracion?.tipoEvento || fiesta?.configuracion?.tipoFiesta || fiesta?.tipoEvento || fiesta?.tipo;
 }
 
 function getFiestaInvitados(fiesta: any): number | undefined {
@@ -185,7 +186,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
   const { text } = await ai.generate({
     model: geminiModel,
-    system: `${agentRole(agentType)}\n\nReglas: hablá simple, directo y práctico. Primero usá el diagnóstico automático si existe. Separá la respuesta en: 1) lo más importante, 2) próximos pasos, 3) aprendizaje sugerido si corresponde. No inventes acciones realizadas. Si falta información, pedí una sola cosa. Si detectás un aprendizaje útil, sugerí guardarlo, pero no digas que se guardó si no se ejecutó una acción real.`,
+    system: `${agentRole(agentType)}\n\nReglas duras: hablá simple, directo y práctico. Usa solo los datos del CONTEXTO REAL. Si un dato no aparece, decí "no lo veo cargado" y sugerí dónde cargarlo. No inventes pagos, mails enviados, invitados confirmados, tareas hechas, contratos firmados ni fechas. Primero usá el diagnóstico automático si existe. Ordená la respuesta en: 1. lo más importante, 2. próximos pasos, 3. aprendizaje sugerido si corresponde. No digas que guardaste, enviaste o sincronizaste algo salvo que la acción real se haya ejecutado desde un botón o acción de servidor.`,
     prompt: `CONTEXTO REAL DE LA APP:\n${context.text}\n\nHISTORIAL:\n${input.history.map(h => `${h.role}: ${h.content}`).join('\n')}\n\nMENSAJE DE ALEXANDER:\n${input.message}`,
     config: { temperature: agentType === 'marketing' ? 0.55 : 0.2 },
   });

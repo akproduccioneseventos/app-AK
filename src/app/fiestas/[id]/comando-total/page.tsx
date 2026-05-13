@@ -222,7 +222,7 @@ export default async function ComandoTotalPage({ params }: PageProps) {
             <h2 className="mt-4 text-xl font-black text-slate-950">Biblioteca visual</h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">Ordenar fotos y videos por uso real.</p>
           </Link>
-          <Link href="/settings/google-workspace" className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-red-200 hover:shadow-lg hover:shadow-red-950/10">
+          <Link href={`/settings/google-workspace?fiestaId=${encodeURIComponent(params.id)}`} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-red-200 hover:shadow-lg hover:shadow-red-950/10">
             <Mail className="h-6 w-6 text-red-600" />
             <h2 className="mt-4 text-xl font-black text-slate-950">Mail y Calendar</h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">Revisar comunicaciones utiles para cliente, invitados y personal.</p>

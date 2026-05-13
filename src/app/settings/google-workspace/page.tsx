@@ -20,7 +20,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { getGoogleWorkspaceDashboard, syncAllFiestasToGoogleWorkspace } from '@/app/actions/google-workspace';
+import { getGoogleWorkspaceDashboard, syncAllFiestasToGoogleWorkspace, syncFiestaAndNotifyStaff } from '@/app/actions/google-workspace';
+import { notifyGuestsWithCalendarLinks } from '@/app/actions/google-workspace-extended';
 import type { GoogleWorkspaceDashboard } from '@/types/google-workspace';
 
 function formatDate(value?: string) {
@@ -66,6 +67,7 @@ const automationFlows = [
 ];
 
 export default function GoogleWorkspaceSettingsPage() {
+  const [fiestaId, setFiestaId] = useState('');
   const [dashboard, setDashboard] = useState<GoogleWorkspaceDashboard | null>(null);
   const [message, setMessage] = useState<string>('');
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -84,6 +86,9 @@ export default function GoogleWorkspaceSettingsPage() {
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setFiestaId(new URLSearchParams(window.location.search).get('fiestaId') || '');
+    }
     loadDashboard();
   }, []);
 
@@ -93,6 +98,46 @@ export default function GoogleWorkspaceSettingsPage() {
     startTransition(async () => {
       const result = await syncAllFiestasToGoogleWorkspace();
       setMessage(`Se revisaron ${result.total} fiestas con fecha y se sincronizaron ${result.synced}.`);
+      setWarnings(result.warnings || []);
+      const data = await getGoogleWorkspaceDashboard();
+      setDashboard(data);
+    });
+  };
+
+  const handleNotifyGuests = () => {
+    if (!fiestaId) {
+      setMessage('Entra desde una fiesta para enviar calendario a sus invitados.');
+      return;
+    }
+    setMessage('');
+    setWarnings([]);
+    startTransition(async () => {
+      const result = await notifyGuestsWithCalendarLinks(fiestaId);
+      if (!result.success) {
+        setMessage(result.error || 'No se pudo enviar calendario a invitados.');
+        return;
+      }
+      setMessage(`Se enviaron ${result.sent} mail(s) de calendario a invitados con email cargado.`);
+      setWarnings(result.warnings || []);
+      const data = await getGoogleWorkspaceDashboard();
+      setDashboard(data);
+    });
+  };
+
+  const handleSyncCurrentFiesta = () => {
+    if (!fiestaId) {
+      setMessage('Entra desde una fiesta para sincronizar esa fiesta con el equipo.');
+      return;
+    }
+    setMessage('');
+    setWarnings([]);
+    startTransition(async () => {
+      const result = await syncFiestaAndNotifyStaff(fiestaId);
+      if (!result.success) {
+        setMessage(result.error || 'No se pudo sincronizar esta fiesta.');
+        return;
+      }
+      setMessage('Fiesta sincronizada con calendario general, personal asignado y avisos al equipo.');
       setWarnings(result.warnings || []);
       const data = await getGoogleWorkspaceDashboard();
       setDashboard(data);
@@ -125,6 +170,14 @@ export default function GoogleWorkspaceSettingsPage() {
             <Button variant="outline" onClick={handleSyncAll} disabled={isPending || !dashboard?.companyAccount}>
               <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
               Sincronizar fiestas
+            </Button>
+            <Button variant="outline" onClick={handleSyncCurrentFiesta} disabled={isPending || !dashboard?.companyAccount || !fiestaId}>
+              <Users className="mr-2 h-4 w-4" />
+              Avisar equipo
+            </Button>
+            <Button variant="outline" onClick={handleNotifyGuests} disabled={isPending || !dashboard?.companyAccount || !fiestaId}>
+              <Mail className="mr-2 h-4 w-4" />
+              Avisar invitados
             </Button>
           </div>
         </div>

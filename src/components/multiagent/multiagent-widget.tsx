@@ -28,11 +28,12 @@ const AGENT_STYLE: Record<AkAgentType, { label: string; icon: any; badge: string
 };
 
 function detectVisibleAgent(pathname: string): AkAgentType {
-  if (pathname.startsWith('/fiestas/nueva')) return 'fiesta';
-  if (pathname.includes('/empresa/contabilidad') || pathname.includes('/invoices')) return 'contable';
-  if (pathname.includes('/marketing') || pathname.includes('/empresa/redes-sociales')) return 'marketing';
-  if (pathname.includes('/contabilidad/crm')) return 'comercial';
+  if (pathname.startsWith('/fiestas/nueva') || /^\/fiestas\/[^/]+/.test(pathname) || pathname.includes('/evento/')) return 'fiesta';
+  if (pathname.includes('/plan-pagos') || pathname.includes('/empresa/contabilidad') || pathname.includes('/invoices') || pathname.includes('/pagos')) return 'contable';
+  if (pathname.includes('/marketing') || pathname.includes('/empresa/redes-sociales') || pathname.includes('/galeria') || pathname.includes('/portfolio')) return 'marketing';
+  if (pathname.includes('/contabilidad/crm') || pathname.includes('/presupuestos') || pathname.includes('/simulador')) return 'comercial';
   if (pathname.includes('/multiagente')) return 'central';
+  if (pathname.includes('/settings/google-workspace') || pathname.includes('/calendario') || pathname.includes('/reuniones')) return 'secretaria';
   return 'secretaria';
 }
 
