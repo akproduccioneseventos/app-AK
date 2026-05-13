@@ -15,6 +15,7 @@ import {
   getPublicSecurityRecoveryStatus,
   requestPasswordResetEmail,
   resetPasswordWithCode,
+  resetPasswordWithRecoveryCode,
   resetPasswordWithSecurityAnswers,
   verifyPassword,
 } from '@/app/actions/simple-auth';
@@ -27,6 +28,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'recovery'>('login');
   const [password, setPassword] = useState('');
   const [resetCode, setResetCode] = useState('');
+  const [backupCode, setBackupCode] = useState('');
   const [resetPassword, setResetPassword] = useState('');
   const [resetConfirmPassword, setResetConfirmPassword] = useState('');
   const [answers, setAnswers] = useState({ q1: '', q2: '', q3: '' });
@@ -66,7 +68,7 @@ export default function LoginPage() {
     try {
       const result = await verifyPassword(password);
       if (!result.success) {
-        setError('Contraseña incorrecta.');
+        setError(result.error || 'Contraseña incorrecta.');
         setIsSubmitting(false);
         return;
       }
@@ -99,8 +101,12 @@ export default function LoginPage() {
       setError('Las contraseñas no coinciden.');
       return false;
     }
-    if (resetPassword.length < 8) {
-      setError('La nueva contraseña debe tener al menos 8 caracteres.');
+    if (resetPassword.length < 10) {
+      setError('La nueva contraseña debe tener al menos 10 caracteres.');
+      return false;
+    }
+    if (!/[a-zA-Z]/.test(resetPassword) || !/\d/.test(resetPassword)) {
+      setError('La nueva contraseña debe combinar letras y numeros.');
       return false;
     }
     return true;
@@ -120,6 +126,28 @@ export default function LoginPage() {
       setNotice('Contraseña actualizada. Ya podes entrar.');
       setMode('login');
       setResetCode('');
+      setResetPassword('');
+      setResetConfirmPassword('');
+    } else {
+      setError(result.error || 'No se pudo cambiar la contraseña.');
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleResetWithBackupCode = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    setNotice('');
+    if (!validateResetPasswords()) {
+      setIsSubmitting(false);
+      return;
+    }
+    const result = await resetPasswordWithRecoveryCode(backupCode, resetPassword);
+    if (result.success) {
+      setNotice('Contraseña actualizada. Ya podes entrar.');
+      setMode('login');
+      setBackupCode('');
       setResetPassword('');
       setResetConfirmPassword('');
     } else {
@@ -202,19 +230,35 @@ export default function LoginPage() {
             <CardContent className="space-y-5">
               <div className="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
                 {recovery?.hasRecoveryEmail ? `Mail configurado: ${recovery.recoveryEmailHint}.` : 'Todavia no hay mail de recuperacion configurado.'}
+                {recovery?.hasBackupCodes ? ` Tenes ${recovery.backupCodeCount} codigo(s) de respaldo disponible(s).` : ''}
               </div>
 
-              <form onSubmit={handleResetWithCode} className="space-y-3">
+              <div className="space-y-3 rounded-lg border p-3">
+                <p className="text-sm font-semibold">Nueva contrasena para recuperar acceso</p>
+                <Input type="password" value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} placeholder="Minimo 10 caracteres, letras y numeros" disabled={isSubmitting} />
+                <Input type="password" value={resetConfirmPassword} onChange={(event) => setResetConfirmPassword(event.target.value)} placeholder="Repetir nueva contrasena" disabled={isSubmitting} />
+              </div>
+
+              <form onSubmit={handleResetWithCode} className="space-y-3 rounded-lg border p-3">
+                <p className="text-sm font-semibold">Recuperar por mail</p>
                 <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail}>
                   Enviar codigo por mail
                 </Button>
                 <Input value={resetCode} onChange={(event) => setResetCode(event.target.value)} placeholder="Codigo de 6 numeros" inputMode="numeric" disabled={isSubmitting} />
-                <Input type="password" value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} placeholder="Nueva contraseña" disabled={isSubmitting} />
-                <Input type="password" value={resetConfirmPassword} onChange={(event) => setResetConfirmPassword(event.target.value)} placeholder="Repetir nueva contraseña" disabled={isSubmitting} />
                 <Button type="submit" className="w-full" disabled={isSubmitting || !resetCode || !resetPassword}>
                   Cambiar con codigo
                 </Button>
               </form>
+
+              {recovery?.hasBackupCodes && (
+                <form onSubmit={handleResetWithBackupCode} className="space-y-3 rounded-lg border p-3">
+                  <p className="text-sm font-semibold">Recuperar con codigo de respaldo</p>
+                  <Input value={backupCode} onChange={(event) => setBackupCode(event.target.value)} placeholder="XXXX-XXXX-XXXX" disabled={isSubmitting} />
+                  <Button type="submit" variant="secondary" className="w-full" disabled={isSubmitting || !backupCode || !resetPassword}>
+                    Cambiar con respaldo
+                  </Button>
+                </form>
+              )}
 
               {recovery?.questions && (
                 <form onSubmit={handleResetWithAnswers} className="space-y-3 rounded-lg border p-3">
