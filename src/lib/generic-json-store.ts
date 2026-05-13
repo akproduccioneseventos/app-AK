@@ -2,6 +2,7 @@
 
 import * as logger from './logger';
 import { isSafeTopLevelJsonFile } from './backup/backup-registry';
+import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const GENERIC_JSON_COLLECTION = 'json_documents';
 
@@ -67,7 +68,7 @@ export async function listGenericJsonDocuments(): Promise<Record<string, any>> {
     if (snapshot.empty) return {};
 
     const result: Record<string, any> = {};
-    snapshot.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+    snapshot.docs.forEach((doc: QueryDocumentSnapshot) => {
       const data = doc.data();
       const filePath = typeof data._filePath === 'string' ? data._filePath : decodeURIComponent(doc.id);
       if (!isSafeTopLevelJsonFile(filePath)) return;

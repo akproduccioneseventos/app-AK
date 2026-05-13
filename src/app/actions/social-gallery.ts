@@ -22,6 +22,7 @@
 
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
+import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
 import path from 'path';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -36,10 +37,10 @@ const MAX_IMAGE_UPLOAD_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_UPLOAD_SIZE = 60 * 1024 * 1024;
 
 /** Returns the Firestore Admin instance; throws if Firebase is not configured. */
-async function getDb(): Promise<FirebaseFirestore.Firestore> {
+async function getDb(): Promise<Firestore> {
   const { dbAdmin } = await import('@/lib/firebase/server');
   if (!dbAdmin) throw new Error('Firestore no disponible.');
-  return dbAdmin;
+  return dbAdmin as Firestore;
 }
 
 // ──────────────────── Photo Gallery ────────────────────
@@ -53,12 +54,12 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
       .where('fiestaId', '==', fiestaId)
       .get();
     return snapshot.docs
-      .map(doc => {
+      .map((doc: QueryDocumentSnapshot) => {
         const data = { ...doc.data() } as any;
         delete data._syncedAt;
         return data as SocialGalleryPost;
       })
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      .sort((a: SocialGalleryPost, b: SocialGalleryPost) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   } catch (e) {
     logger.warn('[social-gallery] getSocialPosts failed:', e);
     return [];
@@ -275,7 +276,7 @@ export async function highlightComment(
   try {
     const db = await getDb();
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
-    await db.runTransaction(async (tx) => {
+    await db.runTransaction(async (tx: Transaction) => {
       const snap = await tx.get(ref);
       if (!snap.exists) throw new Error('Publicación no encontrada.');
       const data = snap.data() as SocialGalleryPost;
@@ -321,14 +322,14 @@ export async function clearGallery(fiestaId: string): Promise<{ success: boolean
 
     // Delete Storage files (failures are non-fatal)
     await Promise.allSettled(
-      snapshot.docs.map(doc => deleteFromStorage((doc.data() as SocialGalleryPost).imageUrl))
+      snapshot.docs.map((doc: QueryDocumentSnapshot) => deleteFromStorage((doc.data() as SocialGalleryPost).imageUrl))
     );
 
     // Batch-delete Firestore documents (max 450 per batch)
     const BATCH_SIZE = 450;
     for (let i = 0; i < snapshot.docs.length; i += BATCH_SIZE) {
       const batch = db.batch();
-      snapshot.docs.slice(i, i + BATCH_SIZE).forEach(doc => batch.delete(doc.ref));
+      snapshot.docs.slice(i, i + BATCH_SIZE).forEach((doc: QueryDocumentSnapshot) => batch.delete(doc.ref));
       await batch.commit();
     }
 
@@ -347,7 +348,7 @@ export async function getPhotoFilePathsForZip(
       .collection(GALLERY_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .get();
-    return snapshot.docs.map(doc => {
+    return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
       const data = doc.data() as SocialGalleryPost;
       let name: string;
       try {
@@ -372,8 +373,8 @@ export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> 
       .where('fiestaId', '==', fiestaId)
       .get();
     return snapshot.docs
-      .map(doc => doc.data() as ChatMessage)
-      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      .map((doc: QueryDocumentSnapshot) => doc.data() as ChatMessage)
+      .sort((a: ChatMessage, b: ChatMessage) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   } catch {
     return [];
   }
