@@ -1,243 +1,178 @@
-
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import Link from 'next/link';
+import { ArrowLeft, Eye, EyeOff, Loader2, Lock, ShieldCheck, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UserCog, ShieldCheck, Lock, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
-import Link from 'next/link';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { changeAppPassword } from '@/app/actions/simple-auth';
+import { changeAppPassword, saveSecurityRecoverySettings } from '@/app/actions/simple-auth';
 
 export default function AccountSettingsPage() {
   const { toast } = useToast();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [recoveryPassword, setRecoveryPassword] = useState('');
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [questions, setQuestions] = useState({
+    q1: { question: 'Nombre de tu primera mascota', answer: '' },
+    q2: { question: 'Color favorito', answer: '' },
+    q3: { question: 'Nombre de una persona de confianza', answer: '' },
+  });
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
-  
   const [isSavingPassword, setIsSavingPassword] = useState(false);
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isSavingRecovery, setIsSavingRecovery] = useState(false);
 
-  const [enable2FA, setEnable2FA] = useState(false);
-
-  const handleChangePassword = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleChangePassword = async (event: FormEvent) => {
+    event.preventDefault();
     if (newPassword !== confirmNewPassword) {
-      toast({ title: "Error", description: "Las nuevas contraseñas no coinciden.", variant: "destructive" });
+      toast({ title: 'Error', description: 'Las nuevas contraseñas no coinciden.', variant: 'destructive' });
       return;
     }
-    if (newPassword.length < 4) {
-      toast({ title: "Contraseña Débil", description: "La nueva contraseña debe tener al menos 4 caracteres.", variant: "destructive" });
+    if (newPassword.length < 8) {
+      toast({ title: 'Contraseña debil', description: 'La nueva contraseña debe tener al menos 8 caracteres.', variant: 'destructive' });
       return;
     }
     setIsSavingPassword(true);
-    try {
-      const result = await changeAppPassword(currentPassword, newPassword);
-      if (result.success) {
-        toast({ title: "Contraseña Actualizada", description: "Tu contraseña ha sido actualizada con éxito." });
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmNewPassword('');
-      } else {
-        toast({ title: "Error", description: result.error || "No se pudo cambiar la contraseña.", variant: "destructive" });
-      }
-    } catch {
-      toast({ title: "Error", description: "Error al cambiar la contraseña.", variant: "destructive" });
+    const result = await changeAppPassword(currentPassword, newPassword);
+    if (result.success) {
+      toast({ title: 'Contraseña actualizada', description: 'Se guardo hasheada y la entrada actual sigue funcionando.' });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+    } else {
+      toast({ title: 'Error', description: result.error || 'No se pudo cambiar la contraseña.', variant: 'destructive' });
     }
     setIsSavingPassword(false);
   };
-  
-  const handleDeleteAccount = async () => {
-    setIsDeletingAccount(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    toast({ title: "Cuenta Eliminada (Simulado)", description: "Tu cuenta ha sido eliminada. Serás redirigido.", variant: "destructive" });
-    // router.push('/login'); // Redirect after actual deletion
-    setIsDeletingAccount(false);
+
+  const handleSaveRecovery = async (event: FormEvent) => {
+    event.preventDefault();
+    setIsSavingRecovery(true);
+    const result = await saveSecurityRecoverySettings({
+      currentPassword: recoveryPassword,
+      recoveryEmail,
+      questions,
+    });
+    if (result.success) {
+      toast({ title: 'Recuperacion configurada', description: 'Ya podes recuperar acceso por mail o preguntas de seguridad.' });
+      setRecoveryPassword('');
+      setQuestions((current) => ({
+        q1: { ...current.q1, answer: '' },
+        q2: { ...current.q2, answer: '' },
+        q3: { ...current.q3, answer: '' },
+      }));
+    } else {
+      toast({ title: 'Error', description: result.error || 'No se pudo guardar la recuperacion.', variant: 'destructive' });
+    }
+    setIsSavingRecovery(false);
   };
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <UserCog className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Seguridad y Cuenta
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Seguridad y Cuenta</h1>
         </div>
         <Link href="/settings">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Configuración
+            Volver
           </Button>
         </Link>
       </div>
 
-      {/* Change Password Card */}
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Lock className="w-6 h-6 text-primary" />
-            <CardTitle className="font-headline text-xl">Cambiar Contraseña</CardTitle>
+            <CardTitle className="font-headline text-xl">Cambiar contraseña</CardTitle>
           </div>
-          <CardDescription>Actualiza tu contraseña regularmente para mantener tu cuenta segura.</CardDescription>
+          <CardDescription>La contraseña nueva queda guardada hasheada. La app mantiene entrada de emergencia para no bloquearte.</CardDescription>
         </CardHeader>
         <form onSubmit={handleChangePassword}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="current-password">Contraseña Actual</Label>
+              <Label htmlFor="current-password">Contraseña actual</Label>
               <div className="relative">
-                <Input 
-                  id="current-password" 
-                  type={showCurrentPassword ? "text" : "password"} 
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Ingresa tu contraseña actual"
-                  required 
-                  disabled={isSavingPassword}
-                />
+                <Input id="current-password" type={showCurrentPassword ? 'text' : 'password'} value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required disabled={isSavingPassword} />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowCurrentPassword(!showCurrentPassword)} tabIndex={-1}>
-                  {showCurrentPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                  {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new-password">Nueva Contraseña</Label>
+              <Label htmlFor="new-password">Nueva contraseña</Label>
               <div className="relative">
-                <Input 
-                  id="new-password" 
-                  type={showNewPassword ? "text" : "password"} 
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 4 caracteres"
-                  minLength={4}
-                  required
-                  disabled={isSavingPassword}
-                />
-                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowNewPassword(!showNewPassword)} tabIndex={-1}>
-                  {showNewPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                <Input id="new-password" type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} required disabled={isSavingPassword} />
+                <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowNewPassword(!showNewPassword)} tabIndex={-1}>
+                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-new-password">Confirmar Nueva Contraseña</Label>
-               <div className="relative">
-                <Input 
-                  id="confirm-new-password" 
-                  type={showConfirmNewPassword ? "text" : "password"} 
-                  value={confirmNewPassword}
-                  onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  placeholder="Repite tu nueva contraseña"
-                  minLength={4}
-                  required
-                  disabled={isSavingPassword}
-                />
+              <Label htmlFor="confirm-new-password">Confirmar nueva contraseña</Label>
+              <div className="relative">
+                <Input id="confirm-new-password" type={showConfirmNewPassword ? 'text' : 'password'} value={confirmNewPassword} onChange={(event) => setConfirmNewPassword(event.target.value)} minLength={8} required disabled={isSavingPassword} />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} tabIndex={-1}>
-                  {showConfirmNewPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                  {showConfirmNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
             </div>
           </CardContent>
           <CardFooter>
             <Button type="submit" disabled={isSavingPassword}>
-              {isSavingPassword && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}
-              {isSavingPassword ? "Guardando..." : "Guardar Contraseña"}
+              {isSavingPassword && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Guardar contraseña
             </Button>
           </CardFooter>
         </form>
       </Card>
 
-      {/* Account Preferences Card */}
       <Card className="shadow-lg">
         <CardHeader>
-           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-primary" />
-            <CardTitle className="font-headline text-xl">Preferencias de Seguridad</CardTitle>
-          </div>
-          <CardDescription>Gestiona opciones adicionales de seguridad para tu cuenta.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between p-4 border rounded-lg">
-            <div>
-              <Label htmlFor="two-factor-auth" className="text-base font-medium">Autenticación de Dos Factores (2FA)</Label>
-              <p className="text-sm text-muted-foreground">Añade una capa extra de seguridad a tu cuenta.</p>
-            </div>
-            <Switch
-              id="two-factor-auth"
-              checked={enable2FA}
-              onCheckedChange={setEnable2FA}
-              disabled // Feature not implemented
-            />
-          </div>
-           <p className="text-xs text-muted-foreground text-center">La autenticación de dos factores y otras preferencias de seguridad se habilitarán en futuras actualizaciones.</p>
-        </CardContent>
-      </Card>
-      
-      {/* Delete Account Card */}
-      <Card className="shadow-lg border-destructive">
-        <CardHeader>
           <div className="flex items-center gap-2">
-            <Trash2 className="w-6 h-6 text-destructive" />
-            <CardTitle className="font-headline text-xl text-destructive">Eliminar Cuenta</CardTitle>
+            <ShieldCheck className="w-6 h-6 text-primary" />
+            <CardTitle className="font-headline text-xl">Recuperacion de acceso</CardTitle>
           </div>
-          <CardDescription>Esta acción es permanente y no se puede deshacer.</CardDescription>
+          <CardDescription>Configura mail y preguntas. Si Gmail esta conectado, el codigo llega por correo.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Si eliminas tu cuenta, todos tus datos, incluyendo eventos, clientes, facturas y presupuestos, serán eliminados permanentemente.
-          </p>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="w-full sm:w-auto" disabled={isDeletingAccount}>
-                {isDeletingAccount && <Loader2 className="w-4 h-4 mr-2 animate-spin"/>}
-                Eliminar mi Cuenta
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción no se puede deshacer. Todos tus datos serán eliminados de forma permanente.
-                  Escribe "ELIMINAR CUENTA" para confirmar.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-               {/* Basic input for confirmation, real implementation would verify the input */}
-              <Input type="text" placeholder='Escribe "ELIMINAR CUENTA"' className="my-2"/>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isDeletingAccount}>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  disabled={isDeletingAccount}
-                  className="bg-destructive hover:bg-destructive/80"
-                >
-                  {isDeletingAccount ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null}
-                  Sí, eliminar mi cuenta
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
-         <CardFooter>
-          <p className="text-xs text-muted-foreground">La eliminación de cuenta está simulada. No se borrarán datos reales.</p>
-        </CardFooter>
+        <form onSubmit={handleSaveRecovery}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="recovery-current-password">Contraseña actual para autorizar</Label>
+              <Input id="recovery-current-password" type="password" value={recoveryPassword} onChange={(event) => setRecoveryPassword(event.target.value)} required disabled={isSavingRecovery} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="recovery-email">Mail de recuperacion</Label>
+              <Input id="recovery-email" type="email" value={recoveryEmail} onChange={(event) => setRecoveryEmail(event.target.value)} placeholder="tu-mail@ejemplo.com" required disabled={isSavingRecovery} />
+            </div>
+            {(['q1', 'q2', 'q3'] as const).map((key, index) => (
+              <div key={key} className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Pregunta {index + 1}</Label>
+                  <Input value={questions[key].question} onChange={(event) => setQuestions((current) => ({ ...current, [key]: { ...current[key], question: event.target.value } }))} required disabled={isSavingRecovery} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Respuesta</Label>
+                  <Input type="password" value={questions[key].answer} onChange={(event) => setQuestions((current) => ({ ...current, [key]: { ...current[key], answer: event.target.value } }))} required disabled={isSavingRecovery} />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={isSavingRecovery}>
+              {isSavingRecovery && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Guardar recuperacion
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

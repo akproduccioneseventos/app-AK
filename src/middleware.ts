@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { SESSION_COOKIE_NAME, verifySignedSessionToken } from '@/lib/auth/session-token';
 
 // Rutas que NO requieren sesión activa.
 // Deben coincidir con la lista en src/app/auth-guard.tsx (publicPathPrefixes).
@@ -51,7 +52,7 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Add request ID header for tracing
@@ -65,8 +66,9 @@ export function middleware(request: NextRequest) {
   }
 
   // Verificar cookie de sesión para rutas protegidas.
-  const sessionCookie = request.cookies.get('ak_session');
-  if (!sessionCookie?.value) {
+  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
+  const hasValidSession = await verifySignedSessionToken(sessionCookie?.value);
+  if (!hasValidSession) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
