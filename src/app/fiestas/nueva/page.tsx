@@ -264,6 +264,33 @@ function PlannerDashboardContent() {
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
 
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
+        <div className="rounded-[1.5rem] border border-red-100 bg-white p-5 shadow-lg shadow-slate-950/5">
+          <div className="flex items-start gap-4">
+            <div className="rounded-2xl bg-red-600 p-3 text-white">
+              <Monitor className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-red-600">Experiencia AK</p>
+              <h2 className="mt-1 text-xl font-black text-slate-950">Centro de control en vivo y demo premium</h2>
+              <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">
+                Acceso rapido para vender o ejecutar la fiesta: muro social, barra, QR, pantalla grande, mission control y checklist final.
+              </p>
+            </div>
+          </div>
+        </div>
+        <Link href={`/fiestas/${encodeURIComponent(fiestaId!)}/show-control`} className="flex">
+          <Button className="h-full min-h-20 w-full rounded-[1.5rem] bg-red-600 px-6 font-black hover:bg-red-700">
+            <Tv className="mr-2 h-5 w-5" /> Control en vivo
+          </Button>
+        </Link>
+        <Link href="/experiencia-ak" className="flex">
+          <Button variant="outline" className="h-full min-h-20 w-full rounded-[1.5rem] border-slate-200 bg-white px-6 font-black">
+            <Sparkles className="mr-2 h-5 w-5" /> Demo AK
+          </Button>
+        </Link>
+      </motion.div>
+
       {/* Pre-event alerts banner */}
       {(() => {
         if (!fiesta.configuracion.fechaEvento) return null;
