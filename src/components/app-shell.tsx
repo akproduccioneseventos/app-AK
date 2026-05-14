@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Film, FileArchive, KeyRound, History, Zap, Bot } from 'lucide-react';
+import { UserCircle, LogOut, Settings as SettingsIcon, MessageSquareText, LayoutGrid, Palette, ChefHat, Globe, Music2, CalendarClock, ListChecks, Briefcase, StickyNote, ShoppingCart, CalendarDays as CalendarDaysIcon, LogIn as LogInIcon, UserPlus2 as UserPlus2Icon, Sparkles, Building2, FileText, Banknote, LayoutDashboard, PlusCircle as PlusCircleIcon, CircleDollarSign, ContactRound, Users, DollarSign, Printer, KanbanSquare, PartyPopper, ClipboardCheck, UserCheck, Calculator, HardHat, Cake, GlassWater, ClipboardList as ClipboardListIcon, Archive, Ticket, PackageSearch, Package, Edit, BarChart3, PackagePlus, BellRing, UserCog, Link as LinkIcon, Camera, Gift, Star, QrCode, Clock, TrendingUp, HardDriveDownload, Wand2, Film, FileArchive, KeyRound, History, Zap, Bot, Tv } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -91,6 +91,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/catering') return 'Catering y Menú del Evento';
   if (pathname === '/fiestas/nueva/catering/lista-compras') return 'Lista de Compras (Catering)';
   if (pathname === '/fiestas/nueva/barra-tecnologica') return 'Barra Tecnológica';
+  if (pathname === '/fiestas/nueva/pantallas-totem') return 'Pantallas Tótem';
   if (pathname === '/fiestas/nueva/personal') return 'Asignar Personal al Evento';
   if (pathname === '/fiestas/nueva/personal/recibos') return 'Recibos de Pago de Personal';
   if (pathname === '/fiestas/nueva/reuniones') return 'Reuniones y Portal Cliente';
@@ -149,6 +150,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/evento/actual/checkin') return 'UserCheck';
   if (pathname.startsWith('/evento/social')) return 'Camera';
   if (pathname.startsWith('/evento/barra')) return 'GlassWater';
+  if (pathname.startsWith('/evento/totem')) return 'Tv';
   if (pathname.startsWith('/video-vida')) return 'Camera';
   if (pathname.startsWith('/feedback')) return 'Star';
   if (pathname.startsWith('/acceso-personal')) return 'UserCog';
@@ -170,6 +172,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/catering') return ChefHat;
     if (pathname === '/fiestas/nueva/catering/lista-compras') return ShoppingCart;
     if (pathname === '/fiestas/nueva/barra-tecnologica') return GlassWater;
+    if (pathname === '/fiestas/nueva/pantallas-totem') return Tv;
     if (pathname === '/fiestas/nueva/musica') return Music2;
     if (pathname === '/fiestas/nueva/musica/pdf') return Printer;
     if (pathname === '/fiestas/nueva/fotografia') return Film;
@@ -245,6 +248,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/evento/actual/checkin') return UserCheck;
   if (pathname.startsWith('/evento/social')) return Camera;
   if (pathname.startsWith('/evento/barra')) return GlassWater;
+  if (pathname.startsWith('/evento/totem')) return Tv;
   if (pathname.startsWith('/video-vida')) return Camera;
   if (pathname.startsWith('/feedback')) return Star;
   if (pathname.startsWith('/acceso-personal')) return UserCog;
@@ -275,7 +279,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
-  const isPublicEventPage = pathname === '/evento' || pathname === '/evento/' || pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/barra') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/evento/logistica') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/proveedor') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo') || pathname.startsWith('/presentacion-led') || pathname.startsWith('/invitado') || pathname.startsWith('/portal-proveedor') || pathname.startsWith('/evento/dj');
+  const isPublicEventPage = pathname === '/evento' || pathname === '/evento/' || pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/barra') || pathname.startsWith('/evento/totem') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/evento/logistica') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/proveedor') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo') || pathname.startsWith('/presentacion-led') || pathname.startsWith('/invitado') || pathname.startsWith('/portal-proveedor') || pathname.startsWith('/evento/dj');
   const isClientFacingTool = pathname === '/simulador-de-presupuesto';
 
   // Define pages that are printable views and should not have the shell.
