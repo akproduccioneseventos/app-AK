@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, Smartphone } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Download, MonitorSmartphone, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const DISMISSED_KEY = 'pwa_install_dismissed_at';
@@ -17,12 +17,10 @@ export function PwaInstallPrompt() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Don't show if already installed (standalone mode)
     if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
       return;
     }
 
-    // Check if dismissed recently
     try {
       const dismissedAt = localStorage.getItem(DISMISSED_KEY);
       if (dismissedAt) {
@@ -30,12 +28,12 @@ export function PwaInstallPrompt() {
         if (diffDays < DISMISS_TTL_DAYS) return;
       }
     } catch {
-      // ignore localStorage errors
+      // Ignore storage errors.
     }
 
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    const handler = (event: Event) => {
+      event.preventDefault();
+      setDeferredPrompt(event as BeforeInstallPromptEvent);
       setVisible(true);
     };
 
@@ -58,42 +56,40 @@ export function PwaInstallPrompt() {
     try {
       localStorage.setItem(DISMISSED_KEY, String(Date.now()));
     } catch {
-      // ignore localStorage errors
+      // Ignore storage errors.
     }
   };
 
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-[360px] z-50 animate-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-gradient-to-br from-purple-700 via-fuchsia-700 to-indigo-700 rounded-2xl shadow-2xl overflow-hidden text-white">
-        <div className="flex items-start justify-between p-4 pb-2">
+    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 duration-500 sm:left-auto sm:right-6 sm:w-[380px]">
+      <div className="overflow-hidden rounded-[1.5rem] border border-red-100 bg-white text-slate-950 shadow-2xl shadow-slate-950/20">
+        <div className="flex items-start justify-between gap-3 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-              <Smartphone className="w-5 h-5 text-white" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-50 ring-1 ring-red-100">
+              <MonitorSmartphone className="h-5 w-5 text-red-600" />
             </div>
             <div>
-              <p className="font-black text-sm leading-tight">Instalar App</p>
-              <p className="text-xs text-white/70 font-medium">AK Producciones</p>
+              <p className="text-sm font-black leading-tight">Instalar AK Producciones</p>
+              <p className="mt-1 text-xs font-medium text-slate-500">Acceso directo en PC y Android.</p>
             </div>
           </div>
           <button
             onClick={handleDismiss}
-            className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0 mt-0.5"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-900"
             aria-label="Cerrar"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="px-4 pb-4 space-y-3">
-          <p className="text-xs text-white/80 leading-relaxed">
-            Instalá la app para acceso rápido, modo offline y mejor experiencia en tu celular.
+        <div className="space-y-3 border-t border-slate-100 px-4 pb-4 pt-3">
+          <p className="text-xs font-medium leading-5 text-slate-600">
+            La app queda como icono, abre a pantalla completa y mantiene el mismo sistema online de Firebase.
           </p>
-          <Button
-            onClick={handleInstall}
-            className="w-full bg-white text-purple-700 hover:bg-white/90 font-black rounded-xl h-10 text-sm shadow-lg"
-          >
-            📲 Instalar App
+          <Button onClick={handleInstall} className="h-11 w-full rounded-2xl bg-red-600 text-sm font-black hover:bg-red-700">
+            <Download className="mr-2 h-4 w-4" />
+            Instalar ahora
           </Button>
         </div>
       </div>

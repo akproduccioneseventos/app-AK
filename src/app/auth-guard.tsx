@@ -1,18 +1,17 @@
-
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { getSession, clearSession } from '@/lib/auth';
 import { clearSessionCookie } from '@/app/actions/session';
+import { getSession, clearSession } from '@/lib/auth';
+import { BUDGET_VIEW_REGEX, PUBLIC_EXACT_PATHS, isPublicPathPrefix } from '@/lib/auth/public-paths';
 
 export async function triggerAppLogout() {
   clearSession();
   await clearSessionCookie();
   if (typeof window !== 'undefined') {
-    // Remove portal-specific session keys
-    Object.keys(sessionStorage).forEach(key => {
+    Object.keys(sessionStorage).forEach((key) => {
       if (key.startsWith('portal_auth_')) {
         sessionStorage.removeItem(key);
       }
@@ -31,65 +30,20 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
+    if (typeof window === 'undefined') return;
+
+    let isPublic = isPublicPathPrefix(pathname);
+
+    if (PUBLIC_EXACT_PATHS.has(pathname)) isPublic = true;
+
+    if (!isPublic && BUDGET_VIEW_REGEX.test(pathname)) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('token')) isPublic = true;
     }
 
-    const publicPathPrefixes = [
-      '/login',
-      '/landing',
-      '/evento/actual',
-      '/evento/social',
-      '/evento/accesos',
-      '/evento/barra',
-      '/evento/totem',
-      '/evento/muro-en-vivo',
-      '/evento/logistica',
-      '/invitacion',
-      '/video-vida',
-      '/feedback',
-      '/portal',
-      '/simulador-de-presupuesto',
-      '/acceso-personal',
-      '/public',
-      '/portal-cliente',
-      '/simulador',
-      '/simulador-ak',
-      '/simulador-v2',
-      '/proveedor',
-      '/presentacion',
-      '/presentacion-led',
-      '/evento/mi-mesa',
-      '/evento/en-vivo',
-      '/evento/dj',
-      '/invitado',
-      '/portal-proveedor',
-    ];
-
-    let isPublic = publicPathPrefixes.some(prefix => pathname.startsWith(prefix));
-
-    // Exact-path public routes (not prefix-based to avoid matching /eventos admin page)
-    if (pathname === '/evento' || pathname === '/evento/') isPublic = true;
-
-    // Budget view pages require a share token in the URL to be accessed publicly.
-    if (!isPublic) {
-      const budgetRegex = /^\/presupuestos\/[^/]+\/ver\/?$/;
-      if (budgetRegex.test(pathname)) {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('token')) {
-          isPublic = true;
-        }
-      }
-    }
-
-    // PDF and printable summaries: only public if accessed with a share token
-    if (!isPublic) {
-      if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('token')) {
-          isPublic = true;
-        }
-      }
+    if (!isPublic && (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible'))) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('token')) isPublic = true;
     }
 
     if (isPublic) {
@@ -97,14 +51,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
 
-    // E2E mode: bypass auth entirely in CI/E2E environments (never set in production).
     if (process.env.NEXT_PUBLIC_E2E === 'true') {
-      console.warn('[AuthGuard] E2E mode active – skipping auth check');
+      console.warn('[AuthGuard] E2E mode active - skipping auth check');
       setIsVerified(true);
       return;
     }
 
-    // Check session-based auth (localStorage / sessionStorage).
     const session = getSession();
     if (!session) {
       router.push('/login');
@@ -116,8 +68,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   if (!isVerified) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }

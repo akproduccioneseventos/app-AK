@@ -2,6 +2,11 @@ export const SESSION_COOKIE_NAME = 'ak_session';
 
 const SESSION_VERSION = 'v1';
 const DEFAULT_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+const NO_PRIVATE_SECRET_MAX_AGE_SECONDS = 60 * 60 * 24;
+
+export function hasPrivateSessionSecret() {
+  return Boolean(process.env.AK_SESSION_SECRET || process.env.AUTH_SESSION_SECRET || process.env.SESSION_SECRET);
+}
 
 function getSigningSecret() {
   return (
@@ -61,5 +66,5 @@ export async function verifySignedSessionToken(token?: string | null) {
 }
 
 export function getSessionMaxAgeSeconds() {
-  return DEFAULT_MAX_AGE_SECONDS;
+  return hasPrivateSessionSecret() ? DEFAULT_MAX_AGE_SECONDS : NO_PRIVATE_SECRET_MAX_AGE_SECONDS;
 }
