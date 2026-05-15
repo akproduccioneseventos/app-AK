@@ -1107,6 +1107,7 @@ export interface ModulosContratados {
   entretenimiento?: boolean;
   barraTecnologica?: boolean;
   pantallasTotem?: boolean;
+  zonaDigital?: boolean;
   carteleria?: boolean;
 }
 
@@ -1182,6 +1183,115 @@ export interface GuestPortalSettings {
   customBgColor?: string;
   customAccentColor?: string;
   coverImageUrl?: string;
+}
+
+// --- ZONA DIGITAL ADOLESCENTE ---
+export type ZonaDigitalFeatureId =
+  | 'muro_social'
+  | 'retos'
+  | 'juegos'
+  | 'fotocabina'
+  | 'plataforma360'
+  | 'bogue'
+  | 'espejo_magico'
+  | 'barra'
+  | 'totems'
+  | 'audioritmico'
+  | 'ranking'
+  | 'recap';
+
+export type ZonaDigitalGameType =
+  | 'reto_foto'
+  | 'votacion'
+  | 'trivia'
+  | 'busqueda'
+  | 'baile'
+  | 'emoji_battle'
+  | 'dedicatoria';
+
+export interface ZonaDigitalFeatureToggle {
+  id: ZonaDigitalFeatureId;
+  label: string;
+  description: string;
+  enabled: boolean;
+  visibleForGuests: boolean;
+  requiresStaff?: boolean;
+  requiresHardware?: boolean;
+  linkedModuleId?: keyof ModulosContratados;
+  publicUrl?: string;
+}
+
+export interface ZonaDigitalChallenge {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  points: number;
+  enabled: boolean;
+  featured?: boolean;
+  sponsorLabel?: string;
+}
+
+export interface ZonaDigitalGame {
+  id: string;
+  type: ZonaDigitalGameType;
+  title: string;
+  prompt: string;
+  emoji: string;
+  enabled: boolean;
+  screenMode: 'mobile' | 'pantalla' | 'ambos';
+  points: number;
+  options?: string[];
+}
+
+export interface ZonaDigitalSocialNetwork {
+  id: 'instagram' | 'tiktok' | 'facebook' | 'whatsapp';
+  label: string;
+  handle: string;
+  url: string;
+  enabled: boolean;
+  requireBeforeDownload?: boolean;
+}
+
+export interface ZonaDigitalEmojiReaction {
+  emoji: string;
+  label: string;
+  enabled: boolean;
+}
+
+export interface ZonaDigitalAdolescentesSettings {
+  enabled: boolean;
+  title: string;
+  subtitle: string;
+  accessMode: 'qr_abierto' | 'solo_invitados' | 'solo_staff';
+  primaryColor: string;
+  accentColor: string;
+  backgroundStyle: 'neon_clean' | 'glass_party' | 'white_premium' | 'club_mode';
+  hashtag: string;
+  qrUrl?: string;
+  moderationRequired: boolean;
+  showLeaderboard: boolean;
+  showPoints: boolean;
+  showEmojiBar: boolean;
+  showSocialFollowGate: boolean;
+  allowNicknames: boolean;
+  allowAvatarUpload: boolean;
+  allowComments: boolean;
+  allowDedications: boolean;
+  allowSongVotes: boolean;
+  autoRotateOnScreens: boolean;
+  syncWithMuroSocial: boolean;
+  syncWithTotems: boolean;
+  syncWithBarra: boolean;
+  syncWithEntretenimiento: boolean;
+  recapEnabled: boolean;
+  features: ZonaDigitalFeatureToggle[];
+  challenges: ZonaDigitalChallenge[];
+  games: ZonaDigitalGame[];
+  socialNetworks: ZonaDigitalSocialNetwork[];
+  emojiReactions: ZonaDigitalEmojiReaction[];
+  safetyRules: string[];
+  updatedAt?: string;
 }
 
 // --- CLIENTE DEBE LLEVAR ---
@@ -1298,6 +1408,7 @@ export interface FiestaEnPlanificacion {
   cateringChangeRequests?: CateringChangeRequest[];
   socialScreenConfig?: SocialScreenConfig;
   guestPortalSettings?: GuestPortalSettings;
+  zonaDigitalAdolescentes?: ZonaDigitalAdolescentesSettings;
   clienteDebeLlevar?: ClienteDebeLlevarItem[];
   guestExperienceSettings?: GuestExperienceSettings;
   clientePortalExperience?: ClientePortalExperience;

@@ -59,6 +59,7 @@ const fiestaCompleta = makeBase({
     feedback: false, menuMesa: false, checkin: false, resumenImprimible: false,
     configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
     numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true,
+    entretenimiento: true, barraTecnologica: true, pantallasTotem: true, zonaDigital: true,
     carteleria: true,
   },
   menuAsignadoId: 'menu-1',

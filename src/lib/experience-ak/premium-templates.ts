@@ -3,6 +3,7 @@ export type PremiumTemplateSurface =
   | 'portal_cliente'
   | 'portal_invitado'
   | 'muro_social'
+  | 'zona_digital'
   | 'pantalla_led'
   | 'barra'
   | 'post_fiesta';
@@ -53,6 +54,15 @@ export const PREMIUM_EXPERIENCE_TEMPLATES: PremiumTemplate[] = [
     visualStyle: 'Fondo oscuro elegante, fotos grandes, ticker AK, audiorritmico y moderacion.',
     mustHave: ['Fotos', 'Mensajes', 'Hashtag', 'Aprobacion', 'Modo pantalla'],
     href: '/fiestas/nueva/muro-social',
+  },
+  {
+    id: 'zona-digital-adolescente',
+    surface: 'zona_digital',
+    name: 'Zona digital adolescente',
+    goal: 'Crear una experiencia continua de retos, juegos, fotos, emojis, redes y ranking.',
+    visualStyle: 'Pantalla mobile viva, tarjetas grandes, movimiento suave, fondos personalizables y CTA sociales.',
+    mustHave: ['Retos', 'Juegos', 'Emojis', 'Ranking', 'Redes AK'],
+    href: '/fiestas/nueva/zona-digital',
   },
   {
     id: 'led-venta-gigante',

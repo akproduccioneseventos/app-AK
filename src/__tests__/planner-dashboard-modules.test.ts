@@ -56,6 +56,7 @@ const MODULES: TestModule[] = [
   { id: 'enVivo',              href: 'en-vivo',                         category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'missionControl',      href: 'mission-control',                 category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'muroSocial',          href: 'muro-social',                     category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
+  { id: 'zonaDigital',         href: 'zona-digital',                    category: 'PANTALLA GIGANTE AK',                      badge: 'Invitado' },
   { id: 'pantallasTotem',      href: 'pantallas-totem',                 category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'readiness',           href: 'readiness',                       category: 'PANTALLA GIGANTE AK',                      badge: 'Interno' },
 
@@ -93,13 +94,13 @@ const CATEGORIES = [
 ];
 
 const QUICK_MODES: Record<string, string[]> = {
-  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'],
+  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'],
   'preparacion': ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'],
   'cliente':     ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'],
-  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
+  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
 };
 
-const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'pantallasTotem', 'barraTecnologica'];
+const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
 
 describe('Planificador de Fiestas — Centro de Producción Premium', () => {
   describe('Estructura de categorías', () => {
@@ -166,6 +167,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(getModule('muroSocial')?.href).toBe('muro-social');
     });
 
+    it('zona digital AK sigue accesible', () => {
+      expect(getModule('zonaDigital')?.href).toBe('zona-digital');
+    });
+
     it('pantallas totem sigue accesible', () => {
       expect(getModule('pantallasTotem')?.href).toBe('pantallas-totem');
     });
@@ -192,6 +197,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
 
     it('muro social está en PANTALLA GIGANTE AK', () => {
       expect(getModule('muroSocial')?.category).toBe('PANTALLA GIGANTE AK');
+    });
+
+    it('zona digital esta en PANTALLA GIGANTE AK', () => {
+      expect(getModule('zonaDigital')?.category).toBe('PANTALLA GIGANTE AK');
     });
 
     it('pantallas totem esta en PANTALLA GIGANTE AK', () => {
@@ -222,7 +231,7 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
     it('módulos de pantalla gigante AK tienen badge Pantalla o Interno', () => {
       const pantallaCat = MODULES.filter(m => m.category === 'PANTALLA GIGANTE AK');
       pantallaCat.forEach(m => {
-        expect(['Pantalla', 'Interno']).toContain(m.badge);
+        expect(['Pantalla', 'Invitado', 'Interno']).toContain(m.badge);
       });
     });
   });
@@ -235,6 +244,7 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(ids).toContain('checkin');
       expect(ids).toContain('itinerario');
       expect(ids).toContain('barraTecnologica');
+      expect(ids).toContain('zonaDigital');
     });
 
     it('modo preparación incluye tareas, invitados, decoracion, carteleria', () => {

@@ -1060,6 +1060,18 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                   <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-6 space-y-3">
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-5">¿Qué querés hacer?</p>
                     <div className="grid grid-cols-2 gap-3">
+                      {fiesta?.zonaDigitalAdolescentes?.enabled && (
+                        <GuestFeatureButton
+                          icon={<Gamepad2 className="w-8 h-8" />}
+                          label="Zona Digital AK"
+                          sublabel="Retos, juegos y ranking"
+                          color={fiesta.zonaDigitalAdolescentes.accentColor || accentColor}
+                          onClick={() => { window.location.href = `/evento/zona-digital/${params.fiestaId}`; }}
+                          primary
+                          wide
+                          pulse
+                        />
+                      )}
 
                       {localSettings.uploadsActive && (
                         <GuestFeatureButton
