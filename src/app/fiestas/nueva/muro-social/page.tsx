@@ -111,6 +111,7 @@ const GAME_TEMPLATES: Array<{
 const DEFAULT_SCREEN_PLAYLIST: ScreenPlaylistItem[] = [
   { id: 'item_video', type: 'video', title: 'Video publicitario', durationSeconds: 20, enabled: true, layout: 'auto' },
   { id: 'item_mural', type: 'mural', title: 'Mural de fotos', durationSeconds: 30, enabled: true, layout: 'auto' },
+  { id: 'item_audioritmico', type: 'audioritmico', title: 'Momento discoteca', durationSeconds: 25, enabled: false, layout: 'auto' },
   {
     id: 'item_redes',
     type: 'redes',
@@ -141,6 +142,18 @@ function withScreenDefaults(settings: SocialGallerySettings): SocialGallerySetti
       playlist: settings.screenMode?.playlist?.length ? settings.screenMode.playlist : DEFAULT_SCREEN_PLAYLIST,
     },
     screenMediaLibrary: settings.screenMediaLibrary ?? [],
+    audioRhythm: {
+      enabled: settings.audioRhythm?.enabled ?? true,
+      title: settings.audioRhythm?.title ?? 'Modo discoteca',
+      subtitle: settings.audioRhythm?.subtitle ?? 'Luces, fotos y energia en vivo.',
+      visualStyle: settings.audioRhythm?.visualStyle ?? 'neon-bars',
+      accentColor: settings.audioRhythm?.accentColor ?? '#dc2626',
+      secondaryColor: settings.audioRhythm?.secondaryColor ?? '#06b6d4',
+      intensity: settings.audioRhythm?.intensity ?? 80,
+      showPhotos: settings.audioRhythm?.showPhotos ?? true,
+      showQr: settings.audioRhythm?.showQr ?? true,
+      qrUrl: settings.audioRhythm?.qrUrl,
+    },
   };
 }
 
@@ -177,6 +190,17 @@ function MuroSocialContent() {
       playlist: DEFAULT_SCREEN_PLAYLIST,
     },
     screenMediaLibrary: [],
+    audioRhythm: {
+      enabled: true,
+      title: 'Modo discoteca',
+      subtitle: 'Luces, fotos y energia en vivo.',
+      visualStyle: 'neon-bars',
+      accentColor: '#dc2626',
+      secondaryColor: '#06b6d4',
+      intensity: 80,
+      showPhotos: true,
+      showQr: true,
+    },
   });
   // Ref always reflects the latest settings value; used in async callbacks to avoid
   // stale closure issues without relying on synchronous setState execution.
@@ -799,6 +823,7 @@ function MuroSocialContent() {
       dedicaciones: { type: 'dedicaciones', title: 'Dedicatorias', durationSeconds: 30, enabled: true, layout: 'auto' },
       chat: { type: 'chat', title: 'Chat en Vivo', durationSeconds: 30, enabled: true, layout: 'auto' },
       canciones: { type: 'canciones', title: 'Pedidos de Canciones', durationSeconds: 30, enabled: true, layout: 'auto' },
+      audioritmico: { type: 'audioritmico', title: 'Momento discoteca', durationSeconds: 25, enabled: true, layout: 'auto' },
     };
     setSettings((prev) => withScreenDefaults({
       ...prev,
@@ -817,6 +842,19 @@ function MuroSocialContent() {
         playlist: (prev.screenMode?.playlist ?? []).filter((item) => item.id !== itemId),
       },
     }));
+  };
+
+  const updateAudioRhythmSettings = (patch: Partial<NonNullable<SocialGallerySettings['audioRhythm']>>) => {
+    setSettings((prev) => {
+      const normalized = withScreenDefaults(prev);
+      return {
+        ...normalized,
+        audioRhythm: {
+          ...normalized.audioRhythm!,
+          ...patch,
+        },
+      };
+    });
   };
 
   const handleAddCustomMomento = async () => {
@@ -1124,6 +1162,7 @@ function MuroSocialContent() {
             <div className="sm:col-span-2 flex gap-2 pt-1 flex-wrap">
               <Link href={`/evento/social/${fiestaId}`} target="_blank"><Button variant="outline"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Button></Link>
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank"><Button variant="outline">Abrir Pantalla</Button></Link>
+              <Link href={`/fiestas/nueva/pantallas-totem?fiestaId=${fiestaId}`}><Button variant="outline">Pantallas Totem</Button></Link>
               <Button
                 variant="outline"
                 onClick={() => {
@@ -1403,10 +1442,11 @@ function MuroSocialContent() {
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('redes')}><Plus className="w-4 h-4 mr-2" />Redes</Button>
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('juego')}><Plus className="w-4 h-4 mr-2" />Juego</Button>
             </div>
-            <div className="grid sm:grid-cols-3 gap-2">
+            <div className="grid sm:grid-cols-4 gap-2">
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('dedicaciones')}><Plus className="w-4 h-4 mr-2" />💌 Dedicatorias</Button>
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('chat')}><Plus className="w-4 h-4 mr-2" />💬 Chat en Vivo</Button>
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('canciones')}><Plus className="w-4 h-4 mr-2" />🎵 Canciones</Button>
+              <Button type="button" variant="outline" onClick={() => addPlaylistItem('audioritmico')}><Plus className="w-4 h-4 mr-2" />Audiorritmico</Button>
             </div>
 
             <div className="grid sm:grid-cols-4 gap-2">
@@ -1526,6 +1566,86 @@ function MuroSocialContent() {
               {uploadingMedia && <p className="text-xs text-blue-600 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" />Subiendo archivo, aguardá…</p>}
               <p className="text-xs text-muted-foreground">Soporta MP4, WebM, MOV, imágenes JPG/PNG/GIF. La biblioteca global incluye medios de otras fiestas para reutilizar.</p>
               <p className="text-xs text-muted-foreground">Templates redes incluidos: Neón, VIP elegante y Minimal (editable por handles/QR en playlist tipo redes).</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2"><Zap className="w-4 h-4 text-cyan-500" />Pantalla audiorritmica</CardTitle>
+            <CardDescription>Modo visual para baile y discoteca: barras, ondas, orbitas, fotos del muro y QR en pantalla gigante.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between rounded-lg border border-cyan-200 bg-cyan-50 p-3">
+              <div>
+                <span className="text-sm font-semibold text-cyan-950">Activar modo audiorritmico</span>
+                <p className="text-xs text-cyan-700">Agregalo a la playlist para usarlo como momento de pista.</p>
+              </div>
+              <Switch
+                checked={settings.audioRhythm?.enabled !== false}
+                onCheckedChange={(checked) => updateAudioRhythmSettings({ enabled: checked })}
+              />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Titulo</Label>
+                <Input value={settings.audioRhythm?.title ?? ''} onChange={(e) => updateAudioRhythmSettings({ title: e.target.value })} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Estilo visual</Label>
+                <select
+                  className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                  value={settings.audioRhythm?.visualStyle ?? 'neon-bars'}
+                  onChange={(e) => updateAudioRhythmSettings({ visualStyle: e.target.value as NonNullable<SocialGallerySettings['audioRhythm']>['visualStyle'] })}
+                >
+                  <option value="neon-bars">Barras neon</option>
+                  <option value="waves">Ondas</option>
+                  <option value="orbits">Orbitas</option>
+                  <option value="equalizer">Ecualizador</option>
+                </select>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <Label className="text-xs font-semibold">Texto secundario</Label>
+                <Input value={settings.audioRhythm?.subtitle ?? ''} onChange={(e) => updateAudioRhythmSettings({ subtitle: e.target.value })} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Color principal</Label>
+                <div className="flex gap-2">
+                  <Input type="color" value={settings.audioRhythm?.accentColor ?? '#dc2626'} onChange={(e) => updateAudioRhythmSettings({ accentColor: e.target.value })} className="h-10 w-12 p-1" />
+                  <Input value={settings.audioRhythm?.accentColor ?? '#dc2626'} onChange={(e) => updateAudioRhythmSettings({ accentColor: e.target.value })} className="h-10" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Color secundario</Label>
+                <div className="flex gap-2">
+                  <Input type="color" value={settings.audioRhythm?.secondaryColor ?? '#06b6d4'} onChange={(e) => updateAudioRhythmSettings({ secondaryColor: e.target.value })} className="h-10 w-12 p-1" />
+                  <Input value={settings.audioRhythm?.secondaryColor ?? '#06b6d4'} onChange={(e) => updateAudioRhythmSettings({ secondaryColor: e.target.value })} className="h-10" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Intensidad</Label>
+                <Input
+                  type="number"
+                  min={10}
+                  max={140}
+                  value={settings.audioRhythm?.intensity ?? 80}
+                  onChange={(e) => updateAudioRhythmSettings({ intensity: Math.max(10, Math.min(140, Number(e.target.value) || 80)) })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">QR opcional</Label>
+                <Input value={settings.audioRhythm?.qrUrl ?? ''} onChange={(e) => updateAudioRhythmSettings({ qrUrl: e.target.value })} placeholder={socialWallLink} />
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <span className="text-sm font-medium">Mostrar fotos del muro</span>
+                <Switch checked={settings.audioRhythm?.showPhotos !== false} onCheckedChange={(checked) => updateAudioRhythmSettings({ showPhotos: checked })} />
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <span className="text-sm font-medium">Mostrar QR</span>
+                <Switch checked={settings.audioRhythm?.showQr !== false} onCheckedChange={(checked) => updateAudioRhythmSettings({ showQr: checked })} />
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -6,11 +6,12 @@ import { getSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
+import { QRCodeSVG } from 'qrcode.react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import type { ActiveGameData, ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
+import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize } from 'lucide-react';
@@ -361,7 +362,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Empty state */}
-          {isLoaded && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
+          {isLoaded && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones', 'audioritmico'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
               <div className="text-8xl opacity-20">📸</div>
               <div className="text-center space-y-2">
@@ -465,6 +466,16 @@ export default function MuroEnVivoPage() {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Pantalla audiorritmica para momentos de baile */}
+          {isLoaded && activeScreenItem?.type === 'audioritmico' && (
+            <AudioRhythmSlide
+              settings={settings.audioRhythm}
+              posts={posts}
+              eventName={eventName}
+              fallbackQrUrl={`/evento/social/${fiestaId}`}
+            />
           )}
 
           {/* Dedications overlay — always shown when no side panel takes up the left column */}
@@ -834,6 +845,203 @@ export default function MuroEnVivoPage() {
           100% { transform: translateX(-50%); }
         }
       `}</style>
+    </div>
+  );
+}
+
+function AudioRhythmSlide({
+  settings,
+  posts,
+  eventName,
+  fallbackQrUrl,
+}: {
+  settings?: AudioRhythmSettings;
+  posts: SocialGalleryPost[];
+  eventName: string;
+  fallbackQrUrl: string;
+}) {
+  const config = {
+    enabled: settings?.enabled ?? true,
+    title: settings?.title ?? 'Modo discoteca',
+    subtitle: settings?.subtitle ?? 'Luces, fotos y energia en vivo.',
+    visualStyle: settings?.visualStyle ?? 'neon-bars',
+    accentColor: settings?.accentColor ?? '#dc2626',
+    secondaryColor: settings?.secondaryColor ?? '#06b6d4',
+    intensity: settings?.intensity ?? 80,
+    showPhotos: settings?.showPhotos ?? true,
+    showQr: settings?.showQr ?? true,
+    qrUrl: settings?.qrUrl || fallbackQrUrl,
+  };
+  const [audioLevel, setAudioLevel] = useState(0.45);
+  const analyzerRef = useRef<AnalyserNode | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const visiblePosts = posts.slice(0, 9);
+
+  useEffect(() => {
+    if (!config.enabled) return;
+    let stopped = false;
+    const tick = () => {
+      const analyzer = analyzerRef.current;
+      if (analyzer) {
+        const data = new Uint8Array(analyzer.frequencyBinCount);
+        analyzer.getByteFrequencyData(data);
+        const average = data.reduce((sum, value) => sum + value, 0) / Math.max(1, data.length);
+        setAudioLevel(Math.max(0.18, Math.min(1, average / 150)));
+      } else {
+        setAudioLevel(0.42 + Math.sin(Date.now() / 180) * 0.2 + Math.sin(Date.now() / 430) * 0.12);
+      }
+      if (!stopped) rafRef.current = window.requestAnimationFrame(tick);
+    };
+    tick();
+    return () => {
+      stopped = true;
+      if (rafRef.current) window.cancelAnimationFrame(rafRef.current);
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    };
+  }, [config.enabled]);
+
+  const activateAudio = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      mediaStreamRef.current = stream;
+      const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+      const context = new AudioContextCtor();
+      const source = context.createMediaStreamSource(stream);
+      const analyzer = context.createAnalyser();
+      analyzer.fftSize = 128;
+      source.connect(analyzer);
+      analyzerRef.current = analyzer;
+    } catch {
+      analyzerRef.current = null;
+    }
+  };
+
+  if (!config.enabled) {
+    return posts.length > 0 ? <SlideshowLayout posts={posts} /> : null;
+  }
+
+  const intensity = Math.max(0.4, Math.min(1.6, config.intensity / 80));
+  const barCount = config.visualStyle === 'equalizer' ? 54 : 36;
+
+  return (
+    <div
+      className="absolute inset-0 overflow-hidden bg-slate-950 text-white"
+      style={{
+        background: `radial-gradient(circle at 18% 18%, ${config.accentColor}44, transparent 32%), radial-gradient(circle at 82% 16%, ${config.secondaryColor}44, transparent 28%), linear-gradient(135deg, #020617, #0f172a 52%, #020617)`,
+      }}
+    >
+      <div className="absolute inset-0 opacity-35" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)', backgroundSize: '54px 54px' }} />
+
+      {config.visualStyle === 'orbits' && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          {[0, 1, 2, 3].map((index) => (
+            <motion.div
+              key={index}
+              className="absolute rounded-full border"
+              style={{
+                width: `${30 + index * 16}vw`,
+                height: `${30 + index * 16}vw`,
+                borderColor: index % 2 === 0 ? `${config.accentColor}70` : `${config.secondaryColor}70`,
+              }}
+              animate={{ rotate: index % 2 === 0 ? 360 : -360, scale: [1, 1 + audioLevel * 0.12 * intensity, 1] }}
+              transition={{ rotate: { duration: 12 + index * 4, repeat: Infinity, ease: 'linear' }, scale: { duration: 0.8, repeat: Infinity } }}
+            />
+          ))}
+        </div>
+      )}
+
+      {config.visualStyle === 'waves' && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <motion.div
+              key={index}
+              className="absolute rounded-full border"
+              style={{ borderColor: index % 2 === 0 ? `${config.accentColor}55` : `${config.secondaryColor}55` }}
+              animate={{
+                width: [`${8 + index * 8}vw`, `${12 + index * 10 + audioLevel * 18}vw`],
+                height: [`${8 + index * 8}vw`, `${12 + index * 10 + audioLevel * 18}vw`],
+                opacity: [0.35, 0.05],
+              }}
+              transition={{ duration: 1.4 + index * 0.1, repeat: Infinity, delay: index * 0.08 }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="absolute inset-x-0 bottom-0 flex h-[42vh] items-end justify-center gap-1 px-8">
+        {Array.from({ length: barCount }).map((_, index) => {
+          const wave = Math.abs(Math.sin(index * 0.45 + Date.now() / 260));
+          const height = 18 + (wave * 58 + audioLevel * 44) * intensity;
+          return (
+            <motion.div
+              key={index}
+              className="w-full max-w-[18px] rounded-t-full"
+              style={{
+                height: `${Math.min(96, height)}%`,
+                background: index % 2 === 0 ? config.accentColor : config.secondaryColor,
+                boxShadow: `0 0 ${18 + audioLevel * 28}px ${index % 2 === 0 ? config.accentColor : config.secondaryColor}`,
+              }}
+              animate={{ scaleY: [0.9, 1 + audioLevel * 0.45, 0.9], opacity: [0.62, 1, 0.62] }}
+              transition={{ duration: 0.5 + (index % 5) * 0.06, repeat: Infinity }}
+            />
+          );
+        })}
+      </div>
+
+      {config.showPhotos && visiblePosts.length > 0 && (
+        <div className="absolute inset-0 pointer-events-none">
+          {visiblePosts.map((post, index) => (
+            <motion.div
+              key={post.id}
+              className="absolute overflow-hidden rounded-3xl border border-white/15 bg-white/10 shadow-2xl"
+              style={{
+                width: `${9 + (index % 3) * 2}vw`,
+                aspectRatio: '4/5',
+                left: `${8 + ((index * 13) % 78)}%`,
+                top: `${12 + ((index * 19) % 58)}%`,
+              }}
+              animate={{ y: [0, -20 - audioLevel * 35, 0], rotate: [-3, 3, -3], opacity: [0.38, 0.78, 0.38] }}
+              transition={{ duration: 4 + (index % 4), repeat: Infinity, delay: index * 0.25 }}
+            >
+              {post.mediaType === 'video' || isVideoUrl(post.imageUrl) ? (
+                <video src={post.imageUrl} className="h-full w-full object-cover" autoPlay muted loop playsInline />
+              ) : (
+                <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-cover" unoptimized />
+              )}
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-12 text-center">
+        {eventName && <p className="mb-4 text-sm font-black uppercase tracking-[0.45em] text-white/45">{eventName}</p>}
+        <motion.h1
+          animate={{ scale: [1, 1 + audioLevel * 0.05, 1], textShadow: [`0 0 20px ${config.accentColor}`, `0 0 44px ${config.secondaryColor}`, `0 0 20px ${config.accentColor}`] }}
+          transition={{ duration: 0.8, repeat: Infinity }}
+          className="max-w-5xl text-[clamp(4rem,11vw,11rem)] font-black uppercase leading-[0.88]"
+        >
+          {config.title}
+        </motion.h1>
+        <p className="mt-6 max-w-3xl text-[clamp(1.25rem,2.4vw,2.4rem)] font-semibold text-white/70">{config.subtitle}</p>
+        <button
+          onClick={activateAudio}
+          className="mt-8 rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-black uppercase tracking-[0.22em] text-white/80 backdrop-blur transition hover:bg-white/20"
+        >
+          Activar audio real
+        </button>
+      </div>
+
+      {config.showQr && config.qrUrl && (
+        <div className="absolute bottom-8 right-8 z-20 flex items-center gap-4 rounded-[2rem] border border-white/20 bg-white/95 p-4 text-slate-950 shadow-2xl">
+          <QRCodeSVG value={config.qrUrl} size={124} includeMargin />
+          <div className="max-w-[190px] text-left">
+            <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: config.accentColor }}>Participa</p>
+            <p className="mt-1 text-sm font-bold text-slate-600">Subi tu foto y mirate en la pantalla.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

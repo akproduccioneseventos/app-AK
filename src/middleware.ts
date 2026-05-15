@@ -11,6 +11,7 @@ const PUBLIC_PATH_PREFIXES = [
   '/evento/social',
   '/evento/accesos',
   '/evento/barra',
+  '/evento/totem',
   '/evento/muro-en-vivo',
   '/evento/logistica',
   '/invitacion',

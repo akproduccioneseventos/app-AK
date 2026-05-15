@@ -56,6 +56,7 @@ const MODULES: TestModule[] = [
   { id: 'enVivo',              href: 'en-vivo',                         category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'missionControl',      href: 'mission-control',                 category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'muroSocial',          href: 'muro-social',                     category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
+  { id: 'pantallasTotem',      href: 'pantallas-totem',                 category: 'PANTALLA GIGANTE AK',                      badge: 'Pantalla' },
   { id: 'readiness',           href: 'readiness',                       category: 'PANTALLA GIGANTE AK',                      badge: 'Interno' },
 
   // DISEÑO, SALÓN Y AMBIENTACIÓN
@@ -92,13 +93,13 @@ const CATEGORIES = [
 ];
 
 const QUICK_MODES: Record<string, string[]> = {
-  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento', 'barraTecnologica'],
+  'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'],
   'preparacion': ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'],
   'cliente':     ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'],
-  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
+  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
 };
 
-const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'barraTecnologica'];
+const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'pantallasTotem', 'barraTecnologica'];
 
 describe('Planificador de Fiestas — Centro de Producción Premium', () => {
   describe('Estructura de categorías', () => {
@@ -165,6 +166,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(getModule('muroSocial')?.href).toBe('muro-social');
     });
 
+    it('pantallas totem sigue accesible', () => {
+      expect(getModule('pantallasTotem')?.href).toBe('pantallas-totem');
+    });
+
     it('entretenimiento sigue accesible', () => {
       expect(getModule('entretenimiento')?.href).toBe('entretenimiento');
     });
@@ -187,6 +192,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
 
     it('muro social está en PANTALLA GIGANTE AK', () => {
       expect(getModule('muroSocial')?.category).toBe('PANTALLA GIGANTE AK');
+    });
+
+    it('pantallas totem esta en PANTALLA GIGANTE AK', () => {
+      expect(getModule('pantallasTotem')?.category).toBe('PANTALLA GIGANTE AK');
     });
   });
 
@@ -248,6 +257,7 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       const ids = QUICK_MODES['tecnologia'];
       expect(ids).toContain('paginaWeb');
       expect(ids).toContain('muroSocial');
+      expect(ids).toContain('pantallasTotem');
       expect(ids).toContain('entretenimiento');
       expect(ids).toContain('barraTecnologica');
     });
@@ -277,6 +287,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
 
     it('configuracion es siempre visible', () => {
       expect(ALWAYS_VISIBLE).toContain('configuracion');
+    });
+
+    it('pantallasTotem es siempre visible', () => {
+      expect(ALWAYS_VISIBLE).toContain('pantallasTotem');
     });
 
     it('barra tecnologica es siempre visible', () => {

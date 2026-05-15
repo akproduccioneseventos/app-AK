@@ -91,6 +91,7 @@ const modules: ModuleDefinition[] = [
   { id: 'enVivo', title: "Evento en Vivo", href: "en-vivo", icon: Zap, description: "Centro de operaciones para el día de la fiesta.", category: 'PANTALLA GIGANTE AK', color: "bg-primary text-white shadow-xl shadow-primary/30", badge: 'Pantalla' },
   { id: 'missionControl', title: "Mission Control", href: "mission-control", icon: Activity, description: "Control táctico minuto a minuto en tiempo real.", category: 'PANTALLA GIGANTE AK', color: "bg-indigo-600 text-white shadow-xl shadow-indigo-500/30", badge: 'Pantalla' },
   { id: 'muroSocial', title: "Muro Social & Pantalla", href: "muro-social", icon: Gamepad2, description: "Mural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-violet-100 text-violet-700", badge: 'Pantalla' },
+  { id: 'pantallasTotem', title: "Pantallas Tótem", href: "pantallas-totem", icon: Tv, description: "Tótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.", category: 'PANTALLA GIGANTE AK', color: "bg-cyan-100 text-cyan-700", badge: 'Pantalla' },
   { id: 'readiness', title: "Readiness Score", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
 
   // 7. DISEÑO, SALÓN Y AMBIENTACIÓN
@@ -151,14 +152,14 @@ const badgeColors: Record<ModuleBadge, string> = {
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
 
 const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color: string; moduleIds: string[] }[] = [
-  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'entretenimiento', 'barraTecnologica'] },
+  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
   { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
+  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'muroSocial', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'barraTecnologica'];
+const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'pantallasTotem', 'barraTecnologica'];
 
 function PlannerDashboardContent() {
   const { toast } = useToast();
