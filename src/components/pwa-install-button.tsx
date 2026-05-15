@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Download, MonitorSmartphone } from 'lucide-react';
+import { CheckCircle2, Download, MonitorSmartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type BeforeInstallPromptEvent = Event & {
@@ -50,19 +50,20 @@ export function PwaInstallButton() {
 
   if (isInstalled) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
-        AK Producciones ya está instalada en este dispositivo.
+      <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+        <span>AK Producciones ya esta instalada en este dispositivo.</span>
       </div>
     );
   }
 
   if (!promptEvent) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">
         <div className="flex items-start gap-3">
           <MonitorSmartphone className="mt-1 h-5 w-5 shrink-0 text-red-600" />
           <p>
-            Si tu navegador todavía no muestra el botón automático, abrí el menú de Chrome o Edge y elegí <strong>Instalar app</strong> o <strong>Agregar a pantalla principal</strong>.
+            Si el boton automatico no aparece, abri el menu de Chrome o Edge y elegi <strong>Instalar app</strong> o <strong>Agregar a pantalla principal</strong>.
           </p>
         </div>
       </div>
@@ -70,7 +71,7 @@ export function PwaInstallButton() {
   }
 
   return (
-    <Button onClick={handleInstall} className="w-full rounded-2xl bg-red-600 font-black hover:bg-red-700 sm:w-auto">
+    <Button onClick={handleInstall} className="h-11 w-full rounded-2xl bg-red-600 font-black hover:bg-red-700 sm:w-auto">
       <Download className="mr-2 h-4 w-4" />
       Instalar AK Producciones
     </Button>

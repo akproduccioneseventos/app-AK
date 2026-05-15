@@ -2,14 +2,20 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'AK Producciones',
-    short_name: 'AK App',
-    description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
-    start_url: '/',
+    name: 'AK Producciones Eventos',
+    short_name: 'AK Producciones',
+    description: 'Plataforma inteligente de AK Producciones para organizar eventos, clientes, invitados y operacion.',
+    id: '/ak-producciones-pwa',
+    start_url: '/?source=pwa',
+    scope: '/',
     display: 'standalone',
-    orientation: 'portrait',
+    display_override: ['window-controls-overlay', 'standalone', 'minimal-ui', 'browser'],
+    orientation: 'portrait-primary',
     background_color: '#ffffff',
-    theme_color: '#0f172a',
+    theme_color: '#d71920',
+    lang: 'es-UY',
+    dir: 'ltr',
+    categories: ['business', 'productivity', 'lifestyle'],
     icons: [
       {
         src: '/icons/icon-192x192.png',
@@ -22,6 +28,47 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
+      },
+      {
+        src: '/icons/ak-icon-192.svg',
+        sizes: '192x192',
+        type: 'image/svg+xml',
+        purpose: 'maskable',
+      },
+      {
+        src: '/icons/ak-icon-512.svg',
+        sizes: '512x512',
+        type: 'image/svg+xml',
+        purpose: 'maskable',
+      },
+      {
+        src: '/icons/ak-icon.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
+        purpose: 'maskable',
+      },
+    ],
+    shortcuts: [
+      {
+        name: 'Nueva fiesta',
+        short_name: 'Nueva fiesta',
+        description: 'Abrir el alta rapida de una fiesta.',
+        url: '/fiestas/nueva?source=pwa',
+        icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' }],
+      },
+      {
+        name: 'Instalar app',
+        short_name: 'Instalar',
+        description: 'Ver ayuda de instalacion en PC y Android.',
+        url: '/settings/instalar-app?source=pwa',
+        icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' }],
+      },
+      {
+        name: 'Presentacion LED',
+        short_name: 'LED',
+        description: 'Abrir la zona de presentacion comercial.',
+        url: '/presentacion-led?source=pwa',
+        icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' }],
       },
     ],
   };
