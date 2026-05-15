@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle, RotateCcw, Check } from 'lucide-react';
-import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction, resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
+import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle, RotateCcw, Check, Wand2 } from 'lucide-react';
+import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, createDemoFiesta, duplicateFiesta, deleteFiesta as deleteFiestaAction, resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
@@ -30,6 +30,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import type { AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -310,6 +311,23 @@ export default function GestorFiestasPage() {
     }
   };
 
+  const handleCreateDemo = async (kind: AkDemoFiestaKind) => {
+    setIsProcessing(`demo-${kind}`);
+    try {
+      const result = await createDemoFiesta(kind);
+      if (result.success && result.newFiestaId) {
+        toast({ title: 'Demo AK creada', description: 'Se genero una fiesta completa para vender y probar la app.' });
+        router.push(`/fiestas/nueva?fiestaId=${result.newFiestaId}`);
+        return;
+      }
+      throw new Error(result.error || 'No se pudo crear la demo.');
+    } catch (error: any) {
+      toast({ title: 'Error al crear demo', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsProcessing(null);
+    }
+  };
+
   return (
     <div data-testid="eventos-page" className="max-w-5xl mx-auto space-y-8 print:space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
@@ -514,6 +532,42 @@ export default function GestorFiestasPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="border-red-100 bg-white shadow-lg print:hidden">
+        <CardHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Wand2 className="h-5 w-5 text-red-600" />
+                Crear demo premium AK
+              </CardTitle>
+              <CardDescription>
+                Carga una fiesta falsa completa con portal, invitados, pantalla, barra, muro, tareas y datos de ejemplo.
+              </CardDescription>
+            </div>
+            <Badge className="w-fit bg-red-600 text-white">Para vender y probar</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { kind: 'xv' as const, label: 'Demo XV' },
+            { kind: 'boda' as const, label: 'Demo Boda' },
+            { kind: 'club-uruguay' as const, label: 'Demo Club Uruguay' },
+            { kind: 'corporativo' as const, label: 'Demo Corporativo' },
+          ].map((demo) => (
+            <Button
+              key={demo.kind}
+              variant={demo.kind === 'xv' ? 'default' : 'outline'}
+              className={cn('h-12 rounded-2xl font-black', demo.kind === 'xv' && 'bg-red-600 hover:bg-red-700')}
+              onClick={() => handleCreateDemo(demo.kind)}
+              disabled={isProcessing === `demo-${demo.kind}`}
+            >
+              {isProcessing === `demo-${demo.kind}` ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+              {demo.label}
+            </Button>
+          ))}
+        </CardContent>
+      </Card>
 
       {/* Phase 3.13: Resource Conflict Detection */}
       {conflictingDates.length > 0 && !isLoading && (

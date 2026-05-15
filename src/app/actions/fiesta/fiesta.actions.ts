@@ -47,6 +47,7 @@ import { syncLaundryCosts } from './costos.actions';
 import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
 import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion-slug';
+import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -833,6 +834,22 @@ export async function createFiestaVacia(
     } catch (e: any) {
         return { success: false, error: e.message };
     }
+}
+
+export async function createDemoFiesta(
+  kind: AkDemoFiestaKind
+): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+  try {
+    const demoFiesta = buildAkDemoFiesta(kind);
+    const result = await saveFiesta(demoFiesta);
+    if (!result.success) {
+      return { success: false, error: result.error || 'No se pudo crear la demo.' };
+    }
+    return { success: true, newFiestaId: demoFiesta.id };
+  } catch (error: any) {
+    logger.error('[Planificador] Error creando demo AK:', error);
+    return { success: false, error: error.message || 'No se pudo crear la demo AK.' };
+  }
 }
 
 export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId: string | null): Promise<{ success: boolean; error?: string }> {
