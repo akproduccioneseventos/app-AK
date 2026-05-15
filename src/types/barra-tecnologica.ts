@@ -31,6 +31,10 @@ export interface BarTechnologySettings {
   autoPublishPhotos: boolean;
   showIngredients: boolean;
   showAlcoholFreeTag: boolean;
+  showDrinkDescription: boolean;
+  showDrinkVideo: boolean;
+  requireSocialFollowForPhotos: boolean;
+  socialFollowPrompt: string;
 }
 
 export interface BarTechnologyData {

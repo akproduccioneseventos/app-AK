@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState, type ElementType }
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
-import { ArrowLeft, ExternalLink, Loader2, Martini, Monitor, Save, Share2, Smartphone, Sparkles, Tv, Wine } from 'lucide-react';
+import { ArrowLeft, Camera, ExternalLink, Instagram, Info, Loader2, Martini, Monitor, Save, Share2, Smartphone, Sparkles, Tv, Video, Wine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ import {
   getBarraTecnologicaDashboard,
   saveBarraTecnologicaSettings,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
+import { getDrinkDescription } from '@/lib/barra-tecnologica';
 
 const STATUS_LABELS: Record<BarDrinkOrderStatus, string> = {
   nuevo: 'Nuevos',
@@ -171,6 +172,10 @@ function BarraTecnologicaContent() {
                 <Label>Texto de marca en fotos</Label>
                 <Input value={settings.brandText} onChange={(event) => updateSetting('brandText', event.target.value)} />
               </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Mensaje antes de compartir fotos</Label>
+                <Textarea value={settings.socialFollowPrompt} onChange={(event) => updateSetting('socialFollowPrompt', event.target.value)} />
+              </div>
               <div className="space-y-2">
                 <Label>Color de acento</Label>
                 <Input type="color" value={settings.accentColor} onChange={(event) => updateSetting('accentColor', event.target.value)} className="h-12" />
@@ -194,6 +199,33 @@ function BarraTecnologicaContent() {
               <ToggleRow label="Publicar fotos al muro" checked={settings.autoPublishPhotos} onCheckedChange={(value) => updateSetting('autoPublishPhotos', value)} />
               <ToggleRow label="Mostrar ingredientes" checked={settings.showIngredients} onCheckedChange={(value) => updateSetting('showIngredients', value)} />
               <ToggleRow label="Mostrar sin alcohol" checked={settings.showAlcoholFreeTag} onCheckedChange={(value) => updateSetting('showAlcoholFreeTag', value)} />
+              <ToggleRow label="Mostrar descripcion del trago" checked={settings.showDrinkDescription} onCheckedChange={(value) => updateSetting('showDrinkDescription', value)} />
+              <ToggleRow label="Mostrar videos de tragos" checked={settings.showDrinkVideo} onCheckedChange={(value) => updateSetting('showDrinkVideo', value)} />
+              <ToggleRow label="Pedir seguir redes antes de foto" checked={settings.requireSocialFollowForPhotos} onCheckedChange={(value) => updateSetting('requireSocialFollowForPhotos', value)} />
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-[2rem] shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Instagram className="h-5 w-5 text-primary" /> Regla social para fotos</CardTitle>
+              <CardDescription>La pantalla tactil guia a la persona para seguir redes antes de subir fotos al muro.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-3">
+              <div className="rounded-2xl border bg-slate-50 p-4">
+                <Camera className="mb-2 h-5 w-5 text-primary" />
+                <p className="font-black text-slate-900">Foto</p>
+                <p className="text-sm font-semibold text-slate-500">Captura o carga desde el celular.</p>
+              </div>
+              <div className="rounded-2xl border bg-slate-50 p-4">
+                <Instagram className="mb-2 h-5 w-5 text-primary" />
+                <p className="font-black text-slate-900">Redes</p>
+                <p className="text-sm font-semibold text-slate-500">Abre Instagram y confirma seguimiento.</p>
+              </div>
+              <div className="rounded-2xl border bg-slate-50 p-4">
+                <Share2 className="mb-2 h-5 w-5 text-primary" />
+                <p className="font-black text-slate-900">Muro</p>
+                <p className="text-sm font-semibold text-slate-500">Sube al mural social con hashtag AK.</p>
+              </div>
             </CardContent>
           </Card>
 
@@ -209,7 +241,11 @@ function BarraTecnologicaContent() {
                     <Wine className="h-4 w-4 text-primary" />
                     <p className="font-black text-slate-900">{drink.nombre}</p>
                   </div>
-                  <p className="mt-1 line-clamp-2 text-xs font-semibold text-slate-500">{drink.ingredientes?.join(' · ') || 'Sin ingredientes cargados'}</p>
+                  <p className="mt-1 line-clamp-2 text-xs font-semibold text-slate-500">{getDrinkDescription(drink)}</p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {drink.ingredientes?.length ? <Badge variant="outline" className="gap-1"><Info className="h-3 w-3" /> Ingredientes</Badge> : null}
+                    {drink.videoUrl ? <Badge variant="outline" className="gap-1"><Video className="h-3 w-3" /> Video</Badge> : null}
+                  </div>
                 </div>
               ))}
             </CardContent>

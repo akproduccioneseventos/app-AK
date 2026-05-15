@@ -896,6 +896,9 @@ export interface Trago {
   nombre: string;
   imageUrl?: string;
   aiHint?: string;
+  descripcion?: string;
+  description?: string;
+  videoUrl?: string;
   ingredientes?: string[];
   recetaIngredientes?: TragoRecetaIngrediente[];
   stockDisponible?: number;

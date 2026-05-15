@@ -17,6 +17,7 @@ import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions'
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
+import { isTruthyFollowConfirmation } from '@/lib/barra-tecnologica';
 import * as logger from '@/lib/logger';
 
 const BAR_ORDERS_COLLECTION = 'bar_drink_orders';
@@ -37,10 +38,14 @@ const DEFAULT_BAR_SETTINGS: BarTechnologySettings = {
   autoPublishPhotos: true,
   showIngredients: true,
   showAlcoholFreeTag: true,
+  showDrinkDescription: true,
+  showDrinkVideo: true,
+  requireSocialFollowForPhotos: true,
+  socialFollowPrompt: 'Para subir tu foto al muro, primero seguinos en redes y despues confirma en la pantalla.',
 };
 
-function sanitizeText(value?: string, fallback = '') {
-  return String(value || fallback).trim().slice(0, 120);
+function sanitizeText(value?: string, fallback = '', maxLength = 160) {
+  return String(value || fallback).trim().slice(0, maxLength);
 }
 
 function sanitizeHashtag(value?: string) {
@@ -72,12 +77,16 @@ function normalizeSettings(settings: Partial<BarTechnologySettings> | undefined,
     guestPrompt: sanitizeText(settings?.guestPrompt || defaults.guestPrompt, defaults.guestPrompt),
     barmanTitle: sanitizeText(settings?.barmanTitle || defaults.barmanTitle, defaults.barmanTitle),
     brandText: sanitizeText(settings?.brandText || defaults.brandText, defaults.brandText),
+    socialFollowPrompt: sanitizeText(settings?.socialFollowPrompt || defaults.socialFollowPrompt, defaults.socialFollowPrompt, 220),
     enabled: settings?.enabled ?? defaults.enabled,
     requireGuestName: settings?.requireGuestName ?? defaults.requireGuestName,
     allowPhotoCapture: settings?.allowPhotoCapture ?? defaults.allowPhotoCapture,
     autoPublishPhotos: settings?.autoPublishPhotos ?? defaults.autoPublishPhotos,
     showIngredients: settings?.showIngredients ?? defaults.showIngredients,
     showAlcoholFreeTag: settings?.showAlcoholFreeTag ?? defaults.showAlcoholFreeTag,
+    showDrinkDescription: settings?.showDrinkDescription ?? defaults.showDrinkDescription,
+    showDrinkVideo: settings?.showDrinkVideo ?? defaults.showDrinkVideo,
+    requireSocialFollowForPhotos: settings?.requireSocialFollowForPhotos ?? defaults.requireSocialFollowForPhotos,
   };
 }
 
@@ -291,6 +300,7 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
   const fiestaId = String(formData.get('fiestaId') || '');
   const authorName = sanitizeText(String(formData.get('authorName') || ''), 'Invitado barra AK');
   const caption = sanitizeText(String(formData.get('caption') || ''));
+  const followConfirmed = isTruthyFollowConfirmation(formData.get('followConfirmed'));
   const file = formData.get('file') as File | null;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos para subir la foto.' };
@@ -302,6 +312,9 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     if (!fiesta) throw new Error('Fiesta no encontrada.');
     const settings = getStoredBarData(fiesta).settings;
     if (!settings.allowPhotoCapture) return { success: false, error: 'La captura de fotos esta pausada.' };
+    if (settings.requireSocialFollowForPhotos && !followConfirmed) {
+      return { success: false, error: 'Para subir la foto primero confirma que seguis las redes de AK Producciones.' };
+    }
 
     const extension = path.extname(file.name || '') || '.jpg';
     const mediaId = `bar_photo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
