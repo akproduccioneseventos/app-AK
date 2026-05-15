@@ -23,6 +23,7 @@ import type {
   GuestExperienceSettings,
 } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+import { defaultZonaDigitalAdolescentesSettings } from '@/lib/zona-digital-adolescentes';
 
 /** Default "Lo que el cliente debe llevar" checklist items */
 export const defaultClienteDebeLlevar: ClienteDebeLlevarItem[] = [
@@ -250,7 +251,7 @@ export const defaultModulosContratados: ModulosContratados = {
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
     reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
-    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, entretenimiento: true, pantallasTotem: true, barraTecnologica: true, carteleria: true
+    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, entretenimiento: true, pantallasTotem: true, barraTecnologica: true, zonaDigital: true, carteleria: true
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {
@@ -287,6 +288,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     marketingTickerText: DEFAULT_MARKETING_TICKER_TEXT,
     ledMarqueeText: '',
   },
+  zonaDigitalAdolescentes: defaultZonaDigitalAdolescentesSettings,
   musica: { cancionesTortaBrindis: [] },
   reposteria: defaultReposteriaData,
   bebidas: defaultBebidasData,

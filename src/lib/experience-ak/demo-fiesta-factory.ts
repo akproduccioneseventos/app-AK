@@ -9,6 +9,7 @@ import {
   defaultPrograma,
   initialFiestaActualData,
 } from '@/lib/fiesta-defaults';
+import { defaultZonaDigitalAdolescentesSettings } from '@/lib/zona-digital-adolescentes';
 
 export type AkDemoFiestaKind = 'xv' | 'boda' | 'club-uruguay' | 'corporativo';
 
@@ -101,6 +102,7 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
   const id = `demo_${profile.kind}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const date = futureDate(profile.kind === 'club-uruguay' ? 3 : 4);
   const accessKey = `demo-${profile.kind}-${Math.random().toString(36).slice(2, 7)}`;
+  const now = new Date().toISOString();
 
   return {
     ...initialFiestaActualData,
@@ -125,7 +127,7 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
       primaryColor: profile.primaryColor,
       notesAdicionales: 'Evento demo generado para vender y probar la experiencia tecnologica AK completa.',
     },
-    modulosContratados: { ...defaultModulosContratados, regalos: true, feedback: true, menuMesa: true, checkin: true },
+    modulosContratados: { ...defaultModulosContratados, regalos: true, feedback: true, menuMesa: true, checkin: true, zonaDigital: true },
     personalAsignado: [
       { empleadoId: 'demo_coord', rolId: 'responsable_general', eventSalary: 4500 },
       { empleadoId: 'demo_barra', rolId: 'barra', eventSalary: 2800 },
@@ -233,6 +235,16 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
         landingUrl: 'https://akproducciones.uy/',
         ctaText: 'Tecnologia para fiestas memorables',
       },
+    },
+    zonaDigitalAdolescentes: {
+      ...defaultZonaDigitalAdolescentesSettings,
+      title: `Zona Digital ${profile.protagonist}`,
+      subtitle: 'Retos, juegos, fotos, barra, 360, totems, emojis y ranking para vivir la tecnologia AK desde el celular.',
+      primaryColor: '#111827',
+      accentColor: profile.primaryColor,
+      hashtag: '#AKProducciones',
+      qrUrl: `/evento/zona-digital/${id}`,
+      updatedAt: now,
     },
     eventoEnVivo: {
       fotos: [

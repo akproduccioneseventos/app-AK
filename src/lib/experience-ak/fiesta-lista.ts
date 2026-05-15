@@ -1,5 +1,6 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { PREMIUM_EXPERIENCE_TEMPLATES } from './premium-templates';
+import { getVisibleZonaDigitalFeatures, withZonaDigitalDefaults } from '@/lib/zona-digital-adolescentes';
 
 export type FiestaListaOwner = 'venta' | 'cliente' | 'invitado' | 'operacion' | 'pantalla' | 'post-fiesta';
 export type FiestaListaPriority = 'critica' | 'alta' | 'media';
@@ -67,6 +68,8 @@ export function buildFiestaListaReport(fiesta: FiestaEnPlanificacion): FiestaLis
   ].filter(hasText).length + count(fiesta.mediaLibrary);
   const hasScreen = enabled(fiesta.socialGallerySettings?.screenMode?.enabled) || count(fiesta.screenPlaylist?.items) > 0;
   const hasSocial = enabled(fiesta.socialGallerySettings?.enabled) || enabled(fiesta.socialGallerySettings?.uploadsActive) || count(fiesta.eventoEnVivo?.fotos) > 0;
+  const zonaDigital = withZonaDigitalDefaults(fiesta.zonaDigitalAdolescentes);
+  const zonaDigitalFeatures = getVisibleZonaDigitalFeatures(zonaDigital, fiesta.modulosContratados);
 
   const checks: FiestaListaCheck[] = [
     {
@@ -121,6 +124,15 @@ export function buildFiestaListaReport(fiesta: FiestaEnPlanificacion): FiestaLis
       detail: 'La parte visible de la noche necesita fotos, mensajes o carga social controlada.',
       href: withFiestaId('/fiestas/nueva/muro-social', fiestaId),
       owner: 'pantalla',
+      priority: 'alta',
+    },
+    {
+      id: 'zona-digital',
+      title: 'Zona digital adolescente preparada',
+      ready: enabled(zonaDigital.enabled) && zonaDigitalFeatures.length >= 5 && zonaDigital.challenges.some((challenge) => challenge.enabled),
+      detail: `${zonaDigitalFeatures.length} experiencia(s), ${zonaDigital.challenges.filter((challenge) => challenge.enabled).length} reto(s) y ${zonaDigital.games.filter((game) => game.enabled).length} juego(s) activos.`,
+      href: withFiestaId('/fiestas/nueva/zona-digital', fiestaId),
+      owner: 'invitado',
       priority: 'alta',
     },
     {

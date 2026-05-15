@@ -25,6 +25,7 @@ describe('AK demo + fiesta lista', () => {
       personalAsignado: [],
       clientPortalSettings: { enabled: false },
       socialGallerySettings: { enabled: false, allowLikes: false, allowComments: false, uploadsActive: false },
+      zonaDigitalAdolescentes: { ...fiesta.zonaDigitalAdolescentes!, enabled: false, features: [], challenges: [], games: [] },
       screenPlaylist: undefined,
       galeriaUrl: '',
     };
@@ -38,7 +39,7 @@ describe('AK demo + fiesta lista', () => {
 
   it('keeps premium templates available for the visible surfaces', () => {
     expect(PREMIUM_EXPERIENCE_TEMPLATES.map((template) => template.surface)).toEqual(
-      expect.arrayContaining(['venta', 'portal_cliente', 'portal_invitado', 'muro_social', 'pantalla_led', 'barra', 'post_fiesta'])
+      expect.arrayContaining(['venta', 'portal_cliente', 'portal_invitado', 'muro_social', 'zona_digital', 'pantalla_led', 'barra', 'post_fiesta'])
     );
   });
 });

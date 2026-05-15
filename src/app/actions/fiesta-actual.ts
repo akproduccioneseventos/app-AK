@@ -24,6 +24,7 @@ import * as ReunionesModule from './fiesta/reuniones.actions';
 import * as CateringModule from './fiesta/catering.actions';
 import * as VideoModule from './fiesta/video-vida.actions';
 import * as RegalosModule from './fiesta/regalos.actions';
+import * as ZonaDigitalModule from './fiesta/zona-digital.actions';
 import type { 
   FiestaEnPlanificacion, 
   ModulosContratados, 
@@ -109,6 +110,8 @@ export async function updateClientNotesFiestaActual(fiestaId: string, notes: str
 export async function updatePortalSettingsFiestaActual(fiestaId: string, clientSettings: ClientPortalSettings) { return await PortalModule.updatePortalSettings(fiestaId, clientSettings); }
 export async function updateClientePortalExperienceFiestaActual(fiestaId: string, experience: import('@/types/fiesta').ClientePortalExperience) { return await PortalModule.updateClientePortalExperience(fiestaId, experience); }
 export async function updateSocialGallerySettingsFiestaActual(fiestaId: string, socialGallerySettings: SocialGallerySettings) { return await PortalModule.updateSocialGallerySettings(fiestaId, socialGallerySettings); }
+export async function getZonaDigitalSettingsFiestaActual(fiestaId: string) { return await ZonaDigitalModule.getZonaDigitalSettings(fiestaId); }
+export async function updateZonaDigitalSettingsFiestaActual(fiestaId: string, settings: import('@/types/fiesta').ZonaDigitalAdolescentesSettings) { return await ZonaDigitalModule.updateZonaDigitalSettings(fiestaId, settings); }
 
 // --- MÚSICA Y REPOSTERÍA ---
 export async function updateMusicaFiestaActual(fiestaId: string, musica: MusicaFiesta) { return await MusicaModule.updateMusica(fiestaId, musica); }
