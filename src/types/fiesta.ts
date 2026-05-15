@@ -780,6 +780,10 @@ export interface SocialGallerySettings {
   mobileControlCoverUrl?: string;
   /** Custom event moments configured by the operator (merged with the hardcoded defaults) */
   customMomentos?: Array<{ id: string; nombre: string; emoji: string }>;
+  /** Synchronized public totem screens for entrance, dance floor, bar and social zones */
+  totemScreens?: TotemScreenSettings[];
+  /** Audio-reactive dance visual mode used by the live social wall */
+  audioRhythm?: AudioRhythmSettings;
 }
 
 export interface SocialGalleryBrand {
@@ -794,7 +798,44 @@ export interface SocialGalleryBrand {
 }
 
 export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';
-export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones';
+export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico';
+
+export type TotemLayoutMode = 'portrait' | 'landscape' | 'square';
+export type TotemBackgroundMode = 'aurora' | 'spotlights' | 'particles' | 'photo-float' | 'social-rain';
+
+export interface TotemScreenSettings {
+  id: string;
+  enabled: boolean;
+  title: string;
+  subtitle?: string;
+  honoreeName?: string;
+  logoUrl?: string;
+  heroPhotoUrl?: string;
+  backgroundMediaUrl?: string;
+  backgroundMode: TotemBackgroundMode;
+  layout: TotemLayoutMode;
+  accentColor: string;
+  qrUrl?: string;
+  qrLabel?: string;
+  showQr: boolean;
+  showLatestPhotos: boolean;
+  syncedWithSocialWall: boolean;
+  audioReactive: boolean;
+  updatedAt?: string;
+}
+
+export interface AudioRhythmSettings {
+  enabled: boolean;
+  title: string;
+  subtitle?: string;
+  visualStyle: 'neon-bars' | 'orbits' | 'waves' | 'equalizer';
+  accentColor: string;
+  secondaryColor: string;
+  intensity: number;
+  showPhotos: boolean;
+  showQr: boolean;
+  qrUrl?: string;
+}
 
 export interface ScreenMediaAsset {
   id: string;
@@ -855,6 +896,9 @@ export interface Trago {
   nombre: string;
   imageUrl?: string;
   aiHint?: string;
+  descripcion?: string;
+  description?: string;
+  videoUrl?: string;
   ingredientes?: string[];
   recetaIngredientes?: TragoRecetaIngrediente[];
   stockDisponible?: number;
@@ -1062,6 +1106,7 @@ export interface ModulosContratados {
   enVivo: boolean;
   entretenimiento?: boolean;
   barraTecnologica?: boolean;
+  pantallasTotem?: boolean;
   carteleria?: boolean;
 }
 

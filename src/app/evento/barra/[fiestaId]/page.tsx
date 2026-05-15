@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, CheckCircle2, Clock3, Loader2, Martini, Share2, Sparkles, Upload, Wine, X } from 'lucide-react';
+import { Camera, CheckCircle2, Clock3, ExternalLink, Info, Instagram, Loader2, Martini, Search, Share2, Shuffle, Sparkles, Upload, Video, Wine, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,7 @@ import {
   getBarraTecnologicaDashboard,
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
+import { buildInstagramUrl, getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 
 function dataUrlToFile(dataUrl: string, fileName: string) {
   const [meta, data] = dataUrl.split(',');
@@ -32,6 +33,10 @@ function dataUrlToFile(dataUrl: string, fileName: string) {
 function isAlcoholFree(drink: Trago) {
   const text = `${drink.nombre} ${(drink.ingredientes || []).join(' ')}`.toLowerCase();
   return text.includes('sin alcohol') || text.includes('mocktail') || text.includes('virgen');
+}
+
+function getDrinkVideoUrl(drink: Trago) {
+  return drink.videoUrl?.trim();
 }
 
 export default function BarraTecnologicaTouchPage() {
@@ -53,6 +58,10 @@ export default function BarraTecnologicaTouchPage() {
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
   const [shareText, setShareText] = useState('');
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [hasFollowedSocials, setHasFollowedSocials] = useState(false);
+  const [showFollowGate, setShowFollowGate] = useState(false);
+  const [query, setQuery] = useState('');
+  const [drinkFilter, setDrinkFilter] = useState<'todos' | 'sinAlcohol'>('todos');
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -73,13 +82,30 @@ export default function BarraTecnologicaTouchPage() {
   }, [loadData]);
 
   useEffect(() => {
+    if (!fiestaId) return;
+    setHasFollowedSocials(window.localStorage.getItem(`ak-bar-follow-${fiestaId}`) === 'true');
+  }, [fiestaId]);
+
+  useEffect(() => {
     return () => {
       streamRef.current?.getTracks().forEach((track) => track.stop());
     };
   }, []);
 
   const settings = dashboard?.settings;
-  const visibleDrinks = useMemo(() => (dashboard?.drinks || []).filter((drink) => (drink.stockDisponible ?? 1) > 0), [dashboard]);
+  const visibleDrinks = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return (dashboard?.drinks || [])
+      .filter((drink) => (drink.stockDisponible ?? 1) > 0)
+      .filter((drink) => drinkFilter === 'todos' || isAlcoholFree(drink))
+      .filter((drink) => {
+        if (!search) return true;
+        return `${drink.nombre} ${(drink.ingredientes || []).join(' ')} ${drink.descripcion || drink.description || ''}`.toLowerCase().includes(search);
+      });
+  }, [dashboard, drinkFilter, query]);
+
+  const instagramUrl = useMemo(() => buildInstagramUrl(settings?.instagramHandle), [settings?.instagramHandle]);
+  const canSharePhotos = !settings?.requireSocialFollowForPhotos || hasFollowedSocials;
 
   const submitOrder = async () => {
     if (!selectedDrink) return;
@@ -102,7 +128,24 @@ export default function BarraTecnologicaTouchPage() {
     setIsOrdering(false);
   };
 
+  const confirmSocialFollow = () => {
+    window.localStorage.setItem(`ak-bar-follow-${fiestaId}`, 'true');
+    setHasFollowedSocials(true);
+    setShowFollowGate(false);
+    toast({ title: 'Listo', description: 'Ahora podes subir tu foto al muro social.' });
+  };
+
+  const openRandomDrink = () => {
+    if (!visibleDrinks.length) return;
+    const index = Math.floor(Math.random() * visibleDrinks.length);
+    setSelectedDrink(visibleDrinks[index]);
+  };
+
   const startCamera = async () => {
+    if (!canSharePhotos) {
+      setShowFollowGate(true);
+      return;
+    }
     setIsStartingCamera(true);
     setCapturedDataUrl(null);
     setUploadedPhotoUrl(null);
@@ -159,6 +202,7 @@ export default function BarraTecnologicaTouchPage() {
     formData.append('fiestaId', fiestaId);
     formData.append('authorName', guestName || 'Invitado barra AK');
     formData.append('caption', `Foto desde la barra tecnologica de ${dashboard?.eventName || 'AK Producciones'}`);
+    formData.append('followConfirmed', String(canSharePhotos));
     formData.append('file', finalFile);
     const result = await uploadBarMagicPhoto(formData);
     if (result.success) {
@@ -221,6 +265,25 @@ export default function BarraTecnologicaTouchPage() {
           </div>
         </header>
 
+        <section className="grid gap-3 rounded-[2rem] border border-white/80 bg-white/85 p-4 shadow-xl shadow-slate-200/70 backdrop-blur lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar por nombre, sabor o ingrediente"
+              className="h-14 rounded-2xl border-slate-200 bg-white pl-12 text-base font-bold"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant={drinkFilter === 'todos' ? 'default' : 'outline'} className="h-14 rounded-2xl font-black" onClick={() => setDrinkFilter('todos')} style={drinkFilter === 'todos' ? { backgroundColor: settings.accentColor } : undefined}>Todos</Button>
+            <Button variant={drinkFilter === 'sinAlcohol' ? 'default' : 'outline'} className="h-14 rounded-2xl font-black" onClick={() => setDrinkFilter('sinAlcohol')} style={drinkFilter === 'sinAlcohol' ? { backgroundColor: settings.accentColor } : undefined}>Sin alcohol</Button>
+          </div>
+          <Button variant="outline" className="h-14 rounded-2xl font-black" onClick={openRandomDrink}>
+            <Shuffle className="mr-2 h-5 w-5" /> Sorprendeme
+          </Button>
+        </section>
+
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visibleDrinks.map((drink) => (
@@ -241,9 +304,23 @@ export default function BarraTecnologicaTouchPage() {
                   {settings.showAlcoholFreeTag && isAlcoholFree(drink) && (
                     <Badge className="absolute left-3 top-3 bg-emerald-600 text-white">Sin alcohol</Badge>
                   )}
+                  {settings.showDrinkVideo && getDrinkVideoUrl(drink) && (
+                    <Badge className="absolute right-3 top-3 gap-1 bg-slate-950/80 text-white"><Video className="h-3 w-3" /> Video</Badge>
+                  )}
                 </div>
                 <div className="space-y-2 p-4">
-                  <h2 className="text-2xl font-black">{drink.nombre}</h2>
+                  <div className="flex items-start justify-between gap-3">
+                    <h2 className="text-2xl font-black">{drink.nombre}</h2>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500">Ver</span>
+                  </div>
+                  {settings.showDrinkDescription ? (
+                    <p className="line-clamp-2 text-sm font-semibold text-slate-500">{getDrinkDescription(drink)}</p>
+                  ) : null}
+                  <div className="flex flex-wrap gap-1">
+                    {getDrinkTags(drink).map((tag) => (
+                      <span key={tag} className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-black uppercase tracking-wide text-slate-500">{tag}</span>
+                    ))}
+                  </div>
                   {settings.showIngredients && drink.ingredientes?.length ? (
                     <p className="line-clamp-2 text-sm font-semibold text-slate-500">{drink.ingredientes.join(' · ')}</p>
                   ) : (
@@ -279,6 +356,21 @@ export default function BarraTecnologicaTouchPage() {
               </div>
             )}
 
+            {settings.requireSocialFollowForPhotos && (
+              <div className={`rounded-3xl border p-4 ${hasFollowedSocials ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>
+                <div className="flex items-center gap-2 font-black">
+                  {hasFollowedSocials ? <CheckCircle2 className="h-5 w-5" /> : <Instagram className="h-5 w-5" />}
+                  {hasFollowedSocials ? 'Redes confirmadas' : 'Fotos con redes'}
+                </div>
+                <p className="mt-1 text-sm font-semibold">{hasFollowedSocials ? 'Ya podes subir fotos al muro.' : settings.socialFollowPrompt}</p>
+                {!hasFollowedSocials && (
+                  <Button variant="outline" className="mt-3 w-full rounded-2xl font-black" onClick={() => setShowFollowGate(true)}>
+                    <Instagram className="mr-2 h-4 w-4" /> Seguir para subir foto
+                  </Button>
+                )}
+              </div>
+            )}
+
             {settings.allowPhotoCapture && (
               <Button className="h-14 w-full rounded-2xl text-base font-black" style={{ backgroundColor: settings.accentColor }} onClick={startCamera} disabled={isStartingCamera}>
                 {isStartingCamera ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Camera className="mr-2 h-5 w-5" />}
@@ -301,6 +393,34 @@ export default function BarraTecnologicaTouchPage() {
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => setSelectedDrink(null)}><X className="h-5 w-5" /></Button>
               </div>
+              <div className="mt-4 overflow-hidden rounded-[1.5rem] border bg-slate-50">
+                {settings.showDrinkVideo && getDrinkVideoUrl(selectedDrink) ? (
+                  <video src={getDrinkVideoUrl(selectedDrink)} controls playsInline className="max-h-72 w-full bg-slate-950 object-contain" />
+                ) : selectedDrink.imageUrl ? (
+                  <div className="relative h-56">
+                    <NextImage src={selectedDrink.imageUrl} alt={selectedDrink.nombre} fill className="object-cover" unoptimized />
+                  </div>
+                ) : (
+                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-slate-100 via-white to-rose-100">
+                    <Wine className="h-16 w-16" style={{ color: settings.accentColor }} />
+                  </div>
+                )}
+                {settings.showDrinkDescription && (
+                  <div className="space-y-3 p-4">
+                    <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-slate-400">
+                      <Info className="h-4 w-4" /> Que lleva
+                    </div>
+                    <p className="text-sm font-semibold leading-6 text-slate-600">{getDrinkDescription(selectedDrink)}</p>
+                    {settings.showIngredients && selectedDrink.ingredientes?.length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedDrink.ingredientes.map((ingredient) => (
+                          <span key={ingredient} className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600 shadow-sm">{ingredient}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+              </div>
               <div className="mt-4">
                 <Label>Nota para el barman</Label>
                 <Textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ej: sin hielo, menos dulce, para retirar en barra..." className="min-h-24 rounded-2xl" />
@@ -312,6 +432,34 @@ export default function BarraTecnologicaTouchPage() {
                   Enviar
                 </Button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showFollowGate && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Paso social</p>
+                  <h2 className="text-3xl font-black">Segui a AK para compartir</h2>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setShowFollowGate(false)}><X className="h-5 w-5" /></Button>
+              </div>
+              <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">{settings.socialFollowPrompt}</p>
+              <div className="mt-5 space-y-3">
+                <a href={instagramUrl} target="_blank" rel="noreferrer" className="block">
+                  <Button className="h-12 w-full rounded-2xl font-black" style={{ backgroundColor: settings.accentColor }}>
+                    <Instagram className="mr-2 h-5 w-5" /> Abrir Instagram <ExternalLink className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
+                <Button variant="outline" className="h-12 w-full rounded-2xl font-black" onClick={confirmSocialFollow}>
+                  <CheckCircle2 className="mr-2 h-5 w-5" /> Ya segui, quiero subir mi foto
+                </Button>
+              </div>
+              <p className="mt-4 text-xs font-semibold text-slate-400">La app no entra a tu cuenta: solo te pide confirmar el paso antes de publicar.</p>
             </motion.div>
           </motion.div>
         )}

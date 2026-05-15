@@ -231,16 +231,16 @@ export const defaultCartaTragosData: CartaTragosData = {
   backgroundColor: '#ffffff',
   paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
   items: [
-    { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', ingredientes: ['Ron', 'Durazno', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
-    { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', ingredientes: ['Vodka', 'Té helado', 'Limón'], stockDisponible: 120 },
-    { id: 'trago_4', nombre: 'Daiquiri de Ananá', imageUrl: '', aiHint: 'pineapple daiquiri cocktail', ingredientes: ['Ron', 'Ananá', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_6', nombre: 'Atomic Green', imageUrl: '', aiHint: 'green cocktail atomic', ingredientes: ['Licor de melón', 'Vodka', 'Sprite'], stockDisponible: 120 },
-    { id: 'trago_7', nombre: 'Daiquiri Primavera', imageUrl: '', aiHint: 'spring daiquiri colorful cocktail', ingredientes: ['Ron', 'Mix de frutas', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
-    { id: 'trago_9', nombre: 'Atardecer', imageUrl: '', aiHint: 'sunset tequila sunrise cocktail', ingredientes: ['Tequila', 'Jugo de naranja', 'Granadina'], stockDisponible: 120 },
-    { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
+    { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy facil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limón'], stockDisponible: 120 },
+    { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clasico fresco y citrico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
+    { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de te helado y limon para mantener la pista activa.', ingredientes: ['Vodka', 'Té helado', 'Limón'], stockDisponible: 120 },
+    { id: 'trago_4', nombre: 'Daiquiri de Ananá', imageUrl: '', aiHint: 'pineapple daiquiri cocktail', descripcion: 'Tropical, dulce y brillante; perfecto para fotos y para una barra con energia de fiesta.', ingredientes: ['Ron', 'Ananá', 'Jugo de limón'], stockDisponible: 120 },
+    { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], stockDisponible: 120 },
+    { id: 'trago_6', nombre: 'Atomic Green', imageUrl: '', aiHint: 'green cocktail atomic', descripcion: 'Verde intenso, moderno y llamativo para pantallas, fotos y momentos de discoteca.', ingredientes: ['Licor de melón', 'Vodka', 'Sprite'], stockDisponible: 120 },
+    { id: 'trago_7', nombre: 'Daiquiri Primavera', imageUrl: '', aiHint: 'spring daiquiri colorful cocktail', descripcion: 'Mix frutal alegre, pensado para una experiencia fresca y facil de recomendar.', ingredientes: ['Ron', 'Mix de frutas', 'Jugo de limón'], stockDisponible: 120 },
+    { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rapido de servir; una opcion segura para invitados clasicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
+    { id: 'trago_9', nombre: 'Atardecer', imageUrl: '', aiHint: 'sunset tequila sunrise cocktail', descripcion: 'Naranja y granadina para un efecto visual tipo sunset, ideal para barra fotografiable.', ingredientes: ['Tequila', 'Jugo de naranja', 'Granadina'], stockDisponible: 120 },
+    { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja para pedir en pocos segundos.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
   ],
   empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
 };
@@ -250,7 +250,7 @@ export const defaultModulosContratados: ModulosContratados = {
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
     reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
-    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, entretenimiento: true, barraTecnologica: true, carteleria: true
+    numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, entretenimiento: true, pantallasTotem: true, barraTecnologica: true, carteleria: true
 };
 
 export const initialFiestaActualData: FiestaEnPlanificacion = {

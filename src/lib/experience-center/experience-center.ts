@@ -128,6 +128,10 @@ function withFiestaId(href: string, fiestaId?: string | null): string {
   return `${href}${separator}fiestaId=${encodeURIComponent(fiestaId)}`;
 }
 
+function eventHref(fiestaId: string, slug: string): string {
+  return `/fiestas/${encodeURIComponent(fiestaId)}/${slug}`;
+}
+
 function publicPortalHref(fiesta: FiestaEnPlanificacion): string {
   const accessKey = fiesta.clientPortalSettings?.accessKey;
   return hasText(accessKey) ? `/portal/c/${encodeURIComponent(String(accessKey).trim())}` : withFiestaId('/fiestas/nueva/portal-cliente/experiencia-mundial', fiesta.id);
@@ -244,6 +248,16 @@ function hasPostEventFeedback(fiesta: FiestaEnPlanificacion): boolean {
 function buildQuickActions(fiesta: FiestaEnPlanificacion): ExperienceQuickAction[] {
   const fiestaId = fiesta.id;
   return [
+    {
+      label: 'Control en vivo AK',
+      description: 'Abrir cabina de mando para pantallas, barra, QR, social y tareas.',
+      href: eventHref(fiestaId, 'show-control'),
+    },
+    {
+      label: 'Demo tecnologia AK',
+      description: 'Mostrar la historia completa para vender la experiencia.',
+      href: eventHref(fiestaId, 'experiencia-tecnologica-ak'),
+    },
     {
       label: 'Portal cliente',
       description: 'Abrir lo que vera el cliente desde el celular.',
