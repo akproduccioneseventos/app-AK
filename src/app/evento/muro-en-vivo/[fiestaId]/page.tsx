@@ -1316,7 +1316,8 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
       {isVideo ? (
         <video
           src={post.imageUrl}
-          className="h-full w-full object-cover transition-transform duration-[8000ms] group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          style={{ transitionDuration: '8000ms' }}
           autoPlay
           muted
           loop
@@ -1328,7 +1329,8 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
           alt={post.authorName}
           fill
           sizes="(max-width: 1920px) 33vw"
-          className="object-cover transition-transform duration-[8000ms] group-hover:scale-105"
+          className="object-cover transition-transform group-hover:scale-105"
+          style={{ transitionDuration: '8000ms' }}
           onError={() => setImgError(true)}
           unoptimized
         />
