@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowUpRight,
+  BarChart3,
   Bot,
   CheckCircle2,
   ClipboardCheck,
@@ -240,6 +241,7 @@ export default function CentroTotalPage() {
             <TabsTrigger value="test">Prueba fiesta</TabsTrigger>
             <TabsTrigger value="agent">Agente</TabsTrigger>
             <TabsTrigger value="offline">Offline</TabsTrigger>
+            <TabsTrigger value="analytics">Analitica</TabsTrigger>
             <TabsTrigger value="sales">Venta</TabsTrigger>
             <TabsTrigger value="post">Post-fiesta</TabsTrigger>
           </TabsList>
@@ -313,6 +315,65 @@ export default function CentroTotalPage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+              <Card className="rounded-[2rem] border-slate-200 bg-white shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-2xl font-black">
+                    <BarChart3 className="h-6 w-6 text-red-600" />
+                    Analitica de experiencia
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-[1.5rem] bg-slate-950 p-5 text-white">
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-red-100">Score estimado</p>
+                    <p className="mt-2 text-6xl font-black">{report.experienceAnalytics.estimatedExperienceScore}%</p>
+                    <Progress value={report.experienceAnalytics.estimatedExperienceScore} className="mt-4 h-3 bg-white/10 [&>div]:bg-red-500" />
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {[
+                      ['Invitados', report.experienceAnalytics.invitedGuests],
+                      ['Confirmados', report.experienceAnalytics.confirmedGuests],
+                      ['RSVP', `${report.experienceAnalytics.rsvpRate}%`],
+                      ['Funciones activas', report.experienceAnalytics.activeDigitalFeatures],
+                      ['Portal cliente', report.experienceAnalytics.visibleClientPortalModules],
+                      ['Fotos social', report.experienceAnalytics.socialPosts],
+                    ].map(([label, value]) => (
+                      <div key={String(label)} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">{label}</p>
+                        <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-[2rem] border-slate-200 bg-white shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-black">Salud real de la app</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Estado general</p>
+                    <p className="mt-1 text-3xl font-black text-slate-950">{report.appHealth.score}%</p>
+                    <p className="mt-1 text-sm text-slate-500">Backup, Firebase, mails, Calendar/Gmail, rutas publicas, PWA y analitica.</p>
+                  </div>
+                  {report.appHealth.checks.map((check) => (
+                    <Link key={check.id} href={check.href || '#'} className="block rounded-2xl border border-slate-100 bg-white p-4 transition hover:border-red-200 hover:bg-slate-50">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-black text-slate-950">{check.label}</p>
+                        <Badge variant="outline" className={cn('font-black', check.status === 'ok' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : check.status === 'warning' ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-red-200 bg-red-50 text-red-700')}>
+                          {check.status}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 text-sm leading-5 text-slate-500">{check.detail}</p>
+                    </Link>
+                  ))}
+                </CardContent>
+              </Card>
+            </section>
           </TabsContent>
 
           <TabsContent value="offline">

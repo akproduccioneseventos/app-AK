@@ -56,7 +56,9 @@ export async function readGenericJsonFile(filePath: string): Promise<any | null>
     if (!doc.exists) return null;
     return unwrapGenericDocument(doc.data());
   } catch (error) {
-    logger.warn(`[Generic JSON Store] No se pudo leer "${normalizedPath}":`, error);
+    if (!logger.isBuildTime() || !logger.isDefaultCredentialError(error)) {
+      logger.warn(`[Generic JSON Store] No se pudo leer "${normalizedPath}":`, logger.compactError(error));
+    }
     return null;
   }
 }
@@ -76,7 +78,9 @@ export async function listGenericJsonDocuments(): Promise<Record<string, any>> {
     });
     return result;
   } catch (error) {
-    logger.warn('[Generic JSON Store] No se pudieron listar documentos genericos:', error);
+    if (!logger.isBuildTime() || !logger.isDefaultCredentialError(error)) {
+      logger.warn('[Generic JSON Store] No se pudieron listar documentos genericos:', logger.compactError(error));
+    }
     return {};
   }
 }

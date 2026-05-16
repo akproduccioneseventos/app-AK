@@ -42,4 +42,18 @@ describe('AK demo + fiesta lista', () => {
       expect.arrayContaining(['venta', 'portal_cliente', 'portal_invitado', 'muro_social', 'zona_digital', 'pantalla_led', 'barra', 'post_fiesta'])
     );
   });
+
+  it('creates a tecnologia total demo with QR, totems, social wall and post event active', () => {
+    const fiesta = buildAkDemoFiesta('tecnologia-total');
+    const report = buildFiestaListaReport(fiesta);
+
+    expect(fiesta.configuracion.nombreEvento).toContain('Tecnologia Total');
+    expect(fiesta.modulosContratados?.barraTecnologica).toBe(true);
+    expect(fiesta.socialGallerySettings?.audioRhythm?.enabled).toBe(true);
+    expect(fiesta.socialGallerySettings?.totemScreens?.length).toBeGreaterThanOrEqual(2);
+    expect(fiesta.zonaDigitalAdolescentes?.syncWithMuroSocial).toBe(true);
+    expect(fiesta.zonaDigitalAdolescentes?.syncWithEntretenimiento).toBe(true);
+    expect(fiesta.galeriaEntregada).toBe(true);
+    expect(report.score).toBeGreaterThanOrEqual(90);
+  });
 });

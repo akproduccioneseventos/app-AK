@@ -2,6 +2,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 import { buildFiestaListaReport } from '@/lib/experience-ak/fiesta-lista';
 import { getVisibleZonaDigitalFeatures, withZonaDigitalDefaults } from '@/lib/zona-digital-adolescentes';
+import { buildAppHealthReport, buildEventExperienceAnalytics, type AppHealthReport, type EventExperienceAnalytics } from '@/lib/experience-ak/app-health';
 
 export type UltimateFeatureId =
   | 'test-drive'
@@ -71,6 +72,8 @@ export type UltimateEventSystemReport = {
   testDriveSteps: TestDriveStep[];
   offlinePack: OfflinePackItem[];
   agentBrief: AgentBriefItem[];
+  appHealth: AppHealthReport;
+  experienceAnalytics: EventExperienceAnalytics;
   salesDemoScript: string[];
   postEventPlan: string[];
   generatedAt: string;
@@ -328,6 +331,8 @@ export function buildUltimateEventSystem(fiesta: FiestaEnPlanificacion): Ultimat
   const testDriveSteps = buildTestDriveSteps(fiesta);
   const offlinePack = buildOfflinePack(fiesta);
   const agentBrief = buildAgentBrief(fiesta);
+  const appHealth = buildAppHealthReport(fiesta);
+  const experienceAnalytics = buildEventExperienceAnalytics(fiesta);
   const socialReady = enabled(fiesta.socialGallerySettings?.enabled) || enabled(fiesta.socialGallerySettings?.uploadsActive);
   const portalReady = enabled(fiesta.clientPortalSettings?.enabled) && (hasText(fiesta.clientPortalSettings?.accessKey) || count(fiesta.clientPortalSettings) > 0);
   const guestReady = count(fiesta.invitados) > 0 || enabled(fiesta.guestExperienceSettings?.allowGuestPortal);
@@ -348,10 +353,14 @@ export function buildUltimateEventSystem(fiesta: FiestaEnPlanificacion): Ultimat
     feature({
       id: 'health',
       title: 'Centro de Salud de la App',
-      promise: 'Semaforo unico para saber si la fiesta puede salir a la luz.',
-      score: Math.round((prep.score + lista.score) / 2),
-      ready: [`Readiness ${prep.score}%`, `Fiesta lista ${lista.score}%`],
-      missing: [...prep.importantPending.map((item) => item.label), ...lista.blockers.map((item) => item.title)].slice(0, 5),
+      promise: 'Semaforo unico para revisar app, datos, backup, rutas publicas, PWA y sincronizaciones.',
+      score: Math.round((prep.score + lista.score + appHealth.score) / 3),
+      ready: [`Readiness ${prep.score}%`, `Fiesta lista ${lista.score}%`, `Salud app ${appHealth.score}%`],
+      missing: [
+        ...appHealth.checks.filter((check) => check.status !== 'ok').map((item) => item.label),
+        ...prep.importantPending.map((item) => item.label),
+        ...lista.blockers.map((item) => item.title),
+      ].slice(0, 6),
       href: withFiestaId('/fiestas/nueva/readiness', fiestaId),
     }),
     feature({
@@ -384,7 +393,7 @@ export function buildUltimateEventSystem(fiesta: FiestaEnPlanificacion): Ultimat
       id: 'sales-demo',
       title: 'Modo Vendedor',
       promise: 'Mostrar en pantalla grande como se vive la tecnologia AK antes de contratar.',
-      score: Math.round(([portalReady, guestReady, socialReady, screenReady, visibleZonaFeatures.length >= 4].filter(Boolean).length / 5) * 100),
+      score: Math.round((([portalReady, guestReady, socialReady, screenReady, visibleZonaFeatures.length >= 4].filter(Boolean).length / 5) * 75) + Math.min(25, experienceAnalytics.estimatedExperienceScore * 0.25)),
       ready: [
         ...(portalReady ? ['Portal cliente demostrable'] : []),
         ...(guestReady ? ['Experiencia invitado demostrable'] : []),
@@ -443,6 +452,8 @@ export function buildUltimateEventSystem(fiesta: FiestaEnPlanificacion): Ultimat
     testDriveSteps,
     offlinePack,
     agentBrief,
+    appHealth,
+    experienceAnalytics,
     salesDemoScript: [
       'Abrir el modo vendedor y mostrar primero el resultado: una fiesta con tecnologia visible.',
       'Escanear el QR unico como invitado y mostrar que no necesita saber de informatica.',

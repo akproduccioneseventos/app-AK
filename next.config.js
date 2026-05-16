@@ -67,6 +67,21 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      (warning) => {
+        const message = warning?.message || '';
+        const resource = warning?.module?.resource || '';
+        return (
+          message.includes('Critical dependency') &&
+          (resource.includes('@opentelemetry') || resource.includes('require-in-the-middle'))
+        );
+      },
+    ];
+
+    return config;
+  },
 };
 
 // Forcing a clean rebuild to apply the new public base URL environment variable.

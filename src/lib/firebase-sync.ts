@@ -328,7 +328,9 @@ export async function readFromFirestore(filePath: string): Promise<any> {
 
     return null;
   } catch (error) {
-    logger.warn(`⚠️ Firestore read failed for ${filePath}:`, error);
+    if (!logger.isBuildTime() || !logger.isDefaultCredentialError(error)) {
+      logger.warn(`Firestore read failed for ${filePath}:`, logger.compactError(error));
+    }
     return null;
   }
 }
@@ -396,7 +398,9 @@ export async function listCollectionFromFirestore(collectionName: string): Promi
       return data;
     });
   } catch (error) {
-    logger.warn(`⚠️ Firestore listCollection failed for "${collectionName}":`, error);
+    if (!logger.isBuildTime() || !logger.isDefaultCredentialError(error)) {
+      logger.warn(`Firestore listCollection failed for "${collectionName}":`, logger.compactError(error));
+    }
     return [];
   }
 }
