@@ -43,6 +43,11 @@ const formatDate = (ts: string) => {
   }
 };
 
+const csvCell = (value: unknown) => {
+  const text = String(value ?? '').replace(/\r?\n/g, ' ');
+  return `"${text.replace(/"/g, '""')}"`;
+};
+
 function AuditoriaContent() {
   const searchParams = useSearchParams();
   const fiestaIdFromUrl = searchParams.get('fiestaId') ?? '';
@@ -78,7 +83,28 @@ function AuditoriaContent() {
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleExport = () => {
-    toast({ title: 'Exportar', description: 'Función disponible próximamente.' });
+    const headers = ['Fecha', 'Usuario', 'Rol', 'Modulo', 'Accion', 'Descripcion', 'Valor antes', 'Valor despues'];
+    const rows = filteredLogs.map((log) => [
+      formatDate(log.timestamp),
+      log.usuario,
+      log.rolUsuario,
+      log.modulo,
+      log.accion,
+      log.descripcion,
+      log.valorAntes,
+      log.valorDespues,
+    ]);
+    const csv = [headers, ...rows].map((row) => row.map(csvCell).join(',')).join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `auditoria-ak-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast({ title: 'Exportacion lista', description: `${filteredLogs.length} registro(s) descargados en CSV.` });
   };
 
   const filteredLogs = logs.filter(log => {

@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import type { InvitacionDigitalData, SeccionInvitacion } from '@/types/fiesta';
 import { SeccionBienvenidaEditor } from './SeccionBienvenida';
 import { SeccionCabeceraEditor } from './SeccionCabecera';
@@ -21,8 +22,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { X, ArrowLeft } from 'lucide-react';
-import { FiestaEnPlanificacion } from '@/types/fiesta';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { ControlPanel } from './ControlPanel';
 
 interface Props {
@@ -33,6 +34,54 @@ interface Props {
     selectedSectionId: string | null;
     fiestaId?: string | null;
     onClose: () => void;
+}
+
+function GenericSectionEditor({
+    type,
+    data,
+    update,
+}: {
+    type: string;
+    data: unknown;
+    update: (newData: Record<string, unknown>) => void;
+}) {
+    const [raw, setRaw] = useState('');
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        setRaw(JSON.stringify(data ?? { visible: true }, null, 2));
+        setError(null);
+    }, [data, type]);
+
+    const handleApply = () => {
+        try {
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                setError('La seccion debe ser un objeto JSON.');
+                return;
+            }
+            update(parsed as Record<string, unknown>);
+            setError(null);
+        } catch {
+            setError('El JSON no es valido. Revisa comas, comillas y llaves.');
+        }
+    };
+
+    return (
+        <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex gap-2 text-sm text-amber-900">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <p>
+                    Esta seccion no tiene editor visual especifico, pero no queda bloqueada: podes ajustar sus datos en formato JSON.
+                </p>
+            </div>
+            <Textarea value={raw} onChange={(event) => setRaw(event.target.value)} rows={12} className="font-mono text-xs" />
+            {error && <p className="text-xs font-semibold text-red-700">{error}</p>}
+            <Button type="button" variant="outline" onClick={handleApply} className="w-full">
+                Aplicar cambios de seccion
+            </Button>
+        </div>
+    );
 }
 
 export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, removeSection, selectedSectionId, fiestaId, onClose }) => {
@@ -80,7 +129,7 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
             case 'redesSociales': return <SeccionRedesSocialesEditor {...props} data={props.data as any} />;
             case 'despedida': return <SeccionDespedidaEditor {...props} data={props.data as any} />;
             case 'footer': return <SeccionFooterEditor {...props} data={props.data as any} />;
-            default: return <div>Editor no implementado para "{selectedSection.tipo}"</div>;
+            default: return <GenericSectionEditor type={selectedSection.tipo} data={sectionData} update={handleSectionDataChange} />;
         }
     }
     

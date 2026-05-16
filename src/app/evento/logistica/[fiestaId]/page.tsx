@@ -100,7 +100,7 @@ export default function LogisticaPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               {config?.direccionLugar && (
-                <p className="text-sm text-slate-700">📍 {config.direccionLugar}</p>
+                <p className="text-sm text-slate-700">{config.direccionLugar}</p>
               )}
               {config?.instruccionesLlegada && (
                 <p className="text-sm text-slate-600 leading-relaxed">{config.instruccionesLlegada}</p>
@@ -224,7 +224,7 @@ export default function LogisticaPage() {
             <CardContent className="pt-6 text-center space-y-2">
               <Info className="w-8 h-8 mx-auto text-slate-400" />
               <p className="text-sm text-slate-500">
-                La información de logística del evento estará disponible próximamente.
+                AK todavia no cargo instrucciones especiales para este evento. Usa el nombre del salon, la fecha y el contacto principal de la invitacion.
               </p>
             </CardContent>
           </Card>

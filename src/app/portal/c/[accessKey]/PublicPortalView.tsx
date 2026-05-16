@@ -2015,7 +2015,7 @@ export default function PublicPortalView({
                         <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
                           <Calendar className="w-7 h-7 mx-auto mb-2 opacity-30" />
                           <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
-                          <p className="text-xs mt-1 opacity-60">El equipo AK lo cargará próximamente.</p>
+                          <p className="text-xs mt-1 opacity-60">AK todavia no cargo este dato para tu evento.</p>
                         </div>
                       ) : (
                         <div className="relative pl-6">
@@ -2113,7 +2113,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2151,7 +2151,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2184,7 +2184,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2208,7 +2208,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2247,7 +2247,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2284,7 +2284,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2324,7 +2324,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2360,7 +2360,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          El equipo AK cargará esta información próximamente.
+                          AK todavia no cargo esta informacion para tu evento.
                         </p>
                       )}
                     </div>
@@ -2371,7 +2371,7 @@ export default function PublicPortalView({
                     <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
                       <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
                       <p className="text-sm font-semibold">Sin información disponible aún</p>
-                      <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
+                      <p className="text-xs mt-1">AK todavia no cargo este dato para tu evento.</p>
                     </div>
                   )}
                 </div>
@@ -2552,7 +2552,7 @@ export default function PublicPortalView({
                 <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
                   <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-30" />
                   <p className="text-sm font-semibold">Sin presupuesto cargado aún</p>
-                  <p className="text-xs mt-1">El equipo AK lo cargará próximamente.</p>
+                  <p className="text-xs mt-1">AK todavia no cargo este dato para tu evento.</p>
                 </div>
               )}
 

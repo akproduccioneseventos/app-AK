@@ -1,4 +1,3 @@
-// Temporarily disabled to ensure stable build
 import { z } from 'genkit';
 
 export const AnalyzeEventPlanInputSchema = z.object({
