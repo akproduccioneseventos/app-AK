@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 /**
@@ -191,7 +192,7 @@ function GuestPortalContent() {
       <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-8 text-center gap-6">
         <span className="text-5xl">🔒</span>
         <h2 className="text-xl font-bold text-white">El Portal del Invitado todavía no está habilitado.</h2>
-        <p className="text-sm text-zinc-400">El organizador activará tu pase próximamente.<br />Intentá nuevamente más tarde.</p>
+        <p className="text-sm text-zinc-400">Tu pase todavia no esta activo.<br />Intenta nuevamente mas tarde.</p>
       </div>
     );
   }

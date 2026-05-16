@@ -1,5 +1,3 @@
-// Temporarily disabled — types stub for stable build.
-
 export interface AssignGuestsInput {
   fiestaId: string;
   invitados: Array<{ id: string; nombre: string; categoria?: string }>;
@@ -8,4 +6,6 @@ export interface AssignGuestsInput {
 
 export interface AssignGuestsOutput {
   asignaciones: Array<{ invitadoId: string; mesaId: string }>;
+  sinMesa: Array<{ invitadoId: string; motivo: string }>;
+  resumen: string;
 }

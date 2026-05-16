@@ -1,4 +1,4 @@
-
+/* eslint-disable @next/next/no-img-element */
 
 'use client';
 
@@ -263,7 +263,7 @@ function NumerosDeMesaContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId, router, toast]);
 
   useEffect(() => { loadData(); }, [loadData]);
 

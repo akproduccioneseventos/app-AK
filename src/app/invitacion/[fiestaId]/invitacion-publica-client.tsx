@@ -507,7 +507,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   const PLACEHOLDER_EL = (id: string) => (
     <Section key={`${id}-placeholder`} className="text-center max-w-lg mx-auto" typography={config.typography}>
       <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 italic')}>
-        Esta información estará disponible próximamente.
+        AK esta preparando esta seccion para que se vea perfecta cuando el organizador la active.
       </p>
     </Section>
   );

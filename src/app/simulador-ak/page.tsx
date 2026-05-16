@@ -631,7 +631,7 @@ export default function SimuladorAKPage() {
         !!saved.generatedId
       );
     } catch { return false; }
-  }, [state.nombre, state.apellido, state.telefono]);
+  }, [state.nombre, state.telefono]);
 
   // ── Final submit ──────────────────────────────────────────────────────────
 

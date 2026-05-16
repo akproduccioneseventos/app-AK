@@ -1,2 +1,3 @@
-// Temporarily disabled — stub for stable build.
-// Re-enable individual flows when their Genkit implementations are ready.
+// Genkit development entrypoint.
+// The production app imports flows directly; this file exists so the local
+// Genkit developer UI can load all available flows and fallback helpers.

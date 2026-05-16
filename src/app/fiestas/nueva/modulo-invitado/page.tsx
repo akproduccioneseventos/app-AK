@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
@@ -132,7 +133,7 @@ function GuestModuleContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId, router, toast]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
