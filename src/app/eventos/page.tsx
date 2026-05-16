@@ -548,8 +548,9 @@ export default function GestorFiestasPage() {
             <Badge className="w-fit bg-red-600 text-white">Para vender y probar</Badge>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
+            { kind: 'tecnologia-total' as const, label: 'Demo Total' },
             { kind: 'xv' as const, label: 'Demo XV' },
             { kind: 'boda' as const, label: 'Demo Boda' },
             { kind: 'club-uruguay' as const, label: 'Demo Club Uruguay' },
@@ -557,8 +558,8 @@ export default function GestorFiestasPage() {
           ].map((demo) => (
             <Button
               key={demo.kind}
-              variant={demo.kind === 'xv' ? 'default' : 'outline'}
-              className={cn('h-12 rounded-2xl font-black', demo.kind === 'xv' && 'bg-red-600 hover:bg-red-700')}
+              variant={demo.kind === 'tecnologia-total' ? 'default' : 'outline'}
+              className={cn('h-12 rounded-2xl font-black', demo.kind === 'tecnologia-total' && 'bg-red-600 hover:bg-red-700')}
               onClick={() => handleCreateDemo(demo.kind)}
               disabled={isProcessing === `demo-${demo.kind}`}
             >

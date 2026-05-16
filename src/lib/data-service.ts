@@ -20,7 +20,9 @@ async function readLocalJsonFallback<T>(normalizedFilePath: string): Promise<T |
       try {
         const raw = await fs.readFile(localPath, 'utf-8');
         const parsed = JSON.parse(raw);
-        logger.warn(`[readData] FALLBACK JSON usado para "${normalizedFilePath}"; Firestore vacio o no disponible.`);
+        if (!logger.isBuildTime()) {
+          logger.warn(`[readData] FALLBACK JSON usado para "${normalizedFilePath}"; Firestore vacio o no disponible.`);
+        }
         return parsed as T;
       } catch {
         // try next candidate
@@ -49,7 +51,9 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
     if (fallbackData !== null) return fallbackData;
   } catch (e) {
-    logger.error(`[readData] Error leyendo ${normalizedFilePath} desde Firestore:`, e);
+    if (!logger.isBuildTime() || !logger.isDefaultCredentialError(e)) {
+      logger.error(`[readData] Error leyendo ${normalizedFilePath} desde Firestore:`, logger.compactError(e));
+    }
     const genericData = await readGenericJsonFile(normalizedFilePath);
     if (genericData !== null && genericData !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(genericData)) return defaultValue;

@@ -11,7 +11,7 @@ import {
 } from '@/lib/fiesta-defaults';
 import { defaultZonaDigitalAdolescentesSettings } from '@/lib/zona-digital-adolescentes';
 
-export type AkDemoFiestaKind = 'xv' | 'boda' | 'club-uruguay' | 'corporativo';
+export type AkDemoFiestaKind = 'xv' | 'boda' | 'club-uruguay' | 'corporativo' | 'tecnologia-total';
 
 type DemoProfile = {
   kind: AkDemoFiestaKind;
@@ -64,6 +64,16 @@ const DEMO_PROFILES: Record<AkDemoFiestaKind, DemoProfile> = {
     primaryColor: '#111827',
     guests: 90,
     budget: 165000,
+  },
+  'tecnologia-total': {
+    kind: 'tecnologia-total',
+    name: 'DEMO AK - Tecnologia Total',
+    type: 'XV',
+    protagonist: 'Valentina',
+    place: 'Club Uruguay',
+    primaryColor: '#dc2626',
+    guests: 160,
+    budget: 335000,
   },
 };
 
@@ -127,7 +137,19 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
       primaryColor: profile.primaryColor,
       notesAdicionales: 'Evento demo generado para vender y probar la experiencia tecnologica AK completa.',
     },
-    modulosContratados: { ...defaultModulosContratados, regalos: true, feedback: true, menuMesa: true, checkin: true, zonaDigital: true },
+    modulosContratados: {
+      ...defaultModulosContratados,
+      regalos: true,
+      feedback: true,
+      menuMesa: true,
+      checkin: true,
+      zonaDigital: true,
+      entretenimiento: true,
+      barraTecnologica: true,
+      pantallasTotem: true,
+      carteleria: true,
+      resumenImprimible: true,
+    },
     personalAsignado: [
       { empleadoId: 'demo_coord', rolId: 'responsable_general', eventSalary: 4500 },
       { empleadoId: 'demo_barra', rolId: 'barra', eventSalary: 2800 },
@@ -235,6 +257,55 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
         landingUrl: 'https://akproducciones.uy/',
         ctaText: 'Tecnologia para fiestas memorables',
       },
+      audioRhythm: {
+        enabled: true,
+        title: 'Momento pista AK',
+        subtitle: 'Visuales audiorritmicos, fotos, QR y energia de discoteca.',
+        visualStyle: 'neon-bars',
+        accentColor: profile.primaryColor,
+        secondaryColor: '#ffffff',
+        intensity: 82,
+        showPhotos: true,
+        showQr: true,
+        qrUrl: `/evento/social/${id}`,
+      },
+      totemScreens: [
+        {
+          id: 'totem_demo_entrada',
+          enabled: true,
+          title: `Bienvenidos a ${profile.protagonist}`,
+          subtitle: 'Escanea el QR y participa',
+          honoreeName: profile.protagonist,
+          heroPhotoUrl: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?q=80&w=1200&auto=format&fit=crop',
+          backgroundMode: 'aurora',
+          layout: 'portrait',
+          accentColor: profile.primaryColor,
+          qrUrl: `/q/${id}`,
+          qrLabel: 'Entrar a la experiencia',
+          showQr: true,
+          showLatestPhotos: true,
+          syncedWithSocialWall: true,
+          audioReactive: true,
+          updatedAt: now,
+        },
+        {
+          id: 'totem_demo_pista',
+          enabled: true,
+          title: 'Modo pista',
+          subtitle: 'Fotos, retos y ranking en vivo',
+          honoreeName: profile.protagonist,
+          backgroundMode: 'social-rain',
+          layout: 'landscape',
+          accentColor: '#111827',
+          qrUrl: `/evento/zona-digital/${id}`,
+          qrLabel: 'Jugar ahora',
+          showQr: true,
+          showLatestPhotos: true,
+          syncedWithSocialWall: true,
+          audioReactive: true,
+          updatedAt: now,
+        },
+      ],
     },
     zonaDigitalAdolescentes: {
       ...defaultZonaDigitalAdolescentesSettings,
@@ -244,6 +315,16 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
       accentColor: profile.primaryColor,
       hashtag: '#AKProducciones',
       qrUrl: `/evento/zona-digital/${id}`,
+      showSocialFollowGate: true,
+      allowComments: true,
+      allowDedications: true,
+      allowSongVotes: true,
+      autoRotateOnScreens: true,
+      syncWithMuroSocial: true,
+      syncWithTotems: true,
+      syncWithBarra: true,
+      syncWithEntretenimiento: true,
+      recapEnabled: true,
       updatedAt: now,
     },
     eventoEnVivo: {
@@ -313,6 +394,7 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
         { id: 'cuota_demo_2', descripcion: 'Saldo demo', monto: profile.budget - 45000, fechaVencimiento: futureDate(3), estado: 'pendiente' as any },
       ] as any,
     },
+    galeriaEntregada: profile.kind === 'tecnologia-total',
     galeriaUrl: 'https://akproducciones.uy/galeria-demo',
     npsScore: 10,
     postEventoCompletado: false,

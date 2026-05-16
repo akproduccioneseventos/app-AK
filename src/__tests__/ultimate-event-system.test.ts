@@ -46,6 +46,9 @@ describe('ultimate event system', () => {
     expect(report.score).toBeLessThan(100);
     expect(report.blockers.length).toBeGreaterThan(0);
     expect(report.agentBrief.length).toBeGreaterThan(0);
+    expect(report.appHealth.checks.map((check) => check.id)).toEqual(
+      expect.arrayContaining(['backup', 'google-workspace', 'public-routes', 'pwa'])
+    );
   });
 
   it('raises score when the visible event experience is connected', () => {
@@ -78,5 +81,6 @@ describe('ultimate event system', () => {
     expect(report.score).toBeGreaterThanOrEqual(70);
     expect(report.smartQrTargets).toHaveLength(5);
     expect(report.postEventPlan.length).toBeGreaterThan(3);
+    expect(report.experienceAnalytics.estimatedExperienceScore).toBeGreaterThan(40);
   });
 });
