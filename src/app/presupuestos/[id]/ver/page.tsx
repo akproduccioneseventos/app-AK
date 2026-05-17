@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -291,10 +292,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const pagosSummary = useMemo(() => {
     if (!presupuesto) return { totalPagado: 0, saldoPendiente: 0, totalCosto: 0 };
-    const totalCosto = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-    const confirmedPagos = (presupuesto.pagosCliente || []).filter(p => p.estadoPago !== 'pendiente_confirmacion');
-    const totalPagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
-    return { totalCosto, totalPagado, saldoPendiente: totalCosto - totalPagado };
+    const summary = getBudgetPaymentSummary(presupuesto);
+    return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance };
   }, [presupuesto]);
   const hasDepositPayment = useMemo(
     () => (presupuesto?.pagosCliente || []).some((p) => p.estadoPago !== 'pendiente_confirmacion' && p.monto > 0),

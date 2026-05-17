@@ -14,7 +14,7 @@
 'use server';
 
 import type { MetodoPago } from '@/types/presupuesto';
-import { roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
+import { roundMoney, sumConfirmedClientPayments, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
 
 export interface DepositInput {
   /** ID de la fiesta (obligatorio para vincular la factura al evento) */
@@ -80,7 +80,7 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
         };
 
         const pagosActualizados = [...(presupuesto.pagosCliente ?? []), newPago];
-        const totalPagado = pagosActualizados.reduce((sum, p) => sum + (p.monto ?? 0), 0);
+        const totalPagado = sumConfirmedClientPayments(pagosActualizados);
         const totalPresupuesto =
           presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado ?? 0;
         const saldoActualizado = Math.max(0, totalPresupuesto - totalPagado);

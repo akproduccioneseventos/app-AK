@@ -4,6 +4,8 @@ import {
   validatePaymentAgainstBudget,
   sumConfirmedClientPayments,
   sumPendingClientPayments,
+  getBudgetPaymentSummary,
+  getPaymentReceiptSnapshot,
 } from '@/lib/budget/financial-guardrails';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
 
@@ -80,6 +82,25 @@ describe('financial guardrails', () => {
 
     expect(result.ok).toBe(false);
     expect(result.remainingBeforePayment).toBe(50);
+  });
+
+  it('builds one safe payment summary for screens and receipts', () => {
+    const normalized = normalizePresupuestoFinancials(presupuesto({
+      pagosCliente: [
+        { id: 'p1', fecha: '2026-05-16', monto: 300, metodoPago: 'Efectivo', estadoPago: 'confirmado' },
+        { id: 'p2', fecha: '2026-05-16', monto: 100, metodoPago: 'Transferencia Bancaria', estadoPago: 'pendiente_confirmacion' },
+      ],
+    }));
+
+    const summary = getBudgetPaymentSummary(normalized);
+    const receipt = getPaymentReceiptSnapshot(normalized, normalized.pagosCliente![0]);
+
+    expect(summary.total).toBe(900);
+    expect(summary.paid).toBe(300);
+    expect(summary.pendingReview).toBe(100);
+    expect(summary.balance).toBe(600);
+    expect(receipt.balanceBeforePayment).toBe(900);
+    expect(receipt.balanceAfterPayment).toBe(600);
   });
 
   it('marks a budget inconsistent when stored totals do not match the central engine', () => {

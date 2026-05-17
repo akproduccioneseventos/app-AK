@@ -26,6 +26,7 @@ import { getInvoiceTemplateSettings, getCompanyInfo, getContractSettings } from 
 import Image from 'next/image';
 import { fillContractTemplate, buildContractFromSettings } from '@/lib/contract-template';
 import type { ContractSettings } from '@/types/settings';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -147,11 +148,9 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
   const { totalCosto, totalPagado, saldoPendiente, pagos } = useMemo(() => {
     if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[] };
-    const total = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
     const pagosList: PagoCliente[] = presupuesto.pagosCliente || [];
-    const confirmedPagos = pagosList.filter(p => p.estadoPago !== 'pendiente_confirmacion');
-    const pagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
-    return { totalCosto: total, totalPagado: pagado, saldoPendiente: total - pagado, pagos: pagosList };
+    const summary = getBudgetPaymentSummary(presupuesto);
+    return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance, pagos: pagosList };
   }, [presupuesto]);
 
   /** Build the first seña amount from the first recorded payment, or default to 0. */
@@ -175,7 +174,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const eventStartTime = (eventStartTimeRaw ?? '').trim();
   const canGenerateContract = Boolean(overriddenFecha);
   const effectiveTotalPagado = hasValidSeniaParam ? overriddenMontoSenia : totalPagado;
-  const effectiveSaldoPendiente = totalCosto - effectiveTotalPagado;
+  const effectiveSaldoPendiente = Math.max(0, totalCosto - effectiveTotalPagado);
   const requestedDoc = searchParams.get('doc');
   const showRecibo = requestedDoc !== 'contrato' && hasDeposit;
   const showContrato = requestedDoc !== 'recibo' && canGenerateContract;
