@@ -14,6 +14,21 @@ export type PaymentGuardrailResult =
   | { ok: true; remainingBeforePayment: number; totalConfirmedAfterPayment: number }
   | { ok: false; error: string; remainingBeforePayment: number; totalConfirmedAfterPayment: number };
 
+export type BudgetPaymentSummary = {
+  total: number;
+  paid: number;
+  pendingReview: number;
+  balance: number;
+  paidPercent: number;
+  isFullyPaid: boolean;
+};
+
+export type PaymentReceiptSnapshot = BudgetPaymentSummary & {
+  paymentAmount: number;
+  balanceBeforePayment: number;
+  balanceAfterPayment: number;
+};
+
 export function roundMoney(value: unknown): number {
   const numberValue = Number(value ?? 0);
   if (!Number.isFinite(numberValue)) return 0;
@@ -131,7 +146,12 @@ export function validatePaymentAgainstBudget(
   options: { excludePaymentId?: string; allowOverpay?: boolean; includePendingForLimit?: boolean } = {},
 ): PaymentGuardrailResult {
   const normalizedAmount = roundMoney(amount);
-  const total = roundMoney(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+  const total = roundMoney(
+    presupuesto.totalConDescuento
+    ?? presupuesto.costoTotalEstimado
+    ?? (presupuesto as { totalFinal?: number; total?: number }).totalFinal
+    ?? (presupuesto as { total?: number }).total,
+  );
   const confirmedBefore = sumConfirmedClientPayments(presupuesto.pagosCliente ?? [], options.excludePaymentId);
   const pendingBefore = options.includePendingForLimit
     ? sumPendingClientPayments(presupuesto.pagosCliente ?? [], options.excludePaymentId)
@@ -160,6 +180,51 @@ export function validatePaymentAgainstBudget(
   }
 
   return { ok: true, remainingBeforePayment, totalConfirmedAfterPayment };
+}
+
+export function getBudgetPaymentSummary(presupuesto?: Presupuesto | null): BudgetPaymentSummary {
+  if (!presupuesto) {
+    return {
+      total: 0,
+      paid: 0,
+      pendingReview: 0,
+      balance: 0,
+      paidPercent: 0,
+      isFullyPaid: false,
+    };
+  }
+
+  const total = roundMoney(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+  const paid = sumConfirmedClientPayments(presupuesto.pagosCliente ?? []);
+  const pendingReview = sumPendingClientPayments(presupuesto.pagosCliente ?? []);
+  const balance = Math.max(0, total - paid);
+  const paidPercent = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+
+  return {
+    total,
+    paid,
+    pendingReview,
+    balance,
+    paidPercent,
+    isFullyPaid: total > 0 && balance <= MONEY_TOLERANCE,
+  };
+}
+
+export function getPaymentReceiptSnapshot(
+  presupuesto: Presupuesto,
+  payment: PagoCliente,
+): PaymentReceiptSnapshot {
+  const summary = getBudgetPaymentSummary(presupuesto);
+  const paymentAmount = roundMoney(payment.monto);
+  const balanceAfterPayment = summary.balance;
+  const balanceBeforePayment = Math.max(0, balanceAfterPayment + paymentAmount);
+
+  return {
+    ...summary,
+    paymentAmount,
+    balanceBeforePayment,
+    balanceAfterPayment,
+  };
 }
 
 export function auditPresupuestoFinancialGuardrails(presupuesto: Presupuesto): FinancialGuardrailIssue[] {

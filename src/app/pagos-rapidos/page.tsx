@@ -31,6 +31,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import Image from 'next/image';
+import { getBudgetPaymentSummary, getPaymentReceiptSnapshot } from '@/lib/budget/financial-guardrails';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '$ 0';
@@ -97,12 +98,9 @@ function ReciboView({
 }) {
   const { toast } = useToast();
   const receiptRef = useRef<HTMLDivElement>(null);
-  const totalCosto = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-  const totalPagado = (presupuesto.pagosCliente || [])
-    .filter(p => p.estadoPago !== 'pendiente_confirmacion' || p.id === pago.id)
-    .reduce((sum, p) => sum + p.monto, 0);
-  const saldoAnterior = totalCosto - totalPagado + pago.monto;
-  const saldoRestante = totalCosto - totalPagado;
+  const paymentSnapshot = getPaymentReceiptSnapshot(presupuesto, pago);
+  const saldoAnterior = paymentSnapshot.balanceBeforePayment;
+  const saldoRestante = paymentSnapshot.balanceAfterPayment;
   const receiptNumber = pago.id.slice(-10).toUpperCase();
 
   const exportReceiptAsImage = async () => {
@@ -366,10 +364,8 @@ function PagosRapidosContent() {
   }, [pendingPresupuestos]);
 
   const getPresupuestoSummary = (p: Presupuesto) => {
-    const totalCosto = p.totalConDescuento ?? p.costoTotalEstimado;
-    const confirmedPagos = (p.pagosCliente || []).filter(pago => pago.estadoPago !== 'pendiente_confirmacion');
-    const totalPagado = confirmedPagos.reduce((sum, pago) => sum + pago.monto, 0);
-    return { totalCosto, totalPagado, saldoPendiente: totalCosto - totalPagado };
+    const summary = getBudgetPaymentSummary(p);
+    return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance };
   };
 
   const handleRegistrarPago = async (presupuestoId: string) => {

@@ -14,6 +14,7 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -119,23 +120,19 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
         baseTotal: 0,
       };
     }
-    const baseTotal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+    const paymentSummary = getBudgetPaymentSummary(presupuesto);
+    const baseTotal = paymentSummary.total;
     const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? annualAdjustmentPercentage;
     const creationYear = new Date(presupuesto.timestamp).getFullYear();
     const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : creationYear;
     const yearsDiff = Math.max(0, eventYear - creationYear);
-    const annualAdjustment =
-      presupuesto.ajusteAnualActivo === false || yearsDiff === 0 || adjustmentPct <= 0
-        ? 0
-        : Math.round(baseTotal * (Math.pow(1 + adjustmentPct / 100, yearsDiff) - 1));
-    const total = baseTotal + annualAdjustment;
+    const annualAdjustment = 0;
+    const total = paymentSummary.total;
     const pagos: PagoCliente[] = presupuesto.pagosCliente || [];
-    const confirmedPagos = pagos.filter(p => p.estadoPago !== 'pendiente_confirmacion');
-    const pagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
     return {
       totalCosto: total,
-      totalPagado: pagado,
-      saldoPendiente: total - pagado,
+      totalPagado: paymentSummary.paid,
+      saldoPendiente: paymentSummary.balance,
       pagos,
       annualAdjustment,
       adjustmentPct,

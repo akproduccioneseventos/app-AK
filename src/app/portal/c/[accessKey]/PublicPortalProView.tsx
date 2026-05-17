@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { submitClientPayment } from '@/app/actions/fiesta/portal.actions';
 import { PublicFooter } from '@/components/public-footer';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 
 interface PublicPortalProViewProps {
   fiesta: any;
@@ -126,12 +127,11 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
   const cancelados = invitados.filter((inv: any) => inv.rsvp === 'Rechazado' || inv.rsvp === 'Cancelado');
   const pendientes = invitados.filter((inv: any) => !inv.rsvp || inv.rsvp === 'Pendiente' || inv.rsvp === 'Tal vez');
 
-  const totalPresupuesto = getTotalPresupuesto(presupuesto);
-  const pagos = presupuesto?.pagosCliente ?? [];
-  const pagosConfirmados = pagos.filter((p: any) => p.estadoPago !== 'pendiente_confirmacion');
-  const totalPagado = pagosConfirmados.reduce((sum: number, pago: any) => sum + (Number(pago.monto) || 0), 0);
-  const saldoPendiente = Math.max(0, totalPresupuesto - totalPagado);
-  const porcentajePagado = totalPresupuesto > 0 ? Math.min(100, Math.round((totalPagado / totalPresupuesto) * 100)) : 0;
+  const paymentSummary = getBudgetPaymentSummary(presupuesto);
+  const totalPresupuesto = paymentSummary.total || getTotalPresupuesto(presupuesto);
+  const totalPagado = paymentSummary.paid;
+  const saldoPendiente = paymentSummary.balance;
+  const porcentajePagado = paymentSummary.paidPercent;
 
   const pendingTasks = [
     ...(fiesta?.clienteDebeLlevar ?? []).map((item: any) => ({ id: item.id, text: item.texto || item.nombre, done: item.completado || item.estado === 'listo' || item.estado === 'revisado' })),

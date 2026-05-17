@@ -71,6 +71,7 @@ import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
 import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
 import { CateringSimulator } from '@/components/portal/CateringSimulator';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -441,15 +442,13 @@ export default function PublicPortalView({
     : `https://wa.me/?text=${whatsappMessage}`;
 
   // Payments data
-  const totalCosto = presupuesto
-    ? (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado)
-    : 0;
+  const paymentSummary = getBudgetPaymentSummary(presupuesto);
+  const totalCosto = paymentSummary.total;
   const pagos: PagoCliente[] = presupuesto?.pagosCliente ?? [];
-  const confirmedPagos = pagos.filter(p => p.estadoPago !== 'pendiente_confirmacion');
-  const totalPagado = confirmedPagos.reduce((sum, p) => sum + p.monto, 0);
-  const saldoPendiente = totalCosto - totalPagado;
+  const totalPagado = paymentSummary.paid;
+  const saldoPendiente = paymentSummary.balance;
   const isPaid = saldoPendiente <= 0;
-  const porcentajePagado = totalCosto > 0 ? Math.min(100, (totalPagado / totalCosto) * 100) : 0;
+  const porcentajePagado = paymentSummary.paidPercent;
 
   // Days until event
   const daysUntil = countdown && !countdown.isPast ? countdown.days : null;
