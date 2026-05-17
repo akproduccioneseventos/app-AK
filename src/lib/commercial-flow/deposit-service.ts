@@ -14,6 +14,7 @@
 'use server';
 
 import type { MetodoPago } from '@/types/presupuesto';
+import { roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
 
 export interface DepositInput {
   /** ID de la fiesta (obligatorio para vincular la factura al evento) */
@@ -41,14 +42,24 @@ export interface DepositResult {
  */
 export async function registerContractDeposit(input: DepositInput): Promise<DepositResult> {
   const { fiestaId, presupuestoId, amount, method, date, referencia } = input;
+  const normalizedAmount = roundMoney(amount);
 
   if (!fiestaId) return { success: false, error: 'fiestaId es requerido.' };
-  if (!amount || amount <= 0) return { success: false, error: 'El monto debe ser mayor a cero.' };
+  if (!normalizedAmount || normalizedAmount <= 0) return { success: false, error: 'El monto debe ser mayor a cero.' };
 
   try {
+    if (presupuestoId) {
+      const { getPresupuestoById } = await import('@/app/actions/presupuestos');
+      const presupuesto = await getPresupuestoById(presupuestoId);
+      if (presupuesto) {
+        const validation = validatePaymentAgainstBudget(presupuesto, normalizedAmount, { includePendingForLimit: true });
+        if (!validation.ok) return { success: false, error: validation.error };
+      }
+    }
+
     // 1. Crear la factura de seña y vincularla a la fiesta (invoice.payments + fiesta.invoiceIds)
     const { registerBookingDeposit } = await import('@/app/actions/invoices');
-    const depositResult = await registerBookingDeposit({ fiestaId, amount, method, date });
+    const depositResult = await registerBookingDeposit({ fiestaId, amount: normalizedAmount, method, date });
     if (!depositResult.success) {
       throw new Error(depositResult.error || 'Error al registrar la seña en facturas.');
     }
@@ -62,7 +73,7 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
         const newPago = {
           id: `pago_dep_${presupuestoId}_${Date.now()}`,
           fecha: date,
-          monto: amount,
+          monto: normalizedAmount,
           metodoPago: method as MetodoPago,
           referencia: referencia || 'Seña inicial de contratación',
           estadoPago: 'confirmado' as const,
@@ -77,7 +88,7 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
         await updatePresupuesto({
           ...presupuesto,
           pagosCliente: pagosActualizados,
-          senia: presupuesto.senia ?? amount, // solo sobrescribir si no había seña previa
+          senia: roundMoney((presupuesto.senia ?? 0) + normalizedAmount),
           saldo: saldoActualizado,
         });
       }
@@ -99,7 +110,7 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
           allPagos = [{
             id: `pago_dep_${fiestaId}_${Date.now()}`,
             fecha: date,
-            monto: amount,
+            monto: normalizedAmount,
             metodoPago: method as import('@/types/presupuesto').MetodoPago,
             estadoPago: 'confirmado',
           }];

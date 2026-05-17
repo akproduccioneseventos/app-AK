@@ -1,3 +1,5 @@
+import { containsBlockedSocialLanguage, sanitizeSocialWallText } from '@/lib/social-wall/content-safety';
+
 export type SocialContentType = 'text' | 'image' | 'video' | 'audio';
 
 export type SocialContentReviewStatus = 'approved' | 'pending_review' | 'blocked';
@@ -26,34 +28,16 @@ export type SocialContentReviewResult = {
   message: string;
 };
 
-const BLOCKED_TEXT_PATTERNS = [
-  /\bput[ao]s?\b/i,
-  /\bconch\w*\b/i,
-  /\bpelotud\w*\b/i,
-  /\bbolud\w*\b/i,
-  /\bidiot\w*\b/i,
-  /\bimbecil\w*\b/i,
-  /\bporn\w*\b/i,
-  /\bnud\w*\b/i,
-  /\bsexo\b/i,
-];
-
 function normalizeSpaces(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
 
 export function hasBlockedText(value?: string): boolean {
-  const text = normalizeSpaces(String(value ?? ''));
-  if (!text) return false;
-  return BLOCKED_TEXT_PATTERNS.some(pattern => pattern.test(text));
+  return containsBlockedSocialLanguage(value);
 }
 
 export function sanitizeSocialText(value?: string): string {
-  let text = normalizeSpaces(String(value ?? ''));
-  for (const pattern of BLOCKED_TEXT_PATTERNS) {
-    text = text.replace(pattern, '***');
-  }
-  return text;
+  return sanitizeSocialWallText(value);
 }
 
 export function reviewSocialContent(input: SocialContentReviewInput): SocialContentReviewResult {
@@ -85,6 +69,16 @@ export function reviewSocialContent(input: SocialContentReviewInput): SocialCont
       reason: 'adult_content_risk',
       shouldShowOnBigScreen: false,
       message: 'Archivo bloqueado por riesgo de contenido adulto o inapropiado.',
+    };
+  }
+
+  if ((input.type === 'image' || input.type === 'video') && input.imageAiSafe !== true) {
+    return {
+      status: 'pending_review',
+      reason: 'manual_review_required',
+      shouldShowOnBigScreen: false,
+      sanitizedText: sanitizeSocialText(text),
+      message: 'Archivo pendiente de aprobacion antes de pantalla gigante.',
     };
   }
 

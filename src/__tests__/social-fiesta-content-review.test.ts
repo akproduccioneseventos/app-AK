@@ -17,6 +17,12 @@ describe('social fiesta content review', () => {
     expect(result.shouldShowOnBigScreen).toBe(false);
   });
 
+  it('keeps guest media pending when no image safety check exists', () => {
+    const result = reviewSocialContent({ type: 'image', text: 'mesa 5', moderationMode: 'automatico' });
+    expect(result.status).toBe('pending_review');
+    expect(result.shouldShowOnBigScreen).toBe(false);
+  });
+
   it('approves clean content in automatic mode', () => {
     const result = reviewSocialContent({ type: 'text', text: 'Que linda fiesta', moderationMode: 'automatico' });
     expect(result.status).toBe('approved');

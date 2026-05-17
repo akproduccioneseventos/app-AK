@@ -12,6 +12,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import * as logger from '@/lib/logger';
+import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -321,28 +322,31 @@ export async function registerContractDeposit(params: {
   metodoPago?: MetodoPago;
 }): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
   const { presupuesto, monto, referencia, metodoPago } = params;
+  const paymentValidation = validatePaymentAgainstBudget(presupuesto, monto, { includePendingForLimit: true });
+  if (!paymentValidation.ok) {
+    throw new Error(paymentValidation.error);
+  }
+
+  const normalizedAmount = roundMoney(monto);
   const now = new Date().toISOString();
   const pagoId = `pago_senia_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
   const newPago: PagoCliente = {
     id: pagoId,
     fecha: now,
-    monto,
+    monto: normalizedAmount,
     metodoPago: metodoPago ?? 'Efectivo',
     referencia: referencia ?? 'Seña registrada al firmar contrato',
+    estadoPago: 'confirmado',
   };
 
   const updatedPagosCliente = [...(presupuesto.pagosCliente ?? []), newPago];
-  const totalConDescuento = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado ?? 0;
-  const totalPagado = updatedPagosCliente.reduce((acc, p) => acc + (p.monto || 0), 0);
-  const saldo = Math.max(0, totalConDescuento - totalPagado);
 
-  const updatedPresupuesto: Presupuesto = {
+  const updatedPresupuesto: Presupuesto = normalizePresupuestoFinancials({
     ...presupuesto,
     pagosCliente: updatedPagosCliente,
-    senia: (presupuesto.senia ?? 0) + monto,
-    saldo,
-  };
+    senia: roundMoney((presupuesto.senia ?? 0) + normalizedAmount),
+  }, { preserveStoredTotal: true });
 
   // Sync invoice payments if invoice exists
   if (presupuesto.invoiceId) {
@@ -358,7 +362,7 @@ export async function registerContractDeposit(params: {
         const invoicePayment = {
           id: pagoId,
           paymentDate: now,
-          amount: monto,
+          amount: normalizedAmount,
           method: invoiceMethod,
           notes: referencia ?? 'Seña registrada al firmar contrato',
         };

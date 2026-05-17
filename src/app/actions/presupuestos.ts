@@ -12,8 +12,9 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getAllFiestas, saveFiesta, syncFiestaFromBudget } from './fiesta/fiesta.actions';
 import { syncLaundryCosts } from './fiesta/costos.actions';
-import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
+import { recalcularCostoItem } from '@/lib/calculations';
 import { parseBudgetText } from '@/lib/parse-budget-text';
+import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
@@ -65,7 +66,7 @@ export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
-  let presupuestos = await getPresupuestos();
+  let presupuestos = await getPresupuestos(true);
   
   const maxNumero = presupuestos.reduce((max, p) => Math.max(max, p.numero || 0), 0);
   const nuevoNumero = maxNumero + 1;
@@ -99,7 +100,7 @@ export async function savePresupuesto(
     : Math.round(totalConDescuento);
 
   const presupuestoId = `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  const nuevoPresupuesto: Presupuesto = {
+  let nuevoPresupuesto: Presupuesto = normalizePresupuestoFinancials({
     ...presupuestoData,
     id: presupuestoId,
     numero: nuevoNumero,
@@ -110,7 +111,7 @@ export async function savePresupuesto(
     estado: presupuestoData.estado || 'Enviado',
     leadId: options?.leadId,
     source: options?.source || 'manual',
-  };
+  }, { preserveStoredTotal: options?.preserveTotal });
 
   try {
     const syncRes = await findLeadByBudgetOrCreate(nuevoPresupuesto);
@@ -156,7 +157,7 @@ export async function savePresupuesto(
 }
 
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
-    let presupuestos = await getPresupuestos();
+    let presupuestos = await getPresupuestos(true);
     const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
     if (index === -1) return { success: false, error: "No encontrado" };
 
@@ -189,12 +190,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         }
     }
 
-    const updated: Presupuesto = {
+    const updated: Presupuesto = normalizePresupuestoFinancials({
         ...presupuestoData,
         itemsPresupuestados: validItems,
         costoTotalEstimado: subtotal,
         totalConDescuento: Math.round(finalTotal)
-    };
+    });
 
     try {
         const syncRes = await findLeadByBudgetOrCreate(updated);
@@ -362,10 +363,14 @@ export async function addPagoToPresupuesto(
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+  const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
+  if (!validation.ok) return { success: false, error: validation.error };
 
   const newPago: PagoCliente = {
     ...pago,
     id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    monto: roundMoney(pago.monto),
+    estadoPago: pago.estadoPago ?? 'confirmado',
   };
 
   const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
@@ -605,10 +610,13 @@ export async function addPagoClienteFromPortal(
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+  const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
+  if (!validation.ok) return { success: false, error: validation.error };
 
   const newPago: PagoCliente = {
     ...pago,
     id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    monto: roundMoney(pago.monto),
     estadoPago: 'pendiente_confirmacion',
   };
 
@@ -641,6 +649,8 @@ export async function confirmPagoCliente(
   const pagos = presupuesto.pagosCliente || [];
   const pagoIndex = pagos.findIndex(p => p.id === pagoId);
   if (pagoIndex === -1) return { success: false, error: 'Pago no encontrado' };
+  const validation = validatePaymentAgainstBudget(presupuesto, pagos[pagoIndex].monto, { excludePaymentId: pagoId });
+  if (!validation.ok) return { success: false, error: validation.error };
 
   pagos[pagoIndex] = { ...pagos[pagoIndex], estadoPago: 'confirmado', motivoRechazo: undefined };
   const result = await updatePresupuesto({ ...presupuesto, pagosCliente: pagos });
