@@ -7,6 +7,7 @@
 
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
+import { sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
 
 export interface LedgerMonth {
   mes: string; // 'YYYY-MM'
@@ -84,8 +85,8 @@ export function calculateFinancialLedger(
     const m = getOrCreateMonth(mes);
     m.ventas += total;
 
-    // Cobros desde presupuesto.pagosCliente
-    const cobrosP = (p.pagosCliente ?? []).reduce((s, pg) => s + (pg.monto ?? 0), 0);
+    // Cobros desde presupuesto.pagosCliente. Los comprobantes pendientes no cuentan como dinero cobrado.
+    const cobrosP = sumConfirmedClientPayments(p.pagosCliente ?? []);
     totalCobradoPresupuestos += cobrosP;
     m.cobros += cobrosP;
   }

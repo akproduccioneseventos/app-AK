@@ -20,7 +20,8 @@
  * Este componente debe usar auditPresupuestoTotals() de este archivo.
  */
 
-import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
+import type { Presupuesto } from '@/types/presupuesto';
+import { calculateBudgetFinancials, sumConfirmedClientPayments, sumPendingClientPayments } from '@/lib/budget/financial-guardrails';
 
 export type AuditSeverity = 'info' | 'advertencia' | 'error';
 
@@ -49,6 +50,10 @@ export interface AuditResult {
   saldoPendiente: number;
   /** Total de pagos registrados en pagosCliente */
   totalPagosRegistrados: number;
+  /** Pagos confirmados, los unicos que reducen saldo real */
+  totalPagosConfirmados: number;
+  /** Pagos enviados por cliente que todavia esperan revision */
+  totalPagosPendientesRevision: number;
   /** Observaciones sobre inconsistencias */
   observaciones: AuditObservacion[];
   /** El presupuesto está matemáticamente consistente */
@@ -61,6 +66,7 @@ export interface AuditResult {
  */
 export function auditPresupuestoTotals(presupuesto: Presupuesto): AuditResult {
   const observaciones: AuditObservacion[] = [];
+  const central = calculateBudgetFinancials(presupuesto);
 
   // 1. Recalcular subtotales desde los ítems
   const subtotalItems = presupuesto.itemsPresupuestados
@@ -128,11 +134,30 @@ export function auditPresupuestoTotals(presupuesto: Presupuesto): AuditResult {
   }
 
   // 6. Calcular pagos registrados y saldo pendiente
-  const totalPagosRegistrados = (presupuesto.pagosCliente ?? []).reduce(
-    (sum, p) => sum + (p.monto ?? 0),
-    0
-  );
-  const saldoPendiente = totalConDescuentoGuardado - totalPagosRegistrados;
+  const totalPagosConfirmados = sumConfirmedClientPayments(presupuesto.pagosCliente ?? []);
+  const totalPagosPendientesRevision = sumPendingClientPayments(presupuesto.pagosCliente ?? []);
+  const totalPagosRegistrados = totalPagosConfirmados + totalPagosPendientesRevision;
+  const saldoPendiente = Math.max(0, totalConDescuentoGuardado - totalPagosConfirmados);
+
+  if (Math.abs(totalConDescuentoGuardado - central.total) > tolerancia) {
+    observaciones.push({
+      campo: 'motorCentral',
+      mensaje: `El motor central calcula $${central.total.toFixed(0)} y el presupuesto guarda $${totalConDescuentoGuardado.toFixed(0)}.`,
+      severidad: 'error',
+      valorEsperado: central.total,
+      valorReal: totalConDescuentoGuardado,
+    });
+  }
+
+  if (totalPagosConfirmados > totalConDescuentoGuardado + tolerancia) {
+    observaciones.push({
+      campo: 'pagosCliente',
+      mensaje: `Los pagos confirmados ($${totalPagosConfirmados.toFixed(0)}) superan el total ($${totalConDescuentoGuardado.toFixed(0)}).`,
+      severidad: 'error',
+      valorEsperado: totalConDescuentoGuardado,
+      valorReal: totalPagosConfirmados,
+    });
+  }
 
   // 7. Validar saldo almacenado
   if (presupuesto.saldo !== undefined && Math.abs(presupuesto.saldo - saldoPendiente) > tolerancia) {
@@ -170,6 +195,8 @@ export function auditPresupuestoTotals(presupuesto: Presupuesto): AuditResult {
     totalConDescuentoGuardado,
     saldoPendiente,
     totalPagosRegistrados,
+    totalPagosConfirmados,
+    totalPagosPendientesRevision,
     observaciones,
     esConsistente,
   };

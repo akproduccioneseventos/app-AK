@@ -27,6 +27,7 @@ import admin from 'firebase-admin';
 import path from 'path';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
+import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -77,6 +78,14 @@ export async function uploadSocialPost(
   const imageHash = (formData.get('imageHash') as string) || undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
+  const textReview = reviewSocialContent({
+    type: 'text',
+    text: [authorName, dedication].filter(Boolean).join(' '),
+    authorName,
+    moderationMode: 'automatico',
+  });
+  if (textReview.status === 'blocked') return { success: false, error: textReview.message };
+
   const isVideo = file.type.startsWith('video/');
   const isImage = file.type.startsWith('image/');
   if (!isImage && !isVideo) return { success: false, error: 'Solo se aceptan fotos o videos.' };
@@ -142,18 +151,25 @@ export async function uploadSocialPost(
     );
 
     const requireApproval = fiestaData?.socialGallerySettings?.requireApproval === true;
+    const mediaReview = reviewSocialContent({
+      type: isVideo ? 'video' : 'image',
+      text: dedication,
+      authorName,
+      moderationMode: requireApproval ? 'seguro' : 'automatico',
+    });
+    if (mediaReview.status === 'blocked') return { success: false, error: mediaReview.message };
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId,
       imageUrl,
       mediaType: isVideo ? 'video' : 'image',
-      moderationStatus: requireApproval ? 'pending' : 'approved',
+      moderationStatus: mediaReview.status === 'pending_review' ? 'pending' : 'approved',
       timestamp: new Date().toISOString(),
-      authorName,
+      authorName: sanitizeSocialText(authorName) || 'Anónimo',
       likes: 0,
       comments: [],
       source: 'guest',
-      ...(dedication ? { dedication } : {}),
+      ...(dedication ? { dedication: sanitizeSocialText(dedication) } : {}),
       ...(momentTag ? { momentTag } : {}),
       ...(imageHash ? { imageHash } : {}),
     };
@@ -184,20 +200,27 @@ export async function createSocialMediaPostFromUrl(input: {
 
   try {
     const db = await getDb();
+    const review = reviewSocialContent({
+      type: input.mediaType === 'video' ? 'video' : 'image',
+      text: [input.authorName, input.caption].filter(Boolean).join(' '),
+      authorName: input.authorName,
+      moderationMode: 'automatico',
+    });
+    if (review.status === 'blocked') return { success: false, error: review.message };
     const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId: input.fiestaId,
       imageUrl: input.mediaUrl,
       mediaType: input.mediaType ?? 'image',
-      moderationStatus: 'approved',
+      moderationStatus: review.status === 'pending_review' ? 'pending' : 'approved',
       timestamp: new Date().toISOString(),
-      authorName: input.authorName || 'AK Producciones',
+      authorName: sanitizeSocialText(input.authorName || 'AK Producciones') || 'AK Producciones',
       likes: 0,
       comments: [],
       source: input.source || 'entertainment',
       ...(input.sourceModule ? { sourceModule: input.sourceModule } : {}),
-      ...(input.caption ? { caption: input.caption, dedication: input.caption } : {}),
+      ...(input.caption ? { caption: sanitizeSocialText(input.caption), dedication: sanitizeSocialText(input.caption) } : {}),
       ...(input.momentTag ? { momentTag: input.momentTag } : {}),
     };
 
@@ -252,11 +275,13 @@ export async function addCommentToPost(
   authorName: string = 'Anónimo'
 ): Promise<{ success: boolean; comment?: SocialComment; error?: string }> {
   try {
+    const review = reviewSocialContent({ type: 'text', text, authorName, moderationMode: 'automatico' });
+    if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
     const newComment: SocialComment = {
       id: `comment_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      authorName,
-      text,
+      authorName: sanitizeSocialText(authorName) || 'Anónimo',
+      text: review.sanitizedText || sanitizeSocialText(text),
       timestamp: new Date().toISOString(),
     };
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
@@ -388,14 +413,16 @@ export async function addChatMessage(
   if (!fiestaId || !text.trim()) {
     return { success: false, error: 'Datos del mensaje incompletos.' };
   }
+  const review = reviewSocialContent({ type: 'text', text, authorName, moderationMode: 'automatico' });
+  if (review.status === 'blocked') return { success: false, error: review.message };
   try {
     const db = await getDb();
     const msgId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newMessage: ChatMessage = {
       id: msgId,
       fiestaId,
-      authorName,
-      text,
+      authorName: sanitizeSocialText(authorName) || 'Anónimo',
+      text: review.sanitizedText || sanitizeSocialText(text),
       timestamp: new Date().toISOString(),
     };
     // Single-document write — safe for many concurrent senders.

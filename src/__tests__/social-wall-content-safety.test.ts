@@ -31,4 +31,12 @@ describe('validateSocialPost', () => {
     expect(result.ok).toBe(false);
     expect(result.errors).toContain('La imagen es demasiado pesada.');
   });
+
+  it('blocks unsafe language before it reaches a public screen', () => {
+    const result = validateSocialPost({ message: 'contenido porno' });
+
+    expect(result.ok).toBe(false);
+    expect(result.blockedLanguage).toBe(true);
+    expect(result.sanitizedMessage).toContain('***');
+  });
 });

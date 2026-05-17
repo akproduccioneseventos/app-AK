@@ -23,6 +23,7 @@ import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-adm
 import admin from 'firebase-admin';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
+import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 
 // Firestore collection names
 const POLLS_COLLECTION = 'social_polls';
@@ -73,6 +74,12 @@ export async function createPoll(
   options: string[]
 ): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
   try {
+    const questionReview = reviewSocialContent({ type: 'text', text: question, moderationMode: 'automatico' });
+    if (questionReview.status === 'blocked') return { success: false, error: questionReview.message };
+    const reviewedOptions = options.map((option) => reviewSocialContent({ type: 'text', text: option, moderationMode: 'automatico' }));
+    const blockedOption = reviewedOptions.find((review) => review.status === 'blocked');
+    if (blockedOption) return { success: false, error: blockedOption.message };
+
     const db = await getDb();
     // Deactivate any currently active poll for this event.
     const activeSnap = await db
@@ -88,8 +95,8 @@ export async function createPoll(
     const newPoll: SocialPoll = {
       id: `poll_${Date.now()}`,
       fiestaId,
-      question,
-      options: options.map((text, i) => ({ id: `opt_${i}`, text, votes: 0 })),
+      question: questionReview.sanitizedText || sanitizeSocialText(question),
+      options: reviewedOptions.map((review, i) => ({ id: `opt_${i}`, text: review.sanitizedText || sanitizeSocialText(options[i]), votes: 0 })),
       createdAt: new Date().toISOString(),
       active: true,
     };
@@ -164,12 +171,14 @@ export async function addSongRequest(
   requestedBy: string
 ): Promise<{ success: boolean; request?: SongRequest; error?: string }> {
   try {
+    const review = reviewSocialContent({ type: 'text', text: song, authorName: requestedBy, moderationMode: 'automatico' });
+    if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
     const newReq: SongRequest = {
       id: `song_${Date.now()}`,
       fiestaId,
-      song,
-      requestedBy,
+      song: review.sanitizedText || sanitizeSocialText(song),
+      requestedBy: sanitizeSocialText(requestedBy) || 'Anónimo',
       timestamp: new Date().toISOString(),
       played: false,
       votes: 1,
@@ -233,12 +242,14 @@ export async function addDedication(
   authorName: string
 ): Promise<{ success: boolean; dedication?: Dedication; error?: string }> {
   try {
+    const review = reviewSocialContent({ type: 'text', text: message, authorName, moderationMode: 'automatico' });
+    if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
     const newDed: Dedication = {
       id: `ded_${Date.now()}`,
       fiestaId,
-      message,
-      authorName,
+      message: review.sanitizedText || sanitizeSocialText(message),
+      authorName: sanitizeSocialText(authorName) || 'Anónimo',
       timestamp: new Date().toISOString(),
     };
     await db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).set(newDed);
@@ -269,13 +280,16 @@ export async function addSorteoParticipanteRedes(
   nombre: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
+    if (review.status === 'blocked') return { success: false, error: review.message };
+    const safeName = sanitizeSocialText(nombre);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
     const existing = settings.sorteoParticipantesRedes ?? [];
-    const alreadyExists = existing.some(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+    const alreadyExists = existing.some(p => p.nombre.toLowerCase() === safeName.toLowerCase());
     if (alreadyExists) return { success: false, error: 'Ya estás registrado en el sorteo.' };
-    const updated: typeof existing = [...existing, { nombre, timestamp: new Date().toISOString() }];
+    const updated: typeof existing = [...existing, { nombre: safeName, timestamp: new Date().toISOString() }];
     await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated } });
     return { success: true };
   } catch (e: any) {
@@ -288,10 +302,12 @@ export async function addSorteoGanador(
   nombre: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
+    if (review.status === 'blocked') return { success: false, error: review.message };
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
-    const ganadores = [...(settings.sorteoGanadores ?? []), nombre];
+    const ganadores = [...(settings.sorteoGanadores ?? []), sanitizeSocialText(nombre)];
     await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoGanadores: ganadores } });
     return { success: true };
   } catch (e: any) {
