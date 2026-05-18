@@ -4,6 +4,7 @@ export type AkTechnologyProductId =
   | 'demo_comercial'
   | 'pase_invitado'
   | 'fiesta_en_vivo'
+  | 'zona_digital'
   | 'ia_operativa';
 
 export type AkTechnologyProduct = {
@@ -89,6 +90,9 @@ export function buildAkTechnologySuite(fiestaInput: unknown): AkTechnologySuite 
   const planPagos = asRecord(fiesta.planDePagos);
   const others = asRecord(fiesta.others);
   const entertainment = asRecord(others.entretenimiento);
+  const zonaDigital = asRecord(fiesta.zonaDigitalAdolescentes);
+  const modulosContratados = asRecord(fiesta.modulosContratados);
+  const barraTecnologica = asRecord(others.barraTecnologica);
   const clientExperience = asRecord(fiesta.clientePortalExperience);
 
   const invitados = list(fiesta.invitados);
@@ -110,9 +114,15 @@ export function buildAkTechnologySuite(fiestaInput: unknown): AkTechnologySuite 
   const hasGuestQr = guestSettings.enabled === true || hasPublicInvite;
   const hasMusic = countObjectOrArray(fiesta.musica) > 0 || countObjectOrArray(fiesta.listaMusicaPortal) > 0 || countObjectOrArray(live.solicitudesCanciones) > 0;
   const hasLiveWall = social.enabled === true || countObjectOrArray(live.fotos) > 0 || countObjectOrArray(live.mensajes) > 0;
-  const hasScreen = screenMode.enabled === true || countObjectOrArray(fiesta.screenPlaylist) > 0 || countObjectOrArray(screenMode.playlist) > 0 || countObjectOrArray(social.screenMediaLibrary) > 0;
+  const screenPlaylist = [...list(fiesta.screenPlaylist), ...list(screenMode.playlist)];
+  const hasScreen = screenMode.enabled === true || screenPlaylist.length > 0 || countObjectOrArray(social.screenMediaLibrary) > 0;
   const hasVoting = countObjectOrArray(live.votaciones) > 0;
   const hasEntertainment = countObjectOrArray(entertainment.modules) > 0 || countObjectOrArray(entertainment) > 0;
+  const hasZonaDigital = zonaDigital.enabled === true || modulosContratados.zonaDigital === true || countObjectOrArray(zonaDigital.features) > 0;
+  const hasDigitalChallenges = countObjectOrArray(zonaDigital.challenges) > 0 || countObjectOrArray(zonaDigital.games) > 0 || hasVoting;
+  const hasBarTechnology = modulosContratados.barraTecnologica === true || countObjectOrArray(barraTecnologica) > 0;
+  const hasTotems = modulosContratados.pantallasTotem === true || countObjectOrArray(fiesta.totemScreens) > 0 || countObjectOrArray(social.totemScreens) > 0;
+  const hasAudioRhythm = screenPlaylist.some(item => asRecord(item).type === 'audioritmico') || asRecord(fiesta.audioRhythm).enabled === true || asRecord(social.audioRhythm).enabled === true;
   const hasPostEvent = hasText(fiesta.galeriaUrl) || fiesta.galeriaEntregada === true || fiesta.postEventoCompletado === true;
   const hasDocs = countObjectOrArray(fiesta.othersDocumentos) > 0 || countObjectOrArray(fiesta.contratoGenerado) > 0;
   const hasPayments = countObjectOrArray(planPagos.cuotas) > 0 || countObjectOrArray(fiesta.clientPaymentNotifications) > 0 || countObjectOrArray(fiesta.pagos) > 0;
@@ -125,6 +135,7 @@ export function buildAkTechnologySuite(fiestaInput: unknown): AkTechnologySuite 
   const demoScore = scoreFromChecks([hasEventBase, hasDate, hasPlace, hasClientPortal, hasPublicInvite, hasVisuals, hasLiveWall || hasScreen, hasPostEvent]);
   const guestScore = scoreFromChecks([hasGuests, hasGuestQr, hasPublicInvite, hasTables, hasPlace, hasProgram, hasMusic, hasLiveWall, hasPostEvent]);
   const liveScore = scoreFromChecks([hasLiveWall, hasScreen, hasMusic, hasVoting, hasEntertainment, hasPostEvent]);
+  const digitalZoneScore = scoreFromChecks([hasZonaDigital, hasLiveWall, hasScreen, hasDigitalChallenges, hasEntertainment, hasBarTechnology, hasTotems, hasAudioRhythm, hasPostEvent]);
   const aiScore = scoreFromChecks([hasGuests, hasTables, hasPayments, hasDocs, hasStaff, hasTasks, hasMeetings, hasProgram, hasLiveWall || hasScreen, hasPostEvent]);
 
   const products: AkTechnologyProduct[] = [
@@ -210,6 +221,42 @@ export function buildAkTechnologySuite(fiestaInput: unknown): AkTechnologySuite 
         'Generar galería final automáticamente desde lo vivido en la fiesta.',
       ],
       href: withFiestaId('/fiestas/nueva/en-vivo', fiestaId),
+    },
+    {
+      id: 'zona_digital',
+      title: 'Zona tecnologica de fiesta',
+      salesName: 'Zona digital, estaciones virales, barra, totems y pantalla en vivo',
+      clientPromise: 'Los invitados participan con QR, retos, juegos, fotos, videos, pedidos de barra, totems y visuales de pista segun lo contratado.',
+      score: digitalZoneScore,
+      status: statusFromScore(digitalZoneScore),
+      alreadyConnected: [
+        ...addIf(hasZonaDigital, 'Zona digital adolescente'),
+        ...addIf(hasLiveWall, 'Muro social para fotos y mensajes'),
+        ...addIf(hasScreen, 'Pantalla LED o modo pantalla'),
+        ...addIf(hasDigitalChallenges, 'Retos, juegos o votaciones'),
+        ...addIf(hasEntertainment, 'Fotocabina, 360, Bogue o espejo magico'),
+        ...addIf(hasBarTechnology, 'Barra tecnologica'),
+        ...addIf(hasTotems, 'Totems o pantallas por sectores'),
+        ...addIf(hasAudioRhythm, 'Modo audiorritmico para baile'),
+        ...addIf(hasPostEvent, 'Galeria o recuerdo post-fiesta'),
+      ],
+      missingToClose: [
+        ...addIf(!hasZonaDigital, 'Activar zona digital por fiesta'),
+        ...addIf(!hasLiveWall, 'Conectar fotos/mensajes con muro social'),
+        ...addIf(!hasScreen, 'Preparar pantalla LED o totem visible'),
+        ...addIf(!hasDigitalChallenges, 'Configurar retos, juegos, votaciones o emojis'),
+        ...addIf(!hasEntertainment, 'Definir estaciones: fotocabina, 360, Bogue o espejo'),
+        ...addIf(!hasBarTechnology, 'Conectar barra tecnologica si se vende ese servicio'),
+        ...addIf(!hasTotems, 'Configurar totems si se muestran por sectores'),
+        ...addIf(!hasAudioRhythm, 'Agregar modo visual audiorritmico para pista'),
+        ...addIf(!hasPostEvent, 'Dejar salida de galeria/recuerdos para despues'),
+      ],
+      nextPrWork: [
+        'Mostrar la zona tecnologica como paquete comercial activable.',
+        'Separar lo incluido, opcional y apagado para no prometer modulos no contratados.',
+        'Usar pantalla LED para explicar como invitados, barra, fotos y totems trabajan juntos.',
+      ],
+      href: withFiestaId('/fiestas/nueva/zona-digital', fiestaId),
     },
     {
       id: 'ia_operativa',

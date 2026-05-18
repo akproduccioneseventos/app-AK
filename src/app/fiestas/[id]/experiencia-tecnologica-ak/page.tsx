@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Bot, MonitorPlay, QrCode, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bot, Gamepad2, MonitorPlay, QrCode, Sparkles } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { buildAkTechnologySuite } from '@/lib/technology-ak/fiesta-technology-products';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ const icons = {
   demo_comercial: Sparkles,
   pase_invitado: QrCode,
   fiesta_en_vivo: MonitorPlay,
+  zona_digital: Gamepad2,
   ia_operativa: Bot,
 } as const;
 

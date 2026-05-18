@@ -17,13 +17,15 @@ describe('Portal LED Pro visual model', () => {
   it('includes technology highlights from technology showcase', () => {
     const model = buildPortalLedProVisualModel();
 
-    expect(model.technologyHighlights.length).toBeGreaterThan(5);
+    expect(model.technologyHighlights.length).toBeGreaterThan(8);
     expect(model.technologyHighlights.some(item => item.title.includes('Portal Cliente'))).toBe(true);
+    expect(model.technologyHighlights.some(item => item.title.includes('Zona digital'))).toBe(true);
   });
 
   it('returns section and navigation', () => {
-    expect(getPortalLedProVisualSection('technology')?.title).toBe('Tecnología AK');
+    expect(getPortalLedProVisualSection('technology')?.title).toBe('Tecnologia AK');
     expect(buildPortalLedProNavigation().some(item => item.id === 'menus')).toBe(true);
+    expect(buildPortalLedProNavigation().some(item => item.id === 'tech_zone')).toBe(true);
   });
 
   it('builds implementation checklist', () => {
@@ -31,5 +33,6 @@ describe('Portal LED Pro visual model', () => {
 
     expect(checklist.length).toBeGreaterThan(10);
     expect(checklist.join(' ')).toContain('pantalla grande');
+    expect(checklist.join(' ')).toContain('paquetes activables');
   });
 });

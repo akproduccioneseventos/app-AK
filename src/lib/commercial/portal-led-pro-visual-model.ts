@@ -5,6 +5,7 @@ export type PortalLedProVisualSectionId =
   | 'trust'
   | 'pain_solution'
   | 'technology'
+  | 'tech_zone'
   | 'services'
   | 'menus'
   | 'gallery'
@@ -47,39 +48,47 @@ export const PORTAL_LED_PRO_VISUAL_SECTIONS: PortalLedProVisualSection[] = [
   },
   {
     id: 'pain_solution',
-    title: 'Problema y solución',
-    subtitle: 'Organizar separado genera estrés; AK centraliza y coordina.',
+    title: 'Problema y solucion',
+    subtitle: 'Organizar separado genera estres; AK centraliza y coordina.',
     layout: 'split',
     priority: 3,
-    screenRule: 'Izquierda dolor del cliente, derecha solución AK.',
+    screenRule: 'Izquierda dolor del cliente, derecha solucion AK.',
   },
   {
     id: 'technology',
-    title: 'Tecnología AK',
-    subtitle: 'Portal cliente, invitado, invitación, RSVP, red social, muro y álbum.',
+    title: 'Tecnologia AK',
+    subtitle: 'Portal cliente, invitado, invitacion, RSVP, red social, muro, album y seguimiento.',
     layout: 'cards',
     priority: 4,
-    screenRule: 'Explicar beneficios en tarjetas grandes, no tecnicismos.',
+    screenRule: 'Explicar beneficios en tarjetas grandes, no tecnicismos, antes de entrar al precio.',
+  },
+  {
+    id: 'tech_zone',
+    title: 'Zona tecnologica para fiestas',
+    subtitle: 'Zona digital adolescente, fotocabina, 360, Bogue, espejo, barra tactil, totems y modo audiorritmico.',
+    layout: 'cards',
+    priority: 4.5,
+    screenRule: 'Venderlo como paquetes activables: incluido, opcional o apagado segun lo contratado.',
   },
   {
     id: 'services',
     title: 'Servicios por experiencia',
-    subtitle: 'Salón, gastronomía, decoración, música, foto, video, personal y extras.',
+    subtitle: 'Salon, gastronomia, decoracion, musica, foto, video, personal y extras.',
     layout: 'cards',
     priority: 5,
-    screenRule: 'Cada servicio debe tener foto, beneficio y botón para marcar interés.',
+    screenRule: 'Cada servicio debe tener foto, beneficio y boton para marcar interes.',
   },
   {
     id: 'menus',
-    title: 'Menús con fotos',
-    subtitle: 'Entradas, platos, niños, adolescentes, postres y opciones por presupuesto.',
+    title: 'Menus con fotos',
+    subtitle: 'Entradas, platos, ninos, adolescentes, postres y opciones por presupuesto.',
     layout: 'gallery',
     priority: 6,
-    screenRule: 'La comida se vende con imagen grande y descripción corta.',
+    screenRule: 'La comida se vende con imagen grande y descripcion corta.',
   },
   {
     id: 'gallery',
-    title: 'Galería comercial',
+    title: 'Galeria comercial',
     subtitle: 'Fotos por tipo de fiesta, servicio y subservicio.',
     layout: 'gallery',
     priority: 7,
@@ -87,7 +96,7 @@ export const PORTAL_LED_PRO_VISUAL_SECTIONS: PortalLedProVisualSection[] = [
   },
   {
     id: 'selection',
-    title: 'Selección de entrevista',
+    title: 'Seleccion de entrevista',
     subtitle: 'Lo que interesa, lo pendiente, lo incluido y lo marcado como regalo.',
     layout: 'summary',
     priority: 8,
@@ -96,17 +105,17 @@ export const PORTAL_LED_PRO_VISUAL_SECTIONS: PortalLedProVisualSection[] = [
   {
     id: 'closing',
     title: 'Cierre comercial',
-    subtitle: 'Resumen, valor comercial, bonificación visual, regalos, seña y próximos pasos.',
+    subtitle: 'Resumen, valor comercial, bonificacion visual, regalos, sena y proximos pasos.',
     layout: 'closing',
     priority: 9,
-    screenRule: 'Cerrar con próximos pasos claros: presupuesto, entrevista, seña y contrato.',
+    screenRule: 'Cerrar con proximos pasos claros: presupuesto, entrevista, sena y contrato.',
   },
 ];
 
 export function buildPortalLedProVisualModel(): PortalLedProVisualModel {
   return {
     title: 'Portal Comercial LED AK',
-    subtitle: 'Una presentación interactiva para vender la fiesta completa en entrevista.',
+    subtitle: 'Una presentacion interactiva para vender la fiesta completa en entrevista.',
     sections: [...PORTAL_LED_PRO_VISUAL_SECTIONS].sort((a, b) => a.priority - b.priority),
     technologyHighlights: getPortalLedVisibleTechnologyItems().map(item => ({
       title: item.title,
@@ -115,9 +124,10 @@ export function buildPortalLedProVisualModel(): PortalLedProVisualModel {
     designRules: [
       'Pensar para pantalla grande: textos cortos, fotos grandes y alto contraste.',
       'No mostrar una lista larga de servicios sin contexto comercial.',
-      'Cada sección debe ayudar a avanzar hacia presupuesto o cierre.',
-      'La tecnología AK debe venderse como experiencia, no como detalle técnico.',
-      'La selección del cliente debe estar siempre cerca para armar presupuesto en vivo.',
+      'Cada seccion debe ayudar a avanzar hacia presupuesto o cierre.',
+      'La tecnologia AK debe venderse como experiencia y producto, no como detalle tecnico.',
+      'La zona digital debe mostrar entretenimiento real para adolescentes, pantallas y participacion en vivo.',
+      'La seleccion del cliente debe estar siempre cerca para armar presupuesto en vivo.',
     ],
   };
 }
