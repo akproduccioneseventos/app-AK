@@ -1,0 +1,12 @@
+@media screen and (max-width: 768px) {
+  .ver-budget-print-document {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ver-budget-print-document > table {
+    min-width: 720px;
+  }
+}
