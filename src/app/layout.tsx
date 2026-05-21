@@ -6,8 +6,10 @@ import './ak-motion-effects.css';
 import './ak-release-polish.css';
 import './ak-internal-experience-polish.css';
 import './ak-no-red-experience.css';
+import './ak-budget-mobile-fixes.css';
 import { AppShell } from '@/components/app-shell';
 import { ContextualAssistantIndicator } from '@/components/assistant/contextual-assistant-indicator';
+import { BudgetShareDock } from '@/components/presupuestos/budget-share-dock';
 import { Toaster } from "@/components/ui/toaster";
 import localFont from 'next/font/local';
 import { AuthGuard } from './auth-guard';
@@ -87,6 +89,7 @@ export default function RootLayout({
         <AuthGuard>
           <AppShell>{children}</AppShell>
           <ContextualAssistantIndicator />
+          <BudgetShareDock />
         </AuthGuard>
         <Toaster />
       </body>

@@ -1,0 +1,102 @@
+.ver-budget-print-document,
+.budget-print-document,
+.budget-formal-print-template {
+  background: #ffffff !important;
+  color: #111827;
+}
+
+.ver-budget-print-document > table > tfoot,
+.budget-print-document > table > tfoot {
+  display: none !important;
+}
+
+.ver-budget-print-document footer > .mt-12.grid,
+.budget-formal-print-template footer > .mt-8.flex {
+  display: none !important;
+}
+
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) th {
+  background-color: #f3f4f6 !important;
+  border-color: #9ca3af !important;
+  color: #111827 !important;
+}
+
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="bg-emerald"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="bg-violet"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="bg-amber"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="bg-rose"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="bg-primary"] {
+  background-color: #ffffff !important;
+}
+
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="border-emerald"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="border-violet"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="border-amber"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="border-rose"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="border-primary"] {
+  border-color: #d1d5db !important;
+}
+
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="text-emerald"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="text-violet"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="text-amber"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="text-rose"],
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) [class*="text-primary"] {
+  color: #374151 !important;
+}
+
+:where(.ver-budget-print-document, .budget-print-document, .budget-formal-print-template) footer::after {
+  border-top: 1px solid #d1d5db;
+  color: #4b5563;
+  content: "Documento de presupuesto. La reserva, confirmacion final y firmas corresponden al contrato confirmado.";
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 14px;
+  padding-top: 10px;
+  text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+  .ver-budget-print-document,
+  .budget-print-document {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ver-budget-print-document > table,
+  .budget-print-document > table {
+    min-width: 720px;
+  }
+}
+
+@media print {
+  .ver-budget-print-document,
+  .budget-print-document,
+  .budget-formal-print-template {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    border: 0 !important;
+  }
+
+  .ver-budget-print-document header,
+  .budget-print-document header {
+    display: flex !important;
+  }
+
+  .ver-budget-print-document footer,
+  .budget-print-document footer,
+  .budget-formal-print-template footer {
+    display: block !important;
+  }
+
+  .ver-budget-print-document > table,
+  .budget-print-document > table {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
