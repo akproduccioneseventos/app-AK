@@ -39,6 +39,18 @@ const techCards = [
     icon: Camera,
     tone: 'bg-violet-50 text-violet-700 border-violet-100',
   },
+  {
+    title: 'Zona digital adolescente',
+    copy: 'Retos, juegos, emojis, ranking y votaciones para que los invitados participen desde el celular.',
+    icon: Sparkles,
+    tone: 'bg-pink-50 text-pink-700 border-pink-100',
+  },
+  {
+    title: 'Totems y barra tactil',
+    copy: 'Pantallas sincronizadas, QR, fondos movibles y pedidos de tragos conectados con barman y muro.',
+    icon: Smartphone,
+    tone: 'bg-cyan-50 text-cyan-700 border-cyan-100',
+  },
 ];
 
 const semanticMap = [
@@ -49,6 +61,11 @@ const semanticMap = [
   'Plataforma 360',
   'Bogue',
   'Espejo Magico',
+  'Zona digital',
+  'Retos y juegos',
+  'Barra tactil',
+  'Totems',
+  'Modo audiorritmico',
   'Musica',
   'Invitados',
   'Check-in QR',

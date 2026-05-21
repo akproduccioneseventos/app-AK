@@ -39,7 +39,11 @@ import { cn } from '@/lib/utils';
 import {
   DEVICE_PRESETS,
   HERO_IMAGES,
+  LED_CLIENT_DECISION_SCENES,
+  LED_SALES_IMPACT_STATS,
   INVITATION_TEMPLATES,
+  LED_SALES_STORYLINE,
+  LED_TECHNOLOGY_PACKAGES,
   SERVICE_MAP,
   TECHNOLOGY_STEPS,
   type DeviceMode,
@@ -66,6 +70,12 @@ const iconComponents: Record<PortfolioIcon, LucideIcon> = {
   portalInvitado: Users,
   muroSocial: Share2,
   pantallaLed: Tv,
+  zonaDigital: Sparkles,
+  fotocabina: Camera,
+  plataforma360: Play,
+  espejoMagico: Wand2,
+  totems: Smartphone,
+  audioRitmico: Music,
   coordinacion: CheckCircle2,
   agenda: CalendarDays,
   postFiesta: Gift,
@@ -112,6 +122,7 @@ export function PortafolioLedClient() {
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('led');
   const [selectedServiceId, setSelectedServiceId] = useState(SERVICE_MAP[0].id);
   const [activeStepId, setActiveStepId] = useState(TECHNOLOGY_STEPS[0].id);
+  const [activeSceneId, setActiveSceneId] = useState(LED_CLIENT_DECISION_SCENES[0].id);
   const [demo, setDemo] = useState<DemoEvent>({
     tipo: 'XV anos',
     protagonista: 'Valentina',
@@ -132,6 +143,11 @@ export function PortafolioLedClient() {
   const activeStep = useMemo(
     () => TECHNOLOGY_STEPS.find((step) => step.id === activeStepId) ?? TECHNOLOGY_STEPS[0],
     [activeStepId],
+  );
+
+  const activeScene = useMemo(
+    () => LED_CLIENT_DECISION_SCENES.find((scene) => scene.id === activeSceneId) ?? LED_CLIENT_DECISION_SCENES[0],
+    [activeSceneId],
   );
 
   const serviceCounts = useMemo(() => ({
@@ -166,7 +182,7 @@ export function PortafolioLedClient() {
           </Link>
 
           <nav className="hidden items-center gap-2 lg:flex">
-            {['Mapa', 'Experiencia', 'Invitaciones'].map((item) => (
+            {['Impacto', 'Mapa', 'Vendedor', 'Experiencia', 'Invitaciones'].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -198,10 +214,10 @@ export function PortafolioLedClient() {
           >
             <SectionEyebrow>Venta visual para clientes</SectionEyebrow>
             <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[0.95] tracking-tight text-slate-950 sm:text-6xl xl:text-7xl">
-              Una fiesta se vende mejor cuando el cliente la puede ver.
+              Una plataforma de venta para que el cliente vea, entienda y quiera su fiesta.
             </h1>
             <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
-              Nuevo portafolio adaptable para pantalla gigante, PC, tablet y celular. Usa fotos de ejemplo reemplazables, movimiento y un recorrido claro por toda la tecnologia que AK entrega antes, durante y despues del evento.
+              Un showroom comercial adaptable para pantalla gigante, PC, tablet y celular. Usa fotos de ejemplo reemplazables, movimiento y un recorrido claro por toda la tecnologia que AK entrega antes, durante y despues del evento.
             </p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -295,6 +311,123 @@ export function PortafolioLedClient() {
         </div>
       </section>
 
+      <section id="impacto" className="relative overflow-hidden bg-slate-950 py-20 text-white sm:py-24">
+        <div className="absolute inset-0">
+          <ImagePanel src={HERO_IMAGES[1]} alt="Showroom comercial AK" className="opacity-28" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(220,38,38,0.32),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(14,165,233,0.22),transparent_32%),linear-gradient(135deg,rgba(2,6,23,0.96),rgba(15,23,42,0.90))]" />
+        </div>
+
+        <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
+          <div className="grid gap-10 xl:grid-cols-[0.72fr_1.28fr] xl:items-end">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-red-100 backdrop-blur">
+                <Star className="h-3.5 w-3.5" />
+                Plataforma de venta espectacular
+              </span>
+              <h2 className="mt-5 text-4xl font-black leading-none tracking-tight sm:text-6xl">
+                La reunion tiene que sentirse como entrar a la fiesta antes de contratarla.
+              </h2>
+              <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-white/68">
+                La pantalla LED debe hacer tres cosas a la vez: emocionar, explicar y cerrar. Por eso la tecnologia se presenta como una experiencia visible, con paquetes activables y una ruta comercial clara.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {LED_SALES_IMPACT_STATS.map((stat) => (
+                <motion.div
+                  key={stat.label}
+                  whileHover={{ y: -4 }}
+                  className="rounded-[1.75rem] border border-white/10 bg-white/10 p-5 backdrop-blur-xl"
+                  style={{ boxShadow: `0 24px 70px ${colorWithAlpha(stat.accent, 0.16)}` }}
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/48">{stat.label}</p>
+                  <p className="mt-3 text-4xl font-black leading-none" style={{ color: stat.accent }}>{stat.value}</p>
+                  <p className="mt-3 text-sm font-semibold leading-6 text-white/62">{stat.copy}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-12 grid gap-6 xl:grid-cols-[430px_1fr]">
+            <div className="grid gap-3">
+              {LED_CLIENT_DECISION_SCENES.map((scene, index) => {
+                const isActive = scene.id === activeSceneId;
+                return (
+                  <motion.button
+                    key={scene.id}
+                    type="button"
+                    initial={{ opacity: 0, x: -14 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.3, delay: index * 0.04 }}
+                    onClick={() => setActiveSceneId(scene.id)}
+                    className={cn(
+                      'group rounded-[1.75rem] border p-4 text-left transition',
+                      isActive ? 'border-white/35 bg-white text-slate-950' : 'border-white/10 bg-white/10 text-white hover:border-white/25 hover:bg-white/15',
+                    )}
+                  >
+                    <div className="flex items-start gap-4">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-sm font-black text-white" style={{ backgroundColor: scene.accent }}>
+                        {index + 1}
+                      </span>
+                      <span>
+                        <span className={cn('text-[10px] font-black uppercase tracking-[0.18em]', isActive ? 'text-slate-400' : 'text-white/45')}>{scene.eyebrow}</span>
+                        <span className="mt-1 block text-base font-black leading-tight">{scene.title}</span>
+                      </span>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.article
+                key={activeScene.id}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -18 }}
+                transition={{ duration: 0.34 }}
+                className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white text-slate-950 shadow-2xl shadow-black/30"
+              >
+                <div className="grid min-h-[520px] lg:grid-cols-[1.08fr_0.92fr]">
+                  <div className="relative min-h-[320px] overflow-hidden">
+                    <ImagePanel src={activeScene.imageUrl} alt={activeScene.title} className="transition duration-700" />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.02)_0%,rgba(15,23,42,0.74)_100%)]" />
+                    <div className="absolute left-6 right-6 top-6 flex flex-wrap items-center justify-between gap-3">
+                      <span className="rounded-full bg-white/15 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white backdrop-blur">Demo comercial</span>
+                      <span className="rounded-full bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: activeScene.accent }}>AK Experience</span>
+                    </div>
+                    <div className="absolute bottom-6 left-6 right-6 text-white">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/60">{activeScene.eyebrow}</p>
+                      <h3 className="mt-2 max-w-3xl text-4xl font-black leading-none sm:text-5xl">{activeScene.title}</h3>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col justify-between p-6 sm:p-8">
+                    <div>
+                      <p className="text-sm font-black uppercase tracking-[0.18em]" style={{ color: activeScene.accent }}>Frase de venta</p>
+                      <blockquote className="mt-4 border-l-4 pl-5 text-3xl font-black leading-tight text-slate-950" style={{ borderColor: activeScene.accent }}>
+                        &quot;{activeScene.sellerLine}&quot;
+                      </blockquote>
+                      <p className="mt-5 text-base font-medium leading-8 text-slate-600">{activeScene.description}</p>
+                    </div>
+
+                    <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                      {activeScene.bullets.map((bullet) => (
+                        <div key={bullet} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <CheckCircle2 className="h-5 w-5" style={{ color: activeScene.accent }} />
+                          <p className="mt-3 text-sm font-black uppercase tracking-[0.12em] text-slate-700">{bullet}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.article>
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
+
       <section id="mapa" className="border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
         <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
           <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
@@ -381,6 +514,86 @@ export function PortafolioLedClient() {
                 </motion.div>
               </AnimatePresence>
             </aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="vendedor" className="relative overflow-hidden bg-white py-20 sm:py-24">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-200 to-transparent" />
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
+          <div className="grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-end">
+            <div>
+              <SectionEyebrow>Vendedor de tecnologia</SectionEyebrow>
+              <h2 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-slate-950 sm:text-5xl xl:text-6xl">
+                La pantalla LED no vende una lista: vende una experiencia AK por paquetes.
+              </h2>
+            </div>
+            <p className="max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
+              El recorrido recomendado es simple: primero se muestra el wow visual, despues el mapa completo de la fiesta,
+              luego la tecnologia como producto y al final se cierra con lo elegido para presupuesto o reunion.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-5 xl:grid-cols-5">
+            {LED_SALES_STORYLINE.map((step, index) => (
+              <motion.article
+                key={step.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.35, delay: index * 0.04 }}
+                className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-sm"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-black text-white" style={{ backgroundColor: step.accent }}>
+                  {index + 1}
+                </div>
+                <h3 className="mt-5 text-xl font-black leading-tight text-slate-950">{step.title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">{step.goal}</p>
+                <div className="mt-5 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Como mostrarlo</p>
+                  <p className="mt-2 text-sm font-bold leading-6 text-slate-700">{step.howToShow}</p>
+                </div>
+                <p className="mt-4 text-xs font-bold leading-5 text-slate-500">{step.proof}</p>
+              </motion.article>
+            ))}
+          </div>
+
+          <div className="mt-12 rounded-[2.5rem] border border-slate-200 bg-slate-950 p-5 text-white shadow-2xl shadow-slate-950/20 sm:p-7">
+            <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-red-200">Que se vende</p>
+                <h3 className="mt-4 text-3xl font-black leading-none sm:text-4xl">Paquetes de tecnologia activables</h3>
+                <p className="mt-4 text-sm font-medium leading-7 text-white/65">
+                  Esto evita prometer cosas sueltas. Si una fiesta no contrato fotocabina, 360 o barra tecnologica,
+                  el vendedor lo apaga del paquete y la pantalla conserva una historia coherente.
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {LED_TECHNOLOGY_PACKAGES.map((pack) => (
+                  <motion.article
+                    key={pack.id}
+                    whileHover={{ y: -4 }}
+                    className="rounded-[1.75rem] border border-white/10 bg-white/10 p-5 backdrop-blur"
+                    style={{ boxShadow: `0 20px 60px ${colorWithAlpha(pack.accent, 0.12)}` }}
+                  >
+                    <span className="inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white" style={{ backgroundColor: pack.accent }}>
+                      Producto
+                    </span>
+                    <h4 className="mt-4 text-xl font-black leading-tight">{pack.title}</h4>
+                    <p className="mt-2 text-sm font-bold leading-6 text-red-100">{pack.sellAs}</p>
+                    <p className="mt-3 text-sm font-medium leading-6 text-white/62">{pack.clientValue}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {pack.includes.map((item) => (
+                        <span key={item} className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white/70">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.article>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

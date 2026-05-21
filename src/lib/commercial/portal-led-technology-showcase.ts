@@ -5,6 +5,11 @@ export type PortalLedTechnologyId =
   | 'rsvp_lista'
   | 'red_social_privada'
   | 'muro_social'
+  | 'zona_digital_adolescente'
+  | 'entretenimiento_viral'
+  | 'barra_tecnologica'
+  | 'totems_sincronizados'
+  | 'modo_audioritmico'
   | 'juegos_sorteos'
   | 'album_digital'
   | 'seguimiento_ak';
@@ -30,9 +35,9 @@ export type PortalLedTechnologyShowcase = {
 
 export const PORTAL_LED_TECHNOLOGY_SHOWCASE: PortalLedTechnologyShowcase = {
   headline: 'Tecnologia AK: tu fiesta conectada antes, durante y despues',
-  subtitle: 'No es solo una app. Es una experiencia digital para organizar mejor, confirmar invitados y hacer que la fiesta se viva mas.',
-  positioning: 'Esto diferencia a AK de contratar proveedores sueltos: la organizacion, los invitados y los recuerdos quedan conectados en un solo sistema.',
-  closingPhrase: 'La tecnologia no reemplaza la fiesta: la hace mas facil, mas ordenada y mas divertida.',
+  subtitle: 'No es solo una app. Es una experiencia digital vendible: organiza, confirma, entretiene, muestra en pantalla y genera recuerdos.',
+  positioning: 'Esto diferencia a AK de contratar proveedores sueltos: la organizacion, los invitados, la zona tecnologica y los recuerdos quedan conectados en un solo sistema.',
+  closingPhrase: 'La tecnologia no reemplaza la fiesta: la hace mas facil, mas ordenada, mas participativa y mas memorable.',
   items: [
     {
       id: 'portal_cliente',
@@ -95,13 +100,63 @@ export const PORTAL_LED_TECHNOLOGY_SHOWCASE: PortalLedTechnologyShowcase = {
       visibleInLed: true,
     },
     {
+      id: 'zona_digital_adolescente',
+      title: 'Zona digital adolescente',
+      shortPitch: 'Retos, juegos, emojis, ranking, votaciones y QR para que los jovenes participen.',
+      benefit: 'La fiesta tiene una zona propia de interaccion, especialmente fuerte para XV y adolescentes.',
+      clientPain: 'Adolescentes dispersos, poca participacion o entretenimiento digital sin control.',
+      sellerScript: 'Podemos activar una zona digital para que los invitados jueguen, suban fotos, reaccionen y se vean en pantalla con moderacion.',
+      priority: 7,
+      visibleInLed: true,
+    },
+    {
+      id: 'entretenimiento_viral',
+      title: 'Fotocabina, 360, Bogue y espejo',
+      shortPitch: 'Estaciones para crear fotos, GIFs, loops y videos con plantilla del evento.',
+      benefit: 'El evento produce contenido compartible y recuerdos con marca de la fiesta.',
+      clientPain: 'Fotos aisladas en celulares sin galeria, QR ni salida visual para la pantalla.',
+      sellerScript: 'Las estaciones no quedan sueltas: lo que se genera puede ir a galeria, muro social, QR y redes.',
+      priority: 8,
+      visibleInLed: true,
+    },
+    {
+      id: 'barra_tecnologica',
+      title: 'Barra tecnologica tactil',
+      shortPitch: 'El invitado elige tragos en pantalla y el barman recibe los pedidos ordenados.',
+      benefit: 'La barra se convierte en una experiencia visual e interactiva, no solo en despacho de bebidas.',
+      clientPain: 'Colas, pedidos desordenados o invitados que no saben que trago elegir.',
+      sellerScript: 'Podemos mostrar ingredientes, videos y una cola para barman en otra pantalla.',
+      priority: 9,
+      visibleInLed: true,
+    },
+    {
+      id: 'totems_sincronizados',
+      title: 'Totems sincronizados',
+      shortPitch: 'Pantallas verticales con fondos movibles, QR, fotos y nombre del evento.',
+      benefit: 'Entrada, barra, pista y selfie points tienen presencia visual propia.',
+      clientPain: 'La tecnologia se ve solo en una pantalla y no acompana los distintos espacios del salon.',
+      sellerScript: 'Podemos poner pantallas por sectores para invitar a participar y mostrar contenido vivo.',
+      priority: 10,
+      visibleInLed: true,
+    },
+    {
+      id: 'modo_audioritmico',
+      title: 'Modo discoteca audiorritmico',
+      shortPitch: 'Visuales para momentos de baile con QR, hashtag, fotos y movimiento.',
+      benefit: 'La pantalla acompana la energia de la pista y mantiene viva la participacion.',
+      clientPain: 'Pantallas estaticas durante la discoteca o contenido que no acompana el ritmo.',
+      sellerScript: 'Cuando empieza la pista, la pantalla puede pasar a modo visual de baile y seguir llamando a participar.',
+      priority: 11,
+      visibleInLed: true,
+    },
+    {
       id: 'juegos_sorteos',
       title: 'Juegos, desafios y sorteos',
       shortPitch: 'Dinamicas simples para mover a los invitados y crear momentos.',
       benefit: 'Mas diversion y participacion sin contratar otro show.',
       clientPain: 'Momentos muertos o invitados que no participan.',
       sellerScript: 'Podemos sumar dinamicas para que la fiesta tenga mas vida.',
-      priority: 7,
+      priority: 12,
       visibleInLed: true,
     },
     {
@@ -111,7 +166,7 @@ export const PORTAL_LED_TECHNOLOGY_SHOWCASE: PortalLedTechnologyShowcase = {
       benefit: 'El recuerdo queda presentado de forma profesional.',
       clientPain: 'Fotos desperdigadas, links perdidos o entregas poco claras.',
       sellerScript: 'Despues de la fiesta tambien seguimos cuidando la experiencia.',
-      priority: 8,
+      priority: 13,
       visibleInLed: true,
     },
     {
@@ -121,7 +176,7 @@ export const PORTAL_LED_TECHNOLOGY_SHOWCASE: PortalLedTechnologyShowcase = {
       benefit: 'Mejor organizacion interna y menos errores.',
       clientPain: 'Detalles que se pierden entre reuniones y mensajes.',
       sellerScript: 'Todo queda registrado para que la organizacion no dependa de la memoria.',
-      priority: 9,
+      priority: 14,
       visibleInLed: true,
     },
   ],
@@ -148,8 +203,9 @@ export function buildPortalLedTechnologyChecklist(): string[] {
   return [
     'Mostrar Tecnologia AK antes de hablar solo de servicios y precio.',
     'Explicar cada herramienta por beneficio, no por nombre tecnico.',
-    'Conectar invitacion, confirmaciones, invitados, muro y album como una experiencia unica.',
+    'Conectar invitacion, confirmaciones, invitados, zona digital, estaciones, muro y album como una experiencia unica.',
+    'Separar lo incluido, lo opcional y lo apagado para no prometer modulos no contratados.',
     'Usar frases cortas para pantalla LED y explicacion oral en la entrevista.',
-    'Cerrar la seccion mostrando que AK vende organizacion, tecnologia y tranquilidad.',
+    'Cerrar la seccion mostrando que AK vende organizacion, tecnologia, entretenimiento y tranquilidad.',
   ];
 }
