@@ -21,6 +21,8 @@ export type SimulatorSalesPresentation = {
   steps: SimulatorSalesStep[];
   beforePriceMessage: string;
   priceDisclaimer: string;
+  commercialPromise: string;
+  requiredBeforePriceStepIds: SimulatorSalesStepId[];
 };
 
 export const SIMULATOR_SALES_PRESENTATION: SimulatorSalesPresentation = {
@@ -28,6 +30,8 @@ export const SIMULATOR_SALES_PRESENTATION: SimulatorSalesPresentation = {
   intro: 'El simulador no es solo para calcular. Primero te mostramos cómo resolvemos la fiesta completa para que compares con contratar todo por separado.',
   beforePriceMessage: 'Ahora sí, con esta base clara, podemos estimar un precio de referencia para tu fiesta.',
   priceDisclaimer: 'El precio del simulador es una referencia comercial. El presupuesto final se valida en entrevista según fecha, servicios, menú y disponibilidad.',
+  commercialPromise: 'AK no vende solo servicios sueltos: vende una fiesta ordenada, visible y conectada con tecnología propia.',
+  requiredBeforePriceStepIds: ['dolor_cliente', 'servicio_integral', 'beneficios_ak', 'tecnologia_ak', 'prueba_valor'],
   steps: [
     {
       id: 'dolor_cliente',
@@ -57,7 +61,7 @@ export const SIMULATOR_SALES_PRESENTATION: SimulatorSalesPresentation = {
       id: 'tecnologia_ak',
       title: 'Tecnología AK incluida en la experiencia',
       subtitle: 'Tu fiesta queda conectada antes, durante y después.',
-      bullets: ['Invitación digital', 'Portal del cliente', 'Portal del invitado', 'Confirmaciones y lista automática', 'Red social privada y muro social', 'Álbum digital y reporte final'],
+      bullets: ['Invitación digital', 'Portal del cliente', 'Portal del invitado', 'Confirmaciones y lista automática', 'QR inteligente', 'Red social privada y muro social', 'Álbum digital y reporte final'],
       cta: 'Ver tecnología AK',
       priority: 4,
     },
@@ -88,6 +92,7 @@ export function buildSimulatorSalesChatMessages(clientName?: string): string[] {
   const name = clientName?.trim() || 'vos';
   return [
     `Antes de darte un número, quiero que entiendas qué estás contratando, ${name}.`,
+    SIMULATOR_SALES_PRESENTATION.commercialPromise,
     'AK no es solo catering o decoración: es organización integral para que disfrutes la fiesta como invitado.',
     'Además incluimos tecnología: invitación digital, portal cliente, portal invitado, confirmaciones, muro social y álbum digital.',
     SIMULATOR_SALES_PRESENTATION.beforePriceMessage,
@@ -103,7 +108,5 @@ export function buildSimulatorValuePropositionSummary(): string {
 
 export function shouldShowPriceAfterSalesPresentation(completedStepIds: SimulatorSalesStepId[]): boolean {
   const completed = new Set(completedStepIds);
-  return getSimulatorSalesSteps()
-    .filter(step => step.id !== 'precio_referencia')
-    .every(step => completed.has(step.id));
+  return SIMULATOR_SALES_PRESENTATION.requiredBeforePriceStepIds.every(stepId => completed.has(stepId));
 }

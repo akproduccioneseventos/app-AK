@@ -27,6 +27,8 @@ export type SimulatorConversionInput = {
   requestedMeeting?: boolean;
   clickedWhatsApp?: boolean;
   createdBudget?: boolean;
+  viewedTechnologyValue?: boolean;
+  acceptedFollowUp?: boolean;
 };
 
 export type SimulatorConversionPlan = {
@@ -38,6 +40,10 @@ export type SimulatorConversionPlan = {
   internalNote: string;
   shouldCreateTask: boolean;
   shouldPrioritize: boolean;
+  salesStage: 'educar' | 'validar_interes' | 'agendar_entrevista' | 'cerrar_fecha';
+  followUpTaskTitle: string;
+  crmPriorityLabel: string;
+  valueProof: string[];
 };
 
 function normalize(value?: string): string {
@@ -55,9 +61,10 @@ function daysUntil(dateISO?: string): number | null {
 
 export function classifySimulatorLeadTemperature(input: SimulatorConversionInput): SimulatorLeadTemperature {
   const days = daysUntil(input.eventDate);
-  if (input.requestedMeeting || input.clickedWhatsApp) return 'caliente';
+  if (input.requestedMeeting && input.createdBudget) return 'urgente';
+  if (input.requestedMeeting || input.clickedWhatsApp || input.acceptedFollowUp) return 'caliente';
   if (days !== null && days <= 45) return 'urgente';
-  if (input.createdBudget || input.completedSalesPresentation) return 'tibio';
+  if (input.createdBudget || input.completedSalesPresentation || input.viewedTechnologyValue) return 'tibio';
   return 'frio';
 }
 
@@ -70,8 +77,10 @@ export function buildSimulatorCrmTags(input: SimulatorConversionInput): string[]
   if (input.wantsClubUruguay) tags.add('interes:club_uruguay');
   if (input.hasVenue === false) tags.add('necesita_salon');
   if (input.completedSalesPresentation) tags.add('vio_presentacion_ak');
+  if (input.viewedTechnologyValue) tags.add('vio_tecnologia_ak');
   if (input.clickedWhatsApp) tags.add('accion:whatsapp');
   if (input.requestedMeeting) tags.add('accion:entrevista');
+  if (input.acceptedFollowUp) tags.add('accion:acepta_seguimiento');
   if (input.createdBudget) tags.add('presupuesto:referencia_generada');
 
   tags.add(`temperatura:${classifySimulatorLeadTemperature(input)}`);
@@ -85,7 +94,31 @@ export function buildSimulatorWhatsappMessage(input: SimulatorConversionInput): 
     ? ` El simulador te dejó una referencia de UYU ${Math.round(input.estimatedTotal).toLocaleString('es-UY')}.`
     : '';
 
-  return `${name}, gracias por usar el simulador de AK Producciones. Ya tenemos datos de ${eventType}.${total} El siguiente paso es coordinar una entrevista gratis para revisar servicios, menú, fecha y dejar el presupuesto bien ajustado.`;
+  const technology = input.viewedTechnologyValue || input.completedSalesPresentation
+    ? ' Además viste cómo AK conecta portal, invitación, invitados, muro social y seguimiento para que la fiesta no sea solo una lista de servicios.'
+    : '';
+
+  return `${name}, gracias por usar el simulador de AK Producciones. Ya tenemos datos de ${eventType}.${total}${technology} El siguiente paso es coordinar una entrevista gratis para revisar servicios, menú, fecha y dejar el presupuesto bien ajustado.`;
+}
+
+function buildSalesStage(input: SimulatorConversionInput, leadTemperature: SimulatorLeadTemperature): SimulatorConversionPlan['salesStage'] {
+  if (input.requestedMeeting || leadTemperature === 'urgente') return 'cerrar_fecha';
+  if (input.clickedWhatsApp || input.acceptedFollowUp) return 'agendar_entrevista';
+  if (input.createdBudget || input.completedSalesPresentation || input.viewedTechnologyValue) return 'validar_interes';
+  return 'educar';
+}
+
+function buildValueProof(input: SimulatorConversionInput): string[] {
+  const proof = [
+    'Organización integral AK antes, durante y después de la fiesta.',
+    'Precio de referencia explicado como punto de partida, no como cierre automático.',
+  ];
+
+  if (input.completedSalesPresentation) proof.push('El cliente vio la presentación de valor antes del precio.');
+  if (input.viewedTechnologyValue) proof.push('El cliente vio tecnología AK: portal, invitación, social, QR y post-fiesta.');
+  if (input.wantsClubUruguay) proof.push('Hay interés explícito en Club Uruguay.');
+  if (input.hasVenue === false) proof.push('Necesita salón, oportunidad para propuesta completa.');
+  return proof;
 }
 
 export function buildSimulatorConversionPlan(input: SimulatorConversionInput): SimulatorConversionPlan {
@@ -94,6 +127,14 @@ export function buildSimulatorConversionPlan(input: SimulatorConversionInput): S
   const crmTags = buildSimulatorCrmTags(input);
   const days = daysUntil(input.eventDate);
   const shouldPrioritize = leadTemperature === 'caliente' || leadTemperature === 'urgente';
+  const salesStage = buildSalesStage(input, leadTemperature);
+  const crmPriorityLabel = leadTemperature === 'urgente'
+    ? 'Cerrar fecha hoy'
+    : shouldPrioritize
+      ? 'Responder en el día'
+      : salesStage === 'validar_interes'
+        ? 'Seguimiento educativo'
+        : 'Nutrir con valor AK';
 
   const nextAction = input.requestedMeeting
     ? 'Coordinar entrevista y confirmar disponibilidad de fecha.'
@@ -121,6 +162,10 @@ export function buildSimulatorConversionPlan(input: SimulatorConversionInput): S
     internalNote,
     shouldCreateTask: true,
     shouldPrioritize,
+    salesStage,
+    followUpTaskTitle: `${crmPriorityLabel}: ${normalize(input.clientName) || 'lead de simulador'}`,
+    crmPriorityLabel,
+    valueProof: buildValueProof(input),
   };
 }
 
@@ -131,5 +176,7 @@ export function buildSimulatorConversionChecklist(): string[] {
     'Guardar presupuesto como referencia pendiente de verificacion.',
     'Crear tarea de seguimiento si no agenda entrevista.',
     'Preparar mensaje WhatsApp con entrevista gratis como siguiente paso.',
+    'Separar clientes que solo calcularon de los que ya vieron tecnologia AK.',
+    'Priorizar cierre de fecha cuando hay entrevista pedida o evento cercano.',
   ];
 }

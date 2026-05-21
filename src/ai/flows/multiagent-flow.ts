@@ -1,6 +1,6 @@
 'use server';
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
@@ -11,6 +11,7 @@ import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getCrmLeads } from '@/app/actions/crm';
 
 const MARKETING_CONTENT_REGEX = /(post|historia|reel|tiktok|instagram|facebook|whatsapp|publicaci|campaña|campana|caption|copy|texto|contenido|anuncio|promo)/i;
+const DEEP_REQUEST_REGEX = /(auditor|diagn[oó]stico profundo|revision completa|revisi[oó]n completa|cierre|estrategia|prioridades generales|todo el equipo|preparaci[oó]n total)/i;
 
 function detectAgent(input: AkMultiAgentInput): AkAgentType {
   if (input.agentType) return input.agentType;
@@ -75,6 +76,11 @@ function detectPlatform(message: string): string | undefined {
   if (lower.includes('tiktok')) return 'tiktok';
   if (lower.includes('whatsapp')) return 'whatsapp';
   return undefined;
+}
+
+function isDeepMultiAgentRequest(input: AkMultiAgentInput, agentType: AkAgentType): boolean {
+  if (agentType === 'fiestas_general' || agentType === 'contable') return true;
+  return DEEP_REQUEST_REGEX.test(input.message);
 }
 
 async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
@@ -184,11 +190,15 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
     };
   }
 
+  const isDeepRequest = isDeepMultiAgentRequest(input, agentType);
+  const model = getGeminiModelForAgent(agentType, { deep: isDeepRequest });
+  const generationConfig = getGeminiGenerationConfigForAgent(agentType, { deep: isDeepRequest });
+
   const { text } = await ai.generate({
-    model: geminiModel,
+    model,
     system: `${agentRole(agentType)}\n\nReglas duras: hablá simple, directo y práctico. Usa solo los datos del CONTEXTO REAL. Si un dato no aparece, decí "no lo veo cargado" y sugerí dónde cargarlo. No inventes pagos, mails enviados, invitados confirmados, tareas hechas, contratos firmados ni fechas. Primero usá el diagnóstico automático si existe. Ordená la respuesta en: 1. lo más importante, 2. próximos pasos, 3. aprendizaje sugerido si corresponde. No digas que guardaste, enviaste o sincronizaste algo salvo que la acción real se haya ejecutado desde un botón o acción de servidor.`,
     prompt: `CONTEXTO REAL DE LA APP:\n${context.text}\n\nHISTORIAL:\n${input.history.map(h => `${h.role}: ${h.content}`).join('\n')}\n\nMENSAJE DE ALEXANDER:\n${input.message}`,
-    config: { temperature: agentType === 'marketing' ? 0.55 : 0.2 },
+    config: generationConfig,
   });
 
   return {
