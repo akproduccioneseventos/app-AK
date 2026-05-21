@@ -12,11 +12,14 @@ function isBudgetViewRoute(pathname: string | null) {
 
 function getCurrentBudgetUrl() {
   if (typeof window === 'undefined') return '';
-  return window.location.href.split('#')[0];
+  const url = new URL(window.location.href);
+  url.hash = '';
+  url.searchParams.delete('imprimir');
+  return url.toString();
 }
 
 function buildBudgetShareText(url: string) {
-  return `Te comparto el presupuesto de AK Producciones:\n${url}`;
+  return `Te comparto el presupuesto de AK Producciones.\nLa reserva y las firmas se confirman con el contrato correspondiente.\n${url}`;
 }
 
 export function BudgetShareDock() {
