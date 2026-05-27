@@ -15,6 +15,7 @@ import {
   FileText,
   Image as ImageIcon,
   ListMusic,
+  LockKeyhole,
   MapPin,
   MessageCircle,
   Music,
@@ -222,6 +223,65 @@ function NoticeBox({ notice }: { notice: Notice }) {
     : 'border-rose-200 bg-rose-50 text-rose-800';
 
   return <p className={`rounded-lg border p-3 text-sm font-medium ${className}`}>{notice.text}</p>;
+}
+
+function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolveClientPortalAccess>; eventColor: string }) {
+  const phases = [
+    {
+      id: 'financiera',
+      title: '1. Presupuesto y contrato',
+      text: 'El cliente ve presupuesto, pagos, documentos, servicios contratados y puede pedir cambios con ajuste.',
+      open: access.canSeeFinancial,
+    },
+    {
+      id: 'organizacion',
+      title: '2. Organizacion',
+      text: 'Musica, reuniones, fotos, menu, decoracion, cronograma e invitados se abren cuando empieza la coordinacion.',
+      open: access.canSeeOrganization,
+    },
+    {
+      id: 'en_vivo',
+      title: '3. Fiesta en vivo',
+      text: `Muro social y accesos del dia se habilitan cerca del evento${access.daysUntilEvent !== null ? `; faltan ${access.daysUntilEvent} dias` : ''}.`,
+      open: access.canSeeLive,
+    },
+  ];
+
+  return (
+    <div className="mb-5 rounded-lg border bg-white p-4 shadow-sm">
+      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wide text-slate-500">Acceso del cliente</p>
+          <h2 className="text-xl font-black text-slate-950">{access.label}</h2>
+        </div>
+        <p className="text-xs font-semibold text-slate-500">
+          {access.liveLocked ? `Fiesta en vivo: ${access.liveAccessDaysBefore} dias antes` : 'Fiesta en vivo habilitada'}
+        </p>
+      </div>
+      <div className="grid gap-3 lg:grid-cols-3">
+        {phases.map((phase, index) => (
+          <div
+            key={phase.id}
+            className={`rounded-lg border p-3 ${phase.open ? 'bg-slate-50 text-slate-900' : 'bg-white text-slate-500'}`}
+          >
+            <div className="mb-2 flex items-center gap-2">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-md text-white"
+                style={{ background: phase.open ? eventColor : '#94a3b8' }}
+              >
+                {phase.open ? <CheckCircle2 className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}
+              </span>
+              <p className="font-black">{phase.title}</p>
+            </div>
+            <p className="text-sm leading-6">{phase.text}</p>
+            {!phase.open && index > 0 && (
+              <p className="mt-2 text-xs font-semibold text-slate-400">Todavia no visible para el cliente.</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [] }: PublicPortalClientExperienceProps) {
@@ -601,6 +661,8 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             </div>
           </div>
         )}
+
+        <PhaseRoadmap access={access} eventColor={eventColor} />
 
         <div className={`mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 ${access.canSeeOrganization ? '' : '[&>a:first-child]:hidden'}`}>
           <QuickButton href="#portal-organizacion" icon={ClipboardList} label="Organización" helper="Música, reuniones, fotos y cronograma" color={eventColor} />

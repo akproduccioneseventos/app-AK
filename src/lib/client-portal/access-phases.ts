@@ -3,9 +3,9 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 export type ClientPortalAccessPhase = 'financiera' | 'organizacion' | 'en_vivo';
 
 const PHASE_LABELS: Record<ClientPortalAccessPhase, string> = {
-  financiera: 'Acceso inicial',
-  organizacion: 'Organizacion',
-  en_vivo: 'Fiesta en vivo',
+  financiera: 'Fase 1: presupuesto, pagos y contrato',
+  organizacion: 'Fase 2: organizacion del evento',
+  en_vivo: 'Fase 3: fiesta en vivo',
 };
 
 const PHASE_RANK: Record<ClientPortalAccessPhase, number> = {
