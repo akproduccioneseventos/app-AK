@@ -41,7 +41,7 @@ function generatePortalAccessKey(fiesta?: FiestaEnPlanificacion | null): string 
   return `cliente-vip-${base}-${suffix}`;
 }
 
-type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>;
+type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey' | 'accessPhase' | 'liveAccessDaysBefore' | 'cuentasBancarias' | 'simuladorInvitadosConfig'>;
 
 interface ModuleGroup {
   label: string;
@@ -135,7 +135,7 @@ function ClientPortalConfigContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiestaData(fiestaData);
-      const settings = fiestaData.clientPortalSettings || defaultClientPortalSettings;
+      const settings = { ...defaultClientPortalSettings, ...(fiestaData.clientPortalSettings || {}) };
       const companyInfo = await getCompanyInfo();
       const cuentasEmpresa = companyInfo.cuentasBancariasPortal ?? [];
       setPortalSettings(settings);
@@ -331,7 +331,7 @@ function ClientPortalConfigContent() {
     }
   };
 
-  const handlePortalSwitch = (moduleId: keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey'>, field: 'visible' | 'editable', value: boolean) => {
+  const handlePortalSwitch = (moduleId: ModuleId, field: 'visible' | 'editable', value: boolean) => {
     setPortalSettings(prev => {
       if (!prev) return defaultClientPortalSettings;
       const moduleSettings = prev[moduleId] || { visible: false };
@@ -514,6 +514,38 @@ function ClientPortalConfigContent() {
                       </Button>
                     </div>
                   )}
+                  <Separator/>
+                  <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
+                    <div>
+                      <Label className="text-sm font-black">Fase de acceso del cliente</Label>
+                      <p className="text-xs text-muted-foreground">El cliente empieza con presupuesto, pagos, contrato y solicitudes economicas. Despues se abren organizacion y fiesta en vivo.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      {[
+                        { id: 'financiera', label: '1. Contable' },
+                        { id: 'organizacion', label: '2. Organizacion' },
+                        { id: 'en_vivo', label: '3. En vivo' },
+                      ].map((phase) => (
+                        <Button
+                          key={phase.id}
+                          type="button"
+                          variant={portalSettings.accessPhase === phase.id ? 'default' : 'outline'}
+                          onClick={() => setPortalSettings(prev => ({ ...(prev || defaultClientPortalSettings), accessPhase: phase.id as ClientPortalSettings['accessPhase'] }))}
+                        >
+                          {phase.label}
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-[1fr_120px] sm:items-center">
+                      <p className="text-xs text-muted-foreground">Dias previos para abrir automaticamente la parte en vivo.</p>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={portalSettings.liveAccessDaysBefore ?? 7}
+                        onChange={event => setPortalSettings(prev => ({ ...(prev || defaultClientPortalSettings), liveAccessDaysBefore: Math.max(0, Number(event.target.value) || 0) }))}
+                      />
+                    </div>
+                  </div>
                   <Separator/>
                    <h4 className="text-md font-medium pt-2">Módulos visibles para el cliente</h4>
                    <p className="text-xs text-muted-foreground -mt-2">Activá los módulos que querés mostrar en el portal del cliente, agrupados por categoría.</p>

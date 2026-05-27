@@ -87,7 +87,7 @@ export const defaultFaq: FaqItem[] = [
 ];
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
-    enabled: false, accessKey: '', checklist: { visible: false, editable: false }, itinerario: { visible: false },
+    enabled: false, accessKey: '', accessPhase: 'financiera', liveAccessDaysBefore: 7, checklist: { visible: false, editable: false }, itinerario: { visible: false },
     musica: { visible: false, editable: false }, videoVida: { visible: true, editable: true }, listaRegalos: { visible: false },
     documentos: { visible: true }, notasCliente: { visible: false, editable: true }, invitados: { visible: true },
     paginaPublica: { visible: true }, fotografiaYFilmacion: { visible: true }, moodboard: { visible: false, editable: true },

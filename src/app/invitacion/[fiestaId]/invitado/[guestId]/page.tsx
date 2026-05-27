@@ -257,10 +257,10 @@ function GuestPortalContent() {
     : { label: 'Pendiente de confirmación', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/30' };
 
   return (
-    <div className="min-h-screen text-zinc-100 flex flex-col items-center" style={{ backgroundColor: gps.customBgColor || '#09090b' }}>
+    <div className="ak-live-stage min-h-screen text-zinc-100 flex flex-col items-center" style={{ backgroundColor: gps.customBgColor || undefined }}>
 
       {/* ─── HERO ─── */}
-      <div className="relative w-full overflow-hidden" style={{ minHeight: '340px' }}>
+      <div className="ak-public-hero relative w-full overflow-hidden" style={{ minHeight: '340px' }}>
         {heroImage ? (
           <img
             src={heroImage}
@@ -357,7 +357,7 @@ function GuestPortalContent() {
           transition={{ delay: 0.1, duration: 0.4 }}
         >
         <div
-          className="rounded-2xl border p-5 space-y-3 mt-4"
+          className="ak-guest-pass p-5 space-y-3 mt-4"
           style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
         >
           <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Mi Asistencia</p>
@@ -481,7 +481,7 @@ function GuestPortalContent() {
             transition={{ delay: 0.2, duration: 0.4 }}
           >
           <div
-            className="rounded-2xl border p-5 space-y-3 mt-4"
+            className="ak-guest-pass p-5 space-y-3 mt-4"
             style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Datos del evento</p>
@@ -565,7 +565,7 @@ function GuestPortalContent() {
                   href={action.href}
                   target={action.external ? '_blank' : undefined}
                   rel={action.external ? 'noopener noreferrer' : undefined}
-                  className="flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center text-sm font-semibold text-zinc-200 hover:bg-white/10 transition"
+                  className="ak-guest-pass flex flex-col items-center justify-center gap-2 p-4 text-center text-sm font-semibold text-zinc-200 hover:bg-white/10 transition"
                   style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
                 >
                   <span className="text-2xl">{action.icon}</span>
@@ -580,7 +580,7 @@ function GuestPortalContent() {
         {/* ── CANCIONES SUGERIDAS (solo si hay datos) ── */}
         {gps.showMusica && guest.cancionesDJ && guest.cancionesDJ.length > 0 && (
           <div
-            className="rounded-2xl border p-5"
+            className="ak-guest-pass p-5"
             style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Tus canciones sugeridas</p>
@@ -605,7 +605,7 @@ function GuestPortalContent() {
             transition={{ delay: 0.4, duration: 0.4 }}
           >
           <div
-            className="rounded-2xl border overflow-hidden mt-4"
+            className="ak-guest-pass overflow-hidden mt-4"
             style={{ borderColor: `${accentColor}30` }}
           >
             <div className="p-4 flex items-center justify-between" style={{ background: `${accentColor}10` }}>
@@ -657,7 +657,7 @@ function GuestPortalContent() {
             transition={{ delay: 0.5, duration: 0.4 }}
           >
           <div
-            className="rounded-2xl border p-5 mt-4"
+            className="ak-guest-pass p-5 mt-4"
             style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">
@@ -683,7 +683,7 @@ function GuestPortalContent() {
         {showAkCta && (
           <div
             data-testid="guest-portal-ak-cta"
-            className="rounded-2xl border p-6 text-center space-y-4"
+            className="ak-guest-pass p-6 text-center space-y-4"
             style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)' }}
           >
             <div className="space-y-1">

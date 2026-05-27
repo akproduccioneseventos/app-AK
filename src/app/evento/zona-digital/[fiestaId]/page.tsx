@@ -90,13 +90,13 @@ export default function ZonaDigitalPublicPage() {
   const canDownload = !settings.showSocialFollowGate || followAcknowledged;
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center bg-slate-950"><Loader2 className="h-10 w-10 animate-spin text-red-500" /></div>;
+    return <div className="ak-live-stage flex min-h-screen items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-red-500" /></div>;
   }
 
   if (!fiesta || !settings.enabled) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-white">
-        <Card className="max-w-md border-white/10 bg-white/10 text-white backdrop-blur">
+      <main className="ak-live-stage flex min-h-screen items-center justify-center p-6 text-white">
+        <Card className="ak-live-panel max-w-md text-white">
           <CardContent className="space-y-4 p-6 text-center">
             <ShieldCheck className="mx-auto h-10 w-10 text-red-400" />
             <h1 className="text-2xl font-black">Zona digital no activa</h1>
@@ -109,13 +109,8 @@ export default function ZonaDigitalPublicPage() {
 
   return (
     <main className={cn('min-h-screen overflow-hidden px-4 py-5 sm:px-6', getBackgroundClass(settings.backgroundStyle))}>
-      <div className="pointer-events-none fixed inset-0 opacity-40">
-        <div className="absolute left-8 top-20 h-40 w-40 animate-pulse rounded-full bg-red-500 blur-3xl" />
-        <div className="absolute bottom-20 right-6 h-48 w-48 animate-pulse rounded-full bg-cyan-400 blur-3xl [animation-delay:700ms]" />
-      </div>
-
       <div className="relative mx-auto max-w-6xl space-y-5">
-        <section className="rounded-[2rem] border border-white/10 bg-white/10 p-5 shadow-2xl backdrop-blur sm:p-8">
+        <section className="ak-live-panel p-5 sm:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <Badge className="mb-4 border-white/20 bg-white/15 text-current">AK Producciones</Badge>
@@ -127,7 +122,7 @@ export default function ZonaDigitalPublicPage() {
                 <Badge variant="outline" className="border-current text-current">{challenges.length} retos</Badge>
               </div>
             </div>
-            <div className="rounded-3xl bg-white p-4 text-slate-950 shadow-xl">
+            <div className="rounded-lg bg-white p-4 text-slate-950 shadow-xl">
               <Label className="text-xs font-black uppercase text-slate-400">Tu apodo</Label>
               <Input value={nickname} onChange={event => setNickname(event.target.value)} placeholder="Ej: Mesa 7, Sofi, Team XV" className="mt-2" />
               <p className="mt-2 text-xs text-slate-500">Solo se usa para retos y ranking de esta fiesta.</p>
@@ -153,7 +148,7 @@ export default function ZonaDigitalPublicPage() {
                     type="button"
                     onClick={() => setSelectedChallengeId(item.id)}
                     className={cn(
-                      'rounded-3xl border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-lg',
+                      'rounded-lg border p-4 text-left transition hover:-translate-y-0.5 hover:shadow-lg',
                       selectedChallenge?.id === item.id ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'
                     )}
                   >
@@ -193,7 +188,7 @@ export default function ZonaDigitalPublicPage() {
                     type="button"
                     onClick={() => setSelectedEmoji(item.emoji)}
                     className={cn(
-                      'rounded-3xl border border-white/15 bg-white/10 p-4 text-4xl transition hover:scale-105',
+                    'rounded-lg border border-white/15 bg-white/10 p-4 text-4xl transition hover:scale-105',
                       selectedEmoji === item.emoji && 'bg-white text-slate-950'
                     )}
                     aria-label={item.label}
@@ -202,7 +197,7 @@ export default function ZonaDigitalPublicPage() {
                   </button>
                 ))}
               </div>
-              <div className="rounded-3xl bg-white/10 p-4">
+              <div className="rounded-lg bg-white/10 p-4">
                 <p className="text-sm font-bold">Puntos estimados</p>
                 <Progress value={selectedChallenge ? Math.min(100, selectedChallenge.points / 1.5) : 30} className="mt-3 h-2" />
                 <p className="mt-2 text-xs opacity-70">{nickname || 'Tu apodo'} puede aparecer en el ranking de pantalla.</p>
@@ -238,7 +233,7 @@ export default function ZonaDigitalPublicPage() {
               </div>
               <div className="space-y-3">
                 {games.map(game => (
-                  <div key={game.id} className="rounded-3xl border border-slate-200 p-4">
+                  <div key={game.id} className="rounded-lg border border-slate-200 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-black">{game.emoji} {game.title}</p>
@@ -293,14 +288,14 @@ export default function ZonaDigitalPublicPage() {
           </Card>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-white/10 p-5 backdrop-blur sm:p-6">
+        <section className="ak-live-panel p-5 sm:p-6">
           <div className="flex items-start gap-3">
             <MessageCircle className="mt-1 h-5 w-5 text-red-400" />
             <div>
               <h2 className="text-xl font-black">Reglas simples</h2>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {settings.safetyRules.map(rule => (
-                  <div key={rule} className="rounded-2xl bg-white/10 p-3 text-sm opacity-85">{rule}</div>
+                  <div key={rule} className="rounded-lg bg-white/10 p-3 text-sm opacity-85">{rule}</div>
                 ))}
               </div>
             </div>

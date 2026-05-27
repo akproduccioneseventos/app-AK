@@ -63,7 +63,7 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Card className="overflow-hidden shadow-sm">
+    <Card className="ak-public-card overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
@@ -241,8 +241,8 @@ export default function InvitadoPage() {
   const headerCls = customBg ? '' : 'bg-gradient-to-br from-violet-900 via-purple-800 to-indigo-900';
   const pageBg = customBg ? { backgroundColor: customBg } : undefined;
   const pageCls = customBg
-    ? 'min-h-screen'
-    : 'min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-black';
+    ? 'min-h-screen ak-public-page'
+    : 'min-h-screen ak-public-page';
 
   // Guest experience / AK branding settings (applied after colors are resolved)
   const ges: GuestExperienceSettings = {
@@ -296,7 +296,7 @@ export default function InvitadoPage() {
     <div className={pageCls} style={pageBg}>
 
       {/* Header */}
-      <header className={`${headerCls} border-b border-purple-700/30 shadow-2xl sticky top-0 z-40`} style={headerBg}>
+      <header className={`${headerCls} ak-public-hero sticky top-0 z-40`} style={headerBg}>
         <div className="max-w-md mx-auto px-4 h-16 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-black text-white truncate">{config?.nombreEvento ?? 'Evento'}</p>
@@ -314,7 +314,7 @@ export default function InvitadoPage() {
 
         {/* Welcome message from admin */}
         {gps.welcomeMessage && (
-          <div className="rounded-2xl border text-center px-5 py-4 bg-white/90 shadow-sm">
+            <div className="ak-public-card text-center px-5 py-4">
             <p className="text-sm text-slate-600 italic">{gps.welcomeMessage}</p>
           </div>
         )}
@@ -329,7 +329,7 @@ export default function InvitadoPage() {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`rounded-2xl border p-3 flex flex-col items-center gap-1.5 text-center transition-transform hover:scale-105 active:scale-95 shadow-sm bg-white ${bg}`}
+                  className={`ak-public-action p-3 flex flex-col items-center gap-1.5 text-center active:scale-95 ${bg}`}
                 >
                   <Icon className={`w-6 h-6 ${color}`} />
                   <span className={`text-[11px] font-bold ${color}`}>{label}</span>
@@ -338,7 +338,7 @@ export default function InvitadoPage() {
                 <Link
                   key={label}
                   href={href}
-                  className={`rounded-2xl border p-3 flex flex-col items-center gap-1.5 text-center transition-transform hover:scale-105 active:scale-95 shadow-sm bg-white ${bg}`}
+                  className={`ak-public-action p-3 flex flex-col items-center gap-1.5 text-center active:scale-95 ${bg}`}
                 >
                   <Icon className={`w-6 h-6 ${color}`} />
                   <span className={`text-[11px] font-bold ${color}`}>{label}</span>
@@ -349,7 +349,7 @@ export default function InvitadoPage() {
         )}
 
         {/* Welcome */}
-        <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-white via-slate-50 to-purple-50">
+        <Card className="ak-public-card overflow-hidden bg-gradient-to-br from-white via-slate-50 to-teal-50">
           <div className={`h-2 bg-gradient-to-r ${perfilCfg.gradient}`} />
           <CardContent className="pt-6 text-center space-y-3">
             <div className={`w-16 h-16 rounded-full ${perfilCfg.bg} flex items-center justify-center mx-auto ring-4 ring-white shadow-lg`}>

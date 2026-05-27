@@ -31,7 +31,7 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
-import { addClientMusicSuggestion, submitClientMenuChangeRequest, submitClientPayment } from '@/app/actions/fiesta/portal.actions';
+import { addClientMusicSuggestion, submitClientMenuChangeRequest, submitClientPayment, submitClientServiceAddRequest } from '@/app/actions/fiesta/portal.actions';
 import { PublicFooter } from '@/components/public-footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +45,7 @@ import {
   getGuestStats,
   getPortalPaymentSummary,
 } from '@/lib/client-portal/client-portal-summary';
+import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 
 type PublicPortalClientExperienceProps = {
@@ -52,9 +53,24 @@ type PublicPortalClientExperienceProps = {
   companyContact: string;
   companyName: string;
   presupuesto?: any | null;
+  catalogServices?: CatalogService[];
 };
 
 type DisplayIcon = ElementType<{ className?: string }>;
+
+type CatalogService = {
+  id: string;
+  nombre: string;
+  categoria?: string;
+  subcategoria?: string;
+  precioVenta?: number;
+  calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
+  precioBase?: number;
+  precioPorPersona?: number;
+  invitadosPorUnidad?: number;
+  tramosDePrecio?: Array<{ id: string; desde: number; hasta: number; precio: number }>;
+  unidad?: string;
+};
 
 type Notice = {
   type: 'success' | 'error';
@@ -112,6 +128,23 @@ function getTotalPresupuesto(presupuesto?: any | null): number {
   ) || 0;
 }
 
+function getCatalogServiceBasePrice(service: CatalogService | undefined, guestCount: number): number {
+  if (!service) return 0;
+  if (service.calculationMethod === 'porPersona') {
+    return Math.max(0, Number(service.precioPorPersona ?? service.precioVenta ?? 0) || 0) * Math.max(1, guestCount);
+  }
+  if (service.calculationMethod === 'ratio') {
+    const unitPrice = Math.max(0, Number(service.precioBase ?? service.precioVenta ?? 0) || 0);
+    const ratio = Math.max(1, Number(service.invitadosPorUnidad ?? 1) || 1);
+    return unitPrice * Math.ceil(Math.max(1, guestCount) / ratio);
+  }
+  if (service.calculationMethod === 'tramos' && service.tramosDePrecio?.length) {
+    const tramo = service.tramosDePrecio.find(item => guestCount >= item.desde && guestCount <= item.hasta);
+    return Math.max(0, Number(tramo?.precio ?? service.precioVenta ?? 0) || 0);
+  }
+  return Math.max(0, Number(service.precioVenta ?? service.precioBase ?? service.precioPorPersona ?? 0) || 0);
+}
+
 function documentHref(fiestaId: string, fileName: string): string {
   return `/api/documentos-fiesta/${encodeURIComponent(fiestaId)}/${encodeURIComponent(fileName)}`;
 }
@@ -148,7 +181,7 @@ function InfoBadge({ children, tone = 'info' }: { children: ReactNode; tone?: 'i
 
 function IconBlock({ icon: Icon, color }: { icon: DisplayIcon; color: string }) {
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: color }}>
+    <div className="ak-public-icon flex h-10 w-10 shrink-0 items-center justify-center text-white" style={{ background: color }}>
       <Icon className="h-5 w-5" />
     </div>
   );
@@ -156,7 +189,7 @@ function IconBlock({ icon: Icon, color }: { icon: DisplayIcon; color: string }) 
 
 function QuickButton({ href, icon: Icon, label, helper, color, external = false }: { href: string; icon: DisplayIcon; label: string; helper: string; color: string; external?: boolean }) {
   return (
-    <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className="group flex min-h-[88px] items-center gap-3 rounded-lg border bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className="ak-public-action group flex min-h-[88px] items-center gap-3 p-3">
       <IconBlock icon={Icon} color={color} />
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-black text-slate-900">{label}</span>
@@ -169,7 +202,7 @@ function QuickButton({ href, icon: Icon, label, helper, color, external = false 
 
 function StatTile({ label, value, icon: Icon, tone }: { label: string; value: string | number; icon: DisplayIcon; tone: string }) {
   return (
-    <div className="rounded-lg border bg-white p-3 shadow-sm">
+    <div className="ak-public-card p-3">
       <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-md ${tone}`}>
         <Icon className="h-4 w-4" />
       </div>
@@ -180,7 +213,7 @@ function StatTile({ label, value, icon: Icon, tone }: { label: string; value: st
 }
 
 function EmptyLine({ text }: { text: string }) {
-  return <p className="rounded-lg border border-dashed bg-slate-50 p-3 text-sm text-slate-500">{text}</p>;
+  return <p className="ak-public-card-soft border-dashed p-3 text-sm text-slate-500">{text}</p>;
 }
 
 function NoticeBox({ notice }: { notice: Notice }) {
@@ -191,9 +224,10 @@ function NoticeBox({ notice }: { notice: Notice }) {
   return <p className={`rounded-lg border p-3 text-sm font-medium ${className}`}>{notice.text}</p>;
 }
 
-export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto }: PublicPortalClientExperienceProps) {
+export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [] }: PublicPortalClientExperienceProps) {
   const config = fiesta?.configuracion ?? {};
   const settings = fiesta?.clientPortalSettings ?? {};
+  const access = resolveClientPortalAccess(fiesta);
   const portalExperience = fiesta?.clientePortalExperience ?? {};
   const presupuestoText = getBudgetSearchText(presupuesto);
 
@@ -335,6 +369,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     : (fiesta?.timeline ?? []).map((item: any) => ({ id: item.id, time: formatShortDate(item.fechaProgramada), title: item.nombre, text: item.notas }));
   const faqItems = fiesta?.faqPortal ?? [];
   const activeGuestRequests = (fiesta?.clientMenuChangeRequests ?? []).filter((request: any) => request.status === 'pendiente');
+  const activeServiceRequests = (fiesta?.clientServiceChangeRequests ?? []).filter((request: any) => request.status === 'pendiente');
 
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
@@ -355,6 +390,12 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const [guestRequestLoading, setGuestRequestLoading] = useState(false);
   const [guestRequestNotice, setGuestRequestNotice] = useState<Notice | null>(null);
 
+  const [selectedServiceId, setSelectedServiceId] = useState(catalogServices[0]?.id ?? '');
+  const [serviceQuantity, setServiceQuantity] = useState(1);
+  const [serviceNote, setServiceNote] = useState('');
+  const [serviceRequestLoading, setServiceRequestLoading] = useState(false);
+  const [serviceRequestNotice, setServiceRequestNotice] = useState<Notice | null>(null);
+
   const guestEstimate = estimateGuestIncrease({
     currentTotal: totalPresupuesto,
     currentGuestCount,
@@ -362,6 +403,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     childDelta: extraChildren,
     annualAdjustmentPercent,
   });
+  const selectedService = catalogServices.find(service => service.id === selectedServiceId);
+  const selectedServiceBasePrice = getCatalogServiceBasePrice(selectedService, currentGuestCount) * Math.max(1, serviceQuantity);
+  const selectedServiceAdditional = Math.round(selectedServiceBasePrice * (1 + annualAdjustmentPercent / 100));
+  const selectedServiceNewTotal = totalPresupuesto + selectedServiceAdditional;
 
   const handlePaymentFile = (file?: File) => {
     if (!file) return;
@@ -457,17 +502,52 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     }
   };
 
+  const submitServiceRequest = async () => {
+    setServiceRequestNotice(null);
+    if (!selectedService || selectedServiceAdditional <= 0) {
+      setServiceRequestNotice({ type: 'error', text: 'Elegí un servicio del catálogo antes de enviar la solicitud.' });
+      return;
+    }
+
+    setServiceRequestLoading(true);
+    try {
+      const result = await submitClientServiceAddRequest(fiesta.id, {
+        servicioId: selectedService.id,
+        nombreServicio: selectedService.nombre,
+        categoria: selectedService.categoria,
+        cantidad: serviceQuantity,
+        precioBase: selectedServiceBasePrice,
+        ajustePorcentaje: annualAdjustmentPercent,
+        montoAdicional: selectedServiceAdditional,
+        nuevoTotalEstimado: selectedServiceNewTotal,
+        notaCliente: serviceNote,
+      });
+
+      if (result.success) {
+        setServiceRequestNotice({ type: 'success', text: 'Solicitud enviada. AK la revisará antes de cambiar el presupuesto formal.' });
+        setServiceQuantity(1);
+        setServiceNote('');
+        return;
+      }
+      setServiceRequestNotice({ type: 'error', text: result.error || 'No se pudo enviar la solicitud.' });
+    } catch {
+      setServiceRequestNotice({ type: 'error', text: 'No se pudo enviar la solicitud.' });
+    } finally {
+      setServiceRequestLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-950">
+    <div className="ak-public-page">
       <section
-        className="relative overflow-hidden text-white"
+        className="ak-public-hero text-white"
         style={{
           background: heroImage
             ? `linear-gradient(90deg, rgba(15, 23, 42, .86), rgba(15, 23, 42, .34)), url(${heroImage}) center/cover`
             : `linear-gradient(135deg, ${eventColor}, #111827)`,
         }}
       >
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:py-8 lg:grid-cols-[1.5fr_.75fr] lg:items-end">
+        <div className="ak-public-shell grid gap-6 py-6 sm:py-8 lg:grid-cols-[1.5fr_.75fr] lg:items-end">
           <div className="space-y-5">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="border-white/20 bg-white/20 text-white">Portal cliente</Badge>
@@ -491,7 +571,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             </div>
           </div>
 
-          <div className="rounded-lg bg-white p-4 text-slate-950 shadow-xl">
+          <div className="ak-public-card p-4 text-slate-950">
             <div className="mb-4 flex items-start gap-3">
               <IconBlock icon={ShieldCheck} color={eventColor} />
               <div>
@@ -509,7 +589,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         </div>
       </section>
 
-      <main className="mx-auto max-w-6xl px-4 py-5 sm:py-7">
+      <main className="ak-public-shell py-5 sm:py-7">
         {isUnconfigured && (
           <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900">
             <div className="flex gap-3">
@@ -522,22 +602,34 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         )}
 
-        <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className={`mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 ${access.canSeeOrganization ? '' : '[&>a:first-child]:hidden'}`}>
           <QuickButton href="#portal-organizacion" icon={ClipboardList} label="Organización" helper="Música, reuniones, fotos y cronograma" color={eventColor} />
           <QuickButton href="#portal-contable" icon={Wallet} label="Pagos y contrato" helper="Presupuesto, documentos y simulador" color={eventColor} />
-          <QuickButton href="#portal-invitados" icon={Users} label="Invitados" helper="Confirmados, pendientes y cambios" color={eventColor} />
+          {access.canSeeOrganization && <QuickButton href="#portal-invitados" icon={Users} label="Invitados" helper="Confirmados, pendientes y cambios" color={eventColor} />}
+          {access.canSeeLive && <QuickButton href="#portal-vivo" icon={PartyPopper} label="Fiesta en vivo" helper="Muro social y enlaces del dia" color={eventColor} />}
           {calendarUrl && <QuickButton href={calendarUrl} icon={Calendar} label="Agenda" helper="Guardar la fecha en Google Calendar" color={eventColor} external />}
         </div>
 
-        <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {(access.organizationLocked || access.liveLocked) && (
+          <div className="mb-5 rounded-lg border bg-white p-4 text-sm text-slate-600 shadow-sm">
+            <p className="font-black text-slate-900">{access.label}</p>
+            {access.organizationLocked ? (
+              <p className="mt-1">Por ahora estan visibles presupuesto, pagos, contrato, servicios contratados y solicitudes economicas. La organizacion se abre despues de la reunion con AK.</p>
+            ) : (
+              <p className="mt-1">La organizacion ya esta abierta. La parte en vivo se habilita cuando falten {access.liveAccessDaysBefore} dias para la fiesta.</p>
+            )}
+          </div>
+        )}
+
+        <div className={`mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 ${access.canSeeOrganization ? '' : '[&>div:nth-child(-n+2)]:hidden'}`}>
           <StatTile label="Invitados confirmados" value={guestStats.confirmed} icon={CheckCircle2} tone="bg-emerald-50 text-emerald-700" />
           <StatTile label="Invitados pendientes" value={guestStats.needsAction} icon={Users} tone="bg-amber-50 text-amber-700" />
           <StatTile label="Pagado" value={formatPortalMoney(paymentSummary.paid)} icon={Receipt} tone="bg-sky-50 text-sky-700" />
           <StatTile label="Saldo" value={formatPortalMoney(paymentSummary.balance)} icon={CircleDollarSign} tone="bg-rose-50 text-rose-700" />
         </div>
 
-        <Accordion type="multiple" defaultValue={["organizacion", "contable", "invitados"]} className="space-y-4">
-          <AccordionItem value="organizacion" id="portal-organizacion" className="rounded-lg border bg-white px-4 shadow-sm">
+        <Accordion type="multiple" defaultValue={access.canSeeOrganization ? ["organizacion", "contable"] : ["contable"]} className="space-y-4">
+          {access.canSeeOrganization && <AccordionItem value="organizacion" id="portal-organizacion" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline">
               <span className="flex items-center gap-3"><IconBlock icon={ClipboardList} color={eventColor} /> Organización del evento</span>
             </AccordionTrigger>
@@ -692,9 +784,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 )}
               </div>
             </AccordionContent>
-          </AccordionItem>
+          </AccordionItem>}
 
-          <AccordionItem value="contable" id="portal-contable" className="rounded-lg border bg-white px-4 shadow-sm">
+          <AccordionItem value="contable" id="portal-contable" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline">
               <span className="flex items-center gap-3"><IconBlock icon={Wallet} color={eventColor} /> Pagos, contrato y presupuesto</span>
             </AccordionTrigger>
@@ -756,10 +848,38 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 </div>
                 {guestRequestNotice && <div className="mt-3"><NoticeBox notice={guestRequestNotice} /></div>}
               </div>
+
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center gap-3"><IconBlock icon={Plus} color={eventColor} /><div><p className="font-black">Agregar servicio del catalogo</p><InfoBadge tone="action">Requiere aprobacion de AK</InfoBadge></div></div>
+                {catalogServices.length === 0 ? <EmptyLine text="No hay servicios con precio cargados en el catalogo." /> : (
+                  <>
+                    <div className="grid gap-3 lg:grid-cols-[1.2fr_.5fr_1fr]">
+                      <label className="space-y-1 text-sm font-semibold text-slate-700">
+                        Servicio
+                        <select className="h-10 rounded-md border bg-white px-3 text-sm" value={selectedServiceId} onChange={event => setSelectedServiceId(event.target.value)}>
+                          {catalogServices.map(service => <option key={service.id} value={service.id}>{service.nombre}</option>)}
+                        </select>
+                      </label>
+                      <label className="space-y-1 text-sm font-semibold text-slate-700">Cantidad<Input type="number" min={1} value={serviceQuantity} onChange={event => setServiceQuantity(Math.max(1, Number(event.target.value) || 1))} /></label>
+                      <div className="rounded-lg bg-slate-50 p-3 text-sm">
+                        <p>Extra ajustado: <strong>{formatPortalMoney(selectedServiceAdditional)}</strong></p>
+                        <p>Nuevo total estimado: <strong>{formatPortalMoney(selectedServiceNewTotal)}</strong></p>
+                        <p className="text-xs text-slate-500">Incluye ajuste anual de {annualAdjustmentPercent}%.</p>
+                      </div>
+                    </div>
+                    <Textarea className="mt-3" value={serviceNote} onChange={event => setServiceNote(event.target.value)} placeholder="Nota para AK sobre este servicio" />
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <Button onClick={submitServiceRequest} disabled={serviceRequestLoading} style={{ background: eventColor }}><Send className="h-4 w-4" /> {serviceRequestLoading ? 'Enviando' : 'Solicitar servicio'}</Button>
+                      {activeServiceRequests.length > 0 && <InfoBadge tone="action">{activeServiceRequests.length} solicitud(es) pendiente(s)</InfoBadge>}
+                    </div>
+                    {serviceRequestNotice && <div className="mt-3"><NoticeBox notice={serviceRequestNotice} /></div>}
+                  </>
+                )}
+              </div>
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="invitados" id="portal-invitados" className="rounded-lg border bg-white px-4 shadow-sm">
+          {access.canSeeOrganization && <AccordionItem value="invitados" id="portal-invitados" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={Users} color={eventColor} /> Invitados</span></AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -775,9 +895,21 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 {settings?.invitados?.visible ? <p className="mt-2">La lista de invitados está activa para este portal.</p> : <p className="mt-2">AK puede activar la lista completa desde la configuración del portal.</p>}
               </div>
             </AccordionContent>
-          </AccordionItem>
+          </AccordionItem>}
 
-          <AccordionItem value="reglas" id="portal-reglas" className="rounded-lg border bg-white px-4 shadow-sm">
+          {access.canSeeLive && (
+            <AccordionItem value="vivo" id="portal-vivo" className="ak-public-card px-4">
+              <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={PartyPopper} color={eventColor} /> Fiesta en vivo</span></AccordionTrigger>
+              <AccordionContent className="space-y-4 pb-5">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <QuickButton href={`/evento/social/${fiesta.id}`} icon={ImageIcon} label="Muro social" helper="Fotos, mensajes y contenido aprobado" color={eventColor} />
+                  <QuickButton href={whatsappHref} icon={MessageCircle} label="Contacto AK" helper="Canal directo para el dia de la fiesta" color={eventColor} external />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          <AccordionItem value="reglas" id="portal-reglas" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={ShieldCheck} color={eventColor} /> Reglas y preguntas</span></AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
               {faqItems.length === 0 ? <EmptyLine text="No hay reglas o preguntas frecuentes cargadas todavía." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}

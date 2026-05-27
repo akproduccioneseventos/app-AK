@@ -146,8 +146,8 @@ function EventoPublicoPageContent() {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     const qrValue = `${baseUrl}/evento/actual/checkin?fiestaId=${fiesta.id}&guestId=${confirmedGuest.id}`;
     return (
-       <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 flex flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-3xl border-none rounded-[3rem] overflow-hidden animate-in fade-in zoom-in duration-700">
+       <div className="ak-public-page flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden p-4">
+        <Card className="ak-public-card w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-700">
           <CardHeader className="text-center pb-4 pt-12">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 12 }}>
                 <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-6" />
@@ -158,7 +158,7 @@ function EventoPublicoPageContent() {
             <CardDescription className="text-lg">Gracias por confirmar, {confirmedGuest.nombre}.</CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-8 py-8 px-6 sm:px-10">
-             <div className="p-6 sm:p-8 bg-white rounded-[2rem] shadow-inner border border-slate-100 inline-block max-w-full">
+             <div className="inline-block max-w-full rounded-lg border border-slate-100 bg-white p-6 shadow-inner sm:p-8">
                 <QRCodeStylized id="qr-code-invitado" value={qrValue} size={200} level="H" />
              </div>
              <div className="space-y-2">
@@ -170,7 +170,7 @@ function EventoPublicoPageContent() {
              </div>
           </CardContent>
           <CardFooter className="flex-col gap-4 pb-12 px-6 sm:px-10">
-             <Button onClick={downloadQR} size="lg" className="w-full h-16 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
+             <Button onClick={downloadQR} size="lg" className="h-16 w-full rounded-lg text-lg font-bold shadow-xl shadow-primary/20">
                 <Download className="w-5 h-5 mr-3"/>GUARDAR EN GALERÍA
             </Button>
             <p className="text-xs text-slate-400 text-center uppercase tracking-widest leading-loose">Presenta este código en la entrada<br/>del evento para tu ingreso.</p>

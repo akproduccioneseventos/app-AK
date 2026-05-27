@@ -88,7 +88,7 @@ export default async function ClubUruguayPublicPage() {
                 <p className="mt-2 text-sm text-white/70">Carga fotos desde el gestor de salones para mostrarlas aca.</p>
               </div>
             )}
-            <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/92 p-4 text-slate-950 shadow-lg backdrop-blur-md">
+            <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/90 p-4 text-slate-950 shadow-lg backdrop-blur-md">
               <p className="text-xs font-black uppercase tracking-wider text-red-700">Servicio integral</p>
               <p className="mt-1 text-lg font-black">Salon + ambientacion + organizacion + experiencia digital</p>
             </div>

@@ -128,12 +128,33 @@ export async function updateSocialGallerySettings(
 
 export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {
   if (!accessKey || accessKey.trim() === '') return null;
+  const safeAccessKey = accessKey.trim();
+  try {
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      const snapshot = await dbAdmin
+        .collection('fiestas')
+        .where('clientPortalSettings.enabled', '==', true)
+        .where('clientPortalSettings.accessKey', '==', safeAccessKey)
+        .limit(1)
+        .get();
+
+      if (!snapshot.empty) {
+        const data = snapshot.docs[0].data();
+        delete data._syncedAt;
+        return data as FiestaEnPlanificacion;
+      }
+    }
+  } catch {
+    // Fall back to the compatible reader below.
+  }
+
   try {
     const fiestas = await getFiestas(false);
     return fiestas.find(
       f =>
         f.clientPortalSettings?.enabled === true &&
-        f.clientPortalSettings?.accessKey === accessKey
+        f.clientPortalSettings?.accessKey === safeAccessKey
     ) ?? null;
   } catch {
     return null;
@@ -227,6 +248,63 @@ export async function submitClientMenuChangeRequest(
       mensaje: `🧾 Solicitud de cambio de menú en "${fiesta.configuracion.nombreEvento}": +${nextRequest.adultosDelta} adultos, +${nextRequest.ninosAdolescentesDelta} niños/adolescentes.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
       icono: 'Users',
+    });
+
+    return { success: true, requestId };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function submitClientServiceAddRequest(
+  fiestaId: string,
+  payload: {
+    servicioId: string;
+    nombreServicio: string;
+    categoria?: string;
+    cantidad: number;
+    precioBase: number;
+    ajustePorcentaje: number;
+    montoAdicional: number;
+    nuevoTotalEstimado: number;
+    notaCliente?: string;
+  }
+): Promise<{ success: boolean; requestId?: string; error?: string }> {
+  try {
+    const cantidad = Math.max(1, Math.round(Number(payload.cantidad) || 1));
+    const montoAdicional = normalizeClientPaymentAmount(payload.montoAdicional);
+    if (!payload.servicioId || !payload.nombreServicio || montoAdicional <= 0) {
+      return { success: false, error: 'Servicio o monto invalido.' };
+    }
+
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requestId = createRequestId('service_change_request');
+    const nextRequest = {
+      id: requestId,
+      createdAt: new Date().toISOString(),
+      status: 'pendiente' as const,
+      servicioId: payload.servicioId,
+      nombreServicio: payload.nombreServicio.trim(),
+      categoria: payload.categoria,
+      cantidad,
+      precioBase: Math.max(0, Number(payload.precioBase) || 0),
+      ajustePorcentaje: Math.max(0, Number(payload.ajustePorcentaje) || 0),
+      montoAdicional,
+      nuevoTotalEstimado: Math.max(0, Number(payload.nuevoTotalEstimado) || 0),
+      notaCliente: payload.notaCliente?.trim() || undefined,
+    };
+
+    await saveFiesta({
+      ...fiesta,
+      clientServiceChangeRequests: [...(fiesta.clientServiceChangeRequests ?? []), nextRequest],
+    });
+
+    await createNotification({
+      mensaje: `Solicitud de servicio extra en "${fiesta.configuracion.nombreEvento}": ${nextRequest.nombreServicio} x${nextRequest.cantidad}.`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'Package',
     });
 
     return { success: true, requestId };

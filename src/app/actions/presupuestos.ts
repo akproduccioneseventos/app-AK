@@ -30,6 +30,21 @@ export async function getPresupuestos(includeArchived = false): Promise<Presupue
 }
 
 export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
+  if (!id) return null;
+  try {
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      const doc = await dbAdmin.collection('presupuestos').doc(id).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data) delete data._syncedAt;
+        return data as Presupuesto;
+      }
+    }
+  } catch {
+    // Keep the list-based reader as compatibility fallback.
+  }
+
   const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   return presupuestos.find(p => p.id === id) || null;
 }

@@ -305,7 +305,7 @@ export default function MuroEnVivoPage() {
     (activePoll !== null && settings.showPolls !== false && !activeGame);
 
   return (
-    <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'bg-slate-950' : 'bg-white'}`}>
+    <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'ak-live-stage' : 'bg-white'}`}>
       {/* Ambient gradient background */}
       {settings.screenDarkMode !== false ? (
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
@@ -314,21 +314,21 @@ export default function MuroEnVivoPage() {
       )}
 
       {/* Header bar — in flow so it doesn't float over content */}
-      <header className={`relative z-20 shrink-0 flex items-center justify-between px-8 py-3 backdrop-blur-sm border-b ${settings.screenDarkMode !== false ? 'bg-slate-950/90 border-white/10' : 'bg-white/90 border-slate-200'}`}>
+      <header className={`relative z-20 shrink-0 flex items-center justify-between px-8 py-3 ${settings.screenDarkMode !== false ? 'ak-live-header' : 'bg-white/90 border-b border-slate-200'}`}>
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
             <div className="relative h-8 w-20 overflow-hidden rounded bg-white/90 p-1">
               <NextImage src={companyLogoUrl} alt={`Logo de ${companyName}`} fill className="object-contain" />
             </div>
           )}
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.75)] animate-pulse" />
           <span className={`text-sm font-medium tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/60' : 'text-slate-500'}`}>En Vivo</span>
         </div>
         {eventName && (
           <span className={`text-sm font-semibold tracking-wide ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>{eventName}</span>
         )}
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.75)] animate-pulse" />
           <button
             onClick={() => {
               if (!document.fullscreenElement) {
@@ -482,7 +482,7 @@ export default function MuroEnVivoPage() {
           {isLoaded && highlightedDedications.length > 0 && !activePoll && (
             <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedDedications.slice(0, 3).map(d => (
-                <div key={d.id} className="rounded-2xl border border-amber-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+                <div key={d.id} className="ak-live-panel px-5 py-4">
                   <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
                   <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
                 </div>
@@ -494,7 +494,7 @@ export default function MuroEnVivoPage() {
           {isLoaded && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
             <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedComments.slice(0, 3).map(({ comment }) => (
-                <div key={comment.id} className="rounded-2xl border border-sky-300/60 bg-black/70 px-5 py-4 shadow-lg backdrop-blur-md">
+                <div key={comment.id} className="ak-live-panel px-5 py-4">
                   <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
                   <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
                 </div>
@@ -531,7 +531,7 @@ export default function MuroEnVivoPage() {
 
         {/* ── Right side panel: poll or game overlay ── */}
         {hasSidePanel && isLoaded && (
-          <div className="w-[38%] shrink-0 flex flex-col items-center justify-center gap-5 p-6 bg-black/65 border-l border-white/10 backdrop-blur-md overflow-y-auto">
+          <div className="ak-live-panel w-[38%] shrink-0 flex flex-col items-center justify-center gap-5 overflow-y-auto border-y-0 border-r-0 p-6">
             {/* Active game (when playlist is not on 'juego' slide) */}
             {activeGame && activeScreenItem?.type !== 'juego' && (
               <div className={GAME_OVERLAY_CLASS}>
@@ -1531,4 +1531,3 @@ function GameOverlayContent({ game }: { game: ActiveGameData }) {
     </>
   );
 }
-
