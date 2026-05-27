@@ -47,25 +47,19 @@ import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
 import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
 import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 import { Separator } from '@/components/ui/separator';
-import { getFiestaActual } from './actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { getAlertasGlobalesConLeidas, marcarAlertaLeida, descartarPrioridad, descartarAlerta } from '@/app/actions/alertas.actions';
-import type { AlertaAutomatica } from '@/types/automatizaciones';
-
-const MAX_DASHBOARD_ALERTS = 3;
+import { descartarPrioridad } from '@/app/actions/alertas.actions';
 
 export default function MainDashboardPage() {
     const [kpiData, setKpiData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
     const [copiedLink, setCopiedLink] = useState(false);
     const [greeting, setGreeting] = useState('');
     const [greetingEmoji, setGreetingEmoji] = useState('');
-    const [alertasUrgentes, setAlertasUrgentes] = useState<AlertaAutomatica[]>([]);
+    const alertasUrgentes = useMemo<any[]>(() => [], []);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -91,16 +85,10 @@ export default function MainDashboardPage() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [dashboardResult, fiestaData, alertasData] = await Promise.all([
-                getDashboardKpiData(),
-                getFiestaActual(),
-                getAlertasGlobalesConLeidas(),
-            ]);
+            const dashboardResult = await getDashboardKpiData();
             if (dashboardResult.success) {
                 setKpiData(dashboardResult.data);
             }
-            setFiestaActual(fiestaData);
-            setAlertasUrgentes(alertasData.filter(a => !a.leida).slice(0, MAX_DASHBOARD_ALERTS));
         } catch(e) {
             toast({ title: "Error", description: "No se pudieron cargar los datos del panel.", variant: "destructive" });
         } finally {
@@ -112,16 +100,7 @@ export default function MainDashboardPage() {
         fetchData();
     }, [fetchData]);
 
-    const handleDismissUrgentAlert = useCallback(async (alertaId: string) => {
-        const previous = alertasUrgentes;
-        setAlertasUrgentes(prev => prev.filter(a => a.id !== alertaId));
-        try {
-            await descartarAlerta(alertaId);
-        } catch {
-            setAlertasUrgentes(previous);
-            toast({ title: "Error", description: "No se pudo cerrar la alerta.", variant: "destructive" });
-        }
-    }, [alertasUrgentes, toast]);
+    const handleDismissUrgentAlert = useCallback((_alertaId: string) => {}, []);
 
     const handleDismissPriority = useCallback(async (alertaId: string) => {
         // Optimistically remove from local list
