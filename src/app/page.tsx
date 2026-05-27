@@ -438,94 +438,94 @@ export default function MainDashboardPage() {
             <div className="lg:col-span-8 space-y-6 sm:space-y-8">
                 <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
                 
-                <Card className="border-none shadow-2xl rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-white">
-                    <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-6 sm:p-8">
+                <Card className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                    <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 p-5 text-white sm:p-6">
                         <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Herramientas rápidas</CardTitle>
                         <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos, WhatsApp y modo presentación.</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-6 sm:p-8 overflow-hidden">
+                    <CardContent className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3 p-4 sm:p-5">
                         <Link href="/presupuestos/nuevo/crear">
-                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-indigo-200 hover:bg-indigo-50/50 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
-                                <div className="p-4 sm:p-5 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
-                                    <ListChecks className="w-6 h-6 sm:w-7 sm:h-7"/>
+                            <div className="group flex min-h-[88px] h-full cursor-pointer items-center gap-3 rounded-lg border border-slate-100 p-3 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50/50">
+                                <div className="shrink-0 rounded-lg bg-indigo-50 p-3 text-indigo-600 shadow-inner transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white">
+                                    <ListChecks className="h-5 w-5"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Nuevo Presupuesto</h3>
-                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cotización manual.</p>
+                                    <h3 className="text-sm font-black leading-tight text-slate-800">Nuevo Presupuesto</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-snug text-slate-500">Cotización manual.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-indigo-500"/>
                             </div>
                         </Link>
                         <Link href="/simulador-de-presupuesto">
-                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-amber-200 hover:bg-amber-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
-                                <div className="p-4 sm:p-5 bg-amber-50 text-amber-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
-                                    <Wand2 className="w-6 h-6 sm:w-7 sm:h-7"/>
+                            <div className="group flex min-h-[88px] h-full cursor-pointer items-center gap-3 rounded-lg border border-slate-100 p-3 shadow-sm transition-all hover:border-amber-200 hover:bg-amber-50/30">
+                                <div className="shrink-0 rounded-lg bg-amber-50 p-3 text-amber-600 shadow-inner transition-all duration-300 group-hover:bg-amber-500 group-hover:text-white">
+                                    <Wand2 className="h-5 w-5"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Presupuesto</h3>
-                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Captura de leads.</p>
+                                    <h3 className="text-sm font-black leading-tight text-slate-800">Simulador Presupuesto</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-snug text-slate-500">Captura de leads.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-amber-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-amber-500"/>
                             </div>
                         </Link>
                         <Link href="/simulador-ak">
-                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-violet-200 hover:bg-violet-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
-                                <div className="p-4 sm:p-5 bg-violet-50 text-violet-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-violet-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
-                                    <Bot className="w-6 h-6 sm:w-7 sm:h-7"/>
+                            <div className="group flex min-h-[88px] h-full cursor-pointer items-center gap-3 rounded-lg border border-slate-100 p-3 shadow-sm transition-all hover:border-violet-200 hover:bg-violet-50/30">
+                                <div className="shrink-0 rounded-lg bg-violet-50 p-3 text-violet-600 shadow-inner transition-all duration-300 group-hover:bg-violet-600 group-hover:text-white">
+                                    <Bot className="h-5 w-5"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Simulador Asistente AK</h3>
-                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Chat inteligente.</p>
+                                    <h3 className="text-sm font-black leading-tight text-slate-800">Simulador Asistente AK</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-snug text-slate-500">Chat inteligente.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-violet-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-violet-500"/>
                             </div>
                         </Link>
                         <Link href="/pagos-rapidos">
-                            <div className="group p-4 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm">
-                                <div className="p-4 sm:p-5 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-emerald-600 group-hover:to-teal-600 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
-                                    <Wallet className="w-6 h-6 sm:w-7 sm:h-7"/>
+                            <div className="group flex min-h-[88px] h-full cursor-pointer items-center gap-3 rounded-lg border border-slate-100 p-3 shadow-sm transition-all hover:border-emerald-200 hover:bg-emerald-50/30">
+                                <div className="shrink-0 rounded-lg bg-emerald-50 p-3 text-emerald-600 shadow-inner transition-all duration-300 group-hover:bg-emerald-600 group-hover:text-white">
+                                    <Wallet className="h-5 w-5"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Registrar Pago Rápido</h3>
-                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Cobrar y enviar recibo.</p>
+                                    <h3 className="text-sm font-black leading-tight text-slate-800">Registrar Pago Rápido</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-snug text-slate-500">Cobrar y enviar recibo.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-emerald-500"/>
                             </div>
                         </Link>
                         <Link href="/contabilidad/crm/outbox">
-                            <div className="group p-4 sm:p-6 border-2 border-green-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-green-400 hover:bg-green-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-green-50/20">
-                                <div className="p-4 sm:p-5 bg-green-100 text-green-600 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-green-500 group-hover:to-emerald-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
-                                    <Send className="w-6 h-6 sm:w-7 sm:h-7"/>
+                            <div className="group flex min-h-[88px] h-full cursor-pointer items-center gap-3 rounded-lg border-2 border-green-200 bg-green-50/20 p-3 shadow-sm transition-all hover:border-green-400 hover:bg-green-50/40">
+                                <div className="shrink-0 rounded-lg bg-green-100 p-3 text-green-600 shadow-inner transition-all duration-300 group-hover:bg-green-500 group-hover:text-white">
+                                    <Send className="h-5 w-5"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Envíos de WhatsApp</h3>
-                                    <p className="text-[10px] sm:text-xs font-semibold text-green-600 mt-1 uppercase tracking-tighter">Mensajes del día pendientes.</p>
+                                    <h3 className="text-sm font-black leading-tight text-slate-800">Envíos de WhatsApp</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-snug text-green-700">Mensajes del día pendientes.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-green-300 group-hover:text-green-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-green-300 transition-all group-hover:translate-x-1 group-hover:text-green-500"/>
                             </div>
                         </Link>
                         <Link href="/empresa/menus">
-                            <div className="group p-4 sm:p-6 border border-amber-200 rounded-[1.25rem] sm:rounded-[1.5rem] hover:border-orange-300 hover:bg-amber-50/40 transition-all cursor-pointer h-full flex items-center gap-4 sm:gap-6 shadow-sm bg-amber-50/20">
-                                <div className="p-4 sm:p-5 bg-amber-100 text-amber-700 rounded-2xl group-hover:bg-gradient-to-br group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-500 shadow-inner shrink-0">
-                                    <ChefHat className="w-6 h-6 sm:w-7 sm:h-7"/>
+                            <div className="group flex min-h-[88px] h-full cursor-pointer items-center gap-3 rounded-lg border border-amber-200 bg-amber-50/20 p-3 shadow-sm transition-all hover:border-orange-300 hover:bg-amber-50/40">
+                                <div className="shrink-0 rounded-lg bg-amber-100 p-3 text-amber-700 shadow-inner transition-all duration-300 group-hover:bg-amber-500 group-hover:text-white">
+                                    <ChefHat className="h-5 w-5"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-slate-800 text-base sm:text-lg">Planificador Gastronómico Maestro</h3>
-                                    <p className="text-[10px] sm:text-xs font-semibold text-amber-700 mt-1 uppercase tracking-tighter">Menús, recetas, bebidas y repostería maestra.</p>
+                                    <h3 className="text-sm font-black leading-tight text-slate-800">Planificador Gastronómico Maestro</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-snug text-amber-700">Menús, recetas, bebidas y repostería maestra.</p>
                                 </div>
-                                <ArrowRight className="w-5 h-5 ml-auto text-amber-300 group-hover:text-amber-500 group-hover:translate-x-2 transition-all shrink-0"/>
+                                <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-amber-300 transition-all group-hover:translate-x-1 group-hover:text-amber-500"/>
                             </div>
                         </Link>
-                        <div className="md:col-span-2 lg:col-span-3">
-                            <div className="group p-5 sm:p-6 border border-slate-100 rounded-[1.25rem] sm:rounded-[1.5rem] bg-slate-950 hover:bg-slate-900 transition-all cursor-pointer flex items-center gap-4 sm:gap-6 shadow-sm">
-                                <div className="p-4 sm:p-5 bg-white/10 text-white rounded-2xl shrink-0">
-                                    <Monitor className="w-6 h-6 sm:w-7 sm:h-7"/>
+                        <div className="md:col-span-2 xl:col-span-3">
+                            <div className="group flex min-h-[96px] flex-col gap-3 rounded-lg border border-slate-100 bg-slate-950 p-4 shadow-sm transition-all hover:bg-slate-900 sm:flex-row sm:items-center">
+                                <div className="shrink-0 rounded-lg bg-white/10 p-3 text-white">
+                                    <Monitor className="h-5 w-5"/>
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h3 className="font-black text-white text-base sm:text-lg">Modo Presentación LED</h3>
-                                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-1 uppercase tracking-tighter">Pantalla kiosco para reuniones.</p>
+                                    <h3 className="text-sm font-black leading-tight text-white">Modo Presentación LED</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-snug text-slate-400">Pantalla kiosco para reuniones.</p>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
+                                <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
                                     <button
                                         onClick={() => {
                                             const url = typeof window !== 'undefined'
@@ -537,14 +537,14 @@ export default function MainDashboardPage() {
                                                 setTimeout(() => setCopiedLink(false), 2000);
                                             });
                                         }}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-wider transition-all"
+                                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/20 sm:flex-none"
                                         title="Copiar link"
                                     >
                                         {copiedLink ? <Check className="w-3.5 h-3.5 text-green-400"/> : <Copy className="w-3.5 h-3.5"/>}
                                         {copiedLink ? 'Copiado' : 'Copiar'}
                                     </button>
                                     <Link href="/presentacion" target="_blank">
-                                        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black uppercase tracking-wider transition-all">
+                                        <button className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-primary/90 sm:flex-none">
                                             <ArrowRight className="w-3.5 h-3.5"/>
                                             Abrir
                                         </button>
@@ -621,31 +621,31 @@ export default function MainDashboardPage() {
 
       <Separator className="opacity-30" />
 
-       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4 sm:gap-5">
         <AnimatePresence>
           {mainHubItems.map((item, idx) => (
             <motion.div
               key={item.title}
-              className={cn(item.featured ? "md:col-span-2" : "")}
+              className={cn(item.featured ? "sm:col-span-2 xl:col-span-1 2xl:col-span-2" : "")}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 + 0.3 }}
             >
-              <Card className={cn("group flex flex-col h-full border-none shadow-xl hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500 bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden", item.featured && "ring-2 ring-indigo-500 ring-offset-2")}>
-                  <CardHeader className="pb-4 space-y-4 sm:space-y-5 p-6 sm:p-8">
-                      <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[1rem] sm:rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-black/5 group-hover:rotate-6 transition-all duration-500 shrink-0", item.featured ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white" : item.lightColor)}>
-                          <item.icon className="w-7 h-7 sm:w-8 sm:h-8" />
+              <Card className={cn("group flex h-full min-h-[12.5rem] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl", item.featured && "border-indigo-200 ring-2 ring-indigo-500/80 ring-offset-2")}>
+                  <CardHeader className="space-y-3 p-4 pb-3">
+                      <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-lg shadow-lg shadow-black/5 transition-all duration-300 group-hover:rotate-3", item.featured ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white" : item.lightColor)}>
+                          <item.icon className="h-6 w-6" />
                       </div>
-                      <CardTitle className={cn("text-lg sm:text-xl font-black tracking-tight", item.featured ? "text-indigo-700" : "text-slate-800")}>{item.title}</CardTitle>
+                      <CardTitle className={cn("text-base font-black leading-tight tracking-tight", item.featured ? "text-indigo-700" : "text-slate-800")}>{item.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="flex-grow px-6 sm:px-8 pb-6 sm:pb-8">
-                      <p className="text-[10px] sm:text-xs font-medium text-slate-400 leading-relaxed uppercase tracking-tighter">
+                  <CardContent className="flex-grow px-4 pb-4">
+                      <p className="text-xs font-medium leading-relaxed text-slate-500">
                           {item.description}
                       </p>
                   </CardContent>
-                  <CardFooter className="pt-0 pb-6 sm:pb-8 px-6 sm:px-8">
+                  <CardFooter className="px-4 pb-4 pt-0">
                       <Link href={item.href} className="w-full">
-                          <Button variant={item.featured ? "default" : "secondary"} className={cn("w-full justify-between rounded-2xl px-6 h-11 sm:h-12 font-black text-[9px] sm:text-[10px] tracking-widest uppercase transition-all duration-500 shadow-sm", item.featured ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" : "group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white")}>
+                          <Button variant={item.featured ? "default" : "secondary"} className={cn("h-10 w-full justify-between rounded-lg px-4 text-[10px] font-black uppercase tracking-widest shadow-sm transition-all duration-300", item.featured ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700" : "group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white")}>
                               Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
                           </Button>
                       </Link>
