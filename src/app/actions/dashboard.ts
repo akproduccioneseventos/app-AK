@@ -1,14 +1,13 @@
 
 'use server';
 
-import { getCustomers } from './customers';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
 import { checkAndCreateTaskReminders, checkAndCreateReunionReminders, getNotifications } from './notifications';
 import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonths, isAfter } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { getCrmKpiData, getCrmLeads } from './crm';
+import { getCrmLeadsForDashboard } from './crm';
 import { getRoles } from './roles';
 import { calculateFinancialLedger } from '@/lib/commercial-flow/ledger-service';
 import { getPrioridadesDescartadas } from './alertas.actions';
@@ -42,21 +41,17 @@ export async function getDashboardKpiData() {
     checkAndCreateReunionReminders().catch(err => console.warn("Background meeting reminder check failed:", err));
 
     const [
-      customersData,
       presupuestosData,
       invoicesData,
       fiestasData,
-      crmKpis,
       leadsData,
       notificationsData,
       prioridadesDescartadas,
     ] = await Promise.all([
-      getCustomers(),
       getPresupuestos(),
       getInvoices(),
       getAllFiestas(),
-      getCrmKpiData(),
-      getCrmLeads(),
+      getCrmLeadsForDashboard(),
       getNotifications().catch(() => []),
       getPrioridadesDescartadas().catch(() => new Set<string>()),
     ]);
@@ -70,7 +65,7 @@ export async function getDashboardKpiData() {
     const ventasTotales = ledger.ventasTotales;
     const montoPagado = ledger.totalCobrado;
     const totalPendiente = ledger.saldoPendiente;
-    const prospectosActivos = crmKpis.success ? crmKpis.data.activeLeads : 0;
+    const prospectosActivos = leadsData.filter((lead) => lead.currentStageId !== 's4' && lead.currentStageId !== 's5').length;
     
     const activeCustomerIds = new Set(fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now).map(f => f.configuracion.clienteId));
     const clientesActivos = activeCustomerIds.size;
@@ -151,16 +146,19 @@ export async function getDashboardKpiData() {
 
     // Data for Monthly Chart (last 12 months)
     const monthlyData: MonthlyChartData[] = [];
+    const monthlyDataByKey = new Map<string, MonthlyChartData>();
     for (let i = 11; i >= 0; i--) {
         const date = subMonths(now, i);
         const monthName = format(date, 'MMM yyyy', { locale: es });
-        monthlyData.push({ month: monthName, ventas: 0, pagos: 0 });
+        const entry = { month: monthName, ventas: 0, pagos: 0 };
+        monthlyData.push(entry);
+        monthlyDataByKey.set(monthName, entry);
     }
 
     invoicesData.forEach(invoice => {
         const issueDate = new Date(invoice.issueDate);
         const monthKey = format(issueDate, 'MMM yyyy', { locale: es });
-        const monthEntry = monthlyData.find(d => d.month === monthKey);
+        const monthEntry = monthlyDataByKey.get(monthKey);
         if(monthEntry) {
             monthEntry.ventas += invoice.totalAmount;
         }
@@ -168,7 +166,7 @@ export async function getDashboardKpiData() {
         invoice.payments?.forEach(payment => {
             const paymentDate = new Date(payment.paymentDate);
             const paymentMonthKey = format(paymentDate, 'MMM yyyy', { locale: es });
-            const paymentMonthEntry = monthlyData.find(d => d.month === paymentMonthKey);
+            const paymentMonthEntry = monthlyDataByKey.get(paymentMonthKey);
              if(paymentMonthEntry) {
                 paymentMonthEntry.pagos += payment.amount;
             }
@@ -186,7 +184,7 @@ export async function getDashboardKpiData() {
         if (!fecha) return;
         const eventDate = new Date(fecha);
         const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
-        const monthEntry = monthlyData.find(d => d.month === monthKey);
+        const monthEntry = monthlyDataByKey.get(monthKey);
         if (monthEntry) {
             monthEntry.ventas += pres.totalConDescuento || pres.costoTotalEstimado || 0;
         }

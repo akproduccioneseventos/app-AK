@@ -97,6 +97,10 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
   return decoratedLeads.slice(start, start + limit);
 }
 
+export async function getCrmLeadsForDashboard(): Promise<CrmLead[]> {
+  return readData<CrmLead[]>(LEADS_FILE, []);
+}
+
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
   const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
   const nameOnlyLetters = nameCleaned.replace(/\p{Emoji}/gu, '').replace(/\d/g, '').trim();
