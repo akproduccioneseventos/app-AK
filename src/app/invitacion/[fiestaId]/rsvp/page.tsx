@@ -127,7 +127,7 @@ function RsvpFormContent() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <div className="ak-public-page flex min-h-screen flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <p className="mt-4 text-slate-500 font-medium">Cargando tu invitación…</p>
       </div>
@@ -136,7 +136,7 @@ function RsvpFormContent() {
 
   if (error || !fiesta) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center p-6">
+      <div className="ak-public-page flex min-h-screen flex-col items-center justify-center p-6 text-center">
         <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
         <p className="text-xl font-semibold">{error || 'Evento no encontrado.'}</p>
       </div>
@@ -160,14 +160,14 @@ function RsvpFormContent() {
     const dressCode = fiesta.invitacionConfig?.dressCode;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col items-center justify-center p-4">
+      <div className="ak-public-page flex min-h-screen flex-col items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, type: 'spring', damping: 15 }}
           className="w-full max-w-sm"
         >
-          <Card className="rounded-[2rem] border-none shadow-2xl overflow-hidden">
+          <Card className="ak-public-card overflow-hidden">
             <CardHeader className="text-center pt-10 pb-4">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 10, delay: 0.2 }}>
                 <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-4" />
@@ -198,14 +198,14 @@ function RsvpFormContent() {
                 <p className="text-sm text-slate-500 text-center">
                   Guarda tu pase digital. Lo necesitarás en la entrada.
                 </p>
-                <div className="p-6 bg-white rounded-2xl shadow-inner border border-slate-100" data-testid="guest-qr-container">
+                <div className="rounded-lg border border-slate-100 bg-white p-6 shadow-inner" data-testid="guest-qr-container">
                   <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" />
                 </div>
 
                 {/* Event details for guest */}
                 <div className="w-full space-y-2 text-sm">
                   {confirmedGuest.tableNumber && (
-                    <div className="flex items-center gap-2 bg-purple-50 border border-purple-100 rounded-xl p-3" data-testid="guest-table-info">
+                    <div className="ak-public-card-soft flex items-center gap-2 p-3" data-testid="guest-table-info">
                       <span className="text-lg">🪑</span>
                       <div>
                         <p className="font-black text-purple-800">Mesa asignada</p>
@@ -214,7 +214,7 @@ function RsvpFormContent() {
                     </div>
                   )}
                   {(venue || address) && (
-                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div className="ak-public-card-soft flex items-center gap-2 p-3">
                       <MapPin className="w-5 h-5 text-slate-500 shrink-0" />
                       <div>
                         {venue && <p className="font-semibold text-slate-800">{venue}</p>}
@@ -223,7 +223,7 @@ function RsvpFormContent() {
                     </div>
                   )}
                   {(fecha || hora) && (
-                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <div className="ak-public-card-soft flex items-center gap-2 p-3">
                       <CalendarDays className="w-5 h-5 text-slate-500 shrink-0" />
                       <div>
                         {fecha && <p className="font-semibold text-slate-800 capitalize">{fecha}</p>}
@@ -232,7 +232,7 @@ function RsvpFormContent() {
                     </div>
                   )}
                   {dressCode && dressCode.tipo && dressCode.tipo !== 'casual' && (
-                    <div className="flex items-center gap-2 bg-rose-50 border border-rose-100 rounded-xl p-3">
+                    <div className="flex items-center gap-2 rounded-lg border border-rose-100 bg-rose-50 p-3">
                       <span className="text-lg shrink-0">👗</span>
                       <div>
                         <p className="font-semibold text-rose-800 capitalize">
@@ -245,7 +245,7 @@ function RsvpFormContent() {
                     </div>
                   )}
                   {confirmedGuest.dietaryRestriction && confirmedGuest.dietaryRestriction !== 'Ninguna' && (
-                    <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                    <div className="w-full rounded-lg border border-amber-200 bg-amber-50 p-3 text-center">
                       <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-1">Menú especial</p>
                       <p className="text-sm font-semibold text-amber-800">{confirmedGuest.dietaryRestriction}</p>
                     </div>
@@ -261,7 +261,7 @@ function RsvpFormContent() {
                   const canStillCancel = today < cancelDeadline;
                   const deadlineStr = cancelDeadline.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
                   return canStillCancel ? (
-                    <div className="w-full bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
+                    <div className="w-full space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-4">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">⚠️</span>
                         <p className="text-sm font-bold text-amber-800">¿Necesitás cancelar?</p>
@@ -281,7 +281,7 @@ function RsvpFormContent() {
                 })()}
 
                 {/* Social wall QR */}
-                <div className="w-full bg-indigo-50 border border-indigo-100 rounded-2xl p-4 space-y-3">
+                <div className="w-full space-y-3 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">📸</span>
                     <div>
@@ -299,7 +299,7 @@ function RsvpFormContent() {
                   </div>
                   <a
                     href={`/evento/social/${fiestaId}`}
-                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700"
                   >
                     📷 Entrar al muro social →
                   </a>
@@ -309,12 +309,12 @@ function RsvpFormContent() {
             <CardFooter className="flex-col gap-3 pb-8 px-8">
               {confirmedGuest.rsvp === 'Confirmado' && (
                 <>
-                  <Button onClick={downloadQR} className="w-full rounded-xl" variant="outline">
+                  <Button onClick={downloadQR} className="w-full rounded-lg" variant="outline">
                     <Download className="w-4 h-4 mr-2" /> Descargar QR
                   </Button>
                   <a
                     href={`/invitacion/${fiestaId}/invitado/${confirmedGuest.id}`}
-                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-bold transition-all"
                     style={{
                       background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
                       color: 'white',
@@ -337,7 +337,7 @@ function RsvpFormContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="mt-4 rounded-[1.5rem] border border-purple-100 bg-white shadow-lg overflow-hidden"
+              className="ak-public-card mt-4 overflow-hidden"
             >
               <div className="px-6 py-5 text-center space-y-3">
                 <p className="text-xs font-black uppercase tracking-widest text-purple-500">
@@ -355,7 +355,7 @@ function RsvpFormContent() {
                       href={guestExp.instagramUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                      className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90"
                     >
                       <Instagram className="w-3.5 h-3.5" /> Instagram
                     </a>
@@ -365,7 +365,7 @@ function RsvpFormContent() {
                       href={guestExp.whatsappUrl ?? `https://wa.me/${(guestExp.whatsappNumber ?? '').replace(/\D/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-green-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                      className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90"
                     >
                       <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                     </a>
@@ -375,7 +375,7 @@ function RsvpFormContent() {
                       href={guestExp.landingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                      className="flex items-center gap-1.5 rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90"
                     >
                       <ExternalLink className="w-3.5 h-3.5" /> Ver servicios
                     </a>
@@ -385,7 +385,7 @@ function RsvpFormContent() {
                       href={guestExp.simulatorUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                      className="flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90"
                     >
                       💰 Simular presupuesto
                     </a>
@@ -400,7 +400,7 @@ function RsvpFormContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col items-center justify-center p-4">
+    <div className="ak-public-page flex min-h-screen flex-col items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -412,7 +412,7 @@ function RsvpFormContent() {
           <h1 className="text-3xl font-bold text-slate-900">{eventName}</h1>
         </div>
 
-        <Card className="rounded-[2rem] border-none shadow-2xl overflow-hidden">
+        <Card className="ak-public-card overflow-hidden">
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-8 pt-8 px-6 pb-4">
 
@@ -456,7 +456,7 @@ function RsvpFormContent() {
                       type="button"
                       onClick={() => setAsistencia(opt)}
                       className={cn(
-                        'h-14 rounded-xl border-2 font-bold text-sm transition-all',
+                        'h-14 rounded-lg border-2 text-sm font-bold transition-all',
                         asistencia === opt
                           ? opt === 'Confirmado'
                             ? 'border-green-500 bg-green-50 text-green-700'
@@ -486,7 +486,7 @@ function RsvpFormContent() {
                         key={opt.value}
                         htmlFor={`diet-${opt.value}`}
                         className={cn(
-                          'flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all',
+                          'flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 transition-all',
                           dietary === opt.value
                             ? 'border-primary bg-primary/5'
                             : 'border-slate-200 hover:border-slate-300'
@@ -533,13 +533,13 @@ function RsvpFormContent() {
                     <button
                       type="button"
                       onClick={() => setPartySize(p => Math.max(1, p - 1))}
-                      className="w-12 h-12 rounded-xl border-2 border-slate-200 font-bold text-lg hover:border-primary transition-colors"
+                      className="h-12 w-12 rounded-lg border-2 border-slate-200 text-lg font-bold transition-colors hover:border-primary"
                     >−</button>
                     <span className="flex-1 text-center text-2xl font-black text-slate-800">{partySize}</span>
                     <button
                       type="button"
                       onClick={() => setPartySize(p => p + 1)}
-                      className="w-12 h-12 rounded-xl border-2 border-slate-200 font-bold text-lg hover:border-primary transition-colors"
+                      className="h-12 w-12 rounded-lg border-2 border-slate-200 text-lg font-bold transition-colors hover:border-primary"
                     >+</button>
                   </div>
                   {partySize > 1 && (
@@ -628,7 +628,7 @@ function RsvpFormContent() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-14 rounded-xl text-base font-bold shadow-lg"
+                className="h-14 w-full rounded-lg text-base font-bold shadow-lg"
               >
                 {isSubmitting ? (
                   <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Enviando…</>
@@ -647,7 +647,7 @@ function RsvpFormContent() {
 export default function RsvpPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="ak-public-page flex min-h-screen items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     }>

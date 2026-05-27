@@ -184,7 +184,7 @@ function AccessControlContent() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white">
+      <div className="ak-live-stage flex min-h-screen flex-col items-center justify-center text-white">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <p className="mt-4 text-slate-400">Cargando sistema de acceso…</p>
       </div>
@@ -193,7 +193,7 @@ function AccessControlContent() {
 
   if (loadError || !fiesta) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-center p-6">
+      <div className="ak-live-stage flex min-h-screen flex-col items-center justify-center p-6 text-center">
         <AlertTriangle className="w-12 h-12 text-red-400 mb-4" />
         <p className="text-white text-xl font-semibold">{loadError || 'Evento no encontrado.'}</p>
       </div>
@@ -203,9 +203,9 @@ function AccessControlContent() {
   const eventName = fiesta.configuracion?.nombreEvento || 'Evento';
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="ak-live-stage flex min-h-screen flex-col text-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800">
+      <div className="ak-live-header flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <ScanLine className="w-5 h-5 text-primary" />
           <span className="font-bold text-sm">Control de Acceso</span>
@@ -224,12 +224,12 @@ function AccessControlContent() {
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.3, type: 'spring', damping: 20 }}
               className={cn(
-                'w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl border-2',
+                'ak-live-panel w-full max-w-sm p-6 text-center',
                 scanResult.status === 'granted'
-                  ? 'bg-green-950 border-green-500'
+                  ? '!border-green-500 !bg-green-950'
                   : scanResult.status === 'already_entered'
-                  ? 'bg-yellow-950 border-yellow-500'
-                  : 'bg-red-950 border-red-500'
+                  ? '!border-yellow-500 !bg-yellow-950'
+                  : '!border-red-500 !bg-red-950'
               )}
             >
               {scanResult.status === 'granted' && (
@@ -238,12 +238,12 @@ function AccessControlContent() {
                   <p className="text-2xl font-black text-green-300 mb-2">✅ ACCESO PERMITIDO</p>
                   <p className="text-xl font-bold text-white mb-3">{scanResult.guest.nombre}</p>
                   {scanResult.guest.rsvp && scanResult.guest.rsvp !== 'Confirmado' && (
-                    <div className="bg-yellow-900/50 rounded-xl px-4 py-2 mb-2">
+                    <div className="mb-2 rounded-lg bg-yellow-900/50 px-4 py-2">
                       <p className="text-sm font-semibold text-yellow-300">Estado RSVP: {scanResult.guest.rsvp}</p>
                     </div>
                   )}
                   {scanResult.guest.dietaryRestriction && scanResult.guest.dietaryRestriction !== 'Ninguna' && (
-                    <div className="bg-green-900/50 rounded-xl px-4 py-2 mb-2">
+                    <div className="mb-2 rounded-lg bg-green-900/50 px-4 py-2">
                       <p className="text-sm font-semibold text-green-300">
                         {DIETARY_LABELS[scanResult.guest.dietaryRestriction] || scanResult.guest.dietaryRestriction}
                       </p>
@@ -253,7 +253,7 @@ function AccessControlContent() {
                     </div>
                   )}
                   {scanResult.guest.requiereAccesibilidad && (
-                    <div className="bg-blue-900/50 rounded-xl px-4 py-2 mb-2">
+                    <div className="mb-2 rounded-lg bg-blue-900/50 px-4 py-2">
                       <p className="text-sm font-semibold text-blue-300">♿ Requiere accesibilidad</p>
                     </div>
                   )}
@@ -306,7 +306,7 @@ function AccessControlContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full max-w-sm rounded-2xl p-6 text-center bg-slate-800 border-2 border-slate-600"
+              className="ak-live-panel w-full max-w-sm p-6 text-center"
             >
               <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary mb-3" />
               <p className="text-slate-300 font-semibold">Verificando invitado…</p>
@@ -317,7 +317,7 @@ function AccessControlContent() {
         {/* Scanner */}
         <div className="w-full max-w-sm">
           {hasCameraPermission === false && (
-            <div className="flex flex-col items-center gap-4 p-6 bg-slate-800 rounded-2xl text-center">
+            <div className="ak-live-panel flex flex-col items-center gap-4 p-6 text-center">
               <CameraOff className="w-12 h-12 text-red-400" />
               <p className="text-slate-300 font-medium">Se requiere acceso a la cámara</p>
               <p className="text-sm text-slate-500">Habilita los permisos de cámara en tu navegador.</p>
@@ -327,7 +327,7 @@ function AccessControlContent() {
           <div
             id="qr-acceso-reader"
             className={cn(
-              'w-full rounded-2xl overflow-hidden',
+              'w-full overflow-hidden rounded-lg border border-white/10',
               scanResult.status !== 'idle' && scanResult.status !== 'processing' ? 'opacity-30 pointer-events-none' : ''
             )}
           />
@@ -341,7 +341,7 @@ export default function AccesosPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="ak-live-stage flex min-h-screen items-center justify-center">
           <Loader2 className="w-10 h-10 animate-spin text-white" />
         </div>
       }

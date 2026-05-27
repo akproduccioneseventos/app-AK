@@ -665,6 +665,8 @@ export interface FaqItem {
 export interface ClientPortalSettings {
   enabled: boolean;
   accessKey?: string;
+  accessPhase?: 'financiera' | 'organizacion' | 'en_vivo';
+  liveAccessDaysBefore?: number;
   checklist: PortalModuleSettings;
   itinerario: PortalViewOnlyModuleSettings;
   musica: PortalModuleSettings;
@@ -1393,6 +1395,7 @@ export interface FiestaEnPlanificacion {
   eventoEnVivo?: EventoEnVivoData;
   clientPaymentNotifications?: ClientPaymentNotification[];
   clientMenuChangeRequests?: ClientMenuChangeRequest[];
+  clientServiceChangeRequests?: ClientServiceChangeRequest[];
   timeline?: TimelineHito[];
   menuSeleccionPortal?: MenuSeleccionPortal;
   listaMusicaPortal?: ListaMusicaPortal;
@@ -1600,6 +1603,21 @@ export interface ClientMenuChangeRequest {
   status: 'pendiente' | 'aprobada' | 'rechazada';
   adultosDelta: number;
   ninosAdolescentesDelta: number;
+  montoAdicional: number;
+  nuevoTotalEstimado: number;
+  notaCliente?: string;
+}
+
+export interface ClientServiceChangeRequest {
+  id: string;
+  createdAt: string;
+  status: 'pendiente' | 'aprobada' | 'rechazada';
+  servicioId: string;
+  nombreServicio: string;
+  categoria?: string;
+  cantidad: number;
+  precioBase: number;
+  ajustePorcentaje: number;
   montoAdicional: number;
   nuevoTotalEstimado: number;
   notaCliente?: string;

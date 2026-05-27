@@ -103,7 +103,7 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
   // ── Loading ────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 to-slate-900">
+      <div className="ak-live-stage flex min-h-screen items-center justify-center">
         <Loader2 className="w-12 h-12 animate-spin text-purple-300" />
       </div>
     );
@@ -111,8 +111,8 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
 
   if (!fiesta) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 to-slate-900 p-4">
-        <Card className="max-w-sm text-center border-red-800 bg-red-950/50 text-white">
+      <div className="ak-live-stage flex min-h-screen items-center justify-center p-4">
+        <Card className="ak-live-panel max-w-sm text-center text-white">
           <CardHeader>
             <AlertTriangle className="w-12 h-12 mx-auto text-red-400" />
             <CardTitle className="text-red-300">Evento no encontrado</CardTitle>
@@ -137,7 +137,7 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
           <div className="relative w-16 h-16 mx-auto">
             <CompanyLogo size="md" className="mx-auto" />
           </div>
-          <div className="p-8 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/20 space-y-4 text-white">
+          <div className="ak-live-panel space-y-4 p-8 text-white">
             <PartyPopper className="w-12 h-12 mx-auto text-yellow-400" />
             <p className="text-sm font-bold uppercase tracking-widest opacity-70">¡Hola, {selected.nombre.split(' ')[0]}!</p>
             <p className="text-lg font-semibold opacity-80">Tu mesa es</p>
@@ -173,7 +173,7 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
               <button
                 key={inv.id}
                 onClick={() => handleSelect(inv)}
-                className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all"
+                className="ak-live-panel flex w-full items-center justify-between p-4 text-white transition-all hover:bg-white/20"
               >
                 <span className="font-bold">{inv.nombre}</span>
                 <ChevronRight className="w-5 h-5 opacity-50" />
@@ -195,12 +195,12 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
       <div className="min-h-screen flex flex-col items-center justify-center p-4"
         style={{ background: `linear-gradient(135deg, ${primaryColor}22, #0f172a)` }}>
         <div className="w-full max-w-sm text-center space-y-6 animate-in fade-in duration-300">
-          <div className="p-8 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/20 space-y-4 text-white">
+          <div className="ak-live-panel space-y-4 p-8 text-white">
             <AlertTriangle className="w-10 h-10 mx-auto text-amber-400" />
             <p className="font-black text-lg">No encontramos tu nombre</p>
             <p className="text-sm opacity-70">Buscamos &quot;<strong>{query}</strong>&quot; y no hay coincidencias.</p>
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="w-full bg-green-600 hover:bg-green-700 rounded-2xl h-12 font-bold gap-2">
+              <Button className="h-12 w-full gap-2 rounded-lg bg-green-600 font-bold hover:bg-green-700">
                 <MessageCircle className="w-5 h-5" />
                 Contactar organizador
               </Button>
@@ -233,20 +233,20 @@ export default function MiMesaPage({ params }: { params: Promise<Params> }) {
         </div>
 
         {/* Search card */}
-        <div className="p-6 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/20">
+        <div className="ak-live-panel p-6">
           <p className="text-white font-bold text-center mb-5">¿En qué mesa estoy?</p>
           <form onSubmit={handleSearch} className="space-y-4">
             <Input
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Escribí tu nombre y apellido"
-              className="h-14 rounded-2xl bg-white/10 border-white/20 text-white placeholder:text-white/40 text-base"
+              className="h-14 rounded-lg border-white/20 bg-white/10 text-base text-white placeholder:text-white/40"
               autoFocus
             />
             <Button
               type="submit"
               disabled={isSearching || !query.trim()}
-              className="w-full h-14 rounded-2xl font-black text-base gap-2"
+              className="h-14 w-full gap-2 rounded-lg text-base font-black"
               style={{ backgroundColor: primaryColor }}
             >
               {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}

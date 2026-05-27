@@ -70,7 +70,7 @@ import { cn } from '@/lib/utils';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
-type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey' | 'cuentasBancarias' | 'simuladorInvitadosConfig'>;
+type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey' | 'accessPhase' | 'liveAccessDaysBefore' | 'cuentasBancarias' | 'simuladorInvitadosConfig' | 'clientServiceChangeRequests'>;
 
 type PortalModule = {
   id: ModuleId;
@@ -159,7 +159,7 @@ function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
   return (
     <div className="grid grid-cols-4 gap-3 text-center">
       {Object.entries(timeLeft).map(([k, v]) => (
-        <div key={k} className="rounded-2xl bg-black/25 px-2 py-3 backdrop-blur-sm">
+        <div key={k} className="rounded-lg bg-black/25 px-2 py-3 backdrop-blur-sm">
           <div className="text-2xl sm:text-3xl font-black tabular-nums">{String(v).padStart(2, '0')}</div>
           <div className="text-[10px] opacity-70 uppercase tracking-wider">{k}</div>
         </div>
@@ -180,9 +180,9 @@ function PortalSection({
   className?: string;
 }) {
   return (
-    <section className={cn('bg-white rounded-3xl shadow-sm border border-black/5 overflow-hidden', className)}>
+    <section className={cn('ak-public-card overflow-hidden', className)}>
       <div className="px-6 py-4 border-b border-black/5 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+        <div className="ak-public-icon flex h-8 w-8 items-center justify-center">
           <Icon className="w-4 h-4 text-primary" />
         </div>
         <h2 className="font-bold text-base">{title}</h2>
@@ -358,7 +358,7 @@ function ClientPortalContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen grid place-items-center bg-gradient-to-br from-slate-950 to-slate-800">
+      <div className="ak-public-page grid min-h-screen place-items-center">
         <div className="text-center text-white space-y-4">
           <Loader2 className="w-12 h-12 animate-spin mx-auto" />
           <p className="text-sm tracking-wide uppercase opacity-80">Cargando portal exclusivo</p>
@@ -369,12 +369,12 @@ function ClientPortalContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen grid place-items-center p-4 bg-slate-950">
-        <Card className="max-w-md w-full rounded-3xl border-red-400/40 bg-red-500/10 text-center text-white">
+      <div className="ak-public-page grid min-h-screen place-items-center p-4">
+        <Card className="ak-public-card max-w-md w-full text-center">
           <CardHeader>
             <AlertTriangle className="w-12 h-12 mx-auto text-red-300" />
             <CardTitle>Acceso no disponible</CardTitle>
-            <CardDescription className="text-red-100/80">{error}</CardDescription>
+            <CardDescription className="text-red-700">{error}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -386,8 +386,8 @@ function ClientPortalContent() {
   if (!isAuthenticated) {
     if (!fiesta.clientPortalSettings?.accessKey) {
       return (
-        <div className="min-h-screen grid place-items-center p-4 bg-slate-950">
-          <Card className="max-w-md w-full rounded-3xl text-center bg-white/10 border-white/20 text-white">
+        <div className="ak-public-page grid min-h-screen place-items-center p-4">
+          <Card className="ak-public-card max-w-md w-full text-center">
             <CardHeader>
               <KeyRound className="w-10 h-10 mx-auto text-white/80" />
               <CardTitle>Portal del Cliente</CardTitle>
@@ -402,7 +402,7 @@ function ClientPortalContent() {
 
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+        className="ak-public-page relative flex min-h-screen flex-col items-center justify-center overflow-hidden"
         style={{ background: `linear-gradient(135deg, ${primaryColor}dd 0%, ${secondaryColor} 100%)` }}
       >
         <div className="absolute inset-0 bg-black/30" />
@@ -412,7 +412,7 @@ function ClientPortalContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
         >
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl text-white">
+          <div className="ak-public-card p-8 text-slate-900">
             <CompanyLogo className="mx-auto mb-6 opacity-90" size="sm" />
             <h1 className="text-2xl font-bold text-center mb-1">{fiesta.configuracion.nombreEvento}</h1>
             <p className="text-white/70 text-center text-sm mb-6">Portal Exclusivo · Acceso Privado</p>
@@ -426,13 +426,13 @@ function ClientPortalContent() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white/20 border-white/30 text-white placeholder:text-white/50 pr-10"
+                    className="pr-10"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900"
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -440,9 +440,9 @@ function ClientPortalContent() {
                 </div>
               </div>
 
-              {error && <p className="text-sm text-red-200 text-center">{error}</p>}
+              {error && <p className="text-center text-sm text-red-600">{error}</p>}
 
-              <Button type="submit" className="w-full bg-white text-slate-900 hover:bg-white/90 font-bold">
+              <Button type="submit" className="w-full font-bold">
                 <LogIn className="w-4 h-4 mr-2" /> Ingresar al Portal
               </Button>
             </form>
@@ -484,10 +484,10 @@ function ClientPortalContent() {
   const maxGuests = Math.floor(invitadosBase * (1 + maxIncrease / 100));
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="ak-public-page min-h-screen">
       <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
         <section
-          className="rounded-3xl overflow-hidden relative text-white shadow-xl"
+          className="ak-public-hero relative overflow-hidden text-white"
           style={{
             background: eventImage
               ? `linear-gradient(0deg, rgba(0,0,0,.62), rgba(0,0,0,.35)), url(${eventImage}) center/cover`
@@ -514,7 +514,7 @@ function ClientPortalContent() {
           </div>
         </section>
 
-        <Card className="rounded-3xl border-none shadow-sm bg-gradient-to-r from-primary/90 to-primary text-white" style={{ background: `linear-gradient(120deg, ${primaryColor}, ${secondaryColor})` }}>
+        <Card className="ak-public-card text-white" style={{ background: `linear-gradient(120deg, ${primaryColor}, ${secondaryColor})` }}>
           <CardHeader>
             <CardTitle className="text-sm uppercase tracking-[0.2em] opacity-90">Día del Evento</CardTitle>
           </CardHeader>
@@ -523,7 +523,7 @@ function ClientPortalContent() {
             <Button
               onClick={handleArrivalNotify}
               disabled={isNotifying}
-              className="h-14 rounded-2xl bg-white text-slate-900 hover:bg-white/90 font-black w-full sm:w-auto"
+              className="h-14 w-full rounded-lg bg-white font-black text-slate-900 hover:bg-white/90 sm:w-auto"
             >
               {isNotifying ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Zap className="w-5 h-5 mr-2" />}
               ¡ESTAMOS LLEGANDO!
@@ -553,7 +553,7 @@ function ClientPortalContent() {
               ) : (
                 <div className="grid gap-3">
                   {checklistItems.map((task) => (
-                    <label key={task.id} className="flex items-start gap-3 rounded-2xl border p-3">
+                    <label key={task.id} className="ak-public-card-soft flex items-start gap-3 p-3">
                       <Checkbox
                         checked={task.completada}
                         disabled={!settings.checklist.editable}
@@ -866,7 +866,7 @@ function ClientPortalContent() {
                   ? `/portal/c/${settings.accessKey || fiesta.id}`
                   : module.href?.(fiesta.id);
                 return href ? (
-                  <Link key={module.id} href={href} className="rounded-2xl border p-4 hover:bg-muted/40 transition-colors">
+                  <Link key={module.id} href={href} className="ak-public-action p-4">
                     <div className="flex items-center gap-3">
                       <Icon className="w-5 h-5 text-primary" />
                       <div>
@@ -876,7 +876,7 @@ function ClientPortalContent() {
                     </div>
                   </Link>
                 ) : (
-                  <div key={module.id} className="rounded-2xl border p-4 bg-muted/30">
+                  <div key={module.id} className="ak-public-card-soft p-4">
                     <div className="flex items-center gap-3">
                       <Icon className="w-5 h-5 text-primary" />
                       <div>
@@ -901,7 +901,7 @@ export default function ClientPortalPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen grid place-items-center">
+        <div className="ak-public-page grid min-h-screen place-items-center">
           <Loader2 className="w-12 h-12 animate-spin text-primary" />
         </div>
       }

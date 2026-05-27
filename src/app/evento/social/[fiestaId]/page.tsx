@@ -105,11 +105,11 @@ const GuestFeatureButton: React.FC<{
     whileTap={{ scale: 0.96 }}
     onClick={onClick}
     className={cn(
-      'relative flex flex-col items-center justify-center gap-2 p-5 rounded-3xl shadow-md transition-all text-center focus:outline-none select-none',
+      'ak-public-action relative flex flex-col items-center justify-center gap-2 p-5 text-center focus:outline-none select-none',
       wide ? 'col-span-2' : '',
       primary
         ? 'text-white shadow-xl'
-        : 'bg-white text-slate-700 border border-slate-100 hover:bg-slate-50',
+        : 'bg-white text-slate-700 hover:bg-slate-50',
     )}
     style={primary ? { backgroundColor: color, boxShadow: `0 8px 24px ${color}40` } : {}}
   >
@@ -192,7 +192,7 @@ const PostCard: React.FC<{
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
     >
-        <Card className="shadow-xl border-none overflow-hidden flex flex-col bg-white/80 backdrop-blur-sm rounded-2xl group transition-all hover:translate-y-[-4px]">
+        <Card className="ak-public-card overflow-hidden flex flex-col group transition-all hover:translate-y-[-3px]">
         <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
             <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-inner" style={{ backgroundColor: accentColor }}>
@@ -879,10 +879,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const bgColor = localSettings.backgroundColor || '#f1f5f9';
 
   return (
-    <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: bgColor }}>
+    <div className="ak-social-mobile min-h-screen transition-colors duration-500" style={{ backgroundColor: bgColor }}>
       {/* ── Name modal (shared) ──────────────────────────────────────── */}
       <Dialog open={isNameModalOpen} onOpenChange={setIsNameModalOpen}>
-        <DialogContent onInteractOutside={(e) => e.preventDefault()} hideCloseButton className="rounded-3xl border-none shadow-2xl">
+        <DialogContent onInteractOutside={(e) => e.preventDefault()} hideCloseButton className="ak-public-card border-none shadow-2xl">
             <DialogHeader className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     {localSettings.mobileControlCoverUrl ? (
@@ -986,7 +986,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             </DialogContent>
           </Dialog>
 
-          <div className="min-h-screen flex flex-col">
+          <div className="ak-social-mobile min-h-screen flex flex-col">
             {/* Cover photo splash (only on home screen when configured) */}
             {guestSection === null && localSettings.mobileControlCoverUrl && (
               <div className="relative w-full h-48 overflow-hidden">
@@ -1008,7 +1008,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
               </div>
             )}
             {/* Guest header */}
-            <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm">
+            <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl">
               <div className="max-w-lg mx-auto h-16 px-4 flex items-center gap-3">
                 {guestSection !== null ? (
                   <>

@@ -227,7 +227,7 @@ export default function BarraTecnologicaTouchPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+      <div className="ak-live-stage flex min-h-screen items-center justify-center text-white">
         <Loader2 className="h-10 w-10 animate-spin" />
       </div>
     );
@@ -247,7 +247,7 @@ export default function BarraTecnologicaTouchPage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(220,38,38,0.16),_transparent_32%),linear-gradient(135deg,#ffffff,#f8fafc_45%,#eef2ff)] text-slate-950">
       <section className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-8">
-        <header className="flex flex-col gap-4 rounded-[2rem] border border-white/70 bg-white/82 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur md:flex-row md:items-center md:justify-between">
+        <header className="flex flex-col gap-4 rounded-lg border border-white/70 bg-white/90 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-3xl text-white shadow-xl" style={{ backgroundColor: settings.accentColor }}>
               <Martini className="h-8 w-8" />
@@ -265,7 +265,7 @@ export default function BarraTecnologicaTouchPage() {
           </div>
         </header>
 
-        <section className="grid gap-3 rounded-[2rem] border border-white/80 bg-white/85 p-4 shadow-xl shadow-slate-200/70 backdrop-blur lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+        <section className="grid gap-3 rounded-lg border border-white/80 bg-white/90 p-4 shadow-xl shadow-slate-200/70 backdrop-blur lg:grid-cols-[minmax(0,1fr)_auto_auto]">
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
             <Input
@@ -291,7 +291,7 @@ export default function BarraTecnologicaTouchPage() {
                 key={drink.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setSelectedDrink(drink)}
-                className="overflow-hidden rounded-[1.7rem] border border-white bg-white text-left shadow-xl shadow-slate-200/70 transition hover:-translate-y-1 hover:shadow-2xl"
+                className="overflow-hidden rounded-lg border border-white bg-white text-left shadow-xl shadow-slate-200/70 transition hover:-translate-y-1 hover:shadow-2xl"
               >
                 <div className="relative h-44 bg-slate-100">
                   {drink.imageUrl ? (
@@ -331,7 +331,7 @@ export default function BarraTecnologicaTouchPage() {
             ))}
           </section>
 
-          <aside className="sticky top-4 h-fit space-y-4 rounded-[2rem] border border-white/80 bg-white/88 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur">
+          <aside className="sticky top-4 h-fit space-y-4 rounded-lg border border-white/80 bg-white/90 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Paso 1</p>
               <h2 className="text-2xl font-black">Tus datos</h2>
@@ -384,7 +384,7 @@ export default function BarraTecnologicaTouchPage() {
       <AnimatePresence>
         {selectedDrink && (
           <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-lg rounded-[2rem] bg-white p-5 shadow-2xl">
+            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-lg rounded-lg bg-white p-5 shadow-2xl">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Confirmar pedido</p>
@@ -393,7 +393,7 @@ export default function BarraTecnologicaTouchPage() {
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => setSelectedDrink(null)}><X className="h-5 w-5" /></Button>
               </div>
-              <div className="mt-4 overflow-hidden rounded-[1.5rem] border bg-slate-50">
+              <div className="mt-4 overflow-hidden rounded-lg border bg-slate-50">
                 {settings.showDrinkVideo && getDrinkVideoUrl(selectedDrink) ? (
                   <video src={getDrinkVideoUrl(selectedDrink)} controls playsInline className="max-h-72 w-full bg-slate-950 object-contain" />
                 ) : selectedDrink.imageUrl ? (
@@ -440,7 +440,7 @@ export default function BarraTecnologicaTouchPage() {
       <AnimatePresence>
         {showFollowGate && (
           <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
+            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Paso social</p>
@@ -468,7 +468,7 @@ export default function BarraTecnologicaTouchPage() {
       <AnimatePresence>
         {isCameraOpen && (
           <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Card className="w-full max-w-3xl overflow-hidden rounded-[2rem] border-none bg-white shadow-2xl">
+            <Card className="w-full max-w-3xl overflow-hidden rounded-lg border-none bg-white shadow-2xl">
               <CardContent className="space-y-4 p-4 sm:p-6">
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -477,7 +477,7 @@ export default function BarraTecnologicaTouchPage() {
                   </div>
                   <Button variant="ghost" size="icon" onClick={stopCamera}><X className="h-5 w-5" /></Button>
                 </div>
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-slate-950">
+                <div className="relative overflow-hidden rounded-lg bg-slate-950">
                   {capturedDataUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={capturedDataUrl} alt="Foto capturada" className="max-h-[62vh] w-full object-contain" />

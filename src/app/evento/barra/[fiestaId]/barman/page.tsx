@@ -104,7 +104,7 @@ export default function BarmanScreenPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+      <div className="ak-live-stage flex min-h-screen items-center justify-center text-white">
         <Loader2 className="h-12 w-12 animate-spin" />
       </div>
     );
@@ -114,8 +114,8 @@ export default function BarmanScreenPage() {
   const accentColor = settings?.accentColor || '#dc2626';
 
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-white">
-      <header className="mb-4 flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-white/8 p-5 shadow-2xl backdrop-blur md:flex-row md:items-center md:justify-between">
+    <main className="ak-live-stage min-h-screen p-4 text-white">
+      <header className="ak-live-panel mb-4 flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-3xl shadow-xl" style={{ backgroundColor: accentColor }}>
             <Martini className="h-9 w-9" />
@@ -175,14 +175,14 @@ export default function BarmanScreenPage() {
         />
       </section>
 
-      <section className="mt-4 rounded-[2rem] border border-white/10 bg-white/8 p-4">
+      <section className="ak-live-panel mt-4 p-4">
         <div className="mb-3 flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-white/70" />
           <h2 className="text-xl font-black">Ultimos cerrados</h2>
         </div>
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
           {grouped.historial.map((order) => (
-            <div key={order.id} className="rounded-2xl border border-white/10 bg-white/8 p-3">
+            <div key={order.id} className="rounded-lg border border-white/10 bg-white/10 p-3">
               <Badge className={STATUS_STYLES[order.status]}>{STATUS_LABELS[order.status]}</Badge>
               <p className="mt-2 font-black">{order.drinkName}</p>
               <p className="text-sm text-white/55">{order.guestName} · {minutesAgo(order.createdAt)}</p>
@@ -211,7 +211,7 @@ function OrderColumn({
   renderActions: (order: BarDrinkOrder) => ReactNode;
 }) {
   return (
-    <div className="min-h-[58vh] rounded-[2rem] border border-white/10 bg-white/8 p-4 shadow-2xl">
+    <div className="ak-live-panel min-h-[58vh] p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl" style={{ backgroundColor: accentColor }}>{icon}</div>
@@ -228,7 +228,7 @@ function OrderColumn({
               initial={{ opacity: 0, y: 12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -12, scale: 0.98 }}
-              className={cn('rounded-[1.5rem] border border-white/10 bg-white p-4 text-slate-950 shadow-xl', order.status === 'nuevo' && 'ring-2 ring-rose-500/50')}
+              className={cn('rounded-lg border border-white/10 bg-white p-4 text-slate-950 shadow-xl', order.status === 'nuevo' && 'ring-2 ring-rose-500/50')}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -245,7 +245,7 @@ function OrderColumn({
             </motion.div>
           ))}
           {orders.length === 0 && (
-            <div className="flex min-h-48 items-center justify-center rounded-[1.5rem] border border-dashed border-white/15 text-center text-white/45">
+            <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-white/15 text-center text-white/45">
               {empty}
             </div>
           )}

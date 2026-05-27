@@ -769,7 +769,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       >
     <div className={cn('min-h-screen', styles.fontBody)} style={cssVars}>
       {/* ============= HERO / PORTADA ============= */}
-      <section className="relative min-h-screen flex items-end justify-center overflow-hidden">
+      <section className="relative flex min-h-[92svh] items-end justify-center overflow-hidden">
         {config.fotoPortada && !heroImageError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
