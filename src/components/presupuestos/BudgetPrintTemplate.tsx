@@ -78,6 +78,8 @@ export interface BudgetPrintTemplateProps {
   showPriceBreakdown?: boolean;
   /** Name to use in the client signature line (falls back to presupuesto.clienteNombre) */
   clienteNombre?: string;
+  /** Signatures only belong in confirmed contractual documents. */
+  showSignatures?: boolean;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -88,6 +90,7 @@ export default function BudgetPrintTemplate({
   annualAdjustmentAmount = 0,
   showPriceBreakdown = true,
   clienteNombre,
+  showSignatures = false,
 }: BudgetPrintTemplateProps) {
   const budgetNumber =
     presupuesto.numero ||
@@ -399,27 +402,32 @@ export default function BudgetPrintTemplate({
         <footer className="mt-4 pt-3 border-t border-gray-300 text-xs print:text-[8pt] text-gray-600 space-y-2">
           <p className="font-semibold text-gray-800">{BUDGET_VALIDITY_NOTE}</p>
 
-          {/* Signature lines */}
-          <div className="mt-8 pt-4 flex justify-between gap-10 print:mt-6">
-            <div
-              className="text-center flex-1"
-              style={{ borderTop: '1px solid #555', paddingTop: '6px' }}
-            >
-              <p className="font-semibold text-gray-700 print:text-[8pt]">
-                Firma del Cliente
-              </p>
-              <p className="text-gray-500 print:text-[7pt]">{clientName}</p>
+          {showSignatures ? (
+            <div className="mt-8 pt-4 flex justify-between gap-10 print:mt-6">
+              <div
+                className="text-center flex-1"
+                style={{ borderTop: '1px solid #555', paddingTop: '6px' }}
+              >
+                <p className="font-semibold text-gray-700 print:text-[8pt]">
+                  Firma del Cliente
+                </p>
+                <p className="text-gray-500 print:text-[7pt]">{clientName}</p>
+              </div>
+              <div
+                className="text-center flex-1"
+                style={{ borderTop: '1px solid #555', paddingTop: '6px' }}
+              >
+                <p className="font-semibold text-gray-700 print:text-[8pt]">
+                  Firma y sello de la empresa
+                </p>
+                <p className="text-gray-500 print:text-[7pt]">{COMPANY_NAME}</p>
+              </div>
             </div>
-            <div
-              className="text-center flex-1"
-              style={{ borderTop: '1px solid #555', paddingTop: '6px' }}
-            >
-              <p className="font-semibold text-gray-700 print:text-[8pt]">
-                Firma y sello de la empresa
-              </p>
-              <p className="text-gray-500 print:text-[7pt]">{COMPANY_NAME}</p>
-            </div>
-          </div>
+          ) : (
+            <p className="border-t border-gray-300 pt-2 text-center text-[10px] font-semibold leading-snug text-gray-600 print:text-[7pt]">
+              Documento de presupuesto. La reserva, confirmacion final y firmas corresponden al contrato confirmado.
+            </p>
+          )}
         </footer>
       </div>
 

@@ -450,6 +450,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 0;
   const isBorrador = presupuesto.estado === 'Borrador';
+  const shouldShowBudgetSignatures =
+    presupuesto.estado === 'Aceptado' ||
+    presupuesto.estado === 'Facturado' ||
+    Boolean(presupuesto.fechaFirmaContrato);
 
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 print:min-h-0 font-sans">
@@ -890,23 +894,29 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <tfoot>
                   <tr><td className="p-0">
                     <div className="budget-print-tfoot-content" style={{ paddingTop: '20px' }}>
-                      <div className="flex justify-between" style={{ gap: '40px' }}>
-                        <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
-                          <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma del Cliente</p>
-                          <p className="text-[8px] text-gray-500 print:text-[6pt]">{cliente?.name || presupuesto.clienteNombre}</p>
+                      {shouldShowBudgetSignatures ? (
+                        <div className="flex justify-between" style={{ gap: '40px' }}>
+                          <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
+                            <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma del Cliente</p>
+                            <p className="text-[8px] text-gray-500 print:text-[6pt]">{cliente?.name || presupuesto.clienteNombre}</p>
+                          </div>
+                          <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
+                            <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma y sello de la empresa</p>
+                            <p className="text-[8px] text-gray-500 print:text-[6pt]">AK PRODUCCIONES</p>
+                          </div>
                         </div>
-                        <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
-                          <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma y sello de la empresa</p>
-                          <p className="text-[8px] text-gray-500 print:text-[6pt]">AK PRODUCCIONES</p>
-                        </div>
-                      </div>
+                      ) : (
+                        <p className="text-center text-[8px] font-semibold text-gray-500 print:text-[6pt]">
+                          Documento de presupuesto. La reserva, confirmacion final y firmas corresponden al contrato confirmado.
+                        </p>
+                      )}
                     </div>
                   </td></tr>
                 </tfoot>
                 <tbody>
                   <tr><td className="p-0">
 
-              <div className="shadow-xl print:shadow-none p-6 sm:p-16 print:p-2 rounded-[2rem] sm:rounded-[2.5rem] print:rounded-none">
+              <div className="overflow-hidden rounded-2xl p-3 shadow-xl print:rounded-none print:p-2 print:shadow-none sm:p-10 lg:p-16">
 
                 {/* HEADER — Title + company info + logo */}
                 <h1 className="text-center text-base sm:text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[12pt] mb-3 print:mb-2"
@@ -1171,6 +1181,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </p>
 
                     {/* Signature area — visible on screen */}
+                    {shouldShowBudgetSignatures ? (
                     <div className="mt-12 grid grid-cols-2 gap-8 sm:gap-20 text-center print:hidden">
                         <div className="border-t-2 border-gray-400 pt-4 relative mt-16">
                             {companyInfo?.signatureUrl ? (
@@ -1193,6 +1204,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             <p className="text-[8px] sm:text-[9px] text-gray-400 uppercase font-bold">Firma del Cliente</p>
                         </div>
                     </div>
+                    ) : (
+                      <p className="rounded border border-gray-300 px-3 py-2 text-center text-[10px] font-semibold leading-snug text-gray-600 print:hidden">
+                        Este documento es un presupuesto. Las firmas se emiten en el contrato confirmado.
+                      </p>
+                    )}
                 </footer>
               </div>
 
