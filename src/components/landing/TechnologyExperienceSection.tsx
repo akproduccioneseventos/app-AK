@@ -51,6 +51,12 @@ const techCards = [
     icon: Smartphone,
     tone: 'bg-cyan-50 text-cyan-700 border-cyan-100',
   },
+  {
+    title: 'Landing de campana',
+    copy: 'Paginas de aterrizaje para anuncios con WhatsApp directo, mensaje precargado y foco en conversion.',
+    icon: Share2,
+    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  },
 ];
 
 const semanticMap = [
@@ -103,14 +109,14 @@ export function TechnologyExperienceSection({ whatsappNumber = '59898355530' }: 
         <div className="space-y-8">
           <div>
             <p className="mb-4 text-xs font-black uppercase tracking-[0.35em] text-blue-200">
-              Tecnologia que se ve en la fiesta
+              Tecnologia que vende y se ve en la fiesta
             </p>
             <h2 className="font-headline text-5xl font-black leading-none sm:text-6xl">
-              La experiencia AK empieza antes y explota en vivo
+              AK no solo organiza: convierte la fiesta en una experiencia conectada
             </h2>
             <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-white/70">
               No es solamente organizar. Es mostrarle al cliente una fiesta conectada: portal, invitacion, muro social,
-              pantalla gigante, fotocabina y plataforma 360 trabajando como un solo sistema.
+              pantalla gigante, fotocabina, plataforma 360 y paginas de campana trabajando como un solo sistema comercial.
             </p>
           </div>
 
@@ -140,10 +146,10 @@ export function TechnologyExperienceSection({ whatsappNumber = '59898355530' }: 
               Consultar experiencia
             </a>
             <Link
-              href="/simulador-ak"
+              href="/landing/tecnologia-ak"
               className="inline-flex min-h-12 items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-6 font-black uppercase tracking-widest text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/15"
             >
-              Ver simulador
+              Ver landing tech
             </Link>
           </div>
         </div>

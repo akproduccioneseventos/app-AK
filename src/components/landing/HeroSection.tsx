@@ -10,6 +10,8 @@ interface HeroSectionProps {
   subheadline?: string;
   backgroundImageUrl?: string;
   promoActiva?: PromoActiva | null;
+  whatsappMessage?: string;
+  ctaLabel?: string;
 }
 
 export function HeroSection({
@@ -18,10 +20,10 @@ export function HeroSection({
   subheadline = 'Bodas, XV Años, cumpleaños y eventos empresariales con producción integral, atención cercana y una experiencia digital simple para tus invitados.',
   backgroundImageUrl = 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=85&auto=format&fit=crop',
   promoActiva,
+  whatsappMessage = 'Hola AK Producciones, vi su pagina y me gustaria cotizar mi evento.',
+  ctaLabel = 'Cotiza tu evento',
 }: HeroSectionProps) {
-  const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    '¡Hola AK Producciones! Vi su página y me gustaría cotizar mi evento.'
-  )}`;
+  const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <section data-testid="hero-section" className="relative min-h-screen flex items-center overflow-hidden bg-zinc-950">
@@ -84,7 +86,7 @@ export function HeroSection({
               )}
             >
               <MessageSquare className="w-6 h-6 shrink-0" />
-              Cotizá tu evento
+              {ctaLabel}
             </a>
             <a
               href="/simulador-ak"
