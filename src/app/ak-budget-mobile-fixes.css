@@ -71,6 +71,23 @@
   .budget-print-document > table {
     min-width: 720px;
   }
+
+  .ver-budget-print-document {
+    border-radius: 16px;
+  }
+
+  .ver-budget-print-document th,
+  .ver-budget-print-document td,
+  .budget-print-document th,
+  .budget-print-document td {
+    white-space: normal !important;
+    word-break: break-word;
+  }
+
+  .budget-print-client-info :where(p, span),
+  .budget-print-items-section :where(p, span, td, th) {
+    max-width: 100%;
+  }
 }
 
 @media print {
@@ -98,5 +115,11 @@
   .budget-print-document > table {
     width: 100% !important;
     min-width: 0 !important;
+  }
+
+  .ver-budget-print-document *,
+  .budget-print-document *,
+  .budget-formal-print-template * {
+    box-shadow: none !important;
   }
 }
