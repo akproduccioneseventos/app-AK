@@ -336,7 +336,19 @@ function ImportarPresupuestoContent() {
   const diferenciaAudit = total > 0 ? total - sumaItemsCobrados : 0;
   // Tolerance of 1 peso to absorb rounding differences from integer-format totals
   const auditConDiferencia = total > 0 && Math.abs(diferenciaAudit) > 1;
-  const canSave = !auditConDiferencia || auditAceptado;
+  const hasCancellationSignal = /\b(cancelad[oa]|se\s+cancelo|se\s+cancel[oó]|cancel[oó]\s+la\s+fiesta)\b/i.test(texto);
+  const completenessChecks = parsed
+    ? [
+        { label: 'Cliente detectado', ok: Boolean(parsed.clienteNombre?.trim()) },
+        { label: 'Fecha real del evento cargada', ok: Boolean(eventoFechaOverride || parsed.eventoFecha) },
+        { label: 'Total declarado mayor a cero', ok: total > 0 },
+        { label: 'Servicios o items detectados', ok: parsed.items.length > 0 },
+        { label: 'No contiene señal de fiesta cancelada', ok: !hasCancellationSignal },
+      ]
+    : [];
+  const missingCompleteness = completenessChecks.filter(check => !check.ok);
+  const isImportComplete = parsed ? missingCompleteness.length === 0 : false;
+  const canSave = isImportComplete && (!auditConDiferencia || auditAceptado);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -533,6 +545,34 @@ function ImportarPresupuestoContent() {
               />
             </div>
 
+            {/* Control de completitud historica */}
+            <div className={cn('rounded-xl border-2 p-4 space-y-3', isImportComplete ? 'border-emerald-300 bg-emerald-50' : 'border-rose-300 bg-rose-50')} data-testid="historical-completeness-panel">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1">
+                {isImportComplete
+                  ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  : <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+                }
+                Control de carga historica
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {completenessChecks.map(check => (
+                  <div key={check.label} className="flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold">
+                    {check.ok ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <AlertTriangle className="h-4 w-4 text-rose-600" />}
+                    <span className={check.ok ? 'text-slate-700' : 'text-rose-800'}>{check.label}</span>
+                  </div>
+                ))}
+              </div>
+              {missingCompleteness.length > 0 ? (
+                <p className="text-xs font-semibold leading-5 text-rose-800">
+                  No se puede guardar: esta pantalla solo debe cargar fiestas completas y vigentes. Si falta una pagina, usa el PDF completo antes de importar.
+                </p>
+              ) : (
+                <p className="text-xs font-semibold leading-5 text-emerald-800">
+                  Listo para guardar como carga historica completa. La fecha usada sera la del contrato o la fecha real corregida arriba.
+                </p>
+              )}
+            </div>
+
             {/* Auditoría de totales */}
             {total > 0 && (
               <div className={cn('rounded-xl border-2 p-4 space-y-3', auditConDiferencia ? 'border-amber-400 bg-amber-50' : 'border-emerald-300 bg-emerald-50')} data-testid="audit-panel">
@@ -603,6 +643,7 @@ function ImportarPresupuestoContent() {
             onClick={handleImport}
             disabled={isSaving || !parsed.clienteNombre || !canSave}
             className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold"
+            title={!isImportComplete ? 'Faltan datos completos o el texto contiene una cancelacion' : undefined}
           >
             {isSaving ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando...</>
