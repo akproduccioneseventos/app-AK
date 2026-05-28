@@ -1,4 +1,4 @@
-import { gunzipSync } from 'node:zlib';
+import { gunzipSync } from 'zlib';
 import { NextResponse } from 'next/server';
 
 import chunk00 from './import-payload-chunk-00';
