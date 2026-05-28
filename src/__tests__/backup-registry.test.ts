@@ -24,7 +24,10 @@ describe('backup registry', () => {
 
   it('allows known and safe restore files', () => {
     expect(isRestorableDataFile('fiestas.json')).toBe(true);
+    expect(isRestorableDataFile('fiestas/fiesta_confirmada.json')).toBe(true);
+    expect(isRestorableDataFile('archive/fiesta_archivada.json')).toBe(true);
     expect(isRestorableDataFile('new-module.json')).toBe(true);
+    expect(isRestorableDataFile('unknown/fiesta.json')).toBe(false);
     expect(isRestorableDataFile('../new-module.json')).toBe(false);
   });
 

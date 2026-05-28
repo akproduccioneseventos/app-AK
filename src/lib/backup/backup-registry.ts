@@ -104,9 +104,14 @@ export function isSafeTopLevelJsonFile(fileName: string): boolean {
   return /^[A-Za-z0-9][A-Za-z0-9._-]*\.json$/.test(normalized) && !normalized.startsWith('_');
 }
 
+export function isSafeDataDocumentFile(fileName: string): boolean {
+  const normalized = normalizeBackupFileName(fileName);
+  return /^(fiestas|archive)\/[A-Za-z0-9][A-Za-z0-9._-]*\.json$/.test(normalized);
+}
+
 export function isRestorableDataFile(fileName: string): boolean {
   const normalized = normalizeBackupFileName(fileName);
-  return RESTORABLE_BACKUP_FILES.has(normalized) || isSafeTopLevelJsonFile(normalized);
+  return RESTORABLE_BACKUP_FILES.has(normalized) || isSafeTopLevelJsonFile(normalized) || isSafeDataDocumentFile(normalized);
 }
 
 export function getBackupValueCount(value: any): number {
