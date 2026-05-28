@@ -1,6 +1,8 @@
 import { gunzipSync } from 'zlib';
 import { NextResponse } from 'next/server';
 
+import { restoreConfirmedEventsJsonContent, summarizeRestoreSummary } from '@/lib/imports/confirmed-events-restore';
+
 import chunk00 from './import-payload-chunk-00';
 import chunk01 from './import-payload-chunk-01';
 import chunk02 from './import-payload-chunk-02';
@@ -48,5 +50,19 @@ export async function GET() {
     return new NextResponse(content, { status: 200, headers });
   } catch (error: any) {
     return NextResponse.json({ error: 'No se pudo descargar la importacion.', details: error?.message }, { status: 500 });
+  }
+}
+
+export async function POST() {
+  try {
+    const content = getImportContent();
+    assertImportPayload(content);
+
+    const result = await restoreConfirmedEventsJsonContent(content, FILE_NAME);
+    const message = `Importacion cargada correctamente: ${summarizeRestoreSummary(result.summary)}.`;
+
+    return NextResponse.json({ success: true, message, summary: result.summary, skipped: result.skipped });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'No se pudo cargar la importacion.', details: error?.message }, { status: 500 });
   }
 }
