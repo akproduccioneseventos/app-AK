@@ -1,23 +1,21 @@
-class MockNextResponse {
-  _body: any;
-  status: number;
-
-  constructor(body: any, init?: { status?: number }) {
-    this._body = body;
-    this.status = init?.status ?? 200;
-  }
-
-  async json() {
-    return JSON.parse(typeof this._body === 'string' ? this._body : String(this._body));
-  }
-
-  static json(data: any, init?: { status?: number }) {
-    return new MockNextResponse(JSON.stringify(data), { status: init?.status ?? 200 });
-  }
-}
-
 jest.mock('next/server', () => ({
-  NextResponse: MockNextResponse,
+  NextResponse: class MockNextResponse {
+    _body: any;
+    status: number;
+
+    constructor(body: any, init?: { status?: number }) {
+      this._body = body;
+      this.status = init?.status ?? 200;
+    }
+
+    async json() {
+      return JSON.parse(typeof this._body === 'string' ? this._body : String(this._body));
+    }
+
+    static json(data: any, init?: { status?: number }) {
+      return new MockNextResponse(JSON.stringify(data), { status: init?.status ?? 200 });
+    }
+  },
 }));
 
 jest.mock('@/lib/data-service', () => ({
