@@ -71,6 +71,8 @@ export interface LeadFromQuickBudget {
   subtotal: number;
   costoEstimado: number; // Final cost after discount
   descuentoGeneral?: number;
+  ajusteAnualActivo?: boolean;
+  ajusteAnualPorcentaje?: number;
   serviciosIncluidos: string[];
   paqueteNombre?: string;
 }

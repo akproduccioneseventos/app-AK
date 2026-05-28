@@ -75,6 +75,12 @@ function safeDecodeParam(value: string): string {
     }
 }
 
+function safePositiveNumberParam(value: string | null): number | undefined {
+    if (!value) return undefined;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
 function CrearPresupuestoContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -213,6 +219,12 @@ function CrearPresupuestoContent() {
                     const serviciosParam = searchParams.get('servicios');
                     const menuIdParam = searchParams.get('menuId');
                     const teenMenuIdParam = searchParams.get('teenMenuId');
+                    const adultosParam = safePositiveNumberParam(searchParams.get('adultos'));
+                    const ninosParam = safePositiveNumberParam(searchParams.get('ninos'));
+                    const fechaParam = searchParams.get('fecha');
+                    const tipoParam = searchParams.get('tipoFiesta');
+                    const duracionParam = safePositiveNumberParam(searchParams.get('duracionHoras'));
+                    const salonParam = searchParams.get('salon');
                     const hasPlannerParams = Boolean(leadName || serviciosParams.length > 0 || serviciosParam || menuIdParam || teenMenuIdParam);
 
                     if (hasPlannerParams) {
@@ -220,6 +232,26 @@ function CrearPresupuestoContent() {
                             ...initialFormData,
                             serviciosSeleccionados: new Map(),
                         };
+                        if (leadName) baseForm.clienteNombre = safeDecodeParam(leadName);
+                        if (tipoParam) baseForm.eventoTipo = safeDecodeParam(tipoParam);
+                        if (fechaParam) {
+                            const parsedDate = new Date(fechaParam);
+                            if (!Number.isNaN(parsedDate.getTime())) baseForm.eventoFecha = parsedDate;
+                        }
+                        if (duracionParam !== undefined && duracionParam > 0) {
+                            baseForm.duracionHoras = duracionParam;
+                        }
+                        if (salonParam) baseForm.salonFiestas = safeDecodeParam(salonParam);
+                        if (adultosParam !== undefined) baseForm.invitadosAdultos = adultosParam;
+                        if (ninosParam !== undefined) {
+                            baseForm.invitadosAdolescentes = ninosParam;
+                            baseForm.invitadosNinos = 0;
+                        }
+                        baseForm.invitadosCantidad =
+                            (baseForm.invitadosAdultos || 0) +
+                            (baseForm.invitadosNinos || 0) +
+                            (baseForm.invitadosAdolescentes || 0);
+
                         const adultos = baseForm.invitadosAdultos || 0;
                         const ninos = (baseForm.invitadosNinos || 0) + (baseForm.invitadosAdolescentes || 0);
 
@@ -253,10 +285,6 @@ function CrearPresupuestoContent() {
                             baseForm.selectedMenuId = menuIdParam;
                         } else if (teenMenuIdParam) {
                             baseForm.selectedMenuId = teenMenuIdParam;
-                        }
-
-                        if (leadName) {
-                            baseForm.clienteNombre = safeDecodeParam(leadName);
                         }
 
                         setFormData(baseForm);
@@ -303,6 +331,9 @@ function CrearPresupuestoContent() {
 
     const handleSave = async () => {
         const descuentoValorNum = parseFloat(formData.descuentoValor || '0') || 0;
+        const eventoYear = formData.eventoFecha?.getFullYear();
+        const createdYear = new Date(formData.timestamp || Date.now()).getFullYear();
+        const shouldApplyAnnualAdjustment = Boolean(eventoYear && eventoYear > createdYear);
         const presupuestoData: Omit<Presupuesto, 'id'> = {
             clienteNombre: formData.clienteNombre,
             clienteContacto: formData.clienteContacto,
@@ -347,6 +378,8 @@ function CrearPresupuestoContent() {
             estado: formData.estado,
             invoiceId: formData.invoiceId,
             marketingMarkupPercent: formData.marketingMarkupPercent,
+            ajusteAnualActivo: shouldApplyAnnualAdjustment,
+            ajusteAnualPorcentaje: shouldApplyAnnualAdjustment ? 15 : undefined,
             timestamp: formData.timestamp || new Date().toISOString(),
         };
         

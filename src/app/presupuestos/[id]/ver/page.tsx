@@ -183,17 +183,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (!presupuesto) return { itemsAgrupados: {}, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };
   
     const adultos = presupuesto.invitadosAdultos || 0;
-    const ninos = (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0);
+    const adolescentes = presupuesto.invitadosAdolescentes || 0;
+    const ninos = presupuesto.invitadosNinos || 0;
 
     const itemsRecalculados = presupuesto.itemsPresupuestados.map(item => ({
         ...item,
-        costoTotalItem: recalcularCostoItem(item, adultos, 0, ninos)
+        costoTotalItem: recalcularCostoItem(item, adultos, adolescentes, ninos)
     }));
 
     const brutoVenta = itemsRecalculados.filter(i => !i.esRegalo).reduce((sum, i) => sum + i.costoTotalItem, 0);
     const regalosVal = itemsRecalculados.filter(i => i.esRegalo).reduce((sum, i) => {
         const itemNormal = { ...i, esRegalo: false, precioUnitarioPresupuesto: i.precioUnitario };
-        return sum + recalcularCostoItem(itemNormal, adultos, 0, ninos);
+        return sum + recalcularCostoItem(itemNormal, adultos, adolescentes, ninos);
     }, 0);
 
     let bonificacion = 0;

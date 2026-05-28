@@ -681,6 +681,8 @@ export default function SimuladorAKPage() {
         subtotal:        priceStats?.subtotalVenta ?? 0,
         costoEstimado:   priceStats?.totalFinal ?? 0,
         descuentoGeneral: DISCOUNT_RATE * 100,
+        ajusteAnualActivo: Boolean(state.eventoFecha && new Date(state.eventoFecha).getFullYear() > new Date().getFullYear()),
+        ajusteAnualPorcentaje: annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
         paqueteNombre:   pkgMeta,
         serviciosIncluidos: items.map(i => i.idServicioCatalogo),
         items,
@@ -710,7 +712,7 @@ export default function SimuladorAKPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [state, saveProgress, toast, priceStats, dynamicPaquetes, config]);
+  }, [state, saveProgress, toast, priceStats, dynamicPaquetes, config, annualAdjustmentPercentage]);
 
   // ── WhatsApp message ──────────────────────────────────────────────────────
 

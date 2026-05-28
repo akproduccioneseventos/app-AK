@@ -103,6 +103,8 @@ export async function generateBudgetAndLeadFromSimulator(
       costoTotalEstimado: data.subtotal,
       descuentoTipo: data.descuentoGeneral && data.descuentoGeneral > 0 ? 'porcentaje' : undefined,
       descuentoValor: data.descuentoGeneral,
+      ajusteAnualActivo: data.ajusteAnualActivo,
+      ajusteAnualPorcentaje: data.ajusteAnualPorcentaje,
       totalConDescuento: data.costoEstimado,
       estado: 'Pendiente Verificación',
       source
