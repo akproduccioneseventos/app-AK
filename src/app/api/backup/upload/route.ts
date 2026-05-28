@@ -1,108 +1,19 @@
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
-import { readData, writeData } from '@/lib/data-service';
+import { writeData } from '@/lib/data-service';
 import { getBackupValueCount, isBackupMetadataFile, isRestorableDataFile } from '@/lib/backup/backup-registry';
+import {
+  isConfirmedEventsBundle,
+  parseJsonContent,
+  restoreConfirmedEventsBundle,
+  restoreConfirmedEventsJsonContent,
+  summarizeRestoreSummary,
+  type RestoreSummary,
+} from '@/lib/imports/confirmed-events-restore';
 import * as logger from '@/lib/logger';
 
 const VALID_ZIP_TYPES = new Set(['application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream', 'application/x-compressed']);
 const VALID_JSON_TYPES = new Set(['application/json', 'text/json', 'application/octet-stream']);
-
-type RestoreSummary = Record<string, number>;
-
-function toArray(value: any): any[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function isConfirmedEventsBundle(value: any): boolean {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-  return Array.isArray(value.presupuestos) || Array.isArray(value.fiestas) || Array.isArray(value.customers) || Array.isArray(value.clientes);
-}
-
-function summarize(summary: RestoreSummary): string {
-  return Object.entries(summary).map(([key, count]) => `${count} ${key}`).join(', ');
-}
-
-function parseJsonContent(content: string) {
-  const cleanContent = content.charCodeAt(0) === 0xfeff ? content.slice(1) : content;
-  return JSON.parse(cleanContent);
-}
-
-function shouldSkipCatalogReplace(bundle: any): boolean {
-  return !bundle?.metadata?.replaceServiciosEmpresa && !bundle?.replaceServiciosEmpresa;
-}
-
-async function upsertServiciosEmpresa(serviciosToUpsert: any[]): Promise<number> {
-  if (!Array.isArray(serviciosToUpsert) || serviciosToUpsert.length === 0) return 0;
-
-  const current = await readData<any[]>('servicios-empresa.json', []);
-  const byId = new Map(current.map((item) => [String(item.id || ''), item]));
-  const byNameCategory = new Map(current.map((item) => [`${String(item.nombre || '').trim().toLowerCase()}|${String(item.categoria || '').trim().toLowerCase()}`, item]));
-  let added = 0;
-
-  for (const raw of serviciosToUpsert) {
-    if (!raw || typeof raw !== 'object' || !raw.nombre || !raw.categoria) continue;
-    const id = String(raw.id || '').trim();
-    const nameKey = `${String(raw.nombre).trim().toLowerCase()}|${String(raw.categoria).trim().toLowerCase()}`;
-    if ((id && byId.has(id)) || byNameCategory.has(nameKey)) continue;
-
-    const item = {
-      ...raw,
-      id: id || `serv_import_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      tipoItem: raw.tipoItem || 'Servicio',
-      calculationMethod: raw.calculationMethod || 'fijo',
-      unidad: raw.unidad || 'Unidad',
-    };
-    current.push(item);
-    byId.set(item.id, item);
-    byNameCategory.set(nameKey, item);
-    added += 1;
-  }
-
-  if (added > 0) {
-    await writeData('servicios-empresa.json', current, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
-  }
-
-  return added;
-}
-
-async function restoreConfirmedEventsBundle(bundle: any, sourceName: string) {
-  const customers = toArray(bundle.customers).length > 0 ? toArray(bundle.customers) : toArray(bundle.clientes);
-  const presupuestos = toArray(bundle.presupuestos);
-  const fiestas = toArray(bundle.fiestas);
-  const summary: RestoreSummary = {};
-  const skipped: string[] = [];
-
-  if (customers.length > 0) {
-    await writeData('customers.json', customers);
-    summary.customers = customers.length;
-  }
-
-  if (presupuestos.length > 0) {
-    await writeData('presupuestos.json', presupuestos);
-    summary.presupuestos = presupuestos.length;
-  }
-
-  if (fiestas.length > 0) {
-    for (const fiesta of fiestas) {
-      if (!fiesta?.id) continue;
-      await writeData(`fiestas/${fiesta.id}.json`, fiesta);
-    }
-    summary.fiestas = fiestas.filter((fiesta: any) => fiesta?.id).length;
-  }
-
-  const servicesUpserted = await upsertServiciosEmpresa(toArray(bundle.serviciosEmpresaUpsert));
-  if (servicesUpserted > 0) summary.serviciosEmpresaAgregados = servicesUpserted;
-
-  if (shouldSkipCatalogReplace(bundle) && (Array.isArray(bundle.serviciosEmpresa) || Array.isArray(bundle.servicios) || Array.isArray(bundle.serviciosCreados))) {
-    skipped.push('servicios-empresa.json');
-  }
-
-  if (Object.keys(summary).length === 0) {
-    throw new Error(`El archivo ${sourceName} no contiene clientes, presupuestos ni fiestas para importar.`);
-  }
-
-  return { summary, skipped };
-}
 
 async function restoreJsonFile(file: File) {
   const lowerName = file.name.toLowerCase();
@@ -112,12 +23,7 @@ async function restoreJsonFile(file: File) {
   }
 
   const raw = Buffer.from(await file.arrayBuffer()).toString('utf8');
-  const parsed = parseJsonContent(raw);
-  if (!isConfirmedEventsBundle(parsed)) {
-    throw new Error('El JSON no tiene formato de importacion de eventos confirmados.');
-  }
-
-  return restoreConfirmedEventsBundle(parsed, file.name);
+  return restoreConfirmedEventsJsonContent(raw, file.name);
 }
 
 export async function POST(request: Request) {
@@ -129,8 +35,8 @@ export async function POST(request: Request) {
 
     const jsonResult = await restoreJsonFile(file);
     if (jsonResult) {
-      const message = `Importacion restaurada correctamente: ${summarize(jsonResult.summary)}.`;
-      logger.info(`[Backup] Confirmed events JSON restore completed at ${new Date().toISOString()}: ${summarize(jsonResult.summary)}`);
+      const message = `Importacion restaurada correctamente: ${summarizeRestoreSummary(jsonResult.summary)}.`;
+      logger.info(`[Backup] Confirmed events JSON restore completed at ${new Date().toISOString()}: ${summarizeRestoreSummary(jsonResult.summary)}`);
       return NextResponse.json({ success: true, message, summary: jsonResult.summary, errors: [], skipped: jsonResult.skipped });
     }
 
@@ -148,8 +54,8 @@ export async function POST(request: Request) {
       const parsed = parseJsonContent(content);
       if (isConfirmedEventsBundle(parsed)) {
         const bundleResult = await restoreConfirmedEventsBundle(parsed, bundleFileName);
-        const message = `Importacion restaurada correctamente: ${summarize(bundleResult.summary)}.`;
-        logger.info(`[Backup] Confirmed events ZIP restore completed at ${new Date().toISOString()}: ${summarize(bundleResult.summary)}`);
+        const message = `Importacion restaurada correctamente: ${summarizeRestoreSummary(bundleResult.summary)}.`;
+        logger.info(`[Backup] Confirmed events ZIP restore completed at ${new Date().toISOString()}: ${summarizeRestoreSummary(bundleResult.summary)}`);
         return NextResponse.json({ success: true, message, summary: bundleResult.summary, errors: [], skipped: bundleResult.skipped });
       }
     }
@@ -183,7 +89,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const summaryParts = summarize(summary);
+    const summaryParts = summarizeRestoreSummary(summary);
     const message = errors.length > 0 ? `Backup parcialmente restaurado: ${summaryParts}. Errores en: ${errors.join(', ')}.` : `Backup restaurado correctamente: ${summaryParts}.`;
     logger.info(`[Backup] Restore completed at ${new Date().toISOString()}: ${summaryParts}`);
     return NextResponse.json({ success: true, message, summary, errors, skipped });
