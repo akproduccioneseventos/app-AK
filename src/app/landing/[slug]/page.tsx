@@ -30,6 +30,14 @@ interface PromoConfig {
 
 type AnyLandingConfig = PromoConfig | import('@/lib/marketing/campaign-landings').CampaignLandingConfig;
 
+function getConfigMetadata(config: AnyLandingConfig) {
+  if ('metadata' in config) return config.metadata;
+  return {
+    title: config.title,
+    description: config.description,
+  };
+}
+
 function getConfigCtaLabel(config: AnyLandingConfig) {
   return 'label' in config.cta ? config.cta.label : 'Consultar por WhatsApp';
 }
@@ -143,9 +151,7 @@ export async function generateMetadata({ params }: PromoPageProps): Promise<Meta
   const { slug } = await params;
   const config: AnyLandingConfig | undefined = PROMO_PAGES[slug] || CAMPAIGN_LANDING_MAP[slug];
   if (!config) return { title: 'Promo — AK Producciones' };
-  const meta = 'metadata' in config
-    ? config.metadata
-    : { title: config.title, description: config.description };
+  const meta = getConfigMetadata(config);
   return {
     title: meta.title,
     description: meta.description,

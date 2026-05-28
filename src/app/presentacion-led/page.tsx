@@ -394,7 +394,7 @@ export default function PresentacionLedPage() {
 
   const handleGenerateBudget = useCallback(() => {
     // IDs come from server-fetched ServicioEmpresa records (alphanumeric + hyphens/underscores)
-    const safeIds = selectedServices.filter(id => /^[\w-]+$/.test(id));
+    const safeIds = Array.from(new Set([...selectedServices, ...selectedEntradasIds])).filter(id => /^[\w-]+$/.test(id));
     if (safeIds.length > 0) {
       sessionStorage.setItem('presentacion_servicios_seleccionados', JSON.stringify(safeIds));
     }
@@ -424,6 +424,10 @@ export default function PresentacionLedPage() {
     }
     const params = new URLSearchParams();
     if (clientData.nombre.trim()) params.set('leadName', clientData.nombre.trim());
+    if (clientData.fechaEvento) params.set('fecha', clientData.fechaEvento);
+    if (clientData.tipoFiesta.trim()) params.set('tipoFiesta', clientData.tipoFiesta.trim());
+    if (clientData.duracionHoras) params.set('duracionHoras', clientData.duracionHoras);
+    if (clientData.salon.trim()) params.set('salon', clientData.salon.trim());
     if (clientData.invitadosAdultos) params.set('adultos', clientData.invitadosAdultos);
     if (clientData.invitadosAdolescentes) params.set('ninos', clientData.invitadosAdolescentes);
     safeIds.forEach((id) => params.append('servicios', id));
