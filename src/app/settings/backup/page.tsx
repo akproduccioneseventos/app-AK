@@ -43,7 +43,7 @@ export default function BackupPage() {
 
   const handleRestoreFromZip = async () => {
     if (!file) {
-      toast({ title: 'Sin archivo', description: 'Seleccioná un archivo .zip antes de restaurar.', variant: 'destructive' });
+      toast({ title: 'Sin archivo', description: 'Selecciona un archivo .zip o .json antes de restaurar.', variant: 'destructive' });
       return;
     }
     setIsRestoringZip(true);
@@ -271,26 +271,32 @@ export default function BackupPage() {
               <a href="/api/backup/download" download className="block w-full">
                 <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-primary/30 text-primary bg-white hover:bg-primary/5">
                   <HardDriveDownload className="w-4 h-4 mr-2" />
-                  ⬇️ Descargar ZIP
+                  Descargar ZIP
+                </Button>
+              </a>
+              <a href="/api/imports/confirmed-events-29" download className="block w-full">
+                <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-emerald-300 text-emerald-700 bg-white hover:bg-emerald-50">
+                  <HardDriveDownload className="w-4 h-4 mr-2" />
+                  Descargar importacion 29 fiestas
                 </Button>
               </a>
               <Separator />
               <Card className="shadow-sm border-orange-200 bg-orange-50">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-black uppercase tracking-widest text-orange-700 flex items-center gap-2">
-                    <UploadCloud className="w-4 h-4" /> Restaurar desde ZIP
+                    <UploadCloud className="w-4 h-4" /> Restaurar desde archivo
                   </CardTitle>
                   <CardDescription className="text-orange-600 text-xs">
-                    Cargá un archivo .zip descargado previamente para restaurar todos tus datos.
+                    Carga un .zip de respaldo o un .json de importacion validado para restaurar tus datos.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="space-y-1">
-                    <Label htmlFor="zip-restore-input" className="text-xs font-bold text-orange-700">Archivo ZIP de respaldo</Label>
+                    <Label htmlFor="zip-restore-input" className="text-xs font-bold text-orange-700">Archivo de respaldo o importacion</Label>
                     <Input
                       id="zip-restore-input"
                       type="file"
-                      accept=".zip"
+                      accept=".zip,.json,application/json,application/zip"
                       className="rounded-xl bg-white border-orange-200 text-sm"
                       onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                       disabled={isRestoringZip}
@@ -301,21 +307,21 @@ export default function BackupPage() {
                     <AlertDialogTrigger asChild>
                       <Button variant="outline" className="w-full h-10 rounded-xl font-bold border-orange-400 text-orange-700 bg-white hover:bg-orange-100" disabled={!file || isRestoringZip}>
                         {isRestoringZip ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
-                        {isRestoringZip ? 'Restaurando...' : 'Restaurar ZIP'}
+                        {isRestoringZip ? 'Restaurando...' : 'Restaurar archivo'}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
-                          <AlertTriangle className="w-5 h-5 text-destructive" /> ¿Restaurar desde ZIP?
+                          <AlertTriangle className="w-5 h-5 text-destructive" /> Restaurar archivo?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          Esta acción <strong>sobreescribirá todos tus datos actuales</strong> con los del archivo ZIP seleccionado. Esta acción no se puede deshacer.
+                          Esta accion <strong>sobreescribira los datos incluidos en el archivo</strong>. El importador de eventos confirmados no pisa tu catalogo de servicios salvo que el archivo lo indique expresamente.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleRestoreFromZip} className="bg-destructive hover:bg-destructive/90">Sí, Restaurar Ahora</AlertDialogAction>
+                        <AlertDialogAction onClick={handleRestoreFromZip} className="bg-destructive hover:bg-destructive/90">Si, Restaurar Ahora</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
