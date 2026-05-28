@@ -7,6 +7,7 @@ import { TestimonialsSection, type Testimonial } from '@/components/landing/Test
 import { CTASection } from '@/components/landing/CTASection';
 import { PublicFooter } from '@/components/public-footer';
 import { notFound } from 'next/navigation';
+import { CAMPAIGN_LANDING_MAP, CAMPAIGN_LANDINGS } from '@/lib/marketing/campaign-landings';
 
 // ─── Promo page data store ──────────────────────────────────────────────────
 // To add a new promotion, simply add an entry to this object with a unique slug.
@@ -25,6 +26,16 @@ interface PromoConfig {
   cta: { headline: string; subheadline: string };
   whatsappNumber?: string;
   whatsappMessage?: string;
+}
+
+type AnyLandingConfig = PromoConfig | import('@/lib/marketing/campaign-landings').CampaignLandingConfig;
+
+function getConfigCtaLabel(config: AnyLandingConfig) {
+  return 'label' in config.cta ? config.cta.label : 'Consultar por WhatsApp';
+}
+
+function getConfigWhatsappNumber(config: AnyLandingConfig) {
+  return 'whatsappNumber' in config && config.whatsappNumber ? config.whatsappNumber : '59899123456';
 }
 
 const PROMO_PAGES: Record<string, PromoConfig> = {
@@ -130,21 +141,25 @@ interface PromoPageProps {
 
 export async function generateMetadata({ params }: PromoPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const config = PROMO_PAGES[slug];
+  const config: AnyLandingConfig | undefined = PROMO_PAGES[slug] || CAMPAIGN_LANDING_MAP[slug];
   if (!config) return { title: 'Promo — AK Producciones' };
+  const meta = 'metadata' in config
+    ? config.metadata
+    : { title: config.title, description: config.description };
   return {
-    title: config.metadata.title,
-    description: config.metadata.description,
+    title: meta.title,
+    description: meta.description,
   };
 }
 
 export default async function PromoLandingPage({ params }: PromoPageProps) {
   const { slug } = await params;
-  const config = PROMO_PAGES[slug];
+  const config: AnyLandingConfig | undefined = PROMO_PAGES[slug] || CAMPAIGN_LANDING_MAP[slug];
 
   if (!config) notFound();
 
-  const whatsappNumber = config.whatsappNumber ?? '59899123456';
+  const whatsappNumber = getConfigWhatsappNumber(config);
+  const ctaLabel = getConfigCtaLabel(config);
 
   return (
     <div className="min-h-screen bg-white">
@@ -154,6 +169,8 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
         headline={config.hero.headline}
         subheadline={config.hero.subheadline}
         backgroundImageUrl={config.hero.backgroundImageUrl}
+        whatsappMessage={config.whatsappMessage}
+        ctaLabel={ctaLabel}
       />
       {config.services && (
         <ServicesSection services={config.services} whatsappNumber={whatsappNumber} />
@@ -164,6 +181,8 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
         whatsappNumber={whatsappNumber}
         headline={config.cta.headline}
         subheadline={config.cta.subheadline}
+        ctaLabel={ctaLabel}
+        whatsappMessage={config.whatsappMessage}
       />
       <PublicFooter variant="dark" />
     </div>
@@ -172,5 +191,8 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
 
 // Pre-render known promo pages
 export async function generateStaticParams() {
-  return Object.keys(PROMO_PAGES).map((slug) => ({ slug }));
+  return [
+    ...Object.keys(PROMO_PAGES).map((slug) => ({ slug })),
+    ...CAMPAIGN_LANDINGS.map((campaign) => ({ slug: campaign.slug })),
+  ];
 }

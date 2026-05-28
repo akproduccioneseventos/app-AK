@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2, Bot } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2, Bot, Copy, ExternalLink, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { getSocialPosts, deleteSocialPost } from '@/app/actions/social-media';
@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CAMPAIGN_LANDINGS } from '@/lib/marketing/campaign-landings';
 
 function SocialMediaPageContent() {
     const [posts, setPosts] = useState<SocialPost[]>([]);
@@ -99,6 +100,21 @@ function SocialMediaPageContent() {
             setDeletingPostId(null);
         }
     };
+
+    const buildCampaignUrl = (slug: string) => {
+        if (typeof window === 'undefined') return `/landing/${slug}`;
+        return `${window.location.origin}/landing/${slug}`;
+    };
+
+    const copyCampaignLink = async (slug: string) => {
+        const url = buildCampaignUrl(slug);
+        try {
+            await navigator.clipboard.writeText(url);
+            toast({ title: 'Link copiado', description: url });
+        } catch {
+            toast({ title: 'No se pudo copiar', description: 'Abrí la landing y copiá el enlace desde el navegador.', variant: 'destructive' });
+        }
+    };
     
     return (
         <div className="space-y-6">
@@ -123,6 +139,50 @@ function SocialMediaPageContent() {
                 />
             )}
             <CardDescription>Planifica, redacta con IA y organiza tu contenido para redes sociales. Luego copia y pega para publicar.</CardDescription>
+
+            <Card className="border-emerald-100 bg-emerald-50/40 shadow-sm">
+                <CardHeader>
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <CardTitle className="font-headline text-xl flex items-center gap-2">
+                                <MessageSquare className="w-5 h-5 text-emerald-600" />
+                                Landings para publicidad
+                            </CardTitle>
+                            <CardDescription>
+                                Links listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.
+                            </CardDescription>
+                        </div>
+                        <Link href="/landing/tecnologia-ak" target="_blank">
+                            <Button variant="outline" className="bg-white">
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                Ver Tecnologia AK
+                            </Button>
+                        </Link>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        {CAMPAIGN_LANDINGS.map((campaign) => (
+                            <div key={campaign.slug} className="rounded-xl border border-emerald-100 bg-white p-4 shadow-sm">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">{campaign.shortTitle}</p>
+                                <h3 className="mt-1 text-base font-black text-slate-900">{campaign.hero.headline.replace('\n', ' ')}</h3>
+                                <p className="mt-2 min-h-[54px] text-xs leading-5 text-slate-500">{campaign.objective}</p>
+                                <div className="mt-4 flex gap-2">
+                                    <Button size="sm" variant="outline" className="flex-1" onClick={() => copyCampaignLink(campaign.slug)}>
+                                        <Copy className="w-3.5 h-3.5 mr-1.5" />
+                                        Copiar
+                                    </Button>
+                                    <Link href={`/landing/${campaign.slug}`} target="_blank" className="flex-1">
+                                        <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700">
+                                            Abrir
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
             
             <Card className="shadow-lg">
                 <CardHeader>
