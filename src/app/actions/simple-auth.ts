@@ -10,6 +10,10 @@ const HARDCODED_PASSWORD = 'AKproducciones2024';
 const AUTH_COLLECTION = 'app-settings';
 const AUTH_DOC_ID = 'auth';
 const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
+const DEFAULT_RECOVERY_EMAIL =
+  process.env.AUTH_RECOVERY_EMAIL ||
+  process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim() ||
+  'akproduccionessalto@gmail.com';
 const SCRYPT_SALT_LEN = 16;
 const SCRYPT_KEY_LEN = 64;
 const RESET_CODE_TTL_MS = 15 * 60 * 1000;
@@ -61,6 +65,10 @@ type SimpleAuthConfig = {
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
+}
+
+function getRecoveryEmail(config: SimpleAuthConfig | null) {
+  return normalizeEmail(config?.recoveryEmail || DEFAULT_RECOVERY_EMAIL);
 }
 
 function normalizeAnswer(value: string) {
@@ -394,7 +402,7 @@ export async function getPublicSecurityRecoveryStatus(): Promise<{
   questions?: Record<SecurityQuestionKey, string>;
 }> {
   const config = await getAuthDoc().catch(() => null);
-  const email = config?.recoveryEmail;
+  const email = getRecoveryEmail(config);
   const sq = config?.securityQuestions || {};
   const mask = email ? email.replace(/^(.{2}).*(@.*)$/, '$1***$2') : undefined;
   const hasSecurityQuestions = Boolean(sq.q1?.question && sq.q2?.question && sq.q3?.question);
@@ -419,9 +427,7 @@ export async function getPublicSecurityRecoveryStatus(): Promise<{
 export async function requestPasswordResetEmail(): Promise<{ success: boolean; sent?: boolean; warning?: string; error?: string }> {
   try {
     const config = await getAuthDoc();
-    if (!config?.recoveryEmail) {
-      return { success: false, error: 'No hay mail de recuperacion configurado. Usa la contraseña actual o configura recuperacion en Seguridad y Cuenta.' };
-    }
+    const recoveryEmail = getRecoveryEmail(config);
 
     const rateLimit = getResetRequestPatch(config);
     if (rateLimit.error) return { success: false, error: rateLimit.error };
@@ -433,7 +439,7 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
       ...rateLimit.patch,
     });
 
-    const mail = await sendSecurityEmail(config.recoveryEmail, code);
+    const mail = await sendSecurityEmail(recoveryEmail, code);
     return { success: true, sent: mail.sent, warning: mail.warning };
   } catch (err) {
     console.error('[simple-auth] requestPasswordResetEmail error:', err);

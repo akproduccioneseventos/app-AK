@@ -22,6 +22,11 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyDk_9nYp-WZIxMx4TbzS41_9uVmb3Q3Xnc"
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: "presupuestador-ak-producciones.firebaseapp.com"
     availability:
@@ -29,6 +34,25 @@ env:
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: "presupuestador-ak-producciones.firebasestorage.app"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "829175724052"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:829175724052:web:eb6041e28a2ebb7e380f01"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: AUTH_RECOVERY_EMAIL
+    value: "akproduccionessalto@gmail.com"
+    availability:
+      - RUNTIME
+  - variable: NEXT_PUBLIC_AUTH_ALLOWED_EMAILS
+    value: "akproduccionessalto@gmail.com"
     availability:
       - BUILD
       - RUNTIME

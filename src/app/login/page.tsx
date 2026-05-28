@@ -192,7 +192,7 @@ export default function LoginPage() {
             )}
           </div>
           <CardTitle className="text-3xl font-bold font-headline">Acceso Protegido</CardTitle>
-          <CardDescription>{mode === 'login' ? 'Ingresa la contraseña para acceder.' : 'Recupera el acceso sin bloquear la app.'}</CardDescription>
+          <CardDescription>{mode === 'login' ? 'Ingresa la contraseña para acceder.' : 'Recupera el acceso con el Gmail de AK.'}</CardDescription>
         </CardHeader>
 
         {mode === 'login' ? (
@@ -229,7 +229,7 @@ export default function LoginPage() {
           <div>
             <CardContent className="space-y-5">
               <div className="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
-                {recovery?.hasRecoveryEmail ? `Mail configurado: ${recovery.recoveryEmailHint}.` : 'Todavia no hay mail de recuperacion configurado.'}
+                {recovery?.hasRecoveryEmail ? `Gmail de recuperacion: ${recovery.recoveryEmailHint}.` : 'Todavia no hay mail de recuperacion configurado.'}
                 {recovery?.hasBackupCodes ? ` Tenes ${recovery.backupCodeCount} codigo(s) de respaldo disponible(s).` : ''}
               </div>
 
@@ -240,9 +240,9 @@ export default function LoginPage() {
               </div>
 
               <form onSubmit={handleResetWithCode} className="space-y-3 rounded-lg border p-3">
-                <p className="text-sm font-semibold">Recuperar por mail</p>
+                <p className="text-sm font-semibold">Recuperar por Gmail</p>
                 <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail}>
-                  Enviar codigo por mail
+                  Enviar codigo por Gmail
                 </Button>
                 <Input value={resetCode} onChange={(event) => setResetCode(event.target.value)} placeholder="Codigo de 6 numeros" inputMode="numeric" disabled={isSubmitting} />
                 <Button type="submit" className="w-full" disabled={isSubmitting || !resetCode || !resetPassword}>
