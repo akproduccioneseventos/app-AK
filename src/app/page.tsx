@@ -600,7 +600,7 @@ export default function MainDashboardPage() {
 
       <Separator className="opacity-30" />
 
-       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4 sm:gap-5">
+       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <AnimatePresence>
           {mainHubItems.map((item, idx) => (
             <motion.div
@@ -610,19 +610,19 @@ export default function MainDashboardPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 + 0.3 }}
             >
-              <Card className={cn("group flex h-full min-h-[12.5rem] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl", item.featured && "border-indigo-200 ring-2 ring-indigo-500/80 ring-offset-2")}>
-                  <CardHeader className="space-y-3 p-4 pb-3">
+              <Card className={cn("group flex h-full min-h-[13.75rem] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl", item.featured && "border-indigo-200 ring-2 ring-indigo-500/80 ring-offset-2")}>
+                  <CardHeader className="space-y-3 p-5 pb-3">
                       <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-lg shadow-lg shadow-black/5 transition-all duration-300 group-hover:rotate-3", item.featured ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white" : item.lightColor)}>
                           <item.icon className="h-6 w-6" />
                       </div>
-                      <CardTitle className={cn("text-base font-black leading-tight tracking-tight", item.featured ? "text-indigo-700" : "text-slate-800")}>{item.title}</CardTitle>
+                      <CardTitle className={cn("text-base font-black leading-tight tracking-tight sm:text-lg", item.featured ? "text-indigo-700" : "text-slate-800")}>{item.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="flex-grow px-4 pb-4">
-                      <p className="text-xs font-medium leading-relaxed text-slate-500">
+                  <CardContent className="flex-grow px-5 pb-5">
+                      <p className="text-sm font-medium leading-relaxed text-slate-500">
                           {item.description}
                       </p>
                   </CardContent>
-                  <CardFooter className="px-4 pb-4 pt-0">
+                  <CardFooter className="px-5 pb-5 pt-0">
                       <Link href={item.href} className="w-full">
                           <Button variant={item.featured ? "default" : "secondary"} className={cn("h-10 w-full justify-between rounded-lg px-4 text-[10px] font-black uppercase tracking-widest shadow-sm transition-all duration-300", item.featured ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700" : "group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white")}>
                               Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" />
