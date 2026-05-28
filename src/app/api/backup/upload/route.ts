@@ -22,6 +22,11 @@ function summarize(summary: RestoreSummary): string {
   return Object.entries(summary).map(([key, count]) => `${count} ${key}`).join(', ');
 }
 
+function parseJsonContent(content: string) {
+  const cleanContent = content.charCodeAt(0) === 0xfeff ? content.slice(1) : content;
+  return JSON.parse(cleanContent);
+}
+
 function shouldSkipCatalogReplace(bundle: any): boolean {
   return !bundle?.metadata?.replaceServiciosEmpresa && !bundle?.replaceServiciosEmpresa;
 }
@@ -107,7 +112,7 @@ async function restoreJsonFile(file: File) {
   }
 
   const raw = Buffer.from(await file.arrayBuffer()).toString('utf8');
-  const parsed = JSON.parse(raw);
+  const parsed = parseJsonContent(raw);
   if (!isConfirmedEventsBundle(parsed)) {
     throw new Error('El JSON no tiene formato de importacion de eventos confirmados.');
   }
@@ -140,7 +145,7 @@ export async function POST(request: Request) {
     const bundleFileName = jsonFiles.find((fileName) => fileName.toLowerCase().includes('import') || fileName.toLowerCase().includes('confirmad'));
     if (bundleFileName) {
       const content = await zip.files[bundleFileName].async('string');
-      const parsed = JSON.parse(content);
+      const parsed = parseJsonContent(content);
       if (isConfirmedEventsBundle(parsed)) {
         const bundleResult = await restoreConfirmedEventsBundle(parsed, bundleFileName);
         const message = `Importacion restaurada correctamente: ${summarize(bundleResult.summary)}.`;
@@ -161,7 +166,7 @@ export async function POST(request: Request) {
       }
       try {
         const content = await zip.files[fileName].async('string');
-        const data = JSON.parse(content);
+        const data = parseJsonContent(content);
         if (fileName === 'fiestas.json' && Array.isArray(data)) {
           for (const fiesta of data) {
             if (!fiesta?.id) continue;
