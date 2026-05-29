@@ -17,30 +17,36 @@ type ChatMessage = AkMultiAgentMessage & {
   agentType?: AkAgentType;
 };
 
-const AGENT_STYLE: Record<AkAgentType, { label: string; icon: any; badge: string }> = {
-  secretaria: { label: 'Secretaria AK', icon: CalendarCheck, badge: 'Siempre activa' },
-  fiesta: { label: 'Asistente de Fiesta', icon: PartyPopper, badge: 'Fiesta actual' },
-  fiestas_general: { label: 'General de Fiestas', icon: Brain, badge: 'Todas las fiestas' },
-  contable: { label: 'Contable AK', icon: DollarSign, badge: 'Rentabilidad' },
-  marketing: { label: 'Marketing AK', icon: Megaphone, badge: 'Contenido' },
-  comercial: { label: 'Comercial AK', icon: MessageSquare, badge: 'Ventas' },
-  central: { label: 'Multiagente AK', icon: Bot, badge: 'Central' },
+const AGENT_STYLE: Record<AkAgentType, { label: string; icon: any; badge: string; short: string }> = {
+  secretaria: { label: 'Secretaria AK', icon: CalendarCheck, badge: 'Agenda', short: 'SEC' },
+  fiesta: { label: 'Agente de esta Fiesta', icon: PartyPopper, badge: 'Fiesta actual', short: 'FIE' },
+  fiestas_general: { label: 'Supervisor General de Fiestas', icon: Brain, badge: 'Todas las fiestas', short: 'FIS' },
+  contable: { label: 'Agente Contable AK', icon: DollarSign, badge: 'Pagos', short: 'CON' },
+  marketing: { label: 'Agente Marketing AK', icon: Megaphone, badge: 'Contenido', short: 'MKT' },
+  comercial: { label: 'Agente Comercial AK', icon: MessageSquare, badge: 'Ventas', short: 'COM' },
+  central: { label: 'Encargado General AK', icon: Bot, badge: 'App completa', short: 'AK' },
 };
+
+const AGENT_ORDER: AkAgentType[] = ['central', 'fiestas_general', 'fiesta', 'secretaria', 'comercial', 'contable', 'marketing'];
 
 function detectVisibleAgent(pathname: string): AkAgentType {
   if (pathname.startsWith('/fiestas/nueva') || /^\/fiestas\/[^/]+/.test(pathname) || pathname.includes('/evento/')) return 'fiesta';
+  if (pathname.includes('/eventos')) return 'fiestas_general';
   if (pathname.includes('/plan-pagos') || pathname.includes('/empresa/contabilidad') || pathname.includes('/invoices') || pathname.includes('/pagos')) return 'contable';
   if (pathname.includes('/marketing') || pathname.includes('/empresa/redes-sociales') || pathname.includes('/galeria') || pathname.includes('/portfolio')) return 'marketing';
   if (pathname.includes('/contabilidad/crm') || pathname.includes('/presupuestos') || pathname.includes('/simulador')) return 'comercial';
   if (pathname.includes('/multiagente')) return 'central';
   if (pathname.includes('/settings/google-workspace') || pathname.includes('/calendario') || pathname.includes('/reuniones')) return 'secretaria';
-  return 'secretaria';
+  return 'central';
 }
 
 function getFiestaIdFromLocation(): string | undefined {
   if (typeof window === 'undefined') return undefined;
   const params = new URLSearchParams(window.location.search);
-  return params.get('fiestaId') || undefined;
+  const fromQuery = params.get('fiestaId');
+  if (fromQuery) return fromQuery;
+  const match = window.location.pathname.match(/\/fiestas\/([^/]+)/);
+  return match?.[1];
 }
 
 export function MultiAgentWidget() {
@@ -49,6 +55,7 @@ export function MultiAgentWidget() {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [fiestaId, setFiestaId] = useState<string | undefined>(undefined);
+  const [activeAgent, setActiveAgent] = useState<AkAgentType>(() => detectVisibleAgent(typeof window === 'undefined' ? '' : window.location.pathname));
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window === 'undefined') return [];
     try {
@@ -60,17 +67,18 @@ export function MultiAgentWidget() {
   });
   const endRef = useRef<HTMLDivElement>(null);
 
-  const activeAgent = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
+  const suggestedAgent = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
   const style = AGENT_STYLE[activeAgent];
   const Icon = style.icon;
 
   useEffect(() => {
     setFiestaId(getFiestaIdFromLocation());
+    setActiveAgent(detectVisibleAgent(pathname || ''));
   }, [pathname]);
 
   useEffect(() => {
     try {
-      localStorage.setItem('ak-multiagent-history', JSON.stringify(messages.slice(-40)));
+      localStorage.setItem('ak-multiagent-history', JSON.stringify(messages.slice(-60)));
     } catch {
       // ignore storage errors
     }
@@ -80,6 +88,11 @@ export function MultiAgentWidget() {
     if (isOpen) endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen, isSending]);
 
+  function openAgent(agent: AkAgentType) {
+    setActiveAgent(agent);
+    setIsOpen(true);
+  }
+
   async function handleSend(override?: string) {
     const text = (override ?? input).trim();
     if (!text || isSending) return;
@@ -88,9 +101,13 @@ export function MultiAgentWidget() {
       id: `user_${Date.now()}`,
       role: 'user',
       content: text,
+      agentType: activeAgent,
     };
 
-    const historyForServer = [...messages, userMessage].slice(-12).map(({ role, content }) => ({ role, content }));
+    const historyForServer = [...messages, userMessage]
+      .filter(message => !message.agentType || message.agentType === activeAgent)
+      .slice(-12)
+      .map(({ role, content }) => ({ role, content }));
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -113,15 +130,15 @@ export function MultiAgentWidget() {
           agentType: result.agentType,
         },
       ]);
-    } catch (error) {
+    } catch {
       setMessages(prev => [
         ...prev,
         {
           id: `assistant_${Date.now()}`,
           role: 'assistant',
-          content: 'No pude responder ahora. Pasame el error o probá de nuevo.',
-          agentName: 'Multiagente AK',
-          agentType: 'central',
+          content: 'No pude responder ahora. No marque nada como hecho.',
+          agentName: style.label,
+          agentType: activeAgent,
         },
       ]);
     } finally {
@@ -130,36 +147,68 @@ export function MultiAgentWidget() {
   }
 
   const quickPrompts = activeAgent === 'fiesta'
-    ? ['¿Qué le falta a esta fiesta?', 'Qué está a revisar', 'Qué tengo que hacer hoy']
-    : activeAgent === 'contable'
-      ? ['Revisá rentabilidad', 'Pagos pendientes', 'Qué saldo reviso primero']
-      : activeAgent === 'marketing'
-        ? ['Haceme un post', 'Ideas para historias', 'WhatsApp para vender']
-        : ['Qué tengo pendiente hoy', 'A quién tengo que llamar', 'Resumen rápido'];
+    ? ['Que le falta a esta fiesta', 'Que esta a revisar', 'Que hago hoy']
+    : activeAgent === 'fiestas_general'
+      ? ['Revisa todas las fiestas', 'Prioridades generales', 'Fiestas atrasadas']
+      : activeAgent === 'contable'
+        ? ['Pagos pendientes', 'Saldos a revisar', 'Rentabilidad']
+        : activeAgent === 'marketing'
+          ? ['Haceme un post', 'Ideas para historias', 'WhatsApp para vender']
+          : activeAgent === 'comercial'
+            ? ['Leads pendientes', 'Presupuestos sin respuesta', 'Mensaje para cerrar']
+            : activeAgent === 'secretaria'
+              ? ['Que tengo pendiente hoy', 'Crear recordatorio', 'A quien llamo']
+              : ['Revisa la app', 'Que esta mas urgente', 'Resumen general'];
 
   return (
     <>
-      <Button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-red-600 text-white shadow-2xl shadow-red-900/30 hover:bg-red-700 print:hidden"
-        aria-label="Abrir Multiagente AK"
-      >
-        <Sparkles className="h-6 w-6" />
-      </Button>
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2 print:hidden">
+        {AGENT_ORDER.map(agent => {
+          const item = AGENT_STYLE[agent];
+          const active = activeAgent === agent;
+          const ItemIcon = item.icon;
+          return (
+            <button
+              key={agent}
+              type="button"
+              onClick={() => openAgent(agent)}
+              title={item.label}
+              className={cn('group flex items-center gap-2 rounded-full border bg-white p-1.5 shadow-xl transition-all hover:-translate-x-1', active && 'ring-2 ring-red-500')}
+            >
+              <span className="hidden rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-700 shadow-sm group-hover:inline">
+                {item.label}
+              </span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-white shadow-md">
+                <ItemIcon className="h-5 w-5" />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {!isOpen && (
+        <Button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-red-600 text-white shadow-2xl shadow-red-900/30 hover:bg-red-700 print:hidden"
+          aria-label="Abrir Multiagente AK"
+        >
+          <Sparkles className="h-6 w-6" />
+        </Button>
+      )}
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end bg-black/25 p-3 print:hidden sm:p-5">
+        <div className="fixed inset-0 z-40 flex items-end justify-end bg-black/20 p-3 print:hidden sm:p-5 sm:pr-24">
           <Card className="h-[82vh] w-full max-w-md overflow-hidden rounded-3xl border-red-100 bg-white shadow-2xl">
             <CardHeader className="border-b border-red-100 bg-gradient-to-r from-red-600 to-red-800 p-4 text-white">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-white/15 p-2">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle className="text-base font-black">{style.label}</CardTitle>
-                    <p className="text-xs text-red-50">Nuevo Multiagente AK</p>
+                    <p className="text-xs text-red-50">{style.badge}</p>
                   </div>
                 </div>
                 <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full text-white hover:bg-white/15" onClick={() => setIsOpen(false)}>
@@ -167,17 +216,18 @@ export function MultiAgentWidget() {
                 </Button>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Badge className="bg-white text-red-700 hover:bg-white">{style.badge}</Badge>
-                {fiestaId && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
+                <Badge className="bg-white text-red-700 hover:bg-white">{style.short}</Badge>
+                {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Sugerido</Badge>}
+                {fiestaId && activeAgent === 'fiesta' && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
               </div>
             </CardHeader>
 
-            <CardContent className="flex h-[calc(82vh-92px)] flex-col p-0">
+            <CardContent className="flex h-[calc(82vh-108px)] flex-col p-0">
               <div className="flex-1 space-y-3 overflow-y-auto p-4">
                 {messages.length === 0 && (
                   <div className="rounded-2xl border border-red-100 bg-red-50/60 p-4 text-sm text-slate-700">
-                    <p className="font-bold text-slate-900">Estoy listo.</p>
-                    <p className="mt-1">Este es el nuevo Multiagente AK. Según dónde estés, responde como secretaria, fiesta, contable, marketing o comercial.</p>
+                    <p className="font-bold text-slate-900">Equipo IA listo.</p>
+                    <p className="mt-1">Elegi un agente de la derecha. Cada uno trabaja con su area.</p>
                   </div>
                 )}
 
@@ -224,7 +274,7 @@ export function MultiAgentWidget() {
                   <Textarea
                     value={input}
                     onChange={event => setInput(event.target.value)}
-                    placeholder="Decime qué necesitás..."
+                    placeholder={`Hablar con ${style.short}...`}
                     className="min-h-[44px] resize-none rounded-2xl"
                     onKeyDown={event => {
                       if (event.key === 'Enter' && !event.shiftKey) {
