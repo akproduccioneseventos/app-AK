@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bot, Brain, CalendarCheck, DollarSign, Loader2, Megaphone, MessageSquare, PartyPopper, Send, Sparkles, X } from 'lucide-react';
+import { Loader2, Send, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,20 +22,19 @@ type AgentUi = {
   short: string;
   description: string;
   avatar: string;
-  icon: React.ElementType;
   badge: string;
 };
 
 const AGENT_ORDER: AkAgentType[] = ['central', 'fiestas_general', 'fiesta', 'secretaria', 'comercial', 'contable', 'marketing'];
 
 const AGENT_STYLE: Record<AkAgentType, AgentUi> = {
-  central: { label: 'Encargado General AK', short: 'General', description: 'Aplicación completa', avatar: '🧠', icon: Bot, badge: 'General' },
-  fiestas_general: { label: 'Supervisor General de Fiestas', short: 'Fiestas', description: 'Todas las fiestas', avatar: '🎪', icon: Brain, badge: 'Fiestas' },
-  fiesta: { label: 'Agente de esta Fiesta', short: 'Fiesta', description: 'Fiesta actual', avatar: '🎉', icon: PartyPopper, badge: 'Fiesta' },
-  secretaria: { label: 'Secretaria AK', short: 'Secretaria', description: 'Agenda y pendientes', avatar: '📋', icon: CalendarCheck, badge: 'Secretaria' },
-  comercial: { label: 'Agente Comercial AK', short: 'Comercial', description: 'Leads y presupuestos', avatar: '🤝', icon: MessageSquare, badge: 'Ventas' },
-  contable: { label: 'Agente Contable AK', short: 'Contable', description: 'Pagos y saldos', avatar: '💵', icon: DollarSign, badge: 'Dinero' },
-  marketing: { label: 'Agente Marketing AK', short: 'Marketing', description: 'Redes y campañas', avatar: '📣', icon: Megaphone, badge: 'Marketing' },
+  central: { label: 'Encargado General AK', short: 'General', description: 'Aplicación completa', avatar: '🧠', badge: 'General' },
+  fiestas_general: { label: 'Supervisor General de Fiestas', short: 'Fiestas', description: 'Todas las fiestas', avatar: '🎪', badge: 'Fiestas' },
+  fiesta: { label: 'Agente de esta Fiesta', short: 'Fiesta', description: 'Fiesta actual', avatar: '🎉', badge: 'Fiesta' },
+  secretaria: { label: 'Secretaria AK', short: 'Secretaria', description: 'Agenda y pendientes', avatar: '📋', badge: 'Secretaria' },
+  comercial: { label: 'Agente Comercial AK', short: 'Comercial', description: 'Leads y presupuestos', avatar: '🤝', badge: 'Ventas' },
+  contable: { label: 'Agente Contable AK', short: 'Contable', description: 'Pagos y saldos', avatar: '💵', badge: 'Dinero' },
+  marketing: { label: 'Agente Marketing AK', short: 'Marketing', description: 'Redes y campañas', avatar: '📣', badge: 'Marketing' },
 };
 
 function detectVisibleAgent(pathname: string): AkAgentType {
@@ -74,9 +73,7 @@ export function MultiAgentWidget() {
     }
   });
   const endRef = useRef<HTMLDivElement>(null);
-
   const style = AGENT_STYLE[activeAgent];
-  const Icon = style.icon;
 
   useEffect(() => {
     setFiestaId(getFiestaIdFromLocation());
