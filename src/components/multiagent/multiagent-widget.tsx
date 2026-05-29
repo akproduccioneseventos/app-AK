@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bot, Brain, CalendarCheck, DollarSign, Loader2, Megaphone, MessageSquare, PartyPopper, Send, Sparkles, X } from 'lucide-react';
+import { Bot, Brain, CalendarCheck, DollarSign, Loader2, Megaphone, MessageSquare, PartyPopper, Send, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -185,17 +185,6 @@ export function MultiAgentWidget() {
           );
         })}
       </div>
-
-      {!isOpen && (
-        <Button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-red-600 text-white shadow-2xl shadow-red-900/30 hover:bg-red-700 print:hidden"
-          aria-label="Abrir Multiagente AK"
-        >
-          <Sparkles className="h-6 w-6" />
-        </Button>
-      )}
 
       {isOpen && (
         <div className="fixed inset-0 z-40 flex items-end justify-end bg-black/20 p-3 print:hidden sm:p-5 sm:pr-24">
