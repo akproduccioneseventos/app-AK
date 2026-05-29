@@ -60,7 +60,7 @@ export async function saveArmadoRapidoConfig(
         visible: p.visible,
         recommended: p.recommended || false
       })),
-      serviceDependencies: (newConfigData.serviceDependencies || []).map(dep => ({
+      serviceDependencies: (newConfigData.serviceDependencies || []).map((dep: ServiceDependency) => ({
         id: dep.id,
         triggerServiceId: dep.triggerServiceId,
         requiredServiceId: dep.requiredServiceId,
@@ -76,7 +76,7 @@ export async function saveArmadoRapidoConfig(
     await writeData(CONFIG_FILE, sanitizedConfig);
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message || "Unknown error saving config." };
+    return { success: false, error: error.message || 'Unknown error saving config.' };
   }
 }
 
@@ -86,16 +86,21 @@ export async function generateBudgetAndLeadFromSimulator(
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
   try {
     const source = options?.source || 'simulator_common';
+    const adultos = Math.max(0, Math.round(data.adultos || 0));
+    const adolescentes = Math.max(0, Math.round(data.adolescentes || 0));
+    const ninos = Math.max(0, Math.round(data.ninos || 0));
+    const totalInvitados = adultos + adolescentes + ninos;
+
     const presupuestoData: Omit<Presupuesto, 'id'> = {
       clienteNombre: data.clienteNombre,
       clienteContacto: data.clienteContacto,
       eventoTipo: options?.eventoTipo || 'Evento (desde Simulador)',
       eventoFecha: data.eventoFecha || new Date().toISOString(),
       eventoHoraInicio: data.eventoHoraInicio,
-      invitadosCantidad: (data.adultos || 0) + (data.ninos || 0),
-      invitadosAdultos: data.adultos,
-      invitadosAdolescentes: 0,
-      invitadosNinos: data.ninos,
+      invitadosCantidad: totalInvitados,
+      invitadosAdultos: adultos,
+      invitadosAdolescentes: adolescentes,
+      invitadosNinos: ninos,
       salonFiestas: options?.salonFiestas || 'A definir',
       itemsPresupuestados: data.items as ItemPresupuestado[],
       timestamp: new Date().toISOString(),
@@ -107,22 +112,21 @@ export async function generateBudgetAndLeadFromSimulator(
       ajusteAnualPorcentaje: data.ajusteAnualPorcentaje,
       totalConDescuento: data.costoEstimado,
       estado: 'Pendiente Verificación',
-      source
+      source,
     };
 
-    // savePresupuesto ahora internamente llama a findLeadByBudgetOrCreate
     const budgetResult = await savePresupuesto(presupuestoData, {
-      source
+      source,
+      preserveTotal: true,
     });
-    
+
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
-    } else {
-      return { success: false, error: budgetResult.error || "No se pudo procesar la solicitud." };
     }
+    return { success: false, error: budgetResult.error || 'No se pudo procesar la solicitud.' };
   } catch (error: any) {
-    console.error("Error in generateBudgetAndLeadFromSimulator:", error);
-    return { success: false, error: error.message || "Error al generar el prospecto y presupuesto." };
+    console.error('Error in generateBudgetAndLeadFromSimulator:', error);
+    return { success: false, error: error.message || 'Error al generar el prospecto y presupuesto.' };
   }
 }
 
