@@ -4,50 +4,31 @@ import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import {
-  Archive,
-  BarChart3,
   Bell,
-  BookOpen,
   Bot,
   Building,
-  CalendarClock,
-  CalendarDays,
   ChevronRight,
   Database,
-  DollarSign,
   FileSignature,
   FileText,
-  Files,
   Globe,
   HardDriveDownload,
   Image,
   Layers,
   Link as LinkIcon,
-  ListChecks,
   MessageCircle,
-  MessageSquare,
-  Monitor,
   Package,
-  PackagePlus,
   Palette,
-  Play,
-  Printer,
   Search,
-  Send,
   Settings as SettingsIcon,
   Shield,
   ShieldCheck,
-  ShoppingCart,
   Ticket,
   ToggleRight,
   TrendingUp,
-  Truck,
-  UtensilsCrossed,
   UserCog,
   Users,
   Wand2,
-  Wallet,
-  Wrench,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -70,280 +51,203 @@ interface SettingSection {
 
 const SECTIONS: SettingSection[] = [
   {
-    id: 'modulos',
-    label: 'Módulos Principales',
-    emoji: '🎯',
-    color: 'text-indigo-700',
-    bgColor: 'bg-indigo-50 border-indigo-200',
-    items: [
-      { title: 'Eventos Activos', description: 'Planificación y seguimiento de todos los eventos.', href: '/eventos', icon: CalendarClock },
-      { title: 'Calendario', description: 'Vista agenda con todas las fechas importantes.', href: '/calendario', icon: CalendarDays },
-      { title: 'Presupuestos', description: 'Ver todos los presupuestos generados.', href: '/presupuestos', icon: Files },
-      { title: 'Nuevo Presupuesto', description: 'Crear una cotización manual.', href: '/presupuestos/nuevo/crear', icon: FileText },
-      { title: 'Contratos', description: 'Tipos de contratos listos para editar y reutilizar.', href: '/settings/contratos', icon: FileSignature },
-      { title: 'CRM / Seguimiento', description: 'Prospectos, leads y pipeline de ventas.', href: '/contabilidad/crm', icon: ListChecks },
-      { title: 'Base de Clientes', description: 'Directorio completo de clientes.', href: '/customers', icon: Users },
-      { title: 'Pagos Rápidos', description: 'Registrar cobros y enviar recibos.', href: '/pagos-rapidos', icon: Wallet },
-      { title: 'Historial de Eventos', description: 'Eventos archivados y fiestas pasadas.', href: '/eventos', icon: Archive },
-    ],
-  },
-  {
-    id: 'ai',
-    label: 'Asistente IA',
-    emoji: '🤖',
-    color: 'text-violet-700',
-    bgColor: 'bg-violet-50 border-violet-200',
-    items: [
-      {
-        title: 'Configurar Asistente AK',
-        description: 'Escribí instrucciones personalizadas para que el Asistente hable como vos: descuentos, estilo, reglas de negocio.',
-        href: '/settings/ai-assistant',
-        icon: Bot,
-      },
-    ],
-  },
-  {
-    id: 'catalogo',
-    label: 'Catálogo & Facturación',
-    emoji: '📦',
-    color: 'text-sky-700',
-    bgColor: 'bg-sky-50 border-sky-200',
-    items: [
-      {
-        title: 'Catálogo de Servicios',
-        description: 'Ver, agregar, editar y eliminar los +60 servicios con precios de venta y costos. Ajuste masivo de precios.',
-        href: '/empresa/servicios',
-        icon: Package,
-      },
-      {
-        title: 'Catálogo de Servicios & Paquetes',
-        description: 'Ver todos los servicios con precios y los 3 paquetes configurados. Acceso directo al catálogo completo.',
-        href: '/settings/catalogo-servicios',
-        icon: Package,
-      },
-      {
-        title: 'Paquetes de Armado Rápido',
-        description: 'Configurá los 3 paquetes (Básico, Intermedio, Premium) con sus servicios incluidos y precios. Se usan en el simulador y presupuestos.',
-        href: '/settings/budget-display',
-        icon: Layers,
-      },
-      {
-        title: 'Nuevo Servicio',
-        description: 'Agregar un nuevo servicio al catálogo con precio, costo y método de cálculo.',
-        href: '/empresa/servicios/nuevo',
-        icon: PackagePlus,
-      },
-      {
-        title: 'Facturas',
-        description: 'Ver y gestionar todas las facturas emitidas.',
-        href: '/invoices',
-        icon: FileText,
-      },
-      {
-        title: 'Reporte de Servicios',
-        description: 'Ver el reporte imprimible del catálogo de servicios.',
-        href: '/empresa/servicios/reporte',
-        icon: Printer,
-      },
-    ],
-  },
-  {
-    id: 'sales',
-    label: 'Presupuestos y Ventas',
+    id: 'ventas',
+    label: 'Ventas y presupuestos',
     emoji: '📄',
     color: 'text-amber-700',
     bgColor: 'bg-amber-50 border-amber-200',
     items: [
       {
         title: 'Configuración de Presupuestos y Simulador',
-        description: 'Ajustá opciones de presentación, mensajes, características de venta y paquetes automáticos.',
+        description: 'Textos, presentación, paquetes y reglas comerciales del presupuesto.',
         href: '/settings/budget-display',
         icon: Wand2,
       },
       {
-        title: 'Ajuste Anual de Precios',
-        description: 'Aplicá ajustes porcentuales masivos a precios y costos de tu catálogo de servicios.',
-        href: '/settings/ajuste-precios',
-        icon: TrendingUp,
-      },
-      {
         title: 'Cupones y Descuentos',
-        description: 'Creá cupones promocionales con código, vigencia y límite de usos.',
+        description: 'Códigos promocionales, vigencia y límite de usos.',
         href: '/settings/cupones',
         icon: Ticket,
       },
+      {
+        title: 'Ajuste Anual de Precios',
+        description: 'Ajuste masivo de precios y costos del catálogo.',
+        href: '/settings/ajuste-precios',
+        icon: TrendingUp,
+      },
     ],
   },
   {
-    id: 'finanzas',
-    label: 'Contabilidad & Finanzas',
-    emoji: '📊',
-    color: 'text-orange-700',
-    bgColor: 'bg-orange-50 border-orange-200',
-    items: [
-      { title: 'Panel Financiero', description: 'Dashboard financiero, flujo de caja y KPIs.', href: '/empresa/contabilidad', icon: BarChart3 },
-      { title: 'Facturas', description: 'Gestión de facturas emitidas.', href: '/invoices', icon: FileText },
-      { title: 'Compras', description: 'Registro de compras e insumos.', href: '/compras', icon: ShoppingCart },
-      { title: 'Proveedores', description: 'Gestión de proveedores y contactos.', href: '/proveedores', icon: Truck },
-      { title: 'Analíticas', description: 'Reportes avanzados y estadísticas de ventas.', href: '/analytics', icon: BarChart3 },
-      { title: 'Contabilidad General', description: 'Panel contable completo.', href: '/empresa/contabilidad', icon: DollarSign },
-    ],
-  },
-  {
-    id: 'operaciones',
-    label: 'Operaciones, Gastronomía & Activos',
-    emoji: '🧩',
-    color: 'text-teal-700',
-    bgColor: 'bg-teal-50 border-teal-200',
-    items: [
-      { title: 'Módulo Gastronómico', description: 'Gestión de menús, platos y catálogo gastronómico.', href: '/empresa/menus', icon: UtensilsCrossed },
-      { title: 'Módulo de Activos', description: 'Control de activos fijos: sillas, mesas y equipamiento.', href: '/empresa/activos-fijos', icon: Wrench },
-      { title: 'Insumos', description: 'Inventario y compras de insumos operativos.', href: '/empresa/insumos', icon: ShoppingCart },
-      { title: 'Salones', description: 'Gestión de salones y espacios disponibles.', href: '/empresa/salones', icon: Building },
-      { title: 'Recursos Multi-Evento', description: 'Vista de recursos compartidos entre eventos activos.', href: '/recursos-multi-evento', icon: Layers },
-    ],
-  },
-  {
-    id: 'whatsapp',
-    label: 'WhatsApp & Automatizaciones',
-    emoji: '💬',
-    color: 'text-green-700',
-    bgColor: 'bg-green-50 border-green-200',
+    id: 'catalogo',
+    label: 'Catálogo y servicios',
+    emoji: '📦',
+    color: 'text-sky-700',
+    bgColor: 'bg-sky-50 border-sky-200',
     items: [
       {
-        title: 'Integración WhatsApp',
-        description: 'Activá o pausá la integración, elegí entre modo automático o manual y configurá recordatorios.',
-        href: '/settings/whatsapp',
-        icon: MessageCircle,
+        title: 'Catálogo de Servicios',
+        description: 'Servicios, precios, costos y método de cálculo.',
+        href: '/empresa/servicios',
+        icon: Package,
       },
       {
-        title: 'Plantillas de Mensajes',
-        description: 'Editá los mensajes predefinidos para compartir presupuestos, contratos, bienvenidas y confirmaciones.',
-        href: '/settings/whatsapp-templates',
-        icon: MessageCircle,
-      },
-      {
-        title: 'WhatsApp Business Bot',
-        description: 'Chatbot automático para atender clientes. Integrado con CRM y Marketing.',
-        href: '/settings/whatsapp-business',
-        icon: Bot,
-      },
-      {
-        title: 'Envíos de WhatsApp del Día',
-        description: 'Ver mensajes programados y envíos pendientes del día.',
-        href: '/contabilidad/crm/outbox',
-        icon: Send,
+        title: 'Paquetes de Armado Rápido',
+        description: 'Básico, Intermedio y Premium para simulador y presupuestos.',
+        href: '/settings/catalogo-servicios',
+        icon: Layers,
       },
     ],
   },
   {
-    id: 'contracts',
-    label: 'Plantillas de Contratos',
+    id: 'contratos',
+    label: 'Contratos y documentos',
     emoji: '📝',
     color: 'text-blue-700',
     bgColor: 'bg-blue-50 border-blue-200',
     items: [
       {
         title: 'Plantilla de Contrato Legal',
-        description: 'Editá el texto base del contrato (servicios y salón) con etiquetas dinámicas. Se autocompleta al generar desde cada evento.',
+        description: 'Texto base del contrato con etiquetas dinámicas.',
         href: '/settings/contratos',
         icon: FileSignature,
       },
       {
         title: 'Gestión de Plantillas',
-        description: 'Creá y administrá plantillas reutilizables para tareas, diseños, invitaciones y más.',
+        description: 'Plantillas reutilizables de tareas, diseños e invitaciones.',
         href: '/settings/templates',
         icon: Palette,
       },
     ],
   },
   {
-    id: 'equipo',
-    label: 'Empresa & Equipo',
-    emoji: '👥',
-    color: 'text-purple-700',
-    bgColor: 'bg-purple-50 border-purple-200',
-    items: [
-      { title: 'Información de la Empresa', description: 'Datos fiscales, contacto y logo.', href: '/settings/company', icon: Building },
-      { title: 'Empleados', description: 'Gestión del equipo y personal.', href: '/empleados', icon: Users },
-      { title: 'Accesos para Colaboradores', description: 'Crear accesos para secretaria, DJ, etc.', href: '/settings/accesos-personal', icon: UserCog },
-      { title: 'Cuentas Sociales', description: 'Conectar y gestionar redes sociales.', href: '/settings/social-connections', icon: LinkIcon },
-      { title: 'Portal de Clientes', description: 'Portal donde los clientes ven su evento.', href: '/portal-cliente', icon: Globe },
-      { title: 'Portal de Proveedores', description: 'Portal para proveedores.', href: '/proveedores', icon: Truck },
-    ],
-  },
-  {
-    id: 'web',
-    label: 'Web & Presentación',
-    emoji: '🌐',
-    color: 'text-cyan-700',
-    bgColor: 'bg-cyan-50 border-cyan-200',
-    items: [
-      { title: 'Editor de Landing Page', description: 'Modificar textos, colores e imágenes de la página pública.', href: '/empresa/landing-editor', icon: Globe },
-      { title: 'Editor de Contenido Público', description: 'Editar textos e imágenes de Presentación LED y Catálogo por tipo.', href: '/settings/contenido-publico', icon: BookOpen },
-      { title: 'Galería Pública', description: 'Fotos y videos de la galería web.', href: '/empresa/galeria', icon: Image },
-      { title: 'Modo Presentación LED', description: 'Pantalla kiosco para reuniones con clientes.', href: '/presentacion', icon: Monitor },
-      { title: 'Catálogo Digital por Tipo de Fiesta', description: 'Presentación por tipo: cumpleaños, casamientos, corporativos, etc.', href: '/catalogo', icon: BookOpen },
-      { title: 'Video de Vida', description: 'Generador de video memorial.', href: '/video-vida', icon: Play },
-    ],
-  },
-  {
-    id: 'backup',
-    label: 'Backup & Restauración',
-    emoji: '💾',
-    color: 'text-emerald-700',
-    bgColor: 'bg-emerald-50 border-emerald-200',
+    id: 'comunicacion',
+    label: 'WhatsApp y comunicación',
+    emoji: '💬',
+    color: 'text-green-700',
+    bgColor: 'bg-green-50 border-green-200',
     items: [
       {
-        title: 'Backup y Restauración',
-        description: 'Generá y descargá un respaldo ZIP completo de tus datos, o restaurá desde un archivo ZIP previo.',
-        href: '/settings/backup',
-        icon: HardDriveDownload,
+        title: 'Integración WhatsApp',
+        description: 'Modo manual o automático, recordatorios y estado de conexión.',
+        href: '/settings/whatsapp',
+        icon: MessageCircle,
+      },
+      {
+        title: 'Plantillas de Mensajes',
+        description: 'Mensajes para presupuestos, contratos y confirmaciones.',
+        href: '/settings/whatsapp-templates',
+        icon: MessageCircle,
+      },
+      {
+        title: 'WhatsApp Business Bot',
+        description: 'Atención automática conectada a CRM y marketing.',
+        href: '/settings/whatsapp-business',
+        icon: Bot,
       },
     ],
   },
   {
-    id: 'system',
-    label: 'Sistema',
+    id: 'empresa',
+    label: 'Empresa y equipo',
+    emoji: '👥',
+    color: 'text-purple-700',
+    bgColor: 'bg-purple-50 border-purple-200',
+    items: [
+      {
+        title: 'Información de la Empresa',
+        description: 'Datos fiscales, contacto y logo.',
+        href: '/settings/company',
+        icon: Building,
+      },
+      {
+        title: 'Accesos para Colaboradores',
+        description: 'Accesos para secretaria, personal y colaboradores.',
+        href: '/settings/accesos-personal',
+        icon: UserCog,
+      },
+      {
+        title: 'Cuentas Sociales',
+        description: 'Conexión y gestión de redes sociales.',
+        href: '/settings/social-connections',
+        icon: LinkIcon,
+      },
+      {
+        title: 'Portal de Clientes',
+        description: 'Configuración del portal donde el cliente ve su evento.',
+        href: '/portal-cliente',
+        icon: Globe,
+      },
+    ],
+  },
+  {
+    id: 'web',
+    label: 'Web y presentación',
+    emoji: '🌐',
+    color: 'text-cyan-700',
+    bgColor: 'bg-cyan-50 border-cyan-200',
+    items: [
+      {
+        title: 'Editor de Landing Page',
+        description: 'Textos, colores e imágenes de la web pública.',
+        href: '/empresa/landing-editor',
+        icon: Globe,
+      },
+      {
+        title: 'Editor de Contenido Público',
+        description: 'Contenido de presentación LED y catálogo por tipo de fiesta.',
+        href: '/settings/contenido-publico',
+        icon: FileText,
+      },
+      {
+        title: 'Galería Pública',
+        description: 'Fotos y videos visibles en la web.',
+        href: '/empresa/galeria',
+        icon: Image,
+      },
+    ],
+  },
+  {
+    id: 'sistema',
+    label: 'Sistema y seguridad',
     emoji: '⚙️',
     color: 'text-rose-700',
     bgColor: 'bg-rose-50 border-rose-200',
     items: [
       {
-        title: 'Feature Flags & Tiers de Servicio',
-        description: 'Activá o desactivá módulos según el tier de cada cliente. Gestioná overrides globales.',
-        href: '/settings/feature-flags',
-        icon: ToggleRight,
-      },
-      {
-        title: 'Notificaciones',
-        description: 'Configurá cómo y cuándo recibir alertas y avisos.',
-        href: '/settings/notifications',
-        icon: Bell,
-      },
-      {
         title: 'Seguridad y Cuenta',
-        description: 'Gestioná tu contraseña y opciones de seguridad.',
+        description: 'Contraseña, recuperación y opciones de seguridad.',
         href: '/settings/account',
         icon: ShieldCheck,
       },
       {
+        title: 'Notificaciones',
+        description: 'Alertas y avisos importantes.',
+        href: '/settings/notifications',
+        icon: Bell,
+      },
+      {
+        title: 'Feature Flags',
+        description: 'Activar o pausar funciones del sistema.',
+        href: '/settings/feature-flags',
+        icon: ToggleRight,
+      },
+      {
         title: 'Administración de Datos',
-        description: 'Reiniciá o eliminá permanentemente los datos de CRM, Presupuestos y Planificador directamente desde Firestore.',
+        description: 'Gestión delicada de datos de CRM, presupuestos y planificador.',
         href: '/settings/datos',
         icon: Database,
       },
       {
         title: 'Auditoría',
-        description: 'Registro de actividad y cambios en el sistema.',
+        description: 'Registro de actividad y cambios del sistema.',
         href: '/auditoria',
         icon: Shield,
       },
       {
-        title: 'Feedback',
-        description: 'Comentarios y sugerencias de mejora.',
-        href: '/settings/feedback',
-        icon: MessageSquare,
+        title: 'Backup y Restauración',
+        description: 'Descargar o restaurar respaldos de datos.',
+        href: '/settings/backup',
+        icon: HardDriveDownload,
       },
     ],
   },
@@ -369,12 +273,20 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
+      <div className="flex items-center gap-3">
+        <SettingsIcon className="w-8 h-8 text-primary" />
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Configuración</h1>
+          <p className="text-muted-foreground">Accesos de configuración ordenados, sin repetir módulos operativos.</p>
+        </div>
+      </div>
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar módulos, secciones o rutas..."
+          placeholder="Buscar configuración..."
           className="pl-10 pr-10 h-11"
         />
         {query && (
@@ -387,14 +299,6 @@ export default function SettingsPage() {
             <X className="w-4 h-4" />
           </button>
         )}
-      </div>
-
-      <div className="flex items-center gap-3">
-        <SettingsIcon className="w-8 h-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Centro de Control</h1>
-          <p className="text-muted-foreground">Todas las configuraciones de tu plataforma, ordenadas por sección.</p>
-        </div>
       </div>
 
       {filteredSections.length === 0 ? (
