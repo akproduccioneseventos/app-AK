@@ -1,7 +1,7 @@
 import type { ServicioEmpresa } from './empresa';
 
 export interface ServicioIncluidoArmadoRapido {
-  id: string; // Corresponds to ServicioEmpresa id
+  id: string;
   esRegalo?: boolean;
 }
 
@@ -10,8 +10,8 @@ export interface PaqueteArmadoRapido {
   nombre: string;
   descripcion?: string;
   serviciosIncluidos: ServicioIncluidoArmadoRapido[];
-  recommended?: boolean; // NEW: Flag for "Most Chosen" package
-  tiposDeEventoAplicables?: string[]; // Vacío/undefined => aplica a todos
+  recommended?: boolean;
+  tiposDeEventoAplicables?: string[];
 }
 
 export interface MenuArmadoRapido {
@@ -21,17 +21,16 @@ export interface MenuArmadoRapido {
   serviciosIncluidos: ServicioIncluidoArmadoRapido[];
 }
 
-
 export interface PlatoVisible {
-  id: string; // ID del MenuItem
+  id: string;
   visible: boolean;
-  recommended?: boolean; // NEW: Flag for recommended dish
+  recommended?: boolean;
 }
 
 export interface ServiceDependency {
-  id: string; // Unique ID for the dependency rule
-  triggerServiceId: string; // The service that triggers the dependency (e.g., a specific dish)
-  requiredServiceId: string; // The service that must be added (e.g., an asador)
+  id: string;
+  triggerServiceId: string;
+  requiredServiceId: string;
 }
 
 export interface ClubUruguayConfig {
@@ -53,23 +52,24 @@ export const defaultClubUruguayConfig: ClubUruguayConfig = {
 export interface ArmadoRapidoConfig {
   menus: MenuArmadoRapido[];
   paquetes: PaqueteArmadoRapido[];
-  descuentoGeneral?: number; 
+  descuentoGeneral?: number;
   mostrarPrecios?: boolean;
-  platosVisibles?: PlatoVisible[]; // To control simulator dish visibility
+  platosVisibles?: PlatoVisible[];
   serviceDependencies?: ServiceDependency[];
-  recommendedDishIds?: string[]; // Alternative way to store recommended dishes
+  recommendedDishIds?: string[];
   clubUruguayConfig?: ClubUruguayConfig;
 }
 
 export interface LeadFromQuickBudget {
   clienteNombre: string;
   clienteContacto?: string;
-  eventoFecha?: string; // ISO string
-  eventoHoraInicio?: string; // HH:mm
+  eventoFecha?: string;
+  eventoHoraInicio?: string;
   adultos: number;
+  adolescentes?: number;
   ninos: number;
   subtotal: number;
-  costoEstimado: number; // Final cost after discount
+  costoEstimado: number;
   descuentoGeneral?: number;
   ajusteAnualActivo?: boolean;
   ajusteAnualPorcentaje?: number;
