@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getPresupuestos } from './presupuestos';
@@ -11,6 +10,7 @@ import { getCrmLeadsForDashboard } from './crm';
 import { getRoles } from './roles';
 import { calculateFinancialLedger } from '@/lib/commercial-flow/ledger-service';
 import { getPrioridadesDescartadas } from './alertas.actions';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 
 export interface MonthlyChartData {
   month: string;
@@ -34,11 +34,22 @@ export interface GlobalAlert {
   href: string;
 }
 
+function isFirmBudgetStatus(estado?: string) {
+  return estado === 'Aceptado' || estado === 'Facturado';
+}
+
+function getMonthKey(date: Date) {
+  return format(date, 'MMM yyyy', { locale: es });
+}
+
+function getInvoicePaidAmount(invoice: { payments?: { amount?: number }[] }) {
+  return (invoice.payments ?? []).reduce((sum, payment) => sum + Math.max(0, Math.round(payment.amount ?? 0)), 0);
+}
+
 export async function getDashboardKpiData() {
   try {
-    // Run reminder checks in the background
-    checkAndCreateTaskReminders().catch(err => console.warn("Background task reminder check failed:", err));
-    checkAndCreateReunionReminders().catch(err => console.warn("Background meeting reminder check failed:", err));
+    checkAndCreateTaskReminders().catch(err => console.warn('Background task reminder check failed:', err));
+    checkAndCreateReunionReminders().catch(err => console.warn('Background meeting reminder check failed:', err));
 
     const [
       presupuestosData,
@@ -55,28 +66,28 @@ export async function getDashboardKpiData() {
       getNotifications().catch(() => []),
       getPrioridadesDescartadas().catch(() => new Set<string>()),
     ]);
-    
+
     const now = new Date();
     const today = startOfToday();
     const tomorrow = addDays(today, 1);
-    
-    // Usar el libro mayor unificado para los totales financieros
+
     const ledger = calculateFinancialLedger(presupuestosData, invoicesData);
     const ventasTotales = ledger.ventasTotales;
     const montoPagado = ledger.totalCobrado;
     const totalPendiente = ledger.saldoPendiente;
     const prospectosActivos = leadsData.filter((lead) => lead.currentStageId !== 's4' && lead.currentStageId !== 's5').length;
-    
-    const activeCustomerIds = new Set(fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now).map(f => f.configuracion.clienteId));
+
+    const activeCustomerIds = new Set(
+      fiestasData
+        .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
+        .map(f => f.configuracion.clienteId)
+    );
     const clientesActivos = activeCustomerIds.size;
-    
-    const fiestasPasadas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < new Date()).length;
+    const fiestasPasadas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < now).length;
     const fiestasFuturas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today).length;
 
-    // Generar Alertas Globales
     const alerts: GlobalAlert[] = [];
 
-    // 1. Tareas Vencidas o Próximas
     fiestasData.forEach(fiesta => {
       fiesta.tareas?.forEach(tarea => {
         if (!tarea.completada && tarea.fechaLimite) {
@@ -88,14 +99,13 @@ export async function getDashboardKpiData() {
               title: `Tarea Vencida: ${tarea.texto}`,
               description: `Evento: ${fiesta.configuracion.nombreEvento}`,
               severity: 'high',
-              href: `/fiestas/nueva/tareas?fiestaId=${fiesta.id}`
+              href: `/fiestas/nueva/tareas?fiestaId=${fiesta.id}`,
             });
           }
         }
       });
     });
 
-    // 2. Facturas Vencidas
     invoicesData.forEach(inv => {
       if (inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today)) {
         alerts.push({
@@ -104,90 +114,87 @@ export async function getDashboardKpiData() {
           title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
           description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
           severity: 'high',
-          href: `/invoices/${inv.id}`
+          href: `/invoices/${inv.id}`,
         });
       }
     });
 
-    // 3. REUNIONES CRM
-    leadsData.forEach(lead => {
-        if (lead.followUpDate) {
-            const meetingDate = new Date(lead.followUpDate);
-            if (isSameDay(meetingDate, today) || isSameDay(meetingDate, tomorrow)) {
-                alerts.push({
-                    id: `meet_${lead.id}`,
-                    type: 'meeting',
-                    title: `Reunión ${isSameDay(meetingDate, today) ? 'HOY' : 'MAÑANA'}: ${lead.name}`,
-                    description: `Cita agendada para las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs`,
-                    severity: isSameDay(meetingDate, today) ? 'high' : 'medium',
-                    href: `/contabilidad/crm/agenda?date=${meetingDate.toISOString().split('T')[0]}`
-                });
-            }
-        }
-    });
-
-    // 4. PRESUPUESTOS VENCIDOS
     presupuestosData.forEach(pres => {
-        if (pres.estado === 'Enviado' || pres.estado === 'Borrador') {
-            const createdDate = new Date(pres.timestamp);
-            const expiryDate = addDays(createdDate, 30);
-            if (isBefore(expiryDate, today)) {
-                alerts.push({
-                    id: `expire_${pres.id}`,
-                    type: 'budget',
-                    title: `Presupuesto Vencido: ${pres.clienteNombre || 'Sin nombre'}`,
-                    description: `Enviado hace más de 30 días. Requiere seguimiento o actualización.`,
-                    severity: 'medium',
-                    href: `/presupuestos/${pres.id}/ver`
-                });
-            }
-        }
+      if (!isFirmBudgetStatus(pres.estado)) return;
+      const summary = getBudgetPaymentSummary(pres);
+      if (summary.balance > 0 && pres.eventoFecha && new Date(pres.eventoFecha) <= addDays(today, 7)) {
+        alerts.push({
+          id: `budget_balance_${pres.id}`,
+          type: 'payment',
+          title: `Saldo pendiente: ${pres.clienteNombre}`,
+          description: `Faltan ${summary.balance.toLocaleString('es-UY')} UYU para completar el presupuesto.`,
+          severity: 'high',
+          href: `/presupuestos/${pres.id}/ver`,
+        });
+      }
     });
 
-    // Data for Monthly Chart (last 12 months)
+    leadsData.forEach(lead => {
+      if (!lead.followUpDate) return;
+      const meetingDate = new Date(lead.followUpDate);
+      if (isSameDay(meetingDate, today) || isSameDay(meetingDate, tomorrow)) {
+        alerts.push({
+          id: `meet_${lead.id}`,
+          type: 'meeting',
+          title: `Reunión ${isSameDay(meetingDate, today) ? 'HOY' : 'MAÑANA'}: ${lead.name}`,
+          description: `Cita agendada para las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs`,
+          severity: isSameDay(meetingDate, today) ? 'high' : 'medium',
+          href: `/contabilidad/crm/agenda?date=${meetingDate.toISOString().split('T')[0]}`,
+        });
+      }
+    });
+
+    presupuestosData.forEach(pres => {
+      if (pres.estado !== 'Enviado') return;
+      const createdDate = new Date(pres.timestamp);
+      const expiryDate = addDays(createdDate, 30);
+      if (isBefore(expiryDate, today)) {
+        alerts.push({
+          id: `expire_${pres.id}`,
+          type: 'budget',
+          title: `Presupuesto vencido: ${pres.clienteNombre || 'Sin nombre'}`,
+          description: 'Enviado hace más de 30 días. Requiere seguimiento o actualización.',
+          severity: 'medium',
+          href: `/presupuestos/${pres.id}/ver`,
+        });
+      }
+    });
+
     const monthlyData: MonthlyChartData[] = [];
     const monthlyDataByKey = new Map<string, MonthlyChartData>();
     for (let i = 11; i >= 0; i--) {
-        const date = subMonths(now, i);
-        const monthName = format(date, 'MMM yyyy', { locale: es });
-        const entry = { month: monthName, ventas: 0, pagos: 0 };
-        monthlyData.push(entry);
-        monthlyDataByKey.set(monthName, entry);
+      const date = subMonths(now, i);
+      const monthName = getMonthKey(date);
+      const entry = { month: monthName, ventas: 0, pagos: 0 };
+      monthlyData.push(entry);
+      monthlyDataByKey.set(monthName, entry);
     }
 
     invoicesData.forEach(invoice => {
-        const issueDate = new Date(invoice.issueDate);
-        const monthKey = format(issueDate, 'MMM yyyy', { locale: es });
-        const monthEntry = monthlyDataByKey.get(monthKey);
-        if(monthEntry) {
-            monthEntry.ventas += invoice.totalAmount;
-        }
+      const monthEntry = monthlyDataByKey.get(getMonthKey(new Date(invoice.issueDate)));
+      if (monthEntry) monthEntry.ventas += invoice.totalAmount || 0;
 
-        invoice.payments?.forEach(payment => {
-            const paymentDate = new Date(payment.paymentDate);
-            const paymentMonthKey = format(paymentDate, 'MMM yyyy', { locale: es });
-            const paymentMonthEntry = monthlyDataByKey.get(paymentMonthKey);
-             if(paymentMonthEntry) {
-                paymentMonthEntry.pagos += payment.amount;
-            }
-        });
+      invoice.payments?.forEach(payment => {
+        const paymentMonthEntry = monthlyDataByKey.get(getMonthKey(new Date(payment.paymentDate)));
+        if (paymentMonthEntry) paymentMonthEntry.pagos += payment.amount || 0;
+      });
     });
 
-    // Also include presupuestos (Enviado/Aceptado) as projected sales in the monthly chart
-    const invoicedPresupuestoIds = new Set(
-        presupuestosData.filter(p => p.invoiceId).map(p => p.id)
-    );
+    const invoicedPresupuestoIds = new Set(presupuestosData.filter(p => p.invoiceId).map(p => p.id));
     presupuestosData.forEach(pres => {
-        if (pres.estado === 'Borrador' || pres.estado === 'Rechazado') return;
-        if (invoicedPresupuestoIds.has(pres.id)) return;
-        const fecha = pres.eventoFecha;
-        if (!fecha) return;
-        const eventDate = new Date(fecha);
-        const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
-        const monthEntry = monthlyDataByKey.get(monthKey);
-        if (monthEntry) {
-            monthEntry.ventas += pres.totalConDescuento || pres.costoTotalEstimado || 0;
-        }
+      if (!isFirmBudgetStatus(pres.estado)) return;
+      if (invoicedPresupuestoIds.has(pres.id)) return;
+      if (!pres.eventoFecha) return;
+      const monthEntry = monthlyDataByKey.get(getMonthKey(new Date(pres.eventoFecha)));
+      if (!monthEntry) return;
+      const summary = getBudgetPaymentSummary(pres);
+      monthEntry.ventas += summary.total;
+      monthEntry.pagos += summary.paid;
     });
 
     return {
@@ -228,154 +235,80 @@ export async function getDashboardKpiData() {
     };
   } catch (error: any) {
     console.error('Error fetching dashboard KPI data:', error);
-    return {
-      success: false,
-      error: 'Failed to load dashboard data.',
-    };
+    return { success: false, error: 'Failed to load dashboard data.' };
   }
 }
 
 export async function getCashFlowProjection() {
-    try {
-        const [fiestas, invoices, roles, presupuestos] = await Promise.all([
-            getAllFiestas(),
-            getInvoices(),
-            getRoles(),
-            getPresupuestos()
-        ]);
+  try {
+    const [fiestas, invoices, roles, presupuestos] = await Promise.all([
+      getAllFiestas(),
+      getInvoices(),
+      getRoles(),
+      getPresupuestos(),
+    ]);
 
-        const today = startOfToday();
-        const projectionMonths: CashFlowMonth[] = [];
-        
-        // Generate next 6 months
-        for (let i = 0; i < 6; i++) {
-            const date = addMonths(today, i);
-            projectionMonths.push({
-                month: format(date, 'MMM yyyy', { locale: es }),
-                income: 0,
-                expenses: 0,
-                balance: 0
-            });
-        }
+    const today = startOfToday();
+    const projectionMonths: CashFlowMonth[] = [];
+    const currentMonthKey = getMonthKey(today);
 
-        // Track presupuesto IDs already accounted for via invoices
-        const invoicedPresupuestoIds = new Set<string>();
-        presupuestos.forEach(pres => {
-            if (pres.invoiceId) {
-                invoicedPresupuestoIds.add(pres.id);
-            }
-        });
-
-        // 1. Calculate Future Income from Invoices (unpaid amounts)
-        //    Include all unpaid invoices - past due ones go into current month
-        const currentMonthKey = format(today, 'MMM yyyy', { locale: es });
-        invoices.forEach(inv => {
-            if (inv.status === 'Paid') return;
-            const totalPaid = inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
-            const remaining = inv.totalAmount - totalPaid;
-            if (remaining <= 0) return;
-            
-            const dueDate = new Date(inv.dueDate);
-            if (isAfter(dueDate, today) || isSameDay(dueDate, today)) {
-                const monthKey = format(dueDate, 'MMM yyyy', { locale: es });
-                const monthEntry = projectionMonths.find(m => m.month === monthKey);
-                if (monthEntry) {
-                    monthEntry.income += remaining;
-                }
-            } else {
-                // Past-due invoices: project into the current month as expected income
-                const monthEntry = projectionMonths.find(m => m.month === currentMonthKey);
-                if (monthEntry) {
-                    monthEntry.income += remaining;
-                }
-            }
-        });
-
-        // 1b. Calculate Projected Income from Presupuestos (Enviado/Facturado without invoice)
-        presupuestos.forEach(pres => {
-            // Skip borradores and already-invoiced presupuestos
-            if (pres.estado === 'Borrador') return;
-            if (invoicedPresupuestoIds.has(pres.id)) return;
-
-            const fechaEvento = pres.eventoFecha;
-            if (!fechaEvento) return;
-
-            const eventDate = new Date(fechaEvento);
-            if (isAfter(eventDate, today) || isSameDay(eventDate, today)) {
-                const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
-                const monthEntry = projectionMonths.find(m => m.month === monthKey);
-                if (monthEntry) {
-                    // Use totalConDescuento if available, otherwise costoTotalEstimado
-                    const estimatedIncome = pres.totalConDescuento || pres.costoTotalEstimado || 0;
-                    monthEntry.income += estimatedIncome;
-                }
-            }
-        });
-
-        // 2. Calculate Future Expenses (Catering, Staff, Manual Costs from future events)
-        fiestas.forEach(fiesta => {
-            if (!fiesta.configuracion?.fechaEvento) return;
-            const eventDate = new Date(fiesta.configuracion.fechaEvento);
-            
-            if (isAfter(eventDate, today)) {
-                const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
-                const monthEntry = projectionMonths.find(m => m.month === monthKey);
-                if (monthEntry) {
-                    // Manual Costs
-                    const manualCosts = fiesta.gestionCostos?.costosItems?.reduce((s, i) => s + i.montoEstimado, 0) || 0;
-                    const paidProviders = fiesta.pagosProveedores?.reduce((s, p) => s + p.monto, 0) || 0;
-                    
-                    // Projected Staff Costs
-                    let staffCosts = 0;
-                    fiesta.personalAsignado?.forEach(pa => {
-                        const rol = roles.find(r => r.id === pa.rolId);
-                        const contributions = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-                        staffCosts += pa.eventSalary + contributions;
-                    });
-
-                    monthEntry.expenses += (manualCosts - paidProviders) + staffCosts;
-                }
-            }
-        });
-
-        // 2b. Estimate expenses from presupuestos that don't have a fiesta created yet
-        // Use a rough expense ratio (40% of income as estimated costs)
-        const ESTIMATED_EXPENSE_RATIO = 0.40;
-        const fiestaClientNames = new Set(
-            fiestas.map(f => f.configuracion?.clienteNombre?.toLowerCase()).filter(Boolean)
-        );
-        
-        presupuestos.forEach(pres => {
-            if (pres.estado === 'Borrador') return;
-            if (!pres.eventoFecha) return;
-            
-            const eventDate = new Date(pres.eventoFecha);
-            if (!isAfter(eventDate, today)) return;
-            
-            // Skip if there's already a fiesta for this client (rough match)
-            const clientName = (pres.clienteNombre || '').toLowerCase();
-            if (clientName && fiestaClientNames.has(clientName)) return;
-            
-            const monthKey = format(eventDate, 'MMM yyyy', { locale: es });
-            const monthEntry = projectionMonths.find(m => m.month === monthKey);
-            if (monthEntry) {
-                const estimatedIncome = pres.totalConDescuento || pres.costoTotalEstimado || 0;
-                monthEntry.expenses += estimatedIncome * ESTIMATED_EXPENSE_RATIO;
-            }
-        });
-
-        // 3. Calculate Balances
-        projectionMonths.forEach(m => {
-            m.balance = m.income - m.expenses;
-        });
-
-        return {
-            success: true,
-            data: projectionMonths
-        };
-
-    } catch (error: any) {
-        console.error("Error calculating cash flow projection:", error);
-        return { success: false, error: error.message };
+    for (let i = 0; i < 6; i++) {
+      const date = addMonths(today, i);
+      projectionMonths.push({ month: getMonthKey(date), income: 0, expenses: 0, balance: 0 });
     }
+
+    const invoicedPresupuestoIds = new Set(presupuestos.filter(p => p.invoiceId).map(p => p.id));
+
+    invoices.forEach(inv => {
+      if (inv.status === 'Paid') return;
+      const remaining = Math.max(0, (inv.totalAmount || 0) - getInvoicePaidAmount(inv));
+      if (remaining <= 0) return;
+      const dueDate = inv.dueDate ? new Date(inv.dueDate) : today;
+      const monthKey = isAfter(dueDate, today) || isSameDay(dueDate, today) ? getMonthKey(dueDate) : currentMonthKey;
+      const monthEntry = projectionMonths.find(m => m.month === monthKey);
+      if (monthEntry) monthEntry.income += remaining;
+    });
+
+    presupuestos.forEach(pres => {
+      if (!isFirmBudgetStatus(pres.estado)) return;
+      if (invoicedPresupuestoIds.has(pres.id)) return;
+      if (!pres.eventoFecha) return;
+      const eventDate = new Date(pres.eventoFecha);
+      if (!isAfter(eventDate, today) && !isSameDay(eventDate, today)) return;
+      const monthEntry = projectionMonths.find(m => m.month === getMonthKey(eventDate));
+      if (!monthEntry) return;
+      monthEntry.income += getBudgetPaymentSummary(pres).balance;
+    });
+
+    fiestas.forEach(fiesta => {
+      if (!fiesta.configuracion?.fechaEvento) return;
+      const eventDate = new Date(fiesta.configuracion.fechaEvento);
+      if (!isAfter(eventDate, today)) return;
+      const monthEntry = projectionMonths.find(m => m.month === getMonthKey(eventDate));
+      if (!monthEntry) return;
+
+      const manualCosts = fiesta.gestionCostos?.costosItems?.reduce((s, i) => s + Math.max(0, i.montoEstimado || 0), 0) || 0;
+      const paidProviders = fiesta.pagosProveedores?.reduce((s, p) => s + Math.max(0, p.monto || 0), 0) || 0;
+      let staffCosts = 0;
+      fiesta.personalAsignado?.forEach(pa => {
+        const rol = roles.find(r => r.id === pa.rolId);
+        const salary = Math.max(0, pa.eventSalary || 0);
+        const contributions = (salary * (rol?.porcentajeAportesPatronales || 0)) / 100;
+        staffCosts += salary + contributions;
+      });
+
+      monthEntry.expenses += Math.max(0, manualCosts - paidProviders) + staffCosts;
+    });
+
+    projectionMonths.forEach(m => {
+      m.income = Math.round(m.income);
+      m.expenses = Math.round(m.expenses);
+      m.balance = m.income - m.expenses;
+    });
+
+    return { success: true, data: projectionMonths };
+  } catch (error: any) {
+    console.error('Error calculating cash flow projection:', error);
+    return { success: false, error: error.message };
+  }
 }

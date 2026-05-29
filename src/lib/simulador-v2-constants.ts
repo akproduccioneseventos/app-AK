@@ -14,4 +14,4 @@ export const SIM_V2_PACKAGE_MULTIPLIERS: Record<SimV2Paquete, number> = {
   'Premium': 1.3,
 };
 
-export const SIM_V2_DISCOUNT_PERCENTAGE = 20;
+export const SIM_V2_DISCOUNT_PERCENTAGE = 15;

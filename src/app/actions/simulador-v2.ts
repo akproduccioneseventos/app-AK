@@ -33,7 +33,6 @@ export async function checkDuplicateClient(
     const fullName = normalizeName(`${nombre} ${apellido}`);
     const normalizedPhone = normalizePhone(telefono);
 
-    // Check CRM leads
     const leads = await readData<CrmLead[]>(CRM_LEADS_FILE, []);
     const matchingLead = leads.find(lead => {
       const leadPhone = lead.phone ? normalizePhone(lead.phone) : '';
@@ -53,7 +52,6 @@ export async function checkDuplicateClient(
       };
     }
 
-    // Check presupuestos
     const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
     const matchingPresupuesto = presupuestos.find(p => {
       const pPhone = p.clienteContacto ? normalizePhone(p.clienteContacto) : '';
@@ -97,13 +95,12 @@ export async function checkDateAvailability(fechaISO: string): Promise<SimV2Date
       return { isOccupied: false };
     }
 
-    // Find 3 nearest available Fri/Sat/Sun after the requested date
     const suggestions: string[] = [];
     const candidate = new Date(requestedDate);
     candidate.setDate(candidate.getDate() + 1);
 
     while (suggestions.length < 3) {
-      const day = candidate.getDay(); // 0=Sun, 5=Fri, 6=Sat
+      const day = candidate.getDay();
       if (day === 0 || day === 5 || day === 6) {
         const candidateStr = candidate.toISOString().split('T')[0];
         if (!occupiedDates.has(candidateStr)) {
@@ -131,9 +128,8 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
     const totalGuests = (state.adultos || 0) + (state.adolescentes || 0);
     const rates = SIM_V2_BASE_RATES[tipoEvento] || SIM_V2_BASE_RATES['Cumpleaños'];
     const multiplier = SIM_V2_PACKAGE_MULTIPLIERS[paquete] || 1.0;
-    // subtotal = pre-discount "list price"; costoEstimado = after-discount final price
-    const subtotal = (rates.perPerson * totalGuests + rates.base) * multiplier;
-    const costoEstimado = subtotal * (1 - SIM_V2_DISCOUNT_PERCENTAGE / 100);
+    const subtotal = Math.round((rates.perPerson * totalGuests + rates.base) * multiplier);
+    const costoEstimado = Math.round(subtotal * (1 - SIM_V2_DISCOUNT_PERCENTAGE / 100));
 
     const serviciosActivados = state.serviciosActivados || [];
 
@@ -143,8 +139,8 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
         nombreServicio: `Paquete ${paquete} — ${tipoEvento}`,
         calculationMethod: 'fijo' as const,
         cantidad: 1,
-        precioUnitario: costoEstimado,
-        precioUnitarioPresupuesto: costoEstimado,
+        precioUnitario: subtotal,
+        precioUnitarioPresupuesto: subtotal,
         esRegalo: false,
         descripcionServicio: `Paquete ${paquete} para ${tipoEvento}. ${totalGuests} invitados.`,
       },
@@ -155,7 +151,8 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
         cantidad: 1,
         precioUnitario: 0,
         precioUnitarioPresupuesto: 0,
-        esRegalo: false,
+        esRegalo: true,
+        descripcionServicio: 'Servicio seleccionado en simulador. Requiere revisión interna antes de confirmar precio.',
       })),
     ];
 
@@ -172,7 +169,8 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
       clienteContacto: state.telefono,
       eventoFecha: state.fechaEvento,
       adultos: state.adultos || 0,
-      ninos: state.adolescentes || 0,
+      adolescentes: state.adolescentes || 0,
+      ninos: 0,
       subtotal,
       costoEstimado,
       descuentoGeneral: SIM_V2_DISCOUNT_PERCENTAGE,
