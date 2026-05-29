@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Bot, Brain, CalendarCheck, DollarSign, Loader2, Megaphone, MessageSquare, PartyPopper, Send, X } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,26 +18,41 @@ type ChatMessage = AkMultiAgentMessage & {
   agentType?: AkAgentType;
 };
 
-const AGENT_STYLE: Record<AkAgentType, { label: string; icon: any; badge: string; short: string }> = {
-  secretaria: { label: 'Secretaria AK', icon: CalendarCheck, badge: 'Agenda', short: 'SEC' },
-  fiesta: { label: 'Agente de esta Fiesta', icon: PartyPopper, badge: 'Fiesta actual', short: 'FIE' },
-  fiestas_general: { label: 'Supervisor General de Fiestas', icon: Brain, badge: 'Todas las fiestas', short: 'FIS' },
-  contable: { label: 'Agente Contable AK', icon: DollarSign, badge: 'Pagos', short: 'CON' },
-  marketing: { label: 'Agente Marketing AK', icon: Megaphone, badge: 'Contenido', short: 'MKT' },
-  comercial: { label: 'Agente Comercial AK', icon: MessageSquare, badge: 'Ventas', short: 'COM' },
-  central: { label: 'Encargado General AK', icon: Bot, badge: 'App completa', short: 'AK' },
+type AgentStyle = {
+  label: string;
+  icon: LucideIcon;
+  badge: string;
+  short: string;
+  description: string;
 };
 
-const AGENT_ORDER: AkAgentType[] = ['central', 'fiestas_general', 'fiesta', 'secretaria', 'comercial', 'contable', 'marketing'];
+const AGENT_STYLE: Record<AkAgentType, AgentStyle> = {
+  central: { label: 'Encargado General AK', icon: Bot, badge: 'App completa', short: 'AK', description: 'Control general de la aplicación' },
+  fiestas_general: { label: 'Supervisor General de Fiestas', icon: Brain, badge: 'Todas las fiestas', short: 'FIS', description: 'Control de eventos y planificación' },
+  fiesta: { label: 'Agente de esta Fiesta', icon: PartyPopper, badge: 'Fiesta actual', short: 'FIE', description: 'Control de la fiesta abierta' },
+  secretaria: { label: 'Secretaria AK', icon: CalendarCheck, badge: 'Agenda', short: 'SEC', description: 'Agenda, llamadas y recordatorios' },
+  comercial: { label: 'Agente Comercial AK', icon: MessageSquare, badge: 'Ventas', short: 'COM', description: 'Leads, presupuestos y seguimiento' },
+  contable: { label: 'Agente Contable AK', icon: DollarSign, badge: 'Pagos', short: 'CON', description: 'Pagos, saldos y rentabilidad' },
+  marketing: { label: 'Agente Marketing AK', icon: Megaphone, badge: 'Contenido', short: 'MKT', description: 'Redes, publicaciones y campañas' },
+};
+
+const AREA_AGENT_GROUPS: Record<string, AkAgentType[]> = {
+  fiesta: ['fiesta', 'fiestas_general', 'secretaria', 'contable', 'central'],
+  fiestas_general: ['fiestas_general', 'fiesta', 'secretaria', 'contable', 'central'],
+  contable: ['contable', 'comercial', 'secretaria', 'central'],
+  comercial: ['comercial', 'secretaria', 'contable', 'marketing', 'central'],
+  marketing: ['marketing', 'comercial', 'central'],
+  secretaria: ['secretaria', 'fiestas_general', 'comercial', 'contable', 'central'],
+  central: ['central', 'secretaria', 'fiestas_general'],
+};
 
 function detectVisibleAgent(pathname: string): AkAgentType {
   if (pathname.startsWith('/fiestas/nueva') || /^\/fiestas\/[^/]+/.test(pathname) || pathname.includes('/evento/')) return 'fiesta';
-  if (pathname.includes('/eventos')) return 'fiestas_general';
+  if (pathname.includes('/eventos') || pathname.includes('/calendario')) return 'fiestas_general';
   if (pathname.includes('/plan-pagos') || pathname.includes('/empresa/contabilidad') || pathname.includes('/invoices') || pathname.includes('/pagos')) return 'contable';
   if (pathname.includes('/marketing') || pathname.includes('/empresa/redes-sociales') || pathname.includes('/galeria') || pathname.includes('/portfolio')) return 'marketing';
   if (pathname.includes('/contabilidad/crm') || pathname.includes('/presupuestos') || pathname.includes('/simulador')) return 'comercial';
-  if (pathname.includes('/multiagente')) return 'central';
-  if (pathname.includes('/settings/google-workspace') || pathname.includes('/calendario') || pathname.includes('/reuniones')) return 'secretaria';
+  if (pathname.includes('/settings/google-workspace') || pathname.includes('/reuniones')) return 'secretaria';
   return 'central';
 }
 
@@ -68,6 +84,7 @@ export function MultiAgentWidget() {
   const endRef = useRef<HTMLDivElement>(null);
 
   const suggestedAgent = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
+  const visibleAgents = useMemo(() => AREA_AGENT_GROUPS[suggestedAgent] || AREA_AGENT_GROUPS.central, [suggestedAgent]);
   const style = AGENT_STYLE[activeAgent];
   const Icon = style.icon;
 
@@ -80,7 +97,7 @@ export function MultiAgentWidget() {
     try {
       localStorage.setItem('ak-multiagent-history', JSON.stringify(messages.slice(-60)));
     } catch {
-      // ignore storage errors
+      // No frena el uso del multiagente si el navegador bloquea storage.
     }
   }, [messages]);
 
@@ -136,7 +153,7 @@ export function MultiAgentWidget() {
         {
           id: `assistant_${Date.now()}`,
           role: 'assistant',
-          content: 'No pude responder ahora. No marque nada como hecho.',
+          content: 'No pude responder ahora. No marqué nada como hecho.',
           agentName: style.label,
           agentType: activeAgent,
         },
@@ -147,9 +164,9 @@ export function MultiAgentWidget() {
   }
 
   const quickPrompts = activeAgent === 'fiesta'
-    ? ['Que le falta a esta fiesta', 'Que esta a revisar', 'Que hago hoy']
+    ? ['Qué le falta a esta fiesta', 'Qué está para revisar', 'Qué hago hoy']
     : activeAgent === 'fiestas_general'
-      ? ['Revisa todas las fiestas', 'Prioridades generales', 'Fiestas atrasadas']
+      ? ['Revisá todas las fiestas', 'Prioridades generales', 'Fiestas atrasadas']
       : activeAgent === 'contable'
         ? ['Pagos pendientes', 'Saldos a revisar', 'Rentabilidad']
         : activeAgent === 'marketing'
@@ -157,13 +174,13 @@ export function MultiAgentWidget() {
           : activeAgent === 'comercial'
             ? ['Leads pendientes', 'Presupuestos sin respuesta', 'Mensaje para cerrar']
             : activeAgent === 'secretaria'
-              ? ['Que tengo pendiente hoy', 'Crear recordatorio', 'A quien llamo']
-              : ['Revisa la app', 'Que esta mas urgente', 'Resumen general'];
+              ? ['Qué tengo pendiente hoy', 'Crear recordatorio', 'A quién llamo']
+              : ['Revisá la app', 'Qué está más urgente', 'Resumen general'];
 
   return (
     <>
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2 print:hidden">
-        {AGENT_ORDER.map(agent => {
+      <div className="fixed bottom-5 right-5 z-50 flex max-h-[70vh] flex-col items-end gap-2 overflow-y-auto print:hidden">
+        {visibleAgents.map(agent => {
           const item = AGENT_STYLE[agent];
           const active = activeAgent === agent;
           const ItemIcon = item.icon;
@@ -172,10 +189,10 @@ export function MultiAgentWidget() {
               key={agent}
               type="button"
               onClick={() => openAgent(agent)}
-              title={item.label}
+              title={`${item.label} - ${item.description}`}
               className={cn('group flex items-center gap-2 rounded-full border bg-white p-1.5 shadow-xl transition-all hover:-translate-x-1', active && 'ring-2 ring-red-500')}
             >
-              <span className="hidden rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-700 shadow-sm group-hover:inline">
+              <span className="hidden rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-700 shadow-sm sm:group-hover:inline">
                 {item.label}
               </span>
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-white shadow-md">
@@ -197,7 +214,7 @@ export function MultiAgentWidget() {
                   </div>
                   <div>
                     <CardTitle className="text-base font-black">{style.label}</CardTitle>
-                    <p className="text-xs text-red-50">{style.badge}</p>
+                    <p className="text-xs text-red-50">{style.description}</p>
                   </div>
                 </div>
                 <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full text-white hover:bg-white/15" onClick={() => setIsOpen(false)}>
@@ -205,8 +222,8 @@ export function MultiAgentWidget() {
                 </Button>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Badge className="bg-white text-red-700 hover:bg-white">{style.short}</Badge>
-                {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Sugerido</Badge>}
+                <Badge className="bg-white text-red-700 hover:bg-white">{style.badge}</Badge>
+                {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Sugerido por pantalla</Badge>}
                 {fiestaId && activeAgent === 'fiesta' && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
               </div>
             </CardHeader>
@@ -216,7 +233,7 @@ export function MultiAgentWidget() {
                 {messages.length === 0 && (
                   <div className="rounded-2xl border border-red-100 bg-red-50/60 p-4 text-sm text-slate-700">
                     <p className="font-bold text-slate-900">Equipo IA listo.</p>
-                    <p className="mt-1">Elegi un agente de la derecha. Cada uno trabaja con su area.</p>
+                    <p className="mt-1">Los agentes visibles cambian según la parte de la app donde estés.</p>
                   </div>
                 )}
 
