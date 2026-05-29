@@ -1,5 +1,4 @@
 
-
 import type { ServicioEmpresa } from './empresa';
 
 export type MetodoPago = 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'Cheque' | 'Tarjeta' | 'Otro';
@@ -71,6 +70,7 @@ export interface Presupuesto {
   eventoTipo: TipoEvento | string;
   eventoFecha: string; // ISO String
   eventoHoraInicio?: string; // HH:mm
+  duracionHoras?: number;
   invitadosCantidad: number; // Total de invitados (adultos + ninos + adolescentes)
   invitadosAdultos?: number;
   invitadosNinos?: number;
@@ -113,6 +113,7 @@ export interface PresupuestoFormData {
   eventoTipo: TipoEvento | string;
   eventoFecha: Date | undefined;
   eventoHoraInicio?: string;
+  duracionHoras?: number;
   invitadosCantidad: number | null; // Total, se mantiene para consistencia general
   invitadosAdultos: number | null;
   invitadosNinos: number | null;

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
@@ -31,6 +30,7 @@ const initialFormData: PresupuestoFormData = {
   eventoTipo: '',
   eventoFecha: undefined,
   eventoHoraInicio: '',
+  duracionHoras: undefined,
   invitadosCantidad: 50,
   invitadosAdultos: 50,
   invitadosNinos: 0,
@@ -340,6 +340,7 @@ function CrearPresupuestoContent() {
             eventoTipo: formData.eventoTipo,
             eventoFecha: formData.eventoFecha?.toISOString() || '',
             eventoHoraInicio: formData.eventoHoraInicio?.trim() || undefined,
+            duracionHoras: formData.duracionHoras,
             invitadosCantidad: totalInvitados,
             invitadosAdultos: formData.invitadosAdultos || 0,
             invitadosNinos: formData.invitadosNinos || 0,
