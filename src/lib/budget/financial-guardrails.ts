@@ -36,7 +36,7 @@ export function roundMoney(value: unknown): number {
 }
 
 export function isConfirmedClientPayment(payment: Pick<PagoCliente, 'estadoPago'>): boolean {
-  return payment.estadoPago !== 'pendiente_confirmacion';
+  return payment.estadoPago !== 'pendiente_confirmacion' && payment.estadoPago !== 'rechazado';
 }
 
 export function sumConfirmedClientPayments(payments: PagoCliente[] = [], excludePaymentId?: string): number {
