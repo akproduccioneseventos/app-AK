@@ -228,9 +228,14 @@ export default function LoginPage() {
         ) : (
           <div>
             <CardContent className="space-y-5">
-              <div className="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
-                {recovery?.hasRecoveryEmail ? `Gmail de recuperacion: ${recovery.recoveryEmailHint}.` : 'Todavia no hay mail de recuperacion configurado.'}
-                {recovery?.hasBackupCodes ? ` Tenes ${recovery.backupCodeCount} codigo(s) de respaldo disponible(s).` : ''}
+              <div className="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground space-y-1">
+                <p>{recovery?.hasRecoveryEmail ? `Mail de recuperacion: ${recovery.recoveryEmailHint}.` : 'Todavia no hay mail de recuperacion configurado.'}</p>
+                <p className={recovery?.gmailConnected ? 'text-emerald-700' : 'text-amber-700'}>
+                  {recovery?.gmailConnected
+                    ? `Gmail conectado${recovery.gmailAccountHint ? `: ${recovery.gmailAccountHint}` : ''}.`
+                    : recovery?.gmailWarning || 'Gmail todavia no esta conectado para enviar codigos.'}
+                </p>
+                {recovery?.hasBackupCodes ? <p>Tenes {recovery.backupCodeCount} codigo(s) de respaldo disponible(s).</p> : null}
               </div>
 
               <div className="space-y-3 rounded-lg border p-3">
@@ -241,7 +246,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleResetWithCode} className="space-y-3 rounded-lg border p-3">
                 <p className="text-sm font-semibold">Recuperar por Gmail</p>
-                <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail}>
+                <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail || !recovery?.gmailConnected}>
                   Enviar codigo por Gmail
                 </Button>
                 <Input value={resetCode} onChange={(event) => setResetCode(event.target.value)} placeholder="Codigo de 6 numeros" inputMode="numeric" disabled={isSubmitting} />

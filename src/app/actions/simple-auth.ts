@@ -242,12 +242,39 @@ async function getConnectedCompanyGoogleAccount() {
   const company = accounts.find((account) => account.kind === 'company');
   if (!company) return undefined;
   const fresh = await ensureFreshGoogleAccount(company).catch(() => undefined);
+  if (fresh) {
+    await writeData(
+      GOOGLE_ACCOUNTS_FILE,
+      accounts.map((account) => (account.id === fresh.id ? fresh : account))
+    ).catch(() => undefined);
+  }
   if (!fresh || fresh.status !== 'connected' || !fresh.accessToken) return undefined;
-  await writeData(
-    GOOGLE_ACCOUNTS_FILE,
-    accounts.map((account) => (account.id === fresh.id ? fresh : account))
-  ).catch(() => undefined);
   return fresh;
+}
+
+async function getCompanyGoogleAccountStatus() {
+  const accounts = await readData<GoogleWorkspaceAccount[]>(GOOGLE_ACCOUNTS_FILE, []);
+  const company = accounts.find((account) => account.kind === 'company');
+  if (!company) {
+    return { connected: false, email: undefined as string | undefined, reason: 'No hay cuenta Gmail de AK conectada.' };
+  }
+
+  const fresh = await ensureFreshGoogleAccount(company).catch(() => undefined);
+  if (fresh) {
+    await writeData(
+      GOOGLE_ACCOUNTS_FILE,
+      accounts.map((account) => (account.id === fresh.id ? fresh : account))
+    ).catch(() => undefined);
+  }
+
+  const account = fresh || company;
+  return {
+    connected: account.status === 'connected' && Boolean(account.accessToken),
+    email: account.email,
+    reason: account.status === 'connected'
+      ? undefined
+      : account.lastError || 'La cuenta Gmail de AK necesita volver a conectarse.',
+  };
 }
 
 async function sendSecurityEmail(to: string, code: string) {
@@ -398,13 +425,22 @@ export async function getPublicSecurityRecoveryStatus(): Promise<{
   hasSecurityQuestions: boolean;
   hasBackupCodes: boolean;
   backupCodeCount: number;
+  gmailConnected: boolean;
+  gmailAccountHint?: string;
+  gmailWarning?: string;
   recoveryEmailHint?: string;
   questions?: Record<SecurityQuestionKey, string>;
 }> {
   const config = await getAuthDoc().catch(() => null);
   const email = getRecoveryEmail(config);
+  const gmail = await getCompanyGoogleAccountStatus().catch(() => ({
+    connected: false,
+    email: undefined,
+    reason: 'No se pudo verificar la conexion con Gmail.',
+  }));
   const sq = config?.securityQuestions || {};
   const mask = email ? email.replace(/^(.{2}).*(@.*)$/, '$1***$2') : undefined;
+  const gmailMask = gmail.email ? gmail.email.replace(/^(.{2}).*(@.*)$/, '$1***$2') : undefined;
   const hasSecurityQuestions = Boolean(sq.q1?.question && sq.q2?.question && sq.q3?.question);
   const backupCodeCount = (config?.backupCodes || []).filter((code) => !code.usedAt).length;
 
@@ -413,6 +449,9 @@ export async function getPublicSecurityRecoveryStatus(): Promise<{
     hasSecurityQuestions,
     hasBackupCodes: backupCodeCount > 0,
     backupCodeCount,
+    gmailConnected: gmail.connected,
+    gmailAccountHint: gmailMask,
+    gmailWarning: gmail.connected ? undefined : gmail.reason,
     recoveryEmailHint: mask,
     questions: hasSecurityQuestions
       ? {
@@ -432,12 +471,23 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
     const rateLimit = getResetRequestPatch(config);
     if (rateLimit.error) return { success: false, error: rateLimit.error };
 
+    const gmail = await getCompanyGoogleAccountStatus();
+    if (!gmail.connected) {
+      return {
+        success: false,
+        error: `${gmail.reason || 'Gmail no esta conectado.'} Conecta la cuenta en Ajustes > Google Workspace para enviar codigos de recuperacion.`,
+      };
+    }
+
     const code = createResetCode();
-    await saveAuthConfig({
+    const saveResult = await saveAuthConfig({
       resetCodeHash: hashValue(code),
       resetCodeExpiresAt: new Date(Date.now() + RESET_CODE_TTL_MS).toISOString(),
       ...rateLimit.patch,
     });
+    if (!saveResult.success) {
+      return { success: false, error: saveResult.error || 'No se pudo guardar el codigo de recuperacion.' };
+    }
 
     const mail = await sendSecurityEmail(recoveryEmail, code);
     return { success: true, sent: mail.sent, warning: mail.warning };
