@@ -51,6 +51,8 @@ describe('LED technology seller readiness', () => {
 
     expect(visible.some(item => item.id === 'zona_digital_adolescente')).toBe(true);
     expect(visible.some(item => item.id === 'barra_tecnologica')).toBe(true);
+    expect(visible.find(item => item.id === 'entretenimiento_viral')?.shortPitch).toContain('Plataforma 360');
+    expect(visible.find(item => item.id === 'entretenimiento_viral')?.sellerScript).toContain('pantalla LED');
     expect(script).toContain('Totems sincronizados');
     expect(checklist).toContain('opcional');
   });
