@@ -61,14 +61,16 @@ env:
     secret: google-api-key
     availability:
       - RUNTIME
-  - variable: GOOGLE_CLIENT_ID
-    secret: google-client-id
-    availability:
-      - RUNTIME
-  - variable: GOOGLE_CLIENT_SECRET
-    secret: google-client-secret
-    availability:
-      - RUNTIME
+
+  # Google Workspace OAuth is optional. Do not declare these secrets here unless
+  # they already exist in Secret Manager and App Hosting has been granted access.
+  # Declaring a missing or unauthorized secret makes Firebase App Hosting fail
+  # before the app build starts.
+  #
+  # To enable Calendar/Gmail sync later:
+  # 1) create the secrets google-client-id and google-client-secret
+  # 2) grant App Hosting access with firebase apphosting:secrets:grantaccess
+  # 3) restore GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET as secret variables.
   - variable: GOOGLE_OAUTH_REDIRECT_PATH
     value: "/api/google/oauth/callback"
     availability:
