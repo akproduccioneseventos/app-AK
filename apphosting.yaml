@@ -61,3 +61,19 @@ env:
     secret: google-api-key
     availability:
       - RUNTIME
+  - variable: GOOGLE_CLIENT_ID
+    secret: google-client-id
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_CLIENT_SECRET
+    secret: google-client-secret
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_OAUTH_REDIRECT_PATH
+    value: "/api/google/oauth/callback"
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_WORKSPACE_CALENDAR_ID
+    value: "primary"
+    availability:
+      - RUNTIME
