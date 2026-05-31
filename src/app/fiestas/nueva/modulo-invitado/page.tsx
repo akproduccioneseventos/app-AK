@@ -56,8 +56,8 @@ const FEATURE_CONFIG = [
   {
     key: 'showMural' as const,
     icon: Images,
-    label: 'Muro Social & Fotos',
-    description: 'Participar en el muro, subir fotos y dedicatorias.',
+    label: 'Red social privada',
+    description: 'Feed tipo red social con fotos, videos, comentarios, likes, chat, juegos y dedicatorias.',
     color: 'text-violet-600',
     bg: 'bg-violet-50',
   },

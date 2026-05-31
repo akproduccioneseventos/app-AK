@@ -57,7 +57,8 @@ const mainHubItems = [
   { title: 'CRM / Seguimiento', description: 'Ver y gestionar todos los prospectos activos.', href: '/contabilidad/crm', icon: ListChecks, lightColor: 'bg-blue-50 text-blue-600', featured: false },
   { title: 'Nuevo Presupuesto', description: 'Crear una nueva cotización para un cliente.', href: '/presupuestos/nuevo/crear', icon: FileText, lightColor: 'bg-indigo-50 text-indigo-600', featured: true },
   { title: 'Ver Presupuestos', description: 'Consultar todos los presupuestos generados.', href: '/presupuestos', icon: Files, lightColor: 'bg-slate-50 text-slate-600', featured: false },
-  { title: 'Eventos Activos', description: 'Planificación y seguimiento de eventos en curso.', href: '/eventos', icon: CalendarClock, lightColor: 'bg-rose-50 text-rose-600', featured: false },
+  { title: 'Eventos Activos', description: 'Planificación y seguimiento de eventos en curso.', href: '/eventos', icon: CalendarClock, lightColor: 'bg-indigo-50 text-indigo-600', featured: false },
+  { title: 'Red Social de Eventos', description: 'Feed privado con fotos, comentarios, likes, chat, juegos y pantalla en vivo.', href: '/eventos', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false },
   { title: 'Calendario', description: 'Vista de agenda y próximas fechas importantes.', href: '/calendario', icon: CalendarDays, lightColor: 'bg-teal-50 text-teal-600', featured: false },
   { title: 'Cobros / Pagos Rápidos', description: 'Registrar cobros y enviar recibos al instante.', href: '/pagos-rapidos', icon: Wallet, lightColor: 'bg-emerald-50 text-emerald-600', featured: false },
   { title: 'Base de Clientes', description: 'Directorio completo de clientes y contactos.', href: '/customers', icon: Users, lightColor: 'bg-amber-50 text-amber-600', featured: false },
@@ -194,24 +195,24 @@ export default function MainDashboardPage() {
       )}
 
       {!isLoading && alertasUrgentes.length > 0 && (
-        <Card className="border-red-100 bg-gradient-to-r from-red-50/80 to-orange-50/60 shadow-md rounded-2xl overflow-hidden">
+        <Card className="border-amber-100 bg-gradient-to-r from-amber-50/80 to-orange-50/60 shadow-md rounded-2xl overflow-hidden">
           <CardHeader className="pb-2 pt-4 px-5 flex-row items-center justify-between gap-4">
             <CardTitle className="text-sm font-black text-slate-800 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-red-600" /> Alertas Urgentes
-              <Badge className="ml-1 bg-red-500 text-white text-[10px] px-1.5 py-0">{alertasUrgentes.length}</Badge>
+              <Bell className="w-4 h-4 text-amber-600" /> Alertas Urgentes
+              <Badge className="ml-1 bg-amber-500 text-white text-[10px] px-1.5 py-0">{alertasUrgentes.length}</Badge>
             </CardTitle>
-            <Link href="/alertas"><Button variant="outline" size="sm" className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50">Ver todas <ArrowRight className="w-3 h-3 ml-1" /></Button></Link>
+            <Link href="/alertas"><Button variant="outline" size="sm" className="h-7 text-xs border-amber-200 text-amber-700 hover:bg-amber-50">Ver todas <ArrowRight className="w-3 h-3 ml-1" /></Button></Link>
           </CardHeader>
           <CardContent className="px-5 pb-4 space-y-2">
             {alertasUrgentes.map(alerta => (
-              <div key={alerta.id} role="alert" aria-live="polite" className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-red-100 text-sm overflow-hidden">
+              <div key={alerta.id} role="alert" aria-live="polite" className="flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-amber-100 text-sm overflow-hidden">
                 <span className="text-lg shrink-0">🔴</span>
                 <div className="flex-1 min-w-0">
                   <span className="font-semibold text-slate-700 text-xs truncate block">{alerta.title}</span>
                   <span className="text-slate-500 text-xs">{alerta.description}</span>
                 </div>
-                <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-slate-500 hover:text-red-700" onClick={() => handleDismissPriority(alerta.id)} aria-label="Cerrar alerta"><X className="w-3.5 h-3.5" /></Button>
-                <Link href={alerta.href}><Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-red-500 hover:text-red-700 shrink-0"><ArrowRight className="w-3 h-3" /></Button></Link>
+                <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-slate-500 hover:text-slate-700 hover:bg-slate-100" onClick={() => handleDismissPriority(alerta.id)} aria-label="Cerrar alerta"><X className="w-3.5 h-3.5" /></Button>
+                <Link href={alerta.href}><Button size="sm" variant="ghost" className="h-6 px-2 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 shrink-0"><ArrowRight className="w-3 h-3" /></Button></Link>
               </div>
             ))}
           </CardContent>
@@ -258,11 +259,11 @@ export default function MainDashboardPage() {
                   {alerts.map(alert => (
                     <div key={alert.id} className="flex items-start gap-4 sm:gap-5 p-5 sm:p-6 hover:bg-slate-50 transition-all group relative">
                       <Link href={alert.href} className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
-                        <div className={cn('p-2.5 sm:p-3 rounded-2xl mt-0.5 shadow-sm shrink-0', alert.severity === 'high' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600')}>{alertIcon(alert)}</div>
+                        <div className={cn('p-2.5 sm:p-3 rounded-2xl mt-0.5 shadow-sm shrink-0', alert.severity === 'high' ? 'bg-slate-100 text-slate-700' : 'bg-amber-50 text-amber-600')}>{alertIcon(alert)}</div>
                         <div className="flex-grow min-w-0"><p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors">{alert.title}</p><p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p></div>
                       </Link>
-                      <button onClick={() => handleDismissPriority(alert.id)} className="shrink-0 self-center p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="Descartar prioridad" aria-label="Descartar prioridad"><X className="w-3.5 h-3.5" /></button>
-                      {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1 bg-rose-500 rounded-r-full" />}
+                      <button onClick={() => handleDismissPriority(alert.id)} className="shrink-0 self-center p-1.5 rounded-lg text-slate-300 hover:text-slate-700 hover:bg-slate-100 transition-colors" title="Descartar prioridad" aria-label="Descartar prioridad"><X className="w-3.5 h-3.5" /></button>
+                      {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1 bg-slate-500 rounded-r-full" />}
                     </div>
                   ))}
                 </div>

@@ -96,6 +96,13 @@ const CONFIG_FILES: Record<string, string> = {
 const MAX_RETRIES = 2;
 const isDev = process.env.NODE_ENV === 'development';
 const OMIT_FIRESTORE_VALUE = Symbol('omit-firestore-value');
+const ALLOW_EMPTY_ARRAY_RESET_FILES = new Set([
+  'presupuestos.json',
+  'customers.json',
+  'notifications.json',
+  'crm-leads.json',
+  'invoices.json',
+]);
 
 function sanitizeForFirestore(value: unknown): unknown {
   if (value === undefined) return OMIT_FIRESTORE_VALUE;
@@ -193,6 +200,18 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       const existingIds = new Set<string>(existingSnapshot.docs.map((d: QueryDocumentSnapshot) => d.id));
       const newIds = new Set<string>(data.map(getItemDocId).filter((id: string | null): id is string => Boolean(id)));
       if (data.length === 0 && existingIds.size > 0) {
+        if (ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath)) {
+          const existingIdList = [...existingIds];
+          for (let i = 0; i < existingIdList.length; i += batchSize) {
+            const deleteBatch = db.batch();
+            existingIdList.slice(i, i + batchSize).forEach((id: string) => {
+              deleteBatch.delete(db.collection(collectionName).doc(id));
+            });
+            await withRetry(() => deleteBatch.commit(), `empty reset: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
+          }
+          logger.info(`[Firebase Sync] "${collectionName}" limpiado por escritura intencional de array vacio. (${existingIds.size} documento(s))`);
+          return;
+        }
         logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada para prevenir pérdida de datos. (${existingIds.size} documentos existentes conservados)`);
         return;
       }
@@ -300,7 +319,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName) {
       const snapshot = await db.collection(collectionName).get();
-      if (snapshot.empty) return null;
+      if (snapshot.empty) return ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath) ? [] : null;
       return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
         delete data._syncedAt;

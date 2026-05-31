@@ -11,6 +11,7 @@ import { getBudgetDisplaySettings, getWhatsAppTemplates } from '@/app/actions/se
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings, WhatsAppTemplates } from '@/types/settings';
 import Image from 'next/image';
+import { calculateBudgetFinancials } from '@/lib/budget/financial-guardrails';
 
 // Company Info Constants
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
@@ -127,15 +128,16 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     }
     
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
+    const financials = calculateBudgetFinancials(presupuesto, { preserveStoredTotal: true });
     const bruto = presupuesto.costoTotalEstimado;
-    const descPromo = bruto - (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+    const descPromo = bruto - financials.total;
     
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
       subtotalBruto: bruto,
       descuentoPromocional: Math.max(0, descPromo),
-      totalFinal: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
+      totalFinal: financials.total || presupuesto.totalConDescuento || presupuesto.costoTotalEstimado
     };
 
   }, [presupuesto]);
@@ -209,7 +211,9 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const showAnnualAdjustmentLegend = 
     adjustmentPct > 0 && 
     eventYear > currentYear && 
-    presupuesto?.estado !== 'Facturado';
+    presupuesto?.estado !== 'Facturado' &&
+    presupuesto?.ajusteAnualActivo === true &&
+    presupuesto?.totalConDescuento == null;
 
   const projectionRows = showAnnualAdjustmentLegend
     ? generateProjectionRows(totalFinal, adjustmentPct, currentYear, eventYear)
@@ -220,6 +224,10 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const nextYearProjectedTotal = Math.round(totalFinal * (1 + adjustmentPct / 100));
     
   const budgetNumber = presupuesto.numero || (presupuesto.id.split('_').pop() || presupuesto.id).substring(0,6).toUpperCase();
+  const shouldShowBudgetSignatures =
+    presupuesto.estado === 'Aceptado' ||
+    presupuesto.estado === 'Facturado' ||
+    Boolean(presupuesto.fechaFirmaContrato);
 
   return (
     <div className="space-y-6">
@@ -241,16 +249,22 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
             <tr><td className="p-0">
               {/* Repeating footer (signatures) for each print page */}
               <div className="budget-print-tfoot-content" style={{ paddingTop: '20px' }}>
-                <div className="flex justify-between" style={{ gap: '40px' }}>
-                  <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
-                    <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma del Cliente</p>
-                    <p className="text-[8px] text-gray-500 print:text-[6pt]">{presupuesto.clienteNombre}</p>
+                {shouldShowBudgetSignatures ? (
+                  <div className="flex justify-between" style={{ gap: '40px' }}>
+                    <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
+                      <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma del Cliente</p>
+                      <p className="text-[8px] text-gray-500 print:text-[6pt]">{presupuesto.clienteNombre}</p>
+                    </div>
+                    <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
+                      <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma y sello de la empresa</p>
+                      <p className="text-[8px] text-gray-500 print:text-[6pt]">{COMPANY_NAME_BRAND}</p>
+                    </div>
                   </div>
-                  <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
-                    <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma y sello de la empresa</p>
-                    <p className="text-[8px] text-gray-500 print:text-[6pt]">{COMPANY_NAME_BRAND}</p>
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-center text-[8px] font-semibold text-gray-500 print:text-[6pt]">
+                    Documento de presupuesto. La reserva, confirmacion final y firmas corresponden al contrato confirmado.
+                  </p>
+                )}
               </div>
             </td></tr>
           </tfoot>

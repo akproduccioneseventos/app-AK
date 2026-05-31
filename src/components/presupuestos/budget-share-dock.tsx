@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ClipboardCopy, Download, Edit3, MessageSquare, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,10 +25,18 @@ function buildBudgetShareText(url: string) {
 
 export function BudgetShareDock() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isSharing, setIsSharing] = useState(false);
 
-  const shouldRender = useMemo(() => isBudgetViewRoute(pathname), [pathname]);
+  const accessMode = (searchParams.get('mode') || searchParams.get('modo') || '').toLowerCase();
+  const isPublicOrGuestView =
+    searchParams.has('token') ||
+    searchParams.get('public') === '1' ||
+    searchParams.get('guest') === '1' ||
+    ['cliente', 'client', 'publico', 'public', 'invitado', 'guest'].includes(accessMode);
+
+  const shouldRender = useMemo(() => isBudgetViewRoute(pathname) && !isPublicOrGuestView, [isPublicOrGuestView, pathname]);
   if (!shouldRender) return null;
 
   const editHref = pathname?.replace(/\/ver$/, '/edit') || '/presupuestos/nuevo';
