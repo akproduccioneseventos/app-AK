@@ -179,7 +179,7 @@ export function MultiAgentWidget() {
 
   return (
     <>
-      <div className="fixed bottom-5 right-5 z-50 flex max-h-[70vh] flex-col items-end gap-2 overflow-y-auto print:hidden">
+      <div className="fixed bottom-20 right-4 z-40 flex max-h-[60vh] flex-col items-end gap-2 overflow-y-auto print:hidden sm:bottom-6 sm:right-6">
         {visibleAgents.map(agent => {
           const item = AGENT_STYLE[agent];
           const active = activeAgent === agent;
@@ -190,12 +190,12 @@ export function MultiAgentWidget() {
               type="button"
               onClick={() => openAgent(agent)}
               title={`${item.label} - ${item.description}`}
-              className={cn('group flex items-center gap-2 rounded-full border bg-white p-1.5 shadow-xl transition-all hover:-translate-x-1', active && 'ring-2 ring-red-500')}
+              className={cn('group flex items-center gap-2 rounded-full border bg-white p-1.5 shadow-xl transition-all hover:-translate-x-1', active && 'ring-2 ring-indigo-500')}
             >
               <span className="hidden rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-700 shadow-sm sm:group-hover:inline">
                 {item.label}
               </span>
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-white shadow-md">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition-colors group-hover:bg-indigo-700">
                 <ItemIcon className="h-5 w-5" />
               </span>
             </button>
@@ -204,9 +204,9 @@ export function MultiAgentWidget() {
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-40 flex items-end justify-end bg-black/20 p-3 print:hidden sm:p-5 sm:pr-24">
-          <Card className="h-[82vh] w-full max-w-md overflow-hidden rounded-3xl border-red-100 bg-white shadow-2xl">
-            <CardHeader className="border-b border-red-100 bg-gradient-to-r from-red-600 to-red-800 p-4 text-white">
+        <div className="fixed inset-0 z-[70] flex items-end justify-end bg-black/20 p-3 print:hidden sm:p-5 sm:pr-24">
+          <Card className="h-[82vh] w-full max-w-md overflow-hidden rounded-3xl border-slate-200 bg-white shadow-2xl">
+            <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-800 p-4 text-white">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
@@ -214,7 +214,7 @@ export function MultiAgentWidget() {
                   </div>
                   <div>
                     <CardTitle className="text-base font-black">{style.label}</CardTitle>
-                    <p className="text-xs text-red-50">{style.description}</p>
+                    <p className="text-xs text-indigo-50">{style.description}</p>
                   </div>
                 </div>
                 <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full text-white hover:bg-white/15" onClick={() => setIsOpen(false)}>
@@ -222,7 +222,7 @@ export function MultiAgentWidget() {
                 </Button>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Badge className="bg-white text-red-700 hover:bg-white">{style.badge}</Badge>
+                <Badge className="bg-white text-indigo-700 hover:bg-white">{style.badge}</Badge>
                 {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Sugerido por pantalla</Badge>}
                 {fiestaId && activeAgent === 'fiesta' && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
               </div>
@@ -231,7 +231,7 @@ export function MultiAgentWidget() {
             <CardContent className="flex h-[calc(82vh-108px)] flex-col p-0">
               <div className="flex-1 space-y-3 overflow-y-auto p-4">
                 {messages.length === 0 && (
-                  <div className="rounded-2xl border border-red-100 bg-red-50/60 p-4 text-sm text-slate-700">
+                  <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm text-slate-700">
                     <p className="font-bold text-slate-900">Equipo IA listo.</p>
                     <p className="mt-1">Los agentes visibles cambian según la parte de la app donde estés.</p>
                   </div>
@@ -242,11 +242,11 @@ export function MultiAgentWidget() {
                     <div className={cn(
                       'max-w-[86%] rounded-2xl px-3 py-2 text-sm leading-6',
                       message.role === 'user'
-                        ? 'bg-red-600 text-white'
+                        ? 'bg-slate-900 text-white'
                         : 'border border-slate-200 bg-white text-slate-800 shadow-sm'
                     )}>
                       {message.role === 'assistant' && message.agentName && (
-                        <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-red-600">{message.agentName}</p>
+                        <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-indigo-600">{message.agentName}</p>
                       )}
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     </div>
@@ -270,7 +270,7 @@ export function MultiAgentWidget() {
                       key={prompt}
                       type="button"
                       onClick={() => handleSend(prompt)}
-                      className="rounded-full border border-red-100 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
+                      className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
                     >
                       {prompt}
                     </button>
@@ -289,7 +289,7 @@ export function MultiAgentWidget() {
                       }
                     }}
                   />
-                  <Button onClick={() => handleSend()} disabled={isSending || !input.trim()} className="h-auto rounded-2xl bg-red-600 hover:bg-red-700">
+                  <Button onClick={() => handleSend()} disabled={isSending || !input.trim()} className="h-auto rounded-2xl bg-slate-900 hover:bg-indigo-700">
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>

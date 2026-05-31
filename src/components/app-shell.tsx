@@ -23,6 +23,7 @@ import { NotificationsHub } from '@/components/notifications-hub';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { MainNav } from './main-nav';
 import { MultiAgentWidget } from '@/components/multiagent/multiagent-widget';
+import { ModuleNavigationDock } from '@/components/module-navigation-dock';
 
 
 const getPageTitle = (pathname: string): string => {
@@ -307,11 +308,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (isMuroSocialIsolatedView) {
       return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 p-4 sm:p-6 lg:p-8">
+          <ModuleNavigationDock />
           {children}
         </main>
       );
     }
-    return <main className="min-h-screen">{children}</main>;
+    return <main className="min-h-screen"><ModuleNavigationDock />{children}</main>;
   }
 
   const handleLogoutClick = () => {
@@ -391,6 +393,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
       </SidebarInset>
+      <ModuleNavigationDock />
       <MultiAgentWidget />
     </SidebarProvider>
   );

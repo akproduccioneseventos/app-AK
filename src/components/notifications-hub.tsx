@@ -44,15 +44,23 @@ export function NotificationsHub() {
 
   useEffect(() => {
     setIsLoading(true);
-    // Generate smart notifications first, then fetch the updated list
-    generateAllSmartNotifications()
+    const lastGenerated = Number(sessionStorage.getItem('ak-last-smart-notification-check') || '0');
+    const shouldGenerate = Date.now() - lastGenerated > 20 * 60 * 1000;
+    const generation = shouldGenerate
+      ? generateAllSmartNotifications().then((result) => {
+          if (result.success) sessionStorage.setItem('ak-last-smart-notification-check', String(Date.now()));
+          return result;
+        })
+      : Promise.resolve({ success: true, totalCreated: 0 });
+
+    generation
       .catch(e => console.warn("Error generating smart notifications:", e))
       .finally(() => {
         fetchNotifications().finally(() => setIsLoading(false));
       });
     
-    // Configurar sondeo (polling) cada 30 segundos
-    const interval = setInterval(fetchNotifications, 30000);
+    // Polling moderado: evita que el hub se sienta ruidoso mientras igual mantiene datos frescos.
+    const interval = setInterval(fetchNotifications, 120000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
@@ -83,7 +91,7 @@ export function NotificationsHub() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button type="button" variant="ghost" size="icon" className="relative" aria-label="Abrir notificaciones">
           <BellRing className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center rounded-full p-0 text-xs">
@@ -93,7 +101,7 @@ export function NotificationsHub() {
           <span className="sr-only">Abrir notificaciones</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0">
+      <PopoverContent align="end" sideOffset={8} className="z-[80] w-[calc(100vw-1rem)] max-w-80 p-0">
         <div className="flex justify-between items-center p-3 border-b">
           <h3 className="font-semibold text-sm">Notificaciones</h3>
           <Button variant="ghost" size="sm" className="text-xs h-7" onClick={handleMarkAllAsRead} disabled={unreadCount === 0}>

@@ -63,13 +63,15 @@
   .budget-print-document {
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
   .ver-budget-print-document > table,
   .budget-print-document > table {
-    min-width: 720px;
+    min-width: 0;
+    table-layout: fixed;
+    width: 100%;
   }
 
   .ver-budget-print-document {
@@ -80,8 +82,19 @@
   .ver-budget-print-document td,
   .budget-print-document th,
   .budget-print-document td {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
     white-space: normal !important;
     word-break: break-word;
+  }
+
+  .ver-budget-print-document th:first-child,
+  .ver-budget-print-document td:first-child,
+  .budget-print-document th:first-child,
+  .budget-print-document td:first-child {
+    width: 34% !important;
   }
 
   .budget-print-client-info :where(p, span),

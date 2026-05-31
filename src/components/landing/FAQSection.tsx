@@ -36,6 +36,21 @@ const DEFAULT_FAQS: LandingFaqItem[] = [
     question: '¿Cómo es el proceso de pago?',
     answer: 'Trabajamos con un sistema flexible: una seña para reservar la fecha y el resto en cuotas hasta el evento. Aceptamos efectivo y transferencia bancaria.',
   },
+  {
+    id: 'default_7',
+    question: 'Puedo simular mi presupuesto antes de consultar?',
+    answer: 'Si. El simulador te ayuda a elegir servicios, cantidad de invitados y estilo de fiesta para llegar a WhatsApp con una idea clara y recibir una propuesta formal.',
+  },
+  {
+    id: 'default_8',
+    question: 'Que tecnologia incluye AK en los eventos?',
+    answer: 'Segun el tipo de fiesta podemos integrar portal del cliente, invitacion web, red social privada, pantalla en vivo, QR, fotocabina, plataforma 360, totems y herramientas para invitados.',
+  },
+  {
+    id: 'default_9',
+    question: 'El presupuesto que recibo es formal?',
+    answer: 'Si. La propuesta se entrega en formato claro y descargable. La firma y el contrato aparecen cuando corresponde confirmar la reserva, no en un presupuesto preliminar.',
+  },
 ];
 
 interface FAQSectionProps {

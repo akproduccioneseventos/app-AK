@@ -16,8 +16,14 @@ import { cn } from '@/lib/utils';
 
 const techCards = [
   {
+    title: 'Simulador de presupuesto',
+    copy: 'La persona arma su fiesta desde el celular, entiende opciones y llega a WhatsApp con una idea clara.',
+    icon: Sparkles,
+    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  },
+  {
     title: 'Portal del cliente',
-    copy: 'El cliente ve pagos, tareas, reuniones, musica, invitados y avances sin perderse.',
+    copy: 'El cliente ve presupuesto, pagos, contrato, servicios agregados, reuniones y avances sin perderse.',
     icon: Users,
     tone: 'bg-amber-50 text-amber-700 border-amber-100',
   },
@@ -28,8 +34,8 @@ const techCards = [
     tone: 'bg-blue-50 text-blue-700 border-blue-100',
   },
   {
-    title: 'Muro social',
-    copy: 'Los invitados suben contenido, participan y lo ven en pantalla gigante.',
+    title: 'Red social privada',
+    copy: 'Feed del evento con fotos, videos, comentarios, likes, chat, dedicatorias, juegos y pantalla gigante.',
     icon: Monitor,
     tone: 'bg-indigo-50 text-indigo-700 border-indigo-100',
   },
@@ -136,6 +142,13 @@ export function TechnologyExperienceSection({ whatsappNumber = '59898355530' }: 
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/simulador-de-presupuesto"
+              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-2xl bg-emerald-400 px-6 font-black uppercase tracking-widest text-slate-950 shadow-2xl transition hover:-translate-y-0.5 hover:bg-emerald-300"
+            >
+              <Sparkles className="h-5 w-5" />
+              Simular mi fiesta
+            </Link>
             <a
               href={waHref}
               target="_blank"

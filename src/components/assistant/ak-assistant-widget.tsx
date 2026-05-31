@@ -880,7 +880,7 @@ export function AKAssistantWidget() {
   const summaryText = alerts.length === 0 ? '¡Todo en orden por ahora! 🎉' : highCount > 0 ? `Tenés ${highCount} ${pluralize(highCount, 'asunto urgente', 'asuntos urgentes')} hoy.` : `Tenés ${alerts.length} ${pluralize(alerts.length, 'recordatorio pendiente', 'recordatorios pendientes')}.`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 print:hidden">
+    <div className="fixed bottom-4 left-4 z-40 flex flex-col items-start gap-3 print:hidden sm:bottom-6 sm:left-auto sm:right-6 sm:z-50 sm:items-end">
       {isOpen && (
         <Card className="w-[420px] max-w-[calc(100vw-24px)] shadow-2xl border border-slate-200 rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
           <CardHeader className="bg-gradient-to-r from-slate-800 to-indigo-900 text-white px-4 py-3 flex flex-row items-center justify-between space-y-0">
