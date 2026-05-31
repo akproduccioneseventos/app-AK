@@ -35,6 +35,12 @@ export function roundMoney(value: unknown): number {
   return Math.max(0, Math.round(numberValue));
 }
 
+function normalizePercent(value: unknown): number {
+  const numberValue = Number(value ?? 0);
+  if (!Number.isFinite(numberValue)) return 0;
+  return Math.min(100, Math.max(0, numberValue));
+}
+
 export function isConfirmedClientPayment(payment: Pick<PagoCliente, 'estadoPago'>): boolean {
   return payment.estadoPago !== 'pendiente_confirmacion' && payment.estadoPago !== 'rechazado';
 }
@@ -54,11 +60,13 @@ export function sumPendingClientPayments(payments: PagoCliente[] = [], excludePa
 }
 
 export function calculateDiscountAmount(subtotal: number, presupuesto: Pick<Presupuesto, 'descuentoTipo' | 'descuentoValor'>): number {
-  const discountValue = roundMoney(presupuesto.descuentoValor);
+  const discountValue = presupuesto.descuentoTipo === 'porcentaje'
+    ? normalizePercent(presupuesto.descuentoValor)
+    : roundMoney(presupuesto.descuentoValor);
   if (!presupuesto.descuentoTipo || discountValue <= 0) return 0;
 
   const rawDiscount = presupuesto.descuentoTipo === 'porcentaje'
-    ? Math.round(subtotal * Math.min(100, discountValue) / 100)
+    ? Math.round(subtotal * discountValue / 100)
     : discountValue;
 
   return Math.min(subtotal, Math.max(0, rawDiscount));
@@ -70,7 +78,8 @@ function calculateAnnualMultiplier(presupuesto: Presupuesto): number {
   const event = new Date(presupuesto.eventoFecha);
   if (Number.isNaN(created.getTime()) || Number.isNaN(event.getTime())) return 1;
   const yearsDiff = Math.max(0, event.getFullYear() - created.getFullYear());
-  const pct = presupuesto.ajusteAnualPorcentaje ?? 15;
+  const pct = Number(presupuesto.ajusteAnualPorcentaje ?? 15);
+  if (!Number.isFinite(pct)) return 1;
   return Math.pow(1 + Math.max(0, pct) / 100, yearsDiff);
 }
 

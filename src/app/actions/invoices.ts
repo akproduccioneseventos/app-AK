@@ -17,6 +17,18 @@ function roundMoney(value: unknown): number {
   return Math.max(0, Math.round(parsed));
 }
 
+function normalizeQuantity(value: unknown): number {
+  const parsed = Number(value ?? 0);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.max(0, Math.round(parsed * 1000) / 1000);
+}
+
+function normalizeTaxRate(value: unknown): number {
+  const parsed = Number(value ?? 0);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.min(100, Math.max(0, parsed));
+}
+
 function getInvoicePaidAmount(invoice: Pick<Invoice, 'payments'>): number {
   return (invoice.payments || []).reduce((sum, payment) => sum + roundMoney(payment.amount), 0);
 }
@@ -47,7 +59,7 @@ export async function saveInvoice(
   invoiceDataInput: (Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }) | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
-  if (!invoiceDataInput.items || invoiceDataInput.items.some(item => roundMoney(item.quantity) <= 0)) {
+  if (!invoiceDataInput.items || invoiceDataInput.items.some(item => normalizeQuantity(item.quantity) <= 0)) {
     return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
   }
   if (invoiceDataInput.items.some(item => !item.description || item.description.trim() === '')) {
@@ -68,22 +80,26 @@ export async function saveInvoice(
       const { id, ...dataToUpdate } = invoiceDataInput;
 
       const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => {
-        const quantity = roundMoney(item.quantity);
+        const quantity = normalizeQuantity(item.quantity);
         const unitPrice = roundMoney(item.unitPrice);
+        const total = roundMoney(quantity * unitPrice);
         return {
           ...item,
           quantity,
           unitPrice,
-          total: quantity * unitPrice,
+          total,
           id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`,
         };
       });
 
       const subtotal = updatedItems.reduce((sum, item) => sum + roundMoney(item.total), 0);
-      const taxRate = dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0;
+      const taxRate = normalizeTaxRate(dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0);
       const taxAmount = Math.round((subtotal * taxRate) / 100);
-      const totalAmount = subtotal + taxAmount;
-      const payments = dataToUpdate.payments || invoices[index].payments || [];
+      const totalAmount = roundMoney(subtotal + taxAmount);
+      const payments = (dataToUpdate.payments || invoices[index].payments || []).map(payment => ({
+        ...payment,
+        amount: roundMoney(payment.amount),
+      }));
       const totalPaid = getInvoicePaidAmount({ payments });
       if (totalPaid > totalAmount + MONEY_TOLERANCE) {
         return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
@@ -103,20 +119,21 @@ export async function saveInvoice(
     } else {
       invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => {
-        const quantity = roundMoney(item.quantity);
+        const quantity = normalizeQuantity(item.quantity);
         const unitPrice = roundMoney(item.unitPrice);
+        const total = roundMoney(quantity * unitPrice);
         return {
           ...item,
           quantity,
           unitPrice,
-          total: quantity * unitPrice,
+          total,
           id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`,
         };
       });
       const subtotal = itemsWithIds.reduce((sum, item) => sum + roundMoney(item.total), 0);
-      const taxRate = invoiceDataInput.taxRate ?? 0;
+      const taxRate = normalizeTaxRate(invoiceDataInput.taxRate ?? 0);
       const taxAmount = Math.round((subtotal * taxRate) / 100);
-      const totalAmount = subtotal + taxAmount;
+      const totalAmount = roundMoney(subtotal + taxAmount);
       finalInvoiceData = {
         ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
         id: invoiceId,
