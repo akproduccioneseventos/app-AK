@@ -1,4 +1,3 @@
-
 import type { ServicioEmpresa } from './empresa';
 
 export type MetodoPago = 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'Cheque' | 'Tarjeta' | 'Otro';
@@ -18,7 +17,7 @@ export const ALL_METODOS_PAGO: MetodoPago[] = [
   'Otro',
 ];
 
-export type EstadoPago = 'confirmado' | 'pendiente_confirmacion';
+export type EstadoPago = 'confirmado' | 'pendiente_confirmacion' | 'rechazado';
 
 export interface PagoCliente {
   id: string;

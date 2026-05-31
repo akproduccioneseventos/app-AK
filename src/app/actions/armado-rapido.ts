@@ -5,11 +5,12 @@ import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from 
 import { readData, writeData } from '@/lib/data-service';
 import { savePresupuesto } from './presupuestos';
 import type { ItemPresupuestado, Presupuesto, PresupuestoSource } from '@/types/presupuesto';
-import { createNotification } from './notifications';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
+const SIMULATOR_DISCOUNT_PERCENTAGE = 15;
+
 const defaultConfig: ArmadoRapidoConfig = {
-  descuentoGeneral: 15,
+  descuentoGeneral: SIMULATOR_DISCOUNT_PERCENTAGE,
   paquetes: [],
   menus: [],
   platosVisibles: [],
@@ -18,11 +19,26 @@ const defaultConfig: ArmadoRapidoConfig = {
   clubUruguayConfig: defaultClubUruguayConfig,
 };
 
+function calculateSimulatorTotal(data: LeadFromQuickBudget): number {
+  const subtotal = Math.max(0, Math.round(data.subtotal || 0));
+  const discounted = Math.round(subtotal * (1 - SIMULATOR_DISCOUNT_PERCENTAGE / 100));
+  if (!data.ajusteAnualActivo || !data.eventoFecha) return discounted;
+
+  const eventDate = new Date(data.eventoFecha);
+  if (Number.isNaN(eventDate.getTime())) return discounted;
+  const currentYear = new Date().getFullYear();
+  const eventYear = eventDate.getFullYear();
+  const years = Math.max(0, eventYear - currentYear);
+  const adjustmentPct = data.ajusteAnualPorcentaje ?? 15;
+  return Math.round(discounted * Math.pow(1 + Math.max(0, adjustmentPct) / 100, years));
+}
+
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   const config = await readData<ArmadoRapidoConfig>(CONFIG_FILE, defaultConfig);
   return {
     ...defaultConfig,
     ...config,
+    descuentoGeneral: SIMULATOR_DISCOUNT_PERCENTAGE,
     clubUruguayConfig: {
       ...defaultClubUruguayConfig,
       ...(config?.clubUruguayConfig || {}),
@@ -39,6 +55,7 @@ export async function saveArmadoRapidoConfig(
   try {
     const sanitizedConfig: ArmadoRapidoConfig = {
       ...newConfigData,
+      descuentoGeneral: SIMULATOR_DISCOUNT_PERCENTAGE,
       paquetes: (newConfigData.paquetes || []).map(pkg => ({
         id: pkg.id,
         nombre: pkg.nombre,
@@ -90,6 +107,7 @@ export async function generateBudgetAndLeadFromSimulator(
     const adolescentes = Math.max(0, Math.round(data.adolescentes || 0));
     const ninos = Math.max(0, Math.round(data.ninos || 0));
     const totalInvitados = adultos + adolescentes + ninos;
+    const totalConDescuento = calculateSimulatorTotal(data);
 
     const presupuestoData: Omit<Presupuesto, 'id'> = {
       clienteNombre: data.clienteNombre,
@@ -104,13 +122,13 @@ export async function generateBudgetAndLeadFromSimulator(
       salonFiestas: options?.salonFiestas || 'A definir',
       itemsPresupuestados: data.items as ItemPresupuestado[],
       timestamp: new Date().toISOString(),
-      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Costo estimado: ${formatCurrency(data.costoEstimado)}`,
-      costoTotalEstimado: data.subtotal,
-      descuentoTipo: data.descuentoGeneral && data.descuentoGeneral > 0 ? 'porcentaje' : undefined,
-      descuentoValor: data.descuentoGeneral,
+      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Total corregido: ${formatCurrency(totalConDescuento)}. Descuento aplicado: ${SIMULATOR_DISCOUNT_PERCENTAGE}%.`,
+      costoTotalEstimado: Math.max(0, Math.round(data.subtotal || 0)),
+      descuentoTipo: 'porcentaje',
+      descuentoValor: SIMULATOR_DISCOUNT_PERCENTAGE,
       ajusteAnualActivo: data.ajusteAnualActivo,
       ajusteAnualPorcentaje: data.ajusteAnualPorcentaje,
-      totalConDescuento: data.costoEstimado,
+      totalConDescuento,
       estado: 'Pendiente Verificación',
       source,
     };
