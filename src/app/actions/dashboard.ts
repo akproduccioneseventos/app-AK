@@ -39,11 +39,18 @@ function isFirmBudgetStatus(estado?: string) {
 }
 
 function getMonthKey(date: Date) {
+  if (Number.isNaN(date.getTime())) return 'sin fecha';
   return format(date, 'MMM yyyy', { locale: es });
 }
 
+function roundMoney(value: unknown) {
+  const parsed = Number(value ?? 0);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.max(0, Math.round(parsed));
+}
+
 function getInvoicePaidAmount(invoice: { payments?: { amount?: number }[] }) {
-  return (invoice.payments ?? []).reduce((sum, payment) => sum + Math.max(0, Math.round(payment.amount ?? 0)), 0);
+  return (invoice.payments ?? []).reduce((sum, payment) => sum + roundMoney(payment.amount), 0);
 }
 
 export async function getDashboardKpiData() {
@@ -177,11 +184,11 @@ export async function getDashboardKpiData() {
 
     invoicesData.forEach(invoice => {
       const monthEntry = monthlyDataByKey.get(getMonthKey(new Date(invoice.issueDate)));
-      if (monthEntry) monthEntry.ventas += invoice.totalAmount || 0;
+      if (monthEntry) monthEntry.ventas += roundMoney(invoice.totalAmount);
 
       invoice.payments?.forEach(payment => {
         const paymentMonthEntry = monthlyDataByKey.get(getMonthKey(new Date(payment.paymentDate)));
-        if (paymentMonthEntry) paymentMonthEntry.pagos += payment.amount || 0;
+        if (paymentMonthEntry) paymentMonthEntry.pagos += roundMoney(payment.amount);
       });
     });
 
@@ -261,7 +268,7 @@ export async function getCashFlowProjection() {
 
     invoices.forEach(inv => {
       if (inv.status === 'Paid') return;
-      const remaining = Math.max(0, (inv.totalAmount || 0) - getInvoicePaidAmount(inv));
+      const remaining = Math.max(0, roundMoney(inv.totalAmount) - getInvoicePaidAmount(inv));
       if (remaining <= 0) return;
       const dueDate = inv.dueDate ? new Date(inv.dueDate) : today;
       const monthKey = isAfter(dueDate, today) || isSameDay(dueDate, today) ? getMonthKey(dueDate) : currentMonthKey;
@@ -283,16 +290,16 @@ export async function getCashFlowProjection() {
     fiestas.forEach(fiesta => {
       if (!fiesta.configuracion?.fechaEvento) return;
       const eventDate = new Date(fiesta.configuracion.fechaEvento);
-      if (!isAfter(eventDate, today)) return;
+      if (!isAfter(eventDate, today) && !isSameDay(eventDate, today)) return;
       const monthEntry = projectionMonths.find(m => m.month === getMonthKey(eventDate));
       if (!monthEntry) return;
 
-      const manualCosts = fiesta.gestionCostos?.costosItems?.reduce((s, i) => s + Math.max(0, i.montoEstimado || 0), 0) || 0;
-      const paidProviders = fiesta.pagosProveedores?.reduce((s, p) => s + Math.max(0, p.monto || 0), 0) || 0;
+      const manualCosts = fiesta.gestionCostos?.costosItems?.reduce((s, i) => s + roundMoney(i.montoEstimado), 0) || 0;
+      const paidProviders = fiesta.pagosProveedores?.reduce((s, p) => s + roundMoney(p.monto), 0) || 0;
       let staffCosts = 0;
       fiesta.personalAsignado?.forEach(pa => {
         const rol = roles.find(r => r.id === pa.rolId);
-        const salary = Math.max(0, pa.eventSalary || 0);
+        const salary = roundMoney(pa.eventSalary);
         const contributions = (salary * (rol?.porcentajeAportesPatronales || 0)) / 100;
         staffCosts += salary + contributions;
       });

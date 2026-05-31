@@ -50,7 +50,5 @@ if (!apiKey) {
 }
 
 export const ai = genkit({
-  plugins: [
-    googleAI(apiKey ? { apiKey } : {}),
-  ],
+  plugins: apiKey ? [googleAI({ apiKey })] : [],
 });
