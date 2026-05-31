@@ -6,7 +6,7 @@ import { getAllFiestas } from './fiesta/fiesta.actions';
 import { getEmpleados } from './empleados';
 import { getRoles } from './roles';
 import { getGastosGenerales } from './gastos';
-import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 
 interface DateRange {
   from: Date;
@@ -94,7 +94,7 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
       if (!isFirmBudgetStatus(presupuesto.estado)) return;
       if (invoicedBudgetIds.has(presupuesto.id)) return;
       presupuesto.pagosCliente?.forEach(pago => {
-        if (pago.estadoPago === 'rechazado') return;
+        if (!isConfirmedClientPayment(pago)) return;
         if (!inRange(pago.fecha, from, to)) return;
         const monto = roundMoney(pago.monto);
         if (monto <= 0) return;
