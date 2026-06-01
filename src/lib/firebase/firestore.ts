@@ -32,7 +32,10 @@ export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];
 // ============================================================
 function getDb() {
   if (!dbAdmin) {
-    console.warn('Firestore is not available. Firebase Admin SDK may not be initialized.');
+    const isBuildTime = process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
+    if (!isBuildTime) {
+      console.warn('Firestore is not available. Firebase Admin SDK may not be initialized.');
+    }
     return null;
   }
   return dbAdmin;

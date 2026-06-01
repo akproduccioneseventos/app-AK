@@ -29,6 +29,7 @@ async function getDbAdmin() {
 export async function syncGenericJsonFile(filePath: string, data: any): Promise<void> {
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeTopLevelJsonFile(normalizedPath)) return;
+  if (logger.shouldSkipFirestoreDuringBuild()) return;
 
   const db = await getDbAdmin();
   const docId = getGenericDocId(normalizedPath);
@@ -49,6 +50,7 @@ export async function syncGenericJsonFile(filePath: string, data: any): Promise<
 export async function readGenericJsonFile(filePath: string): Promise<any | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeTopLevelJsonFile(normalizedPath)) return null;
+  if (logger.shouldSkipFirestoreDuringBuild()) return null;
 
   try {
     const db = await getDbAdmin();
@@ -64,6 +66,8 @@ export async function readGenericJsonFile(filePath: string): Promise<any | null>
 }
 
 export async function listGenericJsonDocuments(): Promise<Record<string, any>> {
+  if (logger.shouldSkipFirestoreDuringBuild()) return {};
+
   try {
     const db = await getDbAdmin();
     const snapshot = await db.collection(GENERIC_JSON_COLLECTION).get();

@@ -15,6 +15,8 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'empleados.json': 'empleados',
   'proveedores.json': 'proveedores',
   'presupuestos.json': 'presupuestos',
+  'fiestas.json': 'fiestas',
+  'archive.json': 'archive',
   'crm-leads.json': 'prospectos',
   'invoices.json': 'facturas',
   'roles.json': 'roles',
@@ -47,6 +49,8 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'playbooks.json': 'playbooks',
   'recursos-multi-evento.json': 'recursos_multi_evento',
   '_backup-snapshots.json': 'backup_snapshots',
+  '_google-workspace-accounts.json': 'google_workspace_accounts',
+  '_google-workspace-sync.json': 'google_workspace_sync',
   'cupones.json': 'cupones',
   'cupones-usage.json': 'cupones_usage',
   'catalogo-fotos.json': 'catalogo_fotos',
@@ -61,6 +65,9 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'promos.json': 'promos',
   'whatsapp-conversations.json': 'whatsapp_conversations',
   'playbook-aplicaciones.json': 'playbook_aplicaciones',
+  'proveedor-portal.json': 'proveedor_portal',
+  'alertas-descartadas.json': 'alertas_descartadas',
+  'prioridades-descartadas.json': 'prioridades_descartadas',
   'audit-logs.json': 'audit_logs',
   'aprobaciones.json': 'aprobaciones',
   'incidentes.json': 'incidentes',
@@ -75,6 +82,7 @@ const CONFIG_FILES: Record<string, string> = {
   'app-settings.json': 'app-settings',
   'company-info.json': 'company-info',
   'contract-settings.json': 'contract-settings',
+  'contract-template.json': 'contract-template',
   'whatsapp-settings.json': 'whatsapp-settings',
   'whatsapp-templates.json': 'whatsapp-templates',
   'ai-assistant-settings.json': 'ai-assistant-settings',
@@ -153,6 +161,8 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
  * This is called asynchronously from data-service.ts writeData() when USE_FIREBASE_DATA=true.
  */
 export async function syncToFirestore(filePath: string, data: any): Promise<void> {
+  if (logger.shouldSkipFirestoreDuringBuild()) return;
+
   let db: Firestore;
 
   try {
@@ -187,8 +197,9 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       const batchSize = 450;
       const getItemDocId = (item: any): string | null => {
         if (!item || typeof item !== 'object') return null;
-        if (item.id !== undefined && item.id !== null && String(item.id).trim() !== '') return String(item.id);
-        if (item.name !== undefined && item.name !== null && String(item.name).trim() !== '') return String(item.name);
+        for (const key of ['id', 'name', 'fiestaId', 'token', 'email']) {
+          if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== '') return String(item[key]);
+        }
         return null;
       };
 
@@ -290,6 +301,8 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
  * Returns null if no data is found or Firebase is unavailable.
  */
 export async function readFromFirestore(filePath: string): Promise<any> {
+  if (logger.shouldSkipFirestoreDuringBuild()) return null;
+
   let db: Firestore;
 
   try {
@@ -360,6 +373,8 @@ export async function readFromFirestore(filePath: string): Promise<any> {
  * Use when you want to reliably remove a specific document (e.g. individual presupuesto delete).
  */
 export async function forceDeleteDocFromFirestore(collectionName: string, docId: string): Promise<void> {
+  if (logger.shouldSkipFirestoreDuringBuild()) return;
+
   try {
     const { dbAdmin } = await import('./firebase/server');
     if (!dbAdmin) return;
@@ -379,6 +394,8 @@ export async function forceDeleteDocFromFirestore(collectionName: string, docId:
  * Use only for intentional "reset all" operations.
  */
 export async function forceDeleteCollectionFromFirestore(collectionName: string): Promise<{ deletedCount: number }> {
+  if (logger.shouldSkipFirestoreDuringBuild()) return { deletedCount: 0 };
+
   try {
     const { dbAdmin } = await import('./firebase/server');
     if (!dbAdmin) return { deletedCount: 0 };
@@ -406,6 +423,8 @@ export async function forceDeleteCollectionFromFirestore(collectionName: string)
  * Omits the internal `_syncedAt` property from each document.
  */
 export async function listCollectionFromFirestore(collectionName: string): Promise<any[]> {
+  if (logger.shouldSkipFirestoreDuringBuild()) return [];
+
   try {
     const { dbAdmin } = await import('./firebase/server');
     if (!dbAdmin) return [];
