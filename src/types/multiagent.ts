@@ -43,6 +43,25 @@ export interface AkMultiAgentMessage {
   content: string;
 }
 
+export interface AkAgentChatMessage extends AkMultiAgentMessage {
+  id: string;
+  agentType: AkAgentType;
+  agentName?: string;
+  createdAt: string;
+}
+
+export interface AkAgentChatSession {
+  id: string;
+  agentType: AkAgentType;
+  agentName: string;
+  title: string;
+  pathname?: string;
+  fiestaId?: string;
+  messages: AkAgentChatMessage[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AkMultiAgentInput {
   message: string;
   history: AkMultiAgentMessage[];
@@ -62,4 +81,9 @@ export interface AkMultiAgentOutput {
     data?: unknown;
   };
   error?: string;
+}
+
+export interface AkPersistentMultiAgentOutput extends AkMultiAgentOutput {
+  sessionId?: string;
+  savedChat?: boolean;
 }

@@ -6,7 +6,7 @@ El Asistente AK es un copiloto inteligente integrado en la aplicación de AK Pro
 
 ### Stack Técnico
 
-- **Modelo de IA:** Google Gemini 2.5 Flash (vía Google Genkit)
+- **Modelo de IA:** Google Gemini 3 Flash Preview por defecto, con Gemini 3 Pro Preview para diagnosticos profundos (via Google Genkit)
 - **Backend:** Next.js Server Actions (`src/app/actions/assistant.ts`)
 - **Flujo de IA:** Genkit Flow (`src/ai/flows/assistant-flow.ts`)
 - **Widget UI:** React (`src/components/assistant/ak-assistant-widget.tsx`)

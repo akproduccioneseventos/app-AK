@@ -1,17 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Brain, Loader2, Save, Sparkles } from 'lucide-react';
+import { Brain, Loader2, MessageSquare, Save, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getMemoriasMultiagente, guardarAprendizajeAgente } from '@/app/actions/multiagent';
-import type { AkAgentMemoryProfile, AkAgentType } from '@/types/multiagent';
+import { getChatsMultiagente, getMemoriasMultiagente, guardarAprendizajeAgente } from '@/app/actions/multiagent';
+import type { AkAgentChatSession, AkAgentMemoryProfile, AkAgentType } from '@/types/multiagent';
 
 const agentOptions: { value: AkAgentType; label: string }[] = [
+  { value: 'central', label: 'Encargado General AK' },
+  { value: 'fiesta', label: 'Agente de Fiesta' },
   { value: 'secretaria', label: 'Secretaria AK' },
   { value: 'fiestas_general', label: 'General de Fiestas' },
   { value: 'contable', label: 'Contable' },
@@ -21,6 +23,7 @@ const agentOptions: { value: AkAgentType; label: string }[] = [
 
 export default function MultiagenteMemoriaPage() {
   const [profiles, setProfiles] = useState<AkAgentMemoryProfile[]>([]);
+  const [chats, setChats] = useState<AkAgentChatSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [agentType, setAgentType] = useState<AkAgentType>('secretaria');
@@ -30,8 +33,12 @@ export default function MultiagenteMemoriaPage() {
   async function load() {
     setLoading(true);
     try {
-      const data = await getMemoriasMultiagente();
-      setProfiles(data);
+      const [memoryData, chatData] = await Promise.all([
+        getMemoriasMultiagente(),
+        getChatsMultiagente({ limit: 12 }),
+      ]);
+      setProfiles(memoryData);
+      setChats(chatData);
     } finally {
       setLoading(false);
     }
@@ -72,6 +79,28 @@ export default function MultiagenteMemoriaPage() {
           <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Ejemplo: en fiestas de 15 conviene confirmar video de vida 20 días antes..." className="min-h-[100px] rounded-2xl" />
           <div />
           <Button onClick={saveLearning} disabled={saving || !title.trim() || !content.trim()} className="rounded-2xl bg-red-600 hover:bg-red-700">{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Guardar</Button>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl border-red-100 bg-white shadow-xl shadow-red-900/5">
+        <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-red-600" /> Chats guardados</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          {loading && <div className="flex items-center gap-2 text-sm text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Cargando chats...</div>}
+          {!loading && chats.length === 0 && <div className="flex items-center gap-2 text-sm text-slate-500"><Sparkles className="h-4 w-4" /> Todavia no hay chats guardados.</div>}
+          {!loading && chats.map(chat => {
+            const lastMessage = chat.messages[chat.messages.length - 1];
+            return (
+              <div key={chat.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-black text-slate-900">{chat.title}</p>
+                  <Badge variant="outline" className="border-red-200 text-red-700">{chat.agentName}</Badge>
+                  {chat.fiestaId && <Badge variant="outline" className="border-slate-200 text-slate-500">Fiesta</Badge>}
+                </div>
+                <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">{lastMessage?.content || 'Sin mensajes visibles.'}</p>
+                <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">{new Date(chat.updatedAt).toLocaleString('es-UY')}</p>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 

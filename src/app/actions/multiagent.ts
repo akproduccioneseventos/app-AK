@@ -2,11 +2,12 @@
 
 import { runMultiAgent } from '@/ai/flows/multiagent-flow';
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
+import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from '@/app/actions/notifications';
 import type { Tarea } from '@/types/fiesta';
-import type { AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput } from '@/types/multiagent';
+import type { AkAgentChatSession, AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 
 export async function sendMultiAgentMessage(
   message: string,
@@ -37,6 +38,99 @@ export async function sendMultiAgentMessage(
       error: error?.message || 'Error desconocido',
     };
   }
+}
+
+function buildConversationLearning(input: {
+  message: string;
+  response: string;
+  pathname?: string;
+}) {
+  return [
+    input.pathname ? `Modulo/ruta: ${input.pathname}` : '',
+    `Usuario: ${input.message.slice(0, 700)}`,
+    `Respuesta del agente: ${input.response.slice(0, 900)}`,
+  ].filter(Boolean).join('\n');
+}
+
+export async function sendPersistentMultiAgentMessage(input: {
+  message: string;
+  history?: AkMultiAgentMessage[];
+  pathname?: string;
+  fiestaId?: string;
+  agentType?: AkAgentType;
+  imageDataUri?: string;
+  sessionId?: string;
+}): Promise<AkPersistentMultiAgentOutput> {
+  const result = await sendMultiAgentMessage(input.message, input.history ?? [], {
+    pathname: input.pathname,
+    fiestaId: input.fiestaId,
+    agentType: input.agentType,
+    imageDataUri: input.imageDataUri,
+  });
+
+  let sessionId = input.sessionId;
+  let savedChat = false;
+
+  try {
+    const session = await appendMultiAgentChatTurn({
+      sessionId: input.sessionId,
+      agentType: result.agentType,
+      agentName: result.agentName,
+      pathname: input.pathname,
+      fiestaId: input.fiestaId,
+      userMessage: input.message,
+      assistantMessage: result.response,
+    });
+    sessionId = session.id;
+    savedChat = true;
+  } catch {
+    savedChat = false;
+  }
+
+  try {
+    const memoryScope = input.fiestaId
+      ? 'fiesta'
+      : result.agentType === 'secretaria' || result.agentType === 'central'
+        ? 'global'
+        : 'modulo';
+    const memoryModule = memoryScope === 'modulo' ? result.agentType : undefined;
+
+    await saveAgentLearning({
+      agentType: result.agentType,
+      fiestaId: input.fiestaId,
+      scope: memoryScope,
+      module: memoryModule,
+      title: `Chat guardado: ${input.message.slice(0, 70)}`,
+      content: buildConversationLearning({ message: input.message, response: result.response, pathname: input.pathname }),
+      tags: ['chat', 'widget', input.pathname || 'sin-ruta'],
+      source: 'conversation',
+      confidence: 'medium',
+    });
+
+    if (result.agentType === 'fiesta' && input.fiestaId) {
+      await saveAgentLearning({
+        agentType: 'fiestas_general',
+        module: 'fiestas_general',
+        title: `Aprendizaje desde fiesta ${input.fiestaId}`,
+        content: buildConversationLearning({ message: input.message, response: result.response, pathname: input.pathname }).slice(0, 1200),
+        tags: ['retroalimentacion', 'chat-fiesta'],
+        source: 'conversation',
+        confidence: 'medium',
+      });
+    }
+  } catch {
+    // La respuesta no debe fallar si la memoria no pudo persistirse.
+  }
+
+  return { ...result, sessionId, savedChat };
+}
+
+export async function getChatsMultiagente(input?: {
+  agentType?: AkAgentType;
+  fiestaId?: string;
+  limit?: number;
+}): Promise<AkAgentChatSession[]> {
+  return listMultiAgentChatSessions(input);
 }
 
 export async function guardarAprendizajeAgente(input: {
