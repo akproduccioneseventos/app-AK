@@ -1,4 +1,9 @@
-import { getPortalLedBudgetReadyItems, type PortalLedSelectedItem, type PortalLedSession } from './portal-led-sales-flow';
+import {
+  getPortalLedBudgetReadyItems,
+  normalizePortalLedSelectedItem,
+  type PortalLedSelectedItem,
+  type PortalLedSession,
+} from './portal-led-sales-flow';
 import { addLiveBudgetItem, createLiveBudgetState, type LiveBudgetItem, type LiveBudgetItemKind, type LiveBudgetState } from './live-budget-editor';
 
 export type PortalLedBudgetConnectionResult = {
@@ -33,7 +38,10 @@ function buildBudgetItemFromPortalLed(item: PortalLedSelectedItem): LiveBudgetIt
 
 export function connectPortalLedSelectionToLiveBudget(session: PortalLedSession, existingBudget?: LiveBudgetState): PortalLedBudgetConnectionResult {
   const readyItems = getPortalLedBudgetReadyItems(session);
-  const skippedItems = session.selectedItems.filter(item => !readyItems.includes(item));
+  const readyItemIds = new Set(readyItems.map(item => item.id));
+  const skippedItems = (session.selectedItems || [])
+    .map(normalizePortalLedSelectedItem)
+    .filter(item => !readyItemIds.has(item.id));
   const importedItems = readyItems.map(buildBudgetItemFromPortalLed);
   let liveBudget = existingBudget ?? createLiveBudgetState({
     eventType: session.eventType,

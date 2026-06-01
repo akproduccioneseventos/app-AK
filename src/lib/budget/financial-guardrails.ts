@@ -87,9 +87,12 @@ export function calculateBudgetFinancials(
   presupuesto: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
 ) {
-  const adultos = roundMoney(presupuesto.invitadosAdultos);
+  const totalGuests = roundMoney(presupuesto.invitadosCantidad);
+  const explicitAdults = roundMoney(presupuesto.invitadosAdultos);
   const adolescentes = roundMoney(presupuesto.invitadosAdolescentes);
   const ninos = roundMoney(presupuesto.invitadosNinos);
+  const hasGuestBreakdown = explicitAdults + adolescentes + ninos > 0;
+  const adultos = hasGuestBreakdown ? explicitAdults : totalGuests;
 
   const items = (presupuesto.itemsPresupuestados ?? []).map((item) => ({
     ...item,

@@ -64,6 +64,20 @@ export function createPortalLedSession(input: Partial<PortalLedSession> & { id: 
   };
 }
 
+export function selectPortalLedItem(session: PortalLedSession, item: PortalLedSelectedItem): PortalLedSession {
+  const normalizedItem = normalizePortalLedSelectedItem(item);
+  const existingIndex = session.selectedItems.findIndex((selected) => selected.id === normalizedItem.id);
+  const selectedItems = existingIndex >= 0
+    ? session.selectedItems.map((selected, index) => (index === existingIndex ? normalizedItem : selected))
+    : [...session.selectedItems, normalizedItem];
+
+  return {
+    ...session,
+    selectedItems,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 export function updatePortalLedSelectedItem(
   session: PortalLedSession,
   itemId: string,
