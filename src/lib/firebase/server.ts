@@ -1,9 +1,16 @@
 // src/lib/firebase/server.ts
-// Server-side Firebase Admin SDK configuration
+// Server-side Firebase Admin SDK configuration.
 import admin from 'firebase-admin';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 
-// Ensure Firebase app is initialized only once
+function isBuildTime() {
+  return process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
+}
+
+function shouldSkipApplicationDefaultCredentials() {
+  return isBuildTime() && process.env.AK_ALLOW_FIRESTORE_DURING_BUILD !== 'true';
+}
+
 if (!admin.apps.length) {
   try {
     const projectId =
@@ -11,18 +18,12 @@ if (!admin.apps.length) {
       process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
       'presupuestador-ak-producciones';
 
-    // Option 1: Using GOOGLE_APPLICATION_CREDENTIALS environment variable
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
       });
-      console.log('✅ Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.');
-    }
-    // Option 2: Using individual environment variables (service account)
-    else if (
-      process.env.FIREBASE_CLIENT_EMAIL &&
-      process.env.FIREBASE_PRIVATE_KEY
-    ) {
+      console.log('Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.');
+    } else if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId,
@@ -30,37 +31,35 @@ if (!admin.apps.length) {
           privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         }),
       });
-      console.log('✅ Firebase Admin SDK initialized using individual environment variables.');
-    }
-    // Option 3: Application Default Credentials (Firebase App Hosting, GCP, Cloud Run, etc.)
-    // ADC is provided automatically by the metadata server — no env var needed.
-    else {
+      console.log('Firebase Admin SDK initialized using service account environment variables.');
+    } else if (shouldSkipApplicationDefaultCredentials()) {
+      console.warn('Firebase Admin SDK skipped during next build. Firestore/Auth will be enabled at runtime.');
+    } else {
       try {
         admin.initializeApp({
           credential: admin.credential.applicationDefault(),
           projectId,
         });
-        console.log('✅ Firebase Admin SDK initialized with Application Default Credentials.');
+        console.log('Firebase Admin SDK initialized with Application Default Credentials.');
 
         if (process.env.FIRESTORE_EMULATOR_HOST) {
-          console.log(`   📡 Using Firestore Emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+          console.log(`Firestore connected to emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
         }
       } catch (adcError: any) {
-        // ADC not available (e.g. local dev without gcloud auth).
-        // Do NOT initialize with projectId only — that creates a "zombie" app that
-        // fails on every Firestore operation. Leave dbAdmin = null so JSON fallback works cleanly.
-        console.warn('⚠️ Firebase Admin SDK: no credentials available (GOOGLE_APPLICATION_CREDENTIALS, FIREBASE_CLIENT_EMAIL, or ADC). Firestore will be unavailable; falling back to local JSON.', adcError?.message ?? adcError);
+        console.warn(
+          'Firebase Admin SDK: no credentials available. Firestore will be unavailable; falling back to local JSON when possible.',
+          adcError?.message ?? adcError
+        );
       }
     }
   } catch (error: any) {
-    console.error('❌ Firebase Admin SDK initialization error:', error.message);
-    console.error('   Full error:', error);
+    console.error('Firebase Admin SDK initialization error:', error.message);
+    console.error('Full error:', error);
   }
 } else {
-  console.log(`ℹ️ Firebase Admin SDK already initialized (${admin.apps.length} app(s))`);
+  console.log(`Firebase Admin SDK already initialized (${admin.apps.length} app(s)).`);
 }
 
-// Get Firestore and Auth instances
 let dbInstance: admin.firestore.Firestore | null = null;
 let authInstance: admin.auth.Auth | null = null;
 
@@ -68,40 +67,35 @@ try {
   if (admin.apps.length > 0) {
     dbInstance = admin.firestore();
     authInstance = admin.auth();
-    console.log('✅ Firestore and Auth instances obtained successfully.');
+    console.log('Firestore and Auth instances obtained successfully.');
 
     if (process.env.FIRESTORE_EMULATOR_HOST) {
-      console.log(`✅ Firestore connected to emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+      console.log(`Firestore connected to emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
     }
+  } else if (shouldSkipApplicationDefaultCredentials()) {
+    console.warn('Firebase Admin SDK not initialized during build. Runtime will initialize Firestore/Auth.');
   } else {
-    console.error('❌ Firebase Admin SDK not initialized — Firestore/Auth not available. All server actions will return "Base de datos no disponible".');
+    console.error('Firebase Admin SDK not initialized. Firestore/Auth are unavailable.');
   }
 } catch (e: any) {
-  console.error('❌ Error getting Firestore/Auth instance:', e.message);
-  console.error('   Full error:', e);
+  console.error('Error getting Firestore/Auth instance:', e.message);
+  console.error('Full error:', e);
 }
 
 export const dbAdmin = dbInstance;
 export const authAdmin = authInstance;
 
-/**
- * Verifica si Firebase está disponible y conectado
- */
 export function isFirebaseAvailable(): boolean {
   return dbAdmin !== null;
 }
 
-/**
- * Verifica un ID token de Firebase Authentication
- */
 export async function verifyIdToken(idToken: string): Promise<DecodedIdToken | null> {
   if (!authAdmin) {
     console.error('Auth Admin SDK not available for token verification.');
     return null;
   }
   try {
-    const decodedToken = await authAdmin.verifyIdToken(idToken);
-    return decodedToken;
+    return await authAdmin.verifyIdToken(idToken);
   } catch (error) {
     console.error('Error verifying ID token:', error);
     return null;
