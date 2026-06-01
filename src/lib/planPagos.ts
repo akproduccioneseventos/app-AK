@@ -5,11 +5,11 @@ import type { PagoCliente } from '@/types/presupuesto';
  * Calcula cuántos meses completos hay entre dos fechas.
  */
 export function diferenciaMeses(desde: Date, hasta: Date): number {
-  const years = hasta.getFullYear() - desde.getFullYear();
-  const months = hasta.getMonth() - desde.getMonth();
+  const years = hasta.getUTCFullYear() - desde.getUTCFullYear();
+  const months = hasta.getUTCMonth() - desde.getUTCMonth();
   const totalMeses = years * 12 + months;
   // If the day of 'hasta' is before 'desde', subtract one partial month
-  if (hasta.getDate() < desde.getDate()) {
+  if (hasta.getUTCDate() < desde.getUTCDate()) {
     return Math.max(0, totalMeses - 1);
   }
   return Math.max(0, totalMeses);

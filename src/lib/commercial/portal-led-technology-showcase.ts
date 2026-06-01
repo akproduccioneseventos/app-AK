@@ -112,7 +112,7 @@ export const PORTAL_LED_TECHNOLOGY_SHOWCASE: PortalLedTechnologyShowcase = {
     {
       id: 'entretenimiento_viral',
       title: 'Fotocabina, Plataforma 360 y Espejo Magico',
-      shortPitch: 'Estaciones premium para fotos, GIFs, loops y clips 360 con branding, QR, WhatsApp, galeria y LED.',
+      shortPitch: 'Fotocabina, Plataforma 360 y Espejo Magico para fotos, GIFs, loops, branding, QR, WhatsApp, galeria y LED.',
       benefit: 'El evento produce contenido compartible, recuerdos con marca de la fiesta y material listo para redes.',
       clientPain: 'Fotos aisladas en celulares sin galeria, QR ni salida visual para la pantalla.',
       sellerScript: 'A diferencia de una cabina suelta, AK conecta fotocabina, 360 y espejo con galeria, muro social, QR, WhatsApp, pantalla LED y post-fiesta.',
