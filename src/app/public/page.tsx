@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { MessageSquare, Phone, MapPin, Building2, User, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowRight, BookOpen, MessageSquare, Phone, MapPin, Building2, User, CheckCircle, XCircle } from 'lucide-react';
 import { catalogList } from '@/data/event-catalogs';
+import { blogPosts } from '@/data/blog-posts';
 import { CompanyLogo } from '@/components/company-logo';
 
 export const metadata: Metadata = {
@@ -29,6 +30,14 @@ export default function PublicCatalogPage() {
               AK Producciones
             </span>
           </div>
+          <nav className="hidden items-center gap-5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 md:flex">
+            <Link href="/public/blog" className="transition hover:text-purple-700">
+              Blog
+            </Link>
+            <Link href="/simulador-de-presupuesto" className="transition hover:text-purple-700">
+              Simulador
+            </Link>
+          </nav>
           <a href={waHref} target="_blank" rel="noopener noreferrer">
             <button className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#25D366] hover:bg-[#1eb356] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all duration-200 hover:scale-105 active:scale-95">
               <MessageSquare className="w-4 h-4 shrink-0" />
@@ -194,6 +203,64 @@ export default function PublicCatalogPage() {
                 📲 Coordiná tu entrevista sin costo al {CTA_PHONE}
               </button>
             </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-slate-50">
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-600 mb-3 flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Consejos AK
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+                Contenido de valor para organizar mejor tu evento
+              </h2>
+              <p className="mt-3 text-slate-600 max-w-2xl leading-relaxed">
+                Guías simples sobre presupuesto, catering, XV años, bodas y checklist final para tomar decisiones con menos estrés.
+              </p>
+            </div>
+            <Link
+              href="/public/blog"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-purple-200 bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-purple-700 shadow-sm transition hover:border-purple-300 hover:bg-purple-50"
+            >
+              Ver blog
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {blogPosts.slice(0, 3).map((post) => {
+              const Icon = post.icon;
+              return (
+                <Link
+                  key={post.slug}
+                  href={`/public/blog/${post.slug}`}
+                  className="group flex min-h-[260px] flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-purple-200 hover:shadow-xl"
+                >
+                  <div className="space-y-4">
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${post.accent} text-white shadow-md`}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+                        {post.category} - {post.readTime}
+                      </p>
+                      <h3 className="mt-2 text-lg font-black leading-tight text-slate-950 group-hover:text-purple-700">
+                        {post.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-7 text-slate-600 line-clamp-3">{post.excerpt}</p>
+                    </div>
+                  </div>
+                  <span className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-purple-700">
+                    Leer consejo
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
