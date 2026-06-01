@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# Deploy trigger: 2026-03-30T01:10:00Z — force Firebase App Hosting rebuild
+# Deploy trigger: 2026-03-30T01:10:00Z - force Firebase App Hosting rebuild
 
 runConfig:
   cpu: 1
@@ -16,7 +16,7 @@ env:
       - RUNTIME
       - BUILD
 
-  # ── Firebase project identifiers (derivable from project ID) ─────────────
+  # Firebase project identifiers.
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "presupuestador-ak-producciones"
     availability:
@@ -62,7 +62,33 @@ env:
     availability:
       - RUNTIME
 
-  # Google Workspace OAuth is optional. Do not declare these secrets here unless
+  - variable: GEMINI_MODEL
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_FAST
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_PRO
+    value: "googleai/gemini-3-pro-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_MARKETING
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_COMMERCIAL
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Google Workspace OAuth is optional. Do not declare client secrets here unless
   # they already exist in Secret Manager and App Hosting has been granted access.
   # Declaring a missing or unauthorized secret makes Firebase App Hosting fail
   # before the app build starts.
