@@ -3,8 +3,8 @@ import { googleAI } from '@genkit-ai/google-genai';
 import type { AkAgentType } from '@/types/multiagent';
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-const DEFAULT_GEMINI_MODEL = 'googleai/gemini-2.5-flash';
-const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-2.5-pro';
+const DEFAULT_GEMINI_MODEL = 'googleai/gemini-3-flash-preview';
+const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-3-pro-preview';
 const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;
 
 type GeminiModelRole = 'default' | 'fast' | 'pro' | 'marketing' | 'commercial';
@@ -50,7 +50,5 @@ if (!apiKey) {
 }
 
 export const ai = genkit({
-  plugins: [
-    googleAI(apiKey ? { apiKey } : {}),
-  ],
+  plugins: apiKey ? [googleAI({ apiKey })] : [],
 });

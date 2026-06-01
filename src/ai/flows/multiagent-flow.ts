@@ -5,6 +5,7 @@ import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { buildMultiAgentTeamBriefing, formatAgentDiagnosticsForPrompt } from '@/lib/multiagent/diagnostics';
+import { formatManualForAgentPrompt } from '@/lib/multiagent/manual-ak';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -19,9 +20,9 @@ function detectAgent(input: AkMultiAgentInput): AkAgentType {
   const msg = input.message.toLowerCase();
 
   if (input.fiestaId || path.startsWith('/fiestas/nueva') || /^\/fiestas\/[^/]+/.test(path) || path.includes('/evento/')) return 'fiesta';
-  if (path.includes('/eventos') || msg.includes('todas las fiestas') || msg.includes('eventos a revisar') || msg.includes('fiestas pendientes')) return 'fiestas_general';
+  if (path.includes('/eventos') || path.includes('/calendario') || msg.includes('todas las fiestas') || msg.includes('eventos a revisar') || msg.includes('fiestas pendientes')) return 'fiestas_general';
   if (path.includes('/plan-pagos') || path.includes('/empresa/contabilidad') || path.includes('/invoices') || path.includes('/pagos') || msg.includes('rentabilidad') || msg.includes('ganancia') || msg.includes('contable') || msg.includes('pago')) return 'contable';
-  if (path.includes('/marketing') || path.includes('/galeria') || msg.includes('post') || msg.includes('instagram') || msg.includes('facebook') || msg.includes('whatsapp')) return 'marketing';
+  if (path.includes('/marketing') || path.includes('/empresa/redes-sociales') || path.includes('/galeria') || path.includes('/portfolio') || msg.includes('post') || msg.includes('instagram') || msg.includes('facebook') || msg.includes('whatsapp')) return 'marketing';
   if (path.includes('/contabilidad/crm') || path.includes('/presupuestos') || path.includes('/simulador') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('venta')) return 'comercial';
   if (path.includes('/settings/google-workspace') || path.includes('/calendario') || path.includes('/reuniones') || msg.includes('agenda') || msg.includes('reunion') || msg.includes('mail') || msg.includes('calendar')) return 'secretaria';
   return 'central';
@@ -121,6 +122,7 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
 
   const kpi = kpiResult && kpiResult.success ? kpiResult.data : null;
   const fiestaNombre = getFiestaNombre(fiesta);
+  const manual = formatManualForAgentPrompt(agentType, { pathname: input.pathname, fiestaId: input.fiestaId });
   const diagnostics = briefing
     ? formatAgentDiagnosticsForPrompt(briefing, agentType, input.fiestaId)
     : 'No pude generar diagnóstico automático en este momento.';
@@ -134,9 +136,13 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
     presupuestos,
     leads,
     briefing,
+    manual,
     text: `
 FECHA ACTUAL: ${new Date().toLocaleString('es-UY', { timeZone: 'America/Montevideo' })}
 AGENTE ACTIVO: ${agentName(agentType, fiestaNombre)}
+
+MANUAL BASE DEL AGENTE:
+${manual}
 
 MEMORIA DEL AGENTE:
 ${memory.summary || 'Sin memoria todavía.'}
@@ -243,7 +249,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
     const { text } = await ai.generate({
       model,
-      system: `${agentRole(agentType)}\n\nReglas duras: hablá simple, directo y práctico. Usá solo los datos del CONTEXTO REAL. Si un dato no aparece, decí "no lo veo cargado" y sugerí dónde cargarlo. No inventes pagos, mails enviados, invitados confirmados, tareas hechas, contratos firmados ni fechas. Primero usá el diagnóstico automático si existe. Ordená la respuesta en: 1. lo más importante, 2. próximos pasos. No digas que guardaste, enviaste o sincronizaste algo salvo que la acción real se haya ejecutado.`,
+      system: `${agentRole(agentType)}\n\nReglas duras: usa el MANUAL BASE DEL AGENTE como criterio operativo. Habla simple, directo y practico. Usa solo los datos del CONTEXTO REAL. Si un dato no aparece, deci "no lo veo cargado" y sugeri donde cargarlo. No inventes pagos, mails enviados, invitados confirmados, tareas hechas, contratos firmados ni fechas. Primero usa el diagnostico automatico si existe. Ordena la respuesta en: 1. lo mas importante, 2. proximos pasos. No digas que guardaste, enviaste o sincronizaste algo salvo que la accion real se haya ejecutado.`,
       prompt: `CONTEXTO REAL DE LA APP:\n${context.text}\n\nHISTORIAL:\n${(input.history || []).map(h => `${h.role}: ${h.content}`).join('\n')}\n\nMENSAJE DE ALEXANDER:\n${input.message}`,
       config: generationConfig,
     });

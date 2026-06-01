@@ -1,5 +1,6 @@
 import type { AkAgentLearning, AkAgentMemoryProfile, AkAgentMemoryScope, AkAgentType } from '@/types/multiagent';
 import { readData, writeData } from '@/lib/data-service';
+import { AK_MANUAL_VERSION, getManualLearningSeed } from '@/lib/multiagent/manual-ak';
 
 const MEMORY_FILE = 'multiagent/memory.json';
 
@@ -43,6 +44,8 @@ function getDefaultProfile(agentType: AkAgentType, scope: AkAgentMemoryScope, fi
     central: 'Router principal que decide qué agente debe responder según el contexto.',
   };
 
+  const manualSeed = getManualLearningSeed(agentType);
+
   return {
     id,
     agentType,
@@ -51,7 +54,7 @@ function getDefaultProfile(agentType: AkAgentType, scope: AkAgentMemoryScope, fi
     module,
     displayName: names[agentType],
     description: descriptions[agentType],
-    summary: 'Memoria inicial. Todavía no hay aprendizajes guardados.',
+    summary: `Memoria inicial basada en ${AK_MANUAL_VERSION}.\n${manualSeed.slice(0, 1200)}`,
     learnings: [],
     createdAt,
     updatedAt: createdAt,

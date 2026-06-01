@@ -61,3 +61,28 @@ env:
     secret: google-api-key
     availability:
       - RUNTIME
+  - variable: GEMINI_MODEL
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_FAST
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_PRO
+    value: "googleai/gemini-3-pro-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_MARKETING
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_MODEL_COMMERCIAL
+    value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME

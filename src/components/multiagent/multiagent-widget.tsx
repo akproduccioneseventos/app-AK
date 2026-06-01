@@ -1,21 +1,37 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bot, Brain, CalendarCheck, DollarSign, Loader2, Megaphone, MessageSquare, PartyPopper, Send, X } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  Bot,
+  Brain,
+  CalendarCheck,
+  DollarSign,
+  GripVertical,
+  Loader2,
+  Megaphone,
+  MessageSquare,
+  PartyPopper,
+  Send,
+  X,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+
+import { sendPersistentMultiAgentMessage } from '@/app/actions/multiagent';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { sendMultiAgentMessage } from '@/app/actions/multiagent';
-import type { AkAgentType, AkMultiAgentMessage } from '@/types/multiagent';
 import { cn } from '@/lib/utils';
+import type { AkAgentType, AkMultiAgentMessage } from '@/types/multiagent';
 
 type ChatMessage = AkMultiAgentMessage & {
   id: string;
   agentName?: string;
   agentType?: AkAgentType;
+  fiestaId?: string;
+  pathname?: string;
 };
 
 type AgentStyle = {
@@ -26,25 +42,42 @@ type AgentStyle = {
   description: string;
 };
 
+type DockSide = 'left' | 'right';
+type SessionMap = Record<string, string>;
+
+const HISTORY_STORAGE_KEY = 'ak-multiagent-history-v2';
+const SESSION_STORAGE_KEY = 'ak-multiagent-sessions-v1';
+const SIDE_STORAGE_KEY = 'ak-multiagent-dock-side';
+
 const AGENT_STYLE: Record<AkAgentType, AgentStyle> = {
-  central: { label: 'Encargado General AK', icon: Bot, badge: 'App completa', short: 'AK', description: 'Control general de la aplicación' },
-  fiestas_general: { label: 'Supervisor General de Fiestas', icon: Brain, badge: 'Todas las fiestas', short: 'FIS', description: 'Control de eventos y planificación' },
+  central: { label: 'Encargado General AK', icon: Bot, badge: 'App completa', short: 'AK', description: 'Control general de la aplicacion' },
+  fiestas_general: { label: 'Supervisor General de Fiestas', icon: Brain, badge: 'Todas las fiestas', short: 'FIS', description: 'Control de eventos y planificacion' },
   fiesta: { label: 'Agente de esta Fiesta', icon: PartyPopper, badge: 'Fiesta actual', short: 'FIE', description: 'Control de la fiesta abierta' },
   secretaria: { label: 'Secretaria AK', icon: CalendarCheck, badge: 'Agenda', short: 'SEC', description: 'Agenda, llamadas y recordatorios' },
   comercial: { label: 'Agente Comercial AK', icon: MessageSquare, badge: 'Ventas', short: 'COM', description: 'Leads, presupuestos y seguimiento' },
   contable: { label: 'Agente Contable AK', icon: DollarSign, badge: 'Pagos', short: 'CON', description: 'Pagos, saldos y rentabilidad' },
-  marketing: { label: 'Agente Marketing AK', icon: Megaphone, badge: 'Contenido', short: 'MKT', description: 'Redes, publicaciones y campañas' },
+  marketing: { label: 'Agente Marketing AK', icon: Megaphone, badge: 'Contenido', short: 'MKT', description: 'Redes, publicaciones y campanas' },
 };
 
-const AREA_AGENT_GROUPS: Record<string, AkAgentType[]> = {
-  fiesta: ['fiesta', 'fiestas_general', 'secretaria', 'contable', 'central'],
+const AREA_AGENT_GROUPS: Record<AkAgentType, AkAgentType[]> = {
+  fiesta: ['fiesta', 'fiestas_general', 'secretaria', 'contable', 'marketing', 'central'],
   fiestas_general: ['fiestas_general', 'fiesta', 'secretaria', 'contable', 'central'],
-  contable: ['contable', 'comercial', 'secretaria', 'central'],
+  contable: ['contable', 'comercial', 'fiestas_general', 'secretaria', 'central'],
   comercial: ['comercial', 'secretaria', 'contable', 'marketing', 'central'],
-  marketing: ['marketing', 'comercial', 'central'],
+  marketing: ['marketing', 'comercial', 'fiestas_general', 'central'],
   secretaria: ['secretaria', 'fiestas_general', 'comercial', 'contable', 'central'],
-  central: ['central', 'secretaria', 'fiestas_general'],
+  central: ['central', 'fiestas_general', 'secretaria'],
 };
+
+function readStorage<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) as T : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function detectVisibleAgent(pathname: string): AkAgentType {
   if (pathname.startsWith('/fiestas/nueva') || /^\/fiestas\/[^/]+/.test(pathname) || pathname.includes('/evento/')) return 'fiesta';
@@ -62,7 +95,22 @@ function getFiestaIdFromLocation(): string | undefined {
   const fromQuery = params.get('fiestaId');
   if (fromQuery) return fromQuery;
   const match = window.location.pathname.match(/\/fiestas\/([^/]+)/);
-  return match?.[1];
+  const pathId = match?.[1];
+  return pathId && pathId !== 'nueva' ? pathId : undefined;
+}
+
+function uniqueAgents(agents: AkAgentType[]) {
+  return agents.filter((agent, index) => agents.indexOf(agent) === index);
+}
+
+function buildVisibleAgents(suggestedAgent: AkAgentType, fiestaId?: string) {
+  const base = AREA_AGENT_GROUPS[suggestedAgent] || AREA_AGENT_GROUPS.central;
+  const required: AkAgentType[] = fiestaId ? ['fiesta', 'fiestas_general', 'central'] : ['central'];
+  return uniqueAgents([...base, ...required]);
+}
+
+function buildSessionKey(agentType: AkAgentType, pathname: string, fiestaId?: string) {
+  return `${agentType}:${fiestaId || pathname || 'global'}`;
 }
 
 export function MultiAgentWidget() {
@@ -71,58 +119,111 @@ export function MultiAgentWidget() {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [fiestaId, setFiestaId] = useState<string | undefined>(undefined);
+  const [dockSide, setDockSide] = useState<DockSide>(() => readStorage<DockSide>(SIDE_STORAGE_KEY, 'right'));
+  const [sessionIds, setSessionIds] = useState<SessionMap>(() => readStorage<SessionMap>(SESSION_STORAGE_KEY, {}));
   const [activeAgent, setActiveAgent] = useState<AkAgentType>(() => detectVisibleAgent(typeof window === 'undefined' ? '' : window.location.pathname));
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const saved = localStorage.getItem('ak-multiagent-history');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [messages, setMessages] = useState<ChatMessage[]>(() => readStorage<ChatMessage[]>(HISTORY_STORAGE_KEY, []));
   const endRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const suppressClickRef = useRef(false);
 
   const suggestedAgent = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
-  const visibleAgents = useMemo(() => AREA_AGENT_GROUPS[suggestedAgent] || AREA_AGENT_GROUPS.central, [suggestedAgent]);
+  const visibleAgents = useMemo(() => buildVisibleAgents(suggestedAgent, fiestaId), [suggestedAgent, fiestaId]);
+  const sessionKey = useMemo(() => buildSessionKey(activeAgent, pathname || '', fiestaId), [activeAgent, pathname, fiestaId]);
+  const visibleMessages = useMemo(() => {
+    return messages.filter(message => {
+      if (message.agentType && message.agentType !== activeAgent) return false;
+      if (fiestaId && message.fiestaId && message.fiestaId !== fiestaId) return false;
+      return true;
+    });
+  }, [activeAgent, fiestaId, messages]);
   const style = AGENT_STYLE[activeAgent];
   const Icon = style.icon;
 
   useEffect(() => {
-    setFiestaId(getFiestaIdFromLocation());
+    const nextFiestaId = getFiestaIdFromLocation();
+    setFiestaId(nextFiestaId);
     setActiveAgent(detectVisibleAgent(pathname || ''));
   }, [pathname]);
 
   useEffect(() => {
     try {
-      localStorage.setItem('ak-multiagent-history', JSON.stringify(messages.slice(-60)));
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(messages.slice(-80)));
     } catch {
       // No frena el uso del multiagente si el navegador bloquea storage.
     }
   }, [messages]);
 
   useEffect(() => {
+    try {
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionIds));
+      localStorage.setItem(SIDE_STORAGE_KEY, JSON.stringify(dockSide));
+    } catch {
+      // No frena el uso del multiagente si el navegador bloquea storage.
+    }
+  }, [dockSide, sessionIds]);
+
+  useEffect(() => {
     if (isOpen) endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isOpen, isSending]);
+  }, [visibleMessages, isOpen, isSending]);
+
+  function setSide(side: DockSide) {
+    setDockSide(side);
+  }
+
+  function toggleSide() {
+    setSide(dockSide === 'right' ? 'left' : 'right');
+  }
 
   function openAgent(agent: AkAgentType) {
     setActiveAgent(agent);
     setIsOpen(true);
   }
 
+  function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    dragRef.current = { x: event.clientX, y: event.clientY, moved: false };
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+    const start = dragRef.current;
+    if (!start) return;
+    if (Math.abs(event.clientX - start.x) > 14 || Math.abs(event.clientY - start.y) > 14) {
+      start.moved = true;
+    }
+  }
+
+  function handlePointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
+    const start = dragRef.current;
+    dragRef.current = null;
+    if (!start?.moved || typeof window === 'undefined') return;
+
+    suppressClickRef.current = true;
+    setSide(event.clientX < window.innerWidth / 2 ? 'left' : 'right');
+    window.setTimeout(() => {
+      suppressClickRef.current = false;
+    }, 0);
+  }
+
+  function handleFabClick() {
+    if (suppressClickRef.current) return;
+    setIsOpen(prev => !prev);
+  }
+
   async function handleSend(override?: string) {
     const text = (override ?? input).trim();
     if (!text || isSending) return;
 
+    const currentSessionKey = sessionKey;
     const userMessage: ChatMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
       content: text,
       agentType: activeAgent,
+      fiestaId,
+      pathname: pathname || undefined,
     };
 
-    const historyForServer = [...messages, userMessage]
-      .filter(message => !message.agentType || message.agentType === activeAgent)
+    const historyForServer = [...visibleMessages, userMessage]
       .slice(-12)
       .map(({ role, content }) => ({ role, content }));
 
@@ -131,11 +232,18 @@ export function MultiAgentWidget() {
     setIsSending(true);
 
     try {
-      const result = await sendMultiAgentMessage(text, historyForServer, {
+      const result = await sendPersistentMultiAgentMessage({
+        message: text,
+        history: historyForServer,
         pathname,
         fiestaId,
         agentType: activeAgent,
+        sessionId: sessionIds[currentSessionKey],
       });
+
+      if (result.sessionId) {
+        setSessionIds(prev => ({ ...prev, [currentSessionKey]: result.sessionId! }));
+      }
 
       setMessages(prev => [
         ...prev,
@@ -145,6 +253,8 @@ export function MultiAgentWidget() {
           content: result.response,
           agentName: result.agentName,
           agentType: result.agentType,
+          fiestaId,
+          pathname: pathname || undefined,
         },
       ]);
     } catch {
@@ -153,9 +263,11 @@ export function MultiAgentWidget() {
         {
           id: `assistant_${Date.now()}`,
           role: 'assistant',
-          content: 'No pude responder ahora. No marqué nada como hecho.',
+          content: 'No pude responder ahora. No marque nada como hecho.',
           agentName: style.label,
           agentType: activeAgent,
+          fiestaId,
+          pathname: pathname || undefined,
         },
       ]);
     } finally {
@@ -164,9 +276,9 @@ export function MultiAgentWidget() {
   }
 
   const quickPrompts = activeAgent === 'fiesta'
-    ? ['Qué le falta a esta fiesta', 'Qué está para revisar', 'Qué hago hoy']
+    ? ['Que le falta a esta fiesta', 'Que esta para revisar', 'Que hago hoy']
     : activeAgent === 'fiestas_general'
-      ? ['Revisá todas las fiestas', 'Prioridades generales', 'Fiestas atrasadas']
+      ? ['Revisa todas las fiestas', 'Prioridades generales', 'Fiestas atrasadas']
       : activeAgent === 'contable'
         ? ['Pagos pendientes', 'Saldos a revisar', 'Rentabilidad']
         : activeAgent === 'marketing'
@@ -174,130 +286,160 @@ export function MultiAgentWidget() {
           : activeAgent === 'comercial'
             ? ['Leads pendientes', 'Presupuestos sin respuesta', 'Mensaje para cerrar']
             : activeAgent === 'secretaria'
-              ? ['Qué tengo pendiente hoy', 'Crear recordatorio', 'A quién llamo']
-              : ['Revisá la app', 'Qué está más urgente', 'Resumen general'];
+              ? ['Que tengo pendiente hoy', 'Crear recordatorio', 'A quien llamo']
+              : ['Revisa la app', 'Que esta mas urgente', 'Resumen general'];
+
+  const sidePosition = dockSide === 'left' ? 'left-3 sm:left-5 items-start' : 'right-3 sm:right-5 items-end';
+  const sideButtonTitle = dockSide === 'left' ? 'Mover asistente a la derecha' : 'Mover asistente a la izquierda';
 
   return (
-    <>
-      <div className="fixed bottom-5 right-5 z-50 flex max-h-[70vh] flex-col items-end gap-2 overflow-y-auto print:hidden">
-        {visibleAgents.map(agent => {
-          const item = AGENT_STYLE[agent];
-          const active = activeAgent === agent;
-          const ItemIcon = item.icon;
-          return (
-            <button
-              key={agent}
-              type="button"
-              onClick={() => openAgent(agent)}
-              title={`${item.label} - ${item.description}`}
-              className={cn('group flex items-center gap-2 rounded-full border bg-white p-1.5 shadow-xl transition-all hover:-translate-x-1', active && 'ring-2 ring-red-500')}
-            >
-              <span className="hidden rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-700 shadow-sm sm:group-hover:inline">
-                {item.label}
-              </span>
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-white shadow-md">
-                <ItemIcon className="h-5 w-5" />
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
+    <div className={cn('fixed bottom-5 z-50 flex flex-col gap-3 print:hidden', sidePosition)}>
       {isOpen && (
-        <div className="fixed inset-0 z-40 flex items-end justify-end bg-black/20 p-3 print:hidden sm:p-5 sm:pr-24">
-          <Card className="h-[82vh] w-full max-w-md overflow-hidden rounded-3xl border-red-100 bg-white shadow-2xl">
-            <CardHeader className="border-b border-red-100 bg-gradient-to-r from-red-600 to-red-800 p-4 text-white">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base font-black">{style.label}</CardTitle>
-                    <p className="text-xs text-red-50">{style.description}</p>
+        <Card className="flex h-[min(78vh,680px)] w-[calc(100vw-1.5rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border-red-100 bg-white shadow-2xl">
+          <CardHeader className="border-b border-red-100 bg-gradient-to-r from-red-600 to-red-800 p-4 text-white">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <CardTitle className="truncate text-base font-black">{style.label}</CardTitle>
+                  <p className="truncate text-xs text-red-50">{style.description}</p>
+                </div>
+              </div>
+              <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 rounded-full text-white hover:bg-white/15" onClick={() => setIsOpen(false)} title="Cerrar chat">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge className="bg-white text-red-700 hover:bg-white">{style.badge}</Badge>
+              {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Especialista de pantalla</Badge>}
+              {fiestaId && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
+              <Badge className="bg-white/15 text-white hover:bg-white/15">Manual + memoria</Badge>
+            </div>
+
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              {visibleAgents.map(agent => {
+                const item = AGENT_STYLE[agent];
+                const AgentIcon = item.icon;
+                const active = activeAgent === agent;
+                return (
+                  <button
+                    key={agent}
+                    type="button"
+                    onClick={() => openAgent(agent)}
+                    title={`${item.label} - ${item.description}`}
+                    className={cn(
+                      'flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-black transition',
+                      active
+                        ? 'border-white bg-white text-red-700'
+                        : 'border-white/25 bg-white/10 text-white hover:bg-white/20'
+                    )}
+                  >
+                    <AgentIcon className="h-3.5 w-3.5" />
+                    {item.short}
+                  </button>
+                );
+              })}
+            </div>
+          </CardHeader>
+
+          <CardContent className="flex min-h-0 flex-1 flex-col p-0">
+            <div className="flex-1 space-y-3 overflow-y-auto p-4">
+              {visibleMessages.length === 0 && (
+                <div className="rounded-xl border border-red-100 bg-red-50/70 p-4 text-sm leading-6 text-slate-700">
+                  <p className="font-bold text-slate-950">{style.label} listo.</p>
+                  <p className="mt-1">Estoy usando el manual AK, la memoria del agente y los datos reales visibles de este modulo.</p>
+                </div>
+              )}
+
+              {visibleMessages.map(message => (
+                <div key={message.id} className={cn('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}>
+                  <div className={cn(
+                    'max-w-[86%] rounded-2xl px-3 py-2 text-sm leading-6',
+                    message.role === 'user'
+                      ? 'bg-red-600 text-white'
+                      : 'border border-slate-200 bg-white text-slate-800 shadow-sm'
+                  )}>
+                    {message.role === 'assistant' && message.agentName && (
+                      <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-red-600">{message.agentName}</p>
+                    )}
+                    <p className="whitespace-pre-wrap">{message.content}</p>
                   </div>
                 </div>
-                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full text-white hover:bg-white/15" onClick={() => setIsOpen(false)}>
-                  <X className="h-4 w-4" />
+              ))}
+
+              {isSending && (
+                <div className="flex justify-start">
+                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 shadow-sm">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Pensando...
+                  </div>
+                </div>
+              )}
+              <div ref={endRef} />
+            </div>
+
+            <div className="border-t border-slate-100 p-3">
+              <div className="mb-2 flex gap-2 overflow-x-auto pb-1">
+                {quickPrompts.map(prompt => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => handleSend(prompt)}
+                    className="h-8 shrink-0 rounded-full border border-red-100 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Textarea
+                  value={input}
+                  onChange={event => setInput(event.target.value)}
+                  placeholder={`Hablar con ${style.short}...`}
+                  className="min-h-[44px] resize-none rounded-2xl"
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                      event.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                />
+                <Button onClick={() => handleSend()} disabled={isSending || !input.trim()} className="h-auto rounded-2xl bg-red-600 hover:bg-red-700" title="Enviar">
+                  <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Badge className="bg-white text-red-700 hover:bg-white">{style.badge}</Badge>
-                {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Sugerido por pantalla</Badge>}
-                {fiestaId && activeAgent === 'fiesta' && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
-              </div>
-            </CardHeader>
-
-            <CardContent className="flex h-[calc(82vh-108px)] flex-col p-0">
-              <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                {messages.length === 0 && (
-                  <div className="rounded-2xl border border-red-100 bg-red-50/60 p-4 text-sm text-slate-700">
-                    <p className="font-bold text-slate-900">Equipo IA listo.</p>
-                    <p className="mt-1">Los agentes visibles cambian según la parte de la app donde estés.</p>
-                  </div>
-                )}
-
-                {messages.map(message => (
-                  <div key={message.id} className={cn('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}>
-                    <div className={cn(
-                      'max-w-[86%] rounded-2xl px-3 py-2 text-sm leading-6',
-                      message.role === 'user'
-                        ? 'bg-red-600 text-white'
-                        : 'border border-slate-200 bg-white text-slate-800 shadow-sm'
-                    )}>
-                      {message.role === 'assistant' && message.agentName && (
-                        <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-red-600">{message.agentName}</p>
-                      )}
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                  </div>
-                ))}
-
-                {isSending && (
-                  <div className="flex justify-start">
-                    <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 shadow-sm">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Pensando...
-                    </div>
-                  </div>
-                )}
-                <div ref={endRef} />
-              </div>
-
-              <div className="border-t border-slate-100 p-3">
-                <div className="mb-2 flex flex-wrap gap-2">
-                  {quickPrompts.map(prompt => (
-                    <button
-                      key={prompt}
-                      type="button"
-                      onClick={() => handleSend(prompt)}
-                      className="rounded-full border border-red-100 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <Textarea
-                    value={input}
-                    onChange={event => setInput(event.target.value)}
-                    placeholder={`Hablar con ${style.short}...`}
-                    className="min-h-[44px] resize-none rounded-2xl"
-                    onKeyDown={event => {
-                      if (event.key === 'Enter' && !event.shiftKey) {
-                        event.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                  />
-                  <Button onClick={() => handleSend()} disabled={isSending || !input.trim()} className="h-auto rounded-2xl bg-red-600 hover:bg-red-700">
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </>
+
+      <div className={cn('flex items-center gap-2', dockSide === 'right' && 'flex-row-reverse')}>
+        <button
+          type="button"
+          aria-label="Abrir Asistente AK"
+          title="Abrir Asistente AK. Arrastrar hacia un lado para cambiar posicion."
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onClick={handleFabClick}
+          className="group relative flex h-14 w-14 touch-none items-center justify-center rounded-full bg-red-600 text-white shadow-2xl shadow-red-900/25 ring-4 ring-white transition hover:scale-105 hover:bg-red-700"
+        >
+          <Icon className="h-6 w-6" />
+          <GripVertical className="absolute h-4 w-4 translate-x-5 translate-y-4 opacity-70 transition group-hover:opacity-100" />
+        </button>
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          onClick={toggleSide}
+          title={sideButtonTitle}
+          className="h-10 w-10 rounded-full border-red-100 bg-white text-red-700 shadow-xl hover:bg-red-50"
+        >
+          <ArrowLeftRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   );
 }
