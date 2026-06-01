@@ -7,7 +7,7 @@
 
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
-import { sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
+import { roundMoney, sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
 
 export interface LedgerMonth {
   mes: string; // 'YYYY-MM'
@@ -50,24 +50,23 @@ export function calculateFinancialLedger(
 
   const getMes = (dateStr?: string): string => {
     if (!dateStr) return 'sin-fecha';
-    try {
-      return dateStr.slice(0, 7); // 'YYYY-MM'
-    } catch {
-      return 'sin-fecha';
-    }
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return 'sin-fecha';
+    return date.toISOString().slice(0, 7); // 'YYYY-MM'
   };
 
   // 1. Sumar ventas de facturas
   let ventasFacturadas = 0;
   let totalCobradoFacturas = 0;
   for (const inv of invoices) {
-    ventasFacturadas += inv.totalAmount ?? 0;
+    const invoiceTotal = roundMoney(inv.totalAmount);
+    ventasFacturadas += invoiceTotal;
     const mes = getMes(inv.issueDate);
     const m = getOrCreateMonth(mes);
-    m.ventas += inv.totalAmount ?? 0;
+    m.ventas += invoiceTotal;
 
     // Cobros desde invoice.payments
-    const cobrosInv = (inv.payments ?? []).reduce((s, p) => s + (p.amount ?? 0), 0);
+    const cobrosInv = (inv.payments ?? []).reduce((s, p) => s + roundMoney(p.amount), 0);
     totalCobradoFacturas += cobrosInv;
     m.cobros += cobrosInv;
   }
@@ -79,7 +78,7 @@ export function calculateFinancialLedger(
   let ventasPresupuestadas = 0;
   let totalCobradoPresupuestos = 0;
   for (const p of presupuestosAceptadosSinFactura) {
-    const total = p.totalConDescuento ?? p.costoTotalEstimado ?? 0;
+    const total = roundMoney(p.totalConDescuento ?? p.costoTotalEstimado);
     ventasPresupuestadas += total;
     const mes = getMes(p.eventoFecha || p.timestamp);
     const m = getOrCreateMonth(mes);
@@ -93,7 +92,7 @@ export function calculateFinancialLedger(
 
   const ventasTotales = ventasFacturadas + ventasPresupuestadas;
   const totalCobrado = totalCobradoFacturas + totalCobradoPresupuestos;
-  const saldoPendiente = ventasTotales - totalCobrado;
+  const saldoPendiente = Math.max(0, ventasTotales - totalCobrado);
 
   // Calcular saldo acumulado por mes
   const porMes = Array.from(monthMap.values())

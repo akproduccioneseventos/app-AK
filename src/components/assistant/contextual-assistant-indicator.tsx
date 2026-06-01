@@ -49,7 +49,7 @@ export function ContextualAssistantIndicator() {
   );
 
   return (
-    <div className="fixed bottom-6 right-24 z-50 hidden max-w-[290px] rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-xl backdrop-blur print:hidden lg:block">
+    <div className="fixed right-5 top-20 z-30 hidden max-w-[250px] rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur print:hidden xl:block">
       <div className="flex items-center gap-2">
         <button
           type="button"

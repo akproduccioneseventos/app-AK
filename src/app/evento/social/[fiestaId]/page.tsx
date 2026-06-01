@@ -185,6 +185,7 @@ const PostCard: React.FC<{
     addSuffix: true,
     locale: es,
   });
+  const postText = post.caption || post.dedication || post.momentTag;
 
   return (
     <motion.div
@@ -259,6 +260,12 @@ const PostCard: React.FC<{
               )}
             </div>
         </CardContent>
+        {postText && (
+          <div className="px-4 pt-4 text-sm leading-relaxed text-slate-700">
+            <span className="font-black text-slate-900">{post.authorName}</span>{' '}
+            {postText}
+          </div>
+        )}
         <CardFooter className="p-4 flex flex-col items-start gap-3">
             <div className="w-full flex justify-between items-center">
                 <div className="flex items-center gap-4">
@@ -423,8 +430,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [projectionMode, setProjectionMode] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  // Controls which section the guest is viewing (null = home button grid)
-  const [guestSection, setGuestSection] = useState<'photos' | 'song' | 'dedication' | 'chat' | 'poll' | 'game' | null>(null);
+  // Guests land directly in the feed; the home grid stays available from the header.
+  const [guestSection, setGuestSection] = useState<'photos' | 'song' | 'dedication' | 'chat' | 'poll' | 'game' | null>('photos');
 
 
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
@@ -1213,7 +1220,42 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
 
                 {/* ── Photos & Comments section ── */}
                 {guestSection === 'photos' && (
-                  <motion.div key="photos" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4">
+                  <motion.div key="photos" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
+                    <Card className="rounded-3xl border border-slate-100 bg-white shadow-md">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
+                            {(authorName || 'A').charAt(0).toUpperCase()}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIsUploadDialogOpen(true)}
+                            disabled={!authorName || !localSettings.uploadsActive}
+                            className="min-h-11 flex-1 rounded-full bg-slate-100 px-4 text-left text-sm font-semibold text-slate-500 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {localSettings.uploadsActive ? 'Compartir foto o video del evento' : 'Las publicaciones estan pausadas'}
+                          </button>
+                        </div>
+                        <div className="mt-3 flex items-center justify-around border-t border-slate-100 pt-3 text-xs font-bold text-slate-500">
+                          <button type="button" onClick={() => setIsUploadDialogOpen(true)} disabled={!localSettings.uploadsActive} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50 disabled:opacity-50">
+                            <CameraIcon className="h-4 w-4" style={{ color: accentColor }} />
+                            Foto/video
+                          </button>
+                          {localSettings.chatEnabled !== false && (
+                            <button type="button" onClick={() => setGuestSection('chat')} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50">
+                              <MessageSquare className="h-4 w-4" style={{ color: accentColor }} />
+                              Chat
+                            </button>
+                          )}
+                          {localSettings.showDedications !== false && (
+                            <button type="button" onClick={() => setGuestSection('dedication')} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50">
+                              <Heart className="h-4 w-4" style={{ color: accentColor }} />
+                              Dedicatoria
+                            </button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
                     {isLoading ? (
                       <div className="grid grid-cols-2 gap-3">
                         {Array.from({ length: 4 }).map((_, i) => (

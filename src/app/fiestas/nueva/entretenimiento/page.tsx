@@ -158,13 +158,13 @@ const STATION_IDS: StationId[] = ['fotocabina', 'plataforma360', 'bogue', 'espej
 const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ElementType }> = {
   fotocabina: {
     shortLabel: 'Fotocabina',
-    description: 'Captura fotos, GIFs y boomerangs con marca del evento, QR y galeria.',
+    description: 'Cabina social con fotos, GIFs, boomerangs, branding AK, QR, WhatsApp, galeria viva y salida para pantalla.',
     caption: 'Captura fotocabina',
     icon: Camera,
   },
   plataforma360: {
     shortLabel: 'Plataforma 360',
-    description: 'Control de clips 360 usando celular, subida rapida y salida lista para compartir.',
+    description: 'Clips 360 cinematicos con slow motion, speed ramp, intro/outro, overlay AK, QR instantaneo y muro social.',
     caption: 'Captura 360',
     icon: RotateCcw,
   },
@@ -176,7 +176,7 @@ const STATION_META: Record<StationId, { shortLabel: string; description: string;
   },
   espejoMagico: {
     shortLabel: 'Espejo magico',
-    description: 'Experiencia de espejo tactil con prompts, firma, dibujo, props y salida premium.',
+    description: 'Espejo interactivo premium con pantalla tactil, prompts, firma, dibujo, props, impresion y galeria QR.',
     caption: 'Captura Espejo Magico',
     icon: Sparkles,
   },
@@ -191,10 +191,10 @@ const CHANNELS = [
 ];
 
 const FEATURE_LIBRARY: Record<StationId, string[]> = {
-  fotocabina: ['Foto', 'GIF', 'Boomerang', 'Filtros', 'Marcos', 'Impresion'],
-  plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Musica', 'QR por video'],
+  fotocabina: ['Foto', 'GIF', 'Boomerang', 'Filtros', 'Marcos', 'Impresion', 'Galeria live', 'QR/WhatsApp'],
+  plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Musica', 'QR por video', 'Overlay animado', 'TV/LED'],
   bogue: ['Boomerang', 'Loop forward/reverse', 'Video corto', 'Musica', 'Overlay animado', 'QR por clip'],
-  espejoMagico: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos', 'Impresion', 'Galeria QR'],
+  espejoMagico: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos', 'Impresion', 'Galeria QR', 'Prompts animados', 'Lead capture'],
 };
 
 const MODERATION_LABELS: Record<ModerationMode, string> = {
@@ -218,10 +218,38 @@ const PRO_FLOW: Record<StationId, string[]> = {
 };
 
 const PRO_HIGHLIGHTS: Record<StationId, string[]> = {
-  fotocabina: ['Plantillas por evento', 'Filtros en vivo', 'Impresion opcional', 'Galeria QR', 'Datos de invitados'],
-  plataforma360: ['Slow motion', 'Speed ramp', 'Intro/outro', 'Overlay animado', 'Salida social'],
+  fotocabina: ['Plantillas por evento', 'Filtros en vivo', 'Impresion opcional', 'Galeria QR', 'Datos de invitados', 'Modo sharing station'],
+  plataforma360: ['Slow motion', 'Speed ramp', 'Intro/outro', 'Overlay animado', 'Salida social', 'Clip listo para reels'],
   bogue: ['Loop ida/vuelta', 'Clip rapido', 'Musica por evento', 'Overlay animado', 'Formato vertical'],
-  espejoMagico: ['Pantalla tactil', 'Firma y dibujo', 'Sellos/props', 'Prompts guiados', 'Experiencia premium'],
+  espejoMagico: ['Pantalla tactil', 'Firma y dibujo', 'Sellos/props', 'Prompts guiados', 'Experiencia premium', 'Recuerdo firmado'],
+};
+
+const MARKET_BENCHMARK_INSIGHTS = [
+  { label: 'Sparkbooth', detail: 'Layout editor, kiosk de impresion/compartir y modo espejo con animaciones.' },
+  { label: 'Touchpix', detail: 'Dashboard remoto, 6 modos de captura, QR, WhatsApp, offline queue y TV/AirPlay.' },
+  { label: 'Snappic', detail: '360 cinematico con slow motion, speed ramps, intros/outros y overlays de marca.' },
+  { label: 'Simple Booth', detail: 'Galerias live con branding, hashtag, performance movil y analitica de shares.' },
+];
+
+const AK_SUPERIORITY_STACK = [
+  'Un QR conecta invitado, galeria, muro social y pantalla LED.',
+  'Cada estacion nace con marca AK y marca del evento, no como proveedor suelto.',
+  'Modo operativo: responsable, checklist, plan B offline y estado en vivo.',
+  'Post-fiesta: recuerdos, galeria, material para redes y proxima venta.',
+];
+
+const BENCHMARK_FEATURES: Record<StationId, string[]> = {
+  fotocabina: ['Editor de layout', 'Kiosk/sharing station', 'Foto + GIF + boomerang', 'Impresion/QR', 'Galeria live con analytics'],
+  plataforma360: ['Bluetooth/trigger remoto', 'Slow motion + speed ramp', 'Intro/outro con marca', 'QR por video', 'TV/LED para descarga'],
+  bogue: ['Loop vertical rapido', 'Overlay animado', 'Musica corta', 'QR por clip', 'Formato historia/reel'],
+  espejoMagico: ['Modo espejo animado', 'Pantalla tactil', 'Firma/dibujo/stickers', 'Print premium', 'Galeria QR'],
+};
+
+const AK_SELLING_PROOF: Record<StationId, string[]> = {
+  fotocabina: ['La foto no queda aislada: entra a galeria, muro social y WhatsApp.', 'Sirve para recuerdos y tambien para capturar datos del cliente/invitado.'],
+  plataforma360: ['El clip se vende como contenido social premium, no solo como giro.', 'AK lo conecta a pantalla, QR y post-fiesta para multiplicar el impacto.'],
+  bogue: ['Ideal para momentos de pista: rapido, liviano y compartible.', 'Complementa la 360 cuando hay mucha gente y se necesita velocidad.'],
+  espejoMagico: ['Se siente como atraccion premium de entrada o recepcion.', 'El invitado participa, firma y se lleva un recuerdo con marca del evento.'],
 };
 
 const OUTPUT_FORMATS: Record<StationId, string> = {
@@ -358,15 +386,17 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
   const shared = [
     'Branding del evento cargado',
     'QR visible para invitados',
+    'WhatsApp / descarga probados',
     'Galeria y muro social abiertos',
     'Prueba de envio realizada',
+    'Plan B offline definido',
     'Responsable asignado',
   ];
   const specificByType: Record<StationId, string[]> = {
-    fotocabina: ['Plantilla de foto aprobada', 'Fondo o marco elegido', 'Impresora / salida digital verificada'],
-    plataforma360: ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha'],
+    fotocabina: ['Plantilla de foto aprobada', 'Fondo o marco elegido', 'Impresora / salida digital verificada', 'Modo sharing station listo'],
+    plataforma360: ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha', 'Intro/outro y musica probadas'],
     bogue: ['Duracion del loop configurada', 'Musica o sonido corto elegido', 'Prueba de ida y vuelta realizada'],
-    espejoMagico: ['Espejo/pantalla tactil limpia', 'Firma y sellos probados', 'Plantilla de impresion aprobada'],
+    espejoMagico: ['Espejo/pantalla tactil limpia', 'Firma y sellos probados', 'Plantilla de impresion aprobada', 'Prompts de bienvenida cargados'],
   };
   const specific = specificByType[type];
 
@@ -415,7 +445,7 @@ function makeProDefaults(type: StationId, eventName: string): Pick<
     templateName: `${eventName} - ${label} Pro`,
     brandText: eventName,
     footerText: 'AK Producciones',
-    qrCallout: 'Escanea y comparti tu recuerdo',
+    qrCallout: 'Escanea, descarga y comparti tu recuerdo',
     logoUrl: '',
     filterPreset: preset.filterPreset,
     musicTrack: preset.musicTrack,
@@ -425,7 +455,7 @@ function makeProDefaults(type: StationId, eventName: string): Pick<
     outputFormat: preset.outputFormat || OUTPUT_FORMATS[type],
     qualityPreset: preset.qualityPreset || (isVideoExperience ? 'Social HD 1080p' : 'Alta calidad + copia web'),
     sessionGoal: type === 'espejoMagico' ? 'Entrada premium y recuerdo firmado' : 'Contenido compartible durante la fiesta',
-    shareMessage: `Tu recuerdo de ${eventName} ya esta listo. Escanea el QR y compartilo con AK Producciones.`,
+    shareMessage: `Tu recuerdo de ${eventName} ya esta listo en la experiencia AK. Abrilo, descargalo y compartilo por WhatsApp.`,
     printCopies: type === 'fotocabina' || type === 'espejoMagico' ? 1 : 0,
     maxRetakes: type === 'espejoMagico' ? 2 : 1,
     estimatedDurationSeconds: type === 'plataforma360' ? 12 : type === 'bogue' ? 6 : 18,
@@ -435,8 +465,8 @@ function makeProDefaults(type: StationId, eventName: string): Pick<
     leadCaptureEnabled: type === 'espejoMagico' || type === 'fotocabina',
     analyticsEnabled: true,
     backupPlan: isVideoExperience
-      ? 'Guardar copia local en el celular y subir al volver internet.'
-      : 'Guardar original local y repetir con modo digital si falla impresion.',
+      ? 'Guardar copia local, mostrar QR general y subir la cola al volver internet.'
+      : 'Guardar original local, usar QR general y repetir con modo digital si falla impresion.',
     equipment: PRO_EQUIPMENT[type],
     guestFlow: PRO_FLOW[type],
     proHighlights: PRO_HIGHLIGHTS[type],
@@ -785,6 +815,35 @@ function StationPanel({
               <Gauge className="mb-2 h-5 w-5 text-amber-600" />
               <p className="text-2xl font-black text-slate-950">{station.estimatedDurationSeconds}s</p>
               <p className="text-xs font-black uppercase tracking-widest text-slate-400">Sesion</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[.9fr_1.1fr]">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Gauge className="h-5 w-5 text-slate-700" />
+                <p className="text-xs font-black uppercase tracking-widest text-slate-500">Benchmark mercado</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {BENCHMARK_FEATURES[station.id].map((feature) => (
+                  <span key={feature} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600">
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-emerald-700" />
+                <p className="text-xs font-black uppercase tracking-widest text-emerald-800">Ventaja AK superior</p>
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                {AK_SELLING_PROOF[station.id].map((proof) => (
+                  <div key={proof} className="rounded-xl bg-white/80 px-3 py-2 text-sm font-bold leading-relaxed text-emerald-900">
+                    {proof}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -1377,7 +1436,7 @@ function EntretenimientoContent() {
                 Entretenimiento
               </h1>
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-slate-500 sm:text-base">
-                Fotocabina, Plataforma 360, Bogue y Espejo Magico como estaciones profesionales conectadas al evento, al QR y al muro social.
+                Fotocabina, Plataforma 360, Bogue y Espejo Magico como estaciones profesionales conectadas al evento, al QR, WhatsApp, pantalla LED, galeria y muro social.
               </p>
             </div>
           </div>
@@ -1428,6 +1487,19 @@ function EntretenimientoContent() {
                     <p className="text-xs font-black uppercase tracking-widest text-slate-400">Estaciones</p>
                   </div>
                 </div>
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-violet-600" />
+                    <p className="text-xs font-black uppercase tracking-widest text-slate-500">Modelo AK frente al mercado</p>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {AK_SUPERIORITY_STACK.map((item) => (
+                      <div key={item} className="rounded-2xl bg-white px-4 py-3 text-sm font-bold leading-relaxed text-slate-700">
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl">
@@ -1472,6 +1544,17 @@ function EntretenimientoContent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-700">Referencias usadas como benchmark</p>
+                <div className="grid gap-2">
+                  {MARKET_BENCHMARK_INSIGHTS.map((item) => (
+                    <div key={item.label} className="rounded-xl bg-white px-3 py-2">
+                      <p className="text-sm font-black text-slate-900">{item.label}</p>
+                      <p className="text-xs font-semibold leading-relaxed text-slate-500">{item.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="mx-auto flex w-fit rounded-3xl border border-slate-200 bg-white p-4 shadow-lg">
                 <QRCodeSVG value={data.galleryUrl || `${origin}/evento/social/${fiestaId}`} size={168} />
               </div>

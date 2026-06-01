@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# Deploy trigger: 2026-03-30T01:10:00Z — force Firebase App Hosting rebuild
+# Deploy trigger: 2026-03-30T01:10:00Z - force Firebase App Hosting rebuild
 
 runConfig:
   cpu: 1
@@ -16,7 +16,7 @@ env:
       - RUNTIME
       - BUILD
 
-  # ── Firebase project identifiers (derivable from project ID) ─────────────
+  # Firebase project identifiers.
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "presupuestador-ak-producciones"
     availability:
@@ -61,6 +61,7 @@ env:
     secret: google-api-key
     availability:
       - RUNTIME
+
   - variable: GEMINI_MODEL
     value: "googleai/gemini-3-flash-preview"
     availability:
@@ -85,4 +86,22 @@ env:
     value: "googleai/gemini-3-flash-preview"
     availability:
       - BUILD
+      - RUNTIME
+
+  # Google Workspace OAuth is optional. Do not declare client secrets here unless
+  # they already exist in Secret Manager and App Hosting has been granted access.
+  # Declaring a missing or unauthorized secret makes Firebase App Hosting fail
+  # before the app build starts.
+  #
+  # To enable Calendar/Gmail sync later:
+  # 1) create the secrets google-client-id and google-client-secret
+  # 2) grant App Hosting access with firebase apphosting:secrets:grantaccess
+  # 3) restore GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET as secret variables.
+  - variable: GOOGLE_OAUTH_REDIRECT_PATH
+    value: "/api/google/oauth/callback"
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_WORKSPACE_CALENDAR_ID
+    value: "primary"
+    availability:
       - RUNTIME

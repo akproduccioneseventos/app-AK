@@ -261,6 +261,8 @@ const SidebarTrigger = React.forwardRef<
   return (
     <Button
       ref={ref}
+      type="button"
+      aria-label="Abrir menu lateral"
       data-sidebar="trigger"
       variant="ghost"
       size="icon"

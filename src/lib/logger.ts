@@ -11,6 +11,10 @@ export function isBuildTime(): boolean {
   return process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
 }
 
+export function shouldSkipFirestoreDuringBuild(): boolean {
+  return isBuildTime() && process.env.AK_ALLOW_FIRESTORE_DURING_BUILD !== 'true';
+}
+
 export function isDefaultCredentialError(value: unknown): boolean {
   const message = value instanceof Error ? value.message : String(value ?? '');
   return message.includes('Could not load the default credentials');

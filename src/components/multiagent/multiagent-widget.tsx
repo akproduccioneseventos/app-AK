@@ -293,10 +293,10 @@ export function MultiAgentWidget() {
   const sideButtonTitle = dockSide === 'left' ? 'Mover asistente a la derecha' : 'Mover asistente a la izquierda';
 
   return (
-    <div className={cn('fixed bottom-5 z-50 flex flex-col gap-3 print:hidden', sidePosition)}>
+    <div className={cn('fixed bottom-5 z-[70] flex flex-col gap-3 print:hidden', sidePosition)}>
       {isOpen && (
-        <Card className="flex h-[min(78vh,680px)] w-[calc(100vw-1.5rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border-red-100 bg-white shadow-2xl">
-          <CardHeader className="border-b border-red-100 bg-gradient-to-r from-red-600 to-red-800 p-4 text-white">
+        <Card className="flex h-[min(78vh,680px)] w-[calc(100vw-1.5rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border-slate-200 bg-white shadow-2xl">
+          <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-800 p-4 text-white">
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
@@ -304,7 +304,7 @@ export function MultiAgentWidget() {
                 </div>
                 <div className="min-w-0">
                   <CardTitle className="truncate text-base font-black">{style.label}</CardTitle>
-                  <p className="truncate text-xs text-red-50">{style.description}</p>
+                  <p className="truncate text-xs text-indigo-50">{style.description}</p>
                 </div>
               </div>
               <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 rounded-full text-white hover:bg-white/15" onClick={() => setIsOpen(false)} title="Cerrar chat">
@@ -313,7 +313,7 @@ export function MultiAgentWidget() {
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
-              <Badge className="bg-white text-red-700 hover:bg-white">{style.badge}</Badge>
+              <Badge className="bg-white text-indigo-700 hover:bg-white">{style.badge}</Badge>
               {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Especialista de pantalla</Badge>}
               {fiestaId && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
               <Badge className="bg-white/15 text-white hover:bg-white/15">Manual + memoria</Badge>
@@ -333,7 +333,7 @@ export function MultiAgentWidget() {
                     className={cn(
                       'flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-black transition',
                       active
-                        ? 'border-white bg-white text-red-700'
+                        ? 'border-white bg-white text-indigo-700'
                         : 'border-white/25 bg-white/10 text-white hover:bg-white/20'
                     )}
                   >
@@ -348,7 +348,7 @@ export function MultiAgentWidget() {
           <CardContent className="flex min-h-0 flex-1 flex-col p-0">
             <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {visibleMessages.length === 0 && (
-                <div className="rounded-xl border border-red-100 bg-red-50/70 p-4 text-sm leading-6 text-slate-700">
+                <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 text-sm leading-6 text-slate-700">
                   <p className="font-bold text-slate-950">{style.label} listo.</p>
                   <p className="mt-1">Estoy usando el manual AK, la memoria del agente y los datos reales visibles de este modulo.</p>
                 </div>
@@ -359,11 +359,11 @@ export function MultiAgentWidget() {
                   <div className={cn(
                     'max-w-[86%] rounded-2xl px-3 py-2 text-sm leading-6',
                     message.role === 'user'
-                      ? 'bg-red-600 text-white'
+                      ? 'bg-slate-900 text-white'
                       : 'border border-slate-200 bg-white text-slate-800 shadow-sm'
                   )}>
                     {message.role === 'assistant' && message.agentName && (
-                      <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-red-600">{message.agentName}</p>
+                      <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-indigo-600">{message.agentName}</p>
                     )}
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   </div>
@@ -387,7 +387,7 @@ export function MultiAgentWidget() {
                     key={prompt}
                     type="button"
                     onClick={() => handleSend(prompt)}
-                    className="h-8 shrink-0 rounded-full border border-red-100 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:bg-red-100"
+                    className="h-8 shrink-0 rounded-full border border-indigo-100 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
                   >
                     {prompt}
                   </button>
@@ -406,7 +406,7 @@ export function MultiAgentWidget() {
                     }
                   }}
                 />
-                <Button onClick={() => handleSend()} disabled={isSending || !input.trim()} className="h-auto rounded-2xl bg-red-600 hover:bg-red-700" title="Enviar">
+                <Button onClick={() => handleSend()} disabled={isSending || !input.trim()} className="h-auto rounded-2xl bg-slate-900 hover:bg-indigo-700" title="Enviar">
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
@@ -424,7 +424,7 @@ export function MultiAgentWidget() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onClick={handleFabClick}
-          className="group relative flex h-14 w-14 touch-none items-center justify-center rounded-full bg-red-600 text-white shadow-2xl shadow-red-900/25 ring-4 ring-white transition hover:scale-105 hover:bg-red-700"
+          className="group relative flex h-14 w-14 touch-none items-center justify-center rounded-full bg-slate-900 text-white shadow-2xl shadow-slate-900/25 ring-4 ring-white transition hover:scale-105 hover:bg-indigo-700"
         >
           <Icon className="h-6 w-6" />
           <GripVertical className="absolute h-4 w-4 translate-x-5 translate-y-4 opacity-70 transition group-hover:opacity-100" />
@@ -435,7 +435,7 @@ export function MultiAgentWidget() {
           variant="outline"
           onClick={toggleSide}
           title={sideButtonTitle}
-          className="h-10 w-10 rounded-full border-red-100 bg-white text-red-700 shadow-xl hover:bg-red-50"
+          className="h-10 w-10 rounded-full border-slate-200 bg-white text-indigo-700 shadow-xl hover:bg-indigo-50"
         >
           <ArrowLeftRight className="h-4 w-4" />
         </Button>

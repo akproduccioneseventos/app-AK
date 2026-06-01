@@ -26,7 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
-import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { calculateBudgetFinancials, getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -181,6 +181,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const adjustmentPct = presupuesto?.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
   const calculatedValues = useMemo(() => {
     if (!presupuesto) return { itemsAgrupados: {}, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };
+    const financials = calculateBudgetFinancials(presupuesto, { preserveStoredTotal: true });
   
     const adultos = presupuesto.invitadosAdultos || 0;
     const adolescentes = presupuesto.invitadosAdolescentes || 0;
@@ -201,7 +202,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (presupuesto.descuentoTipo === 'porcentaje') bonificacion = (brutoVenta * (presupuesto.descuentoValor || 0)) / 100;
     else if (presupuesto.descuentoTipo === 'fijo') bonificacion = presupuesto.descuentoValor || 0;
 
-    const totalSinAjuste = brutoVenta - bonificacion;
+    const totalSinAjuste = Math.max(0, brutoVenta - bonificacion);
     
     let ajuste = 0;
     let anios = 0;
@@ -232,9 +233,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       itemsAgrupados: sortedAgrupados,
       subtotalBruto: brutoVenta + regalosVal,
       ahorroRegalos: Math.round(regalosVal),
-      bonificacionPromo: Math.round(bonificacion),
+      bonificacionPromo: financials.discount || Math.round(bonificacion),
       ajusteAnual: Math.round(ajuste),
-      totalFinal: Math.round(totalSinAjuste + ajuste),
+      totalFinal: financials.total || Math.round(totalSinAjuste + ajuste),
       aniosDiferencia: anios
     };
   }, [presupuesto, adjustmentPct]);
@@ -451,6 +452,17 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 0;
   const isBorrador = presupuesto.estado === 'Borrador';
+  const accessMode = (searchParams.get('mode') || searchParams.get('modo') || '').toLowerCase();
+  const isPublicBudgetAccess =
+    searchParams.has('token') ||
+    searchParams.get('public') === '1' ||
+    searchParams.get('cliente') === '1' ||
+    searchParams.get('guest') === '1' ||
+    ['cliente', 'client', 'publico', 'public', 'invitado', 'guest'].includes(accessMode);
+  const isGuestBudgetAccess = searchParams.get('guest') === '1' || ['invitado', 'guest'].includes(accessMode);
+  const isOperatorBudgetAccess = !isPublicBudgetAccess;
+  const shouldShowClientContractingActions = !isBorrador && !isGuestBudgetAccess;
+  const shouldShowClientBudgetActions = isPublicBudgetAccess && shouldShowClientContractingActions;
   const shouldShowBudgetSignatures =
     presupuesto.estado === 'Aceptado' ||
     presupuesto.estado === 'Facturado' ||
@@ -459,6 +471,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 print:min-h-0 font-sans">
         {/* ── QUICK ACTION BAR ────────────────────────────────── */}
+        {isOperatorBudgetAccess && (
+        <>
         <div className="print:hidden max-w-3xl mx-auto px-4 mb-4">
           <div className="bg-white rounded-2xl shadow-md px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -579,10 +593,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           </div>
         </div>
 
+        </>
+        )}
+
         <div className="max-w-3xl mx-auto space-y-8 px-2 sm:px-4 print:px-0">
 
             {/* AUDIT PANEL — shown when user clicks "Auditar presupuesto" */}
-            {showAudit && auditResult && (
+            {isOperatorBudgetAccess && showAudit && auditResult && (
               <div className="print:hidden bg-white rounded-2xl shadow-lg p-5 space-y-4 border border-violet-100" data-testid="audit-panel">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -650,7 +667,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             )}
 
             {/* SANITY CHECK BANNER — shown when estado is 'Pendiente Verificación' */}
-            {presupuesto.estado === 'Pendiente Verificación' && (
+            {isOperatorBudgetAccess && presupuesto.estado === 'Pendiente Verificación' && (
               <div className="print:hidden bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-lg text-white">
                 <div className="flex items-center gap-3 flex-1">
                   <ShieldAlert className="w-8 h-8 shrink-0 text-white" />
@@ -684,6 +701,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             )}
             
             {/* SECCIÓN VENTA PRO */}
+            {shouldShowClientBudgetActions && (
+            <>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="print:hidden">
                 <Card className="border-none shadow-2xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
                     <CardContent className="p-6 sm:p-12 flex flex-col items-center text-center space-y-8">
@@ -880,6 +899,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             </motion.div>
 
             {/* ═══ PRINTABLE DOCUMENT — Classic Invoice Format ═══ */}
+            </>
+            )}
+
             <div className="ver-budget-print-document bg-white print:bg-white">
               {/* Wrapping table for repeating thead/tfoot on each print page */}
               <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>

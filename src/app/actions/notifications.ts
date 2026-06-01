@@ -29,6 +29,15 @@ function generateNotifId(): string {
   return `notif_${uuid}`;
 }
 
+function isRecentDuplicateNotification(existing: Notificacion[], data: Omit<Notificacion, 'id' | 'fecha' | 'leida'>) {
+  const cutoff = Date.now() - 18 * 60 * 60 * 1000;
+  return existing.find((notification) => {
+    const date = new Date(notification.fecha).getTime();
+    if (!Number.isFinite(date) || date < cutoff) return false;
+    return notification.mensaje === data.mensaje && (notification.href || '') === (data.href || '');
+  });
+}
+
 // ============================================================
 // CORE CRUD – Firestore primary, local-file fallback
 // ============================================================
@@ -62,6 +71,13 @@ export async function getNotifications(): Promise<Notificacion[]> {
 export async function createNotification(
   data: Omit<Notificacion, 'id' | 'fecha' | 'leida'>
 ): Promise<{ success: boolean; notification?: Notificacion; error?: string }> {
+  try {
+    const existing = isRecentDuplicateNotification(await getNotifications(), data);
+    if (existing) return { success: true, notification: existing };
+  } catch {
+    // If duplicate lookup fails, continue with the normal create path.
+  }
+
   const newNotification: Notificacion = {
     ...data,
     id: generateNotifId(),
