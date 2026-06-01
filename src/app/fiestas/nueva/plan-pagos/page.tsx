@@ -18,6 +18,7 @@ import { approveClientPayment, rejectClientPayment } from '@/app/actions/fiesta/
 import type { PlanDePagos, CuotaPlanPago, PlanPagoEstadoCuota, ClientPaymentNotification } from '@/types/fiesta';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
 function PlanPagosContent() {
   const searchParams = useSearchParams();
@@ -92,13 +93,7 @@ function PlanPagosContent() {
     }
   };
 
-  const totalMonto = cuotas.reduce((sum, c) => sum + c.monto, 0);
-  const totalPagado = cuotas.reduce((sum, c) => {
-    if (c.estado === 'pagado') return sum + c.monto;
-    if (c.estado === 'parcial') return sum + (c.montoPagado ?? 0);
-    return sum;
-  }, 0);
-  const saldo = totalMonto - totalPagado;
+  const paymentSummary = getPaymentPlanSummary(cuotas);
 
   const addCuota = () => {
     const newCuota: CuotaPlanPago = {
@@ -112,7 +107,10 @@ function PlanPagosContent() {
   };
 
   const updateCuota = (id: string, field: keyof CuotaPlanPago, value: string | number) => {
-    setCuotas(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
+    const safeValue = field === 'monto' || field === 'montoPagado'
+      ? Math.max(0, Math.round(Number(value) || 0))
+      : value;
+    setCuotas(prev => prev.map(c => c.id === id ? { ...c, [field]: safeValue } : c));
   };
 
   const removeCuota = (id: string) => {
@@ -200,19 +198,19 @@ function PlanPagosContent() {
         <Card className="shadow-sm">
           <CardContent className="pt-4 pb-4 text-center">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Total</p>
-            <p className="text-2xl font-bold">${totalMonto.toLocaleString('es-UY')}</p>
+            <p className="text-2xl font-bold">${paymentSummary.total.toLocaleString('es-UY')}</p>
           </CardContent>
         </Card>
         <Card className="shadow-sm border-green-200">
           <CardContent className="pt-4 pb-4 text-center">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Pagado</p>
-            <p className="text-2xl font-bold text-green-600">${totalPagado.toLocaleString('es-UY')}</p>
+            <p className="text-2xl font-bold text-green-600">${paymentSummary.paid.toLocaleString('es-UY')}</p>
           </CardContent>
         </Card>
         <Card className="shadow-sm border-orange-200">
           <CardContent className="pt-4 pb-4 text-center">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Saldo</p>
-            <p className="text-2xl font-bold text-orange-600">${saldo.toLocaleString('es-UY')}</p>
+            <p className="text-2xl font-bold text-orange-600">${paymentSummary.balance.toLocaleString('es-UY')}</p>
           </CardContent>
         </Card>
       </div>
@@ -286,6 +284,19 @@ function PlanPagosContent() {
                       </SelectContent>
                     </Select>
                   </div>
+                  {cuota.estado === 'parcial' && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Monto pagado ($)</Label>
+                      <Input
+                        type="number"
+                        value={cuota.montoPagado ?? 0}
+                        min="0"
+                        max={cuota.monto}
+                        onChange={e => updateCuota(cuota.id, 'montoPagado', parseFloat(e.target.value) || 0)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                  )}
                 </div>
                 {cuota.estado !== 'pagado' && (
                   <Button

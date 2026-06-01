@@ -387,7 +387,11 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
                           {pago.referencia || '—'}
                         </TableCell>
                         <TableCell className="py-3">
-                          {pago.estadoPago === 'pendiente_confirmacion' ? (
+                          {pago.estadoPago === 'rechazado' ? (
+                            <Badge className="bg-red-100 text-red-700 text-[8px] font-bold flex items-center gap-0.5 w-fit">
+                              <AlertCircle className="w-2.5 h-2.5" /> Rechazado
+                            </Badge>
+                          ) : pago.estadoPago === 'pendiente_confirmacion' ? (
                             <Badge className="bg-amber-100 text-amber-700 text-[8px] font-bold flex items-center gap-0.5 w-fit">
                               <Clock className="w-2.5 h-2.5" /> Pendiente
                             </Badge>
@@ -397,7 +401,7 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="pr-4 py-3 text-right font-bold text-emerald-700">
+                        <TableCell className={`pr-4 py-3 text-right font-bold ${pago.estadoPago === 'rechazado' ? 'text-red-600 line-through' : 'text-emerald-700'}`}>
                           {formatCurrency(pago.monto)}
                         </TableCell>
                       </TableRow>

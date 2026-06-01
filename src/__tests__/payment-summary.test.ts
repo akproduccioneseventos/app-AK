@@ -1,4 +1,4 @@
-import { getPaymentSummary } from '@/lib/budget/payment-summary';
+import { getPaymentPlanSummary, getPaymentSummary } from '@/lib/budget/payment-summary';
 
 describe('getPaymentSummary', () => {
   it('calculates paid, balance and counts', () => {
@@ -31,5 +31,17 @@ describe('getPaymentSummary', () => {
     ], new Date('2026-01-01'));
 
     expect(summary.overdueCount).toBe(1);
+  });
+
+  it('rounds and clamps plan installments before calculating balance', () => {
+    const summary = getPaymentPlanSummary([
+      { monto: 100.4, estado: 'pagado' },
+      { monto: 200, estado: 'parcial', montoPagado: 999 },
+      { monto: -50, estado: 'pagado' },
+    ]);
+
+    expect(summary.total).toBe(300);
+    expect(summary.paid).toBe(300);
+    expect(summary.balance).toBe(0);
   });
 });

@@ -115,6 +115,10 @@ type ServicioDetallado = {
 type PriceStats = {
   subtotalVenta: number;
   totalFinal: number;
+  totalProyectado: number;
+  ajusteAnual: number;
+  aniosDiferencia: number;
+  eventYear: number;
   descPromo: number;
   ahorroRegalos: number;
   detallados: ServicioDetallado[];
@@ -153,7 +157,7 @@ const PACKAGE_META: Record<PackageType, { label: string; description: string; mu
   premium:    { label: 'Premium',    description: 'Nivel alto, todo incluido',           multiplier: 1.80 },
 };
 
-const DISCOUNT_RATE = 0.10; // 10% as a decimal (0.10 = 10%)
+const DISCOUNT_RATE = 0.15; // 15% as a decimal, aligned with the standard simulator
 
 // ─── Pricing Helpers ──────────────────────────────────────────────────────────
 
@@ -464,8 +468,19 @@ export default function SimuladorAKPage() {
     const currentYear = new Date().getFullYear();
     const aniosDif = Math.max(0, eventYear - currentYear);
     const annualMultiplier = 1 + ((annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) / 100);
-    const totalFinal = Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
-    return { subtotalVenta: Math.round(totalRegular), totalFinal, descPromo, ahorroRegalos, detallados };
+    const totalFinal = Math.round(totalSinAjuste);
+    const totalProyectado = Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
+    return {
+      subtotalVenta: Math.round(totalRegular),
+      totalFinal,
+      totalProyectado,
+      ajusteAnual: Math.max(0, totalProyectado - totalFinal),
+      aniosDiferencia: aniosDif,
+      eventYear,
+      descPromo,
+      ahorroRegalos,
+      detallados,
+    };
   }, [config, state, allSimuladorServices, serviciosCatalogo, annualAdjustmentPercentage]);
 
   // Rough price estimate for steps before package selection
@@ -589,10 +604,7 @@ export default function SimuladorAKPage() {
     });
     const descPromo = Math.round(totalRegular * DISCOUNT_RATE);
     const totalSinAjuste = totalRegular - descPromo;
-    const eventYear = state.eventoFecha ? new Date(state.eventoFecha).getFullYear() : new Date().getFullYear();
-    const aniosDif = Math.max(0, eventYear - new Date().getFullYear());
-    const annualMultiplier = 1 + ((annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) / 100);
-    return Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
+    return Math.round(totalSinAjuste);
   }, [config, state, allSimuladorServices, serviciosCatalogo, annualAdjustmentPercentage]);
 
   const allPackagePricesMap = useMemo<Record<string, number>>(() => {
@@ -726,7 +738,7 @@ export default function SimuladorAKPage() {
       eventMeta ? `Tipo: ${eventMeta.label}` : '',
       `Invitados: ${state.adultos + state.ninos} personas`,
       pkgMeta ? `Paquete: ${pkgMeta}` : '',
-      priceStats ? `Total estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
+      priceStats ? `Precio vigente estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
       generatedId ? `Nro presupuesto: ${generatedId}` : '',
       generatedId ? `Link: ${window.location.origin}/presupuestos/${generatedId}/ver` : '',
       `\nMe gustaría coordinar una reunión para cerrar los detalles 🎉`,
@@ -1752,11 +1764,17 @@ function StepConversion({
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-amber-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Bonificación especial (10%)</span>
+                <span className="text-amber-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Bonificación especial ({Math.round(DISCOUNT_RATE * 100)}%)</span>
                 <span className="text-amber-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
               </div>
+              {prices.ajusteAnual > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-blue-300">Referencia {prices.eventYear} con ajuste</span>
+                  <span className="text-blue-200 font-bold">{formatCurrency(prices.totalProyectado)}</span>
+                </div>
+              )}
               <div className="border-t border-white/10 pt-2 flex justify-between">
-                <span className="text-white font-black">TOTAL FINAL</span>
+                <span className="text-white font-black">PRECIO VIGENTE</span>
                 <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
               </div>
             </div>
@@ -1771,8 +1789,7 @@ function StepConversion({
 
       <div className="bg-blue-500/15 border border-blue-400/30 rounded-2xl p-4">
         <p className="text-blue-100 text-sm">
-          📅 <strong>Precios {currentYear}</strong> — Este presupuesto refleja los precios vigentes del año actual.
-          Para eventos en años posteriores, se aplica un ajuste anual del <strong>{annualAdjustmentPercentage}%</strong> (configurable).
+          Precios {currentYear}: el presupuesto se guarda con precio vigente. Para eventos futuros se muestra una referencia separada con ajuste anual del <strong>{annualAdjustmentPercentage}%</strong>.
         </p>
       </div>
 

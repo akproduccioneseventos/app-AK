@@ -3,6 +3,7 @@
 import type { PlanDePagos, CuotaPlanPago, FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 import { notifyClientPaymentApproved } from './google-workspace-extended';
+import { roundMoney } from '@/lib/budget/financial-guardrails';
 
 function buildMontevideoPaymentTimestamp(fechaPago?: string) {
   if (!fechaPago) return new Date().toISOString();
@@ -10,6 +11,29 @@ function buildMontevideoPaymentTimestamp(fechaPago?: string) {
     return `${fechaPago}T12:00:00-03:00`;
   }
   return fechaPago;
+}
+
+function normalizeCuotaPlanPago(cuota: CuotaPlanPago): CuotaPlanPago {
+  const monto = roundMoney(cuota.monto);
+  const rawPaid = cuota.estado === 'pagado'
+    ? monto
+    : roundMoney(cuota.montoPagado);
+  const clampedPaid = Math.min(monto, rawPaid);
+  let estado = cuota.estado;
+
+  if (estado === 'parcial' && clampedPaid <= 0) estado = 'pendiente';
+  if ((estado === 'parcial' || estado === 'pagado') && monto > 0 && clampedPaid >= monto) estado = 'pagado';
+
+  return {
+    ...cuota,
+    monto,
+    estado,
+    montoPagado: estado === 'pagado'
+      ? monto
+      : estado === 'parcial'
+        ? clampedPaid
+        : undefined,
+  };
 }
 
 export async function getPlanDePagos(
@@ -30,8 +54,10 @@ export async function savePlanDePagos(
 
     const now = new Date().toISOString();
     const existingPlan = fiesta.planDePagos;
+    const normalizedCuotas = (plan.cuotas ?? []).map(normalizeCuotaPlanPago);
     const newPlan: PlanDePagos = {
       ...plan,
+      cuotas: normalizedCuotas,
       id: existingPlan?.id ?? `plan_${Date.now()}`,
       fiestaId,
       createdAt: existingPlan?.createdAt ?? now,
@@ -56,7 +82,7 @@ export async function updateCuotaEstado(
     if (!fiesta || !fiesta.planDePagos) return { success: false, error: 'Plan de pagos no encontrado' };
 
     const updatedCuotas = fiesta.planDePagos.cuotas.map(c =>
-      c.id === cuotaId ? { ...c, ...updates } : c
+      normalizeCuotaPlanPago(c.id === cuotaId ? { ...c, ...updates } : c)
     );
     const updatedPlan: PlanDePagos = {
       ...fiesta.planDePagos,

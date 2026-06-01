@@ -26,7 +26,7 @@ import { getInvoiceTemplateSettings, getCompanyInfo, getContractSettings } from 
 import Image from 'next/image';
 import { fillContractTemplate, buildContractFromSettings } from '@/lib/contract-template';
 import type { ContractSettings } from '@/types/settings';
-import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { getBudgetPaymentSummary, isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -148,13 +148,13 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
   const { totalCosto, totalPagado, saldoPendiente, pagos } = useMemo(() => {
     if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[] };
-    const pagosList: PagoCliente[] = presupuesto.pagosCliente || [];
+    const pagosList: PagoCliente[] = (presupuesto.pagosCliente || []).filter(isConfirmedClientPayment);
     const summary = getBudgetPaymentSummary(presupuesto);
     return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance, pagos: pagosList };
   }, [presupuesto]);
 
   /** Build the first seña amount from the first recorded payment, or default to 0. */
-  const montoSenia = pagos.find((p) => p.estadoPago !== 'pendiente_confirmacion')?.monto ?? 0;
+  const montoSenia = pagos.find(isConfirmedClientPayment)?.monto ?? 0;
   const presupuestoWithClientFields = presupuesto as (Presupuesto & { clienteCi?: string; clienteDomicilio?: string }) | null;
   const overriddenNombre = searchParams.get('nombre') || presupuesto?.clienteNombre || '';
   const overriddenTelefono = searchParams.get('telefono') || presupuesto?.clienteContacto || '';

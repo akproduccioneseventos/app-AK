@@ -19,6 +19,7 @@ import { getInvoiceById } from '@/app/actions/invoices';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge as InvoiceStatusBadge } from '@/components/status-badge';
+import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 
 const formatCurrency = (amount?: number, currency: string = 'UYU') => {
   if (amount === undefined || isNaN(amount)) return "N/A";
@@ -104,9 +105,9 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
         facturasFiesta.forEach(factura => {
           totalPagadoFacturas += factura.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
         });
-        const pagosConfirmados = (presupuestoFiesta?.pagosCliente || []).filter((p) => p.estadoPago !== 'pendiente_confirmacion').length;
+        const pagosConfirmados = (presupuestoFiesta?.pagosCliente || []).filter(isConfirmedClientPayment).length;
         const totalPagadoDesdePresupuesto = (presupuestoFiesta?.pagosCliente || [])
-          .filter((p) => p.estadoPago !== 'pendiente_confirmacion')
+          .filter(isConfirmedClientPayment)
           .reduce((sum, p) => sum + p.monto, 0);
         const hasBudgetPayments = totalPagadoDesdePresupuesto > 0;
         const hasInvoicePayments = totalPagadoFacturas > 0;

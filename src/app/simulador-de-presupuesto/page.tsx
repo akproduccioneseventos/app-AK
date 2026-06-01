@@ -46,10 +46,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
 import { MarketingBanner } from '@/components/marketing-banner';
+import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
+const safeImageUrl = (url?: string): string | undefined => {
+    if (!url) return undefined;
+    if (url.startsWith('/')) return url;
+    try {
+        const parsed = new URL(url);
+        return ['http:', 'https:'].includes(parsed.protocol) ? url : undefined;
+    } catch {
+        return undefined;
+    }
 };
 
 function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): { qty: number, unitPrice: number, total: number } {
@@ -112,6 +124,8 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
+        imageUrl: getCateringDishImage(item),
+        isFeatured: item.isFeatured,
     };
 };
 
@@ -156,6 +170,7 @@ interface ServicioDetallado {
   categoria: string;
   calculationMethod?: string;
   esRecomendado?: boolean;
+  imageUrl?: string;
 }
 
 /** Returns true if the category or calculation method indicates a per-person food/catering item. */
@@ -222,17 +237,21 @@ function SimuladorContent() {
         const sortDishes = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const setA = getPlatoSettings(a.id);
             const setB = getPlatoSettings(b.id);
-            // Primero recomendados
-            if (setA.recommended && !setB.recommended) return -1;
-            if (!setA.recommended && setB.recommended) return 1;
-            // Luego por precio
+            const featuredA = Boolean(a.isFeatured || setA.recommended);
+            const featuredB = Boolean(b.isFeatured || setB.recommended);
+            if (featuredA && !featuredB) return -1;
+            if (!featuredA && featuredB) return 1;
             const pA = a.precioPorPersona || a.precioVenta || 0;
             const pB = b.precioPorPersona || b.precioVenta || 0;
-            return pA - pB;
+            return pB - pA;
         };
     
         const allDishes = Array.from(
-            allMenus.flatMap(m => m.items)
+            allMenus.flatMap(menu => (menu.items || []).map(dish => ({
+                ...dish,
+                imageUrl: getCateringDishImage(dish) || getCateringMenuImage(menu),
+                isFeatured: Boolean(dish.isFeatured || menu.featured),
+            })))
             .reduce((map, dish) => {
                 if (!map.has(dish.id)) { map.set(dish.id, dish); }
                 return map;
@@ -335,7 +354,7 @@ function SimuladorContent() {
 
     const stats = useMemo(() => {
         if (!config || !allSimuladorServices.length) {
-            return { subtotalBruto: 0, subtotalVenta: 0, descPromo: 0, ahorroRegalos: 0, totalSinAjuste: 0, ajusteAnual: 0, totalFinal: 0, aniosDiferencia: 0, agrupados: {}, detallados: [] };
+            return { subtotalBruto: 0, subtotalVenta: 0, descPromo: 0, ahorroRegalos: 0, totalSinAjuste: 0, ajusteAnual: 0, totalFinal: 0, totalProyectado: 0, aniosDiferencia: 0, eventYear: currentYear, agrupados: {}, detallados: [] };
         }
 
         const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
@@ -387,13 +406,18 @@ function SimuladorContent() {
                 costoTotal: total, 
                 categoria: (esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Varios')) as string,
                 calculationMethod: servicio.calculationMethod,
-                esRecomendado: recommendedIds.has(servicio.id),
+                esRecomendado: recommendedIds.has(servicio.id) || Boolean(servicio.isFeatured),
+                imageUrl: safeImageUrl(servicio.imageUrl),
             });
         });
         
-        const descPromo = totalRegular * 0.10;
+        const descPromo = totalRegular * ((config.descuentoGeneral ?? 15) / 100);
         const totalSinAjuste = totalRegular - descPromo;
         const totalFinal = totalSinAjuste;
+        const eventYear = eventoFecha ? eventoFecha.getFullYear() : currentYear;
+        const aniosDiferencia = Math.max(0, eventYear - currentYear);
+        const ajustePct = Math.max(0, budgetSettings.annualAdjustmentPercentage ?? 15);
+        const totalProyectado = Math.round(totalSinAjuste * Math.pow(1 + ajustePct / 100, aniosDiferencia));
 
         const agrupados = detallados.reduce((acc, item) => {
             const cat = item.categoria;
@@ -419,13 +443,15 @@ function SimuladorContent() {
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,
             totalSinAjuste: Math.round(totalSinAjuste),
-            ajusteAnual: 0,
+            ajusteAnual: Math.max(0, totalProyectado - Math.round(totalSinAjuste)),
             totalFinal: Math.round(totalFinal),
-            aniosDiferencia: 0,
+            totalProyectado,
+            aniosDiferencia,
+            eventYear,
             agrupados: sortedAgrupados,
             detallados
         };
-    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados]);
+    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
     
     const handleNext = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
@@ -462,7 +488,9 @@ function SimuladorContent() {
                 ninos: ninosYAdolescentes,
                 subtotal: stats.subtotalVenta,
                 costoEstimado: stats.totalFinal,
-                descuentoGeneral: 10,
+                descuentoGeneral: config?.descuentoGeneral ?? 15,
+                ajusteAnualActivo: stats.aniosDiferencia > 0,
+                ajusteAnualPorcentaje: budgetSettings.annualAdjustmentPercentage ?? 15,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
                 paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 items: stats.detallados.map(s => {
@@ -747,21 +775,26 @@ function SimuladorContent() {
                                 )}
                                 {stats.descPromo > 0 && (
                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400 tracking-widest">
-                                        <span>Bonificación Especial (10%):</span>
+                                        <span>Bonificación Especial ({config?.descuentoGeneral ?? 15}%):</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
                                     </div>
                                 )}
                                 {stats.ajusteAnual > 0 && (
                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-blue-400 tracking-widest">
-                                        <span>Ajuste Anual ({stats.aniosDiferencia} añ.):</span>
-                                        <span>+{formatCurrency(stats.ajusteAnual)}</span>
+                                        <span>Referencia {stats.eventYear} con ajuste:</span>
+                                        <span>{formatCurrency(stats.totalProyectado)}</span>
                                     </div>
                                 )}
                                 <Separator className="bg-white/10 print:bg-slate-300" />
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-sm font-black uppercase tracking-tighter text-white print:text-slate-900">Total Estimado:</span>
+                                    <span className="text-sm font-black uppercase tracking-tighter text-white print:text-slate-900">Precio vigente:</span>
                                     <span className="text-3xl font-black text-white print:text-slate-900">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
+                                {stats.ajusteAnual > 0 && (
+                                  <p className="text-[10px] leading-relaxed text-slate-300 print:text-slate-600">
+                                    El presupuesto se guarda con precio vigente {currentYear}; la referencia {stats.eventYear} es informativa y se ajusta al confirmar.
+                                  </p>
+                                )}
                             </div>
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
@@ -889,7 +922,8 @@ function SimuladorContent() {
                                 </Label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {entradasDisponibles.map(s => {
-                                        const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                        const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
+                                        const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
                                                 "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
@@ -898,6 +932,12 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                     <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                )}
+                                                {imageUrl && (
+                                                  <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                  </div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
@@ -916,7 +956,8 @@ function SimuladorContent() {
                                 </Label>
                                 <RadioGroup value={selectedPrincipal} onValueChange={v => { setSelectedPrincipal(v); handleGastronomicSelectionChange('principal', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {principalesDisponibles.map(s => {
-                                        const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                        const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
+                                        const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
                                                 "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
@@ -925,6 +966,12 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                     <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                )}
+                                                {imageUrl && (
+                                                  <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                  </div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
@@ -944,7 +991,8 @@ function SimuladorContent() {
                                     </Label>
                                     <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {menusNinoDisponibles.map(s => {
-                                            const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                            const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
+                                            const imageUrl = safeImageUrl(s.imageUrl);
                                             return (
                                                 <label key={s.id} className={cn(
                                                     "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
@@ -953,6 +1001,12 @@ function SimuladorContent() {
                                                 )}>
                                                     {isRecommended && (
                                                         <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                    )}
+                                                    {imageUrl && (
+                                                      <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                      </div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
                                                     <div className="flex flex-col flex-grow min-w-0">
@@ -1034,7 +1088,7 @@ function SimuladorContent() {
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-                              📅 <strong>Precios {currentYear}</strong> — Para eventos en años posteriores se aplica un ajuste anual del <strong>{budgetSettings.annualAdjustmentPercentage ?? 15}%</strong>.
+                              📅 <strong>Precios {currentYear}</strong> — El precio oficial se guarda vigente; para eventos futuros se muestra una referencia separada con ajuste anual del <strong>{budgetSettings.annualAdjustmentPercentage ?? 15}%</strong>.
                             </div>
                         </div>
                     )}
