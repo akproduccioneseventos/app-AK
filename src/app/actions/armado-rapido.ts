@@ -19,18 +19,15 @@ const defaultConfig: ArmadoRapidoConfig = {
   clubUruguayConfig: defaultClubUruguayConfig,
 };
 
+function getSimulatorDiscountPercentage(data: LeadFromQuickBudget): number {
+  const pct = Number(data.descuentoGeneral ?? SIMULATOR_DISCOUNT_PERCENTAGE);
+  if (!Number.isFinite(pct) || pct < 0) return SIMULATOR_DISCOUNT_PERCENTAGE;
+  return Math.min(100, pct);
+}
+
 function calculateSimulatorTotal(data: LeadFromQuickBudget): number {
   const subtotal = Math.max(0, Math.round(data.subtotal || 0));
-  const discounted = Math.round(subtotal * (1 - SIMULATOR_DISCOUNT_PERCENTAGE / 100));
-  if (!data.ajusteAnualActivo || !data.eventoFecha) return discounted;
-
-  const eventDate = new Date(data.eventoFecha);
-  if (Number.isNaN(eventDate.getTime())) return discounted;
-  const currentYear = new Date().getFullYear();
-  const eventYear = eventDate.getFullYear();
-  const years = Math.max(0, eventYear - currentYear);
-  const adjustmentPct = data.ajusteAnualPorcentaje ?? 15;
-  return Math.round(discounted * Math.pow(1 + Math.max(0, adjustmentPct) / 100, years));
+  return Math.round(subtotal * (1 - getSimulatorDiscountPercentage(data) / 100));
 }
 
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
@@ -108,6 +105,7 @@ export async function generateBudgetAndLeadFromSimulator(
     const ninos = Math.max(0, Math.round(data.ninos || 0));
     const totalInvitados = adultos + adolescentes + ninos;
     const totalConDescuento = calculateSimulatorTotal(data);
+    const discountPercentage = getSimulatorDiscountPercentage(data);
 
     const presupuestoData: Omit<Presupuesto, 'id'> = {
       clienteNombre: data.clienteNombre,
@@ -122,10 +120,10 @@ export async function generateBudgetAndLeadFromSimulator(
       salonFiestas: options?.salonFiestas || 'A definir',
       itemsPresupuestados: data.items as ItemPresupuestado[],
       timestamp: new Date().toISOString(),
-      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Total corregido: ${formatCurrency(totalConDescuento)}. Descuento aplicado: ${SIMULATOR_DISCOUNT_PERCENTAGE}%.`,
+      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Total vigente: ${formatCurrency(totalConDescuento)}. Descuento aplicado: ${discountPercentage}%.`,
       costoTotalEstimado: Math.max(0, Math.round(data.subtotal || 0)),
       descuentoTipo: 'porcentaje',
-      descuentoValor: SIMULATOR_DISCOUNT_PERCENTAGE,
+      descuentoValor: discountPercentage,
       ajusteAnualActivo: data.ajusteAnualActivo,
       ajusteAnualPorcentaje: data.ajusteAnualPorcentaje,
       totalConDescuento,

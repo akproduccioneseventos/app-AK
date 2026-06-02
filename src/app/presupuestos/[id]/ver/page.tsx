@@ -30,6 +30,12 @@ import { calculateBudgetFinancials, getBudgetPaymentSummary } from '@/lib/budget
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
+import BudgetPrintTemplate from '@/components/presupuestos/BudgetPrintTemplate';
+import {
+  buildAnnualAdjustmentProjection,
+  calculatePricePerPerson,
+  DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+} from '@/lib/budget/formal-budget';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -58,7 +64,7 @@ const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
 const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
-const BUDGET_VALIDITY_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
+const BUDGET_VALIDITY_NOTE_PDF = "El presupuesto es valido por 30 dias. Durante este mes podes reservar la fecha con una sena de $ 5.000; la contratacion final se confirma con el contrato correspondiente.";
 const CONTRACT_MISSING_EVENT_DATA_ERROR = "No se puede generar el contrato sin la fecha y hora del evento";
 
 const extractTimeFromDate = (dateString?: string) => {
@@ -75,17 +81,6 @@ const formatDateShort = (dateString?: string) => {
     return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
   } catch { return '—'; }
 };
-
-function generateJanuaryAdjustmentLines(totalBase: number, adjustmentPct: number, contractYear: number, eventYear: number): { year: number; total: number }[] {
-  if (adjustmentPct <= 0 || eventYear <= contractYear) return [];
-  const lines: { year: number; total: number }[] = [];
-  let projectedTotal = totalBase;
-  for (let year = contractYear + 1; year <= eventYear; year++) {
-    projectedTotal = Math.round(projectedTotal * (1 + adjustmentPct / 100));
-    lines.push({ year, total: projectedTotal });
-  }
-  return lines;
-}
 
 function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -202,16 +197,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (presupuesto.descuentoTipo === 'porcentaje') bonificacion = (brutoVenta * (presupuesto.descuentoValor || 0)) / 100;
     else if (presupuesto.descuentoTipo === 'fijo') bonificacion = presupuesto.descuentoValor || 0;
 
-    const totalSinAjuste = Math.max(0, brutoVenta - bonificacion);
-    
-    let ajuste = 0;
-    let anios = 0;
-    if (presupuesto.eventoFecha) {
-        const anioCreacion = new Date(presupuesto.timestamp).getFullYear();
-        const anioEvento = new Date(presupuesto.eventoFecha).getFullYear();
-        anios = Math.max(0, anioEvento - anioCreacion);
-        if (anios > 0) ajuste = totalSinAjuste * (Math.pow(1 + (adjustmentPct / 100), anios) - 1);
-    }
+    const discountAmount = financials.discount || Math.round(bonificacion);
+    const totalVigente = Math.max(0, brutoVenta - discountAmount);
 
     const agrupados = itemsRecalculados.reduce((acc, item) => {
       const cat = item.esRegalo ? 'Regalos Incluidos' : (item.categoriaServicio || 'Otros');
@@ -233,10 +220,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       itemsAgrupados: sortedAgrupados,
       subtotalBruto: brutoVenta + regalosVal,
       ahorroRegalos: Math.round(regalosVal),
-      bonificacionPromo: financials.discount || Math.round(bonificacion),
-      ajusteAnual: Math.round(ajuste),
-      totalFinal: financials.total || Math.round(totalSinAjuste + ajuste),
-      aniosDiferencia: anios
+      bonificacionPromo: discountAmount,
+      ajusteAnual: 0,
+      totalFinal: Math.round(totalVigente),
+      aniosDiferencia: 0
     };
   }, [presupuesto, adjustmentPct]);
 
@@ -290,6 +277,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (!whatsappNumber || !presupuesto) return;
     const text = `¡Hola! Estoy revisando el presupuesto #${presupuesto.numero || ''} y tengo una consulta.`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const handleSharePublicBudget = () => {
+    if (!presupuesto) return;
+    const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1`;
+    const text = [
+      'Hola! Te comparto el presupuesto formal de AK Producciones.',
+      `Cliente: ${presupuesto.clienteNombre}`,
+      `Total vigente: ${formatCurrency(calculatedValues.totalFinal)}`,
+      `Ver presupuesto: ${url}`,
+    ].join('\n');
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const pagosSummary = useMemo(() => {
@@ -461,12 +460,40 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     ['cliente', 'client', 'publico', 'public', 'invitado', 'guest'].includes(accessMode);
   const isGuestBudgetAccess = searchParams.get('guest') === '1' || ['invitado', 'guest'].includes(accessMode);
   const isOperatorBudgetAccess = !isPublicBudgetAccess;
-  const shouldShowClientContractingActions = !isBorrador && !isGuestBudgetAccess;
-  const shouldShowClientBudgetActions = isPublicBudgetAccess && shouldShowClientContractingActions;
+  const shouldShowPublicBudgetActions = isPublicBudgetAccess && !isGuestBudgetAccess;
+  const shouldShowClientBudgetActions = false;
   const shouldShowBudgetSignatures =
     presupuesto.estado === 'Aceptado' ||
     presupuesto.estado === 'Facturado' ||
     Boolean(presupuesto.fechaFirmaContrato);
+  const isDirectPrintAccess = searchParams.get('imprimir') === '1' || searchParams.get('direct') === '1';
+  const annualProjection = buildAnnualAdjustmentProjection({
+    baseTotal: calculatedValues.totalFinal,
+    eventDate: presupuesto.eventoFecha,
+    adjustmentPct,
+    currentYear,
+  });
+  const pricePerPerson = calculatePricePerPerson(calculatedValues.totalFinal, totalInvitados);
+
+  if (isDirectPrintAccess) {
+    return (
+      <div className="min-h-screen bg-white p-4 print:p-0">
+        <BudgetPrintTemplate
+          presupuesto={{
+            ...presupuesto,
+            totalConDescuento: calculatedValues.totalFinal,
+          }}
+          logoUrl={logoUrl}
+          adjustmentPct={adjustmentPct}
+          annualProjection={annualProjection}
+          pricePerPerson={pricePerPerson}
+          bookingDepositAmount={DEFAULT_BOOKING_DEPOSIT_AMOUNT}
+          clienteNombre={cliente?.name || presupuesto.clienteNombre}
+          showSignatures={false}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 print:min-h-0 font-sans">
@@ -599,6 +626,33 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         <div className="max-w-3xl mx-auto space-y-8 px-2 sm:px-4 print:px-0">
 
             {/* AUDIT PANEL — shown when user clicks "Auditar presupuesto" */}
+            {shouldShowPublicBudgetActions && (
+              <div className="print:hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <Button
+                    onClick={handleSharePublicBudget}
+                    className="h-12 rounded-xl bg-emerald-600 text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-700"
+                  >
+                    <Share2 className="mr-2 h-4 w-4" /> Compartir WhatsApp
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleWhatsAppDirectContact}
+                    className="h-12 rounded-xl border-emerald-200 text-xs font-bold uppercase tracking-widest text-emerald-700 hover:bg-emerald-50"
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" /> Contactar AK
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open(`/presupuestos/${presupuestoId}/ver?imprimir=1&cliente=1&direct=1`, '_blank')}
+                    className="h-12 rounded-xl text-xs font-bold uppercase tracking-widest"
+                  >
+                    <Printer className="mr-2 h-4 w-4" /> Descargar PDF
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {isOperatorBudgetAccess && showAudit && auditResult && (
               <div className="print:hidden bg-white rounded-2xl shadow-lg p-5 space-y-4 border border-violet-100" data-testid="audit-panel">
                 <div className="flex items-center justify-between">
@@ -1076,33 +1130,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 })}
                             </React.Fragment>
                         ))}
-                        {calculatedValues.ajusteAnual > 0 && (
-                          <tr style={{ backgroundColor: '#f8fafc' }}>
-                            <td colSpan={5} className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
-                              Ajuste anual ({adjustmentPct}%):
-                            </td>
-                            <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
-                              {formatCurrency(calculatedValues.ajusteAnual)}
-                            </td>
-                          </tr>
-                        )}
-                        {(() => {
-                          const contractYear = new Date(presupuesto.timestamp).getFullYear();
-                          const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : contractYear;
-                          const totalSinAjuste = calculatedValues.totalFinal - calculatedValues.ajusteAnual;
-                          const janLines = generateJanuaryAdjustmentLines(totalSinAjuste, adjustmentPct, contractYear, eventYear);
-                          if (janLines.length === 0) return null;
-                          return janLines.map((line) => (
-                            <tr key={`jan-adjustment-${line.year}`} className="hidden print:table-row" style={{ backgroundColor: '#fffde7' }}>
-                              <td colSpan={5} className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-[10px]">
-                                1° de enero {line.year}:
-                              </td>
-                              <td className="border border-gray-300 px-2 py-1.5 text-right font-bold text-[10px]">
-                                {formatCurrency(line.total)}
-                              </td>
-                            </tr>
-                          ));
-                        })()}
                         {/* Total row */}
                         <tr style={{ backgroundColor: '#f8fafc', color: '#111827' }}>
                           <td colSpan={5} className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
@@ -1143,12 +1170,6 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 <span>-{formatCurrency(calculatedValues.bonificacionPromo)}</span>
                             </div>
                         )}
-                        {calculatedValues.ajusteAnual > 0 && (
-                            <div className="hidden print:flex justify-between items-center text-[9px] font-black uppercase text-amber-600 tracking-widest">
-                                <span>Ajuste Anual ({calculatedValues.aniosDiferencia} añ. {adjustmentPct}%):</span>
-                                <span>+{formatCurrency(calculatedValues.ajusteAnual)}</span>
-                            </div>
-                        )}
                         {(() => {
                             const markupPct = presupuesto.marketingMarkupPercent || 0;
                             const precioLista = markupPct > 0 ? Math.round(calculatedValues.totalFinal * (1 + markupPct / 100)) : 0;
@@ -1173,9 +1194,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             <span className="tracking-tighter">TOTAL A PAGAR:</span>
                             <span>{formatCurrency(calculatedValues.totalFinal)}</span>
                         </div>
-                        <p className="text-[10px] text-gray-600 font-semibold mt-2">
-                          Precios {currentYear} — Ajuste anual del {adjustmentPct}% para eventos futuros.
-                        </p>
+                        {pricePerPerson > 0 && (
+                          <div className="flex justify-between items-center text-[10px] font-black uppercase text-gray-600 tracking-widest">
+                            <span>Valor aprox. por persona:</span>
+                            <span>{formatCurrency(pricePerPerson)}</span>
+                          </div>
+                        )}
                         {presupuesto.modoDescuentoPromocional && (
                           <div className="mt-2 p-2 bg-violet-50 rounded-lg border border-violet-200 text-[9px] font-bold uppercase tracking-wider text-violet-700 flex items-center gap-1.5">
                             <span>🏷️</span>
@@ -1186,6 +1210,31 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </section>
                     
                 {/* Footer — booking terms + notes */}
+                {annualProjection.applies && (
+                  <section className="mb-4 print:mb-3 border border-gray-300 rounded bg-white overflow-hidden">
+                    <div className="px-4 py-2 bg-slate-100 border-b border-gray-300 text-[10px] font-black uppercase tracking-widest text-gray-700">
+                      Proyeccion informativa por ajuste anual ({annualProjection.adjustmentPct}%)
+                    </div>
+                    <table className="w-full text-xs print:text-[8pt] border-collapse">
+                      <tbody>
+                        {annualProjection.rows.map((row) => (
+                          <tr key={row.year}>
+                            <td className="border-b border-gray-200 px-4 py-2 font-semibold text-gray-700">
+                              Total estimado {row.year}
+                            </td>
+                            <td className="border-b border-gray-200 px-4 py-2 text-right font-bold text-gray-900">
+                              {formatCurrency(row.total)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p className="px-4 py-2 text-[10px] text-gray-600 font-medium">
+                      El importe total corresponde al precio vigente {currentYear}. Esta proyeccion muestra como quedaria el total si el evento pertenece a un anio posterior.
+                    </p>
+                  </section>
+                )}
+
                 <footer className="space-y-4 mt-6">
                     <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400 bg-white">
                         <h4 className="text-[10px] font-black uppercase text-gray-700 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
