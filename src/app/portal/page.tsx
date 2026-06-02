@@ -67,6 +67,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
+import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -345,15 +346,8 @@ function ClientPortalContent() {
 
   const counts = useMemo(() => {
     if (!fiesta?.planDePagos) return { total: 0, pagado: 0, saldo: 0 };
-    const cuotas = fiesta.planDePagos.cuotas;
-    const total = cuotas.reduce((acc, item) => acc + item.monto, 0);
-    const pagado = cuotas.reduce((acc, item) => {
-      if (item.estado === 'pagado') return acc + item.monto;
-      if (item.estado === 'parcial') return acc + (item.montoPagado ?? 0);
-      return acc;
-    }, 0);
-    const saldo = Math.max(0, total - pagado);
-    return { total, pagado, saldo };
+    const summary = getPaymentPlanSummary(fiesta.planDePagos.cuotas);
+    return { total: summary.total, pagado: summary.paid, saldo: summary.balance };
   }, [fiesta?.planDePagos]);
 
   if (isLoading) {

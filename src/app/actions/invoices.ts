@@ -159,7 +159,7 @@ export async function saveInvoice(
   }
 }
 
-export async function registerBookingDeposit(data: { fiestaId: string; amount: number; method: string; date: string }): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
+export async function registerBookingDeposit(data: { fiestaId: string; amount: number; method: string; date: string; skipBudgetPayment?: boolean }): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
   try {
     const amount = roundMoney(data.amount);
     if (amount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
@@ -167,6 +167,18 @@ export async function registerBookingDeposit(data: { fiestaId: string; amount: n
 
     const fiesta = await readData<any>(`fiestas/${data.fiestaId}.json`, null);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
+
+    if (fiesta.presupuestoId && !data.skipBudgetPayment) {
+      const [{ getPresupuestoById }, { validatePaymentAgainstBudget }] = await Promise.all([
+        import('./presupuestos'),
+        import('@/lib/budget/financial-guardrails'),
+      ]);
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        const validation = validatePaymentAgainstBudget(presupuesto, amount, { includePendingForLimit: true });
+        if (!validation.ok) return { success: false, error: validation.error };
+      }
+    }
 
     const newInvoice: Omit<Invoice, 'id' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] } = {
       invoiceNumber: `SEÑA-${data.fiestaId.slice(-5)}`,
@@ -205,14 +217,17 @@ export async function registerBookingDeposit(data: { fiestaId: string; amount: n
       await writeData(INVOICES_FILE, freshInvoices);
     }
 
-    if (fiesta.presupuestoId) {
-      await addPagoToPresupuesto(fiesta.presupuestoId, {
+    if (fiesta.presupuestoId && !data.skipBudgetPayment) {
+      const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
         fecha: data.date,
         monto: amount,
         metodoPago: mapDepositMethodToBudgetMethod(data.method),
         referencia: `Seña registrada desde evento ${fiesta.configuracion.nombreEvento || data.fiestaId}`,
         estadoPago: 'confirmado',
       });
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.error || 'No se pudo registrar la sena en el presupuesto.');
+      }
     }
 
     await addInvoiceId(data.fiestaId, invoiceResult.id);

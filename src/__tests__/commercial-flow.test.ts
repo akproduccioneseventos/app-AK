@@ -230,6 +230,21 @@ describe('auditPresupuestoTotals', () => {
     expect(result.saldoPendiente).toBe(40000); // 70000 - 30000
   });
 
+  it('no cuenta pagos pendientes o rechazados como cobro real', () => {
+    const presupuesto = makePresupuesto({
+      pagosCliente: [
+        { id: 'p1', fecha: '2025-01-01', monto: 20000, metodoPago: 'Transferencia Bancaria', estadoPago: 'confirmado' },
+        { id: 'p2', fecha: '2025-03-01', monto: 10000, metodoPago: 'Efectivo', estadoPago: 'pendiente_confirmacion' },
+        { id: 'p3', fecha: '2025-04-01', monto: 50000, metodoPago: 'Efectivo', estadoPago: 'rechazado' },
+      ],
+    });
+    const result = auditPresupuestoTotals(presupuesto);
+
+    expect(result.totalPagosConfirmados).toBe(20000);
+    expect(result.totalPagosPendientesRevision).toBe(10000);
+    expect(result.saldoPendiente).toBe(50000);
+  });
+
   it('no genera observaciones de error con ítems regalo', () => {
     const presupuesto = makePresupuesto({
       itemsPresupuestados: [
@@ -315,6 +330,28 @@ describe('calculateFinancialLedger', () => {
         totalConDescuento: 70000,
         pagosCliente: [
           { id: 'pg1', fecha: '2025-02-01', monto: 20000, metodoPago: 'Transferencia Bancaria' },
+        ],
+      }),
+    ];
+    const invoices: Invoice[] = [];
+
+    const ledger = calculateFinancialLedger(presupuestos, invoices);
+
+    expect(ledger.totalCobrado).toBe(20000);
+    expect(ledger.saldoPendiente).toBe(50000);
+  });
+
+  it('ignora pagos pendientes y rechazados en el libro mayor', () => {
+    const presupuestos = [
+      makePresupuesto({
+        id: 'p1',
+        estado: 'Aceptado',
+        invoiceId: undefined,
+        totalConDescuento: 70000,
+        pagosCliente: [
+          { id: 'pg1', fecha: '2025-02-01', monto: 20000, metodoPago: 'Transferencia Bancaria', estadoPago: 'confirmado' },
+          { id: 'pg2', fecha: '2025-02-02', monto: 10000, metodoPago: 'Efectivo', estadoPago: 'pendiente_confirmacion' },
+          { id: 'pg3', fecha: '2025-02-03', monto: 30000, metodoPago: 'Efectivo', estadoPago: 'rechazado' },
         ],
       }),
     ];

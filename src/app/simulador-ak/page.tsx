@@ -160,7 +160,7 @@ const PACKAGE_META: Record<PackageType, { label: string; description: string; mu
   premium:    { label: 'Premium',    description: 'Nivel alto, todo incluido',           multiplier: 1.80 },
 };
 
-const DISCOUNT_RATE = 0.15; // 15% as a decimal (0.15 = 15%)
+const DISCOUNT_RATE = 0.15; // 15% as a decimal, aligned with the standard simulator
 
 // ─── Pricing Helpers ──────────────────────────────────────────────────────────
 
@@ -743,7 +743,7 @@ export default function SimuladorAKPage() {
       eventMeta ? `Tipo: ${eventMeta.label}` : '',
       `Invitados: ${state.adultos + state.ninos} personas`,
       pkgMeta ? `Paquete: ${pkgMeta}` : '',
-      priceStats ? `Total estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
+      priceStats ? `Precio vigente estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
       generatedId ? `Nro presupuesto: ${generatedId}` : '',
       generatedId ? `Link: ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1` : '',
       `\nMe gustaría coordinar una reunión para cerrar los detalles 🎉`,
@@ -1768,7 +1768,7 @@ function StepConversion({
                 <span className="text-amber-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
               </div>
               <div className="border-t border-white/10 pt-2 flex justify-between">
-                <span className="text-white font-black">TOTAL FINAL</span>
+                <span className="text-white font-black">PRECIO VIGENTE</span>
                 <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
               </div>
               {prices.precioPorPersona > 0 && (

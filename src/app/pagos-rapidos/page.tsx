@@ -448,7 +448,7 @@ function PagosRapidosContent() {
     try {
       const result = await rejectPagoCliente(presupuestoId, pagoId, rejectMotivo.trim());
       if (!result.success) throw new Error(result.error);
-      toast({ title: 'Pago rechazado', description: 'El pago fue rechazado y eliminado.' });
+      toast({ title: 'Pago rechazado', description: 'Quedo en el historial y no cuenta como cobrado.' });
       setShowRejectInput(null);
       setRejectMotivo('');
       await fetchData();
@@ -620,9 +620,15 @@ function PagosRapidosContent() {
                                     <div key={pago.id} className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg p-2.5">
                                       <MetodoPagoIcon metodo={pago.metodoPago} />
                                       <span className="flex-1 text-slate-600">{formatDate(pago.fecha)}</span>
-                                      <span className="font-bold text-emerald-700">{formatCurrency(pago.monto)}</span>
+                                      <span className={cn(
+                                        'font-bold',
+                                        pago.estadoPago === 'rechazado' ? 'text-red-600 line-through' : 'text-emerald-700'
+                                      )}>{formatCurrency(pago.monto)}</span>
                                       {pago.estadoPago === 'pendiente_confirmacion' && (
                                         <Badge className="bg-amber-100 text-amber-700 text-[8px]">Pendiente</Badge>
+                                      )}
+                                      {pago.estadoPago === 'rechazado' && (
+                                        <Badge className="bg-red-100 text-red-700 text-[8px]">Rechazado</Badge>
                                       )}
                                     </div>
                                   ))}

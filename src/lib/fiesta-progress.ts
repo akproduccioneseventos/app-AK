@@ -1,4 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -72,12 +73,9 @@ export function calcPagosStatus(fiesta: FiestaEnPlanificacion): AreaStatus {
     return { status: 'gris', label: statusLabel('gris'), detail: 'Sin plan de pagos', percentage: 0 };
   }
 
-  const montoTotal = cuotas.reduce((sum, c) => sum + c.monto, 0);
-  const montoPagado = cuotas.reduce((sum, c) => {
-    if (c.estado === 'pagado') return sum + c.monto;
-    if (c.estado === 'parcial') return sum + (c.montoPagado ?? 0);
-    return sum;
-  }, 0);
+  const paymentSummary = getPaymentPlanSummary(cuotas);
+  const montoTotal = paymentSummary.total;
+  const montoPagado = paymentSummary.paid;
   const percentage = montoTotal > 0 ? Math.round((montoPagado / montoTotal) * 100) : 0;
 
   const hayVencidas = cuotas.some(c => c.estado === 'vencido');

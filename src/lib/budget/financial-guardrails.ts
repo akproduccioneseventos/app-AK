@@ -35,6 +35,30 @@ export function roundMoney(value: unknown): number {
   return Math.max(0, Math.round(numberValue));
 }
 
+function hasExplicitGuestSplit(
+  presupuesto: Pick<Presupuesto, 'invitadosAdultos' | 'invitadosNinos' | 'invitadosAdolescentes'>,
+): boolean {
+  return presupuesto.invitadosAdultos != null
+    || presupuesto.invitadosNinos != null
+    || presupuesto.invitadosAdolescentes != null;
+}
+
+export function calculateGuestSplitTotal(
+  presupuesto: Pick<Presupuesto, 'invitadosAdultos' | 'invitadosNinos' | 'invitadosAdolescentes'>,
+): number {
+  return roundMoney(presupuesto.invitadosAdultos)
+    + roundMoney(presupuesto.invitadosNinos)
+    + roundMoney(presupuesto.invitadosAdolescentes);
+}
+
+export function resolveBudgetGuestTotal(
+  presupuesto: Pick<Presupuesto, 'invitadosCantidad' | 'invitadosAdultos' | 'invitadosNinos' | 'invitadosAdolescentes'>,
+): number {
+  const splitTotal = calculateGuestSplitTotal(presupuesto);
+  if (hasExplicitGuestSplit(presupuesto) && splitTotal > 0) return splitTotal;
+  return roundMoney(presupuesto.invitadosCantidad);
+}
+
 function normalizePercent(value: unknown): number {
   const numberValue = Number(value ?? 0);
   if (!Number.isFinite(numberValue)) return 0;
@@ -87,12 +111,13 @@ export function calculateBudgetFinancials(
   presupuesto: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
 ) {
-  const totalGuests = roundMoney(presupuesto.invitadosCantidad);
-  const explicitAdults = roundMoney(presupuesto.invitadosAdultos);
-  const adolescentes = roundMoney(presupuesto.invitadosAdolescentes);
-  const ninos = roundMoney(presupuesto.invitadosNinos);
-  const hasGuestBreakdown = explicitAdults + adolescentes + ninos > 0;
-  const adultos = hasGuestBreakdown ? explicitAdults : totalGuests;
+  const splitTotal = calculateGuestSplitTotal(presupuesto);
+  const hasUsableSplit = hasExplicitGuestSplit(presupuesto) && splitTotal > 0;
+  const adultos = hasUsableSplit
+    ? roundMoney(presupuesto.invitadosAdultos)
+    : resolveBudgetGuestTotal(presupuesto);
+  const adolescentes = hasUsableSplit ? roundMoney(presupuesto.invitadosAdolescentes) : 0;
+  const ninos = hasUsableSplit ? roundMoney(presupuesto.invitadosNinos) : 0;
 
   const items = (presupuesto.itemsPresupuestados ?? []).map((item) => ({
     ...item,
@@ -141,10 +166,7 @@ export function normalizePresupuestoFinancials(
     invitadosAdultos: roundMoney(presupuesto.invitadosAdultos),
     invitadosNinos: roundMoney(presupuesto.invitadosNinos),
     invitadosAdolescentes: roundMoney(presupuesto.invitadosAdolescentes),
-    invitadosCantidad: roundMoney(
-      presupuesto.invitadosCantidad
-      || roundMoney(presupuesto.invitadosAdultos) + roundMoney(presupuesto.invitadosNinos) + roundMoney(presupuesto.invitadosAdolescentes),
-    ),
+    invitadosCantidad: resolveBudgetGuestTotal(presupuesto),
     itemsPresupuestados: financials.items,
     costoTotalEstimado: financials.subtotal,
     totalConDescuento: financials.total,
@@ -229,7 +251,9 @@ export function getPaymentReceiptSnapshot(
   const summary = getBudgetPaymentSummary(presupuesto);
   const paymentAmount = roundMoney(payment.monto);
   const balanceAfterPayment = summary.balance;
-  const balanceBeforePayment = Math.max(0, balanceAfterPayment + paymentAmount);
+  const balanceBeforePayment = isConfirmedClientPayment(payment)
+    ? Math.max(0, balanceAfterPayment + paymentAmount)
+    : balanceAfterPayment;
 
   return {
     ...summary,
@@ -242,6 +266,20 @@ export function getPaymentReceiptSnapshot(
 export function auditPresupuestoFinancialGuardrails(presupuesto: Presupuesto): FinancialGuardrailIssue[] {
   const financials = calculateBudgetFinancials(presupuesto);
   const issues: FinancialGuardrailIssue[] = [];
+  const splitTotal = calculateGuestSplitTotal(presupuesto);
+
+  if (
+    hasExplicitGuestSplit(presupuesto)
+    && splitTotal > 0
+    && Math.abs(roundMoney(presupuesto.invitadosCantidad) - splitTotal) > MONEY_TOLERANCE
+  ) {
+    issues.push({
+      field: 'invitadosCantidad',
+      message: 'El total de invitados no coincide con adultos + ninos + adolescentes.',
+      expected: splitTotal,
+      actual: roundMoney(presupuesto.invitadosCantidad),
+    });
+  }
 
   if (Math.abs(roundMoney(presupuesto.costoTotalEstimado) - financials.subtotal) > MONEY_TOLERANCE) {
     issues.push({

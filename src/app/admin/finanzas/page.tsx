@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Separator } from '@/components/ui/separator';
+import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(v);
@@ -40,13 +41,10 @@ function calcularEgresos(fiesta: FiestaEnPlanificacion): number {
 function calcularIngresos(fiesta: FiestaEnPlanificacion): number {
   // Use plan de pagos (actual received) if available
   if (fiesta.planDePagos?.cuotas) {
-    const recibido = fiesta.planDePagos.cuotas
-      .filter(c => c.estado === 'pagado' || c.estado === 'parcial')
-      .reduce((s, c) => s + (c.estado === 'parcial' ? (c.montoPagado ?? 0) : c.monto), 0);
-    if (recibido > 0) return recibido;
+    const paymentSummary = getPaymentPlanSummary(fiesta.planDePagos.cuotas);
+    if (paymentSummary.paid > 0) return paymentSummary.paid;
     // Fallback: total del plan
-    const total = fiesta.planDePagos.cuotas.reduce((s, c) => s + c.monto, 0);
-    if (total > 0) return total;
+    if (paymentSummary.total > 0) return paymentSummary.total;
   }
   // Fallback to estimated budget or gestionCostos
   return fiesta.gestionCostos?.ingresosTotalesEstimados

@@ -23,6 +23,10 @@ import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from 
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
+function shouldDedupePaymentReference(referencia?: string): boolean {
+  return !!referencia && referencia.includes('Pago verificado desde Portal VIP');
+}
+
 /** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
 export async function getPresupuestos(includeArchived = false): Promise<Presupuesto[]> {
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
@@ -378,6 +382,15 @@ export async function addPagoToPresupuesto(
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+  const referencia = pago.referencia?.trim() || undefined;
+  if (shouldDedupePaymentReference(referencia)) {
+    const existingPayment = (presupuesto.pagosCliente || []).find(existing =>
+      existing.referencia === referencia && existing.estadoPago !== 'rechazado'
+    );
+    if (existingPayment) {
+      return { success: true, presupuesto };
+    }
+  }
   const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
   if (!validation.ok) return { success: false, error: validation.error };
 
@@ -385,6 +398,7 @@ export async function addPagoToPresupuesto(
     ...pago,
     id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     monto: roundMoney(pago.monto),
+    referencia,
     estadoPago: pago.estadoPago ?? 'confirmado',
   };
 
@@ -694,13 +708,22 @@ export async function rejectPagoCliente(
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
-  const updatedPagos = (presupuesto.pagosCliente || []).filter(p => p.id !== pagoId);
+  const pagos = presupuesto.pagosCliente || [];
+  const pagoIndex = pagos.findIndex(p => p.id === pagoId);
+  if (pagoIndex === -1) return { success: false, error: 'Pago no encontrado' };
+
+  const safeMotivo = motivo.trim() || 'Pago rechazado por administracion';
+  const updatedPagos = pagos.map(pago =>
+    pago.id === pagoId
+      ? { ...pago, estadoPago: 'rechazado' as EstadoPago, motivoRechazo: safeMotivo }
+      : pago
+  );
   const result = await updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
 
   if (result.success) {
     createNotification({
       titulo: 'Pago Rechazado',
-      mensaje: `Pago rechazado para ${presupuesto.clienteNombre}. Motivo: ${motivo}`,
+      mensaje: `Pago rechazado para ${presupuesto.clienteNombre}. Motivo: ${safeMotivo}`,
       href: `/presupuestos/${presupuestoId}/ver`,
       icono: 'ListChecks',
       tipo: 'aviso',

@@ -49,10 +49,22 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
+import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
+const safeImageUrl = (url?: string): string | undefined => {
+    if (!url) return undefined;
+    if (url.startsWith('/')) return url;
+    try {
+        const parsed = new URL(url);
+        return ['http:', 'https:'].includes(parsed.protocol) ? url : undefined;
+    } catch {
+        return undefined;
+    }
 };
 
 function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): { qty: number, unitPrice: number, total: number } {
@@ -115,7 +127,8 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: item.imageUrl,
+        imageUrl: getCateringDishImage(item),
+        isFeatured: item.isFeatured,
     };
 };
 
@@ -160,6 +173,7 @@ interface ServicioDetallado {
   categoria: string;
   calculationMethod?: string;
   esRecomendado?: boolean;
+  imageUrl?: string;
 }
 
 /** Returns true if the category or calculation method indicates a per-person food/catering item. */
@@ -226,17 +240,21 @@ function SimuladorContent() {
         const sortDishes = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const setA = getPlatoSettings(a.id);
             const setB = getPlatoSettings(b.id);
-            // Primero recomendados
-            if (setA.recommended && !setB.recommended) return -1;
-            if (!setA.recommended && setB.recommended) return 1;
-            // Luego por precio: del mas caro al mas barato
+            const featuredA = Boolean(a.isFeatured || setA.recommended);
+            const featuredB = Boolean(b.isFeatured || setB.recommended);
+            if (featuredA && !featuredB) return -1;
+            if (!featuredA && featuredB) return 1;
             const pA = a.precioPorPersona || a.precioVenta || 0;
             const pB = b.precioPorPersona || b.precioVenta || 0;
             return pB - pA;
         };
     
         const allDishes = Array.from(
-            allMenus.flatMap(m => m.items)
+            allMenus.flatMap(menu => (menu.items || []).map(dish => ({
+                ...dish,
+                imageUrl: getCateringDishImage(dish) || getCateringMenuImage(menu),
+                isFeatured: Boolean(dish.isFeatured || menu.featured),
+            })))
             .reduce((map, dish) => {
                 if (!map.has(dish.id)) { map.set(dish.id, dish); }
                 return map;
@@ -411,7 +429,8 @@ function SimuladorContent() {
                 costoTotal: total, 
                 categoria: (esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Varios')) as string,
                 calculationMethod: servicio.calculationMethod,
-                esRecomendado: recommendedIds.has(servicio.id),
+                esRecomendado: recommendedIds.has(servicio.id) || Boolean(servicio.isFeatured),
+                imageUrl: safeImageUrl(servicio.imageUrl),
             });
         });
         
@@ -460,7 +479,7 @@ function SimuladorContent() {
             precioPorPersona,
             discountPercentage,
         };
-    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha, budgetSettings.annualAdjustmentPercentage, currentYear]);
+    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
     
     const handleNext = async () => {
         if (step === 1 && (!clienteNombre.trim() || !/^\d{9}$/.test(clienteContacto.trim()) || adultos <= 0)) {
@@ -767,7 +786,7 @@ function SimuladorContent() {
                                 )}
                                 <Separator className="bg-white/10 print:bg-slate-300" />
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-sm font-black uppercase tracking-tighter text-white print:text-slate-900">Total Estimado:</span>
+                                    <span className="text-sm font-black uppercase tracking-tighter text-white print:text-slate-900">Precio vigente:</span>
                                     <span className="text-3xl font-black text-white print:text-slate-900">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
                                 {stats.precioPorPersona > 0 && (
@@ -911,7 +930,8 @@ function SimuladorContent() {
                                 </Label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {entradasDisponibles.map(s => {
-                                        const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                        const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
+                                        const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
                                                 "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
@@ -920,6 +940,12 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                     <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                )}
+                                                {imageUrl && (
+                                                  <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                  </div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
                                                 {s.imageUrl && (
@@ -941,7 +967,8 @@ function SimuladorContent() {
                                 </Label>
                                 <RadioGroup value={selectedPrincipal} onValueChange={v => { setSelectedPrincipal(v); handleGastronomicSelectionChange('principal', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {principalesDisponibles.map(s => {
-                                        const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                        const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
+                                        const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
                                                 "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
@@ -950,6 +977,12 @@ function SimuladorContent() {
                                             )}>
                                                 {isRecommended && (
                                                     <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                )}
+                                                {imageUrl && (
+                                                  <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                  </div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
                                                 {s.imageUrl && (
@@ -972,7 +1005,8 @@ function SimuladorContent() {
                                     </Label>
                                     <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {menusNinoDisponibles.map(s => {
-                                            const isRecommended = config?.platosVisibles?.find(p => p.id === s.id)?.recommended;
+                                            const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
+                                            const imageUrl = safeImageUrl(s.imageUrl);
                                             return (
                                                 <label key={s.id} className={cn(
                                                     "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
@@ -981,6 +1015,12 @@ function SimuladorContent() {
                                                 )}>
                                                     {isRecommended && (
                                                         <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                    )}
+                                                    {imageUrl && (
+                                                      <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                      </div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
                                                     {s.imageUrl && (

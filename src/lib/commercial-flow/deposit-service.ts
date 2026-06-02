@@ -59,7 +59,13 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
 
     // 1. Crear la factura de seña y vincularla a la fiesta (invoice.payments + fiesta.invoiceIds)
     const { registerBookingDeposit } = await import('@/app/actions/invoices');
-    const depositResult = await registerBookingDeposit({ fiestaId, amount: normalizedAmount, method, date });
+    const depositResult = await registerBookingDeposit({
+      fiestaId,
+      amount: normalizedAmount,
+      method,
+      date,
+      skipBudgetPayment: Boolean(presupuestoId),
+    });
     if (!depositResult.success) {
       throw new Error(depositResult.error || 'Error al registrar la seña en facturas.');
     }
