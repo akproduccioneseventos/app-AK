@@ -24,6 +24,7 @@ export interface MenuItem { // Representa un Plato
   allergens?: string;
   allergenTags?: string[]; // ['gluten', 'lacteos', 'frutos_secos', 'huevo', 'pescado', 'soja', 'mariscos']
   imageUrl?: string; // URL de la foto del plato (puede ser de Canva, upload, etc.)
+  isFeatured?: boolean; // Destacado en el simulador y venta profesional
   notes?: string;
   profitMargin?: number; // Porcentaje de ganancia (ej: 100 para 100%)
   suggestedSellingPrice?: number; // Precio de venta calculado
@@ -34,6 +35,7 @@ export interface FullMenu { // Representa un Menú completo guardado
   name: string; // ej: 'Menú Clásico Casamiento'
   description: string; // Descripción general del menú
   imageUrl?: string; // URL a una imagen representativa del menú
+  featured?: boolean; // Destaca los platos de este menú en el simulador
   dataAiHint?: string; // Hint para la IA sobre la imagen
   items: MenuItem[]; // Lista de platos
   templateType?: 'Personalizado' | 'Menú de Entradas' | 'Menú de Platos Principales' | 'Menú para Adolescente' | 'Menú Infantil' | 'Menú del personal'; // Tipo de plantilla/menu

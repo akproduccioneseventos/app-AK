@@ -26,7 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
-import { calculateBudgetFinancials, getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { calculateBudgetFinancials, getBudgetPaymentSummary, isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -298,7 +298,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance };
   }, [presupuesto]);
   const hasDepositPayment = useMemo(
-    () => (presupuesto?.pagosCliente || []).some((p) => p.estadoPago !== 'pendiente_confirmacion' && p.monto > 0),
+    () => (presupuesto?.pagosCliente || []).some((p) => isConfirmedClientPayment(p) && p.monto > 0),
     [presupuesto]
   );
 
@@ -903,6 +903,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             )}
 
             <div className="ver-budget-print-document bg-white print:bg-white">
+              <div className="budget-print-fixed-page-number" aria-hidden="true" />
               {/* Wrapping table for repeating thead/tfoot on each print page */}
               <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
                 <thead>
@@ -917,6 +918,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <tfoot>
                   <tr><td className="p-0">
                     <div className="budget-print-tfoot-content" style={{ paddingTop: '20px' }}>
+                      <p className="budget-print-page-number text-right text-[8px] text-gray-500 print:text-[6pt]">Pagina </p>
                       {shouldShowBudgetSignatures ? (
                         <div className="flex justify-between" style={{ gap: '40px' }}>
                           <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
@@ -1299,13 +1301,15 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                                 </TableCell>
                                                 <TableCell className="py-3 text-muted-foreground text-xs max-w-[150px] truncate">{pago.referencia || '—'}</TableCell>
                                                 <TableCell className="py-3">
-                                                    {pago.estadoPago === 'pendiente_confirmacion' ? (
+                                                    {pago.estadoPago === 'rechazado' ? (
+                                                        <Badge className="bg-red-100 text-red-700 text-[8px] font-bold"><AlertTriangle className="w-2.5 h-2.5 mr-1"/>Rechazado</Badge>
+                                                    ) : pago.estadoPago === 'pendiente_confirmacion' ? (
                                                         <Badge className="bg-amber-100 text-amber-700 text-[8px] font-bold"><Clock className="w-2.5 h-2.5 mr-1"/>Pendiente</Badge>
                                                     ) : (
                                                         <Badge className="bg-emerald-100 text-emerald-700 text-[8px] font-bold"><CheckCircle2 className="w-2.5 h-2.5 mr-1"/>Confirmado</Badge>
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="pr-4 py-3 text-right font-bold text-emerald-700">{formatCurrency(pago.monto)}</TableCell>
+                                                <TableCell className={`pr-4 py-3 text-right font-bold ${pago.estadoPago === 'rechazado' ? 'text-red-600 line-through' : 'text-emerald-700'}`}>{formatCurrency(pago.monto)}</TableCell>
                                                 <TableCell className="py-3 text-right pr-2">
                                                     <Button
                                                         variant="ghost" size="icon"
@@ -1406,11 +1410,30 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 }
                 .ver-budget-print-document {
                     background-color: #ffffff !important;
+                    counter-reset: page;
                 }
                 .ver-budget-print-document table {
                     page-break-inside: auto;
+                    border-collapse: collapse !important;
                 }
                 .ver-budget-print-document tr {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                .ver-budget-print-document thead {
+                    display: table-header-group;
+                }
+                .ver-budget-print-document tbody {
+                    display: table-row-group;
+                }
+                .ver-budget-print-document img {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                .ver-budget-print-document section,
+                .ver-budget-print-document article,
+                .ver-budget-print-document .budget-print-summary,
+                .ver-budget-print-document .budget-print-notes {
                     page-break-inside: avoid;
                     break-inside: avoid;
                 }
@@ -1429,6 +1452,20 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     margin-top: 12px;
                     page-break-inside: avoid;
                     break-inside: avoid;
+                }
+                .budget-print-page-number::after {
+                    content: counter(page);
+                }
+                .budget-print-fixed-page-number {
+                    position: fixed;
+                    right: 1cm;
+                    bottom: 0.35cm;
+                    font-size: 7pt;
+                    color: #64748b;
+                    z-index: 9999;
+                }
+                .budget-print-fixed-page-number::after {
+                    content: "Pagina " counter(page);
                 }
                 .shadow-xl, .shadow-2xl, .shadow-3xl { box-shadow: none !important; }
                 .rounded-\\[2rem\\], .rounded-\\[2\\.5rem\\] { border-radius: 0 !important; }

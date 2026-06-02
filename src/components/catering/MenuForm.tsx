@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, ImageIcon, ChevronDown } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, BookOpen, Search, Percent, DollarSign, Copy, ImageIcon, ChevronDown, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveMenu, getMenus } from '@/app/actions/menus-catering';
 import { getInsumos, saveInsumo } from '@/app/actions/insumos';
@@ -20,6 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 
 const ALLERGEN_OPTIONS: { id: string; label: string; emoji: string }[] = [
   { id: 'gluten', label: 'Gluten', emoji: '🌾' },
@@ -54,6 +55,7 @@ const DEFAULT_COLORS = { bg: 'bg-slate-50', border: 'border-slate-200', badge: '
 /** Returns the URL if it's a safe http/https URL, otherwise undefined */
 const sanitizeImageUrl = (url?: string): string | undefined => {
   if (!url) return undefined;
+  if (url.startsWith('/')) return url;
   try {
     const parsed = new URL(url);
     if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return url;
@@ -467,6 +469,27 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
               <Label htmlFor="menu-description">Descripción</Label>
               <Textarea id="menu-description" rows={2} value={menu.description || ''} onChange={(e) => handleMenuChange('description', e.target.value)} placeholder="Describe el estilo y propuesta del menú..." />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="menu-image" className="flex items-center gap-1"><ImageIcon className="w-4 h-4" />URL Foto del MenÃº</Label>
+              <Input id="menu-image" value={menu.imageUrl || ''} onChange={(e) => handleMenuChange('imageUrl', e.target.value)} placeholder="https://... o /catering/menus/..." />
+            </div>
+            <div className="flex items-center gap-4 rounded-2xl border bg-slate-50 p-3">
+              <div className="h-16 w-16 rounded-xl border bg-white overflow-hidden shrink-0 flex items-center justify-center">
+                {sanitizeImageUrl(getCateringMenuImage(menu as FullMenu)) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={sanitizeImageUrl(getCateringMenuImage(menu as FullMenu))} alt={menu.name || 'MenÃº'} className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon className="h-6 w-6 text-slate-300" />
+                )}
+              </div>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <Checkbox checked={Boolean(menu.featured)} onCheckedChange={(checked) => handleMenuChange('featured', Boolean(checked))} />
+                <span className="space-y-0.5">
+                  <span className="block text-sm font-bold text-slate-800">Destacar en simulador</span>
+                  <span className="block text-xs text-slate-500">Sus platos aparecen primero, antes del orden por precio.</span>
+                </span>
+              </label>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -499,6 +522,8 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             const maxIngCost = hasIngCosts ? Math.max(...(item.ingredients || []).map(i => i.costoTotalReceta)) : 0;
             const colors = DISH_TYPE_COLORS[item.type || ''] || DEFAULT_COLORS;
             const isOpen = openItems.has(item.id);
+            const itemImageUrl = sanitizeImageUrl(getCateringDishImage(item));
+            const isFeatured = Boolean(item.isFeatured || menu.featured);
             return (
               <div key={item.id} className={cn('rounded-3xl border-2 overflow-hidden transition-all duration-300 shadow-md bg-white', colors.border)}>
                 <div
@@ -506,11 +531,22 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                   onClick={() => toggleItem(item.id)}
                 >
                   <div className="flex items-center gap-3 flex-grow min-w-0">
+                    {itemImageUrl && (
+                      <div className="h-14 w-14 rounded-2xl border bg-white overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={itemImageUrl} alt={item.name || 'Plato'} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                      </div>
+                    )}
                     <span className="text-3xl">{DISH_TYPE_EMOJI[item.type || ''] || '🍴'}</span>
                     <div className="min-w-0">
                       <p className={cn('font-black text-lg truncate', colors.text)}>{item.name || 'Nuevo plato'}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className={cn('text-[10px] font-black uppercase px-2 py-0.5 rounded-full', colors.badge)}>{item.type || 'Sin tipo'}</span>
+                        {isFeatured && (
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-current" />Destacado
+                          </span>
+                        )}
                         <span className="text-[10px] text-slate-400 font-bold">{item.ingredients?.length || 0} ingredientes</span>
                       </div>
                     </div>
@@ -570,14 +606,22 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                         />
                       </div>
                       <div className="flex items-center justify-center sm:justify-start h-20 w-20 rounded-lg border bg-muted/40 overflow-hidden shrink-0">
-                        {sanitizeImageUrl(item.imageUrl) ? (
+                        {itemImageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={sanitizeImageUrl(item.imageUrl)} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                          <img src={itemImageUrl} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
                         ) : (
                           <span className="text-3xl">{DISH_TYPE_EMOJI[item.type || ''] || '🍴'}</span>
                         )}
                       </div>
                     </div>
+
+                    <label className="flex items-start gap-3 rounded-2xl border bg-amber-50/40 p-3 cursor-pointer">
+                      <Checkbox checked={Boolean(item.isFeatured)} onCheckedChange={(checked) => handleItemChange(item.id, 'isFeatured', Boolean(checked))} />
+                      <span className="space-y-0.5">
+                        <span className="block text-sm font-bold text-slate-800">Destacado en simulador</span>
+                        <span className="block text-xs text-slate-500">Se muestra antes y ayuda a vender este plato.</span>
+                      </span>
+                    </label>
 
                     <div className="space-y-1">
                       <Label className="text-xs">Alérgenos</Label>

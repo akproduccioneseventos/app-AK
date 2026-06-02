@@ -1,0 +1,60 @@
+import type { MenuItem, FullMenu } from '@/types/catering';
+
+const DEFAULT_MENU_IMAGE_BASE = '/catering/menus/xv';
+
+export const defaultCateringDishImages: Record<string, string> = {
+  dish_entrada_2: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_2.jpeg`,
+  dish_entrada_3: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_3.jpeg`,
+  dish_entrada_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_4.jpeg`,
+  dish_entrada_5: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_5.jpeg`,
+  dish_entrada_6: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_6.jpeg`,
+  dish_entrada_7: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_7.jpeg`,
+  dish_entrada_8: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_8.jpeg`,
+  dish_entrada_9: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_9.jpeg`,
+  dish_entrada_10: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_10.jpeg`,
+  dish_entrada_11: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_11.jpeg`,
+  dish_entrada_12: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_12.jpeg`,
+  dish_entrada_14: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_14.jpeg`,
+  dish_entrada_16: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_16.jpeg`,
+  dish_entrada_17: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_17.jpeg`,
+  dish_entrada_18: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_18.jpeg`,
+  dish_entrada_19: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_19.jpeg`,
+  dish_entrada_20: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_20.jpeg`,
+  dish_entrada_21: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_21.jpeg`,
+  dish_entrada_22: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_22.jpeg`,
+  dish_entrada_23: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_23.jpeg`,
+  dish_entrada_24: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_24.jpeg`,
+  dish_entrada_25: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_25.jpeg`,
+  dish_main_2: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_2.jpeg`,
+  dish_main_3: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_3.jpeg`,
+  dish_main_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_4.jpeg`,
+  dish_main_5: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_5.jpeg`,
+  dish_main_6: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_6.jpeg`,
+  dish_main_7: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_7.jpeg`,
+  dish_main_8: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_8.jpeg`,
+  dish_main_9: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_9.jpeg`,
+  dish_main_10: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_10.jpeg`,
+  dish_main_11: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_11.jpeg`,
+  dish_main_12: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_12.jpeg`,
+  dish_main_13: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_13.jpeg`,
+  dish_main_14: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_14.jpeg`,
+  dish_main_15: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_15.jpeg`,
+  dish_main_16: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_16.jpeg`,
+  dish_main_17: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_17.jpeg`,
+  dish_main_18: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_18.jpeg`,
+  dish_main_19: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_19.jpeg`,
+  dish_child_1: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_1.png`,
+  dish_child_2: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_2.jpeg`,
+  dish_child_3: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_3.jpeg`,
+  dish_child_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_4.jpeg`,
+};
+
+export function getCateringDishImage(item: Pick<MenuItem, 'id' | 'imageUrl'> | null | undefined): string | undefined {
+  if (!item) return undefined;
+  return item.imageUrl || defaultCateringDishImages[item.id];
+}
+
+export function getCateringMenuImage(menu: Pick<FullMenu, 'imageUrl' | 'items'> | null | undefined): string | undefined {
+  if (!menu) return undefined;
+  return menu.imageUrl || (menu.items || []).map(getCateringDishImage).find(Boolean);
+}

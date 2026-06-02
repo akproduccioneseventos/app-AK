@@ -44,6 +44,7 @@ import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
+import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -315,13 +316,10 @@ export default function PortalClientePage() {
 
   // ── Financials ───────────────────────────────────────────────
   const cuotas      = plan?.cuotas ?? [];
-  const totalCost   = cuotas.reduce((acc, c) => acc + c.monto, 0);
-  const totalPaid   = cuotas.reduce((acc, c) => {
-    if (c.estado === 'pagado')  return acc + c.monto;
-    if (c.estado === 'parcial') return acc + (c.montoPagado ?? 0);
-    return acc;
-  }, 0);
-  const balance     = totalCost - totalPaid;
+  const paymentSummary = getPaymentPlanSummary(cuotas);
+  const totalCost   = paymentSummary.total;
+  const totalPaid   = paymentSummary.paid;
+  const balance     = paymentSummary.balance;
 
   // ── RSVP ────────────────────────────────────────────────────
   const confirmed = invitados.filter(i => i.rsvp === 'Confirmado');

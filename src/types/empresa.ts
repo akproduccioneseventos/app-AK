@@ -117,4 +117,5 @@ export interface ServicioEmpresa {
 
   contactoPrincipal?: string;
   imageUrl?: string; // URL de imagen representativa del servicio (para galería)
+  isFeatured?: boolean; // Orden comercial preferente en simuladores
 }

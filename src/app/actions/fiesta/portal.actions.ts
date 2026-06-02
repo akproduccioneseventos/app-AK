@@ -326,6 +326,22 @@ export async function approveClientPayment(
     if (notifIndex === -1) return { success: false, error: 'Notificación no encontrada' };
 
     const notif = notifications[notifIndex];
+    if (notif.estado === 'aprobado') return { success: true };
+
+    // First register the money. If the budget rejects it (for example over saldo),
+    // keep the notification pending so it can be reviewed correctly.
+    if (fiesta.presupuestoId) {
+      const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
+        fecha: new Date().toISOString(),
+        monto: notif.monto,
+        metodoPago: 'Transferencia Bancaria',
+        referencia: `Pago verificado desde Portal VIP (${notif.id})`,
+      });
+      if (!paymentResult.success) {
+        return { success: false, error: paymentResult.error || 'No se pudo registrar el pago en el presupuesto.' };
+      }
+    }
+
     const updatedNotif: ClientPaymentNotification = {
       ...notif,
       estado: 'aprobado',
@@ -341,16 +357,6 @@ export async function approveClientPayment(
       clientPaymentNotifications: updatedNotifications,
     };
     await saveFiesta(updated);
-
-    // Discount from budget if linked
-    if (fiesta.presupuestoId) {
-      await addPagoToPresupuesto(fiesta.presupuestoId, {
-        fecha: new Date().toISOString(),
-        monto: notif.monto,
-        metodoPago: 'Transferencia Bancaria',
-        referencia: `Pago verificado desde Portal VIP (${notif.id})`,
-      });
-    }
 
     notifyClientPaymentApproved(fiestaId, updatedNotif).catch((error) => {
       console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);

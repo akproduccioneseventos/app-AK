@@ -14,9 +14,17 @@ export type PaymentSummary = {
   pendingCount: number;
 };
 
-function money(value: number | null | undefined) {
-  if (!Number.isFinite(value ?? 0)) return 0;
-  return Math.max(0, Number(value ?? 0));
+export type PaymentPlanInstallment = {
+  monto?: number | null;
+  montoPagado?: number | null;
+  estado?: PaymentInstallment['status'];
+  fechaVencimiento?: string | null;
+};
+
+function money(value: unknown) {
+  const parsed = Number(value ?? 0);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.max(0, Math.round(parsed));
 }
 
 function isOverdue(installment: PaymentInstallment, now = new Date()) {
@@ -51,7 +59,7 @@ export function getPaymentSummary(installments: PaymentInstallment[], now = new 
       summary.overdueCount += 1;
     }
 
-    summary.balance = Math.max(0, summary.total - summary.paid);
+    summary.balance = money(summary.total - summary.paid);
     return summary;
   }, {
     total: 0,
@@ -61,4 +69,16 @@ export function getPaymentSummary(installments: PaymentInstallment[], now = new 
     paidCount: 0,
     pendingCount: 0,
   });
+}
+
+export function getPaymentPlanSummary(cuotas: PaymentPlanInstallment[] = [], now = new Date()): PaymentSummary {
+  return getPaymentSummary(
+    cuotas.map((cuota) => ({
+      amount: cuota.monto ?? 0,
+      paidAmount: cuota.montoPagado ?? 0,
+      status: cuota.estado,
+      dueDate: cuota.fechaVencimiento,
+    })),
+    now,
+  );
 }

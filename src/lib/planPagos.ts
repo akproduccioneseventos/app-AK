@@ -1,15 +1,16 @@
 import type { PlanPagos, CuotaPlanPagoContrato } from '@/types/fiesta';
 import type { PagoCliente } from '@/types/presupuesto';
+import { isConfirmedClientPayment, roundMoney } from '@/lib/budget/financial-guardrails';
 
 /**
  * Calcula cuántos meses completos hay entre dos fechas.
  */
 export function diferenciaMeses(desde: Date, hasta: Date): number {
-  const years = hasta.getUTCFullYear() - desde.getUTCFullYear();
-  const months = hasta.getUTCMonth() - desde.getUTCMonth();
+  const years = hasta.getFullYear() - desde.getFullYear();
+  const months = hasta.getMonth() - desde.getMonth();
   const totalMeses = years * 12 + months;
   // If the day of 'hasta' is before 'desde', subtract one partial month
-  if (hasta.getUTCDate() < desde.getUTCDate()) {
+  if (hasta.getDate() < desde.getDate()) {
     return Math.max(0, totalMeses - 1);
   }
   return Math.max(0, totalMeses);
@@ -48,6 +49,7 @@ export function generarPlanPagos(
 ): PlanPagos {
   const hoy = new Date();
   const evento = new Date(fechaEvento);
+  const totalContratoSeguro = roundMoney(totalContrato);
 
   const mesesHastaEvento = diferenciaMeses(hoy, evento);
   const mesesLimite = calcularMesesLimite(mesesHastaEvento);
@@ -56,7 +58,7 @@ export function generarPlanPagos(
   const fechaLimite = new Date(evento);
   fechaLimite.setMonth(fechaLimite.getMonth() - mesesLimite);
 
-  const montoObjetivo30 = Math.round(totalContrato * (porcentajeMinimo / 100));
+  const montoObjetivo30 = Math.round(totalContratoSeguro * (porcentajeMinimo / 100));
 
   // Generar cuotas trimestrales
   const cuotas: CuotaPlanPagoContrato[] = [];
@@ -147,7 +149,9 @@ export function recalcularEstadoCuotas(
 ): PlanPagos {
   const hoy = new Date();
   const pagosOrdenados = [...pagos]
-    .filter(p => p.estadoPago !== 'pendiente_confirmacion')
+    .filter(isConfirmedClientPayment)
+    .map(p => ({ ...p, monto: roundMoney(p.monto) }))
+    .filter(p => p.monto > 0)
     .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
   let montoPendienteDistribuir = pagosOrdenados.reduce(
@@ -224,8 +228,10 @@ export function getPorcentajePagado(
   totalContrato: number,
   totalPagado: number,
 ): number {
-  if (totalContrato <= 0) return 0;
-  return Math.min(100, Math.round((totalPagado / totalContrato) * 100));
+  const total = roundMoney(totalContrato);
+  const paid = roundMoney(totalPagado);
+  if (total <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((paid / total) * 100)));
 }
 
 // ─── Internal helpers ──────────────────────────────────────────────────────────

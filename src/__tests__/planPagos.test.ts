@@ -167,6 +167,19 @@ describe('recalcularEstadoCuotas', () => {
     const hasNonPendiente = updated.cuotas.some(c => c.estado !== 'pendiente' && c.estado !== 'vencida');
     expect(hasNonPendiente).toBe(false);
   });
+
+  it('does not count rejected payments', () => {
+    const fechaEvento = new Date();
+    fechaEvento.setFullYear(fechaEvento.getFullYear() + 1);
+    const plan = generarPlanPagos(fechaEvento.toISOString(), 50000);
+    const pagos: PagoCliente[] = [
+      { id: 'p1', fecha: new Date().toISOString(), monto: 50000, metodoPago: 'Efectivo', estadoPago: 'rechazado' },
+    ];
+    const updated = recalcularEstadoCuotas(plan, pagos);
+
+    const hasNonPendiente = updated.cuotas.some(c => c.estado !== 'pendiente' && c.estado !== 'vencida');
+    expect(hasNonPendiente).toBe(false);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
