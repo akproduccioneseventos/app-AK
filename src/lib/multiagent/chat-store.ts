@@ -69,23 +69,27 @@ export async function appendMultiAgentChatTurn(input: {
         updatedAt: timestamp,
       };
 
+  const userMessage: AkAgentChatMessage = {
+    id: createId('user'),
+    role: 'user',
+    content: input.userMessage,
+    agentType: input.agentType,
+    createdAt: timestamp,
+  };
+
+  const assistantMessage: AkAgentChatMessage = {
+    id: createId('assistant'),
+    role: 'assistant',
+    content: input.assistantMessage,
+    agentType: input.agentType,
+    agentName: input.agentName,
+    createdAt: timestamp,
+  };
+
   const messages: AkAgentChatMessage[] = [
     ...baseSession.messages,
-    {
-      id: createId('user'),
-      role: 'user',
-      content: input.userMessage,
-      agentType: input.agentType,
-      createdAt: timestamp,
-    },
-    {
-      id: createId('assistant'),
-      role: 'assistant',
-      content: input.assistantMessage,
-      agentType: input.agentType,
-      agentName: input.agentName,
-      createdAt: timestamp,
-    },
+    userMessage,
+    assistantMessage,
   ].slice(-MAX_MESSAGES_PER_SESSION);
 
   const updated: AkAgentChatSession = {
