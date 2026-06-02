@@ -60,7 +60,7 @@ export function getClientPortalHealth(input: PortalHealthInput): PortalHealthRes
   }
 
   if (missingSections.length > 0) {
-    score -= Math.min(25, missingSections.length * 5);
+    score -= Math.min(45, missingSections.length * 9);
     messages.push(`Faltan secciones: ${missingSections.join(', ')}.`);
   }
 

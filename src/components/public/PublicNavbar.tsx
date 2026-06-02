@@ -36,7 +36,18 @@ export function PublicNavbar({
           </span>
         </Link>
 
-        {/* CTA Button */}
+        <nav className="hidden items-center gap-5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 md:flex">
+          <Link href="/public" className="transition hover:text-purple-700">
+            Inicio
+          </Link>
+          <Link href="/public/blog" className="transition hover:text-purple-700">
+            Blog
+          </Link>
+          <Link href="/simulador-de-presupuesto" className="transition hover:text-purple-700">
+            Simulador
+          </Link>
+        </nav>
+
         <a href={waHref} target="_blank" rel="noopener noreferrer">
           <button
             className={cn(
