@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, Loader2, FileArchive, Sparkles, CheckCircle2, FileText, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, UploadCloud, Loader2, FileArchive, Sparkles, CheckCircle2, FileText, AlertTriangle, Download, DatabaseZap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { processHistoricRecord } from '@/app/actions/historicos';
@@ -22,6 +22,7 @@ export default function CargaHistoricosPage() {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isImportingConfirmedEvents, setIsImportingConfirmedEvents] = useState(false);
 
     const [clienteNombre, setClienteNombre] = useState('');
     const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
@@ -107,6 +108,26 @@ export default function CargaHistoricosPage() {
         }
     };
 
+    const handleImportConfirmedEvents = async () => {
+        setIsImportingConfirmedEvents(true);
+        try {
+            const response = await fetch('/api/imports/confirmed-events-29', { method: 'POST' });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || result.details || 'Error al cargar la importacion.');
+            }
+            toast({
+                title: 'Importacion cargada',
+                description: result.message || 'Se cargaron 29 clientes, 29 presupuestos y 29 fiestas.',
+            });
+            setTimeout(() => router.push('/eventos'), 1200);
+        } catch (error: any) {
+            toast({ title: 'Error al cargar importacion', description: error.message, variant: 'destructive' });
+        } finally {
+            setIsImportingConfirmedEvents(false);
+        }
+    };
+
     return (
         <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
@@ -121,6 +142,35 @@ export default function CargaHistoricosPage() {
                     </Button>
                 </Link>
             </div>
+
+            <Card className="border-emerald-200 bg-emerald-50/70 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-emerald-900">
+                        <DatabaseZap className="w-5 h-5 text-emerald-700" />
+                        Importacion lista: 29 fiestas contratadas
+                    </CardTitle>
+                    <CardDescription className="text-emerald-800">
+                        Carga directa validada para clientes, presupuestos y fiestas futuras. No reemplaza el catalogo completo; agrega solo las compatibilidades faltantes.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Button
+                        type="button"
+                        onClick={handleImportConfirmedEvents}
+                        disabled={isImportingConfirmedEvents || isSubmitting || isAnalyzing}
+                        className="h-12 rounded-xl bg-emerald-700 font-bold text-white hover:bg-emerald-800"
+                    >
+                        {isImportingConfirmedEvents ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
+                        {isImportingConfirmedEvents ? 'Cargando...' : 'Cargar 29 fiestas ahora'}
+                    </Button>
+                    <a href="/api/imports/confirmed-events-29" download className="block">
+                        <Button type="button" variant="outline" className="h-12 w-full rounded-xl border-emerald-300 bg-white font-bold text-emerald-800 hover:bg-emerald-50">
+                            <Download className="w-4 h-4 mr-2" />
+                            Descargar JSON validado
+                        </Button>
+                    </a>
+                </CardContent>
+            </Card>
             
             <Card className="shadow-lg border-primary/20">
                 <CardHeader>

@@ -64,6 +64,11 @@ const safeImageUrl = (url?: string): string | undefined => {
     }
 };
 
+const DURATION_OPTIONS = [
+    { value: 3, title: 'Menos de 4 horas', subtitle: 'Fiesta chica', detail: '1 entrada habilitada' },
+    { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
+] as const;
+
 function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): { qty: number, unitPrice: number, total: number } {
   if (!servicio) return { qty: 0, unitPrice: 0, total: 0 };
   
@@ -124,7 +129,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: getCateringDishImage(item),
+        imageUrl: undefined,
         isFeatured: item.isFeatured,
     };
 };
@@ -878,7 +883,34 @@ function SimuladorContent() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Duración (Horas)</Label><Input type="number" value={duracionHoras} onChange={e => setDuracionHoras(Number(e.target.value))} className="h-14 rounded-2xl font-black bg-slate-50 border-none shadow-inner text-xl px-6"/></div>
+                                <div className="space-y-2.5">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Duracion del evento</Label>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {DURATION_OPTIONS.map(option => {
+                                            const selected = duracionHoras === option.value;
+                                            return (
+                                                <button
+                                                    key={option.value}
+                                                    type="button"
+                                                    onClick={() => setDuracionHoras(option.value)}
+                                                    className={cn(
+                                                        'h-full rounded-2xl border-2 bg-white px-4 py-3 text-left transition-all',
+                                                        selected
+                                                            ? 'border-indigo-500 bg-indigo-50 text-indigo-950 shadow-lg shadow-indigo-100'
+                                                            : 'border-slate-200 text-slate-700 hover:border-indigo-200 hover:bg-slate-50'
+                                                    )}
+                                                >
+                                                    <span className="flex items-center justify-between gap-3">
+                                                        <span className="text-sm font-black">{option.title}</span>
+                                                        {selected && <Check className="h-5 w-5 text-indigo-600" />}
+                                                    </span>
+                                                    <span className="mt-1 block text-xs font-bold text-slate-500">{option.subtitle}</span>
+                                                    <span className="mt-2 block text-xs text-slate-500">{option.detail}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             </div>
                             <div className="space-y-2.5">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fecha del Evento *</Label>

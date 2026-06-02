@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -39,6 +40,12 @@ import {
   ChevronUp,
   Loader2,
   Pencil,
+  ArrowRight,
+  Globe2,
+  Megaphone,
+  MonitorPlay,
+  Presentation,
+  RadioTower,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type {
@@ -178,6 +185,58 @@ const TAREAS_DEFAULT = [
   { tarea: 'Post en feed', canal: 'Instagram' },
   { tarea: 'Reel / TikTok', canal: 'TikTok' },
   { tarea: 'Seguimiento WhatsApp', canal: 'WhatsApp' },
+];
+
+const MARKETING_HUB_ITEMS = [
+  {
+    title: 'Redes sociales',
+    description: 'Planifica publicaciones, calendario, piezas y contenido real para Instagram, Facebook, TikTok y WhatsApp.',
+    href: '/empresa/redes-sociales',
+    icon: Megaphone,
+    tone: 'bg-pink-50 text-pink-700 border-pink-100',
+  },
+  {
+    title: 'IA de marketing',
+    description: 'Genera copies, ideas de campana, respuestas de venta y mensajes para seguimiento comercial.',
+    href: '/empresa/redes-sociales/ia-marketing',
+    icon: Sparkles,
+    tone: 'bg-violet-50 text-violet-700 border-violet-100',
+  },
+  {
+    title: 'Plantilla LED',
+    description: 'Portafolio visual para vender en reunion: beneficios, servicios, tecnologia y cierre comercial.',
+    href: '/presentacion-led/portafolio',
+    icon: Presentation,
+    tone: 'bg-blue-50 text-blue-700 border-blue-100',
+  },
+  {
+    title: 'Demo tecnologia AK',
+    description: 'Pagina de demostracion para mostrar portal, pantalla, muro, QR y estaciones sin crear una fiesta real.',
+    href: '/marketing/demo-tecnologia',
+    icon: MonitorPlay,
+    tone: 'bg-slate-100 text-slate-800 border-slate-200',
+  },
+  {
+    title: 'Web publica',
+    description: 'Editar la landing, beneficios, servicios, imagen del equipo, fotos y llamados a WhatsApp.',
+    href: '/empresa/landing-editor',
+    icon: Globe2,
+    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  },
+  {
+    title: 'Biblioteca visual',
+    description: 'Fotos, videos y recursos para que la venta muestre la empresa real y no solo textos.',
+    href: '/settings/biblioteca-visual-ak',
+    icon: RadioTower,
+    tone: 'bg-amber-50 text-amber-700 border-amber-100',
+  },
+];
+
+const MARKETING_FOCUS = [
+  'Vender AK como solucion completa: salon, organizacion, servicios y tranquilidad.',
+  'Mostrar tecnologia como diferencial: portal, pantalla LED, QR, muro social, fotocabina, 360 y post-fiesta.',
+  'Separar demo comercial de planificacion real: la demo muestra, no crea eventos activos.',
+  'Mantener redes, web, plantillas y mensajes de venta en un solo lugar operativo.',
 ];
 
 function buildDefaultChecklist(semana: string): ChecklistItem[] {
@@ -524,12 +583,12 @@ export default function MarketingPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-100 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-3">
           <div className="p-2 bg-indigo-100 rounded-xl">
             <Sparkles className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 leading-none">Marketing Studio</h1>
+            <h1 className="text-lg font-black text-slate-900 leading-none">Marketing AK 360</h1>
             <p className="text-[11px] text-slate-400 uppercase tracking-widest font-bold">
               XV Años · Premium
             </p>
@@ -537,7 +596,66 @@ export default function MarketingPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pb-20">
+      <div className="max-w-6xl mx-auto px-4 pb-20">
+        <section className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
+          <Card className="overflow-hidden rounded-2xl border-slate-200 bg-slate-950 text-white shadow-xl">
+            <CardContent className="grid gap-6 p-5 sm:p-6 md:grid-cols-[1fr_.85fr]">
+              <div className="space-y-5">
+                <Badge className="w-fit bg-white text-slate-950 hover:bg-white">Modulo comercial</Badge>
+                <div>
+                  <h2 className="text-2xl font-black leading-tight sm:text-4xl">Todo lo que vende AK en un solo panel</h2>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-white/65">
+                    Redes, mensajes, plantilla LED, web publica, demo de tecnologia y biblioteca visual quedan ordenados como marketing,
+                    no mezclados con la planificacion interna de fiestas.
+                  </p>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {MARKETING_FOCUS.map((item) => (
+                    <div key={item} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-xs font-bold leading-relaxed text-white/75">
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <p className="text-xs font-black uppercase tracking-widest text-white/50">Ruta de venta sugerida</p>
+                <div className="mt-4 space-y-3">
+                  {['Web publica', 'Demo tecnologia', 'Plantilla LED', 'Simulador', 'WhatsApp / cierre'].map((step, index) => (
+                    <div key={step} className="flex items-center gap-3 rounded-xl bg-white px-3 py-2 text-slate-950">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-xs font-black text-white">{index + 1}</span>
+                      <span className="text-sm font-black">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {MARKETING_HUB_ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.title} href={item.href} className="group block h-full">
+                  <Card className="h-full rounded-2xl border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl">
+                    <CardContent className="flex h-full min-h-[142px] flex-col justify-between p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className={`rounded-xl border p-3 ${item.tone}`}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-slate-300 transition group-hover:translate-x-1 group-hover:text-slate-700" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-slate-950">{item.title}</h3>
+                        <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-500">{item.description}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
         <Tabs value={tab} onValueChange={v => setTab(v as TabMarketing)} className="mt-4">
           <TabsList className="grid grid-cols-3 w-full h-12 rounded-xl bg-slate-100 p-1">
             <TabsTrigger value="generador" className="rounded-lg text-[11px] font-bold">

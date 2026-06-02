@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ClipboardCopy, Download, Edit3, MessageSquare, Share2 } from 'lucide-react';
@@ -24,6 +24,14 @@ function buildBudgetShareText(url: string) {
 }
 
 export function BudgetShareDock() {
+  return (
+    <Suspense fallback={null}>
+      <BudgetShareDockInner />
+    </Suspense>
+  );
+}
+
+function BudgetShareDockInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { toast } = useToast();
