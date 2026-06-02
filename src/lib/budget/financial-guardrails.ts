@@ -115,7 +115,7 @@ export function calculateBudgetFinancials(
   const hasUsableSplit = hasExplicitGuestSplit(presupuesto) && splitTotal > 0;
   const adultos = hasUsableSplit
     ? roundMoney(presupuesto.invitadosAdultos)
-    : roundMoney(presupuesto.invitadosCantidad);
+    : resolveBudgetGuestTotal(presupuesto);
   const adolescentes = hasUsableSplit ? roundMoney(presupuesto.invitadosAdolescentes) : 0;
   const ninos = hasUsableSplit ? roundMoney(presupuesto.invitadosNinos) : 0;
 
