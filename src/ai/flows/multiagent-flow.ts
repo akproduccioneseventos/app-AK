@@ -250,8 +250,8 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
   // ── Bloque de fiesta enriquecido ──────────────────────────────────────────
   const fiestaBlock = fiesta ? `
 FIESTA ACTIVA: "${nombre || fiesta.id}"
-• Tipo: ${fiestaTipo(fiesta) || 'sin tipo'} | Fecha: ${fiesta.configuracion?.fechaEvento || 'sin fecha'} | Salón: ${fiesta.configuracion?.salon || 'sin salón'}
-• Invitados: ${fiestaInvitados(fiesta)} (adultos: ${fiesta.configuracion?.adultos || 0}, niños: ${(fiesta.configuracion?.ninos || 0) + (fiesta.configuracion?.adolescentes || 0)})
+• Tipo: ${fiestaTipo(fiesta) || 'sin tipo'} | Fecha: ${fiesta.configuracion?.fechaEvento || 'sin fecha'} | Salón: ${fiesta.configuracion?.nombreLugar || 'sin salón'}
+• Invitados: ${fiestaInvitados(fiesta)} (adultos: ${fiesta.configuracion?.invitadosAdultos || 0}, niños: ${(fiesta.configuracion?.invitadosNinos || 0) + (fiesta.configuracion?.invitadosAdolescentes || 0)})
 • Estado: ${fiesta.estado || 'sin estado'} | Módulos: ${(fiesta.modulosContratados || []).join(', ') || 'ninguno'}
 • Tareas totales: ${fiesta.tareas?.length || 0} | Pendientes: ${(fiesta.tareas || []).filter((t: any) => !t.completada).length}
 TAREAS PENDIENTES (${(fiesta.tareas || []).filter((t: any) => !t.completada).length}):
