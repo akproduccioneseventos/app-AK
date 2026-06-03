@@ -10,11 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import {
   Loader2, MessageSquare, ArrowRight, ArrowLeft, Check, Gift,
   Users, CalendarDays, Home, Sparkles, Star, Phone, User,
-  ChevronRight, Download, CalendarCheck, Zap, Clock, PartyPopper,
-  X, Bot, Send, CheckCircle2, TrendingDown, Copy,
+  Download, Zap, Clock, PartyPopper,
+  X, Bot, Send, CheckCircle2, TrendingDown,
+  Copy, CalendarCheck, ChevronRight,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PublicFooter } from '@/components/public-footer';
 import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
@@ -39,13 +39,18 @@ import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { LandingFaqItem } from '@/types/landing-editor';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
+import {
+  buildAnnualAdjustmentProjection,
+  calculatePricePerPerson,
+  DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+  type AnnualAdjustmentProjection,
+} from '@/lib/budget/formal-budget';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const WHATSAPP_NUMBER = '59898355530';
 const STORAGE_KEY = 'ak_simulador_ak_v1';
 const TOTAL_STEPS = 8; // wizard steps 1-8 (welcome is step 0)
-const DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE = 15;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -115,13 +120,12 @@ type ServicioDetallado = {
 type PriceStats = {
   subtotalVenta: number;
   totalFinal: number;
-  totalProyectado: number;
-  ajusteAnual: number;
-  aniosDiferencia: number;
-  eventYear: number;
   descPromo: number;
   ahorroRegalos: number;
   detallados: ServicioDetallado[];
+  annualProjection: AnnualAdjustmentProjection;
+  precioPorPersona: number;
+  discountPercentage: number;
 };
 
 // ─── Pricing Data ─────────────────────────────────────────────────────────────
@@ -470,25 +474,26 @@ export default function SimuladorAKPage() {
         esRecomendado: recommendedIds.has(servicio.id),
       });
     });
-    const descPromo = Math.round(totalRegular * DISCOUNT_RATE);
+    const discountPercentage = Math.max(0, Number(config.descuentoGeneral ?? DISCOUNT_RATE * 100) || 0);
+    const discountRate = discountPercentage / 100;
+    const descPromo = Math.round(totalRegular * discountRate);
     const ahorroRegalos = detallados.filter(d => d.esRegalo).reduce((acc, d) => acc + d.costoTotal, 0);
-    const totalSinAjuste = totalRegular - descPromo;
-    const eventYear = state.eventoFecha ? new Date(state.eventoFecha).getFullYear() : new Date().getFullYear();
-    const currentYear = new Date().getFullYear();
-    const aniosDif = Math.max(0, eventYear - currentYear);
-    const annualMultiplier = 1 + ((annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) / 100);
-    const totalFinal = Math.round(totalSinAjuste);
-    const totalProyectado = Math.round(totalSinAjuste * Math.pow(annualMultiplier, aniosDif));
+    const totalFinal = Math.round(totalRegular - descPromo);
+    const annualProjection = buildAnnualAdjustmentProjection({
+      baseTotal: totalFinal,
+      eventDate: state.eventoFecha,
+      adjustmentPct: annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+    });
+    const precioPorPersona = calculatePricePerPerson(totalFinal, state.adultos + state.ninos);
     return {
       subtotalVenta: Math.round(totalRegular),
       totalFinal,
-      totalProyectado,
-      ajusteAnual: Math.max(0, totalProyectado - totalFinal),
-      aniosDiferencia: aniosDif,
-      eventYear,
       descPromo,
       ahorroRegalos,
       detallados,
+      annualProjection,
+      precioPorPersona,
+      discountPercentage,
     };
   }, [config, state, allSimuladorServices, serviciosCatalogo, annualAdjustmentPercentage]);
 
@@ -611,9 +616,9 @@ export default function SimuladorAKPage() {
       const { total } = getServicioCalculatedData(servicio, state.adultos, state.ninos);
       if (!esRegalo) totalRegular += total;
     });
-    const descPromo = Math.round(totalRegular * DISCOUNT_RATE);
-    const totalSinAjuste = totalRegular - descPromo;
-    return Math.round(totalSinAjuste);
+    const discountPercentage = Math.max(0, Number(config.descuentoGeneral ?? DISCOUNT_RATE * 100) || 0);
+    const descPromo = Math.round(totalRegular * (discountPercentage / 100));
+    return Math.round(totalRegular - descPromo);
   }, [config, state, allSimuladorServices, serviciosCatalogo]);
 
   const allPackagePricesMap = useMemo<Record<string, number>>(() => {
@@ -701,9 +706,9 @@ export default function SimuladorAKPage() {
         ninos:           state.ninos,
         subtotal:        priceStats?.subtotalVenta ?? 0,
         costoEstimado:   priceStats?.totalFinal ?? 0,
-        descuentoGeneral: DISCOUNT_RATE * 100,
-        ajusteAnualActivo: Boolean(state.eventoFecha && new Date(state.eventoFecha).getFullYear() > new Date().getFullYear()),
-        ajusteAnualPorcentaje: annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+        descuentoGeneral: priceStats?.discountPercentage ?? DISCOUNT_RATE * 100,
+        ajusteAnualActivo: Boolean(priceStats?.annualProjection.applies),
+        ajusteAnualPorcentaje: priceStats?.annualProjection.adjustmentPct ?? annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
         paqueteNombre:   pkgMeta,
         serviciosIncluidos: items.map(i => i.idServicioCatalogo),
         items,
@@ -749,7 +754,7 @@ export default function SimuladorAKPage() {
       pkgMeta ? `Paquete: ${pkgMeta}` : '',
       priceStats ? `Precio vigente estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
       generatedId ? `Nro presupuesto: ${generatedId}` : '',
-      generatedId ? `Link: ${window.location.origin}/presupuestos/${generatedId}/ver` : '',
+      generatedId ? `Link: ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1` : '',
       `\nMe gustaría coordinar una reunión para cerrar los detalles 🎉`,
     ].filter(Boolean);
     return encodeURIComponent(parts.join('\n'));
@@ -759,7 +764,7 @@ export default function SimuladorAKPage() {
 
   const handlePrint = useCallback(() => {
     if (generatedId) {
-      window.open(`/presupuestos/${generatedId}/ver?imprimir=1`, '_blank');
+      window.open(`/presupuestos/${generatedId}/ver?imprimir=1&cliente=1&direct=1`, '_blank');
       return;
     }
     window.print();
@@ -957,7 +962,7 @@ export default function SimuladorAKPage() {
               {priceStats ? (
                 <>
                   <span className="text-white/60 text-xs">{formatCurrency(priceStats.subtotalVenta)}</span>
-                  <Badge className="bg-green-500 text-white text-xs px-2">-{Math.round(DISCOUNT_RATE * 100)}%</Badge>
+                  <Badge className="bg-green-500 text-white text-xs px-2">-{priceStats.discountPercentage}%</Badge>
                   <span className="text-white font-black text-sm">{formatCurrency(priceStats.totalFinal)}</span>
                 </>
               ) : (
@@ -1049,10 +1054,6 @@ export default function SimuladorAKPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="print:hidden">
-        <PublicFooter className="border-t border-white/10 bg-black/20" />
       </div>
     </div>
   );
@@ -1589,15 +1590,20 @@ function StepMenus({
   const DishButton = ({ s, selected, onClick }: { s: ServicioEmpresa; selected: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
-      className={cn('rounded-xl p-3 border text-left relative', selected ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
+      className={cn('rounded-xl p-3 border text-left relative flex items-center gap-3 min-h-20', selected ? 'border-violet-400 bg-violet-500/30' : 'border-white/10 bg-white/5')}
     >
       {recommendedDishIds.has(s.id) && (
         <span className="absolute -top-2 right-2 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider rounded-full px-2 py-0.5 flex items-center gap-1">
           <Star className="w-2.5 h-2.5" /> Recomendado
         </span>
       )}
-      <p className="text-white text-sm font-bold mt-1">{s.nombre}</p>
-      <p className="text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</p>
+      {s.imageUrl && (
+        <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-14 w-14 shrink-0 rounded-lg object-cover border border-white/10 bg-white/10" />
+      )}
+      <span className="min-w-0">
+        <span className="block text-white text-sm font-bold mt-1 truncate">{s.nombre}</span>
+        <span className="block text-violet-300 text-xs">{formatCurrency(s.precioPorPersona ?? s.precioVenta ?? 0)}</span>
+      </span>
     </button>
   );
 
@@ -1606,7 +1612,10 @@ function StepMenus({
     [...list].sort((a, b) => {
       const aIsRecommended = recommendedDishIds.has(a.id) ? 0 : 1;
       const bIsRecommended = recommendedDishIds.has(b.id) ? 0 : 1;
-      return aIsRecommended - bIsRecommended;
+      if (aIsRecommended !== bIsRecommended) return aIsRecommended - bIsRecommended;
+      const aPrice = a.precioPorPersona ?? a.precioVenta ?? 0;
+      const bPrice = b.precioPorPersona ?? b.precioVenta ?? 0;
+      return bPrice - aPrice;
     });
 
   return (
@@ -1694,7 +1703,18 @@ function StepHours({
 // ─── Step: Conversion ────────────────────────────────────────────────────────
 
 function StepConversion({
-  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, rawWAMessage, empresaPhone, annualAdjustmentPercentage, faqs,
+  state,
+  prices,
+  generatedId,
+  isSubmitting,
+  onSubmit,
+  onPrev,
+  waUrl,
+  onPrint,
+  rawWAMessage,
+  empresaPhone,
+  annualAdjustmentPercentage,
+  faqs,
 }: {
   state: SimuladorState;
   prices: PriceStats | null;
@@ -1709,7 +1729,6 @@ function StepConversion({
   annualAdjustmentPercentage: number;
   faqs: LandingFaqItem[];
 }) {
-  const { toast } = useToast();
   const submitted = !!generatedId;
   const currentYear = new Date().getFullYear();
   const [meetingAnswer, setMeetingAnswer] = useState<'si' | 'no' | null>(null);
@@ -1785,20 +1804,39 @@ function StepConversion({
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-amber-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Bonificación especial ({Math.round(DISCOUNT_RATE * 100)}%)</span>
+                <span className="text-amber-400 flex items-center gap-1"><TrendingDown className="w-3.5 h-3.5" /> Bonificación especial ({prices.discountPercentage}%)</span>
                 <span className="text-amber-400 font-bold">- {formatCurrency(prices.descPromo)}</span>
               </div>
-              {prices.ajusteAnual > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-blue-300">Referencia {prices.eventYear} con ajuste</span>
-                  <span className="text-blue-200 font-bold">{formatCurrency(prices.totalProyectado)}</span>
-                </div>
-              )}
               <div className="border-t border-white/10 pt-2 flex justify-between">
                 <span className="text-white font-black">PRECIO VIGENTE</span>
                 <span className="text-white font-black text-xl">{formatCurrency(prices.totalFinal)}</span>
               </div>
+              {prices.precioPorPersona > 0 && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-violet-300">Valor aprox. por persona</span>
+                  <span className="text-white font-bold">{formatCurrency(prices.precioPorPersona)}</span>
+                </div>
+              )}
             </div>
+
+            {prices.annualProjection.applies && (
+              <div className="border border-blue-400/25 bg-blue-500/10 rounded-xl p-3 space-y-2">
+                <p className="text-blue-100 text-[11px] font-bold uppercase tracking-wider">
+                  Proyeccion por ajuste anual ({prices.annualProjection.adjustmentPct}%)
+                </p>
+                <div className="space-y-1">
+                  {prices.annualProjection.rows.map((row) => (
+                    <div key={row.year} className="flex justify-between text-xs">
+                      <span className="text-blue-200">Total estimado {row.year}</span>
+                      <span className="text-white font-bold">{formatCurrency(row.total)}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-blue-200/80 text-[10px]">
+                  El total principal es el precio vigente. Esta proyeccion solo muestra el ajuste si el evento es en un anio posterior.
+                </p>
+              </div>
+            )}
 
             <div className="border-t border-white/10 pt-2 space-y-1 text-xs text-violet-300">
               <p>💵 <strong className="text-white">Seña de $5.000</strong> para reservar la fecha</p>
@@ -1808,11 +1846,13 @@ function StepConversion({
         );
       })()}
 
-      <div className="bg-blue-500/15 border border-blue-400/30 rounded-2xl p-4">
-        <p className="text-blue-100 text-sm">
-          Precios {currentYear}: el presupuesto se guarda con precio vigente. Para eventos futuros se muestra una referencia separada con ajuste anual del <strong>{annualAdjustmentPercentage}%</strong>.
-        </p>
-      </div>
+      {prices?.annualProjection.applies && (
+        <div className="bg-blue-500/15 border border-blue-400/30 rounded-2xl p-4">
+          <p className="text-blue-100 text-sm">
+            <strong>Precios {currentYear}</strong>: el total principal refleja los precios vigentes. Para el anio del evento se muestra una proyeccion separada con ajuste anual del <strong>{annualAdjustmentPercentage}%</strong>.
+          </p>
+        </div>
+      )}
 
       {/* CTA buttons */}
       <div className="space-y-3">
@@ -1927,7 +1967,6 @@ function StepConversion({
           ))}
         </div>
       )}
-
       <div className="mt-2">
         <button onClick={onPrev} className="flex items-center gap-1.5 text-violet-400 hover:text-white text-sm transition-colors">
           <ArrowLeft className="w-4 h-4" /> Volver
@@ -2041,12 +2080,11 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
                       <td colSpan={4} className="px-3 py-1.5 bg-slate-100 font-black text-[10px] uppercase tracking-widest text-slate-600">{cat}</td>
                     </tr>
                     {agrupados[cat].map((s) => (
-                      <tr key={s.id} className={cn('border-t border-slate-200', s.esRecomendado && 'bg-amber-50')}>
+                      <tr key={s.id} className="border-t border-slate-200">
                         <td className="px-3 py-2 font-medium">
                           <div className="flex items-center gap-1.5">
                             {s.nombre}
                             {s.esRegalo && <span className="text-emerald-600 text-xs font-bold">🎁 Regalo</span>}
-                            {s.esRecomendado && <span className="text-amber-600 text-[9px] font-black border border-amber-200 bg-amber-100 px-1 rounded">Destacado</span>}
                           </div>
                           {esCategoriaGastronomica(s.categoria, s.calculationMethod) && (
                             <span className="text-[10px] text-slate-400 font-medium">Precio por persona</span>
@@ -2081,12 +2119,35 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
               </div>
             )}
             <div className="flex justify-between text-amber-700 font-semibold">
-              <span>Bonificación especial ({Math.round(DISCOUNT_RATE * 100)}%)</span>
+              <span>Bonificacion especial ({prices.discountPercentage}%)</span>
               <span>- {formatCurrency(prices.descPromo)}</span>
             </div>
             <div className="flex justify-between border-t border-slate-300 pt-2 font-black text-base">
               <span>Total final</span><span>{formatCurrency(prices.totalFinal)}</span>
             </div>
+            {prices.precioPorPersona > 0 && (
+              <div className="flex justify-between text-slate-600 font-semibold">
+                <span>Valor aprox. por persona</span>
+                <span>{formatCurrency(prices.precioPorPersona)}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {prices?.annualProjection.applies && (
+          <div className="mt-5 rounded-xl border border-slate-200 overflow-hidden text-sm">
+            <div className="bg-slate-100 px-3 py-2 font-bold uppercase tracking-wide text-xs text-slate-700">
+              Proyeccion por ajuste anual ({prices.annualProjection.adjustmentPct}%)
+            </div>
+            {prices.annualProjection.rows.map((row) => (
+              <div key={row.year} className="flex justify-between px-3 py-2 border-t border-slate-200">
+                <span>Total estimado {row.year}</span>
+                <span className="font-bold">{formatCurrency(row.total)}</span>
+              </div>
+            ))}
+            <p className="px-3 py-2 text-xs text-slate-500 border-t border-slate-200">
+              El total final corresponde al precio vigente. La proyeccion es informativa para eventos de anios posteriores.
+            </p>
           </div>
         )}
 

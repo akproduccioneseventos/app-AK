@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
     ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, 
     Save, Clock, CalendarDays, Search, Check, Info, TrendingUp, 
-    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Calendar as CalendarIcon, CheckCircle2, Percent,
+    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Percent,
     ChevronDown,
     UserMinus,
     X,
@@ -40,12 +40,15 @@ import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
+import {
+  buildAnnualAdjustmentProjection,
+  calculatePricePerPerson,
+  DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+} from '@/lib/budget/formal-budget';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
-import { PublicFooter } from '@/components/public-footer';
-import { MarketingBanner } from '@/components/marketing-banner';
 import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 
 const formatCurrency = (amount?: number) => {
@@ -359,7 +362,27 @@ function SimuladorContent() {
 
     const stats = useMemo(() => {
         if (!config || !allSimuladorServices.length) {
-            return { subtotalBruto: 0, subtotalVenta: 0, descPromo: 0, ahorroRegalos: 0, totalSinAjuste: 0, ajusteAnual: 0, totalFinal: 0, totalProyectado: 0, aniosDiferencia: 0, eventYear: currentYear, agrupados: {}, detallados: [] };
+            const emptyProjection = buildAnnualAdjustmentProjection({
+                baseTotal: 0,
+                eventDate: eventoFecha,
+                adjustmentPct: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+                currentYear,
+            });
+            return {
+                subtotalBruto: 0,
+                subtotalVenta: 0,
+                descPromo: 0,
+                ahorroRegalos: 0,
+                totalSinAjuste: 0,
+                ajusteAnual: 0,
+                totalFinal: 0,
+                aniosDiferencia: 0,
+                agrupados: {},
+                detallados: [],
+                annualProjection: emptyProjection,
+                precioPorPersona: 0,
+                discountPercentage: config?.descuentoGeneral ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+            };
         }
 
         const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
@@ -416,13 +439,17 @@ function SimuladorContent() {
             });
         });
         
-        const descPromo = totalRegular * ((config.descuentoGeneral ?? 15) / 100);
+        const discountPercentage = Math.max(0, Number(config.descuentoGeneral ?? 15) || 0);
+        const descPromo = totalRegular * (discountPercentage / 100);
         const totalSinAjuste = totalRegular - descPromo;
-        const totalFinal = totalSinAjuste;
-        const eventYear = eventoFecha ? eventoFecha.getFullYear() : currentYear;
-        const aniosDiferencia = Math.max(0, eventYear - currentYear);
-        const ajustePct = Math.max(0, budgetSettings.annualAdjustmentPercentage ?? 15);
-        const totalProyectado = Math.round(totalSinAjuste * Math.pow(1 + ajustePct / 100, aniosDiferencia));
+        const totalFinal = Math.round(totalSinAjuste);
+        const annualProjection = buildAnnualAdjustmentProjection({
+            baseTotal: totalFinal,
+            eventDate: eventoFecha,
+            adjustmentPct: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+            currentYear,
+        });
+        const precioPorPersona = calculatePricePerPerson(totalFinal, adultos + ninosYAdolescentes);
 
         const agrupados = detallados.reduce((acc, item) => {
             const cat = item.categoria;
@@ -447,14 +474,15 @@ function SimuladorContent() {
             subtotalVenta: totalRegular,  
             descPromo: Math.round(descPromo),
             ahorroRegalos: totalRegalos,
-            totalSinAjuste: Math.round(totalSinAjuste),
-            ajusteAnual: Math.max(0, totalProyectado - Math.round(totalSinAjuste)),
-            totalFinal: Math.round(totalFinal),
-            totalProyectado,
-            aniosDiferencia,
-            eventYear,
+            totalSinAjuste: totalFinal,
+            ajusteAnual: annualProjection.adjustmentAmount,
+            totalFinal,
+            aniosDiferencia: annualProjection.rows.length,
             agrupados: sortedAgrupados,
-            detallados
+            detallados,
+            annualProjection,
+            precioPorPersona,
+            discountPercentage,
         };
     }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
     
@@ -493,9 +521,9 @@ function SimuladorContent() {
                 ninos: ninosYAdolescentes,
                 subtotal: stats.subtotalVenta,
                 costoEstimado: stats.totalFinal,
-                descuentoGeneral: config?.descuentoGeneral ?? 15,
-                ajusteAnualActivo: stats.aniosDiferencia > 0,
-                ajusteAnualPorcentaje: budgetSettings.annualAdjustmentPercentage ?? 15,
+                descuentoGeneral: stats.discountPercentage,
+                ajusteAnualActivo: stats.annualProjection.applies,
+                ajusteAnualPorcentaje: stats.annualProjection.adjustmentPct,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
                 paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 items: stats.detallados.map(s => {
@@ -554,29 +582,28 @@ function SimuladorContent() {
         }
     }, []);
 
-    const handleWhatsAppMeetingRequest = () => {
-        if (!whatsappNumber) return;
-        const template = budgetSettings.whatsappMessageTemplate || "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión.";
-        let texto = `*Solicitud de Reunión - Presupuesto Estimado*\n`;
-        texto += `-----------------\n`;
-        texto += `${template}\n\n`;
-        texto += `*Nombre:* ${clienteNombre}\n`;
-        texto += `*Presupuesto Estimado:* ${formatCurrency(stats.totalFinal)}\n`;
-        texto += `*Link:* ${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
-        
-        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
-    };
-
     const handleWhatsAppQuickConsult = () => {
         if (!whatsappNumber) return;
         const texto = `¡Hola! Estuve viendo el simulador de presupuestos y tengo una consulta rápida. Mi nombre es ${clienteNombre}.`;
         window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank');
     };
 
-    const handleCopyToClipboard = () => {
-        const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver`;
-        navigator.clipboard.writeText(url);
-        toast({ title: "Enlace Copiado", description: "El enlace al presupuesto se ha copiado al portapapeles." });
+    const handleShareBudgetWhatsApp = () => {
+        if (!generatedPresupuestoId) return;
+        const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1`;
+        const texto = [
+            `Hola! Te comparto el presupuesto formal de AK Producciones.`,
+            `Cliente: ${clienteNombre}`,
+            `Total vigente: ${formatCurrency(stats.totalFinal)}`,
+            stats.precioPorPersona > 0 ? `Valor por persona: ${formatCurrency(stats.precioPorPersona)}` : '',
+            `Ver presupuesto: ${url}`,
+        ].filter(Boolean).join('\n');
+        window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+    };
+
+    const handleDownloadBudgetPdf = () => {
+        if (!generatedPresupuestoId) return;
+        window.open(`/presupuestos/${generatedPresupuestoId}/ver?imprimir=1&cliente=1&direct=1`, '_blank');
     };
 
     const calculatePackageEstimatedPrice = (paquete: PaqueteArmadoRapido) => {
@@ -611,7 +638,8 @@ function SimuladorContent() {
             }
         });
 
-        const descPromo = totalRegular * 0.10;
+        const discountPercentage = Math.max(0, Number(config.descuentoGeneral ?? 15) || 0);
+        const descPromo = totalRegular * (discountPercentage / 100);
         const totalSinAjuste = totalRegular - descPromo;
         return Math.round(totalSinAjuste);
     };
@@ -651,49 +679,27 @@ function SimuladorContent() {
                                 </p>
                             </div>
                             
-                            <div className="w-full flex flex-col items-center gap-6">
-                                <div className="w-full flex flex-col gap-3 items-center">
-                                    <Button 
-                                        onClick={handleWhatsAppMeetingRequest}
-                                        size="lg" 
-                                        className="w-full max-w-md h-16 sm:h-20 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-2xl shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 px-4"
-                                    >
-                                        <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 shrink-0"/> 
-                                        <span className="text-[10px] xs:text-sm sm:text-lg uppercase leading-tight">AGENDAR REUNIÓN CON UN ASESOR</span>
-                                    </Button>
-
-                                    <Button 
-                                        variant="outline"
-                                        onClick={handleWhatsAppQuickConsult}
-                                        className="w-full max-w-sm h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-xs uppercase tracking-widest shadow-sm"
-                                    >
-                                        <MessageSquare className="w-4 h-4 mr-2"/> Consultar por WhatsApp
-                                    </Button>
-                                </div>
-
-                                {(budgetSettings.valuePropositions?.length || 0) > 0 && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
-                                        {budgetSettings.valuePropositions?.map((prop, i) => (
-                                            <div key={i} className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0"/>
-                                                <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">{prop}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                
-                                <div className="flex flex-wrap justify-center gap-2">
-                                    <Button variant="ghost" onClick={handleCopyToClipboard} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                                        <Share2 className="w-3.5 h-3.5 mr-2"/> Compartir Presupuesto
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      onClick={() => window.open(`/presupuestos/${generatedPresupuestoId}/ver?imprimir=1`, '_blank')}
-                                      className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]"
-                                    >
-                                        <Printer className="w-3.5 h-3.5 mr-2"/> Guardar PDF
-                                    </Button>
-                                </div>
+                            <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <Button
+                                    onClick={handleShareBudgetWhatsApp}
+                                    className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-widest"
+                                >
+                                    <Share2 className="w-4 h-4 mr-2"/> Compartir por WhatsApp
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={handleWhatsAppQuickConsult}
+                                    className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-xs uppercase tracking-widest"
+                                >
+                                    <MessageSquare className="w-4 h-4 mr-2"/> Contactar AK
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={handleDownloadBudgetPdf}
+                                  className="h-12 rounded-xl font-bold uppercase tracking-widest text-xs"
+                                >
+                                    <Printer className="w-4 h-4 mr-2"/> Descargar PDF
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -727,11 +733,10 @@ function SimuladorContent() {
                                                   <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 pl-8 tracking-widest py-2">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map(item => (
-                                                    <TableRow key={item.id} className={cn("hover:bg-slate-50/50 transition-colors border-slate-100", item.esRecomendado && "bg-amber-50/60 hover:bg-amber-50")}>
+                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
                                                         <TableCell className="pl-8 py-4">
                                                             <div className="flex items-center gap-2">
                                                               <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
-                                                              {item.esRecomendado && <span className="text-[9px] font-black uppercase tracking-wider text-amber-600 bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded-full">Destacado</span>}
                                                             </div>
                                                             {(budgetSettings.showIndividualPrices ?? true) && (
                                                               <p className="text-[10px] text-muted-foreground uppercase font-medium">
@@ -780,14 +785,8 @@ function SimuladorContent() {
                                 )}
                                 {stats.descPromo > 0 && (
                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400 tracking-widest">
-                                        <span>Bonificación Especial ({config?.descuentoGeneral ?? 15}%):</span>
+                                        <span>Bonificación Especial ({stats.discountPercentage}%):</span>
                                         <span>-{formatCurrency(stats.descPromo)}</span>
-                                    </div>
-                                )}
-                                {stats.ajusteAnual > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-blue-400 tracking-widest">
-                                        <span>Referencia {stats.eventYear} con ajuste:</span>
-                                        <span>{formatCurrency(stats.totalProyectado)}</span>
                                     </div>
                                 )}
                                 <Separator className="bg-white/10 print:bg-slate-300" />
@@ -795,12 +794,31 @@ function SimuladorContent() {
                                     <span className="text-sm font-black uppercase tracking-tighter text-white print:text-slate-900">Precio vigente:</span>
                                     <span className="text-3xl font-black text-white print:text-slate-900">{formatCurrency(stats.totalFinal)}</span>
                                 </div>
-                                {stats.ajusteAnual > 0 && (
-                                  <p className="text-[10px] leading-relaxed text-slate-300 print:text-slate-600">
-                                    El presupuesto se guarda con precio vigente {currentYear}; la referencia {stats.eventYear} es informativa y se ajusta al confirmar.
-                                  </p>
+                                {stats.precioPorPersona > 0 && (
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest print:text-slate-600">
+                                        <span>Valor aprox. por persona:</span>
+                                        <span>{formatCurrency(stats.precioPorPersona)}</span>
+                                    </div>
                                 )}
                             </div>
+                            {stats.annualProjection.applies && (
+                                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm">
+                                    <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                        Proyeccion de ajuste anual ({stats.annualProjection.adjustmentPct}%)
+                                    </p>
+                                    <div className="space-y-2">
+                                        {stats.annualProjection.rows.map(row => (
+                                            <div key={row.year} className="flex items-center justify-between border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                                                <span className="font-semibold text-slate-600">Total estimado {row.year}</span>
+                                                <span className="font-black text-slate-900">{formatCurrency(row.total)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="mt-3 text-xs font-medium text-slate-500">
+                                        El presupuesto principal muestra el precio vigente {stats.annualProjection.currentYear}. El ajuste futuro es informativo y se aplica por contrato si la fecha pasa a otro anio.
+                                    </p>
+                                </div>
+                            )}
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
                             <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 w-full">
@@ -811,16 +829,6 @@ function SimuladorContent() {
                         </CardFooter>
                     </Card>
                 </motion.div>
-                <div className="w-full max-w-3xl print:hidden">
-                  <MarketingBanner
-                    variant="full"
-                    showCTA={true}
-                    className="mt-4"
-                  />
-                </div>
-                <div className="w-full max-w-3xl print:hidden">
-                  <PublicFooter className="rounded-[1.5rem] mt-4" />
-                </div>
             </div>
         );
     }
@@ -972,6 +980,9 @@ function SimuladorContent() {
                                                   </div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
+                                                {s.imageUrl && (
+                                                    <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-slate-200 bg-white" />
+                                                )}
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -1006,6 +1017,9 @@ function SimuladorContent() {
                                                   </div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
+                                                {s.imageUrl && (
+                                                    <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-slate-200 bg-white" />
+                                                )}
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -1041,6 +1055,9 @@ function SimuladorContent() {
                                                       </div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
+                                                    {s.imageUrl && (
+                                                        <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-purple-100 bg-white" />
+                                                    )}
                                                     <div className="flex flex-col flex-grow min-w-0">
                                                         <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                         <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -1120,7 +1137,10 @@ function SimuladorContent() {
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-                              📅 <strong>Precios {currentYear}</strong> — El precio oficial se guarda vigente; para eventos futuros se muestra una referencia separada con ajuste anual del <strong>{budgetSettings.annualAdjustmentPercentage ?? 15}%</strong>.
+                              <strong>Precios {currentYear}</strong>
+                              {stats.annualProjection.applies
+                                ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
+                                : <> — El total mostrado corresponde al precio vigente.</>}
                             </div>
                         </div>
                     )}
@@ -1141,7 +1161,6 @@ function SimuladorContent() {
                     </div>
                 </CardFooter>
             </Card>
-            <PublicFooter className="w-full max-w-3xl rounded-[1.5rem]" />
         </div>
     );
 }

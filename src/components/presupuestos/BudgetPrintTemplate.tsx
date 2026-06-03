@@ -12,6 +12,8 @@
 import React from 'react';
 import Image from 'next/image';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
+import type { AnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
+import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -20,9 +22,9 @@ const COMPANY_ADDRESS_LINE1 = 'Salto';
 const COMPANY_ADDRESS_LINE2 = '50000 Salto';
 const COMPANY_EMAIL = 'akproduccionessalto@gmail.com';
 const COMPANY_WEBSITE = 'www.akproduccioneseventos.com';
-const BUDGET_VALIDITY_NOTE =
-  'El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.';
 const BUDGET_VALIDITY_DAYS = 30;
+const FORMAL_BOOKING_NOTE =
+  'El presupuesto es valido por 30 dias. Durante este mes podes reservar la fecha con una sena de $ 5.000; la contratacion final se confirma con el contrato correspondiente.';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatCurrency(amount?: number): string {
@@ -66,6 +68,12 @@ function formatDateLong(dateString?: string): string {
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
+function getItemUnitLabel(item: ItemPresupuestado): string {
+  if (item.unidad) return item.unidad;
+  if (item.calculationMethod === 'porPersona') return 'persona';
+  return 'serv.';
+}
+
 export interface BudgetPrintTemplateProps {
   presupuesto: Presupuesto;
   /** URL to the company logo. Falls back to inline SVG if null. */
@@ -76,6 +84,12 @@ export interface BudgetPrintTemplateProps {
   annualAdjustmentAmount?: number;
   /** Whether to show the price breakdown table */
   showPriceBreakdown?: boolean;
+  /** Informative annual projection; it does not change the current-price total. */
+  annualProjection?: AnnualAdjustmentProjection;
+  /** Current total divided by the guest count. */
+  pricePerPerson?: number;
+  /** Booking deposit shown in simulator/public budgets. */
+  bookingDepositAmount?: number;
   /** Name to use in the client signature line (falls back to presupuesto.clienteNombre) */
   clienteNombre?: string;
   /** Signatures only belong in confirmed contractual documents. */
@@ -89,6 +103,9 @@ export default function BudgetPrintTemplate({
   adjustmentPct = 15,
   annualAdjustmentAmount = 0,
   showPriceBreakdown = true,
+  annualProjection,
+  pricePerPerson = 0,
+  bookingDepositAmount = DEFAULT_BOOKING_DEPOSIT_AMOUNT,
   clienteNombre,
   showSignatures = false,
 }: BudgetPrintTemplateProps) {
@@ -120,7 +137,15 @@ export default function BudgetPrintTemplate({
   const subtotalBruto = presupuesto.costoTotalEstimado;
   const totalFinal = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
   const descuentoPromo = Math.max(0, subtotalBruto - totalFinal);
-  const grandTotal = totalFinal + annualAdjustmentAmount;
+  const projectionRows = annualProjection?.rows?.length
+    ? annualProjection.rows
+    : annualAdjustmentAmount > 0
+      ? [{
+          year: new Date(presupuesto.eventoFecha || presupuesto.timestamp).getFullYear(),
+          total: totalFinal + annualAdjustmentAmount,
+          adjustmentAmount: annualAdjustmentAmount,
+        }]
+      : [];
 
   return (
     <>
@@ -335,7 +360,7 @@ export default function BudgetPrintTemplate({
                           {item.cantidad}
                         </td>
                         <td className="border border-gray-300 px-2 py-1.5 text-center align-top">
-                          $
+                          {getItemUnitLabel(item)}
                         </td>
                         <td className="border border-gray-300 px-2 py-1.5 text-right align-top">
                           {formatCurrency(item.precioUnitarioPresupuesto ?? item.precioUnitario)}
@@ -367,20 +392,6 @@ export default function BudgetPrintTemplate({
                   </tr>
                 )}
 
-                {annualAdjustmentAmount > 0 && (
-                  <tr style={{ backgroundColor: '#fffde7' }}>
-                    <td
-                      colSpan={5}
-                      className="border border-gray-300 px-2 py-1.5 text-right font-semibold"
-                    >
-                      Ajuste anual ({adjustmentPct}%):
-                    </td>
-                    <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-amber-700">
-                      +{formatCurrency(annualAdjustmentAmount)}
-                    </td>
-                  </tr>
-                )}
-
                 {/* Total row */}
                 <tr style={{ backgroundColor: '#0f172a', color: 'white' }}>
                   <td
@@ -390,17 +401,61 @@ export default function BudgetPrintTemplate({
                     Importe total
                   </td>
                   <td className="border border-gray-600 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
-                    {formatCurrency(grandTotal)}
+                    {formatCurrency(totalFinal)}
                   </td>
                 </tr>
+                {pricePerPerson > 0 && (
+                  <tr style={{ backgroundColor: '#ffffff' }}>
+                    <td
+                      colSpan={5}
+                      className="border border-gray-300 px-2 py-1.5 text-right font-semibold"
+                    >
+                      Valor aproximado por persona
+                    </td>
+                    <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold">
+                      {formatCurrency(pricePerPerson)}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </section>
         )}
 
+        {projectionRows.length > 0 && (
+          <section className="mb-3 budget-print-avoid-break">
+            <h2 className="mb-1 text-xs font-bold uppercase tracking-wide text-gray-800 print:text-[8pt]">
+              Proyeccion informativa por ajuste anual ({annualProjection?.adjustmentPct ?? adjustmentPct}%)
+            </h2>
+            <table className="w-full text-xs print:text-[8pt] border-collapse">
+              <thead>
+                <tr style={{ backgroundColor: '#f1f5f9' }}>
+                  <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Anio</th>
+                  <th className="border border-gray-400 px-2 py-1.5 text-right font-semibold">Total estimado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectionRows.map(row => (
+                  <tr key={row.year} style={{ backgroundColor: '#ffffff' }}>
+                    <td className="border border-gray-300 px-2 py-1.5">Total estimado {row.year}</td>
+                    <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold">
+                      {formatCurrency(row.total)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-1 text-[10px] text-gray-600 print:text-[7pt]">
+              El importe total del presupuesto corresponde al precio vigente. Esta proyeccion muestra como quedaria el total si el evento pertenece a un anio posterior.
+            </p>
+          </section>
+        )}
+
         {/* Footer */}
         <footer className="mt-4 pt-3 border-t border-gray-300 text-xs print:text-[8pt] text-gray-600 space-y-2">
-          <p className="font-semibold text-gray-800">{BUDGET_VALIDITY_NOTE}</p>
+          <p className="font-semibold text-gray-800">
+            {FORMAL_BOOKING_NOTE.replace('$ 5.000', formatCurrency(bookingDepositAmount))}
+          </p>
 
           {showSignatures ? (
             <div className="mt-8 pt-4 flex justify-between gap-10 print:mt-6">
@@ -432,6 +487,8 @@ export default function BudgetPrintTemplate({
       </div>
 
       {/* ── Global print CSS ─────────────────────────────────────────────── */}
+      <div className="budget-print-page-number" />
+
       <style jsx global>{`
         @media print {
           @page {
@@ -454,6 +511,32 @@ export default function BudgetPrintTemplate({
           .budget-formal-print-template {
             background-color: #ffffff !important;
             display: block !important;
+          }
+          .budget-formal-print-template section,
+          .budget-print-avoid-break,
+          .budget-formal-print-template tr {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .budget-formal-print-template thead {
+            display: table-header-group;
+          }
+          .budget-print-page-number {
+            display: block;
+            position: fixed;
+            right: 1cm;
+            bottom: 0.5cm;
+            color: #475569;
+            font-size: 7pt;
+            font-weight: 600;
+          }
+          .budget-print-page-number::after {
+            content: "Pagina " counter(page);
+          }
+        }
+        @media screen {
+          .budget-print-page-number {
+            display: none;
           }
         }
       `}</style>
