@@ -3,6 +3,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { AK_MANUAL_VERSION, getManualLearningSeed } from '@/lib/multiagent/manual-ak';
 
 const MEMORY_FILE = 'multiagent/memory.json';
+const MAX_LEARNINGS = 120; // Más memoria = mejor contexto
 
 type MemoryState = {
   profiles: AkAgentMemoryProfile[];
@@ -119,11 +120,41 @@ export async function saveAgentLearning(input: {
     updatedAt: timestamp,
   };
 
-  const learnings = [learning, ...profile.learnings].slice(0, 80);
+  // Deduplicar por título idéntico reciente (últimos 10) para evitar ruido
+  const titleKey = learning.title.toLowerCase().trim();
+  const isDuplicate = profile.learnings.slice(0, 10).some(
+    l => l.title.toLowerCase().trim() === titleKey
+  );
+
+  // Ordenar por confianza: high > medium > low, luego por fecha
+  const CONF_ORDER: Record<string, number> = { high: 3, medium: 2, low: 1 };
+  const merged = isDuplicate
+    ? profile.learnings
+    : [learning, ...profile.learnings];
+  const sorted = merged
+    .sort((a, b) => {
+      const cDiff = (CONF_ORDER[b.confidence] ?? 1) - (CONF_ORDER[a.confidence] ?? 1);
+      if (cDiff !== 0) return cDiff;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    })
+    .slice(0, MAX_LEARNINGS);
+
+  // Resumen inteligente: priorizar high confidence, luego recientes
+  const summaryItems = sorted
+    .filter(l => l.confidence === 'high' || l.source === 'event_closeout' || l.source === 'system')
+    .slice(0, 5);
+  const recentItems = sorted
+    .filter(l => !summaryItems.includes(l))
+    .slice(0, 5);
+  const summaryText = [...summaryItems, ...recentItems]
+    .slice(0, 8)
+    .map(l => `• [${l.confidence}] ${l.title}: ${l.content.slice(0, 200)}`)
+    .join('\n') || profile.summary;
+
   const updated: AkAgentMemoryProfile = {
     ...profile,
-    learnings,
-    summary: learnings.slice(0, 8).map(item => `- ${item.title}: ${item.content}`).join('\n') || profile.summary,
+    learnings: sorted,
+    summary: summaryText,
     updatedAt: timestamp,
   };
 
