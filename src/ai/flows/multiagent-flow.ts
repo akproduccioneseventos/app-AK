@@ -44,7 +44,7 @@ function detectPlatform(message: string): string | undefined {
 }
 
 // ── ¿Debe usar el agente de marketing dedicado? ──────────────────────────────
-function useMarketingFlow(agentType: AkAgentType, message: string) {
+function shouldUseMarketingFlow(agentType: AkAgentType, message: string) {
   return agentType === 'marketing' && MARKETING_REGEX.test(message);
 }
 
@@ -358,7 +358,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
   try {
     // ── Flujo dedicado de marketing ─────────────────────────────────────────
-    if (useMarketingFlow(agentType, input.message)) {
+    if (shouldUseMarketingFlow(agentType, input.message)) {
       const result = await chatWithMarketingAgent({
         request:           input.message,
         context:           context.text,
