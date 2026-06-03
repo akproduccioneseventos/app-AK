@@ -28,7 +28,7 @@ export function HeroSection({
   return (
     <section data-testid="hero-section" className="relative min-h-screen flex items-center overflow-hidden bg-zinc-950">
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="ak-hero-pan absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
       />
       <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.94)_0%,rgba(15,23,42,0.86)_52%,rgba(30,41,59,0.54)_100%)]" />
@@ -126,6 +126,15 @@ export function HeroSection({
       >
         <ChevronDown className="w-8 h-8" />
       </a>
+      <style jsx>{`
+        @keyframes akHeroPan {
+          0% { transform: scale(1.05) translate3d(-1.2%, -0.8%, 0); }
+          100% { transform: scale(1.12) translate3d(1.4%, 1%, 0); }
+        }
+        .ak-hero-pan {
+          animation: akHeroPan 18s ease-in-out infinite alternate;
+        }
+      `}</style>
     </section>
   );
 }

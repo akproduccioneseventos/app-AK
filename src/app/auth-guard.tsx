@@ -24,27 +24,32 @@ interface AuthGuardProps {
   children: ReactNode;
 }
 
+function isPublicRoute(pathname: string) {
+  let isPublic = isPublicPathPrefix(pathname);
+
+  if (PUBLIC_EXACT_PATHS.has(pathname)) isPublic = true;
+
+  if (!isPublic && BUDGET_VIEW_REGEX.test(pathname) && typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('token')) isPublic = true;
+  }
+
+  if (!isPublic && (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) && typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('token')) isPublic = true;
+  }
+
+  return isPublic;
+}
+
 export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isVerified, setIsVerified] = useState(false);
+  const isPublic = isPublicRoute(pathname);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    let isPublic = isPublicPathPrefix(pathname);
-
-    if (PUBLIC_EXACT_PATHS.has(pathname)) isPublic = true;
-
-    if (!isPublic && BUDGET_VIEW_REGEX.test(pathname)) {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('token')) isPublic = true;
-    }
-
-    if (!isPublic && (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible'))) {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('token')) isPublic = true;
-    }
 
     if (isPublic) {
       setIsVerified(true);
@@ -64,9 +69,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
     }
 
     setIsVerified(true);
-  }, [pathname, router]);
+  }, [isPublic, pathname, router]);
 
-  if (!isVerified) {
+  if (!isPublic && !isVerified) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

@@ -12,6 +12,7 @@ import {
   Users, CalendarDays, Home, Sparkles, Star, Phone, User,
   Download, Zap, Clock, PartyPopper,
   X, Bot, Send, CheckCircle2, TrendingDown,
+  Copy, CalendarCheck, ChevronRight,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
@@ -161,6 +162,10 @@ const PACKAGE_META: Record<PackageType, { label: string; description: string; mu
 };
 
 const DISCOUNT_RATE = 0.15; // 15% as a decimal, aligned with the standard simulator
+const DURATION_OPTIONS = [
+  { value: 3, title: 'Menos de 4 horas', subtitle: 'Fiesta chica', detail: 'Habilita 1 entrada' },
+  { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: 'Habilita 2 entradas' },
+] as const;
 
 // ─── Pricing Helpers ──────────────────────────────────────────────────────────
 
@@ -168,6 +173,10 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat('es-UY', {
     style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0,
   }).format(n);
+}
+
+function getDurationLabel(hours: number) {
+  return hours > 4 ? 'Mas de 4 horas (fiesta grande)' : 'Menos de 4 horas (fiesta chica)';
 }
 
 function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninos: number): { qty: number; unitPrice: number; total: number } {
@@ -211,7 +220,7 @@ function menuItemToServicioEmpresa(item: MenuItem & { precioVenta: number }): Se
     precioVenta: item.precioVenta,
     precioBase: item.precioVenta,
     valorUnitarioEstimado: item.totalDishCost,
-    imageUrl: item.imageUrl,
+    imageUrl: undefined,
   };
 }
 
@@ -252,8 +261,8 @@ function getAssistantMessages(
       ...(state.tieneSalon === false ? [{ role: 'assistant' as const, text: 'Te cuento que el Club Uruguay es ideal para este tipo de eventos: céntrico, capacidad hasta 200 personas y precio especial si contratás el servicio completo con nosotros 🏛️', key: 's4_3' }] : []),
     ],
     5: [
-      { role: 'assistant', text: 'Perfecto. Ahora elegí la duración del evento en horas.', key: 's5_1' },
-      { role: 'assistant', text: 'La duración impacta directamente en la cantidad de entradas disponibles.', key: 's5_2' },
+      { role: 'assistant', text: 'Perfecto. Ahora elegi si la fiesta es chica o grande.', key: 's5_1' },
+      { role: 'assistant', text: 'Menos de 4 horas habilita 1 entrada. Mas de 4 horas habilita 2 entradas.', key: 's5_2' },
     ],
     6: [
       { role: 'assistant', text: 'Ahora elegí los menús disponibles tal como en el simulador normal 👇', key: 's6_1' },
@@ -769,7 +778,7 @@ export default function SimuladorAKPage() {
 
   if (showResumeModal && savedState) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -782,7 +791,7 @@ export default function SimuladorAKPage() {
           </p>
           <div className="flex flex-col gap-3 pt-2">
             <Button
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-2xl h-12"
+              className="w-full bg-slate-900 hover:bg-cyan-800 text-white rounded-2xl h-12"
               onClick={() => {
                 setState(savedState);
                 const msgs = getAssistantMessages(
@@ -816,7 +825,7 @@ export default function SimuladorAKPage() {
   // ── Layout ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-pink-900 flex flex-col print:bg-white print:text-slate-900 print:min-h-0 print:block">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 flex flex-col print:bg-white print:text-slate-900 print:min-h-0 print:block">
 
       {/* Print header — rendered first and only visible when printing */}
       <div className="hidden print:block print:p-8">
@@ -830,7 +839,7 @@ export default function SimuladorAKPage() {
 
           {/* Brand */}
           <div className="flex items-center gap-2 mb-6 lg:mb-8">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-400 to-pink-400 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="text-white font-black text-lg tracking-tight">AK Producciones</span>
@@ -845,7 +854,7 @@ export default function SimuladorAKPage() {
                 </span>
                 <span className="text-violet-300 text-xs font-semibold">{STEP_LABELS[state.step]}</span>
               </div>
-              <Progress value={progress} className="h-1.5 bg-violet-800 [&>div]:bg-gradient-to-r [&>div]:from-violet-400 [&>div]:to-pink-400" />
+              <Progress value={progress} className="h-1.5 bg-slate-800 [&>div]:bg-gradient-to-r [&>div]:from-cyan-400 [&>div]:to-emerald-400" />
             </div>
           )}
 
@@ -932,7 +941,10 @@ export default function SimuladorAKPage() {
                     onPrev={goPrev}
                     waUrl={`https://wa.me/${empresaPhone}?text=${buildWAMessage()}`}
                     onPrint={handlePrint}
+                    rawWAMessage={decodeURIComponent(buildWAMessage())}
+                    empresaPhone={empresaPhone}
                     annualAdjustmentPercentage={annualAdjustmentPercentage || DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE}
+                    faqs={landingFaqs}
                   />
                 )}
               </motion.div>
@@ -968,7 +980,7 @@ export default function SimuladorAKPage() {
         <div className="lg:w-80 xl:w-96 bg-black/30 backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-white/10 flex flex-col">
           {/* Chat header */}
           <div className="flex items-center gap-3 p-4 border-b border-white/10">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
@@ -997,7 +1009,7 @@ export default function SimuladorAKPage() {
                 )}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
                     <Bot className="w-3.5 h-3.5 text-white" />
                   </div>
                 )}
@@ -1006,7 +1018,7 @@ export default function SimuladorAKPage() {
                     'rounded-2xl px-3.5 py-2 text-sm max-w-[80%] leading-relaxed',
                     msg.role === 'assistant'
                       ? 'bg-white/10 text-white rounded-tl-none'
-                      : 'bg-violet-500 text-white rounded-tr-none',
+                      : 'bg-cyan-700 text-white rounded-tr-none',
                   )}
                 >
                   {msg.text}
@@ -1071,7 +1083,7 @@ function StepWelcome({ onStart, cuponRegalo }: { onStart: () => void; cuponRegal
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl bg-gradient-to-r from-pink-500/80 to-violet-600/80 border border-pink-400/40 p-4 space-y-3"
+          className="rounded-2xl bg-gradient-to-r from-amber-500/80 to-cyan-700/80 border border-amber-300/40 p-4 space-y-3"
         >
           <div className="flex items-center justify-center gap-2 text-white font-bold text-sm">
             <Gift className="w-5 h-5 text-yellow-300" />
@@ -1102,7 +1114,7 @@ function StepWelcome({ onStart, cuponRegalo }: { onStart: () => void; cuponRegal
       <Button
         onClick={onStart}
         size="lg"
-        className="w-full bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white font-black rounded-2xl h-14 text-base shadow-lg shadow-violet-900/50"
+        className="w-full bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-700 hover:to-emerald-700 text-white font-black rounded-2xl h-14 text-base shadow-lg shadow-cyan-950/40"
       >
         Empezar mi presupuesto
         <ArrowRight className="ml-2 w-5 h-5" />
@@ -1654,22 +1666,34 @@ function StepHours({
   return (
     <StepCard title="Duración del evento" icon={<Clock className="w-6 h-6" />}>
       <div className="space-y-4">
-        <Label className="text-violet-200 text-xs font-semibold uppercase tracking-wider mb-1.5 flex justify-between">
-          <span>Horas</span>
-          <span className="text-white font-black text-base">{state.duracionHoras}</span>
+        <Label className="text-cyan-100 text-xs font-semibold uppercase tracking-wider mb-1.5 block">
+          Tipo de duracion
         </Label>
-        <input
-          type="range"
-          min={3}
-          max={10}
-          step={1}
-          value={state.duracionHoras}
-          onChange={e => onChange('duracionHoras', +e.target.value)}
-          className="w-full accent-violet-400 h-2 rounded-full cursor-pointer"
-        />
-        <p className="text-violet-300 text-xs">
-          Más de 4 horas habilitan 2 entradas, igual que en el simulador normal.
-        </p>
+        <div className="grid grid-cols-1 gap-3">
+          {DURATION_OPTIONS.map(option => {
+            const selected = state.duracionHoras === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onChange('duracionHoras', option.value)}
+                className={cn(
+                  'rounded-2xl border-2 p-4 text-left transition-all',
+                  selected
+                    ? 'border-cyan-300 bg-cyan-400/20 text-white shadow-lg shadow-cyan-950/20'
+                    : 'border-white/15 bg-white/5 text-white hover:border-cyan-200/70 hover:bg-white/10',
+                )}
+              >
+                <span className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-black">{option.title}</span>
+                  {selected && <Check className="h-5 w-5 text-cyan-200" />}
+                </span>
+                <span className="mt-1 block text-xs font-semibold text-cyan-100">{option.subtitle}</span>
+                <span className="mt-2 block text-xs text-slate-200">{option.detail}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
       <StepNav onPrev={onPrev} onNext={onNext} canNext showPrev />
     </StepCard>
@@ -1679,7 +1703,18 @@ function StepHours({
 // ─── Step: Conversion ────────────────────────────────────────────────────────
 
 function StepConversion({
-  state, prices, generatedId, isSubmitting, onSubmit, onPrev, waUrl, onPrint, annualAdjustmentPercentage,
+  state,
+  prices,
+  generatedId,
+  isSubmitting,
+  onSubmit,
+  onPrev,
+  waUrl,
+  onPrint,
+  rawWAMessage,
+  empresaPhone,
+  annualAdjustmentPercentage,
+  faqs,
 }: {
   state: SimuladorState;
   prices: PriceStats | null;
@@ -1689,10 +1724,15 @@ function StepConversion({
   onPrev: () => void;
   waUrl: string;
   onPrint: () => void;
+  rawWAMessage: string;
+  empresaPhone: string;
   annualAdjustmentPercentage: number;
+  faqs: LandingFaqItem[];
 }) {
   const submitted = !!generatedId;
   const currentYear = new Date().getFullYear();
+  const [meetingAnswer, setMeetingAnswer] = useState<'si' | 'no' | null>(null);
+  const [faqOpenId, setFaqOpenId] = useState<string | null>(null);
 
   return (
     <StepCard title="Tu presupuesto está listo" icon={<PartyPopper className="w-6 h-6" />}>
@@ -1820,7 +1860,7 @@ function StepConversion({
           <Button
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white font-black rounded-2xl h-12"
+            className="w-full bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-700 hover:to-emerald-700 text-white font-black rounded-2xl h-12"
           >
             {isSubmitting ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando tu presupuesto...</>
@@ -1846,8 +1886,22 @@ function StepConversion({
         </a>
 
         <Button
+          variant="outline"
+          className="w-full border-white bg-white text-slate-900 hover:bg-slate-100 rounded-2xl h-10 font-bold text-sm"
+          onClick={() => {
+            navigator.clipboard.writeText(rawWAMessage).then(() => {
+              toast({ description: 'Mensaje copiado al portapapeles' });
+            }).catch(() => {
+              toast({ description: 'No se pudo copiar el mensaje', variant: 'destructive' });
+            });
+          }}
+        >
+          <Copy className="w-4 h-4 mr-2" /> Copiar mensaje de WhatsApp
+        </Button>
+
+        <Button
           variant="ghost"
-          className="w-full text-violet-300 hover:text-white hover:bg-white/10 rounded-2xl h-10 text-sm"
+          className="w-full bg-white/95 text-slate-900 hover:bg-white rounded-2xl h-10 text-sm font-bold"
           onClick={onPrint}
         >
           <Download className="w-4 h-4 mr-2" />
@@ -1855,6 +1909,64 @@ function StepConversion({
         </Button>
       </div>
 
+      {/* Call to Action: meeting question */}
+      <div className="bg-cyan-500/15 border border-cyan-300/30 rounded-2xl p-4 space-y-3">
+        <p className="text-white font-bold text-sm text-center">
+          🗓️ Vamos a agendar una reunión sin costo para resolver todos los detalles. ¿Te parece?
+        </p>
+        {meetingAnswer === null ? (
+          <div className="flex gap-3 justify-center">
+            <Button
+              onClick={() => {
+                setMeetingAnswer('si');
+                const msg = encodeURIComponent(
+                  `Hola! Usé el simulador de AK Producciones y me gustaría agendar una reunión para cerrar los detalles de mi evento. Mi nombre es ${state.nombre}.`
+                );
+                window.open(`https://wa.me/${empresaPhone}?text=${msg}`, '_blank');
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl px-6 h-11"
+            >
+              <CalendarCheck className="w-4 h-4 mr-2" /> Sí, ¡quiero!
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setMeetingAnswer('no')}
+              className="border-white bg-white text-slate-900 hover:bg-slate-100 rounded-2xl px-6 h-11 font-bold"
+            >
+              Ahora no
+            </Button>
+          </div>
+        ) : meetingAnswer === 'si' ? (
+          <p className="text-emerald-300 text-sm font-bold text-center">¡Perfecto! Te esperamos 🎉 Nos ponemos en contacto en breve.</p>
+        ) : (
+          <p className="text-violet-300 text-sm text-center">
+            Sin problema. Siempre podés contactarnos cuando estés listo. 😊
+          </p>
+        )}
+      </div>
+
+      {/* FAQ section */}
+      {faqs.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-violet-300 text-xs font-bold uppercase tracking-wider">Preguntas frecuentes</p>
+          {faqs.slice(0, 5).map(faq => (
+            <div key={faq.id} className="rounded-xl border border-white/10 overflow-hidden">
+              <button
+                onClick={() => setFaqOpenId(faqOpenId === faq.id ? null : faq.id)}
+                className="w-full flex items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white/80 hover:bg-white/5"
+              >
+                <span>{faq.question}</span>
+                <ChevronRight className={cn('w-4 h-4 text-violet-400 flex-shrink-0 transition-transform', faqOpenId === faq.id && 'rotate-90')} />
+              </button>
+              {faqOpenId === faq.id && (
+                <div className="px-4 pb-3 text-xs text-violet-200 leading-relaxed border-t border-white/10 pt-2">
+                  {faq.answer}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="mt-2">
         <button onClick={onPrev} className="flex items-center gap-1.5 text-violet-400 hover:text-white text-sm transition-colors">
           <ArrowLeft className="w-4 h-4" /> Volver
@@ -1898,7 +2010,7 @@ function StepNav({
       <Button
         onClick={onNext}
         disabled={!canNext}
-        className="bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white font-black rounded-2xl px-6 h-11 disabled:opacity-40"
+        className="bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-700 hover:to-emerald-700 text-white font-black rounded-2xl px-6 h-11 disabled:opacity-40"
       >
         Siguiente <ArrowRight className="ml-1.5 w-4 h-4" />
       </Button>
@@ -1935,7 +2047,7 @@ function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceS
           <p><span className="font-semibold">Tipo de evento:</span> {eventMeta ? `${eventMeta.emoji} ${eventMeta.label}` : 'No definido'}</p>
           <p><span className="font-semibold">Fecha del evento:</span> {state.eventoFecha ? state.eventoFecha.split('T')[0] : 'No definida'}</p>
           <p><span className="font-semibold">Invitados:</span> {state.adultos + state.ninos} ({state.adultos} adultos + {state.ninos} niños)</p>
-          <p><span className="font-semibold">Duración:</span> {state.duracionHoras} horas</p>
+          <p><span className="font-semibold">Duración:</span> {getDurationLabel(state.duracionHoras)}</p>
         </div>
 
         <div className="border border-slate-200 rounded-xl overflow-hidden">

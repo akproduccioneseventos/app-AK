@@ -467,6 +467,9 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
   try {
     const config = await getAuthDoc();
     const recoveryEmail = getRecoveryEmail(config);
+    if (!recoveryEmail) {
+      return { success: false, error: 'No hay mail de recuperacion configurado. Entra con codigo de respaldo o preguntas y configura un mail en Ajustes > Cuenta.' };
+    }
 
     const rateLimit = getResetRequestPatch(config);
     if (rateLimit.error) return { success: false, error: rateLimit.error };

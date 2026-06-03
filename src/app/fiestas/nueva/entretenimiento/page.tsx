@@ -53,7 +53,7 @@ import {
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
 
-type StationId = 'fotocabina' | 'plataforma360' | 'bogue' | 'espejoMagico';
+type StationId = 'fotocabina' | 'plataforma360' | 'bogue' | 'espejoMagico' | 'totems' | 'laboratorioAk';
 type StationStatus = 'preparando' | 'listo' | 'en-vivo' | 'pausado';
 type ModerationMode = 'auto' | 'revision' | 'solo-equipo';
 
@@ -153,7 +153,7 @@ const STATUS_META: Record<StationStatus, { label: string; className: string }> =
   pausado: { label: 'Pausado', className: 'bg-amber-100 text-amber-700 border-amber-200' },
 };
 
-const STATION_IDS: StationId[] = ['fotocabina', 'plataforma360', 'bogue', 'espejoMagico'];
+const STATION_IDS: StationId[] = ['fotocabina', 'plataforma360', 'bogue', 'espejoMagico', 'totems', 'laboratorioAk'];
 
 const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ElementType }> = {
   fotocabina: {
@@ -180,6 +180,18 @@ const STATION_META: Record<StationId, { shortLabel: string; description: string;
     caption: 'Captura Espejo Magico',
     icon: Sparkles,
   },
+  totems: {
+    shortLabel: 'Totems interactivos',
+    description: 'Totems tactiles para fotos, encuesta, QR, bienvenida, juegos, galeria y orientacion de invitados por sectores.',
+    caption: 'Captura Totem AK',
+    icon: Monitor,
+  },
+  laboratorioAk: {
+    shortLabel: 'Invento AK',
+    description: 'Laboratorio de nueva tecnologia AK para probar ideas propias: dinamicas, sensores, juegos, pantallas y experiencias futuras.',
+    caption: 'Prueba Invento AK',
+    icon: Wand2,
+  },
 };
 
 const CHANNELS = [
@@ -195,6 +207,8 @@ const FEATURE_LIBRARY: Record<StationId, string[]> = {
   plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Musica', 'QR por video', 'Overlay animado', 'TV/LED'],
   bogue: ['Boomerang', 'Loop forward/reverse', 'Video corto', 'Musica', 'Overlay animado', 'QR por clip'],
   espejoMagico: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos', 'Impresion', 'Galeria QR', 'Prompts animados', 'Lead capture'],
+  totems: ['Pantalla tactil', 'Bienvenida', 'Encuestas', 'Juegos', 'QR por estacion', 'Galeria', 'Mapa salon', 'Pedidos'],
+  laboratorioAk: ['Prototipo', 'Sensor o interaccion', 'Pantalla LED', 'QR', 'Ranking', 'Modo sorpresa', 'Medicion', 'Guion comercial'],
 };
 
 const MODERATION_LABELS: Record<ModerationMode, string> = {
@@ -208,6 +222,8 @@ const PRO_EQUIPMENT: Record<StationId, string[]> = {
   plataforma360: ['Celular AK', 'Soporte estable', 'Luz frontal', 'Plataforma fisica', 'Bateria externa'],
   bogue: ['Celular o tablet', 'Soporte vertical', 'Luz continua', 'Musica corta', 'Cartel de QR'],
   espejoMagico: ['Espejo/pantalla tactil', 'Camara', 'Impresora opcional', 'Props fisicos', 'Limpieza de pantalla'],
+  totems: ['Pantalla o tablet', 'Soporte/totem fisico', 'Extension electrica', 'QR visible', 'Conexion o modo offline'],
+  laboratorioAk: ['Equipo prototipo', 'Notebook o celular controlador', 'Pantalla LED opcional', 'Kit de cables', 'Plan de prueba'],
 };
 
 const PRO_FLOW: Record<StationId, string[]> = {
@@ -215,6 +231,8 @@ const PRO_FLOW: Record<StationId, string[]> = {
   plataforma360: ['Invitado sube a plataforma', 'Se graba clip corto', 'Se aplica slow/speed ramp', 'Se sube al modulo', 'Se comparte por QR/muro'],
   bogue: ['Invitado hace movimiento corto', 'Se graba loop', 'Se reproduce ida/vuelta', 'Se aplica musica/overlay', 'Se comparte como clip viral'],
   espejoMagico: ['Invitado toca el espejo', 'Sigue prompts guiados', 'Firma o agrega sellos', 'Confirma o repite', 'Recibe QR/impresion/galeria'],
+  totems: ['Invitado toca el totem', 'Elige juego o accion', 'Escanea QR o deja dato', 'Aparece en pantalla/muro', 'Recibe proximo paso'],
+  laboratorioAk: ['Equipo AK activa la prueba', 'Invitados participan', 'Se mide respuesta', 'Se muestra resultado en LED', 'Se decide si pasa a producto'],
 };
 
 const PRO_HIGHLIGHTS: Record<StationId, string[]> = {
@@ -222,6 +240,8 @@ const PRO_HIGHLIGHTS: Record<StationId, string[]> = {
   plataforma360: ['Slow motion', 'Speed ramp', 'Intro/outro', 'Overlay animado', 'Salida social', 'Clip listo para reels'],
   bogue: ['Loop ida/vuelta', 'Clip rapido', 'Musica por evento', 'Overlay animado', 'Formato vertical'],
   espejoMagico: ['Pantalla tactil', 'Firma y dibujo', 'Sellos/props', 'Prompts guiados', 'Experiencia premium', 'Recuerdo firmado'],
+  totems: ['Punto de autoservicio', 'Encuestas y juegos', 'QR por sector', 'Contenido para LED', 'Captura de datos', 'Orientacion de invitados'],
+  laboratorioAk: ['Diferencial propio', 'Producto en validacion', 'Prueba controlada', 'Guion para vender', 'Aprendizaje post-fiesta', 'Escalable a futuro'],
 };
 
 const MARKET_BENCHMARK_INSIGHTS = [
@@ -243,6 +263,8 @@ const BENCHMARK_FEATURES: Record<StationId, string[]> = {
   plataforma360: ['Bluetooth/trigger remoto', 'Slow motion + speed ramp', 'Intro/outro con marca', 'QR por video', 'TV/LED para descarga'],
   bogue: ['Loop vertical rapido', 'Overlay animado', 'Musica corta', 'QR por clip', 'Formato historia/reel'],
   espejoMagico: ['Modo espejo animado', 'Pantalla tactil', 'Firma/dibujo/stickers', 'Print premium', 'Galeria QR'],
+  totems: ['Kiosk tactil', 'Encuestas/juegos', 'QR por pantalla', 'Integracion LED', 'Modo autoservicio'],
+  laboratorioAk: ['Prototipo configurable', 'Experiencia propia', 'Medicion de uso', 'Salida a pantalla', 'Iteracion rapida'],
 };
 
 const AK_SELLING_PROOF: Record<StationId, string[]> = {
@@ -250,6 +272,8 @@ const AK_SELLING_PROOF: Record<StationId, string[]> = {
   plataforma360: ['El clip se vende como contenido social premium, no solo como giro.', 'AK lo conecta a pantalla, QR y post-fiesta para multiplicar el impacto.'],
   bogue: ['Ideal para momentos de pista: rapido, liviano y compartible.', 'Complementa la 360 cuando hay mucha gente y se necesita velocidad.'],
   espejoMagico: ['Se siente como atraccion premium de entrada o recepcion.', 'El invitado participa, firma y se lleva un recuerdo con marca del evento.'],
+  totems: ['Convierte pantallas en puntos activos, no solo decoracion.', 'Ayuda a guiar invitados y alimentar el muro o la LED.'],
+  laboratorioAk: ['Permite vender innovacion AK aunque el producto todavia este en prueba.', 'Ordena hipotesis, equipamiento y medicion antes de prometerlo.'],
 };
 
 const OUTPUT_FORMATS: Record<StationId, string> = {
@@ -257,6 +281,8 @@ const OUTPUT_FORMATS: Record<StationId, string> = {
   plataforma360: 'MP4 vertical 1080p',
   bogue: 'MP4 loop + GIF',
   espejoMagico: 'JPG firmado + print 4x6',
+  totems: 'Pantalla tactil + QR + galeria',
+  laboratorioAk: 'Prototipo AK + salida LED',
 };
 
 const TEMPLATE_PRESETS: Record<StationId, EntertainmentTemplatePreset[]> = {
@@ -380,6 +406,66 @@ const TEMPLATE_PRESETS: Record<StationId, EntertainmentTemplatePreset[]> = {
       animationStyle: 'Prompts animados + confeti digital',
     },
   ],
+  totems: [
+    {
+      id: 'totem-welcome',
+      name: 'Totem bienvenida',
+      mood: 'Recepcion guiada',
+      overlayName: 'Pantalla tactil con bienvenida y QR',
+      accentColor: '#14b8a6',
+      outputFormat: 'Pantalla tactil + QR + galeria',
+      qualityPreset: 'Kiosk estable + modo offline',
+      filterPreset: 'Visual claro alto contraste',
+      musicTrack: 'Loop suave de bienvenida',
+      backgroundStyle: 'Fondo del evento con logo AK',
+      printLayout: 'QR grande + acciones rapidas',
+      animationStyle: 'Transiciones tactiles simples',
+    },
+    {
+      id: 'totem-games',
+      name: 'Totem juegos',
+      mood: 'Participativo',
+      overlayName: 'Totem con encuesta, ranking y retos',
+      accentColor: '#2563eb',
+      outputFormat: 'Pantalla + ranking + salida LED',
+      qualityPreset: 'Interaccion rapida para fila',
+      filterPreset: 'Color vivo + lectura facil',
+      musicTrack: 'Beat corto de juego',
+      backgroundStyle: 'Fondo dinamico por desafio',
+      printLayout: 'Resultado + QR de participacion',
+      animationStyle: 'Ranking animado + celebracion',
+    },
+  ],
+  laboratorioAk: [
+    {
+      id: 'lab-sorpresa',
+      name: 'Experiencia sorpresa',
+      mood: 'Invento en validacion',
+      overlayName: 'Prototipo AK conectado a pantalla',
+      accentColor: '#f97316',
+      outputFormat: 'Prototipo AK + salida LED',
+      qualityPreset: 'Prueba controlada por equipo',
+      filterPreset: 'Look tecnico premium',
+      musicTrack: 'Audio corto de activacion',
+      backgroundStyle: 'Pantalla experimental AK',
+      printLayout: 'Resultado visual + QR',
+      animationStyle: 'Activacion sorpresa + resultado',
+    },
+    {
+      id: 'lab-ranking',
+      name: 'Ranking interactivo',
+      mood: 'Juego propio AK',
+      overlayName: 'Ranking en vivo con participantes',
+      accentColor: '#0f172a',
+      outputFormat: 'Ranking + QR + medicion',
+      qualityPreset: 'Prueba de producto con datos',
+      filterPreset: 'Contraste alto para LED',
+      musicTrack: 'Stinger de puntaje',
+      backgroundStyle: 'Fondo competitivo con marca AK',
+      printLayout: 'Resultado final para redes',
+      animationStyle: 'Subida de puntaje + ganador',
+    },
+  ],
 };
 
 function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
@@ -397,6 +483,8 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
     plataforma360: ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha', 'Intro/outro y musica probadas'],
     bogue: ['Duracion del loop configurada', 'Musica o sonido corto elegido', 'Prueba de ida y vuelta realizada'],
     espejoMagico: ['Espejo/pantalla tactil limpia', 'Firma y sellos probados', 'Plantilla de impresion aprobada', 'Prompts de bienvenida cargados'],
+    totems: ['Pantalla/totem probado', 'Menu tactil definido', 'QR de acciones activo', 'Salida a LED o muro revisada'],
+    laboratorioAk: ['Hipotesis de prueba escrita', 'Equipo prototipo probado', 'Guion de uso definido', 'Criterio de exito acordado'],
   };
   const specific = specificByType[type];
 
@@ -543,6 +631,50 @@ function makeStation(type: StationId, fiesta?: FiestaEnPlanificacion | null): En
     };
   }
 
+  if (type === 'totems') {
+    return {
+      id: 'totems',
+      title: 'Totems Interactivos AK',
+      enabled: true,
+      status: 'preparando',
+      operatorName: '',
+      deviceName: 'Pantalla / tablet en totem',
+      location: 'Recepcion, pista o sector de juegos',
+      startTime: '21:00',
+      overlayName: `${eventName} - totem interactivo`,
+      accentColor: '#14b8a6',
+      ...proDefaults,
+      captureModes: ['Bienvenida', 'Encuesta', 'Juegos', 'QR por sector'],
+      deliveryChannels: ['qr', 'galeria', 'whatsapp'],
+      checklist: makeChecklist('totems'),
+      script: 'Instalar una pantalla tactil para guiar invitados, activar juegos, mostrar QR y alimentar el muro o la pantalla LED.',
+      notes: 'Pensado para recepcion, fila de fotos, zona adolescente o punto de informacion del evento.',
+      media: [],
+    };
+  }
+
+  if (type === 'laboratorioAk') {
+    return {
+      id: 'laboratorioAk',
+      title: 'Laboratorio de Inventos AK',
+      enabled: false,
+      status: 'preparando',
+      operatorName: '',
+      deviceName: 'Prototipo / notebook / celular controlador',
+      location: 'Zona de prueba controlada',
+      startTime: '23:00',
+      overlayName: `${eventName} - invento AK`,
+      accentColor: '#f97316',
+      ...proDefaults,
+      captureModes: ['Prototipo', 'Ranking', 'Sensor/accion', 'Salida LED'],
+      deliveryChannels: ['qr', 'galeria', 'descarga'],
+      checklist: makeChecklist('laboratorioAk'),
+      script: 'Probar una experiencia nueva con invitados, medir respuesta y decidir si se convierte en producto fijo de AK.',
+      notes: 'Usar solo cuando el alcance este claro: que hace, que equipo necesita, que se muestra y como se mide.',
+      media: [],
+    };
+  }
+
   return {
     id: 'plataforma360',
     title: 'Plataforma 360 AK',
@@ -581,6 +713,8 @@ function makeDefaultEntertainment(fiesta?: FiestaEnPlanificacion | null, origin 
       plataforma360: makeStation('plataforma360', fiesta),
       bogue: makeStation('bogue', fiesta),
       espejoMagico: makeStation('espejoMagico', fiesta),
+      totems: makeStation('totems', fiesta),
+      laboratorioAk: makeStation('laboratorioAk', fiesta),
     },
   };
 }
@@ -1570,7 +1704,7 @@ function EntretenimientoContent() {
           </Card>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {STATION_IDS.map((stationId) => {
             const station = data.modules[stationId];
             const StationIcon = STATION_META[stationId].icon;
@@ -1613,76 +1747,32 @@ function EntretenimientoContent() {
         </div>
 
         <Tabs defaultValue="fotocabina" className="space-y-5">
-          <TabsList className="grid h-auto grid-cols-2 rounded-2xl bg-white p-1 shadow-lg lg:grid-cols-4">
-            <TabsTrigger value="fotocabina" className="rounded-xl py-3 font-black">
-              <Camera className="mr-2 h-4 w-4" />
-              Fotocabina
-            </TabsTrigger>
-            <TabsTrigger value="plataforma360" className="rounded-xl py-3 font-black">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Plataforma 360
-            </TabsTrigger>
-            <TabsTrigger value="bogue" className="rounded-xl py-3 font-black">
-              <Video className="mr-2 h-4 w-4" />
-              Bogue
-            </TabsTrigger>
-            <TabsTrigger value="espejoMagico" className="rounded-xl py-3 font-black">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Espejo magico
-            </TabsTrigger>
+          <TabsList className="grid h-auto grid-cols-2 rounded-2xl bg-white p-1 shadow-lg lg:grid-cols-3 xl:grid-cols-6">
+            {STATION_IDS.map((stationId) => {
+              const StationIcon = STATION_META[stationId].icon;
+              return (
+                <TabsTrigger key={stationId} value={stationId} className="rounded-xl py-3 font-black">
+                  <StationIcon className="mr-2 h-4 w-4" />
+                  {STATION_META[stationId].shortLabel}
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
 
-          <TabsContent value="fotocabina">
-            <StationPanel
-              station={data.modules.fotocabina}
-              galleryUrl={data.galleryUrl}
-              eventHashtag={data.eventHashtag}
-              uploading={uploadingStation === 'fotocabina'}
-              onUpdate={(patch) => updateStation('fotocabina', patch)}
-              onToggleChecklist={(checkId) => toggleChecklist('fotocabina', checkId)}
-              onToggleArrayValue={(field, value) => toggleArrayValue('fotocabina', field, value)}
-              onUpload={uploadMedia}
-            />
-          </TabsContent>
-
-          <TabsContent value="plataforma360">
-            <StationPanel
-              station={data.modules.plataforma360}
-              galleryUrl={data.galleryUrl}
-              eventHashtag={data.eventHashtag}
-              uploading={uploadingStation === 'plataforma360'}
-              onUpdate={(patch) => updateStation('plataforma360', patch)}
-              onToggleChecklist={(checkId) => toggleChecklist('plataforma360', checkId)}
-              onToggleArrayValue={(field, value) => toggleArrayValue('plataforma360', field, value)}
-              onUpload={uploadMedia}
-            />
-          </TabsContent>
-
-          <TabsContent value="bogue">
-            <StationPanel
-              station={data.modules.bogue}
-              galleryUrl={data.galleryUrl}
-              eventHashtag={data.eventHashtag}
-              uploading={uploadingStation === 'bogue'}
-              onUpdate={(patch) => updateStation('bogue', patch)}
-              onToggleChecklist={(checkId) => toggleChecklist('bogue', checkId)}
-              onToggleArrayValue={(field, value) => toggleArrayValue('bogue', field, value)}
-              onUpload={uploadMedia}
-            />
-          </TabsContent>
-
-          <TabsContent value="espejoMagico">
-            <StationPanel
-              station={data.modules.espejoMagico}
-              galleryUrl={data.galleryUrl}
-              eventHashtag={data.eventHashtag}
-              uploading={uploadingStation === 'espejoMagico'}
-              onUpdate={(patch) => updateStation('espejoMagico', patch)}
-              onToggleChecklist={(checkId) => toggleChecklist('espejoMagico', checkId)}
-              onToggleArrayValue={(field, value) => toggleArrayValue('espejoMagico', field, value)}
-              onUpload={uploadMedia}
-            />
-          </TabsContent>
+          {STATION_IDS.map((stationId) => (
+            <TabsContent key={stationId} value={stationId}>
+              <StationPanel
+                station={data.modules[stationId]}
+                galleryUrl={data.galleryUrl}
+                eventHashtag={data.eventHashtag}
+                uploading={uploadingStation === stationId}
+                onUpdate={(patch) => updateStation(stationId, patch)}
+                onToggleChecklist={(checkId) => toggleChecklist(stationId, checkId)}
+                onToggleArrayValue={(field, value) => toggleArrayValue(stationId, field, value)}
+                onUpload={uploadMedia}
+              />
+            </TabsContent>
+          ))}
         </Tabs>
       </div>
     </div>

@@ -315,15 +315,9 @@ export default function BackupPage() {
                   Descargar ZIP
                 </Button>
               </a>
-              <a href="/api/imports/confirmed-events-29" download className="block w-full">
-                <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-emerald-300 text-emerald-700 bg-white hover:bg-emerald-50">
-                  <HardDriveDownload className="w-4 h-4 mr-2" />
-                  Descargar importacion 29 fiestas
-                </Button>
-              </a>
               <Button type="button" variant="outline" onClick={handleDownloadConfirmedEvents} className="w-full h-12 rounded-xl font-bold border-emerald-300 text-emerald-700 bg-white hover:bg-emerald-50">
                 <HardDriveDownload className="w-4 h-4 mr-2" />
-                Descargar importacion 29 fiestas
+                Descargar JSON validado de 29 fiestas
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>

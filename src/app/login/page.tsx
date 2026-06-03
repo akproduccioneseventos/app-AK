@@ -23,6 +23,22 @@ import { setSessionCookie } from '@/app/actions/session';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
+const RECOVERY_STATUS_FALLBACK: RecoveryStatus = {
+  hasRecoveryEmail: false,
+  hasSecurityQuestions: false,
+  hasBackupCodes: false,
+  backupCodeCount: 0,
+  gmailConnected: false,
+  gmailWarning: 'No se pudo verificar la recuperacion automaticamente. Podes intentar entrar o volver a pedir la verificacion.',
+};
+
+function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = 3500): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => window.setTimeout(() => resolve(fallback), timeoutMs)),
+  ]);
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'recovery'>('login');
@@ -45,16 +61,12 @@ export default function LoginPage() {
     }
 
     async function loadLoginData() {
-      try {
-        const [settings, recoveryStatus] = await Promise.all([
-          getInvoiceTemplateSettings(),
-          getPublicSecurityRecoveryStatus(),
-        ]);
-        setLogoUrl(settings.logoUrl);
-        setRecovery(recoveryStatus);
-      } catch {
-        setLogoUrl(null);
-      }
+      const [settings, recoveryStatus] = await Promise.all([
+        withTimeout(getInvoiceTemplateSettings(), { logoUrl: null } as Awaited<ReturnType<typeof getInvoiceTemplateSettings>>),
+        withTimeout(getPublicSecurityRecoveryStatus(), RECOVERY_STATUS_FALLBACK),
+      ]);
+      setLogoUrl(settings.logoUrl);
+      setRecovery(recoveryStatus);
     }
     loadLoginData();
   }, [router]);
@@ -92,6 +104,9 @@ export default function LoginPage() {
       setNotice(result.sent ? 'Te enviamos un codigo al mail de recuperacion.' : result.warning || 'Codigo generado.');
     } else {
       setError(result.error || 'No se pudo enviar el codigo.');
+      if (result.error && !recovery?.gmailConnected) {
+        setRecovery((current) => current ? { ...current, gmailWarning: result.error } : current);
+      }
     }
     setIsSubmitting(false);
   };
@@ -246,8 +261,13 @@ export default function LoginPage() {
 
               <form onSubmit={handleResetWithCode} className="space-y-3 rounded-lg border p-3">
                 <p className="text-sm font-semibold">Recuperar por Gmail</p>
-                <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail || !recovery?.gmailConnected}>
-                  Enviar codigo por Gmail
+                {!recovery?.gmailConnected && recovery?.hasRecoveryEmail ? (
+                  <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-relaxed text-amber-800">
+                    El boton vuelve a verificar Gmail al tocarlo. Si la cuenta sigue desconectada, usa codigos de respaldo o preguntas de seguridad y reconecta Google Workspace desde Ajustes.
+                  </p>
+                ) : null}
+                <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail}>
+                  {recovery?.gmailConnected ? 'Enviar codigo por Gmail' : 'Verificar Gmail y enviar codigo'}
                 </Button>
                 <Input value={resetCode} onChange={(event) => setResetCode(event.target.value)} placeholder="Codigo de 6 numeros" inputMode="numeric" disabled={isSubmitting} />
                 <Button type="submit" className="w-full" disabled={isSubmitting || !resetCode || !resetPassword}>

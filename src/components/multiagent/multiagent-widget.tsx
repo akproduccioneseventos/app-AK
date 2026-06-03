@@ -43,11 +43,16 @@ type AgentStyle = {
 };
 
 type DockSide = 'left' | 'right';
+type DockPosition = { x: number; y: number };
 type SessionMap = Record<string, string>;
 
 const HISTORY_STORAGE_KEY = 'ak-multiagent-history-v2';
 const SESSION_STORAGE_KEY = 'ak-multiagent-sessions-v1';
 const SIDE_STORAGE_KEY = 'ak-multiagent-dock-side';
+const POSITION_STORAGE_KEY = 'ak-multiagent-dock-position-v1';
+const DOCK_WIDTH = 112;
+const DOCK_HEIGHT = 56;
+const DOCK_MARGIN = 16;
 
 const AGENT_STYLE: Record<AkAgentType, AgentStyle> = {
   central: { label: 'Encargado General AK', icon: Bot, badge: 'App completa', short: 'AK', description: 'Control general de la aplicacion' },
@@ -113,6 +118,24 @@ function buildSessionKey(agentType: AkAgentType, pathname: string, fiestaId?: st
   return `${agentType}:${fiestaId || pathname || 'global'}`;
 }
 
+function clampPosition(position: DockPosition): DockPosition {
+  if (typeof window === 'undefined') return position;
+  const maxX = Math.max(DOCK_MARGIN, window.innerWidth - DOCK_WIDTH - DOCK_MARGIN);
+  const maxY = Math.max(DOCK_MARGIN, window.innerHeight - DOCK_HEIGHT - DOCK_MARGIN);
+  return {
+    x: Math.min(Math.max(position.x, DOCK_MARGIN), maxX),
+    y: Math.min(Math.max(position.y, DOCK_MARGIN), maxY),
+  };
+}
+
+function getDefaultDockPosition(side: DockSide): DockPosition {
+  if (typeof window === 'undefined') return { x: 0, y: 0 };
+  return clampPosition({
+    x: side === 'left' ? DOCK_MARGIN : window.innerWidth - DOCK_WIDTH - DOCK_MARGIN,
+    y: window.innerHeight - DOCK_HEIGHT - DOCK_MARGIN,
+  });
+}
+
 export function MultiAgentWidget() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -120,11 +143,12 @@ export function MultiAgentWidget() {
   const [isSending, setIsSending] = useState(false);
   const [fiestaId, setFiestaId] = useState<string | undefined>(undefined);
   const [dockSide, setDockSide] = useState<DockSide>(() => readStorage<DockSide>(SIDE_STORAGE_KEY, 'right'));
+  const [dockPosition, setDockPosition] = useState<DockPosition | null>(null);
   const [sessionIds, setSessionIds] = useState<SessionMap>(() => readStorage<SessionMap>(SESSION_STORAGE_KEY, {}));
   const [activeAgent, setActiveAgent] = useState<AkAgentType>(() => detectVisibleAgent(typeof window === 'undefined' ? '' : window.location.pathname));
   const [messages, setMessages] = useState<ChatMessage[]>(() => readStorage<ChatMessage[]>(HISTORY_STORAGE_KEY, []));
   const endRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const dragRef = useRef<{ x: number; y: number; startPosition: DockPosition; moved: boolean } | null>(null);
   const suppressClickRef = useRef(false);
 
   const suggestedAgent = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
@@ -147,6 +171,12 @@ export function MultiAgentWidget() {
   }, [pathname]);
 
   useEffect(() => {
+    const savedPosition = readStorage<DockPosition | null>(POSITION_STORAGE_KEY, null);
+    setDockPosition(clampPosition(savedPosition || getDefaultDockPosition(dockSide)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     try {
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(messages.slice(-80)));
     } catch {
@@ -158,10 +188,20 @@ export function MultiAgentWidget() {
     try {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionIds));
       localStorage.setItem(SIDE_STORAGE_KEY, JSON.stringify(dockSide));
+      if (dockPosition) localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify(dockPosition));
     } catch {
       // No frena el uso del multiagente si el navegador bloquea storage.
     }
-  }, [dockSide, sessionIds]);
+  }, [dockPosition, dockSide, sessionIds]);
+
+  useEffect(() => {
+    function handleResize() {
+      setDockPosition(prev => prev ? clampPosition(prev) : getDefaultDockPosition(dockSide));
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [dockSide]);
 
   useEffect(() => {
     if (isOpen) endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -169,6 +209,13 @@ export function MultiAgentWidget() {
 
   function setSide(side: DockSide) {
     setDockSide(side);
+    setDockPosition(prev => {
+      const next = prev || getDefaultDockPosition(side);
+      return clampPosition({
+        ...next,
+        x: side === 'left' ? DOCK_MARGIN : window.innerWidth - DOCK_WIDTH - DOCK_MARGIN,
+      });
+    });
   }
 
   function toggleSide() {
@@ -181,14 +228,24 @@ export function MultiAgentWidget() {
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
-    dragRef.current = { x: event.clientX, y: event.clientY, moved: false };
+    const currentPosition = dockPosition || getDefaultDockPosition(dockSide);
+    dragRef.current = { x: event.clientX, y: event.clientY, startPosition: currentPosition, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
     const start = dragRef.current;
     if (!start) return;
-    if (Math.abs(event.clientX - start.x) > 14 || Math.abs(event.clientY - start.y) > 14) {
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
       start.moved = true;
+      const nextPosition = clampPosition({
+        x: start.startPosition.x + deltaX,
+        y: start.startPosition.y + deltaY,
+      });
+      setDockPosition(nextPosition);
+      setDockSide(nextPosition.x < window.innerWidth / 2 ? 'left' : 'right');
     }
   }
 
@@ -198,7 +255,8 @@ export function MultiAgentWidget() {
     if (!start?.moved || typeof window === 'undefined') return;
 
     suppressClickRef.current = true;
-    setSide(event.clientX < window.innerWidth / 2 ? 'left' : 'right');
+    setDockPosition(prev => clampPosition(prev || getDefaultDockPosition(dockSide)));
+    setDockSide(event.clientX < window.innerWidth / 2 ? 'left' : 'right');
     window.setTimeout(() => {
       suppressClickRef.current = false;
     }, 0);
@@ -289,13 +347,17 @@ export function MultiAgentWidget() {
               ? ['Que tengo pendiente hoy', 'Crear recordatorio', 'A quien llamo']
               : ['Revisa la app', 'Que esta mas urgente', 'Resumen general'];
 
-  const sidePosition = dockSide === 'left' ? 'left-3 sm:left-5 items-start' : 'right-3 sm:right-5 items-end';
+  const fallbackPosition = dockSide === 'left' ? 'left-3 sm:left-5' : 'right-3 sm:right-5';
+  const cardAlignment = dockSide === 'left' ? 'left-0' : 'right-0';
   const sideButtonTitle = dockSide === 'left' ? 'Mover asistente a la derecha' : 'Mover asistente a la izquierda';
 
   return (
-    <div className={cn('fixed bottom-5 z-[70] flex flex-col gap-3 print:hidden', sidePosition)}>
+    <div
+      className={cn('fixed bottom-5 z-[70] print:hidden', !dockPosition && fallbackPosition)}
+      style={dockPosition ? { left: dockPosition.x, top: dockPosition.y, bottom: 'auto' } : undefined}
+    >
       {isOpen && (
-        <Card className="flex h-[min(78vh,680px)] w-[calc(100vw-1.5rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border-slate-200 bg-white shadow-2xl">
+        <Card className={cn('absolute bottom-20 flex h-[min(78vh,680px)] w-[calc(100vw-1.5rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border-slate-200 bg-white shadow-2xl', cardAlignment)}>
           <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-800 p-4 text-white">
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
@@ -419,7 +481,7 @@ export function MultiAgentWidget() {
         <button
           type="button"
           aria-label="Abrir Asistente AK"
-          title="Abrir Asistente AK. Arrastrar hacia un lado para cambiar posicion."
+          title="Abrir Asistente AK. Arrastralo para dejarlo donde no moleste."
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}

@@ -3,6 +3,8 @@ import { LandingNav } from '@/components/landing/LandingNav';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ServicesSection } from '@/components/landing/ServicesSection';
 import { TechnologyExperienceSection } from '@/components/landing/TechnologyExperienceSection';
+import { AkDifferenceSection } from '@/components/landing/AkDifferenceSection';
+import { AkTeamStorySection } from '@/components/landing/AkTeamStorySection';
 import { GallerySection } from '@/components/landing/GallerySection';
 import { VideoSection } from '@/components/landing/VideoSection';
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection';
@@ -98,8 +100,10 @@ export default async function LandingPage() {
         backgroundImageUrl={landingSettings.hero.backgroundImageUrl}
       />
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
+      <AkDifferenceSection />
       <ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />
       <TechnologyExperienceSection whatsappNumber={whatsapp} />
+      <AkTeamStorySection />
       <ProcessSection />
       <GallerySection galeriaFotos={fotosCombinadas} />
       <VideoSection galeriaVideos={videos} />

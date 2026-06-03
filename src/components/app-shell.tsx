@@ -325,19 +325,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MainNav />
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col">
-          <header className="sticky top-0 z-10 flex h-16 items-center justify-between px-4 md:px-6 print:hidden bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm shadow-indigo-500/5">
-            <div className="flex items-center gap-3">
+          <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 px-4 py-2 md:px-6 print:hidden bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm shadow-indigo-500/5">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <SidebarTrigger className="md:hidden text-slate-500 hover:text-primary transition-colors" />
               {PageIcon && (
                 <div className="p-1.5 rounded-lg bg-primary/10 shrink-0">
                   <PageIcon className="h-4 w-4 text-primary" />
                 </div>
               )}
-              <h1 className="text-base md:text-lg font-playfair font-semibold text-slate-800 tracking-tight">
+              <h1 className="min-w-0 truncate text-sm sm:text-base md:text-lg font-playfair font-semibold text-slate-800 tracking-tight">
                 {pageTitle}
               </h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <NotificationsHub />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

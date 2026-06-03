@@ -58,7 +58,7 @@ const mainHubItems = [
   { title: 'Nuevo Presupuesto', description: 'Crear una nueva cotización para un cliente.', href: '/presupuestos/nuevo/crear', icon: FileText, lightColor: 'bg-indigo-50 text-indigo-600', featured: true },
   { title: 'Ver Presupuestos', description: 'Consultar todos los presupuestos generados.', href: '/presupuestos', icon: Files, lightColor: 'bg-slate-50 text-slate-600', featured: false },
   { title: 'Eventos Activos', description: 'Planificación y seguimiento de eventos en curso.', href: '/eventos', icon: CalendarClock, lightColor: 'bg-indigo-50 text-indigo-600', featured: false },
-  { title: 'Red Social de Eventos', description: 'Feed privado con fotos, comentarios, likes, chat, juegos y pantalla en vivo.', href: '/eventos', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false },
+  { title: 'Redes sociales y marketing', description: 'Contenido, campanas, demo comercial, plantilla LED y redes de AK.', href: '/marketing', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false },
   { title: 'Calendario', description: 'Vista de agenda y próximas fechas importantes.', href: '/calendario', icon: CalendarDays, lightColor: 'bg-teal-50 text-teal-600', featured: false },
   { title: 'Cobros / Pagos Rápidos', description: 'Registrar cobros y enviar recibos al instante.', href: '/pagos-rapidos', icon: Wallet, lightColor: 'bg-emerald-50 text-emerald-600', featured: false },
   { title: 'Base de Clientes', description: 'Directorio completo de clientes y contactos.', href: '/customers', icon: Users, lightColor: 'bg-amber-50 text-amber-600', featured: false },
@@ -68,7 +68,7 @@ const mainHubItems = [
   { title: 'Envíos de WhatsApp', description: 'Mensajes programados y envíos del día vía WhatsApp.', href: '/contabilidad/crm/outbox', icon: MessageCircle, lightColor: 'bg-green-50 text-green-600', featured: false },
   { title: 'Catálogo de Servicios', description: 'Presentación digital del catálogo por tipo de fiesta.', href: '/catalogo', icon: BookOpen, lightColor: 'bg-sky-50 text-sky-600', featured: false },
   { title: 'Planificador Gastronómico', description: 'Menús, recetas, bebidas y repostería maestra.', href: '/empresa/menus', icon: ChefHat, lightColor: 'bg-amber-50 text-amber-600', featured: false },
-  { title: 'Marketing', description: 'Generador de contenido para redes sociales.', href: '/marketing', icon: Wand2, lightColor: 'bg-pink-50 text-pink-600', featured: false },
+  { title: 'Marketing 360', description: 'Organiza venta, web publica, redes, demos y materiales comerciales.', href: '/marketing', icon: Wand2, lightColor: 'bg-pink-50 text-pink-600', featured: false },
   { title: 'Contratos', description: 'Gestionar plantillas de contrato y cláusulas editables.', href: '/settings/contratos', icon: FileSignature, lightColor: 'bg-blue-50 text-blue-600', featured: false },
   { title: 'Facturas', description: 'Gestión completa de facturación.', href: '/invoices', icon: FileText, lightColor: 'bg-slate-50 text-slate-600', featured: false },
 ];
@@ -154,10 +154,16 @@ export default function MainDashboardPage() {
 
   return (
     <div className="space-y-6 sm:space-y-10 pb-4">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 overflow-hidden">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-2 min-w-0">
-          {greeting && <p className="text-sm font-semibold text-indigo-400 flex items-center gap-1.5"><span>{greetingEmoji}</span> {greeting}, AK Producciones</p>}
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter text-slate-900">
+          {greeting && (
+            <p className="flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold leading-snug text-indigo-500 sm:text-sm">
+              <span>{greetingEmoji}</span>
+              <span>{greeting},</span>
+              <span className="break-words">AK Producciones</span>
+            </p>
+          )}
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-slate-900">
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent italic inline-block pb-1">Inicio</span>
           </h1>
           <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base min-w-0">
@@ -227,17 +233,17 @@ export default function MainDashboardPage() {
               <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Herramientas rápidas</CardTitle>
               <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos, WhatsApp y modo presentación.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3 p-4 sm:p-5">
+            <CardContent className="grid auto-rows-fr grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-3">
               <QuickTool href="/presupuestos/nuevo/crear" icon={ListChecks} title="Nuevo Presupuesto" description="Cotización manual." />
               <QuickTool href="/simulador-de-presupuesto" icon={Wand2} title="Simulador Presupuesto" description="Captura de leads." />
               <QuickTool href="/simulador-ak" icon={Bot} title="Simulador Asistente AK" description="Chat inteligente." />
               <QuickTool href="/pagos-rapidos" icon={Wallet} title="Registrar Pago Rápido" description="Cobrar y enviar recibo." />
               <QuickTool href="/contabilidad/crm/outbox" icon={Send} title="Envíos de WhatsApp" description="Mensajes del día pendientes." />
               <QuickTool href="/empresa/menus" icon={ChefHat} title="Planificador Gastronómico" description="Menús, recetas y bebidas." />
-              <div className="md:col-span-2 xl:col-span-3 rounded-lg border border-slate-100 bg-slate-950 p-4 shadow-sm">
+              <div className="flex min-h-[104px] flex-col justify-between gap-3 rounded-lg border border-slate-100 bg-slate-950 p-4 shadow-sm sm:col-span-2 xl:col-span-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <div className="shrink-0 rounded-lg bg-white/10 p-3 text-white"><Monitor className="h-5 w-5" /></div>
-                  <div className="min-w-0 flex-1"><h3 className="text-sm font-black text-white">Modo Presentación LED</h3><p className="mt-1 text-xs font-semibold text-slate-400">Pantalla kiosco para reuniones.</p></div>
+                  <div className="min-w-0 flex-1"><h3 className="text-sm font-black text-white">Modo Presentación LED</h3><p className="mt-1 text-xs font-semibold text-slate-400">Pantalla kiosco para reuniones y demo comercial.</p></div>
                   <button onClick={() => { const url = typeof window !== 'undefined' ? `${window.location.origin}/presentacion` : '/presentacion'; navigator.clipboard.writeText(url).then(() => { setCopiedLink(true); toast({ title: 'Link copiado', description: url }); setTimeout(() => setCopiedLink(false), 2000); }); }} className="flex items-center justify-center gap-1.5 rounded-lg bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/20">
                     {copiedLink ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}{copiedLink ? 'Copiado' : 'Copiar'}
                   </button>
@@ -307,10 +313,10 @@ export default function MainDashboardPage() {
 
 function QuickTool({ href, icon: Icon, title, description }: { href: string; icon: any; title: string; description: string }) {
   return (
-    <Link href={href}>
-      <div className="group flex min-h-[88px] h-full cursor-pointer items-center gap-3 rounded-lg border border-slate-100 p-3 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50/50">
-        <div className="shrink-0 rounded-lg bg-indigo-50 p-3 text-indigo-600 shadow-inner transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white"><Icon className="h-5 w-5" /></div>
-        <div className="min-w-0"><h3 className="text-sm font-black leading-tight text-slate-800">{title}</h3><p className="mt-1 text-xs font-semibold leading-snug text-slate-500">{description}</p></div>
+    <Link href={href} className="block h-full">
+      <div className="group flex h-full min-h-[104px] cursor-pointer items-center gap-3 rounded-lg border border-slate-100 p-3 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50/50">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shadow-inner transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white"><Icon className="h-5 w-5" /></div>
+        <div className="min-w-0 flex-1"><h3 className="text-sm font-black leading-tight text-slate-800">{title}</h3><p className="mt-1 text-xs font-semibold leading-snug text-slate-500">{description}</p></div>
         <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-indigo-500" />
       </div>
     </Link>
