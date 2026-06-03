@@ -1733,6 +1733,7 @@ function StepConversion({
   const currentYear = new Date().getFullYear();
   const [meetingAnswer, setMeetingAnswer] = useState<'si' | 'no' | null>(null);
   const [faqOpenId, setFaqOpenId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   return (
     <StepCard title="Tu presupuesto está listo" icon={<PartyPopper className="w-6 h-6" />}>
