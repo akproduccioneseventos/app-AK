@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { getSession } from '@/lib/auth';
 import { usePathname } from 'next/navigation';
 import {
   ArrowLeftRight,
@@ -8,12 +9,13 @@ import {
   Brain,
   CalendarCheck,
   DollarSign,
-  GripVertical,
   Loader2,
   Megaphone,
   MessageSquare,
   PartyPopper,
   Send,
+  Sparkles,
+  Trash2,
   X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -40,38 +42,48 @@ type AgentStyle = {
   badge: string;
   short: string;
   description: string;
+  color: string;
 };
 
 type DockSide = 'left' | 'right';
 type DockPosition = { x: number; y: number };
 type SessionMap = Record<string, string>;
 
-const HISTORY_STORAGE_KEY = 'ak-multiagent-history-v2';
+const HISTORY_STORAGE_KEY = 'ak-multiagent-history-v3';
 const SESSION_STORAGE_KEY = 'ak-multiagent-sessions-v1';
 const SIDE_STORAGE_KEY = 'ak-multiagent-dock-side';
-const POSITION_STORAGE_KEY = 'ak-multiagent-dock-position-v1';
-const DOCK_WIDTH = 112;
-const DOCK_HEIGHT = 56;
+const POSITION_STORAGE_KEY = 'ak-multiagent-dock-position-v2';
+const FAB_SIZE = 60;
 const DOCK_MARGIN = 16;
 
 const AGENT_STYLE: Record<AkAgentType, AgentStyle> = {
-  central: { label: 'Encargado General AK', icon: Bot, badge: 'App completa', short: 'AK', description: 'Control general de la aplicacion' },
-  fiestas_general: { label: 'Supervisor General de Fiestas', icon: Brain, badge: 'Todas las fiestas', short: 'FIS', description: 'Control de eventos y planificacion' },
-  fiesta: { label: 'Agente de esta Fiesta', icon: PartyPopper, badge: 'Fiesta actual', short: 'FIE', description: 'Control de la fiesta abierta' },
-  secretaria: { label: 'Secretaria AK', icon: CalendarCheck, badge: 'Agenda', short: 'SEC', description: 'Agenda, llamadas y recordatorios' },
-  comercial: { label: 'Agente Comercial AK', icon: MessageSquare, badge: 'Ventas', short: 'COM', description: 'Leads, presupuestos y seguimiento' },
-  contable: { label: 'Agente Contable AK', icon: DollarSign, badge: 'Pagos', short: 'CON', description: 'Pagos, saldos y rentabilidad' },
-  marketing: { label: 'Agente Marketing AK', icon: Megaphone, badge: 'Contenido', short: 'MKT', description: 'Redes, publicaciones y campanas' },
+  central:        { label: 'Encargado General AK',       icon: Bot,          badge: 'App completa',    short: 'AK',  description: 'Control general de la aplicacion', color: 'from-slate-800 to-indigo-900' },
+  fiestas_general:{ label: 'Supervisor de Fiestas',      icon: Brain,        badge: 'Todas las fiestas',short: 'FIS', description: 'Control de eventos y planificacion', color: 'from-violet-800 to-indigo-900' },
+  fiesta:         { label: 'Agente de esta Fiesta',      icon: PartyPopper,  badge: 'Fiesta actual',   short: 'FIE', description: 'Control de la fiesta abierta', color: 'from-pink-800 to-rose-900' },
+  secretaria:     { label: 'Secretaria AK',              icon: CalendarCheck,badge: 'Agenda',           short: 'SEC', description: 'Agenda, llamadas y recordatorios', color: 'from-teal-800 to-cyan-900' },
+  comercial:      { label: 'Agente Comercial AK',        icon: MessageSquare,badge: 'Ventas',           short: 'COM', description: 'Leads, presupuestos y seguimiento', color: 'from-sky-800 to-blue-900' },
+  contable:       { label: 'Agente Contable AK',         icon: DollarSign,   badge: 'Pagos',            short: 'CON', description: 'Pagos, saldos y rentabilidad', color: 'from-emerald-800 to-green-900' },
+  marketing:      { label: 'Agente Marketing AK',        icon: Megaphone,    badge: 'Contenido',        short: 'MKT', description: 'Redes, publicaciones y campanas', color: 'from-orange-800 to-amber-900' },
 };
 
 const AREA_AGENT_GROUPS: Record<AkAgentType, AkAgentType[]> = {
-  fiesta: ['fiesta', 'fiestas_general', 'secretaria', 'contable', 'marketing', 'central'],
-  fiestas_general: ['fiestas_general', 'fiesta', 'secretaria', 'contable', 'central'],
-  contable: ['contable', 'comercial', 'fiestas_general', 'secretaria', 'central'],
-  comercial: ['comercial', 'secretaria', 'contable', 'marketing', 'central'],
-  marketing: ['marketing', 'comercial', 'fiestas_general', 'central'],
-  secretaria: ['secretaria', 'fiestas_general', 'comercial', 'contable', 'central'],
-  central: ['central', 'fiestas_general', 'secretaria'],
+  fiesta:         ['fiesta', 'fiestas_general', 'secretaria', 'contable', 'marketing', 'central'],
+  fiestas_general:['fiestas_general', 'fiesta', 'secretaria', 'contable', 'central'],
+  contable:       ['contable', 'comercial', 'fiestas_general', 'secretaria', 'central'],
+  comercial:      ['comercial', 'secretaria', 'contable', 'marketing', 'central'],
+  marketing:      ['marketing', 'comercial', 'fiestas_general', 'central'],
+  secretaria:     ['secretaria', 'fiestas_general', 'comercial', 'contable', 'central'],
+  central:        ['central', 'fiestas_general', 'secretaria'],
+};
+
+const QUICK_PROMPTS: Record<AkAgentType, string[]> = {
+  fiesta:         ['¿Qué le falta a esta fiesta?', '¿Qué está para revisar?', '¿Qué hago hoy?'],
+  fiestas_general:['Revisar todas las fiestas', 'Prioridades generales', 'Fiestas atrasadas'],
+  contable:       ['Pagos pendientes', 'Saldos a revisar', 'Rentabilidad del mes'],
+  marketing:      ['Haceme un post', 'Ideas para historias', 'WhatsApp para vender'],
+  comercial:      ['Leads pendientes', 'Presupuestos sin respuesta', 'Mensaje para cerrar'],
+  secretaria:     ['¿Qué tengo pendiente hoy?', 'Crear recordatorio', '¿A quién llamo?'],
+  central:        ['Revisar la app', '¿Qué está más urgente?', 'Resumen general'],
 };
 
 function readStorage<T>(key: string, fallback: T): T {
@@ -118,108 +130,143 @@ function buildSessionKey(agentType: AkAgentType, pathname: string, fiestaId?: st
   return `${agentType}:${fiestaId || pathname || 'global'}`;
 }
 
-function clampPosition(position: DockPosition): DockPosition {
-  if (typeof window === 'undefined') return position;
-  const maxX = Math.max(DOCK_MARGIN, window.innerWidth - DOCK_WIDTH - DOCK_MARGIN);
-  const maxY = Math.max(DOCK_MARGIN, window.innerHeight - DOCK_HEIGHT - DOCK_MARGIN);
+function clampPosition(x: number, y: number): DockPosition {
+  if (typeof window === 'undefined') return { x, y };
   return {
-    x: Math.min(Math.max(position.x, DOCK_MARGIN), maxX),
-    y: Math.min(Math.max(position.y, DOCK_MARGIN), maxY),
+    x: Math.min(Math.max(x, DOCK_MARGIN), window.innerWidth  - FAB_SIZE - DOCK_MARGIN),
+    y: Math.min(Math.max(y, DOCK_MARGIN), window.innerHeight - FAB_SIZE - DOCK_MARGIN),
   };
 }
 
-function getDefaultDockPosition(side: DockSide): DockPosition {
+function getDefaultPosition(side: DockSide): DockPosition {
   if (typeof window === 'undefined') return { x: 0, y: 0 };
-  return clampPosition({
-    x: side === 'left' ? DOCK_MARGIN : window.innerWidth - DOCK_WIDTH - DOCK_MARGIN,
-    y: window.innerHeight - DOCK_HEIGHT - DOCK_MARGIN,
-  });
+  return clampPosition(
+    side === 'left' ? DOCK_MARGIN : window.innerWidth - FAB_SIZE - DOCK_MARGIN,
+    window.innerHeight - FAB_SIZE - DOCK_MARGIN - 80,
+  );
 }
 
 export function MultiAgentWidget() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [fiestaId, setFiestaId] = useState<string | undefined>(undefined);
-  const [dockSide, setDockSide] = useState<DockSide>(() => readStorage<DockSide>(SIDE_STORAGE_KEY, 'right'));
-  const [dockPosition, setDockPosition] = useState<DockPosition | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isOpen, setIsOpen]         = useState(false);
+  const [input, setInput]           = useState('');
+  const [isSending, setIsSending]   = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [fiestaId, setFiestaId]     = useState<string | undefined>(undefined);
+  const [dockSide, setDockSide]     = useState<DockSide>(() => readStorage<DockSide>(SIDE_STORAGE_KEY, 'right'));
+  const [position, setPosition]     = useState<DockPosition | null>(null);
   const [sessionIds, setSessionIds] = useState<SessionMap>(() => readStorage<SessionMap>(SESSION_STORAGE_KEY, {}));
-  const [activeAgent, setActiveAgent] = useState<AkAgentType>(() => detectVisibleAgent(typeof window === 'undefined' ? '' : window.location.pathname));
-  const [messages, setMessages] = useState<ChatMessage[]>(() => readStorage<ChatMessage[]>(HISTORY_STORAGE_KEY, []));
-  const endRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ x: number; y: number; startPosition: DockPosition; moved: boolean } | null>(null);
-  const suppressClickRef = useRef(false);
+  const [activeAgent, setActiveAgent] = useState<AkAgentType>(
+    () => detectVisibleAgent(typeof window === 'undefined' ? '' : window.location.pathname)
+  );
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    () => readStorage<ChatMessage[]>(HISTORY_STORAGE_KEY, [])
+  );
 
-  const suggestedAgent = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
-  const visibleAgents = useMemo(() => buildVisibleAgents(suggestedAgent, fiestaId), [suggestedAgent, fiestaId]);
-  const sessionKey = useMemo(() => buildSessionKey(activeAgent, pathname || '', fiestaId), [activeAgent, pathname, fiestaId]);
-  const visibleMessages = useMemo(() => {
-    return messages.filter(message => {
-      if (message.agentType && message.agentType !== activeAgent) return false;
-      if (fiestaId && message.fiestaId && message.fiestaId !== fiestaId) return false;
-      return true;
-    });
-  }, [activeAgent, fiestaId, messages]);
-  const style = AGENT_STYLE[activeAgent];
-  const Icon = style.icon;
-
+  // Solo mostrar el widget si hay sesión activa (usuario autenticado)
   useEffect(() => {
-    const nextFiestaId = getFiestaIdFromLocation();
-    setFiestaId(nextFiestaId);
-    setActiveAgent(detectVisibleAgent(pathname || ''));
+    setIsAuthenticated(!!getSession());
   }, [pathname]);
 
+  const endRef     = useRef<HTMLDivElement>(null);
+  const dragRef    = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number; moved: boolean } | null>(null);
+  const clickGuard = useRef(false);
+
+  const suggestedAgent  = useMemo(() => detectVisibleAgent(pathname || ''), [pathname]);
+  const visibleAgents   = useMemo(() => buildVisibleAgents(suggestedAgent, fiestaId), [suggestedAgent, fiestaId]);
+  const sessionKey      = useMemo(() => buildSessionKey(activeAgent, pathname || '', fiestaId), [activeAgent, pathname, fiestaId]);
+  const visibleMessages = useMemo(() => messages.filter(m => {
+    if (m.agentType && m.agentType !== activeAgent) return false;
+    if (fiestaId && m.fiestaId && m.fiestaId !== fiestaId) return false;
+    return true;
+  }), [activeAgent, fiestaId, messages]);
+
+  const style = AGENT_STYLE[activeAgent];
+  const Icon  = style.icon;
+
+  // Init position once on mount
   useEffect(() => {
-    const savedPosition = readStorage<DockPosition | null>(POSITION_STORAGE_KEY, null);
-    setDockPosition(clampPosition(savedPosition || getDefaultDockPosition(dockSide)));
+    const saved = readStorage<DockPosition | null>(POSITION_STORAGE_KEY, null);
+    setPosition(saved ? clampPosition(saved.x, saved.y) : getDefaultPosition(dockSide));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sync route → agent & fiestaId
   useEffect(() => {
-    try {
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(messages.slice(-80)));
-    } catch {
-      // No frena el uso del multiagente si el navegador bloquea storage.
-    }
+    setFiestaId(getFiestaIdFromLocation());
+    setActiveAgent(detectVisibleAgent(pathname || ''));
+  }, [pathname]);
+
+  // Persist messages
+  useEffect(() => {
+    try { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(messages.slice(-80))); } catch { /* ignore */ }
   }, [messages]);
 
+  // Persist dock state
   useEffect(() => {
     try {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionIds));
-      localStorage.setItem(SIDE_STORAGE_KEY, JSON.stringify(dockSide));
-      if (dockPosition) localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify(dockPosition));
-    } catch {
-      // No frena el uso del multiagente si el navegador bloquea storage.
-    }
-  }, [dockPosition, dockSide, sessionIds]);
+      localStorage.setItem(SIDE_STORAGE_KEY, dockSide);
+      if (position) localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify(position));
+    } catch { /* ignore */ }
+  }, [position, dockSide, sessionIds]);
 
+  // Clamp on resize
   useEffect(() => {
-    function handleResize() {
-      setDockPosition(prev => prev ? clampPosition(prev) : getDefaultDockPosition(dockSide));
+    function onResize() {
+      setPosition(prev => prev ? clampPosition(prev.x, prev.y) : getDefaultPosition(dockSide));
     }
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [dockSide]);
 
+  // Scroll to bottom
   useEffect(() => {
     if (isOpen) endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [visibleMessages, isOpen, isSending]);
 
-  function setSide(side: DockSide) {
-    setDockSide(side);
-    setDockPosition(prev => {
-      const next = prev || getDefaultDockPosition(side);
-      return clampPosition({
-        ...next,
-        x: side === 'left' ? DOCK_MARGIN : window.innerWidth - DOCK_WIDTH - DOCK_MARGIN,
-      });
-    });
+  /* ── Drag handlers ─────────────────────────────────────── */
+  function onPointerDown(e: ReactPointerEvent<HTMLButtonElement>) {
+    const pos = position || getDefaultPosition(dockSide);
+    dragRef.current = { startX: e.clientX, startY: e.clientY, startPosX: pos.x, startPosY: pos.y, moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
   }
 
+  function onPointerMove(e: ReactPointerEvent<HTMLButtonElement>) {
+    const d = dragRef.current;
+    if (!d) return;
+    const dx = e.clientX - d.startX;
+    const dy = e.clientY - d.startY;
+    if (!d.moved && Math.hypot(dx, dy) < 5) return;
+    d.moved = true;
+    setIsDragging(true);
+    const next = clampPosition(d.startPosX + dx, d.startPosY + dy);
+    setPosition(next);
+    setDockSide(next.x < window.innerWidth / 2 ? 'left' : 'right');
+  }
+
+  function onPointerUp(e: ReactPointerEvent<HTMLButtonElement>) {
+    const d = dragRef.current;
+    dragRef.current = null;
+    setIsDragging(false);
+    if (!d?.moved) return;
+    clickGuard.current = true;
+    const next = clampPosition(e.clientX, e.clientY);
+    setDockSide(next.x < window.innerWidth / 2 ? 'left' : 'right');
+    requestAnimationFrame(() => { clickGuard.current = false; });
+  }
+
+  function onFabClick() {
+    if (clickGuard.current) return;
+    setIsOpen(prev => !prev);
+  }
+
+  /* ── Actions ────────────────────────────────────────────── */
   function toggleSide() {
-    setSide(dockSide === 'right' ? 'left' : 'right');
+    const side: DockSide = dockSide === 'right' ? 'left' : 'right';
+    setDockSide(side);
+    setPosition(getDefaultPosition(side));
   }
 
   function openAgent(agent: AkAgentType) {
@@ -227,44 +274,8 @@ export function MultiAgentWidget() {
     setIsOpen(true);
   }
 
-  function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
-    const currentPosition = dockPosition || getDefaultDockPosition(dockSide);
-    dragRef.current = { x: event.clientX, y: event.clientY, startPosition: currentPosition, moved: false };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function handlePointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
-    const start = dragRef.current;
-    if (!start) return;
-    const deltaX = event.clientX - start.x;
-    const deltaY = event.clientY - start.y;
-    if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
-      start.moved = true;
-      const nextPosition = clampPosition({
-        x: start.startPosition.x + deltaX,
-        y: start.startPosition.y + deltaY,
-      });
-      setDockPosition(nextPosition);
-      setDockSide(nextPosition.x < window.innerWidth / 2 ? 'left' : 'right');
-    }
-  }
-
-  function handlePointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
-    const start = dragRef.current;
-    dragRef.current = null;
-    if (!start?.moved || typeof window === 'undefined') return;
-
-    suppressClickRef.current = true;
-    setDockPosition(prev => clampPosition(prev || getDefaultDockPosition(dockSide)));
-    setDockSide(event.clientX < window.innerWidth / 2 ? 'left' : 'right');
-    window.setTimeout(() => {
-      suppressClickRef.current = false;
-    }, 0);
-  }
-
-  function handleFabClick() {
-    if (suppressClickRef.current) return;
-    setIsOpen(prev => !prev);
+  function clearHistory() {
+    setMessages(prev => prev.filter(m => m.agentType !== activeAgent));
   }
 
   async function handleSend(override?: string) {
@@ -272,7 +283,7 @@ export function MultiAgentWidget() {
     if (!text || isSending) return;
 
     const currentSessionKey = sessionKey;
-    const userMessage: ChatMessage = {
+    const userMsg: ChatMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
       content: text,
@@ -281,11 +292,11 @@ export function MultiAgentWidget() {
       pathname: pathname || undefined,
     };
 
-    const historyForServer = [...visibleMessages, userMessage]
+    const historyForServer = [...visibleMessages, userMsg]
       .slice(-12)
       .map(({ role, content }) => ({ role, content }));
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsSending(true);
 
@@ -306,7 +317,7 @@ export function MultiAgentWidget() {
       setMessages(prev => [
         ...prev,
         {
-          id: `assistant_${Date.now()}`,
+          id: `asst_${Date.now()}`,
           role: 'assistant',
           content: result.response,
           agentName: result.agentName,
@@ -319,9 +330,9 @@ export function MultiAgentWidget() {
       setMessages(prev => [
         ...prev,
         {
-          id: `assistant_${Date.now()}`,
+          id: `asst_err_${Date.now()}`,
           role: 'assistant',
-          content: 'No pude responder ahora. No marque nada como hecho.',
+          content: 'No pude responder ahora. No marqué nada como hecho.',
           agentName: style.label,
           agentType: activeAgent,
           fiestaId,
@@ -333,99 +344,134 @@ export function MultiAgentWidget() {
     }
   }
 
-  const quickPrompts = activeAgent === 'fiesta'
-    ? ['Que le falta a esta fiesta', 'Que esta para revisar', 'Que hago hoy']
-    : activeAgent === 'fiestas_general'
-      ? ['Revisa todas las fiestas', 'Prioridades generales', 'Fiestas atrasadas']
-      : activeAgent === 'contable'
-        ? ['Pagos pendientes', 'Saldos a revisar', 'Rentabilidad']
-        : activeAgent === 'marketing'
-          ? ['Haceme un post', 'Ideas para historias', 'WhatsApp para vender']
-          : activeAgent === 'comercial'
-            ? ['Leads pendientes', 'Presupuestos sin respuesta', 'Mensaje para cerrar']
-            : activeAgent === 'secretaria'
-              ? ['Que tengo pendiente hoy', 'Crear recordatorio', 'A quien llamo']
-              : ['Revisa la app', 'Que esta mas urgente', 'Resumen general'];
+  /* ── Chat panel alignment ───────────────────────────────── */
+  const cardAlign = dockSide === 'left' ? 'left-0' : 'right-0';
 
-  const fallbackPosition = dockSide === 'left' ? 'left-3 sm:left-5' : 'right-3 sm:right-5';
-  const cardAlignment = dockSide === 'left' ? 'left-0' : 'right-0';
-  const sideButtonTitle = dockSide === 'left' ? 'Mover asistente a la derecha' : 'Mover asistente a la izquierda';
+  /* ── Render ─────────────────────────────────────────────── */
+  if (!isAuthenticated || !position) return null;
+
 
   return (
     <div
-      className={cn('fixed bottom-5 z-[70] print:hidden', !dockPosition && fallbackPosition)}
-      style={dockPosition ? { left: dockPosition.x, top: dockPosition.y, bottom: 'auto' } : undefined}
+      className="fixed z-[70] print:hidden"
+      style={{ left: position.x, top: position.y }}
     >
+      {/* ── Chat panel ── */}
       {isOpen && (
-        <Card className={cn('absolute bottom-20 flex h-[min(78vh,680px)] w-[calc(100vw-1.5rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border-slate-200 bg-white shadow-2xl', cardAlignment)}>
-          <CardHeader className="border-b border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-800 p-4 text-white">
-            <div className="flex items-start justify-between gap-3">
+        <Card
+          className={cn(
+            'absolute bottom-[72px] flex h-[min(78vh,660px)] w-[calc(100vw-2rem)] max-w-[420px] flex-col overflow-hidden rounded-2xl border-0 bg-white shadow-2xl',
+            cardAlign,
+          )}
+        >
+          {/* Header */}
+          <CardHeader className={cn('border-b border-white/10 bg-gradient-to-br p-4 text-white', style.color)}>
+            <div className="flex items-start justify-between gap-2">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
-                  <CardTitle className="truncate text-base font-black">{style.label}</CardTitle>
-                  <p className="truncate text-xs text-indigo-50">{style.description}</p>
+                  <CardTitle className="truncate text-[15px] font-black leading-tight">{style.label}</CardTitle>
+                  <p className="truncate text-[11px] text-white/70">{style.description}</p>
                 </div>
               </div>
-              <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 rounded-full text-white hover:bg-white/15" onClick={() => setIsOpen(false)} title="Cerrar chat">
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleSide}
+                  title={dockSide === 'right' ? 'Mover a la izquierda' : 'Mover a la derecha'}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                >
+                  <ArrowLeftRight className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={clearHistory}
+                  title="Limpiar historial de este agente"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  title="Cerrar"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge className="bg-white text-indigo-700 hover:bg-white">{style.badge}</Badge>
-              {suggestedAgent === activeAgent && <Badge className="bg-white/15 text-white hover:bg-white/15">Especialista de pantalla</Badge>}
-              {fiestaId && <Badge className="bg-white/15 text-white hover:bg-white/15">Fiesta detectada</Badge>}
-              <Badge className="bg-white/15 text-white hover:bg-white/15">Manual + memoria</Badge>
+            {/* Badges */}
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              <Badge className="bg-white/20 text-white hover:bg-white/20 text-[10px]">{style.badge}</Badge>
+              {suggestedAgent === activeAgent && (
+                <Badge className="bg-white/20 text-white hover:bg-white/20 text-[10px]">Especialista de pantalla</Badge>
+              )}
+              {fiestaId && (
+                <Badge className="bg-white/20 text-white hover:bg-white/20 text-[10px]">Fiesta detectada</Badge>
+              )}
             </div>
 
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            {/* Agent selector tabs */}
+            <div className="mt-3 flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
               {visibleAgents.map(agent => {
-                const item = AGENT_STYLE[agent];
-                const AgentIcon = item.icon;
+                const s = AGENT_STYLE[agent];
+                const AgentIcon = s.icon;
                 const active = activeAgent === agent;
                 return (
                   <button
                     key={agent}
                     type="button"
                     onClick={() => openAgent(agent)}
-                    title={`${item.label} - ${item.description}`}
+                    title={`${s.label} — ${s.description}`}
                     className={cn(
-                      'flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-black transition',
+                      'flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold transition',
                       active
-                        ? 'border-white bg-white text-indigo-700'
-                        : 'border-white/25 bg-white/10 text-white hover:bg-white/20'
+                        ? 'border-white bg-white text-slate-900'
+                        : 'border-white/25 bg-white/10 text-white hover:bg-white/25',
                     )}
                   >
-                    <AgentIcon className="h-3.5 w-3.5" />
-                    {item.short}
+                    <AgentIcon className="h-3 w-3" />
+                    {s.short}
                   </button>
                 );
               })}
             </div>
           </CardHeader>
 
+          {/* Messages */}
           <CardContent className="flex min-h-0 flex-1 flex-col p-0">
             <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {visibleMessages.length === 0 && (
-                <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 text-sm leading-6 text-slate-700">
-                  <p className="font-bold text-slate-950">{style.label} listo.</p>
-                  <p className="mt-1">Estoy usando el manual AK, la memoria del agente y los datos reales visibles de este modulo.</p>
+                <div className="rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-slate-50 p-4 text-sm leading-6 text-slate-700">
+                  <div className="mb-1 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-indigo-500" />
+                    <span className="font-bold text-slate-900">{style.label} listo.</span>
+                  </div>
+                  <p className="text-xs text-slate-500">Usando manual AK, memoria del agente y datos del módulo actual.</p>
                 </div>
               )}
 
               {visibleMessages.map(message => (
-                <div key={message.id} className={cn('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}>
-                  <div className={cn(
-                    'max-w-[86%] rounded-2xl px-3 py-2 text-sm leading-6',
-                    message.role === 'user'
-                      ? 'bg-slate-900 text-white'
-                      : 'border border-slate-200 bg-white text-slate-800 shadow-sm'
-                  )}>
+                <div
+                  key={message.id}
+                  className={cn('flex', message.role === 'user' ? 'justify-end' : 'justify-start')}
+                >
+                  <div
+                    className={cn(
+                      'max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-6',
+                      message.role === 'user'
+                        ? 'bg-slate-900 text-white'
+                        : 'border border-slate-100 bg-white text-slate-800 shadow-sm',
+                    )}
+                  >
                     {message.role === 'assistant' && message.agentName && (
-                      <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-indigo-600">{message.agentName}</p>
+                      <p className="mb-1 text-[10px] font-black uppercase tracking-wider text-indigo-500">
+                        {message.agentName}
+                      </p>
                     )}
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   </div>
@@ -434,22 +480,24 @@ export function MultiAgentWidget() {
 
               {isSending && (
                 <div className="flex justify-start">
-                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 shadow-sm">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Pensando...
+                  <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-white px-3.5 py-2.5 text-[13px] text-slate-400 shadow-sm">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Pensando...</span>
                   </div>
                 </div>
               )}
               <div ref={endRef} />
             </div>
 
-            <div className="border-t border-slate-100 p-3">
-              <div className="mb-2 flex gap-2 overflow-x-auto pb-1">
-                {quickPrompts.map(prompt => (
+            {/* Input */}
+            <div className="border-t border-slate-100 bg-slate-50/60 p-3">
+              <div className="mb-2 flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+                {QUICK_PROMPTS[activeAgent].map(prompt => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => handleSend(prompt)}
-                    className="h-8 shrink-0 rounded-full border border-indigo-100 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+                    className="h-7 shrink-0 rounded-full border border-indigo-100 bg-white px-3 text-[11px] font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-50"
                   >
                     {prompt}
                   </button>
@@ -458,17 +506,23 @@ export function MultiAgentWidget() {
               <div className="flex gap-2">
                 <Textarea
                   value={input}
-                  onChange={event => setInput(event.target.value)}
+                  onChange={e => setInput(e.target.value)}
                   placeholder={`Hablar con ${style.short}...`}
-                  className="min-h-[44px] resize-none rounded-2xl"
-                  onKeyDown={event => {
-                    if (event.key === 'Enter' && !event.shiftKey) {
-                      event.preventDefault();
+                  className="min-h-[44px] resize-none rounded-xl border-slate-200 bg-white text-[13px] shadow-sm focus-visible:ring-indigo-400"
+                  rows={1}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
                       handleSend();
                     }
                   }}
                 />
-                <Button onClick={() => handleSend()} disabled={isSending || !input.trim()} className="h-auto rounded-2xl bg-slate-900 hover:bg-indigo-700" title="Enviar">
+                <Button
+                  onClick={() => handleSend()}
+                  disabled={isSending || !input.trim()}
+                  className="h-auto shrink-0 rounded-xl bg-slate-900 px-3 hover:bg-indigo-700 disabled:opacity-40"
+                  title="Enviar"
+                >
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
@@ -477,31 +531,31 @@ export function MultiAgentWidget() {
         </Card>
       )}
 
-      <div className={cn('flex items-center gap-2', dockSide === 'right' && 'flex-row-reverse')}>
-        <button
-          type="button"
-          aria-label="Abrir Asistente AK"
-          title="Abrir Asistente AK. Arrastralo para dejarlo donde no moleste."
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onClick={handleFabClick}
-          className="group relative flex h-14 w-14 touch-none items-center justify-center rounded-full bg-slate-900 text-white shadow-2xl shadow-slate-900/25 ring-4 ring-white transition hover:scale-105 hover:bg-indigo-700"
-        >
-          <Icon className="h-6 w-6" />
-          <GripVertical className="absolute h-4 w-4 translate-x-5 translate-y-4 opacity-70 transition group-hover:opacity-100" />
-        </button>
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          onClick={toggleSide}
-          title={sideButtonTitle}
-          className="h-10 w-10 rounded-full border-slate-200 bg-white text-indigo-700 shadow-xl hover:bg-indigo-50"
-        >
-          <ArrowLeftRight className="h-4 w-4" />
-        </Button>
-      </div>
+      {/* ── Single FAB ── */}
+      <button
+        type="button"
+        aria-label="Abrir Asistente IA AK"
+        title="Asistente IA AK — arrastrá para reposicionar"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onClick={onFabClick}
+        className={cn(
+          'group relative flex h-[60px] w-[60px] touch-none select-none items-center justify-center rounded-full text-white shadow-2xl shadow-black/30 ring-4 ring-white/90 transition-all duration-150',
+          'bg-gradient-to-br from-slate-800 to-indigo-800',
+          isDragging
+            ? 'scale-110 cursor-grabbing shadow-black/50'
+            : 'cursor-grab hover:scale-105 hover:from-indigo-700 hover:to-violet-800 active:scale-95',
+          isOpen && !isDragging && 'ring-indigo-400/60',
+        )}
+      >
+        <Icon className={cn('h-6 w-6 transition-transform duration-200', isDragging && 'scale-90')} />
+
+        {/* Pulse ring when closed */}
+        {!isOpen && !isDragging && (
+          <span className="absolute inset-0 animate-ping rounded-full bg-indigo-400/30" />
+        )}
+      </button>
     </div>
   );
 }
