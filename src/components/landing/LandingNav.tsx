@@ -25,10 +25,11 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
   }, []);
 
   const navLinks = [
-    { label: 'Servicios', href: '#servicios' },
-    { label: 'Galería', href: '#galeria' },
-    { label: 'Videos', href: '#videos' },
-    { label: 'Testimonios', href: '#testimonios' },
+    { label: 'Servicios', href: '#servicios', isExternal: false },
+    { label: 'Galería', href: '#galeria', isExternal: false },
+    { label: 'Videos', href: '#videos', isExternal: false },
+    { label: 'Testimonios', href: '#testimonios', isExternal: false },
+    { label: 'Blog', href: '/blog', isExternal: true },
   ];
 
   return (
@@ -42,7 +43,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link href="/landing" className="flex items-center gap-3 shrink-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400">
+          <Link href="/landing" className="flex items-center gap-3 shrink-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-400">
             <CompanyLogo size="sm" />
             <span
               className={cn(
@@ -55,20 +56,35 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
           </Link>
 
           <nav className="hidden md:flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-2 py-1 backdrop-blur-md">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
-                  isScrolled
-                    ? 'text-zinc-600 hover:bg-slate-100 hover:text-slate-950'
-                    : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
-                )}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => 
+              link.isExternal ? (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
+                    isScrolled
+                      ? 'text-zinc-600 hover:bg-slate-100 hover:text-slate-950'
+                      : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
+                    isScrolled
+                      ? 'text-zinc-600 hover:bg-slate-100 hover:text-zinc-950'
+                      : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
+                  )}
+                >
+                  {link.label}
+                </a>
+              )
+            )}
           </nav>
 
           <div className="flex items-center gap-3">
@@ -102,16 +118,27 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
       {isMenuOpen && (
         <div className="md:hidden bg-white border-b border-slate-200 shadow-xl">
           <div className="px-4 py-4 space-y-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="block px-4 py-3 rounded-xl text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-slate-100 hover:text-slate-950 transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => 
+              link.isExternal ? (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block px-4 py-3 rounded-xl text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-slate-100 hover:text-slate-950 transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block px-4 py-3 rounded-xl text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-slate-100 hover:text-slate-950 transition-colors"
+                >
+                  {link.label}
+                </a>
+              )
+            )}
             <a
               href={waHref}
               target="_blank"
