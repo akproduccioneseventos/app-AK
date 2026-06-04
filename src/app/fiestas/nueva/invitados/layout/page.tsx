@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler, Filter, Group, Box, Monitor } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler, Filter, Group, Box, Monitor, Wand2 } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTemplate, deleteSalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
+import { autoAssignTables } from '@/app/actions/salon-ia.actions';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { getSalones } from '@/app/actions/salones';
 import { isClubUruguay } from '@/lib/club-uruguay';
@@ -284,6 +285,7 @@ function SalonLayoutContent() {
   const [tagFilter, setTagFilter] = useState<string>('all');
   const [isUploading, setIsUploading] = useState(false);
   const [salonSuggestion, setSalonSuggestion] = useState<Salon | null>(null);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
@@ -528,6 +530,27 @@ function SalonLayoutContent() {
     
     setIsCustomElementModalOpen(false);
     setCustomElement({ name: '', width: 2, height: 1, type: 'element', shape: 'rectangle' });
+  };
+
+  const handleAutoAssign = async () => {
+    if (!fiesta || !decoracion) return;
+    setIsAssigning(true);
+    try {
+      const result = await autoAssignTables(fiesta.invitados || [], decoracion.salonElements || []);
+      if (result.success) {
+        toast({ title: "IA: Asignación Completada", description: "Revisa la consola para ver el detalle de asignaciones." });
+        console.log("IA Assigner Logs:", result.logs);
+        // Refresh fiesta data locally so UI updates
+        const updatedFiesta = { ...fiesta, invitados: result.updatedInvitados };
+        setFiesta(updatedFiesta);
+        // In a real app we would call a bulk update action here
+      } else {
+        toast({ title: "Error IA", description: result.logs[0], variant: "destructive" });
+      }
+    } catch(e) {
+      toast({ title: "Error", variant: "destructive" });
+    }
+    setIsAssigning(false);
   };
 
   const allTags = useMemo(() => {
@@ -788,6 +811,16 @@ function SalonLayoutContent() {
                             </SelectContent>
                         </Select>
                     </div>
+                    
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200"
+                      onClick={handleAutoAssign}
+                      disabled={isAssigning}
+                    >
+                      {isAssigning ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2" />}
+                      Auto-Acomodar (IA)
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-grow min-h-0 p-4">

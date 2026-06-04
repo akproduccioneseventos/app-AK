@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CatalogoFoto } from '@/types/catalogo';
+import Image from 'next/image';
 
 interface GaleriaLightboxModalProps {
   isOpen: boolean;
@@ -194,18 +195,19 @@ export function GaleriaLightboxModal({
                       key={foto.id}
                       onClick={() => setActiveIndex(i)}
                       className={cn(
-                        'h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 transition-all',
+                        'relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 transition-all',
                         i === activeIndex
                           ? 'border-emerald-400 opacity-100'
                           : 'border-white/10 opacity-50 hover:opacity-80',
                       )}
                     >
                       {!imgFailed.has(foto.id) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={foto.url}
                           alt={foto.titulo ?? ''}
-                          className="h-full w-full object-cover"
+                          fill
+                          unoptimized
+                          className="object-cover"
                           onError={() =>
                             setImgFailed((prev) => new Set(prev).add(foto.id))
                           }

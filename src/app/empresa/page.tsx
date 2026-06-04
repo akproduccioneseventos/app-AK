@@ -1,10 +1,9 @@
-
 'use client';
 
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, Layout, MapPin, MonitorPlay, Camera, ExternalLink, BookOpen, GlassWater } from 'lucide-react';
+import { ArrowLeft, ContactRound, Briefcase, BarChart3, Building2, Package, Sparkles, ChefHat, Globe, Layout, MapPin, MonitorPlay, Camera, ExternalLink, BookOpen, GlassWater, Gift } from 'lucide-react';
 
 interface HubItem {
   title: string;
@@ -55,6 +54,13 @@ const empresaHubItems: HubItem[] = [
     href: '/empresa/salones',
     icon: MapPin,
     actionLabel: 'Gestionar Salones',
+  },
+  {
+    title: 'CRM Predictivo',
+    description: 'Convierte invitados en futuros clientes. Gestiona la base de datos de cumpleaños y campañas automáticas.',
+    href: '/empresa/crm',
+    icon: Gift,
+    actionLabel: 'Abrir CRM',
   },
   {
     title: 'Catálogo de Servicios',
