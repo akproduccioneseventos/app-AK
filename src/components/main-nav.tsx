@@ -102,7 +102,6 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package },
       { title: "Empleados", href: "/empleados", icon: Briefcase },
-      { title: "Proveedores", href: "/proveedores", icon: Building2 },
       { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
     ],
   },

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Upload, Check, Loader2, Camera, Save, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -60,14 +61,14 @@ function PhotoUploadRow({ id, label, currentUrl, onUploaded }: PhotoUploadRowPro
 
   return (
     <div className="flex items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
-      {/* Preview */}
-      <div className="h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-slate-800/60 border border-white/10 flex items-center justify-center">
+      <div className="relative h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-slate-800/60 border border-white/10 flex items-center justify-center">
         {previewUrl && !imgError && isSafeUrl(previewUrl) ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={previewUrl}
             alt={label}
-            className="h-full w-full object-cover"
+            fill
+            unoptimized
+            className="object-cover"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -244,8 +245,9 @@ export default function PresentacionLedConfiguracionPage() {
           <div className="flex items-center gap-4 p-3 rounded-xl border border-white/10 bg-white/5">
             <div className="h-16 w-24 shrink-0 rounded-lg overflow-hidden bg-slate-800/60 border border-white/10 flex items-center justify-center">
               {planPagosUrl && isSafeUrl(planPagosUrl) ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={planPagosUrl} alt="Plan de pagos" className="h-full w-full object-cover" />
+                <div className="relative h-full w-full">
+                  <Image src={planPagosUrl} alt="Plan de pagos" fill unoptimized className="object-cover" />
+                </div>
               ) : (
                 <Camera className="h-6 w-6 text-white/30" />
               )}

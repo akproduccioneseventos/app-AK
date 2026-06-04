@@ -76,6 +76,48 @@ async function upsertServiciosEmpresa(serviciosToUpsert: any[]): Promise<number>
 }
 
 export async function restoreConfirmedEventsBundle(bundle: any, sourceName: string): Promise<ConfirmedEventsRestoreResult> {
+  // Fix corrupted UTF-8 names inside the bundle before processing
+  const nameFixes: Record<string, string> = {
+    'Mirta Cort\u01f8s': 'Mirta Cortés',
+    'Mar\u00c3\u00ada': 'María',
+    'mar\u00c3\u00ada': 'maría',
+    'Gonz\u00c3\u00a1lez': 'González',
+    'gonz\u00c3\u00a1lez': 'gonzález',
+    'Rodr\u00c3\u00adguez': 'Rodríguez',
+    'D\u00c3\u00adaz': 'Díaz',
+    'a\u00c3\u00b1os': 'años',
+    'sal\u00c3\u00b3n': 'salón',
+    'Sal\u00c3\u00b3n': 'Salón',
+    'Cort\u01f8s': 'Cortés',
+    'Gonz\u01edlez': 'González',
+    'gonz\u01edlez': 'gonzález',
+    'Mar\u00eda': 'María',
+    'Gonz\u00e1lez': 'González',
+    'Rodr\u00edguez': 'Rodríguez'
+  };
+
+  const walkAndFix = (obj: any) => {
+    if (!obj || typeof obj !== 'object') return;
+    for (const key of Object.keys(obj)) {
+      if (typeof obj[key] === 'string') {
+        let val = obj[key];
+        // Fix common double-encoded patterns
+        if (val.includes('')) {
+           val = val.replace(/Mara/g, 'María').replace(/Rodrguez/g, 'Rodríguez').replace(/Gonzlez/g, 'González').replace(/Daz/g, 'Díaz');
+        }
+        for (const [wrong, right] of Object.entries(nameFixes)) {
+          if (val.includes(wrong)) {
+            val = val.split(wrong).join(right);
+          }
+        }
+        obj[key] = val;
+      } else if (typeof obj[key] === 'object') {
+        walkAndFix(obj[key]);
+      }
+    }
+  };
+  walkAndFix(bundle);
+
   const customers = toArray(bundle.customers).length > 0 ? toArray(bundle.customers) : toArray(bundle.clientes);
   const presupuestos = toArray(bundle.presupuestos);
   const fiestas = toArray(bundle.fiestas);

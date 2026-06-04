@@ -100,7 +100,6 @@ export const sharedFAQs: FAQItem[] = [
 export const sharedPaymentMethods: PaymentMethod[] = [
   { id: 'efectivo', name: 'Efectivo', icon: '💵', description: 'Pesos uruguayos o dólares' },
   { id: 'transferencia', name: 'Transferencia bancaria', icon: '🏦', description: 'BROU, Itaú, Santander y más' },
-  { id: 'mercadopago', name: 'Mercado Pago', icon: '📲', description: 'QR o link de pago' },
   { id: 'tarjeta', name: 'Tarjetas de crédito / débito', icon: '💳', description: 'Visa, Mastercard, OCA' },
   { id: 'cuotas', name: 'Cuotas sin interés', icon: '🗓️', description: 'Hasta 6 cuotas según el monto' },
 ];

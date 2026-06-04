@@ -21,14 +21,12 @@ export const PUBLIC_PATH_PREFIXES = [
   '/simulador',
   '/simulador-ak',
   '/simulador-v2',
-  '/proveedor',
   '/presentacion',
   '/presentacion-led',
   '/evento/mi-mesa',
   '/evento/en-vivo',
   '/evento/dj',
   '/invitado',
-  '/portal-proveedor',
 ] as const;
 
 export const PUBLIC_EXACT_PATHS = new Set(['/evento', '/evento/']);

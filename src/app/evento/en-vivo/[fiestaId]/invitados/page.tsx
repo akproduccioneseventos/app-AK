@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Music, MessageSquare, Vote, Loader2, Upload, Send, Star } from 'lucide-react';
+import { Camera, Music, MessageSquare, Vote, Loader2, Upload, Send, Star, Gift, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { GuestBotWidget } from '@/components/evento/guest-bot-widget';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import {
   getEventoEnVivoData,
@@ -56,6 +57,13 @@ export default function InvitadosPage() {
   const [msgAutor, setMsgAutor] = useState('');
   const [msgTexto, setMsgTexto] = useState('');
   const [sendingMsg, setSendingMsg] = useState(false);
+
+  // CRM Sorteo Form
+  const [crmNombre, setCrmNombre] = useState('');
+  const [crmEmail, setCrmEmail] = useState('');
+  const [crmFecha, setCrmFecha] = useState('');
+  const [sendingCrm, setSendingCrm] = useState(false);
+  const [crmSuccess, setCrmSuccess] = useState(false);
 
   const fetchData = useCallback(async () => {
     const [fiesta, eventoData] = await Promise.all([
@@ -167,6 +175,20 @@ export default function InvitadosPage() {
     }
   };
 
+  const handleCrmSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!crmNombre.trim() || !crmEmail.trim() || !crmFecha.trim()) {
+      toast({ title: 'Completá los campos', description: 'Todos los campos son obligatorios.', variant: 'destructive' });
+      return;
+    }
+    setSendingCrm(true);
+    // Simulate server action
+    await new Promise(r => setTimeout(r, 800));
+    setSendingCrm(false);
+    setCrmSuccess(true);
+    toast({ title: '¡Participando!', description: 'Ya estás participando en el sorteo.' });
+  };
+
   const handleVotar = async (votacion: VotacionEnVivo, opcionId: string) => {
     if (votadoIds.has(votacion.id)) return;
     setVotadoIds(prev => new Set([...prev, votacion.id]));
@@ -224,6 +246,10 @@ export default function InvitadosPage() {
             <TabsTrigger value="votaciones" className="text-xs data-[state=active]:bg-purple-600">
               <Vote className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Votaciones</span>
+            </TabsTrigger>
+            <TabsTrigger value="sorteo" className="text-xs data-[state=active]:bg-purple-600">
+              <Gift className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Sorteo</span>
             </TabsTrigger>
           </TabsList>
 
@@ -483,8 +509,63 @@ export default function InvitadosPage() {
               })
             )}
           </TabsContent>
+
+          {/* SORTEO (CRM) */}
+          <TabsContent value="sorteo" className="space-y-4">
+            <Card className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border-purple-500/50 text-white shadow-xl shadow-purple-900/20">
+              <CardHeader className="text-center pb-2">
+                <Gift className="w-12 h-12 text-pink-400 mx-auto mb-2 animate-bounce" />
+                <CardTitle className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">¡Sorteo Exclusivo!</CardTitle>
+                <p className="text-sm text-purple-200 mt-2">Dejanos tu fecha de cumpleaños para participar por un premio sorpresa hoy mismo, y te regalamos algo para tu próximo cumple.</p>
+              </CardHeader>
+              <CardContent>
+                {crmSuccess ? (
+                  <div className="text-center py-6 bg-purple-900/40 rounded-xl border border-purple-500/30">
+                    <PartyPopper className="w-12 h-12 text-yellow-400 mx-auto mb-2" />
+                    <h3 className="font-bold text-lg text-white">¡Ya estás participando!</h3>
+                    <p className="text-sm text-purple-200 mt-1">Mucha suerte en el sorteo de hoy.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleCrmSubmit} className="space-y-4 mt-2">
+                    <div>
+                      <Label className="text-purple-200 text-sm">Tu Nombre *</Label>
+                      <Input
+                        value={crmNombre}
+                        onChange={e => setCrmNombre(e.target.value)}
+                        placeholder="Nombre completo"
+                        className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-purple-200 text-sm">Email o Celular *</Label>
+                      <Input
+                        value={crmEmail}
+                        onChange={e => setCrmEmail(e.target.value)}
+                        placeholder="Para contactarte si ganás"
+                        className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-purple-200 text-sm">Fecha de Nacimiento *</Label>
+                      <Input
+                        type="date"
+                        value={crmFecha}
+                        onChange={e => setCrmFecha(e.target.value)}
+                        className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl block [color-scheme:dark]"
+                      />
+                    </div>
+                    <Button type="submit" disabled={sendingCrm} className="w-full h-12 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 font-bold text-lg shadow-lg shadow-pink-900/20">
+                      {sendingCrm ? <Loader2 className="w-5 h-5 animate-spin" /> : '¡Quiero Participar!'}
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
+
+      {fiestaName && <GuestBotWidget fiesta={{ clienteNombre: fiestaName } as any} />}
     </div>
   );
 }

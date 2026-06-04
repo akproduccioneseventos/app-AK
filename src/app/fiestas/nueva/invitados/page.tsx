@@ -169,15 +169,21 @@ function InvitadosEventoContent() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center print:hidden">
         <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.print()} className="bg-white"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
           <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Button></Link>
         </div>
       </div>
+      
+      <div className="hidden print:block mb-4">
+        <h1 className="text-2xl font-bold">Lista de Invitados - {fiesta?.configuracion.nombreAgasajado || 'Evento'}</h1>
+        <p className="text-sm text-slate-500">Generado el {new Date().toLocaleDateString()}</p>
+      </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:hidden">
           <Card className="border-blue-200 bg-blue-50/30">
               <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-blue-800">Adultos</CardTitle></CardHeader>
               <CardContent className="p-4 pt-0">
@@ -203,7 +209,7 @@ function InvitadosEventoContent() {
       </div>
 
       {/* QR Buscador de Mesas */}
-      <Card className="border-purple-200 bg-purple-50/50">
+      <Card className="border-purple-200 bg-purple-50/50 print:hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-black flex items-center gap-2">
             <QrCode className="w-4 h-4 text-purple-600" /> QR Buscador de Mesas
@@ -218,7 +224,7 @@ function InvitadosEventoContent() {
       </Card>
 
       {/* Add Guest Form */}
-      <Card>
+      <Card className="print:hidden">
         <CardHeader><CardTitle>Nuevo Invitado</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={handleAddInvitado} className="space-y-4">
@@ -263,8 +269,8 @@ function InvitadosEventoContent() {
       </Card>
 
       {/* Guest List */}
-      <Card>
-        <CardHeader><CardTitle>Lista de Invitados ({invitados.length})</CardTitle></CardHeader>
+      <Card className="print:shadow-none print:border-none print:p-0">
+        <CardHeader className="print:hidden"><CardTitle>Lista de Invitados ({invitados.length})</CardTitle></CardHeader>
         <CardContent className="p-0">
             <Table>
                 <TableHeader>
@@ -273,7 +279,7 @@ function InvitadosEventoContent() {
                     <TableHead>Perfil</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead>Mesa</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead className="text-right print:hidden">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -293,7 +299,7 @@ function InvitadosEventoContent() {
                             </TableCell>
                             <TableCell><RsvpStatusBadge status={inv.rsvp}/></TableCell>
                             <TableCell>{inv.tableNumber || '-'}</TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right print:hidden">
                               <div className="flex justify-end gap-1">
                                 <Button variant="ghost" size="icon" onClick={() => openEditModal(inv)}>
                                   <Edit3 className="w-4 h-4 text-slate-500"/>

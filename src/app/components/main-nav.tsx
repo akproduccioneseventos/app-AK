@@ -144,7 +144,7 @@ export function MainNav() {
             <SidebarMenu className="gap-2">
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={(isActive("/empresa") && !isActive('/empresa/contabilidad')) || isActive('/empleados') || isActive('/proveedores')}
+                  isActive={(isActive("/empresa") && !isActive('/empresa/contabilidad')) || isActive('/empleados')}
                   isSubmenu
                   className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300"
                 >
@@ -184,13 +184,6 @@ export function MainNav() {
                     <Link href="/empleados">
                       <SidebarMenuSubButton isActive={isActive("/empleados")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Recursos Humanos
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/proveedores">
-                      <SidebarMenuSubButton isActive={isActive("/proveedores")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
-                        Proveedores
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
