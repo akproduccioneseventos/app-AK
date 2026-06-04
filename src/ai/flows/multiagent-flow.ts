@@ -252,7 +252,7 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
 FIESTA ACTIVA: "${nombre || fiesta.id}"
 • Tipo: ${fiestaTipo(fiesta) || 'sin tipo'} | Fecha: ${fiesta.configuracion?.fechaEvento || 'sin fecha'} | Salón: ${fiesta.configuracion?.nombreLugar || 'sin salón'}
 • Invitados: ${fiestaInvitados(fiesta)} (adultos: ${fiesta.configuracion?.invitadosAdultos || 0}, niños: ${(fiesta.configuracion?.invitadosNinos || 0) + (fiesta.configuracion?.invitadosAdolescentes || 0)})
-• Estado: ${fiesta.estado || 'sin estado'} | Módulos: ${(fiesta.modulosContratados || []).join(', ') || 'ninguno'}
+• Estado: ${fiesta.estado || 'sin estado'} | Módulos: ${fiesta.modulosContratados ? (Object.entries(fiesta.modulosContratados).filter(([_, v]) => v === true).map(([k]) => k).join(', ') || 'ninguno') : 'ninguno'}
 • Tareas totales: ${fiesta.tareas?.length || 0} | Pendientes: ${(fiesta.tareas || []).filter((t: any) => !t.completada).length}
 TAREAS PENDIENTES (${(fiesta.tareas || []).filter((t: any) => !t.completada).length}):
 ${(fiesta.tareas || []).filter((t: any) => !t.completada).slice(0, 20).map((t: any) => `  • [${t.fechaLimite || 'sin fecha'}] ${t.texto}${t.asignadaA ? ` → ${t.asignadaA}` : ''}`).join('\n') || '  Sin tareas pendientes.'}
