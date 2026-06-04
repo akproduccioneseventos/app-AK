@@ -92,3 +92,61 @@ export async function autoAssignTables(
     return { success: false, updatedInvitados: invitados, logs: [error.message] };
   }
 }
+
+export async function chatWithGuestBot(
+  fiesta: any,
+  message: string,
+  history: Array<{ role: 'bot' | 'user'; text: string }>
+): Promise<{ success: boolean; response: string }> {
+  try {
+    const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return { success: true, response: getMockBotResponse(message, fiesta) };
+    }
+
+    const { ai, geminiModel } = await import('@/ai/genkit');
+
+    const formattedHistory = history.map(h => ({
+      role: h.role === 'bot' ? 'model' as const : 'user' as const,
+      content: [{ text: h.text }]
+    }));
+
+    const response = await ai.generate({
+      model: geminiModel,
+      system: `Sos el Asistente Virtual IA de la fiesta de ${fiesta.configuracion?.nombreAgasajado || fiesta.clienteNombre || 'nuestro anfitrión'}.
+Tu objetivo es responder de forma amable, alegre y festiva a los invitados sobre los detalles de la fiesta.
+Usá el dialecto rioplatense (uruguayo: vos, che, ta, dale) de forma sutil y amigable.
+
+Detalles de la fiesta:
+- Nombre del agasajado/a: ${fiesta.configuracion?.nombreAgasajado || 'No especificado'}
+- Tipo de fiesta: ${fiesta.eventoTipo || 'No especificado'}
+- Fecha: ${fiesta.fecha || 'No especificado'}
+- Hora de inicio: ${fiesta.configuracion?.horaInicio || '21:00 hs'}
+- Ubicación / Salón: ${fiesta.configuracion?.salonNombre || 'Salón Principal'}
+- Código de vestimenta (Dresscode): ${fiesta.configuracion?.dressCode || 'Elegante Sport'}
+- Detalles adicionales: ${fiesta.configuracion?.notasAdicionales || '¡Traer buena onda y ganas de bailar!'}
+
+Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo que no sabés, deciles que le consulten al anfitrión o a los organizadores.`,
+      history: formattedHistory,
+      prompt: message,
+    });
+
+    return { success: true, response: response.text };
+  } catch (error: any) {
+    console.error("Error in chatWithGuestBot:", error);
+    return { success: false, response: getMockBotResponse(message, fiesta) };
+  }
+}
+
+function getMockBotResponse(message: string, fiesta: any): string {
+  let botResponse = "¡Hola! Te esperamos con muchas ganas en la fiesta. Si tienes alguna duda, consúltale directamente al anfitrión.";
+  const lower = message.toLowerCase();
+  if (lower.includes('hora') || lower.includes('cuando') || lower.includes('cuándo')) {
+    botResponse = `La fiesta de ${fiesta.configuracion?.nombreAgasajado || 'nuestro anfitrión'} es el ${fiesta.fecha || 'pronto'}, empezaremos puntual a las ${fiesta.configuracion?.horaInicio || '21:00 hs'}. ¡No llegues tarde!`;
+  } else if (lower.includes('ropa') || lower.includes('vestimenta') || lower.includes('ponerme') || lower.includes('vestir')) {
+    botResponse = `El código de vestimenta es: ${fiesta.configuracion?.dressCode || 'Elegante Sport'}. ¡Vení cómodo para bailar!`;
+  } else if (lower.includes('donde') || lower.includes('dónde') || lower.includes('lugar') || lower.includes('salon') || lower.includes('salón')) {
+    botResponse = `Te esperamos en: ${fiesta.configuracion?.salonNombre || 'el Salón Principal'}. ¡Busca la ubicación en la invitación!`;
+  }
+  return botResponse;
+}

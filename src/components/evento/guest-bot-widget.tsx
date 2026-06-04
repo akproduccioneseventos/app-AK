@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { chatWithGuestBot } from '@/app/actions/salon-ia.actions';
 
 interface GuestBotWidgetProps {
   fiesta: FiestaEnPlanificacion;
@@ -15,32 +16,29 @@ interface GuestBotWidgetProps {
 export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: 'bot' | 'user', text: string}[]>([
-    { role: 'bot', text: `¡Hola! Soy el asistente virtual de la fiesta de ${fiesta.clienteNombre || 'nuestro anfitrión'}. ¿En qué te puedo ayudar hoy?` }
+    { role: 'bot', text: `¡Hola! Soy el asistente virtual de la fiesta de ${fiesta.configuracion?.nombreAgasajado || fiesta.clienteNombre || 'nuestro anfitrión'}. ¿En qué te puedo ayudar hoy?` }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const handleSend = async () => {
+    if (!inputValue.trim() || isTyping) return;
 
     const userText = inputValue.trim();
-    setMessages(prev => [...prev, { role: 'user', text: userText }]);
+    const currentHistory = [...messages, { role: 'user' as const, text: userText }];
+    setMessages(currentHistory);
     setInputValue('');
+    setIsTyping(true);
 
-    // Mock AI Logic
-    setTimeout(() => {
-      let botResponse = "Disculpa, no entendí bien. ¡Pero te esperamos con ganas en la fiesta!";
-      const lower = userText.toLowerCase();
-      
-      if (lower.includes('hora') || lower.includes('cuando') || lower.includes('cuándo')) {
-        botResponse = `El evento es el ${fiesta.fecha || 'pronto'}, empezaremos puntual. ¡No llegues tarde!`;
-      } else if (lower.includes('ropa') || lower.includes('vestimenta') || lower.includes('ponerme')) {
-        botResponse = "El código de vestimenta es elegante sport, ¡vení cómodo pero fachero!";
-      } else if (lower.includes('donde') || lower.includes('dónde') || lower.includes('lugar')) {
-        botResponse = "Te esperamos en nuestro salón principal. ¡Busca la ubicación en la invitación!";
-      }
-
-      setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
-    }, 600);
+    try {
+      const res = await chatWithGuestBot(fiesta, userText, currentHistory);
+      setMessages(prev => [...prev, { role: 'bot' as const, text: res.response }]);
+    } catch (e) {
+      console.error(e);
+      setMessages(prev => [...prev, { role: 'bot' as const, text: "Disculpa, no pude responder en este momento. ¡Te esperamos con muchas ganas!" }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
@@ -52,7 +50,7 @@ export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
               <Bot className="w-6 h-6" />
               <div>
                 <h3 className="font-bold text-sm">Asistente Virtual IA</h3>
-                <p className="text-xs text-indigo-200">Respondiendo al instante</p>
+                <p className="text-xs text-indigo-200">Respondiendo con Gemini</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" className="text-white hover:bg-indigo-700 rounded-full" onClick={() => setIsOpen(false)}>
@@ -67,6 +65,11 @@ export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
                   {msg.text}
                 </div>
               ))}
+              {isTyping && (
+                <div className="flex w-max max-w-[80%] rounded-2xl px-4 py-2 text-sm bg-white border border-slate-200 text-slate-400 italic animate-pulse">
+                  Pensando...
+                </div>
+              )}
             </div>
           </ScrollArea>
 
@@ -75,10 +78,11 @@ export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder="Preguntame algo..." 
+              placeholder="Pregúntame algo..." 
               className="rounded-full bg-slate-50 border-none h-10"
+              disabled={isTyping}
             />
-            <Button size="icon" className="rounded-full h-10 w-10 bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleSend}>
+            <Button size="icon" className="rounded-full h-10 w-10 bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleSend} disabled={isTyping}>
               <Send className="w-4 h-4" />
             </Button>
           </div>
