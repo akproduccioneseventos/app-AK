@@ -487,13 +487,14 @@ function generateItinerarioSugerido(eventoTipo: string, modulos: ModulosContrata
 
     const isBoda = eventoTipo?.toLowerCase().includes('boda') || eventoTipo?.toLowerCase().includes('casamiento');
     const isXV = eventoTipo?.toLowerCase().includes('xv') || eventoTipo?.toLowerCase().includes('quince');
+    const isCorporativo = eventoTipo?.toLowerCase().includes('corpor') || eventoTipo?.toLowerCase().includes('empresa') || eventoTipo?.toLowerCase().includes('business') || eventoTipo?.toLowerCase().includes('networking');
 
     if (isBoda) {
         items.push({ id: makeId(), hora: '18:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida en la entrada del salón', icono: '👋' });
         items.push({ id: makeId(), hora: '19:00', titulo: 'Ceremonia', descripcion: 'Ceremonia civil o religiosa de los novios', icono: '💍' });
         items.push({ id: makeId(), hora: '20:00', titulo: 'Cóctel', descripcion: 'Aperitivos y bienvenida formal a los invitados', icono: '🥂' });
         items.push({ id: makeId(), hora: '21:00', titulo: 'Ingreso al salón', descripcion: 'Entrada de los novios y primera danza', icono: '🎊' });
-        items.push({ id: makeId(), hora: '21:15', titulo: 'Vals', descripcion: 'Primer baile de los novios', icono: '💃' });
+        items.push({ id: makeId(), hora: '21:15', titulo: 'Vals de Novios', descripcion: 'Primer baile de los recién casados', icono: '💃' });
         if (modulos.catering) items.push({ id: makeId(), hora: '21:30', titulo: 'Cena', descripcion: 'Servicio de cena para todos los invitados', icono: '🍽️' });
         if (modulos.musica) items.push({ id: makeId(), hora: '23:00', titulo: 'Pista de baile', descripcion: 'DJ / Banda en vivo — fiesta abierta', icono: '🎶' });
         items.push({ id: makeId(), hora: '01:00', titulo: 'Torta', descripcion: 'Corte de torta nupcial', icono: '🎂' });
@@ -507,6 +508,15 @@ function generateItinerarioSugerido(eventoTipo: string, modulos: ModulosContrata
         if (modulos.musica) items.push({ id: makeId(), hora: '22:30', titulo: 'Pista de baile', descripcion: 'DJ en vivo — fiesta abierta', icono: '🎶' });
         items.push({ id: makeId(), hora: '00:30', titulo: 'Torta', descripcion: 'Corte de torta de la quinceañera', icono: '🎂' });
         items.push({ id: makeId(), hora: '03:00', titulo: 'Cierre', descripcion: 'Agradecimientos y despedida de invitados', icono: '🌅' });
+    } else if (isCorporativo) {
+        items.push({ id: makeId(), hora: '09:00', titulo: 'Acreditación y Bienvenida', descripcion: 'Recepción de asistentes, entrega de credenciales y café de bienvenida', icono: '👋' });
+        items.push({ id: makeId(), hora: '09:30', titulo: 'Apertura y Presentación', descripcion: 'Discurso de apertura por parte de directivos', icono: '🎤' });
+        items.push({ id: makeId(), hora: '10:30', titulo: 'Coffee Break', descripcion: 'Espacio de networking y cafetería', icono: '☕' });
+        items.push({ id: makeId(), hora: '11:00', titulo: 'Paneles y Charlas', descripcion: 'Exposiciones de especialistas del sector', icono: '📊' });
+        if (modulos.catering) items.push({ id: makeId(), hora: '13:00', titulo: 'Almuerzo de Trabajo', descripcion: 'Catering corporativo formal para los asistentes', icono: '🍽️' });
+        items.push({ id: makeId(), hora: '14:30', titulo: 'Talleres / Workshops', descripcion: 'Sesiones interactivas grupales', icono: '💼' });
+        items.push({ id: makeId(), hora: '16:30', titulo: 'Cierre de Actividades', descripcion: 'Palabras de cierre, conclusiones y próximos pasos', icono: '🏁' });
+        if (modulos.musica) items.push({ id: makeId(), hora: '17:00', titulo: 'After Office / Cóctel', descripcion: 'Cierre de jornada con DJ en vivo, barra de tragos y networking informal', icono: '🥂' });
     } else {
         // Fiesta general / cumpleaños
         items.push({ id: makeId(), hora: '20:00', titulo: 'Llegada de invitados', descripcion: 'Recepción y bienvenida', icono: '👋' });
@@ -518,6 +528,80 @@ function generateItinerarioSugerido(eventoTipo: string, modulos: ModulosContrata
     }
 
     return items;
+}
+
+function generateCartaTragosSugerida(eventoTipo: string, clienteNombre: string): CartaTragosData {
+    const isBoda = eventoTipo?.toLowerCase().includes('boda') || eventoTipo?.toLowerCase().includes('casamiento');
+    const isCorp = eventoTipo?.toLowerCase().includes('corpor') || eventoTipo?.toLowerCase().includes('empresa') || eventoTipo?.toLowerCase().includes('business') || eventoTipo?.toLowerCase().includes('networking');
+
+    if (isBoda) {
+        return {
+            titulo: 'CARTA DE TRAGOS',
+            protagonistaNombre: 'Los Novios',
+            numeroPrincipal: 'Nuestra Boda',
+            fontFamily: 'Playfair Display',
+            titleSize: 'medium',
+            protagonistaFotoUrl: '',
+            backgroundImageUrl: '',
+            backgroundColor: '#ffffff',
+            paletaColores: { primary: '#6d8b74', secondary: '#363636', accent: '#ffffff' },
+            items: [
+                { id: 'trago_novios_1', nombre: 'Mojito de los Novios', imageUrl: '', aiHint: 'mojito lime mint cocktail', descripcion: 'Ron blanco, menta fresca, lima y azúcar. El trago insignia de la noche para celebrar el amor.', ingredientes: ['Ron Blanco', 'Menta', 'Lima', 'Soda'], stockDisponible: 150 },
+                { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy fácil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clásico fresco y cítrico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
+                { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rápido de servir; una opción segura para invitados clásicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
+                { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
+            ],
+            empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
+        };
+    } else if (isCorp) {
+        return {
+            titulo: 'BARRA PREMIUM',
+            protagonistaNombre: clienteNombre || 'Empresa',
+            numeroPrincipal: 'Corporativo',
+            fontFamily: 'Playfair Display',
+            titleSize: 'medium',
+            protagonistaFotoUrl: '',
+            backgroundImageUrl: '',
+            backgroundColor: '#ffffff',
+            paletaColores: { primary: '#1e3a8a', secondary: '#363636', accent: '#ffffff' },
+            items: [
+                { id: 'trago_corp_1', nombre: 'Gin Tonic Corporativo', imageUrl: '', aiHint: 'gin tonic rosemary cocktail', descripcion: 'Gin premium con agua tónica y un toque de romero y pepino, proyectando sobriedad y éxito.', ingredientes: ['Gin', 'Tónica', 'Romero', 'Pepino'], stockDisponible: 150 },
+                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clásico fresco y cítrico, ideal para distenderse en el networking.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
+                { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de té helado y limón.', ingredientes: ['Vodka', 'Té helado', 'Limón'], stockDisponible: 120 },
+                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rápido de servir; una opción segura para invitados clásicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
+                { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
+            ],
+            empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio corporativo premium', contacto: '098 355 530' },
+        };
+    } else {
+        // XV años / General default
+        return {
+            titulo: 'CARTA DE TRAGOS',
+            protagonistaNombre: clienteNombre || 'La Agasajada',
+            numeroPrincipal: 'Mis XV',
+            fontFamily: 'Playfair Display',
+            titleSize: 'medium',
+            protagonistaFotoUrl: '',
+            backgroundImageUrl: '',
+            backgroundColor: '#ffffff',
+            paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
+            items: [
+                { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy fácil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clásico fresco y cítrico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
+                { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de té helado y limón para mantener la pista activa.', ingredientes: ['Vodka', 'Té helado', 'Limón'], stockDisponible: 120 },
+                { id: 'trago_4', nombre: 'Daiquiri de Ananá', imageUrl: '', aiHint: 'pineapple daiquiri cocktail', descripcion: 'Tropical, dulce y brillante; perfecto para fotos y para una barra con energía de fiesta.', ingredientes: ['Ron', 'Ananá', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_6', nombre: 'Atomic Green', imageUrl: '', aiHint: 'green cocktail atomic', descripcion: 'Verde intenso, moderno y llamativo para pantallas, fotos y momentos de discoteca.', ingredientes: ['Licor de melón', 'Vodka', 'Sprite'], stockDisponible: 120 },
+                { id: 'trago_7', nombre: 'Daiquiri Primavera', imageUrl: '', aiHint: 'spring daiquiri colorful cocktail', descripcion: 'Mix frutal alegre, pensado para una experiencia fresca y fácil de recomendar.', ingredientes: ['Ron', 'Mix de frutas', 'Jugo de limón'], stockDisponible: 120 },
+                { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rápido de servir; una opción segura para invitados clásicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
+                { id: 'trago_9', nombre: 'Atardecer', imageUrl: '', aiHint: 'sunset tequila sunrise cocktail', descripcion: 'Naranja y granadina para un efecto visual tipo sunset, ideal para barra de tragos.', ingredientes: ['Tequila', 'Jugo de naranja', 'Granadina'], stockDisponible: 120 },
+                { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
+            ],
+            empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
+        };
+    }
 }
 
 /**
@@ -661,6 +745,11 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     // 13. ITINERARIO SUGERIDO por tipo de evento (solo si no hay itinerario previo)
     if (!updatedFiesta.programa || updatedFiesta.programa.length === 0) {
         updatedFiesta.programa = generateItinerarioSugerido(presupuesto.eventoTipo || 'General', modulos);
+    }
+
+    // 13b. CARTA DE TRAGOS SUGERIDA por tipo de evento (solo si no hay carta de tragos previa o tiene protagonistaNombre por defecto)
+    if (!updatedFiesta.cartaTragos || !updatedFiesta.cartaTragos.items || updatedFiesta.cartaTragos.items.length === 0 || updatedFiesta.cartaTragos.protagonistaNombre === 'La Agasajada') {
+        updatedFiesta.cartaTragos = generateCartaTragosSugerida(presupuesto.eventoTipo || 'General', presupuesto.clienteNombre || 'Festejado');
     }
 
     const saved = await saveFiesta(updatedFiesta);
