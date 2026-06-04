@@ -39,6 +39,7 @@ import {
 import { getFiestaById, updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import NextImage from 'next/image';
+import Link from 'next/link';
 import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
@@ -430,20 +431,20 @@ export default function PortalClientePage() {
         </div>
         )}
 
-        {/* ── Catálogo Canva contextual ─────────────── */}
+        {/* ── Catálogo Digital contextual ─────────────── */}
         {(() => {
           const tipo = (config.tipoCelebracion || '').toLowerCase();
           const isBoda = tipo.includes('boda') || tipo.includes('casamiento');
           const isXV = tipo.includes('xv') || tipo.includes('quince');
-          const canvaUrl = isBoda
-            ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas'
+          const catalogoPath = isBoda
+            ? '/catalogo/bodas'
             : isXV
-            ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web'
-            : 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web';
+            ? '/catalogo/xv-anos'
+            : '/catalogo/fiestas';
           const emoji = isBoda ? <BookHeart className="w-6 h-6 text-rose-500" /> : isXV ? '👑' : '🎉';
           const label = isBoda ? 'Ver Catálogo Completo de Bodas' : isXV ? 'Ver Catálogo Completo de XV Años' : 'Ver Catálogo Completo de Fiestas';
           return (
-            <a href={canvaUrl} target="_blank" rel="noopener noreferrer" className="block">
+            <Link href={catalogoPath} className="block">
               <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors cursor-pointer">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{emoji}</span>
@@ -454,7 +455,7 @@ export default function PortalClientePage() {
                 </div>
                 <ChevronRight className="w-5 h-5 text-primary shrink-0" />
               </div>
-            </a>
+            </Link>
           );
         })()}
 

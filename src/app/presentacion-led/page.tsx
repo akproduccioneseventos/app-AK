@@ -9,6 +9,10 @@ import {
   Maximize,
   Minimize,
   Loader2,
+  DollarSign,
+  Users,
+  X,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
@@ -34,6 +38,7 @@ import { RegalosSlide } from './slides/regalos-slide';
 import { CierreSlide } from './slides/cierre-slide';
 import { PlanPagosSlide } from './slides/plan-pagos-slide';
 import { ContratarnosSlide } from './slides/contratarnos-slide';
+import { GaleriaLightboxModal } from './components/galeria-lightbox-modal';
 
 // Types
 import type { PageData, ClientData, CategoriaServicio, ResourceSummary } from './lib/tipos';
@@ -154,6 +159,9 @@ export default function PresentacionLedPage() {
     nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '', invitadosAdultos: '', invitadosAdolescentes: '', duracionHoras: '', tieneSalon: undefined, salon: '',
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryCategoria, setGalleryCategoria] = useState('');
+  const [showBudgetPanel, setShowBudgetPanel] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -299,6 +307,37 @@ export default function PresentacionLedPage() {
     && clientData.duracionHoras !== '',
   );
 
+  // Gallery handler — opens inline lightbox instead of navigating away
+  const handleOpenGallery = useCallback((categoria: string) => {
+    setGalleryCategoria(categoria);
+    setGalleryOpen(true);
+  }, []);
+
+  const galleryFotos = useMemo(() => {
+    if (!galleryCategoria) return catalogoFotos;
+    const norm = galleryCategoria.toLowerCase();
+    const byCategory = catalogoFotos.filter(
+      (f) => f.categoriaServicio.toLowerCase() === norm,
+    );
+    return byCategory.length > 0 ? byCategory : catalogoFotos;
+  }, [catalogoFotos, galleryCategoria]);
+
+  // Real-time budget total (services only, for the floating bar)
+  const budgetTotal = useMemo(() => {
+    if (!data) return 0;
+    const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
+    const ninos = Math.max(0, Number(clientData.invitadosAdolescentes || '0'));
+    const total = clientData.invitadosAdultos || 0;
+    return selectedServices.reduce((acc, id) => {
+      const srv = data.servicios.find((s) => s.id === id);
+      if (!srv) return acc;
+      if (srv.calculationMethod === 'porPersona' && srv.precioPorPersona) {
+        return acc + srv.precioPorPersona * (adultos + ninos);
+      }
+      return acc + (srv.precioVenta || 0);
+    }, 0);
+  }, [selectedServices, data, clientData.invitadosAdultos, clientData.invitadosAdolescentes]);
+
   // Collect entrada items from all menus
   const todasLasEntradas = useMemo<MenuItem[]>(() => {
     if (!data) return [];
@@ -318,12 +357,7 @@ export default function PresentacionLedPage() {
   const canAdvanceFromEntradas = todasLasEntradas.length === 0 || selectedEntradasIds.length >= requiredEntradasCount;
 
   const canAdvanceFromTeenMenu = !requireTeenMenu || !!selectedTeenMenuId;
-  const nextDisabled = (
-    (isDatosEventoSlide && !canAdvanceFromDatos)
-    || (currentDynamicSlide?.type === 'entradas' && !canAdvanceFromEntradas)
-    || (currentDynamicSlide?.type === 'menu-adolescente' && !canAdvanceFromTeenMenu)
-    || (currentDynamicSlide?.type === 'menu-adulto' && !selectedMenuId)
-  );
+  const nextDisabled = false; // Free navigation — vendor can move to any slide at any time
 
   const getSlideLabel = () => {
     if (isPortadaSlide) return 'Portada';
@@ -647,6 +681,7 @@ export default function PresentacionLedPage() {
               catalogoFotos={catalogoFotos}
               tipoFiesta={clientData.tipoFiesta}
               ledFotoMap={presentacionSettings?.ledFotosServicios || {}}
+              onOpenGallery={handleOpenGallery}
             />
           )}
           {isRegalosSlide && (
@@ -759,6 +794,100 @@ export default function PresentacionLedPage() {
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/20 text-xs pointer-events-none">
         ← → Navegar · F Pantalla completa
       </div>
+
+      {/* ── Floating real-time budget bar ── */}
+      {selectedServices.length > 0 && data.mostrarPrecios && (
+        <motion.div
+          initial={{ y: 80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 80, opacity: 0 }}
+          className="absolute bottom-24 left-1/2 z-30 -translate-x-1/2"
+        >
+          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-slate-900/90 px-5 py-3 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center gap-1.5 text-emerald-300">
+              <DollarSign className="h-4 w-4" />
+              <span className="text-xs font-black uppercase tracking-widest">Cotización</span>
+            </div>
+            <div className="h-4 w-px bg-white/20" />
+            <span className="text-lg font-black text-white">
+              ${budgetTotal.toLocaleString('es-UY')}
+            </span>
+            <div className="h-4 w-px bg-white/20" />
+            <button
+              onClick={() => setShowBudgetPanel((v) => !v)}
+              className="flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-bold text-white/70 transition-all hover:bg-white/20 hover:text-white"
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Ajustar
+            </button>
+            <span className="text-xs text-white/40">{selectedServices.length} servicio{selectedServices.length !== 1 ? 's' : ''}</span>
+          </div>
+
+          {/* Quick adjust panel */}
+          <AnimatePresence>
+            {showBudgetPanel && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.97 }}
+                transition={{ duration: 0.2 }}
+                className="absolute bottom-full left-1/2 mb-3 w-72 -translate-x-1/2 rounded-2xl border border-white/20 bg-slate-900/95 p-4 shadow-2xl backdrop-blur-xl"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-black text-white">Ajuste rápido</span>
+                  <button onClick={() => setShowBudgetPanel(false)} className="text-white/40 hover:text-white">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-bold text-white/50">Adultos</label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setClientData((d) => ({ ...d, invitadosAdultos: String(Math.max(0, Number(d.invitadosAdultos || 0) - 10)) }))}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                      >-</button>
+                      <span className="flex-1 text-center text-base font-black text-white">{clientData.invitadosAdultos || 0}</span>
+                      <button
+                        onClick={() => setClientData((d) => ({ ...d, invitadosAdultos: String(Number(d.invitadosAdultos || 0) + 10) }))}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                      >+</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-bold text-white/50">Adolescentes</label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setClientData((d) => ({ ...d, invitadosAdolescentes: String(Math.max(0, Number(d.invitadosAdolescentes || 0) - 5)) }))}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                      >-</button>
+                      <span className="flex-1 text-center text-base font-black text-white">{clientData.invitadosAdolescentes || 0}</span>
+                      <button
+                        onClick={() => setClientData((d) => ({ ...d, invitadosAdolescentes: String(Number(d.invitadosAdolescentes || 0) + 5) }))}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                      >+</button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-2">
+                    <Users className="h-4 w-4 text-emerald-400" />
+                    <span className="text-xs font-black text-emerald-300">
+                      {Number(clientData.invitadosAdultos || 0) + Number(clientData.invitadosAdolescentes || 0)} invitados totales
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
+
+      {/* ── Gallery Lightbox Modal ── */}
+      <GaleriaLightboxModal
+        isOpen={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        fotos={galleryFotos}
+        categoriaLabel={galleryCategoria || 'Galería'}
+      />
     </div>
   );
 }
