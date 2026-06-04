@@ -30,9 +30,8 @@ interface ShoppingListItem {
   unit: string;
   costoUnitario: number;
   costoTotalFaltante: number;
-  // Deuda técnica: hoy `proveedor` es string libre. Para sincronización real con módulo /proveedores
-  // debe migrarse a `proveedorId` (con fallback a nombre) en catálogo de insumos y lista de compras.
   proveedor: string;
+  proveedorId: string;
   origen: string;
   origenId?: string;
   isOrder?: boolean; // If true, it's an order to a provider (like pastry)
@@ -186,7 +185,8 @@ function ListaDeComprasContent() {
       // 4. CONSOLIDAR
       const consolidated: Record<string, ShoppingListItem> = {};
       rawList.forEach(raw => {
-          const key = `${raw.nombre.toLowerCase()}-${raw.proveedor.toLowerCase()}`;
+          const rawProveedorId = catalogoInsumos.find(ci => ci.id === raw.origenId)?.proveedorId || raw.proveedor.toLowerCase().replace(/[^a-z0-9]/g, '-');
+          const key = `${raw.nombre.toLowerCase()}-${rawProveedorId}`;
           if (consolidated[key]) {
               consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
               if (!consolidated[key].origen.includes(raw.origen)) consolidated[key].origen += `, ${raw.origen}`;
@@ -202,6 +202,7 @@ function ListaDeComprasContent() {
                   costoUnitario: raw.costoUnitario,
                   costoTotalFaltante: 0,
                   proveedor: raw.proveedor,
+                  proveedorId: rawProveedorId,
                   origen: raw.origen,
                   origenId: raw.origenId,
                   isOrder: raw.isOrder
@@ -249,21 +250,33 @@ function ListaDeComprasContent() {
   
   const groupedByProvider = useMemo(() => {
     return shoppingList.reduce((acc, item) => {
-      const provider = item.proveedor || 'Sin especificar';
-      if (!acc[provider]) acc[provider] = { items: [], total: 0 };
-      acc[provider].items.push(item);
-      acc[provider].total += item.costoTotalFaltante;
+      const pId = item.proveedorId;
+      if (!acc[pId]) acc[pId] = { providerName: item.proveedor || 'Sin especificar', items: [], total: 0 };
+      acc[pId].items.push(item);
+      acc[pId].total += item.costoTotalFaltante;
       return acc;
-    }, {} as Record<string, { items: ShoppingListItem[], total: number }>);
+    }, {} as Record<string, { providerName: string, items: ShoppingListItem[], total: number }>);
   }, [shoppingList]);
   
-  const handleStatusChange = async (proveedor: string, field: 'pedido' | 'pagado', value: boolean) => {
+  const handleStatusChange = async (proveedorId: string, proveedorName: string, field: 'pedido' | 'pagado' | 'entregadoParcial' | 'montoPagado', value: any) => {
     if (!fiestaId) return;
-    setIsSavingStatus(proveedor);
+    setIsSavingStatus(proveedorId);
     const updatedEstados = [...estadosCompra];
-    let estadoProveedor = updatedEstados.find(e => e.proveedor === proveedor);
-    if (estadoProveedor) estadoProveedor[field] = value;
-    else updatedEstados.push({ proveedor, pedido: field === 'pedido' ? value : false, pagado: field === 'pagado' ? value : false });
+    let estadoProveedor = updatedEstados.find(e => (e.proveedorId === proveedorId) || (e.proveedor === proveedorName));
+    if (estadoProveedor) {
+        estadoProveedor.proveedorId = proveedorId; // migración
+        (estadoProveedor as any)[field] = value;
+    }
+    else {
+        updatedEstados.push({ 
+            proveedor: proveedorName, 
+            proveedorId, 
+            pedido: field === 'pedido' ? value : false, 
+            pagado: field === 'pagado' ? value : false,
+            entregadoParcial: field === 'entregadoParcial' ? value : false,
+            montoPagado: field === 'montoPagado' ? value : 0
+        });
+    }
     setEstadosCompra(updatedEstados);
     try {
         const result = await updateShoppingListStatus(fiestaId, updatedEstados);
@@ -294,14 +307,14 @@ function ListaDeComprasContent() {
         </div>
         
         <div className="grid grid-cols-1 gap-8">
-            {Object.keys(groupedByProvider).map(providerName => {
-                const { items, total } = groupedByProvider[providerName];
-                const estadoActual = estadosCompra.find(e => e.proveedor === providerName) || { pedido: false, pagado: false };
-                const isSavingThis = isSavingStatus === providerName;
+            {Object.keys(groupedByProvider).map(providerId => {
+                const { providerName, items, total } = groupedByProvider[providerId];
+                const estadoActual = estadosCompra.find(e => e.proveedorId === providerId || e.proveedor === providerName) || { pedido: false, pagado: false, entregadoParcial: false, montoPagado: 0 };
+                const isSavingThis = isSavingStatus === providerId;
                 
                 return (
-                    <Card key={providerName} className="shadow-lg border-none rounded-[2rem] overflow-hidden bg-white print:shadow-none print:border">
-                        <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                    <Card key={providerId} className="shadow-lg border-none rounded-[2rem] overflow-hidden bg-white print:shadow-none print:border">
+                        <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 flex flex-col xl:flex-row justify-between xl:items-center gap-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100">
                                     <Truck className="w-6 h-6 text-primary"/>
@@ -311,16 +324,37 @@ function ListaDeComprasContent() {
                                     <CardDescription className="text-[10px] font-bold uppercase text-slate-400">Total a invertir: {formatCurrency(total)}</CardDescription>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-6 bg-white p-2 px-6 rounded-2xl border shadow-sm print:hidden">
+                            <div className="flex flex-wrap items-center gap-4 bg-white p-3 px-6 rounded-2xl border shadow-sm print:hidden">
                                 <div className="flex items-center gap-2">
-                                    <Switch id={`pedido-${providerName}`} checked={estadoActual.pedido} onCheckedChange={(val) => handleStatusChange(providerName, 'pedido', val)} disabled={isSavingThis} />
-                                    <Label htmlFor={`pedido-${providerName}`} className="font-black text-[10px] uppercase tracking-widest text-slate-600">PEDIDO</Label>
+                                    <Switch id={`pedido-${providerId}`} checked={estadoActual.pedido} onCheckedChange={(val) => handleStatusChange(providerId, providerName, 'pedido', val)} disabled={isSavingThis} />
+                                    <Label htmlFor={`pedido-${providerId}`} className="font-black text-[10px] uppercase tracking-widest text-slate-600">PEDIDO</Label>
                                 </div>
+                                <div className="flex items-center gap-2 ml-2">
+                                    <Switch id={`entregado-${providerId}`} checked={estadoActual.entregadoParcial} onCheckedChange={(val) => handleStatusChange(providerId, providerName, 'entregadoParcial', val)} disabled={isSavingThis} />
+                                    <Label htmlFor={`entregado-${providerId}`} className="font-black text-[10px] uppercase tracking-widest text-blue-600">ENTREGADO</Label>
+                                </div>
+                                <div className="h-6 w-px bg-slate-200 mx-2 hidden sm:block"></div>
                                 <div className="flex items-center gap-2">
-                                    <Switch id={`pagado-${providerName}`} checked={estadoActual.pagado} onCheckedChange={(val) => handleStatusChange(providerName, 'pagado', val)} disabled={isSavingThis} />
-                                    <Label htmlFor={`pagado-${providerName}`} className="font-black text-[10px] uppercase tracking-widest text-emerald-600">PAGADO</Label>
+                                    <Switch id={`pagado-${providerId}`} checked={estadoActual.pagado} onCheckedChange={(val) => handleStatusChange(providerId, providerName, 'pagado', val)} disabled={isSavingThis} />
+                                    <Label htmlFor={`pagado-${providerId}`} className="font-black text-[10px] uppercase tracking-widest text-emerald-600">PAGADO TOTAL</Label>
                                 </div>
-                                {isSavingThis && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
+                                {!estadoActual.pagado && (
+                                    <div className="flex items-center gap-2">
+                                        <Label htmlFor={`monto-${providerId}`} className="font-bold text-[10px] uppercase text-slate-400">A Cuenta:</Label>
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">$</span>
+                                            <Input 
+                                                id={`monto-${providerId}`}
+                                                type="number"
+                                                className="w-24 h-8 text-xs font-bold pl-6 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-primary"
+                                                value={estadoActual.montoPagado || ''}
+                                                onChange={(e) => handleStatusChange(providerId, providerName, 'montoPagado', Number(e.target.value))}
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                {isSavingThis && <Loader2 className="w-4 h-4 animate-spin text-primary ml-auto"/>}
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">

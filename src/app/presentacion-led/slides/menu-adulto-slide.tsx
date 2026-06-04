@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { Check, ChevronRight, Utensils, Info, ImageIcon, ExternalLink } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { cn } from '@/lib/utils';
@@ -68,13 +69,17 @@ function MenuCard({
     >
       {/* Photo */}
       {safePhoto ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={safePhoto}
-          alt={menu.name}
-          className="w-full h-44 object-cover"
-          onError={() => setImgFailed(true)}
-        />
+        <div className="relative w-full h-44 overflow-hidden">
+          <Image
+            src={safePhoto}
+            alt={menu.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            unoptimized
+            className="object-cover"
+            onError={() => setImgFailed(true)}
+          />
+        </div>
       ) : (
         <div className="w-full h-36 bg-gradient-to-br from-orange-900/30 to-amber-800/20 flex items-center justify-center border-b border-white/10">
           <div className="flex flex-col items-center gap-1 opacity-40">

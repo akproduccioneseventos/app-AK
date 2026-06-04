@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { CalendarDays, FileText, MessageCircle, ImageIcon, CheckCircle2 } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
@@ -159,12 +160,16 @@ export function PlanPagosSlide({
             className="flex flex-col gap-4"
           >
             {safeImagen ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={safeImagen}
-                alt="Evento"
-                className="w-full aspect-[4/3] object-cover rounded-2xl"
-              />
+              <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl">
+                <Image
+                  src={safeImagen}
+                  alt="Evento"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  unoptimized
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div className="w-full aspect-[4/3] bg-gradient-to-br from-indigo-900/40 to-slate-800/60 rounded-2xl flex items-center justify-center border border-white/10">
                 <div className="flex flex-col items-center gap-2 opacity-40">

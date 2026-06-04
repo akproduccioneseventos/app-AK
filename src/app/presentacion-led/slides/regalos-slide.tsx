@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Gift, Star, Info, ExternalLink } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
@@ -140,13 +141,17 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [], ledFot
               >
                 {/* Photo */}
                 {photoUrl && !imgBroken && isSafeHttpsUrl(photoUrl) ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photoUrl}
-                    alt={item.titulo}
-                    className="w-full h-32 object-cover"
-                    onError={() => setImgFailed(prev => new Set(prev).add(item.id))}
-                  />
+                  <div className="relative w-full h-32 overflow-hidden">
+                    <Image
+                      src={photoUrl}
+                      alt={item.titulo}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                      unoptimized
+                      className="object-cover"
+                      onError={() => setImgFailed(prev => new Set(prev).add(item.id))}
+                    />
+                  </div>
                 ) : (
                   <ImagePlaceholder
                     id={`regalo-foto-${item.id}`}

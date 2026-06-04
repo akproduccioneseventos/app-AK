@@ -7,6 +7,7 @@ import {
   Bell,
   Bot,
   Building,
+  Calendar,
   ChevronRight,
   Database,
   FileSignature,
@@ -21,6 +22,7 @@ import {
   Palette,
   Search,
   Settings as SettingsIcon,
+  Share2,
   Shield,
   ShieldCheck,
   Ticket,
@@ -30,6 +32,7 @@ import {
   Users,
   Wand2,
   X,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -143,6 +146,33 @@ const SECTIONS: SettingSection[] = [
         description: 'Atención automática conectada a CRM y marketing.',
         href: '/settings/whatsapp-business',
         icon: Bot,
+      },
+    ],
+  },
+  {
+    id: 'integraciones',
+    label: 'Sincronizaciones activas',
+    emoji: '🔗',
+    color: 'text-indigo-700',
+    bgColor: 'bg-indigo-50 border-indigo-200',
+    items: [
+      {
+        title: 'Centro de Integraciones',
+        description: 'Activar Google Calendar, Gmail corporativo y WhatsApp Business API.',
+        href: '/settings/sincronizaciones',
+        icon: Zap,
+      },
+      {
+        title: 'Google Workspace',
+        description: 'Sincronización de eventos y correos con tu cuenta Google.',
+        href: '/settings/google-workspace',
+        icon: Calendar,
+      },
+      {
+        title: 'Cuentas Sociales',
+        description: 'Gestionar perfiles de Instagram, TikTok y Facebook de la productora.',
+        href: '/settings/social-connections',
+        icon: Share2,
       },
     ],
   },

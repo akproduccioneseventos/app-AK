@@ -2,7 +2,7 @@
 
 import type { FiestaEnPlanificacion, GestionCostosData, CostoItem, PagoProveedor } from '@/types/fiesta';
 import type { ItemPresupuestado } from '@/types/presupuesto';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { getPresupuestoById } from '../presupuestos';
 import { getGuestCountForItem } from '@/lib/calculations';
 import { getServiciosEmpresa } from '../servicios-empresa';
@@ -13,12 +13,9 @@ import { applyLaundryCosts } from '@/lib/fiesta-sync-utils';
 
 export async function updateGestionCostos(fiestaId: string, costos: GestionCostosData): Promise<{ success: boolean; updatedData?: GestionCostosData; error?: string }> {
   try {
-    const currentData = await getFiestaById(fiestaId);
-    if (!currentData) throw new Error("Fiesta no encontrada");
-    const updatedData = { ...currentData, gestionCostos: costos };
-    const result = await saveFiesta(updatedData);
+    const result = await updateFiestaPartial(fiestaId, { gestionCostos: costos });
     if (!result.success) throw new Error(result.error);
-    return { success: true, updatedData: result.fiesta?.gestionCostos };
+    return { success: true, updatedData: costos };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -80,13 +77,25 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
 
         // 3. SINCRONIZACIÓN DE BEBIDAS Y REPOSTERÍA
         if (fiesta.bebidas?.categorias) {
+            let bebidasBaseCost = 0;
             fiesta.bebidas.categorias.filter(c => c.activada).forEach(cat => {
                 cat.items.forEach(item => {
                     const cost = item.costoUnitario || 0;
                     const qtyPerPerson = item.cantidadNecesaria || 0;
-                    totalBebidasCost += cost * qtyPerPerson * totalInv;
+                    bebidasBaseCost += cost * qtyPerPerson * totalInv;
                 });
             });
+            // Merma de bebidas (5% extra)
+            totalBebidasCost = bebidasBaseCost * 1.05;
+            if (bebidasBaseCost > 0) {
+                autoCostItems.push({
+                    id: `auto_merma_bebidas`,
+                    nombre: `Merma de Bebidas (5%)`,
+                    category: 'Insumos',
+                    montoEstimado: Math.round(totalBebidasCost - bebidasBaseCost),
+                    notas: 'Factor de desperdicio operativo.'
+                });
+            }
         }
         if (fiesta.reposteria?.categorias) {
             fiesta.reposteria.categorias.filter(c => c.activada).forEach(cat => {
@@ -96,12 +105,13 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
             });
         }
 
-        // 4. AUDITORÍA DEL PRESUPUESTO (PROVEEDORES EXTERNOS)
+        // 4. AUDITORÍA DEL PRESUPUESTO Y 5. AMORTIZACIÓN (PROVEEDORES EXTERNOS Y ACTIVOS)
+        let totalAmortizacion = 0;
         presupuesto.itemsPresupuestados.forEach(item => {
             if (item.esRegalo) return;
             const catalogItem = catalogServices.find(c => c.id === item.idServicioCatalogo);
             
-            // Si es proveedor, salón o gasto fijo, calculamos su costo real para la empresa
+            // Proveedores y Gastos Fijos
             if (catalogItem?.tipoCosto === 'Proveedor' || catalogItem?.tipoCosto === 'Gasto Fijo' || catalogItem?.categoria?.includes('Salón')) {
                 const costoUnitario = catalogItem.valorUnitarioEstimado || 0;
                 const targetGuests = getGuestCountForItem({ nombreServicio: item.nombreServicio, categoriaServicio: item.categoriaServicio, subcategoria: item.subcategoria }, adultos, adolescentes, ninos);
@@ -121,7 +131,25 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
                     });
                 }
             }
+            
+            // Amortización (Tecnología y Discoteca) - Asumimos 2% del valor de activo estimado
+            if (catalogItem?.categoria?.includes('Discoteca') || catalogItem?.categoria?.includes('Iluminación') || catalogItem?.categoria?.includes('Infraestructura')) {
+                // El valor estimado del equipo es ~10x el alquiler. Aplicamos 2% de desgaste sobre ese valor.
+                const valorEstimadoEquipo = (catalogItem.valorUnitarioEstimado || 0) * 10;
+                const desgaste = valorEstimadoEquipo * 0.02;
+                if (desgaste > 0) totalAmortizacion += desgaste;
+            }
         });
+
+        if (totalAmortizacion > 0) {
+            autoCostItems.push({
+                id: `auto_amort_tech`,
+                nombre: `Amortización de Equipos y Tecnología (2%)`,
+                category: 'Gasto Fijo',
+                montoEstimado: Math.round(totalAmortizacion),
+                notas: 'Cargo contable por desgaste de activos fijos.'
+            });
+        }
 
         const currentCosts = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
         const manualItems = (currentCosts.costosItems || []).filter(i => !i.id.startsWith('auto_prov_'));

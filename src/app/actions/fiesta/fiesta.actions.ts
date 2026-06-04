@@ -38,7 +38,7 @@ import {
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
 import { mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
 import { getPresupuestoById } from '../presupuestos';
@@ -138,6 +138,16 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     return { success: true, fiesta: fiestaData };
   } catch (error: any) {
     return { success: false, error: "No se pudo guardar el evento." };
+  }
+}
+
+export async function updateFiestaPartial(fiestaId: string, partialData: Partial<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
+  try {
+    const filePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    await updateDataPartial<FiestaEnPlanificacion>(filePath, partialData);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || "No se pudo actualizar parcialmente el evento." };
   }
 }
 

@@ -91,3 +91,30 @@ export async function writeData<T>(filePath: string, data: T, sortFn?: (a: any, 
       .catch((err) => logger.warn('[writeData] Auto-backup trigger failed silently:', err));
   }
 }
+
+export async function updateDataPartial<T extends Record<string, any>>(filePath: string, partialData: Partial<T>): Promise<void> {
+  if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
+
+  const normalizedFilePath = filePath.replace(/\\/g, '/');
+
+  try {
+    // 1. Sincronización a Firestore (firebase-sync ya utiliza { merge: true } para documentos individuales)
+    await syncToFirestore(normalizedFilePath, partialData);
+    
+    // 2. Actualización local JSON (Merge manual)
+    if (isSafeTopLevelJsonFile(normalizedFilePath)) {
+      const existing = await readGenericJsonFile(normalizedFilePath) as Record<string, any> || {};
+      const merged = { ...existing, ...partialData };
+      await syncGenericJsonFile(normalizedFilePath, merged);
+    }
+  } catch (err) {
+    logger.error(`[updateDataPartial] Error actualizando ${filePath} en Firestore:`, err);
+    throw new Error(`Error al actualizar datos en Firestore: ${err instanceof Error ? err.message : err}`);
+  }
+
+  if (!BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) {
+    import('@/app/actions/backup')
+      .then(({ triggerAutoBackup }) => triggerAutoBackup())
+      .catch((err) => logger.warn('[updateDataPartial] Auto-backup trigger failed silently:', err));
+  }
+}

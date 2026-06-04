@@ -1115,8 +1115,11 @@ export interface ModulosContratados {
 
 export interface CompraProveedorEstado {
     proveedor: string;
+    proveedorId?: string;
     pedido: boolean;
+    entregadoParcial?: boolean;
     pagado: boolean;
+    montoPagado?: number;
 }
 
 export type PlanPagoEstadoCuota = 'pendiente' | 'pagado' | 'vencido' | 'parcial';
