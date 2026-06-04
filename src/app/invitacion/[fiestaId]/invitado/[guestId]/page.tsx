@@ -344,6 +344,25 @@ function GuestPortalContent() {
               </div>
             )}
           </div>
+
+          {/* 🎉 Zona Digital AK */}
+          <div className="mt-6 w-full max-w-sm">
+            <p className="text-xs font-bold uppercase tracking-widest text-zinc-300 mb-3">🎉 Zona Digital AK</p>
+            <div className="grid grid-cols-2 gap-2">
+              <a href={`/evento/fotocabina/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+                <span className="text-2xl">📸</span>
+                <span className="text-xs font-black uppercase tracking-wide">Fotocabina</span>
+              </a>
+              <a href={`/evento/hub/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+                <span className="text-2xl">🌐</span>
+                <span className="text-xs font-black uppercase tracking-wide">Hub del Evento</span>
+              </a>
+              <a href={`/evento/social/${fiestaId}`} className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+                <span className="text-2xl">🎬</span>
+                <span className="text-sm font-black uppercase tracking-wide">Mural en Vivo</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 

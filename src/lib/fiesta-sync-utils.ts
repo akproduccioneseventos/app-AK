@@ -12,18 +12,25 @@ export function mergeClientPortalSettingsForSync(current?: ClientPortalSettings)
   return {
     ...defaultClientPortalSettings,
     ...existing,
-    enabled: true,
-    checklist: {
-      ...defaultClientPortalSettings.checklist,
-      ...existing.checklist,
-      visible: true,
-      editable: true,
-    },
-    itinerario: {
-      ...defaultClientPortalSettings.itinerario,
-      ...existing.itinerario,
-      visible: true,
-    },
+    enabled: true, // force enable when syncing from budget
+    checklist: { visible: true, editable: true, ...existing.checklist },
+    itinerario: { visible: true, ...existing.itinerario },
+    musica: { visible: true, editable: true, ...existing.musica },
+    videoVida: { visible: true, editable: true, ...existing.videoVida },
+    listaRegalos: { visible: true, ...existing.listaRegalos },
+    documentos: { visible: true, ...existing.documentos },
+    notasCliente: { visible: true, editable: true, ...existing.notasCliente },
+    invitados: { visible: true, ...existing.invitados },
+    fotografiaYFilmacion: { visible: true, ...existing.fotografiaYFilmacion },
+    moodboard: { visible: true, editable: true, ...existing.moodboard },
+    contrato: { visible: true, ...existing.contrato },
+    pagos: { visible: true, ...existing.pagos },
+    calculadoraBebidas: { visible: true, items: defaultClientPortalSettings.calculadoraBebidas?.items ?? [], ...existing.calculadoraBebidas },
+    menu: { visible: true, ...existing.menu },
+    cartaTragos: { visible: true, ...existing.cartaTragos },
+    dressCode: { visible: true, ...existing.dressCode },
+    faq: { visible: true, ...existing.faq },
+    informarPago: { visible: true, editable: true, ...existing.informarPago },
   };
 }
 

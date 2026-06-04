@@ -1,9 +1,9 @@
 {
   "id": "fiesta_1774543783349",
   "configuracion": {
-    "nombreEvento": "Nuevo Evento",
+    "nombreEvento": "Gran Fiesta de Prueba AK",
     "tipoCelebracion": "Boda",
-    "fechaEvento": "2026-03-26T16:49:08.193Z",
+    "fechaEvento": "2026-12-15T21:00:00.000Z",
     "horaInicio": "21:00",
     "horaFin": "04:00",
     "nombreLugar": "Salón a definir",
@@ -97,7 +97,22 @@
     "pixelsPerMeter": 40,
     "moodboardItems": []
   },
-  "invitados": [],
+  "invitados": [
+    {
+      "id": "invitado_test_1",
+      "nombre": "Invitado de Prueba",
+      "email": "test@akproducciones.com",
+      "telefono": "+598 99 123 456",
+      "rsvp": "Confirmado",
+      "partySize": 1,
+      "tableNumber": "1",
+      "dietaryRestriction": "Ninguna",
+      "requiereAccesibilidad": false,
+      "checkedIn": false,
+      "mensaje": "¡Emocionado por la fiesta!",
+      "guestAccessToken": "test-token-abc123"
+    }
+  ],
   "invitacionDigital": {
     "plantilla": "Grazia",
     "name": "Plantilla Grazia por Defecto",
@@ -294,56 +309,48 @@
     "colorSecundario": "#363636"
   },
   "clientPortalSettings": {
-    "enabled": false,
-    "accessKey": "",
-    "checklist": {
-      "visible": false,
-      "editable": false
-    },
-    "itinerario": {
-      "visible": false
-    },
-    "musica": {
-      "visible": false,
-      "editable": false
-    },
-    "videoVida": {
-      "visible": true,
-      "editable": true
-    },
-    "listaRegalos": {
-      "visible": false
-    },
-    "documentos": {
-      "visible": true
-    },
-    "notasCliente": {
-      "visible": false,
-      "editable": true
-    },
-    "invitados": {
-      "visible": true
-    },
-    "paginaPublica": {
-      "visible": true
-    },
-    "fotografiaYFilmacion": {
-      "visible": true
-    },
-    "moodboard": {
-      "visible": false,
-      "editable": true
-    },
-    "contrato": {
-      "visible": true
-    }
+    "enabled": true,
+    "accessKey": "123456",
+    "checklist": { "visible": true, "editable": true },
+    "itinerario": { "visible": true },
+    "musica": { "visible": true, "editable": true },
+    "videoVida": { "visible": true, "editable": true },
+    "listaRegalos": { "visible": true },
+    "documentos": { "visible": true },
+    "notasCliente": { "visible": true, "editable": true },
+    "invitados": { "visible": true },
+    "paginaPublica": { "visible": true },
+    "fotografiaYFilmacion": { "visible": true },
+    "moodboard": { "visible": true, "editable": true },
+    "contrato": { "visible": true }
   },
   "socialGallerySettings": {
     "enabled": true,
     "allowLikes": true,
     "allowComments": true,
     "uploadsActive": true,
-    "chatEnabled": true
+    "chatEnabled": true,
+    "showPolls": true,
+    "showSongRequests": true,
+    "showDedications": true
+  },
+  "guestPortalSettings": {
+    "showMural": true,
+    "showFotos": true,
+    "showInvitacionWeb": true,
+    "showMesaAsignada": true,
+    "showItinerario": true,
+    "showMusica": true,
+    "showRegalos": true,
+    "showCheckin": true
+  },
+  "guestExperienceSettings": {
+    "enabled": true,
+    "allowGuestPortal": true,
+    "showAkBranding": true,
+    "landingUrl": "https://akproduccioneseventos.com",
+    "instagramUrl": "https://www.instagram.com/akproduccioneseventos",
+    "whatsappNumber": "59898355530"
   },
   "musica": {
     "cancionesTortaBrindis": []
