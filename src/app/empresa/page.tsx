@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -42,13 +41,6 @@ const CANVA_CATALOGS = [
 ];
 
 const empresaHubItems: HubItem[] = [
-  {
-    title: 'Dashboard Ejecutivo',
-    description: 'Vista maestra de todas tus fiestas activas y alertas de pagos pendientes.',
-    href: '/empresa/dashboard',
-    icon: BarChart3,
-    actionLabel: 'Ver Dashboard',
-  },
   {
     title: 'Panel Contable y Financiero',
     description: 'Accede al CRM, presupuestos, facturas y reportes.',
@@ -104,6 +96,13 @@ const empresaHubItems: HubItem[] = [
     href: '/empleados',
     icon: ContactRound,
     actionLabel: 'Ir a Empleados',
+  },
+  {
+    title: 'Proveedores',
+    description: 'Mantén un registro de tus proveedores y sus servicios.',
+    href: '/proveedores',
+    icon: Briefcase,
+    actionLabel: 'Ir a Proveedores',
   },
   {
     title: 'Redes Sociales',

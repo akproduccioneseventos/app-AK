@@ -55,6 +55,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'empresa' && pathSegments[1] === 'servicios' && pathSegments[2] === 'editar') return `Editar Servicio`;
   if (pathname === '/empresa/contabilidad') return 'Panel Contable y Financiero';
   if (pathname === '/empresa/contabilidad/reportes') return 'Reporte de Ganancias y Pérdidas';
+  if (pathname === '/proveedores') return 'Proveedores';
+  if (pathname === '/proveedores/new') return 'Añadir Nuevo Proveedor';
+  if (pathname === '/proveedores/reporte') return 'Reporte de Proveedores';
   if (pathname === '/empresa/activos-fijos') return 'Gestión de Activos Fijos';
   if (pathname === '/empresa/activos-fijos/nuevo') return 'Añadir Nuevo Activo Fijo';
   if (pathname === '/empresa/activos-fijos/reporte') return 'Reporte de Stock de Activos';
@@ -203,6 +206,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname.startsWith('/empresa/redes-sociales')) return Sparkles;
   if (pathname.startsWith('/empresa/menus')) return ChefHat;
 
+  if (pathname === '/proveedores' || pathname === '/proveedores/reporte') return Briefcase;
+  if (pathname === '/proveedores/new') return UserPlus2Icon;
   if (pathname === '/empleados' || pathname === '/empleados/reporte') return ContactRound;
   if (pathname === '/empleados/roles') return SettingsIcon;
   if (pathname === '/customers' || pathname === '/customers/reporte') return Users;
@@ -275,7 +280,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
-  const isPublicEventPage = pathname === '/evento' || pathname === '/evento/' || pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/barra') || pathname.startsWith('/evento/totem') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/evento/logistica') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo') || pathname.startsWith('/presentacion-led') || pathname.startsWith('/invitado') || pathname.startsWith('/evento/dj');
+  const isPublicEventPage = pathname === '/evento' || pathname === '/evento/' || pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/barra') || pathname.startsWith('/evento/totem') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/evento/logistica') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/proveedor') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo') || pathname.startsWith('/presentacion-led') || pathname.startsWith('/invitado') || pathname.startsWith('/portal-proveedor') || pathname.startsWith('/evento/dj');
   const isClientFacingTool = pathname === '/simulador-de-presupuesto';
 
   // Define pages that are printable views and should not have the shell.

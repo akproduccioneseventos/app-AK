@@ -24,6 +24,7 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'clientes': { label: 'Base de Clientes', href: '/customers', icon: Users },
   'facturas': { label: 'Facturación', href: '/invoices', icon: Receipt },
   'empleados': { label: 'Gestión de Personal', href: '/empleados', icon: UserCog },
+  'proveedores': { label: 'Proveedores', href: '/proveedores', icon: Truck },
   'empresa': { label: 'Módulo Empresa', href: '/empresa', icon: Building },
   'contabilidad': { label: 'Contabilidad y Finanzas', href: '/empresa/contabilidad', icon: Calculator },
   'calendario': { label: 'Calendario de Eventos', href: '/calendario', icon: CalendarCheck },
