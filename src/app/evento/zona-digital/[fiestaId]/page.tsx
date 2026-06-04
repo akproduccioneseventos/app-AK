@@ -110,6 +110,11 @@ export default function ZonaDigitalPublicPage() {
   return (
     <main className={cn('min-h-screen overflow-hidden px-4 py-5 sm:px-6', getBackgroundClass(settings.backgroundStyle))}>
       <div className="relative mx-auto max-w-6xl space-y-5">
+        <div className="flex justify-start">
+           <Button asChild variant="outline" className="rounded-full bg-white/10 text-white border-white/20 hover:bg-white/20">
+              <Link href={`/evento/hub/${fiestaId}`}>? Volver al Hub</Link>
+           </Button>
+        </div>
         <section className="ak-live-panel p-5 sm:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -139,7 +144,7 @@ export default function ZonaDigitalPublicPage() {
                   <h2 className="text-2xl font-black">{selectedChallenge?.title ?? 'Reto de la fiesta'}</h2>
                   <p className="mt-1 text-sm text-slate-500">{selectedChallenge?.description ?? 'Elegis un reto y lo subis al muro.'}</p>
                 </div>
-                <div className="text-5xl">{selectedChallenge?.emoji ?? '🏆'}</div>
+                <div className="text-5xl">{selectedChallenge?.emoji ?? '??'}</div>
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
                 {challenges.map(item => (
@@ -209,17 +214,31 @@ export default function ZonaDigitalPublicPage() {
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {visibleFeatures.map(item => {
             const Icon = featureIcon[item.id] ?? Sparkles;
+            let href = `/evento/hub/${fiestaId}`;
+            if (item.id === 'muro_social') href = `/evento/social/${fiestaId}`;
+            if (item.id === 'fotocabina') href = `/evento/fotocabina/${fiestaId}`;
+            if (item.id === 'plataforma360') href = `/evento/plataforma-360/${fiestaId}`;
+            if (item.id === 'bogue') href = `/evento/fotocabina/${fiestaId}`;
+            if (item.id === 'espejo_magico') href = `/evento/espejo-magico/${fiestaId}`;
+            if (item.id === 'barra') href = `/evento/barra/${fiestaId}`;
+            if (item.id === 'totems') href = `/evento/hub/${fiestaId}`;
+            if (item.id === 'audioritmico') href = `/evento/muro-en-vivo/${fiestaId}`;
+            if (item.id === 'ranking') href = `/evento/zona-digital/${fiestaId}`;
+            if (item.id === 'recap') href = `/evento/galeria/${fiestaId}`;
+
             return (
-              <Card key={item.id} className="group border-white/10 bg-white/95 text-slate-950 shadow-xl transition hover:-translate-y-1">
-                <CardContent className="space-y-3 p-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600 transition group-hover:scale-110">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-black">{item.label}</h3>
-                  <p className="text-sm text-slate-500">{item.description}</p>
-                  {item.requiresHardware && <Badge variant="outline">estacion fisica</Badge>}
-                </CardContent>
-              </Card>
+              <Link key={item.id} href={href} className="block group">
+                <Card className="h-full border-white/10 bg-white/95 text-slate-950 shadow-xl transition hover:-translate-y-1 hover:shadow-2xl hover:border-red-500/50">
+                  <CardContent className="space-y-3 p-5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600 transition group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="font-black">{item.label}</h3>
+                    <p className="text-sm text-slate-500">{item.description}</p>
+                    {item.requiresHardware && <Badge variant="outline">estacion fisica</Badge>}
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </section>
