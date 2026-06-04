@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Building2, CheckCircle2, MapPin, Users } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
@@ -105,17 +106,23 @@ export function SalonSlide({
                 visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
               )}>
                 {visibleFotos.map((foto) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <div
                     key={foto.id}
-                    src={foto.safeUrl}
-                    alt={foto.titulo ?? 'Salón AK'}
                     className={cn(
-                      'w-full object-cover rounded-xl',
+                      'relative w-full overflow-hidden rounded-xl',
                       visibleFotos.length === 1 ? 'aspect-[4/3]' : 'aspect-square',
                     )}
-                    onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
-                  />
+                  >
+                    <Image
+                      src={foto.safeUrl}
+                      alt={foto.titulo ?? 'Salón AK'}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      unoptimized
+                      className="object-cover"
+                      onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (

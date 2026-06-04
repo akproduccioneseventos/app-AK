@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Check } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
@@ -64,8 +65,9 @@ export function BeneficiosSlide({
           </div>
           <div>
             {safeLateralImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={safeLateralImageUrl} alt="Imagen beneficios" className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl" />
+              <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl shadow-2xl">
+                <Image src={safeLateralImageUrl} alt="Imagen beneficios" fill sizes="(max-width: 768px) 100vw, 50vw" unoptimized className="object-cover" />
+              </div>
             ) : (
               <ImagePlaceholder id="beneficios-lateral" label="Imagen lateral beneficios" aspectRatio="4/3" />
             )}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Check, ChevronRight, Utensils, BookOpen } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
@@ -118,13 +119,17 @@ export function MenuSlide({
                     >
                       {/* Per-menu photo */}
                       {photoUrl && isSafeHttpsUrl(photoUrl) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={photoUrl}
-                          alt={menu.name}
-                          className="w-full h-28 object-cover"
-                          onError={() => setImgFailed(prev => new Set(prev).add(menu.id))}
-                        />
+                        <div className="relative w-full h-28 overflow-hidden">
+                          <Image
+                            src={photoUrl}
+                            alt={menu.name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            unoptimized
+                            className="object-cover"
+                            onError={() => setImgFailed(prev => new Set(prev).add(menu.id))}
+                          />
+                        </div>
                       ) : (
                         <ImagePlaceholder
                           id={`menu-foto-${menu.id}`}

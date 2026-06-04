@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles, Info, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
+import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles, Info, Images } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
@@ -33,6 +34,8 @@ interface CategoriaServiciosSlideProps {
   tipoFiesta?: string;
   /** Map of service ID -> uploaded LED photo URL */
   ledFotoMap?: Record<string, string>;
+  /** Called when user clicks 'Ver experiencia visual' to open inline gallery */
+  onOpenGallery?: (categoria: string, subcategoria?: string) => void;
 }
 
 function getServiceIcon(categoria?: string) {
@@ -112,12 +115,14 @@ function ServicioCard({
   onToggle,
   mostrarPrecios,
   fotoUrl,
+  onOpenGallery,
 }: {
   servicio: ServicioEmpresa;
   isSelected: boolean;
   onToggle: () => void;
   mostrarPrecios: boolean;
   fotoUrl?: string | null;
+  onOpenGallery?: (categoria: string, subcategoria?: string) => void;
 }) {
   const [showSpecs, setShowSpecs] = useState(false);
   const [showDesc, setShowDesc] = useState(false);
@@ -127,16 +132,8 @@ function ServicioCard({
   const showPhoto = fotoUrl != null && isSafeHttpsUrl(fotoUrl) && !imgFailed;
 
   const handleGallery = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('desde_presentacion_led', 'true');
-      const slide = sessionStorage.getItem('presentacion_slide_actual') ?? '0';
-      sessionStorage.setItem('presentacion_slide_regreso', slide);
-      const cat = encodeURIComponent(String(servicio.categoria ?? '').slice(0, 100));
-      const sub = encodeURIComponent(String(servicio.subcategoria ?? '').slice(0, 100));
-      const url = sub
-        ? `/galeria-led?categoria=${cat}&subCategoria=${sub}`
-        : `/galeria-led?categoria=${cat}`;
-      window.location.assign(url);
+    if (onOpenGallery) {
+      onOpenGallery(servicio.categoria ?? '', servicio.subcategoria ?? undefined);
     }
   };
 
@@ -150,13 +147,17 @@ function ServicioCard({
       )}
     >
       {showPhoto && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={fotoUrl!}
-          alt={servicio.nombre}
-          className="h-40 w-full object-cover md:h-48"
-          onError={() => setImgFailed(true)}
-        />
+        <div className="relative h-40 w-full md:h-48 overflow-hidden">
+          <Image
+            src={fotoUrl!}
+            alt={servicio.nombre}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw"
+            unoptimized
+            className="object-cover"
+            onError={() => setImgFailed(true)}
+          />
+        </div>
       )}
       {!showPhoto && (
         <div className="flex h-32 w-full items-center justify-center border-b border-white/10 bg-slate-900/80 md:h-40">
@@ -204,7 +205,7 @@ function ServicioCard({
             onClick={handleGallery}
             className="flex items-center gap-1 text-xs font-bold text-emerald-200 transition-colors hover:text-emerald-100"
           >
-            <ExternalLink className="h-3.5 w-3.5" />
+            <Images className="h-3.5 w-3.5" />
             Ver experiencia visual
           </button>
           {specs.length > 0 && (
@@ -272,6 +273,7 @@ export function CategoriaServiciosSlide({
   catalogoFotos = [],
   tipoFiesta = '',
   ledFotoMap = {},
+  onOpenGallery,
 }: CategoriaServiciosSlideProps) {
   const allSelected = servicios.every(s => selectedServices.includes(s.id));
   const anySelected = servicios.some(s => selectedServices.includes(s.id));
@@ -347,17 +349,23 @@ export function CategoriaServiciosSlide({
                 visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
               )}>
                 {visibleFotos.map((foto) => (
-                   // eslint-disable-next-line @next/next/no-img-element
-                   <img
+                   <div
                      key={foto.id}
-                     src={foto.url}
-                     alt={foto.titulo ?? categoria}
                      className={cn(
-                       'w-full rounded-xl object-cover',
+                       'relative w-full rounded-xl overflow-hidden',
                        visibleFotos.length === 1 ? 'aspect-[16/10]' : 'aspect-square',
                      )}
-                     onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
-                   />
+                   >
+                     <Image
+                       src={foto.url}
+                       alt={foto.titulo ?? categoria}
+                       fill
+                       sizes="(max-width: 768px) 100vw, 50vw"
+                       unoptimized
+                       className="object-cover"
+                       onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
+                     />
+                   </div>
                 ))}
               </div>
             ) : (
@@ -366,6 +374,16 @@ export function CategoriaServiciosSlide({
                 label={`Visual de ${categoria}`}
                 aspectRatio="4/3"
               />
+            )}
+
+            {visibleFotos.length > 0 && onOpenGallery && (
+              <button
+                onClick={() => onOpenGallery(categoria)}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-400/30 bg-indigo-500/15 py-2.5 text-xs font-bold text-indigo-300 transition-all hover:bg-indigo-500/25 hover:text-indigo-200"
+              >
+                <Images className="h-3.5 w-3.5" />
+                Ver galería completa
+              </button>
             )}
 
             {servicios.length > 1 && (
@@ -413,6 +431,7 @@ export function CategoriaServiciosSlide({
                     onToggle={() => onToggleSelect(servicio.id)}
                     mostrarPrecios={mostrarPrecios}
                     fotoUrl={ledFotoMap[servicio.id] || findPhotoForService(servicio, catalogoFotos, tipoFiesta)}
+                    onOpenGallery={onOpenGallery}
                   />
                 </motion.div>
               ))
