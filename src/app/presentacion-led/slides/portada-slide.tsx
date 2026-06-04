@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { ChevronRight, MonitorPlay, ShieldCheck, Sparkles } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
@@ -66,8 +67,7 @@ export function PortadaSlide({
             className="mb-7"
           >
             {safeLogoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={safeLogoUrl} alt="Logo AK Producciones" className="h-20 w-auto object-contain drop-shadow-2xl md:h-24" />
+              <Image src={safeLogoUrl} alt="Logo AK Producciones" width={200} height={80} unoptimized className="h-20 w-auto object-contain drop-shadow-2xl md:h-24" />
             ) : (
               <div className="flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/25 bg-white/10">
@@ -134,12 +134,16 @@ export function PortadaSlide({
           <div className="absolute -inset-4 rounded-[2rem] border border-white/10" />
           <div className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 shadow-2xl">
             {safeBackgroundUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={safeBackgroundUrl}
-                alt={tipoFiesta ? `Foto de ${tipoFiesta}` : 'Foto principal del evento'}
-                className="h-[58vh] min-h-[460px] w-full object-cover"
-              />
+              <div className="relative h-[58vh] min-h-[460px] w-full overflow-hidden">
+                <Image
+                  src={safeBackgroundUrl}
+                  alt={tipoFiesta ? `Foto de ${tipoFiesta}` : 'Foto principal del evento'}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  unoptimized
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <ImagePlaceholder
                 id="hero-portada"

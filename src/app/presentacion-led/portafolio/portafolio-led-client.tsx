@@ -1,7 +1,6 @@
 'use client';
 
-/* eslint-disable @next/next/no-img-element */
-
+import Image from 'next/image';
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
@@ -100,10 +99,12 @@ function colorWithAlpha(hex: string, alpha: number) {
 
 function ImagePanel({ src, alt, className }: { src: string; alt: string; className?: string }) {
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
-      loading="lazy"
+      fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      unoptimized
       className={cn('h-full w-full object-cover', className)}
     />
   );
