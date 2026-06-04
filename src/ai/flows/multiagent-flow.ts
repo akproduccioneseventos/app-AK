@@ -274,7 +274,7 @@ ${(fiestas as any[]).slice(0, 20).map((f: any) => {
 
   // ── Alertas KPI ───────────────────────────────────────────────────────────
   const alertsBlock = (kpi?.alerts || []).length
-    ? `ALERTAS ACTIVAS:\n${(kpi.alerts as any[]).slice(0,8).map((a: any) => `  • [${String(a.level||'aviso').toUpperCase()}] ${a.message}`).join('\n')}`
+    ? `ALERTAS ACTIVAS:\n${(kpi?.alerts as any[]).slice(0,8).map((a: any) => `  • [${String(a.level||'aviso').toUpperCase()}] ${a.message}`).join('\n')}`
     : 'Sin alertas activas.';
 
   // ── Texto de contexto completo ─────────────────────────────────────────────
