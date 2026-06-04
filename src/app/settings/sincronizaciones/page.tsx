@@ -1,144 +1,236 @@
+'use client';
+
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, ExternalLink, Link2, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Calendar,
+  MessageCircle,
+  Share2,
+  ExternalLink,
+  Zap,
+  AlertCircle,
+} from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.15,
+      duration: 0.5,
+      ease: 'easeOut',
+    },
+  }),
+};
 
-const SYNCS = [
-  {
-    title: 'Club Uruguay',
-    source: 'Gestor de salones',
-    publicSide: '/club-uruguay',
-    adminSide: '/empresa/salones/experiencia-visual',
-    status: 'Conectado',
-    detail: 'La web publica toma fotos, capacidad, mapa, video, recorrido 360, modelo 3D y notas desde el salon cargado como Club Uruguay.',
-  },
-  {
-    title: 'Diseno de salon 2D/3D',
-    source: 'Salon + layout guardado',
-    publicSide: '/empresa/salones/experiencia-visual',
-    adminSide: '/empresa/salones',
-    status: 'Conectado',
-    detail: 'La ruta correcta de diseno reutiliza la pantalla existente de croquis para no duplicar motores ni perder lo ya hecho. Desde el gestor se entra al salon real y su diseno.',
-  },
-  {
-    title: 'Backup manual y final',
-    source: 'Modulo real de settings',
-    publicSide: '/settings/backup-final',
-    adminSide: '/settings/backup',
-    status: 'Conectado',
-    detail: 'El control final y el backup manual apuntan a settings, evitando rutas viejas de configuracion que quedaban sueltas.',
-  },
-  {
-    title: 'Asistentes contextuales',
-    source: 'Ruta actual de la app',
-    publicSide: '/settings/asistentes-contextuales',
-    adminSide: '/settings/asistentes-contextuales',
-    status: 'Conectado visualmente',
-    detail: 'El indicador cambia automaticamente segun donde estes y permite diferenciar cada asistente con foto y color.',
-  },
-  {
-    title: 'Google Workspace',
-    source: 'Configuracion OAuth y emails reales',
-    publicSide: '/settings/google-workspace',
-    adminSide: '/settings/google-workspace',
-    status: 'Revisar credenciales',
-    detail: 'La base existe para Calendar y Gmail, pero el lanzamiento depende de que las credenciales reales esten cargadas en produccion.',
-  },
-  {
-    title: 'Social Fiesta',
-    source: 'Planificador de fiesta',
-    publicSide: '/fiestas/nueva/social-fiesta-pro',
-    adminSide: '/fiestas/nueva/muro-social',
-    status: 'Revisar en evento real',
-    detail: 'El motor social tiene entrada propia, pero conviene probarlo con una fiesta real antes de usarlo en pantalla durante un evento.',
-  },
-  {
-    title: 'Portal cliente',
-    source: 'Fiesta contratada',
-    publicSide: '/fiestas/nueva/portal-cliente/experiencia-mundial',
-    adminSide: '/fiestas/nueva/portal-cliente/cierre-final',
-    status: 'Revisar datos de fiesta',
-    detail: 'El portal depende de que la fiesta tenga portada, pagos, invitados, contrato y contacto unico bien cargados.',
-  },
-  {
-    title: 'Comercial 360',
-    source: 'Simulador, CRM y presupuesto vivo',
-    publicSide: '/contabilidad/comercial-360',
-    adminSide: '/contabilidad/comercial-360',
-    status: 'Conectado para revision',
-    detail: 'Centraliza lo comercial para revisar que simulador, presupuesto y seguimiento no queden separados.',
-  },
-];
-
-function statusClass(status: string) {
-  if (status.startsWith('Conectado')) return 'bg-emerald-100 text-emerald-700 hover:bg-emerald-100';
-  return 'bg-amber-100 text-amber-700 hover:bg-amber-100';
+interface FeatureItem {
+  text: string;
 }
 
-export default function LaunchSynchronizationsPage() {
+interface IntegrationCardProps {
+  index: number;
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  features: FeatureItem[];
+  badgeLabel: string;
+  badgeColor: 'amber' | 'blue';
+  buttonLabel: string;
+  buttonHref: string;
+  note: string;
+}
+
+function IntegrationCard({
+  index,
+  icon,
+  title,
+  subtitle,
+  features,
+  badgeLabel,
+  badgeColor,
+  buttonLabel,
+  buttonHref,
+  note,
+}: IntegrationCardProps) {
+  const badgeClasses =
+    badgeColor === 'amber'
+      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+      : 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
+
+  const buttonClasses =
+    badgeColor === 'amber'
+      ? 'bg-indigo-600 hover:bg-indigo-500 focus-visible:ring-indigo-500'
+      : 'bg-blue-600 hover:bg-blue-500 focus-visible:ring-blue-500';
+
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Button asChild variant="ghost">
-            <Link href="/settings/lanzamiento-cto">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver al panel CTO
-            </Link>
-          </Button>
-          <Badge className="bg-slate-900 text-white hover:bg-slate-900">Sincronizaciones de lanzamiento</Badge>
+    <motion.div
+      custom={index}
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-8 flex flex-col gap-6 shadow-xl"
+    >
+      {/* Card header */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 border border-white/10 shadow-inner shrink-0">
+            {icon}
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">{title}</h2>
+            <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>
+          </div>
+        </div>
+        {/* Status badge */}
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap ${badgeClasses}`}
+        >
+          <AlertCircle className="h-3.5 w-3.5" />
+          {badgeLabel}
+        </span>
+      </div>
+
+      {/* Divider */}
+      <div className="h-px w-full bg-white/10" />
+
+      {/* Feature list */}
+      <ul className="flex flex-col gap-3">
+        {features.map((f, idx) => (
+          <li key={idx} className="flex items-start gap-3">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+            <span className="text-sm text-slate-300">{f.text}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Action button */}
+      <div className="mt-auto flex flex-col gap-3">
+        <Link
+          href={buttonHref}
+          className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${buttonClasses}`}
+        >
+          <ExternalLink className="h-4 w-4" />
+          {buttonLabel}
+        </Link>
+        <p className="text-center text-xs text-slate-500">{note}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+export default function SincronizacionesPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
+      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+
+        {/* Back link */}
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35 }}
+          className="mb-10"
+        >
+          <Link
+            href="/settings"
+            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver a Configuración
+          </Link>
+        </motion.div>
+
+        {/* Page header */}
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-12 text-center"
+        >
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-300 tracking-wide uppercase">
+            <Zap className="h-3.5 w-3.5" />
+            Integraciones &amp; Automatizaciones
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
+            Centro de Activación de Integraciones
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-400">
+            Conectá tus servicios externos para automatizar flujos de trabajo,
+            notificaciones y comunicación con clientes y equipo.
+          </p>
+        </motion.div>
+
+        {/* Integration cards */}
+        <div className="flex flex-col gap-8">
+
+          {/* Card 1: Google Workspace */}
+          <IntegrationCard
+            index={0}
+            icon={<Calendar className="h-7 w-7 text-indigo-300" />}
+            title="Google Calendar & Gmail"
+            subtitle="Sincronización de eventos y correos de recuperación"
+            features={[
+              { text: 'Las fiestas se agendan automáticamente en Google Calendar' },
+              { text: 'El personal recibe el evento en su calendario personal' },
+              { text: 'Se pueden enviar correos de recuperación de contraseña' },
+              { text: 'Notificaciones de evento por email al equipo asignado' },
+            ]}
+            badgeLabel="Requiere configuración"
+            badgeColor="amber"
+            buttonLabel="Conectar Google Account"
+            buttonHref="/settings/google-workspace"
+            note="Necesitás iniciar sesión con la cuenta Google de AK Producciones"
+          />
+
+          {/* Card 2: WhatsApp Business */}
+          <IntegrationCard
+            index={1}
+            icon={<MessageCircle className="h-7 w-7 text-emerald-300" />}
+            title="WhatsApp Business Bot"
+            subtitle="Bot automático, CRM y atención 24/7"
+            features={[
+              { text: 'Responde automáticamente consultas de presupuesto y disponibilidad' },
+              { text: 'Crea prospectos en el CRM cuando alguien escribe por primera vez' },
+              { text: 'Notifica al equipo cuando una consulta necesita atención humana' },
+              { text: 'Envía recordatorios programados de pagos y reuniones' },
+            ]}
+            badgeLabel="Requiere API Key de Meta"
+            badgeColor="amber"
+            buttonLabel="Configurar WhatsApp Business"
+            buttonHref="/settings/whatsapp-business"
+            note="Necesitás una cuenta Meta for Developers con el número habilitado"
+          />
+
+          {/* Card 3: Instagram & TikTok */}
+          <IntegrationCard
+            index={2}
+            icon={<Share2 className="h-7 w-7 text-sky-300" />}
+            title="Instagram & TikTok"
+            subtitle="Redirecciones a perfiles de la productora"
+            features={[
+              { text: 'Los invitados pueden acceder a tu perfil desde el portal del evento' },
+              { text: 'Los clientes ven el enlace en su portal de cliente' },
+            ]}
+            badgeLabel="Activo — Solo redirección"
+            badgeColor="blue"
+            buttonLabel="Configurar redes sociales"
+            buttonHref="/settings/social-connections"
+            note="No requiere API. Solo configura las URLs de tus perfiles."
+          />
         </div>
 
-        <section className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-          <Card className="border-slate-200 bg-white">
-            <CardContent className="space-y-4 p-6 sm:p-8">
-              <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
-                <Link2 className="h-4 w-4" />
-                Nada suelto antes de lanzar
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Matriz de conexiones AK</h1>
-              <p className="max-w-3xl text-base text-muted-foreground">
-                Esta pantalla resume de donde sale cada dato, donde se ve y donde se edita. La idea es que cada motor tenga una pantalla real y una ruta clara.
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200 bg-white">
-            <CardHeader><CardTitle>Lectura rapida</CardTitle></CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>Conectado significa que existe entrada visible y ruta de edicion. Revisar significa que el motor existe, pero necesita prueba con datos reales o credenciales.</p>
-              <div className="flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-emerald-800"><ShieldCheck className="h-4 w-4" /> {SYNCS.filter((item) => item.status.startsWith('Conectado')).length} conexiones cubiertas</div>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {SYNCS.map((item) => (
-            <Card key={item.title} className="border-slate-200 bg-white">
-              <CardHeader className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="rounded-lg bg-slate-100 p-3 text-slate-700"><CheckCircle2 className="h-5 w-5" /></div>
-                  <Badge className={statusClass(item.status)}>{item.status}</Badge>
-                </div>
-                <CardTitle className="text-lg">{item.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div className="rounded-xl bg-slate-50 p-3 text-slate-600"><strong>Sale de:</strong> {item.source}</div>
-                <p className="text-muted-foreground">{item.detail}</p>
-                <div className="grid gap-2">
-                  <Button asChild variant="outline" className="justify-start">
-                    <Link href={item.publicSide}><ExternalLink className="mr-2 h-4 w-4" /> Abrir vista</Link>
-                  </Button>
-                  <Button asChild variant="ghost" className="justify-start text-slate-600">
-                    <Link href={item.adminSide}>Editar o revisar</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </section>
+        {/* Footer note */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+          className="mt-14 text-center text-xs text-slate-600"
+        >
+          Las integraciones se guardan de forma segura y pueden desconectarse en cualquier momento desde esta página.
+        </motion.p>
       </div>
-    </main>
+    </div>
   );
 }

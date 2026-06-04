@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Instagram, MessageSquare, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Testimonial } from '@/types/public-landing';
@@ -68,11 +69,13 @@ export function TestimonialsCarousel({ testimonials, className }: TestimonialsCa
         <div className="relative flex flex-col items-center gap-6">
           {/* Screenshot preview placeholder */}
           {testimonial.screenshotUrl && (
-            <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-xl border border-slate-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-xl border border-slate-100">
+              <Image
                 src={testimonial.screenshotUrl}
                 alt={`Captura de testimonio de ${testimonial.authorName}`}
+                width={400}
+                height={500}
+                unoptimized
                 className="w-full object-cover"
               />
             </div>

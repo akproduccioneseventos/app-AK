@@ -75,13 +75,13 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
     <div
       ref={drag as unknown as React.Ref<HTMLDivElement>}
       className={cn(
-        "p-3 border rounded-xl bg-white shadow-sm cursor-grab hover:border-primary/50 transition-all",
+        "p-3 border rounded-xl bg-white shadow-sm cursor-grab hover:border-primary/50 transition-all touch-none",
         isDragging && "opacity-50"
       )}
     >
       <div className="flex items-center justify-between gap-2">
         <p className="font-bold text-sm text-slate-800 truncate">{guest.nombre}</p>
-        {guest.isCeliac && <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0"/>}
+        {(guest.isCeliac || (guest.dietaryRestriction && guest.dietaryRestriction !== 'Ninguna') || guest.alergiasEspecificas) && <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" title={guest.dietaryRestriction || 'Alerta Alimentaria'}/>}
       </div>
       <div className="flex justify-between items-center mt-1">
         <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{guest.partySize || 1} persona(s)</p>
@@ -146,7 +146,7 @@ const DraggableElement: React.FC<{
     const nodeRef = useRef(null);
     const isRound = el.shape === 'circle';
     const isArea = el.type === 'area';
-    const hasCeliac = assignedGuests.some(g => g.isCeliac);
+    const hasDietaryRestriction = assignedGuests.some(g => g.isCeliac || (g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna') || (g.alergiasEspecificas && g.alergiasEspecificas.length > 0));
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: GUEST_ITEM_TYPE,
@@ -171,7 +171,7 @@ const DraggableElement: React.FC<{
                 ref={attachRef}
                 onClick={(e) => { e.stopPropagation(); onSelect(); }}
                 className={cn(
-                    "absolute cursor-grab active:cursor-grabbing",
+                    "absolute cursor-grab active:cursor-grabbing touch-none",
                     isSelected ? "z-50" : "z-10",
                     isOver && "scale-105"
                 )}
@@ -187,12 +187,12 @@ const DraggableElement: React.FC<{
                             isRound && 'rounded-full',
                             isSelected ? 'border-primary shadow-2xl' : 'border-slate-400 shadow-sm',
                             isOver && 'border-primary bg-primary/10 ring-4 ring-primary/20',
-                            hasCeliac && !isArea && "border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                            hasDietaryRestriction && !isArea && "border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                         )}
                         style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.9)') }}
                     >
                         <div className="flex flex-col items-center justify-center h-full relative">
-                            {hasCeliac && !isArea && (
+                            {hasDietaryRestriction && !isArea && (
                                 <div className="absolute top-0 right-0 p-1 bg-amber-500 rounded-full text-white shadow-sm z-20">
                                     <AlertTriangle className="w-3 h-3" />
                                 </div>
@@ -207,9 +207,9 @@ const DraggableElement: React.FC<{
                             )}
                             <div className="text-[8px] space-y-0.5 overflow-hidden mt-1 text-center font-bold text-slate-600">
                                 {assignedGuests.slice(0, 3).map(g => (
-                                    <div key={g.id} className={cn("flex items-center justify-center gap-1 group/guest", g.isCeliac && "text-amber-700")}>
-                                        <span className="truncate">{g.isCeliac && "🥗 "}{g.nombre}</span>
-                                        <button onClick={(e) => { e.stopPropagation(); onUnassign(g.id); }} className="hidden group-hover/guest:block text-destructive"><UserMinus className="w-2.5 h-2.5"/></button>
+                                    <div key={g.id} className={cn("flex items-center justify-center gap-1 group/guest", (g.isCeliac || g.dietaryRestriction) && "text-amber-700")}>
+                                        <span className="truncate">{(g.isCeliac || g.dietaryRestriction) && "🥗 "}{g.nombre}</span>
+                                        <button onClick={(e) => { e.stopPropagation(); onUnassign(g.id); }} className="hidden group-hover/guest:block text-destructive touch-none"><UserMinus className="w-2.5 h-2.5"/></button>
                                     </div>
                                 ))}
                                 {assignedGuests.length > 3 && <p className="opacity-50">+ {assignedGuests.length - 3} más</p>}

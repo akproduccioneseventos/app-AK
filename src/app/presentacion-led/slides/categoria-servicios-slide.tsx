@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { Check, ChevronDown, ChevronUp, ListChecks, Music, Camera, Utensils, Palette, Users, Zap, Package, Gift, Sparkles, Info, Images } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SlideLayout } from '../components/slide-layout';
@@ -146,13 +147,17 @@ function ServicioCard({
       )}
     >
       {showPhoto && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={fotoUrl!}
-          alt={servicio.nombre}
-          className="h-40 w-full object-cover md:h-48"
-          onError={() => setImgFailed(true)}
-        />
+        <div className="relative h-40 w-full md:h-48 overflow-hidden">
+          <Image
+            src={fotoUrl!}
+            alt={servicio.nombre}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw"
+            unoptimized
+            className="object-cover"
+            onError={() => setImgFailed(true)}
+          />
+        </div>
       )}
       {!showPhoto && (
         <div className="flex h-32 w-full items-center justify-center border-b border-white/10 bg-slate-900/80 md:h-40">
@@ -344,17 +349,23 @@ export function CategoriaServiciosSlide({
                 visibleFotos.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
               )}>
                 {visibleFotos.map((foto) => (
-                   // eslint-disable-next-line @next/next/no-img-element
-                   <img
+                   <div
                      key={foto.id}
-                     src={foto.url}
-                     alt={foto.titulo ?? categoria}
                      className={cn(
-                       'w-full rounded-xl object-cover',
+                       'relative w-full rounded-xl overflow-hidden',
                        visibleFotos.length === 1 ? 'aspect-[16/10]' : 'aspect-square',
                      )}
-                     onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
-                   />
+                   >
+                     <Image
+                       src={foto.url}
+                       alt={foto.titulo ?? categoria}
+                       fill
+                       sizes="(max-width: 768px) 100vw, 50vw"
+                       unoptimized
+                       className="object-cover"
+                       onError={() => setFailedIds(prev => new Set(prev).add(foto.id))}
+                     />
+                   </div>
                 ))}
               </div>
             ) : (
