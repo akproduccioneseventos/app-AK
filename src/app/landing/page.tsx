@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ServicesSection } from '@/components/landing/ServicesSection';
-import { TechnologyExperienceSection } from '@/components/landing/TechnologyExperienceSection';
+import TechnologyExperienceSection from '@/components/landing/TechnologyExperienceSection';
 import { AkDifferenceSection } from '@/components/landing/AkDifferenceSection';
 import { AkTeamStorySection } from '@/components/landing/AkTeamStorySection';
 import { GallerySection } from '@/components/landing/GallerySection';
