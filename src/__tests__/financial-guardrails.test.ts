@@ -83,6 +83,17 @@ describe('financial guardrails', () => {
     expect(normalized.totalConDescuento).toBe(10800);
   });
 
+  it('keeps future-year adjustment out of the official total and balance', () => {
+    const normalized = normalizePresupuestoFinancials(presupuesto({
+      eventoFecha: '2028-12-20',
+      ajusteAnualActivo: true,
+      ajusteAnualPorcentaje: 15,
+    }));
+
+    expect(normalized.totalConDescuento).toBe(900);
+    expect(normalized.saldo).toBe(900);
+  });
+
   it('blocks payments that would charge more than the remaining balance', () => {
     const normalized = normalizePresupuestoFinancials(presupuesto({
       pagosCliente: [

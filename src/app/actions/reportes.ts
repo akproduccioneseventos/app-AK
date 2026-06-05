@@ -7,6 +7,7 @@ import { getEmpleados } from './empleados';
 import { getRoles } from './roles';
 import { getGastosGenerales } from './gastos';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
+import { getReconciledSalePayments } from '@/lib/commercial-flow/ledger-service';
 
 interface DateRange {
   from: Date;
@@ -74,14 +75,20 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     const ingresosDetalle: IngresoDetalle[] = [];
     let totalIngresos = 0;
 
+    const linkedBudgetByInvoiceId = new Map(
+      presupuestos
+        .filter(presupuesto => presupuesto.invoiceId)
+        .map(presupuesto => [presupuesto.invoiceId!, presupuesto]),
+    );
+
     allInvoices.forEach(invoice => {
-      invoice.payments?.forEach(payment => {
-        if (!inRange(payment.paymentDate, from, to)) return;
+      getReconciledSalePayments(invoice, linkedBudgetByInvoiceId.get(invoice.id)).forEach(payment => {
+        if (!inRange(payment.date, from, to)) return;
         const monto = roundMoney(payment.amount);
         if (monto <= 0) return;
         ingresosDetalle.push({
           id: payment.id,
-          fecha: payment.paymentDate,
+          fecha: payment.date,
           concepto: `Pago Factura #${invoice.invoiceNumber} (Cliente: ${invoice.customer?.name || invoice.customer?.companyName || 'Sin cliente'})`,
           monto,
         });

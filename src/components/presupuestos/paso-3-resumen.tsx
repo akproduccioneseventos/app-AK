@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
 
 interface Paso3ResumenProps {
   formData: PresupuestoFormData;
@@ -112,7 +113,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     });
   };
 
-  const { itemsAgrupados, subtotalBruto, ahorroRegalos, bonificacionPromo, totalSinAjuste, ajusteAnual, totalFinal, aniosDiferencia, precioLista, ahorroMarketing } = useMemo(() => {
+  const { itemsAgrupados, subtotalBruto, ahorroRegalos, bonificacionPromo, totalFinal, annualProjection, precioLista, ahorroMarketing } = useMemo(() => {
     const adultos = formData.invitadosAdultos || 0;
     const ninos = (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
@@ -152,21 +153,14 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     
     const totalSinAj = brutoVenta - descPromo;
 
-    // Ajuste Anual 15%
-    let ajAnual = 0;
-    let aniosDif = 0;
-    if (formData.eventoFecha) {
-        const anioCreacion = new Date().getFullYear();
-        const anioEvento = formData.eventoFecha.getFullYear();
-        aniosDif = Math.max(0, anioEvento - anioCreacion);
-        if (aniosDif > 0) {
-            ajAnual = totalSinAj * (Math.pow(1.15, aniosDif) - 1);
-        }
-    }
-
     // Cupón = descuento REAL (no marketing)
     const descuentoCupon = formData.cuponDescuento || 0;
-    const totalConCupon = Math.max(0, Math.round(totalSinAj + ajAnual - descuentoCupon));
+    const totalConCupon = Math.max(0, Math.round(totalSinAj - descuentoCupon));
+    const annualProjection = buildAnnualAdjustmentProjection({
+      baseTotal: totalConCupon,
+      eventDate: formData.eventoFecha,
+      adjustmentPct: 15,
+    });
 
     // Marketing markup (fictitious — only for display, never affects real price)
     const markupPct = formData.marketingMarkupPercent || 0;
@@ -178,11 +172,9 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       subtotalBruto: brutoVenta + regalosVal,
       ahorroRegalos: Math.round(regalosVal),
       bonificacionPromo: Math.round(descPromo),
-      totalSinAjuste: Math.round(totalSinAj),
-      ajusteAnual: Math.round(ajAnual),
       descuentoCupon: Math.round(descuentoCupon),
       totalFinal: totalConCupon,
-      aniosDiferencia: aniosDif,
+      annualProjection,
       precioLista,
       ahorroMarketing,
     };
@@ -362,12 +354,6 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                 <div className="flex justify-between items-center text-[10px] font-black uppercase opacity-40 tracking-[0.3em]"><span>Valor Real de Servicios:</span><span>{formatCurrency(subtotalBruto)}</span></div>
                 {ahorroRegalos > 0 && <div className="flex justify-between items-center text-[10px] font-black text-green-400 uppercase tracking-[0.3em]"><span>Ahorro por Regalos:</span><span>-{formatCurrency(ahorroRegalos)}</span></div>}
                 {bonificacionPromo > 0 && <div className="flex justify-between items-center text-[10px] font-black text-rose-400 uppercase tracking-[0.3em]"><span>{formData.nombrePromocion || 'Bonificación'}:</span><span>-{formatCurrency(bonificacionPromo)}</span></div>}
-                {ajusteAnual > 0 && (
-                    <div className="flex justify-between items-center text-[10px] font-black text-amber-400 uppercase tracking-[0.3em]">
-                        <span>Ajuste Anual ({aniosDiferencia} añ. 15%):</span>
-                        <span>+{formatCurrency(ajusteAnual)}</span>
-                    </div>
-                )}
             </div>
             
             <Separator className="bg-white/10" />
@@ -376,6 +362,25 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                 <span className="text-xl font-black uppercase tracking-tighter">Total Final Pactado:</span>
                 <span className="text-5xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(totalFinal)}</span>
             </div>
+
+            {annualProjection.applies && (
+              <div className="relative z-10 rounded-xl border border-white/10 bg-white/5 p-4">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-amber-300">
+                  Proyección informativa para la fecha del evento
+                </p>
+                <div className="space-y-1.5">
+                  {annualProjection.rows.map((row) => (
+                    <div key={row.year} className="flex items-center justify-between text-xs font-bold text-slate-200">
+                      <span>Precio proyectado {row.year}</span>
+                      <span>{formatCurrency(row.total)}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 text-[10px] leading-relaxed text-slate-400">
+                  No modifica el total vigente ni el saldo del presupuesto.
+                </p>
+              </div>
+            )}
 
             {precioLista > 0 && (
               <>

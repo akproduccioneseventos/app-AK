@@ -157,7 +157,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
         .replace(/\{\{FECHA_EVENTO\}\}/g, fechaEvento)
         .replace(/\{\{LINK\}\}/g, pageUrl);
       return annualAdjustmentAmount > 0
-        ? `${baseText}\nAjuste anual (${adjustmentPct}%): ${formatCurrency(annualAdjustmentAmount, true)}\nTotal final: ${formatCurrency(adjustedTotal, true)}`
+        ? `${baseText}\nProyección informativa ${eventYear}: ${formatCurrency(adjustedTotal, true)}`
         : baseText;
     }
 
@@ -168,8 +168,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     texto += `Puedes ver todos los detalles en el siguiente enlace:\n`;
     texto += pageUrl;
     if (annualAdjustmentAmount > 0) {
-      texto += `\n\nAjuste anual (${adjustmentPct}%): ${formatCurrency(annualAdjustmentAmount, true)}`;
-      texto += `\nTotal final: ${formatCurrency(adjustedTotal, true)}`;
+      texto += `\n\nProyección informativa ${eventYear}: ${formatCurrency(adjustedTotal, true)}`;
     }
     texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
@@ -212,8 +211,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     adjustmentPct > 0 && 
     eventYear > currentYear && 
     presupuesto?.estado !== 'Facturado' &&
-    presupuesto?.ajusteAnualActivo === true &&
-    presupuesto?.totalConDescuento == null;
+    presupuesto?.ajusteAnualActivo === true;
 
   const projectionRows = showAnnualAdjustmentLegend
     ? generateProjectionRows(totalFinal, adjustmentPct, currentYear, eventYear)
@@ -413,23 +411,13 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                         ))}
                       </React.Fragment>
                     ))}
-                    {annualAdjustmentAmount > 0 && (
-                      <tr style={{ backgroundColor: '#f8fafc' }}>
-                        <td colSpan={5} className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
-                          Ajuste anual ({adjustmentPct}%):
-                        </td>
-                        <td className="border border-gray-300 px-2 py-1.5 text-right font-semibold text-xs">
-                          {formatCurrency(annualAdjustmentAmount, true)}
-                        </td>
-                      </tr>
-                    )}
                     {/* Total row */}
                     <tr style={{ backgroundColor: '#f8fafc', color: '#111827' }}>
                       <td colSpan={5} className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
                         Importe total
                       </td>
                       <td className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
-                        {formatCurrency(adjustedTotal, true)}
+                        {formatCurrency(totalFinal, true)}
                       </td>
                     </tr>
                   </tbody>
@@ -477,15 +465,9 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
                   }
                   return null;
                 })()}
-                {annualAdjustmentAmount > 0 && (
-                  <div className="flex justify-between text-slate-700 font-semibold">
-                    <span>Ajuste anual ({adjustmentPct}%):</span>
-                    <span>+{formatCurrency(annualAdjustmentAmount, true)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between font-bold border-t-2 border-gray-700 pt-1.5 mt-1">
                   <span className="text-base print:text-[11pt]">TOTAL</span>
-                  <span className="text-base print:text-[11pt]">{formatCurrency(adjustedTotal, true)}</span>
+                  <span className="text-base print:text-[11pt]">{formatCurrency(totalFinal, true)}</span>
                 </div>
 
                 {/* Total with annual projection inline */}
