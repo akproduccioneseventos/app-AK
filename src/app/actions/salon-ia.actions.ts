@@ -16,7 +16,7 @@ export async function autoAssignTables(
     // 2. Extraer mesas y su capacidad
     const availableTables = tables.filter(t => t.category?.toLowerCase().includes('mesa')).map(t => ({
       name: t.name,
-      capacity: (t.width / 40) * 2 + (t.height / 40) * 2, // Estimación básica: perímetro. Asumimos maxCapacity viene en props o la calculamos
+      capacity: ((t.width || 0) / 40) * 2 + ((t.height || 0) / 40) * 2, // Estimación básica: perímetro. Asumimos maxCapacity viene en props o la calculamos
       seatsOccupied: 0,
       tags: new Set<string>()
     }));
@@ -111,6 +111,14 @@ export async function chatWithGuestBot(
       content: [{ text: h.text }]
     }));
 
+    const messages = [
+      ...formattedHistory,
+      {
+        role: 'user' as const,
+        content: [{ text: message }]
+      }
+    ];
+
     const response = await ai.generate({
       model: geminiModel,
       system: `Sos el Asistente Virtual IA de la fiesta de ${fiesta.configuracion?.nombreAgasajado || fiesta.clienteNombre || 'nuestro anfitrión'}.
@@ -127,8 +135,7 @@ Detalles de la fiesta:
 - Detalles adicionales: ${fiesta.configuracion?.notasAdicionales || '¡Traer buena onda y ganas de bailar!'}
 
 Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo que no sabés, deciles que le consulten al anfitrión o a los organizadores.`,
-      history: formattedHistory,
-      prompt: message,
+      messages: messages,
     });
 
     return { success: true, response: response.text };

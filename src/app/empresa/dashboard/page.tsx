@@ -45,8 +45,8 @@ export default function DashboardPage() {
   // Pending tasks (vendors not paid fully, etc.)
   let totalPendingTasks = 0;
   fiestas.forEach(f => {
-    if (f.gestionCostos?.comprasPorProveedor) {
-      Object.values(f.gestionCostos.comprasPorProveedor).forEach(prov => {
+    if (f.estadosCompra) {
+      f.estadosCompra.forEach(prov => {
         if (!prov.pagado) totalPendingTasks++;
       });
     }
@@ -139,8 +139,10 @@ export default function DashboardPage() {
               {fiestas.map(fiesta => (
                 <div key={fiesta.id} className="py-4 flex items-center justify-between group">
                   <div>
-                    <h3 className="font-bold text-slate-800">{fiesta.nombre}</h3>
-                    <p className="text-sm text-slate-500">{fiesta.fecha || 'Sin fecha'} • {fiesta.tipo || 'Evento'}</p>
+                    <h3 className="font-bold text-slate-800">{fiesta.configuracion?.nombreEvento || 'Fiesta sin nombre'}</h3>
+                    <p className="text-sm text-slate-500">
+                      {fiesta.configuracion?.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString() : 'Sin fecha'} • {fiesta.configuracion?.tipoCelebracion || 'Evento'}
+                    </p>
                   </div>
                   <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
                     <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
