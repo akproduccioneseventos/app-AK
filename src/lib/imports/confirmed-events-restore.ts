@@ -110,7 +110,9 @@ function collectBudgetItemSafetyIssues(presupuestos: any[]): string[] {
     const suspiciousQuantityItems = importedNonGiftItems.filter((item) => {
       const name = String(item?.nombreServicio || '');
       const quantity = Number(item?.cantidad ?? 0);
-      return quantity === 1 && QUANTITY_SENSITIVE_ITEM_PATTERN.test(name);
+      return quantity === 1
+        && item?.cantidadVerificadaDocumento !== true
+        && QUANTITY_SENSITIVE_ITEM_PATTERN.test(name);
     });
 
     if (suspiciousQuantityItems.length > 0) {
@@ -120,10 +122,27 @@ function collectBudgetItemSafetyIssues(presupuestos: any[]): string[] {
     }
 
     if (importedNonGiftItems.length >= 5) {
-      const quantityOneItems = importedNonGiftItems.filter((item) => Number(item?.cantidad ?? 0) === 1);
-      if (quantityOneItems.length / importedNonGiftItems.length >= 0.85) {
+      const unverifiedItems = importedNonGiftItems.filter((item) => item?.cantidadVerificadaDocumento !== true);
+      const quantityOneItems = unverifiedItems.filter((item) => Number(item?.cantidad ?? 0) === 1);
+      if (unverifiedItems.length >= 5 && quantityOneItems.length / unverifiedItems.length >= 0.85) {
         issues.push(`${label}: la mayoria de items importados quedo con cantidad 1`);
       }
+    }
+
+    const invalidItem = items.find((item) => {
+      const quantity = Number(item?.cantidad);
+      const itemTotal = Number(item?.costoTotalItem);
+      return !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(itemTotal) || itemTotal < 0;
+    });
+    if (invalidItem) {
+      issues.push(`${label}: contiene items con cantidad o total invalido`);
+      return;
+    }
+
+    const expectedTotal = Number(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+    const itemTotal = items.reduce((total, item) => total + Number(item?.costoTotalItem || 0), 0);
+    if (Number.isFinite(expectedTotal) && Math.abs(itemTotal - expectedTotal) > 0.01) {
+      issues.push(`${label}: la suma de items no coincide con el total del presupuesto`);
     }
   });
 
@@ -207,6 +226,29 @@ async function upsertServiciosEmpresa(serviciosToUpsert: any[]): Promise<number>
   return added;
 }
 
+function upsertCollectionById(current: any[], incoming: any[]) {
+  const result = [...current];
+  const indexById = new Map(
+    result
+      .map((item, index) => [String(item?.id || ''), index] as const)
+      .filter(([id]) => id),
+  );
+
+  for (const item of incoming) {
+    const id = String(item?.id || '');
+    if (!id) continue;
+    const existingIndex = indexById.get(id);
+    if (existingIndex === undefined) {
+      indexById.set(id, result.length);
+      result.push(item);
+    } else {
+      result[existingIndex] = item;
+    }
+  }
+
+  return result;
+}
+
 export async function restoreConfirmedEventsBundle(bundle: any, sourceName: string): Promise<ConfirmedEventsRestoreResult> {
   // Fix corrupted UTF-8 names inside the bundle before processing
   const nameFixes: Record<string, string> = {
@@ -248,21 +290,30 @@ export async function restoreConfirmedEventsBundle(bundle: any, sourceName: stri
       }
     }
   };
-  walkAndFix(bundle);
+  // Safety validation rejects corrupt text before this function runs. Do not
+  // rewrite valid UTF-8 names with the legacy mojibake repair table.
+  void walkAndFix;
 
   const customers = toArray(bundle.customers).length > 0 ? toArray(bundle.customers) : toArray(bundle.clientes);
   const presupuestos = toArray(bundle.presupuestos);
   const fiestas = toArray(bundle.fiestas);
+  const mergeCollections = bundle?.metadata?.mergeCollections === true;
   const summary: RestoreSummary = {};
   const skipped: string[] = [];
 
   if (customers.length > 0) {
-    await writeData('customers.json', customers);
+    const customersToWrite = mergeCollections
+      ? upsertCollectionById(await readData<any[]>('customers.json', []), customers)
+      : customers;
+    await writeData('customers.json', customersToWrite);
     summary.customers = customers.length;
   }
 
   if (presupuestos.length > 0) {
-    await writeData('presupuestos.json', presupuestos);
+    const budgetsToWrite = mergeCollections
+      ? upsertCollectionById(await readData<any[]>('presupuestos.json', []), presupuestos)
+      : presupuestos;
+    await writeData('presupuestos.json', budgetsToWrite);
     summary.presupuestos = presupuestos.length;
   }
 
