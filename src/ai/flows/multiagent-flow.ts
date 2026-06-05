@@ -28,7 +28,7 @@ function detectAgent(input: AkMultiAgentInput): AkAgentType {
   if (path.includes('/eventos') || path.includes('/calendario') || msg.includes('todas las fiestas') || msg.includes('fiestas pendientes')) return 'fiestas_general';
   if (path.includes('/plan-pagos') || path.includes('/empresa/contabilidad') || path.includes('/invoices') || path.includes('/pagos') || FINANCIAL_REGEX.test(msg)) return 'contable';
   if (path.includes('/marketing') || path.includes('/empresa/redes-sociales') || MARKETING_REGEX.test(msg)) return 'marketing';
-  if (path.includes('/contabilidad/crm') || path.includes('/presupuestos') || path.includes('/simulador') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('presupuesto')) return 'comercial';
+  if (path.includes('/admin/ventas') || path.includes('/contabilidad/crm') || path.includes('/contabilidad/comercial-360') || path.includes('/presupuestos') || path.includes('/customers') || path.includes('/simulador') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('presupuesto') || msg.includes('venta')) return 'comercial';
   if (path.includes('/reuniones') || msg.includes('agenda') || msg.includes('reunion') || msg.includes('recordatorio') || msg.includes('llamar') || msg.includes('llamada')) return 'secretaria';
   return 'central';
 }
@@ -76,7 +76,7 @@ function displayName(agentType: AkAgentType, nombre?: string): string {
     fiestas_general: 'Supervisor General de Fiestas',
     contable:        'Agente Contable AK',
     marketing:       'Agente Marketing AK',
-    comercial:       'Agente Comercial AK',
+    comercial:       'Agente Vendedor AK',
     central:         'Encargado General AK',
   };
   return names[agentType];
@@ -153,7 +153,7 @@ Si hay contexto de una fiesta real, usás esos datos concretos. Nunca inventés 
 Si no especifican plataforma, generás para Instagram (post + historia).
 ${CORE_RULES}`,
 
-    comercial: `Sos el Agente Comercial de AK Producciones.
+    comercial: `Sos el Agente Vendedor de AK Producciones.
 Tu trabajo: convertir interesados en clientes. Trabajás leads, CRM, presupuestos, seguimiento y cierre.
 Método de venta AK (siempre este orden):
 (1) Identificar el problema real del cliente (¿qué le preocupa de organizar este evento?).
