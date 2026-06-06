@@ -132,7 +132,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: undefined,
+        imageUrl: getCateringDishImage(item),
         isFeatured: item.isFeatured,
     };
 };

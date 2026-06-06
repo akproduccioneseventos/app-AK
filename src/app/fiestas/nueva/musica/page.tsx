@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban, CakeSlice, PlusCircle, Trash2, Printer } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Music2, ListMusic, Ban, CakeSlice, PlusCircle, Trash2, Printer, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import type { MusicaFiesta } from '@/types/fiesta';
 import { getFiestaById, updateMusicaFiestaActual } from '@/app/actions/fiesta-actual';
+import { generateDjProfileAction } from '@/app/actions/dj-ia.actions';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -42,6 +43,10 @@ function MusicaContent() {
   const [nuevaCancionTorta, setNuevaCancionTorta] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [eventoTipo, setEventoTipo] = useState<string>('Fiesta General');
+  
+  const [isGeneratingDj, setIsGeneratingDj] = useState(false);
+  const [djBrief, setDjBrief] = useState('');
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: musicaData,
@@ -56,6 +61,7 @@ function MusicaContent() {
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
+      setEventoTipo(fiestaData.eventoTipo || 'Fiesta General');
       if (fiestaData.musica) {
         setMusicaData({
           ...fiestaData.musica,
@@ -95,6 +101,28 @@ function MusicaContent() {
       ...prev,
       cancionesTortaBrindis: (prev.cancionesTortaBrindis || []).filter(song => song !== songToRemove),
     }));
+  };
+
+  const handleGenerateDjBrief = async () => {
+    setIsGeneratingDj(true);
+    try {
+      const res = await generateDjProfileAction(
+        eventoTipo,
+        musicaData.playlistFiesta,
+        musicaData.listaNoReproducir,
+        musicaData.cancionesTortaBrindis
+      );
+      if (res.success && res.data) {
+        setDjBrief(res.data);
+        toast({ title: 'Briefing Generado', description: 'El reporte del DJ Assistant está listo.' });
+      } else {
+        throw new Error(res.error || 'Error al generar briefing');
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsGeneratingDj(false);
+    }
   };
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
@@ -217,6 +245,48 @@ function MusicaContent() {
                 rows={4}
                 disabled={isSaving}
               />
+            </div>
+            
+            {/* DJ ASSISTANT IA */}
+            <div className="pt-6 border-t space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium font-headline text-indigo-700 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" /> DJ Assistant IA
+                </h3>
+                <Button 
+                  type="button" 
+                  onClick={handleGenerateDjBrief} 
+                  disabled={isGeneratingDj}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  size="sm"
+                >
+                  {isGeneratingDj ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ListMusic className="w-4 h-4 mr-2" />}
+                  Generar Briefing Musical
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">La inteligencia artificial leerá tus preferencias y te armará un perfil sugerido para la noche, ideal para pasarle al DJ de la fiesta.</p>
+              {djBrief && (
+                <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 space-y-3">
+                  <Label className="text-indigo-800 font-bold">Briefing Propuesto:</Label>
+                  <Textarea 
+                    value={djBrief} 
+                    onChange={(e) => setDjBrief(e.target.value)} 
+                    rows={12} 
+                    className="bg-white border-indigo-300 focus-visible:ring-indigo-500 font-mono text-sm"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      navigator.clipboard.writeText(djBrief);
+                      toast({ title: 'Copiado', description: 'Briefing copiado al portapapeles.' });
+                    }}
+                    className="w-full text-indigo-700 border-indigo-300 hover:bg-indigo-100"
+                  >
+                    Copiar al Portapapeles
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">
