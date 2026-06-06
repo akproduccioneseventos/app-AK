@@ -21,6 +21,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { FullMenu, MenuItem } from '@/types/catering';
+import { getCateringDishImage } from '@/lib/catering/menu-images';
 import { MultiSelect } from '@/components/ui/multi-select'; 
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -74,6 +75,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
+        imageUrl: getCateringDishImage(item),
     };
 };
 

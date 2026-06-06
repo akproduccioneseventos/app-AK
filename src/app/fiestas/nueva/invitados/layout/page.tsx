@@ -82,7 +82,11 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
     >
       <div className="flex items-center justify-between gap-2">
         <p className="font-bold text-sm text-slate-800 truncate">{guest.nombre}</p>
-        {(guest.isCeliac || (guest.dietaryRestriction && guest.dietaryRestriction !== 'Ninguna') || guest.alergiasEspecificas) && <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" title={guest.dietaryRestriction || 'Alerta Alimentaria'}/>}
+        {(guest.isCeliac || (guest.dietaryRestriction && guest.dietaryRestriction !== 'Ninguna') || guest.alergiasEspecificas) && (
+          <span title={guest.dietaryRestriction || 'Alerta Alimentaria'} className="shrink-0">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+          </span>
+        )}
       </div>
       <div className="flex justify-between items-center mt-1">
         <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{guest.partySize || 1} persona(s)</p>

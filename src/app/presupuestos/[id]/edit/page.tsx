@@ -10,11 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerDemo } from '@/components/date-picker-demo';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent, Sparkles, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Edit3, Tag, Percent, Sparkles, RefreshCw, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto, TipoEvento, ItemPresupuestado } from '@/types/presupuesto';
 import { getPresupuestoById, updatePresupuesto, recalculatePresupuestoFromCatalog } from '@/app/actions/presupuestos';
+import { generateSalesPitchAction } from '@/app/actions/sales-pitch-ia.actions';
 import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 import {
   AlertDialog,
@@ -58,6 +58,9 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
   const [isSaving, setIsSaving] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  
+  const [isGeneratingPitch, setIsGeneratingPitch] = useState(false);
+  const [pitchText, setPitchText] = useState('');
 
   const loadPresupuesto = useCallback(async () => {
     if (!presupuestoId) { setNotFound(true); setIsLoading(false); return; }
@@ -178,6 +181,32 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
     }
   };
 
+  const handleGeneratePitch = async () => {
+    if (!presupuesto) return;
+    setIsGeneratingPitch(true);
+    try {
+      const servicios = presupuesto.itemsPresupuestados.map(i => i.nombreServicio);
+      const total = presupuesto.totalConDescuento || presupuesto.costoTotalEstimado || 0;
+      const res = await generateSalesPitchAction(
+        presupuesto.clienteNombre,
+        presupuesto.eventoTipo,
+        presupuesto.invitadosCantidad || 0,
+        total,
+        servicios
+      );
+      if (res.success && res.data) {
+        setPitchText(res.data);
+        toast({ title: 'Pitch Generado', description: 'Mensaje de venta generado con éxito.' });
+      } else {
+        throw new Error(res.error || 'Error al generar pitch');
+      }
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsGeneratingPitch(false);
+    }
+  };
+
   if (isLoading) return <div className="flex items-center justify-center h-screen"><Loader2 className="w-16 h-16 animate-spin text-primary" /><p className="ml-4 text-xl">Cargando...</p></div>;
   if (notFound) return <div className="flex flex-col items-center justify-center h-screen text-center"><AlertTriangle className="w-16 h-16 text-destructive mb-4" /><h1 className="text-2xl font-bold">Presupuesto No Encontrado</h1><Link href="/presupuestos/nuevo"><Button variant="outline" className="mt-4"><ArrowLeft />Volver</Button></Link></div>;
 
@@ -259,6 +288,47 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
                     </AlertDialogContent>
                 </AlertDialog>
               </div>
+            </div>
+            
+            {/* AGENTE COMERCIAL IA */}
+            <div className="pt-6 border-t space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium font-headline text-emerald-700 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" /> Agente Comercial IA
+                </h3>
+                <Button 
+                  type="button" 
+                  onClick={handleGeneratePitch} 
+                  disabled={isGeneratingPitch || !presupuesto}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  size="sm"
+                >
+                  {isGeneratingPitch ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <MessageSquare className="w-4 h-4 mr-2" />}
+                  Generar Pitch para WhatsApp
+                </Button>
+              </div>
+              {pitchText && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+                  <Label className="text-emerald-800 font-bold">Mensaje Propuesto:</Label>
+                  <Textarea 
+                    value={pitchText} 
+                    onChange={(e) => setPitchText(e.target.value)} 
+                    rows={6} 
+                    className="bg-white border-emerald-300 focus-visible:ring-emerald-500"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      navigator.clipboard.writeText(pitchText);
+                      toast({ title: 'Copiado', description: 'Mensaje copiado al portapapeles.' });
+                    }}
+                    className="w-full text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                  >
+                    Copiar al Portapapeles
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
           <CardFooter className="border-t pt-6">

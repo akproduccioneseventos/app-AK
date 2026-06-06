@@ -9,11 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, X } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, X, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
+import { generateTimelineAction } from '@/app/actions/timeline-ia.actions';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -101,6 +102,8 @@ function ItinerarioContent() {
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
   const [clientViewMode, setClientViewMode] = useState(false);
+  const [isGeneratingIA, setIsGeneratingIA] = useState(false);
+  const [fiestaInfo, setFiestaInfo] = useState<{tipo: string, inicio: string, servicios: string[]}>({tipo: 'Fiesta', inicio: '21:00', servicios: []});
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -118,6 +121,13 @@ function ItinerarioContent() {
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("No se encontró el evento.");
+      
+      setFiestaInfo({
+        tipo: fiestaData.eventoTipo || 'Evento General',
+        inicio: fiestaData.configuracion?.horaInicio || '21:00',
+        servicios: fiestaData.serviciosContratados || ['Catering', 'Música', 'Bebidas'],
+      });
+
       const itinerario = fiestaData.programa || [];
       if (itinerario.length === 0) {
         const defaultItems = [...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))];
@@ -226,6 +236,24 @@ function ItinerarioContent() {
 
   const handleDeleteItem = (id: string) => {
     setPrograma(prev => prev.filter(p => p.id !== id));
+  };
+  
+  const handleGenerateIA = async () => {
+    setIsGeneratingIA(true);
+    try {
+      toast({ title: "Generando...", description: "La IA está diseñando tu cronograma ideal." });
+      const res = await generateTimelineAction(fiestaInfo.tipo, fiestaInfo.inicio, 8, fiestaInfo.servicios);
+      if (res.success && res.data) {
+        setPrograma(res.data);
+        toast({ title: "Cronograma Generado", description: "Revisa y ajusta el itinerario propuesto." });
+      } else {
+        throw new Error(res.error || 'Error desconocido');
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsGeneratingIA(false);
+    }
   };
   
   function handleDragEnd(event: DragEndEvent) {
@@ -380,6 +408,10 @@ function ItinerarioContent() {
             <Button onClick={() => openModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Momento</Button>
             <Button onClick={handleOpenLoadTemplateModal} variant="secondary"><FolderOpen className="w-4 h-4 mr-2"/>Cargar Plantilla</Button>
             <Button onClick={handleOpenSaveTemplateModal} variant="secondary"><Save className="w-4 h-4 mr-2"/>Guardar como Plantilla</Button>
+            <Button onClick={handleGenerateIA} disabled={isGeneratingIA} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              {isGeneratingIA ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Sparkles className="w-4 h-4 mr-2"/>}
+              Autocompletar con IA
+            </Button>
           </div>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={programa.map(p => p.id)} strategy={verticalListSortingStrategy}>
