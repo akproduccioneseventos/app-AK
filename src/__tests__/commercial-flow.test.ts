@@ -321,6 +321,56 @@ describe('calculateFinancialLedger', () => {
     expect(ledger.saldoPendiente).toBe(20000); // 70000 - 50000
   });
 
+  it('does not duplicate a payment mirrored in invoice and linked budget', () => {
+    const presupuestos = [
+      makePresupuesto({
+        id: 'p1',
+        invoiceId: 'inv_1',
+        pagosCliente: [
+          { id: 'pg1', fecha: '2025-02-01', monto: 20000, metodoPago: 'Transferencia Bancaria', estadoPago: 'confirmado' },
+        ],
+      }),
+    ];
+    const invoices = [
+      makeInvoice({
+        id: 'inv_1',
+        payments: [
+          { id: 'pay1', paymentDate: '2025-02-01', amount: 20000, method: 'Transferencia' },
+        ],
+      }),
+    ];
+
+    const ledger = calculateFinancialLedger(presupuestos, invoices);
+
+    expect(ledger.totalCobrado).toBe(20000);
+    expect(ledger.saldoPendiente).toBe(50000);
+  });
+
+  it('uses linked budget payments when the invoice copy is incomplete', () => {
+    const presupuestos = [
+      makePresupuesto({
+        id: 'p1',
+        invoiceId: 'inv_1',
+        pagosCliente: [
+          { id: 'pg1', fecha: '2025-02-01', monto: 30000, metodoPago: 'Transferencia Bancaria', estadoPago: 'confirmado' },
+        ],
+      }),
+    ];
+    const invoices = [
+      makeInvoice({
+        id: 'inv_1',
+        payments: [
+          { id: 'pay1', paymentDate: '2025-02-01', amount: 10000, method: 'Transferencia' },
+        ],
+      }),
+    ];
+
+    const ledger = calculateFinancialLedger(presupuestos, invoices);
+
+    expect(ledger.totalCobrado).toBe(30000);
+    expect(ledger.saldoPendiente).toBe(40000);
+  });
+
   it('suma cobros de presupuesto.pagosCliente para aceptados sin factura', () => {
     const presupuestos = [
       makePresupuesto({
