@@ -27,7 +27,6 @@ export default function BackupPage() {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [isRestoringZip, setIsRestoringZip] = useState(false);
-  const [isImportingConfirmedEvents, setIsImportingConfirmedEvents] = useState(false);
   const [restorePoints, setRestorePoints] = useState<RestorePoint[]>([]);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
@@ -63,46 +62,6 @@ export default function BackupPage() {
       toast({ title: 'Error en la Restauración', description: error.message, variant: 'destructive' });
     } finally {
       setIsRestoringZip(false);
-    }
-  };
-
-  const handleImportConfirmedEvents = async () => {
-    setIsImportingConfirmedEvents(true);
-    try {
-      const response = await fetch('/api/imports/confirmed-events-29', { method: 'POST' });
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error || result.details || 'Error al cargar la importacion.');
-      }
-
-      toast({
-        title: 'Importacion cargada',
-        description: result.message || 'Se cargaron clientes, presupuestos y fiestas confirmadas.',
-      });
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error: any) {
-      toast({ title: 'Error al cargar importacion', description: error.message, variant: 'destructive' });
-    } finally {
-      setIsImportingConfirmedEvents(false);
-    }
-  };
-
-  const handleDownloadConfirmedEvents = async () => {
-    try {
-      const response = await fetch('/api/imports/confirmed-events-29');
-      if (!response.ok) throw new Error('No se pudo generar el archivo de importacion.');
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'AK_IMPORTACION_29_FIESTAS_CLIENTES_PRESUPUESTOS_LISTO.json';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      toast({ title: 'Descarga iniciada', description: 'Se genero el JSON importable de 29 fiestas.' });
-    } catch (error: any) {
-      toast({ title: 'No se pudo descargar', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -315,32 +274,6 @@ export default function BackupPage() {
                   Descargar ZIP
                 </Button>
               </a>
-              <Button type="button" variant="outline" onClick={handleDownloadConfirmedEvents} className="w-full h-12 rounded-xl font-bold border-emerald-300 text-emerald-700 bg-white hover:bg-emerald-50">
-                <HardDriveDownload className="w-4 h-4 mr-2" />
-                Descargar JSON validado de 29 fiestas
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button className="w-full h-12 rounded-xl font-bold bg-emerald-700 hover:bg-emerald-800 text-white" disabled={isImportingConfirmedEvents}>
-                    {isImportingConfirmedEvents ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
-                    {isImportingConfirmedEvents ? 'Cargando...' : 'Cargar 29 fiestas ahora'}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-destructive" /> Cargar importacion validada?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esto cargara 29 clientes, 29 presupuestos y 29 fiestas futuras. No reemplaza tu catalogo de servicios; solo agrega las compatibilidades declaradas si faltan.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleImportConfirmedEvents} className="bg-emerald-700 hover:bg-emerald-800">Si, cargar ahora</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
               <Separator />
               <Card className="shadow-sm border-orange-200 bg-orange-50">
                 <CardHeader className="pb-2">
