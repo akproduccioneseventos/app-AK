@@ -624,14 +624,13 @@ export async function approveClientServiceChangeRequest(fiestaId: string, reques
       if (presupuesto) {
         const items = presupuesto.itemsPresupuestados ?? [];
         items.push({
-          id: `item_add_${Date.now()}`,
-          servicioId: request.servicioId,
+          idServicioCatalogo: request.servicioId,
           nombreServicio: request.nombreServicio,
           categoriaServicio: request.categoria ?? 'Otros Servicios',
           cantidad: request.cantidad,
           precioUnitario: request.precioBase,
-          precioVenta: request.precioBase,
-          montoTotal: request.montoAdicional,
+          precioUnitarioPresupuesto: request.precioBase,
+          costoTotalItem: request.montoAdicional,
         });
         presupuesto.itemsPresupuestados = items;
         presupuesto.totalConDescuento = (presupuesto.totalConDescuento ?? 0) + request.montoAdicional;
