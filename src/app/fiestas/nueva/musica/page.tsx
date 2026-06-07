@@ -61,7 +61,7 @@ function MusicaContent() {
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
-      setEventoTipo(fiestaData.eventoTipo || 'Fiesta General');
+      setEventoTipo(fiestaData.configuracion?.tipoCelebracion || 'Fiesta General');
       if (fiestaData.musica) {
         setMusicaData({
           ...fiestaData.musica,

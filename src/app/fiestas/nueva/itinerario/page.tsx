@@ -122,10 +122,22 @@ function ItinerarioContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("No se encontró el evento.");
       
+      const activeServices: string[] = [];
+      const modulos = fiestaData.modulosContratados;
+      if (modulos) {
+        if (modulos.catering) activeServices.push('Catering');
+        if (modulos.musica) activeServices.push('Música');
+        if (modulos.decoracion) activeServices.push('Decoración');
+        if (modulos.fotografia) activeServices.push('Fotografía');
+        if (modulos.videoVida) activeServices.push('Video');
+        if (modulos.barraTecnologica) activeServices.push('Barra de Tragos');
+        if (modulos.entretenimiento) activeServices.push('Entretenimiento');
+      }
+
       setFiestaInfo({
-        tipo: fiestaData.eventoTipo || 'Evento General',
+        tipo: fiestaData.configuracion?.tipoCelebracion || 'Evento General',
         inicio: fiestaData.configuracion?.horaInicio || '21:00',
-        servicios: fiestaData.serviciosContratados || ['Catering', 'Música', 'Bebidas'],
+        servicios: activeServices.length > 0 ? activeServices : ['Catering', 'Música', 'Bebidas'],
       });
 
       const itinerario = fiestaData.programa || [];

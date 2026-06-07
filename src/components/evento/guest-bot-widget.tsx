@@ -16,7 +16,7 @@ interface GuestBotWidgetProps {
 export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: 'bot' | 'user', text: string}[]>([
-    { role: 'bot', text: `¡Hola! Soy el asistente virtual de la fiesta de ${fiesta.configuracion?.nombreAgasajado || fiesta.clienteNombre || 'nuestro anfitrión'}. ¿En qué te puedo ayudar hoy?` }
+    { role: 'bot', text: `¡Hola! Soy el asistente virtual de la fiesta de ${fiesta.configuracion?.nombreAgasajado || fiesta.configuracion?.clienteNombre || 'nuestro anfitrión'}. ¿En qué te puedo ayudar hoy?` }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
