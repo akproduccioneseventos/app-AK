@@ -98,9 +98,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                             className="pl-9"
                         />
                     </div>
-                     <Link href="/empresa/insumos/nuevo?from=gastronomia">
-                        <Button variant="outline" className="h-10"><PlusCircle className="w-4 h-4 mr-2"/>Añadir</Button>
-                    </Link>
+                     <Button asChild variant="outline" className="h-10"><Link href="/empresa/insumos/nuevo?from=gastronomia"><PlusCircle className="w-4 h-4 mr-2"/>Añadir</Link></Button>
                 </div>
             </CardHeader>
             <CardContent>
@@ -122,9 +120,7 @@ export const InsumosStockList: React.FC<InsumosStockListProps> = ({ insumos, onU
                                                     </p>
                                                 </div>
                                                 <div className="flex gap-1">
-                                                     <Link href={`/empresa/insumos/${insumo.id}/editar`}>
-                                                        <Button variant="ghost" size="icon" className="h-7 w-7"><Edit className="w-3.5 h-3.5"/></Button>
-                                                     </Link>
+                                                     <Button asChild variant="ghost" size="icon" className="h-7 w-7"><Link href={`/empresa/insumos/${insumo.id}/editar`}><Edit className="w-3.5 h-3.5"/></Link></Button>
                                                       <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" disabled={deletingId === insumo.id}>

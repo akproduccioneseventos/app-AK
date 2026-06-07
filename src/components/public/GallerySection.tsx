@@ -36,9 +36,13 @@ export function GallerySection({
           {images.map((img) => (
             <div
               key={img.id}
+              tabIndex={0}
+              role="img"
+              aria-label={img.alt}
               className={cn(
                 'relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-100 to-pink-100',
                 'group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300',
+                'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500/50',
                 img.size === 'wide' && 'col-span-2'
               )}
             >

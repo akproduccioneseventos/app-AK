@@ -1,28 +1,16 @@
-
 'use server';
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import fs from 'fs/promises';
-import path from 'path';
+import { readData, writeData } from '@/lib/data-service';
+import { getInsumos } from './insumos';
 
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
-const INSUMOS_COLLECTION_JSON = 'insumos.json';
-const dataDirectory = path.join(process.cwd(), 'src', 'data');
-const menusFilePath = path.join(dataDirectory, MENUS_CATERING_COLLECTION_JSON);
-const insumosFilePath = path.join(dataDirectory, INSUMOS_COLLECTION_JSON);
 
-async function ensureDataFileExists(filePath: string, defaultContent: string = '[]') {
-    try {
-        await fs.access(dataDirectory);
-    } catch {
-        await fs.mkdir(dataDirectory, { recursive: true });
-    }
-    try {
-        await fs.access(filePath);
-    } catch {
-        await fs.writeFile(filePath, defaultContent, 'utf-8');
-    }
+let cachedMenus: FullMenu[] | null = null;
+
+export async function invalidateMenusCache() {
+  cachedMenus = null;
 }
 
 /**
@@ -35,17 +23,13 @@ const parseSafeNumber = (val: any): number => {
     let str = String(val).trim();
     if (!str) return 0;
     
-    // Si contiene coma, es formato uruguayo (ej: 2.044,2 o 38,15)
     if (str.includes(',')) {
-        // Quitamos puntos de miles y cambiamos coma por punto
         str = str.replace(/\./g, '').replace(',', '.');
     } else {
-        // Si no tiene coma pero tiene punto, verificamos si es decimal o miles
         const parts = str.split('.');
         if (parts.length === 2 && parts[1].length !== 3) {
-            // Es un decimal seguro (ej: 53.01)
+            // Decimal
         } else if (parts.length > 2) {
-            // Tiene múltiples puntos, es miles (ej: 1.000.000)
             str = str.replace(/\./g, '');
         }
     }
@@ -64,8 +48,6 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     const catalogItem = ing.origenId ? catalogItems.find(item => item.id === ing.origenId) : null;
     const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
 
-    // REGLA DE AUDITORÍA UNIFICADA:
-    // Gramos, ml, cc y "No definido" (Gas) dividen por 1000 si el catálogo es Kg/Lt
     const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
     const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
 
@@ -77,21 +59,12 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     return (quantity / factor) * unitCost;
 }
 
-async function readInsumosFile(): Promise<ServicioEmpresa[]> {
-    await ensureDataFileExists(insumosFilePath, '[]');
-    try {
-        const fileContent = await fs.readFile(insumosFilePath, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch { return []; }
-}
-
 function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDishes: MenuItem[]): FullMenu {
     return {
         ...menu,
         items: (menu.items || []).map(item => {
             let finalIngredients = [...(item.ingredients || [])];
 
-            // FUSIÓN DINÁMICA: Si es una versión "CON MESA BUFET", inyectamos ingredientes de la mesa fría
             const upperName = item.name.toUpperCase();
             if (upperName.includes('MESA BUFET') || upperName.includes('MESA BUFFET')) {
                 const mesaBuffetBase = allDishes.find(d => {
@@ -135,9 +108,9 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
 }
 
 export async function getMenus(): Promise<FullMenu[]> {
-  const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
+  if (cachedMenus) return cachedMenus;
+  const [menus, catalog] = await Promise.all([readMenusFile(), getInsumos()]);
   
-  // INYECCIÓN VIRTUAL: Creamos las variantes "CON MESA BUFET" para los platos de carne
   const mainMenu = menus.find(m => m.id === 'menu_principales_maestro');
   if (mainMenu) {
       const targetDishes = [
@@ -165,41 +138,37 @@ export async function getMenus(): Promise<FullMenu[]> {
   }
 
   const allDishes = menus.flatMap(m => m.items);
-  return menus.map(m => recalculateMenu(m, catalog, allDishes));
+  const result = menus.map(m => recalculateMenu(m, catalog, allDishes));
+  cachedMenus = result;
+  return result;
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  const allMenus = await getMenus(); // Usamos getMenus para incluir las versiones virtuales
+  const allMenus = await getMenus();
   const menu = allMenus.find(m => m.id === id);
   return menu || null;
 }
 
 async function readMenusFile(): Promise<FullMenu[]> {
-  await ensureDataFileExists(menusFilePath, '[]');
-  try {
-    const fileContent = await fs.readFile(menusFilePath, 'utf-8');
-    if (fileContent.trim() === '') return [];
-    return JSON.parse(fileContent) as FullMenu[];
-  } catch { return []; }
+  return await readData<FullMenu[]>(MENUS_CATERING_COLLECTION_JSON, []);
 }
 
 async function writeMenusFile(data: FullMenu[]): Promise<void> {
-  await ensureDataFileExists(menusFilePath, '[]');
-  // Al guardar, filtramos los items virtuales para no ensuciar el JSON
   const cleanData = data.map(menu => ({
       ...menu,
       items: menu.items.filter(item => !item.id.endsWith('_virtual_buffet'))
   }));
-  await fs.writeFile(menusFilePath, JSON.stringify(cleanData, null, 2), 'utf-8');
+  await writeData(MENUS_CATERING_COLLECTION_JSON, cleanData);
+  invalidateMenusCache();
 }
 
 export async function saveMenu(
   menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
-  const [menus, catalog] = await Promise.all([readMenusFile(), readInsumosFile()]);
+  invalidateMenusCache();
+  const [menus, catalog] = await Promise.all([readMenusFile(), getInsumos()]);
   let menuId: string;
 
-  // SANEAMIENTO CRÍTICO: Eliminar ítems virtuales antes de procesar para evitar Failed to Fetch (payload size o bucle)
   const cleanItems = (menuDataInput.items || []).filter(item => !item.id.endsWith('_virtual_buffet'));
   const sanitizedMenuInput = { ...menuDataInput, items: cleanItems } as FullMenu;
 
@@ -222,19 +191,23 @@ export async function saveMenu(
     menus.push(newMenu);
   }
   await writeMenusFile(menus);
+  invalidateMenusCache();
   return { success: true, id: menuId, menu: menus.find(m => m.id === menuId) };
 }
 
 export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
+  invalidateMenusCache();
   let menus = await readMenusFile();
   const initialLength = menus.length;
   menus = menus.filter(menu => menu.id !== id);
   if (menus.length === initialLength) return { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
   await writeMenusFile(menus);
+  invalidateMenusCache();
   return { success: true };
 }
 
 export async function duplicateMenu(id: string): Promise<{ success: boolean; error?: string; menu?: FullMenu }> {
+    invalidateMenusCache();
     const menuToDuplicate = await getMenuById(id);
     if (!menuToDuplicate) return { success: false, error: 'Menú a duplicar no encontrado.' };
     const newMenu: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -246,6 +219,7 @@ export async function duplicateMenu(id: string): Promise<{ success: boolean; err
 
 export async function adjustAllDishMargins(percentage: number): Promise<{ success: boolean; error?: string }> {
   try {
+    invalidateMenusCache();
     const menus = await getMenus();
     for (const menu of menus) {
         menu.items = menu.items.map(item => {
@@ -255,6 +229,7 @@ export async function adjustAllDishMargins(percentage: number): Promise<{ succes
         });
         await saveMenu(menu);
     }
+    invalidateMenusCache();
     return { success: true };
   } catch (error: any) {
     return { success: false, error: "Ocurrió un error al intentar ajustar los márgenes." };

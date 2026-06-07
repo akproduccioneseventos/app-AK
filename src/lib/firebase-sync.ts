@@ -207,6 +207,42 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       // Safety guard: never delete existing documents when the incoming array is empty.
       // An empty array on a non-empty collection almost always indicates a partial write
       // or an unintended call — deleting all docs in that scenario would cause data loss.
+      try {
+        await withRetry(() => db.runTransaction(async (transaction) => {
+          const querySnapshot = await transaction.get(db.collection(collectionName));
+          const existingIds = new Set<string>(querySnapshot.docs.map((d: QueryDocumentSnapshot) => d.id));
+          const newIds = new Set<string>(data.map(getItemDocId).filter((id: string | null): id is string => Boolean(id)));
+
+          if (data.length === 0 && existingIds.size > 0) {
+            if (ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath)) {
+              querySnapshot.docs.forEach((doc) => {
+                transaction.delete(doc.ref);
+              });
+              logger.info(`[Firebase Sync] "${collectionName}" limpiado en transacción por escritura intencional de array vacío.`);
+            } else {
+              logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada en transacción.`);
+            }
+            return;
+          }
+
+          const toDelete = querySnapshot.docs.filter((doc) => !newIds.has(doc.id));
+          toDelete.forEach((doc) => {
+            transaction.delete(doc.ref);
+          });
+
+          for (const item of data) {
+            const docId = getItemDocId(item);
+            if (!docId) continue;
+            const ref = db.collection(collectionName).doc(docId);
+            const cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
+            transaction.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
+          }
+        }), `transaction-sync: ${collectionName}`);
+        return;
+      } catch (err) {
+        logger.warn(`🔄 [Firebase Sync] Fallback a lotes para "${collectionName}" debido a error en transacción: ${err}`);
+      }
+
       const existingSnapshot = await db.collection(collectionName).get();
       const existingIds = new Set<string>(existingSnapshot.docs.map((d: QueryDocumentSnapshot) => d.id));
       const newIds = new Set<string>(data.map(getItemDocId).filter((id: string | null): id is string => Boolean(id)));

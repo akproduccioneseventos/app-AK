@@ -22,12 +22,10 @@ export default function NotFound() {
           </CardDescription>
         </CardHeader>
         <CardContent className="pb-8 px-8">
-          <Link href="/">
-            <Button className="rounded-xl h-12 px-8 font-bold shadow-lg shadow-primary/20">
+          <Button asChild className="rounded-xl h-12 px-8 font-bold shadow-lg shadow-primary/20"><Link href="/">
               <Home className="w-4 h-4 mr-2" />
               Volver al Inicio
-            </Button>
-          </Link>
+            </Link></Button>
         </CardContent>
       </Card>
     </div>

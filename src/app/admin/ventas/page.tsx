@@ -78,9 +78,7 @@ export default function VentasPage() {
             <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
             Actualizar
           </Button>
-          <Link href="/contabilidad/crm">
-            <Button variant="outline" size="sm">CRM Prospectos</Button>
-          </Link>
+          <Button asChild variant="outline" size="sm"><Link href="/contabilidad/crm">CRM Prospectos</Link></Button>
         </div>
       </div>
 

@@ -17,12 +17,10 @@ export default function ComprasPage() {
               Compras y Checklist
             </h1>
         </div>
-        <Link href="/">
-          <Button variant="outline">
+        <Button asChild variant="outline"><Link href="/">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Menú Principal
-          </Button>
-        </Link>
+          </Link></Button>
       </div>
 
       <Card className="shadow-lg">

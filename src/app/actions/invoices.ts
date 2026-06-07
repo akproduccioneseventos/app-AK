@@ -159,7 +159,14 @@ export async function saveInvoice(
   }
 }
 
-export async function registerBookingDeposit(data: { fiestaId: string; amount: number; method: string; date: string; skipBudgetPayment?: boolean }): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
+export async function registerBookingDeposit(data: {
+  fiestaId: string;
+  amount: number;
+  method: string;
+  date: string;
+  skipBudgetPayment?: boolean;
+  skipFiestaSave?: boolean;
+}): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
   try {
     const amount = roundMoney(data.amount);
     if (amount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
@@ -230,7 +237,9 @@ export async function registerBookingDeposit(data: { fiestaId: string; amount: n
       }
     }
 
-    await addInvoiceId(data.fiestaId, invoiceResult.id);
+    if (!data.skipFiestaSave) {
+      await addInvoiceId(data.fiestaId, invoiceResult.id);
+    }
     return { success: true, invoiceId: invoiceResult.id };
   } catch (error: any) {
     return { success: false, error: error.message };

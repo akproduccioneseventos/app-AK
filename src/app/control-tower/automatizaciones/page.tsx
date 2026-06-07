@@ -36,7 +36,7 @@ export default function SmartAutomationsPage() {
               Revisan presupuestos, CRM, fiestas, menú, invitados y tareas para crear avisos útiles sin usar lenguaje alarmante.
             </p>
           </div>
-          <Link href="/control-tower"><Button variant="outline" className="rounded-2xl font-bold"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Button></Link>
+          <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link></Button>
         </div>
       </section>
 
@@ -71,7 +71,7 @@ export default function SmartAutomationsPage() {
                   </Badge>
                 </div>
               </div>
-              {item.href && <Link href={item.href}><Button variant="outline" className="rounded-2xl font-bold">Abrir</Button></Link>}
+              {item.href && <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href={item.href}>Abrir</Link></Button>}
             </CardContent>
           </Card>
         ))}

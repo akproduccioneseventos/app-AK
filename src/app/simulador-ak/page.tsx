@@ -1731,7 +1731,10 @@ function StepConversion({
   faqs: LandingFaqItem[];
 }) {
   const submitted = !!generatedId;
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState(2026);
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
   const [meetingAnswer, setMeetingAnswer] = useState<'si' | 'no' | null>(null);
   const [faqOpenId, setFaqOpenId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -2024,7 +2027,10 @@ function StepNav({
 
 function PrintSummary({ state, prices }: { state: SimuladorState; prices: PriceStats | null }) {
   const eventMeta = state.eventoTipo ? EVENT_META[state.eventoTipo as EventType] : null;
-  const generatedAt = new Date().toLocaleDateString('es-UY');
+  const [generatedAt, setGeneratedAt] = useState('');
+  useEffect(() => {
+    setGeneratedAt(new Date().toLocaleDateString('es-UY'));
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto text-slate-900 print:text-black">
