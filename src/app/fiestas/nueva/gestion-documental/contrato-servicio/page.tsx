@@ -515,7 +515,7 @@ function ContratoServicioContent() {
                             <span>Validado mediante carga de documento físico el {new Date(firma.signedAt!).toLocaleString('es-ES')}.</span>
                             {firma.physicalContractUrl && (
                                 <Button variant="secondary" size="sm" asChild className="h-7 text-[10px] font-bold">
-                                    <a href={firma.physicalContractUrl} target="_blank">VER ESCANEADO</a>
+                                    <a href={`/api/storage/signed-url?path=${encodeURIComponent(firma.physicalContractUrl)}`} target="_blank">VER ESCANEADO</a>
                                 </Button>
                             )}
                         </div>
