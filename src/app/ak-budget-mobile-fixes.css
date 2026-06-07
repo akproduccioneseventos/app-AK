@@ -135,4 +135,7 @@
   .budget-formal-print-template * {
     box-shadow: none !important;
   }
+  .print-page-counter::after {
+    content: counter(page) !important;
+  }
 }

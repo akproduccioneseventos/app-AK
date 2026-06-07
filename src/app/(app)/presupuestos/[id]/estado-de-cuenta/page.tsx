@@ -15,6 +15,7 @@ import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppSettings, getBud
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -124,15 +125,24 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
     const baseTotal = paymentSummary.total;
     const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? annualAdjustmentPercentage;
     const creationYear = new Date(presupuesto.timestamp).getFullYear();
-    const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : creationYear;
-    const yearsDiff = Math.max(0, eventYear - creationYear);
-    const annualAdjustment = 0;
-    const total = paymentSummary.total;
+
+    const projection = buildAnnualAdjustmentProjection({
+      baseTotal,
+      eventDate: presupuesto.eventoFecha,
+      currentYear: creationYear,
+      adjustmentPct,
+    });
+
+    const applies = presupuesto.ajusteAnualActivo && projection.applies;
+    const annualAdjustment = applies ? projection.adjustmentAmount : 0;
+    const total = applies ? projection.adjustedTotal : baseTotal;
+    const yearsDiff = applies ? (projection.eventYear - projection.currentYear) : 0;
     const pagos: PagoCliente[] = presupuesto.pagosCliente || [];
+
     return {
       totalCosto: total,
       totalPagado: paymentSummary.paid,
-      saldoPendiente: paymentSummary.balance,
+      saldoPendiente: Math.max(0, total - paymentSummary.paid),
       pagos,
       annualAdjustment,
       adjustmentPct,

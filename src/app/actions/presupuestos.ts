@@ -196,12 +196,52 @@ export async function savePresupuesto(
   return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
 }
 
+async function isBudgetContractSigned(presupuestoId: string): Promise<boolean> {
+  try {
+    const fiestas = await getAllFiestas();
+    const linked = fiestas.find(f => f.presupuestoId === presupuestoId);
+    return !!linked?.contratoFirmaInfo?.isSigned;
+  } catch {
+    return false;
+  }
+}
+
+function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuesto): boolean {
+  if (oldBudget.invitadosCantidad !== newBudget.invitadosCantidad) return true;
+  if (oldBudget.invitadosAdultos !== newBudget.invitadosAdultos) return true;
+  if (oldBudget.invitadosNinos !== newBudget.invitadosNinos) return true;
+  if (oldBudget.invitadosAdolescentes !== newBudget.invitadosAdolescentes) return true;
+  if (oldBudget.descuentoTipo !== newBudget.descuentoTipo) return true;
+  if (oldBudget.descuentoValor !== newBudget.descuentoValor) return true;
+  
+  const oldItems = oldBudget.itemsPresupuestados || [];
+  const newItems = newBudget.itemsPresupuestados || [];
+  if (oldItems.length !== newItems.length) return true;
+  for (let i = 0; i < oldItems.length; i++) {
+    const o = oldItems[i];
+    const n = newItems[i];
+    if (o.idServicioCatalogo !== n.idServicioCatalogo) return true;
+    if (o.nombre !== n.nombre) return true;
+    if (o.cantidad !== n.cantidad) return true;
+    if (o.precioUnitarioPresupuesto !== n.precioUnitarioPresupuesto) return true;
+    if (o.costoTotalItem !== n.costoTotalItem) return true;
+    if (o.esRegalo !== n.esRegalo) return true;
+  }
+  return false;
+}
+
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     let presupuestos = await getPresupuestos(true);
     const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
     if (index === -1) return { success: false, error: "No encontrado" };
+
+    const oldBudget = presupuestos[index];
+    const isSigned = await isBudgetContractSigned(presupuestoData.id);
+    if (isSigned && hasBudgetStructureChanged(oldBudget, presupuestoData)) {
+      return { success: false, error: 'El presupuesto no se puede modificar porque tiene un contrato firmado.' };
+    }
 
     const adultos = presupuestoData.invitadosAdultos || 0;
     const adolescentes = presupuestoData.invitadosAdolescentes || 0;
@@ -253,6 +293,10 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
+  const isSigned = await isBudgetContractSigned(id);
+  if (isSigned) {
+    return { success: false, error: 'No se puede archivar un presupuesto con contrato firmado.' };
+  }
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const index = all.findIndex(p => p.id === id);
   if (index === -1) return { success: false, error: 'Presupuesto no encontrado.' };
@@ -269,6 +313,10 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
+  const isSigned = await isBudgetContractSigned(id);
+  if (isSigned) {
+    return { success: false, error: 'No se puede eliminar un presupuesto con contrato firmado.' };
+  }
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const target = all.find(p => p.id === id);
   const remaining = all.filter(p => p.id !== id);
