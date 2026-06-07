@@ -18,7 +18,7 @@ import {
     BookOpen, Image, Hash, Lock, X, CheckCircle2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, updateModulosContratadosFiestaActual } from '../../actions/fiesta-actual';
+import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, ModulosContratados } from '@/types/fiesta';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";

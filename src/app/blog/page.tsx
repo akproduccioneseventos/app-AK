@@ -298,11 +298,18 @@ export default function BlogPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button asChild onClick={() =><Link href={`/blog/${importedPost.slug}`} className="flex-1"> setIsImportModalOpen(false)}
-                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-11 rounded-xl"
+                    <Button
+                      asChild
+                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-11 rounded-xl"
+                    >
+                      <Link
+                        href={`/blog/${importedPost.slug}`}
+                        onClick={() => setIsImportModalOpen(false)}
+                        className="flex-1 flex items-center justify-center"
                       >
                         Ver Artículo
-                      </Link></Button>
+                      </Link>
+                    </Button>
                     <Button
                       variant="outline"
                       onClick={() => {

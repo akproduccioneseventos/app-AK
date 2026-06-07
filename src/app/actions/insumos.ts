@@ -8,7 +8,7 @@ const INSUMOS_FILE = 'insumos.json';
 
 let cachedInsumos: ServicioEmpresa[] | null = null;
 
-export function invalidateInsumosCache() {
+export async function invalidateInsumosCache() {
   cachedInsumos = null;
 }
 

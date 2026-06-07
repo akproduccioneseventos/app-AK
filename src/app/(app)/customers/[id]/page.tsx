@@ -372,13 +372,15 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
                       </p>
                     )}
 
-                     <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {eventDetail.facturasFiesta.map(factura => (
-                             <Button asChild variant="secondary" size="sm" className="text-xs"><Link href={`/invoices/${factura.id}`} key={factura.id}>
+                             <Button key={factura.id} asChild variant="secondary" size="sm" className="text-xs">
+                               <Link href={`/invoices/${factura.id}`}>
                                     <FileText className="w-3 h-3 mr-1.5"/> Factura #{factura.invoiceNumber} <InvoiceStatusBadge status={factura.status} className="ml-1.5"/>
-                                </Link></Button>
+                               </Link>
+                             </Button>
                         ))}
-                    </div>
+                      </div>
                   </CardContent>
                 </Card>
               ))}

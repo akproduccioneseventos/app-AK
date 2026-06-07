@@ -1,1 +1,1 @@
-export { default } from '../../configuracion/backup-final/page';
+export { default } from '@/app/configuracion/backup-final/page';

@@ -9,7 +9,7 @@ const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 
 let cachedMenus: FullMenu[] | null = null;
 
-export function invalidateMenusCache() {
+export async function invalidateMenusCache() {
   cachedMenus = null;
 }
 

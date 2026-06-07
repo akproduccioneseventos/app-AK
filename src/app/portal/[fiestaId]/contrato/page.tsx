@@ -228,7 +228,10 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                             {firma?.method === 'digital' && (
                                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-primary rotate-[-5deg]">
                                     <p className="font-dancing text-3xl font-bold opacity-80">{firma.signedBy}</p>
-                                    <p className="text-[8px] font-sans font-black uppercase tracking-tighter -mt-1">Firmado Digitalmente</p>                             <p className="font-black text-sm uppercase tracking-tighter text-slate-900">EL CLIENTE</p>
+                                    <p className="text-[8px] font-sans font-black uppercase tracking-tighter -mt-1">Firmado Digitalmente</p>
+                                </div>
+                            )}
+                            <p className="font-black text-sm uppercase tracking-tighter text-slate-900">EL CLIENTE</p>
                             <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Firma del Titular</p>
                         </div>
                     </div>

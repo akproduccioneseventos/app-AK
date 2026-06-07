@@ -122,13 +122,15 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
                         const linkHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
 
                         return (
-                            <Button asChild variant="outline" className="w-full h-auto justify-start p-4 text-left"><Link href={linkHref} key={permisoId}>
+                            <Button key={permisoId} asChild variant="outline" className="w-full h-auto justify-start p-4 text-left">
+                              <Link href={linkHref}>
                                     <Icon className="w-6 h-6 mr-4 text-primary"/>
                                     <div className="flex-grow">
                                         <p className="font-semibold">{modulo.label}</p>
                                     </div>
                                     <ArrowRight className="w-5 h-5 text-muted-foreground ml-auto"/>
-                                </Link></Button>
+                               </Link>
+                            </Button>
                         )
                     })}
                 </CardContent>
