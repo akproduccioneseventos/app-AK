@@ -4,7 +4,7 @@
 
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
-import { addPagoToPresupuesto } from '../presupuestos';
+import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '../presupuestos';
 import { createNotification } from '../notifications';
 import {
   notifyClientPaymentApproved,
@@ -13,6 +13,7 @@ import {
 } from '../google-workspace-extended';
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
 import { sanitizeActionError } from '@/lib/utils';
+import { uploadToStorage } from '@/lib/firebase/storage';
 
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
@@ -195,10 +196,30 @@ export async function submitClientPayment(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
+    let comprobanteUrl = undefined;
+    if (comprobanteBase64) {
+      try {
+        const matches = comprobanteBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+          const filename = comprobanteNombre || 'comprobante.png';
+          const docId = `cpn_${crypto.randomUUID()}`;
+          const storagePath = `payments/${fiestaId}/${docId}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+          
+          await uploadToStorage(buffer, storagePath, mimeType, false);
+          comprobanteUrl = storagePath;
+        }
+      } catch (uploadError) {
+        console.error('[Portal Action] Failed to upload receipt to Storage:', uploadError);
+      }
+    }
+
     const notification: ClientPaymentNotification = {
       id: `cpn_${crypto.randomUUID()}`,
       monto: safeMonto,
-      comprobanteBase64,
+      comprobanteUrl, // Store only the path!
       comprobanteNombre,
       estado: 'pendiente',
       timestamp: new Date().toISOString(),
@@ -529,3 +550,118 @@ export async function addClientMusicSuggestion(
   }
   return result;
 }
+
+export async function approveClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientMenuChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'aprobada';
+
+    fiesta.configuracion.invitadosEstimados = (fiesta.configuracion.invitadosEstimados ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta;
+    if (fiesta.presupuestoId) {
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        presupuesto.invitadosCantidad = (presupuesto.invitadosCantidad ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta;
+        presupuesto.totalConDescuento = (presupuesto.totalConDescuento ?? 0) + request.montoAdicional;
+        presupuesto.totalFinal = (presupuesto.totalFinal ?? 0) + request.montoAdicional;
+        await updatePresupuesto(presupuesto);
+      }
+    }
+
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function rejectClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientMenuChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'rechazada';
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientServiceChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'aprobada';
+
+    if (fiesta.presupuestoId) {
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        const items = presupuesto.itemsPresupuestados ?? [];
+        items.push({
+          id: `item_add_${Date.now()}`,
+          servicioId: request.servicioId,
+          nombreServicio: request.nombreServicio,
+          categoriaServicio: request.categoria ?? 'Otros Servicios',
+          cantidad: request.cantidad,
+          precioUnitario: request.precioBase,
+          precioVenta: request.precioBase,
+          montoTotal: request.montoAdicional,
+        });
+        presupuesto.itemsPresupuestados = items;
+        presupuesto.totalConDescuento = (presupuesto.totalConDescuento ?? 0) + request.montoAdicional;
+        presupuesto.totalFinal = (presupuesto.totalFinal ?? 0) + request.montoAdicional;
+        await updatePresupuesto(presupuesto);
+      }
+    }
+
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function rejectClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientServiceChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'rechazada';
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+

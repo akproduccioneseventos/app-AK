@@ -389,7 +389,7 @@ function PlanPagosContent() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {notif.comprobanteBase64 && (
+                  {(notif.comprobanteUrl || notif.comprobanteBase64) && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -447,9 +447,29 @@ function PlanPagosContent() {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            {previewNotif.comprobanteBase64?.startsWith('data:image') ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={previewNotif.comprobanteBase64} alt="Comprobante" className="w-full rounded-xl" />
+            {previewNotif.comprobanteUrl || previewNotif.comprobanteBase64 ? (
+              (() => {
+                const url = previewNotif.comprobanteUrl 
+                  ? `/api/storage/signed-url?path=${encodeURIComponent(previewNotif.comprobanteUrl)}`
+                  : previewNotif.comprobanteBase64;
+                const isPdf = previewNotif.comprobanteNombre?.toLowerCase().endsWith('.pdf') || previewNotif.comprobanteUrl?.toLowerCase().endsWith('.pdf');
+                
+                if (isPdf) {
+                  return (
+                    <div className="w-full h-80 border rounded-xl overflow-hidden flex flex-col">
+                      <iframe src={url} className="w-full flex-1" title="Comprobante PDF" />
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-center text-xs text-primary font-bold py-2 hover:underline bg-slate-50 border-t">
+                        Abrir PDF en pestaña nueva
+                      </a>
+                    </div>
+                  );
+                }
+                
+                return (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={url} alt="Comprobante" className="w-full rounded-xl max-h-80 object-contain" />
+                );
+              })()
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">
                 {previewNotif.comprobanteNombre ?? 'Archivo adjunto'}

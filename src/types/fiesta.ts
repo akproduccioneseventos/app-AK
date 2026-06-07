@@ -1593,6 +1593,7 @@ export interface ClientPaymentNotification {
   id: string;
   monto: number;
   comprobanteBase64?: string; // base64 encoded receipt image
+  comprobanteUrl?: string; // Firebase Storage path
   comprobanteNombre?: string;
   estado: 'pendiente' | 'aprobado' | 'rechazado';
   timestamp: string;

@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -7,14 +6,23 @@ import { getMenus, saveMenu } from './menus-catering';
 
 const INSUMOS_FILE = 'insumos.json';
 
+let cachedInsumos: ServicioEmpresa[] | null = null;
+
+export function invalidateInsumosCache() {
+  cachedInsumos = null;
+}
+
 export async function getInsumos(): Promise<ServicioEmpresa[]> {
+    if (cachedInsumos) return cachedInsumos;
     const items = await readData<any[]>(INSUMOS_FILE, []);
-    return (Array.isArray(items) ? items : []).map(item => ({
+    const mapped = (Array.isArray(items) ? items : []).map(item => ({
       ...item,
       tipoItem: item.tipoItem || 'Insumo/Ingrediente',
       valorUnitarioEstimado: item.valorUnitarioEstimado !== undefined && !isNaN(Number(item.valorUnitarioEstimado)) ? Number(item.valorUnitarioEstimado) : 0,
       cantidadDisponible: item.cantidadDisponible !== undefined && !isNaN(Number(item.cantidadDisponible)) ? Number(item.cantidadDisponible) : undefined,
     }));
+    cachedInsumos = mapped;
+    return mapped;
 }
 
 export async function getInsumoById(id: string): Promise<ServicioEmpresa | null> {
@@ -62,7 +70,6 @@ async function propagateInsumoChangesToMenus(updatedInsumo: ServicioEmpresa) {
     });
 
     if (anyMenuChanged) {
-        // Guardamos cada menú actualizado. saveMenu ya maneja el guardado del archivo.
         for (const m of updatedMenus) {
             await saveMenu(m);
         }
@@ -72,6 +79,7 @@ async function propagateInsumoChangesToMenus(updatedInsumo: ServicioEmpresa) {
 export async function saveInsumo(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
+  invalidateInsumosCache();
   let inventario = await getInsumos();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
@@ -111,19 +119,21 @@ export async function saveInsumo(
   }
   
   await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+  invalidateInsumosCache();
   
-  // Propagar cambios a los menús si es una actualización
   await propagateInsumoChangesToMenus(finalItemData as ServicioEmpresa);
 
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
 }
 
 export async function deleteInsumo(id: string): Promise<{ success: boolean; error?: string }> {
+  invalidateInsumosCache();
   let inventario = await getInsumos();
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);
   if (inventario.length === initialLength) return { success: false, error: `Insumo con ID ${id} no encontrado para eliminar.` };
   await writeData(INSUMOS_FILE, inventario);
+  invalidateInsumosCache();
   return { success: true };
 }
 
@@ -135,6 +145,7 @@ export async function adjustAllInsumoCosts(
   }
   
   try {
+    invalidateInsumosCache();
     const inventario = await getInsumos();
     if (inventario.length === 0) {
       return { success: false, error: "No hay insumos en el catálogo para ajustar." };
@@ -153,8 +164,8 @@ export async function adjustAllInsumoCosts(
     });
 
     await writeData(INSUMOS_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+    invalidateInsumosCache();
 
-    // Propagar todos los cambios a los menús
     for (const insumo of updatedInventario) {
         await propagateInsumoChangesToMenus(insumo);
     }

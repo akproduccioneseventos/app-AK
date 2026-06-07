@@ -9,11 +9,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2, Palette, Upload } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2, Palette, Upload, Check, X, Clock, Coins, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual, updateClientePortalExperienceFiestaActual } from '@/app/actions/fiesta-actual';
-import { updateFaqPortal } from '@/app/actions/fiesta/portal.actions';
+import { 
+  updateFaqPortal,
+  approveClientMenuChangeRequest,
+  rejectClientMenuChangeRequest,
+  approveClientServiceChangeRequest,
+  rejectClientServiceChangeRequest
+} from '@/app/actions/fiesta/portal.actions';
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
 import { Separator } from '@/components/ui/separator';
@@ -127,6 +133,79 @@ function ClientPortalConfigContent() {
   const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>(defaultClienteDebeLlevar);
   const [isSavingLlevar, setIsSavingLlevar] = useState(false);
   const [newLlevarTexto, setNewLlevarTexto] = useState('');
+  const [processingRequestId, setProcessingRequestId] = useState<string | null>(null);
+
+  const handleApproveMenuRequest = async (requestId: string) => {
+    if (!fiestaId) return;
+    setProcessingRequestId(requestId);
+    try {
+      const res = await approveClientMenuChangeRequest(fiestaId, requestId);
+      if (res.success) {
+        toast({ title: 'Solicitud aprobada', description: 'El cambio de menú/invitados ha sido aprobado y el presupuesto actualizado.' });
+        await loadData();
+      } else {
+        toast({ title: 'Error', description: res.error || 'Ocurrió un error al procesar la solicitud.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Error de red.', variant: 'destructive' });
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleRejectMenuRequest = async (requestId: string) => {
+    if (!fiestaId) return;
+    setProcessingRequestId(requestId);
+    try {
+      const res = await rejectClientMenuChangeRequest(fiestaId, requestId);
+      if (res.success) {
+        toast({ title: 'Solicitud rechazada', description: 'El cambio de menú/invitados ha sido rechazado.' });
+        await loadData();
+      } else {
+        toast({ title: 'Error', description: res.error || 'Ocurrió un error al procesar la solicitud.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Error de red.', variant: 'destructive' });
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleApproveServiceRequest = async (requestId: string) => {
+    if (!fiestaId) return;
+    setProcessingRequestId(requestId);
+    try {
+      const res = await approveClientServiceChangeRequest(fiestaId, requestId);
+      if (res.success) {
+        toast({ title: 'Solicitud aprobada', description: 'El servicio adicional ha sido aprobado y agregado al presupuesto.' });
+        await loadData();
+      } else {
+        toast({ title: 'Error', description: res.error || 'Ocurrió un error al procesar la solicitud.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Error de red.', variant: 'destructive' });
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleRejectServiceRequest = async (requestId: string) => {
+    if (!fiestaId) return;
+    setProcessingRequestId(requestId);
+    try {
+      const res = await rejectClientServiceChangeRequest(fiestaId, requestId);
+      if (res.success) {
+        toast({ title: 'Solicitud rechazada', description: 'La solicitud de servicio adicional ha sido rechazada.' });
+        await loadData();
+      } else {
+        toast({ title: 'Error', description: res.error || 'Ocurrió un error al procesar la solicitud.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Error de red.', variant: 'destructive' });
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
 
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
@@ -412,7 +491,9 @@ function ClientPortalConfigContent() {
     );
     window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
   };
-
+  const pendingMenuRequests = fiestaData?.clientMenuChangeRequests?.filter(r => r.status === 'pendiente') || [];
+  const pendingServiceRequests = fiestaData?.clientServiceChangeRequests?.filter(r => r.status === 'pendiente') || [];
+  const hasPendingRequests = pendingMenuRequests.length > 0 || pendingServiceRequests.length > 0;
 
   if (isLoading) {
     return <div className="p-8 max-w-2xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>
@@ -427,6 +508,111 @@ function ClientPortalConfigContent() {
         </div>
         <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Button></Link>
       </div>
+
+      {hasPendingRequests && (
+        <Card className="shadow-lg border-amber-200 bg-amber-50/20 overflow-hidden animate-in fade-in-50 slide-in-from-top-4 duration-300">
+          <CardHeader className="bg-amber-500/10 border-b border-amber-100 py-3">
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-amber-600 animate-pulse" />
+              <div>
+                <CardTitle className="font-headline text-lg text-amber-900">Solicitudes Pendientes del Cliente</CardTitle>
+                <CardDescription className="text-amber-700/80 text-xs">El cliente ha solicitado cambios económicos que requieren tu revisión.</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 space-y-4 divide-y divide-amber-200/50">
+            {pendingMenuRequests.map((req, index) => (
+              <div key={req.id} className={`${index > 0 ? 'pt-4' : ''} space-y-3`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      <Users className="w-3 h-3" /> Cambio de Menú / Invitados
+                    </span>
+                    <p className="text-sm font-medium text-slate-800 mt-1">
+                      Aumento de invitados: <strong className="text-slate-900">{req.adultosDelta} adultos</strong> y <strong className="text-slate-900">{req.ninosAdolescentesDelta} niños/adolescentes</strong>.
+                    </p>
+                    {req.notaCliente && (
+                      <p className="text-xs text-slate-600 italic bg-white/60 p-2.5 rounded-lg border border-slate-100 mt-2">
+                        " {req.notaCliente} "
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs text-slate-400 block">{new Date(req.createdAt).toLocaleDateString('es-UY')}</span>
+                    <span className="text-sm font-bold text-slate-950 block mt-1">+ ${req.montoAdicional.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                    disabled={processingRequestId !== null}
+                    onClick={() => handleRejectMenuRequest(req.id)}
+                  >
+                    {processingRequestId === req.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <X className="w-3.5 h-3.5 mr-1" />}
+                    Rechazar
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-8 bg-green-600 hover:bg-green-700 text-white border-0"
+                    disabled={processingRequestId !== null}
+                    onClick={() => handleApproveMenuRequest(req.id)}
+                  >
+                    {processingRequestId === req.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Check className="w-3.5 h-3.5 mr-1" />}
+                    Aprobar y Actualizar
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            {pendingServiceRequests.map((req, index) => (
+              <div key={req.id} className={`${pendingMenuRequests.length > 0 || index > 0 ? 'pt-4' : ''} space-y-3`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                      <Coins className="w-3 h-3" /> Servicio Adicional
+                    </span>
+                    <p className="text-sm font-medium text-slate-800 mt-1">
+                      Solicita agregar: <strong className="text-slate-900">{req.nombreServicio}</strong> x{req.cantidad}.
+                    </p>
+                    {req.notaCliente && (
+                      <p className="text-xs text-slate-600 italic bg-white/60 p-2.5 rounded-lg border border-slate-100 mt-2">
+                        " {req.notaCliente} "
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs text-slate-400 block">{new Date(req.createdAt).toLocaleDateString('es-UY')}</span>
+                    <span className="text-sm font-bold text-slate-950 block mt-1">+ ${req.montoAdicional.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                    disabled={processingRequestId !== null}
+                    onClick={() => handleRejectServiceRequest(req.id)}
+                  >
+                    {processingRequestId === req.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <X className="w-3.5 h-3.5 mr-1" />}
+                    Rechazar
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-8 bg-green-600 hover:bg-green-700 text-white border-0"
+                    disabled={processingRequestId !== null}
+                    onClick={() => handleApproveServiceRequest(req.id)}
+                  >
+                    {processingRequestId === req.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Check className="w-3.5 h-3.5 mr-1" />}
+                    Aprobar y Agregar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
        <Card className="shadow-lg">
           <CardHeader>
