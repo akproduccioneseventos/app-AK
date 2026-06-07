@@ -16,7 +16,7 @@ import {
   FileText, Calendar, Users, DollarSign, List, Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { importarPresupuestoDesdeTexto } from '@/app/actions/importar-presupuesto';
+import { importarPresupuestoDesdeTexto } from '@/app/actions/presupuestos';
 import { parseBudgetText } from '@/lib/parse-budget-text';
 import type { ParsedBudget } from '@/lib/parse-budget-text';
 
