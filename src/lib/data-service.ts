@@ -92,6 +92,39 @@ export async function writeData<T>(filePath: string, data: T, sortFn?: (a: any, 
   }
 }
 
+function deepMerge(target: any, source: any): any {
+  if (Array.isArray(target) && Array.isArray(source)) {
+    const merged = [...target];
+    source.forEach((sourceItem, index) => {
+      if (sourceItem && typeof sourceItem === 'object' && 'id' in sourceItem && sourceItem.id) {
+        const targetIndex = merged.findIndex(item => item && typeof item === 'object' && 'id' in item && item.id === sourceItem.id);
+        if (targetIndex > -1) {
+          merged[targetIndex] = deepMerge(merged[targetIndex], sourceItem);
+        } else {
+          merged.push(sourceItem);
+        }
+      } else if (index < merged.length) {
+        merged[index] = deepMerge(merged[index], sourceItem);
+      } else {
+        merged.push(sourceItem);
+      }
+    });
+    return merged;
+  }
+  if (target && typeof target === 'object' && source && typeof source === 'object') {
+    const result = { ...target };
+    for (const key of Object.keys(source)) {
+      if (key in target) {
+        result[key] = deepMerge(target[key], source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+    return result;
+  }
+  return source;
+}
+
 export async function updateDataPartial<T extends Record<string, any>>(filePath: string, partialData: Partial<T>): Promise<void> {
   if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
 
@@ -104,7 +137,7 @@ export async function updateDataPartial<T extends Record<string, any>>(filePath:
     // 2. Actualización local JSON (Merge manual)
     if (isSafeTopLevelJsonFile(normalizedFilePath)) {
       const existing = await readGenericJsonFile(normalizedFilePath) as Record<string, any> || {};
-      const merged = { ...existing, ...partialData };
+      const merged = deepMerge(existing, partialData);
       await syncGenericJsonFile(normalizedFilePath, merged);
     }
   } catch (err) {

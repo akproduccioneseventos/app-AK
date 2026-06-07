@@ -11,6 +11,9 @@ import {
   notifyClientPaymentRejected,
   notifyClientPaymentSubmitted,
 } from '../google-workspace-extended';
+import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
+import { sanitizeActionError } from '@/lib/utils';
+
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
 
@@ -35,7 +38,7 @@ async function updateFiestaData(
     return { success: true };
   } catch (e: any) {
     console.error("Error updating fiesta data in portal.actions:", e.message);
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -46,7 +49,22 @@ function createRequestId(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta || !fiesta.clientPortalSettings?.enabled || fiesta.clientPortalSettings.accessKey !== accessKey) {
+      return { success: false, error: 'Acceso denegado.' };
+    }
+    setPortalSessionCookie(fiestaId, accessKey);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+
 export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   return updateFiestaData(fiestaId, data => ({ ...data, clientChecklist: checklist }));
 }
 
@@ -55,6 +73,7 @@ export async function updateClientChecklistItem(
   itemId: string,
   completed: boolean
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, data => {
     const currentChecklist = data.clientChecklist ?? [];
     return {
@@ -81,6 +100,7 @@ export async function updateClientChecklistItem(
 }
 
 export async function updateClientNotes(fiestaId: string, notes: string) {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, data => ({ ...data, clientNotes: notes }));
   if (result.success) {
     await createNotification({
@@ -167,6 +187,7 @@ export async function submitClientPayment(
   comprobanteBase64?: string,
   comprobanteNombre?: string
 ): Promise<{ success: boolean; notificationId?: string; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const safeMonto = normalizeClientPaymentAmount(monto);
     if (safeMonto <= 0) return { success: false, error: 'Monto inválido' };
@@ -205,7 +226,7 @@ export async function submitClientPayment(
 
     return { success: true, notificationId: notification.id };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -219,6 +240,7 @@ export async function submitClientMenuChangeRequest(
     notaCliente?: string;
   }
 ): Promise<{ success: boolean; requestId?: string; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   try {
     if (payload.adultosDelta <= 0 && payload.ninosAdolescentesDelta <= 0) {
       return { success: false, error: 'No hay cambios para solicitar.' };
@@ -252,7 +274,7 @@ export async function submitClientMenuChangeRequest(
 
     return { success: true, requestId };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -270,6 +292,7 @@ export async function submitClientServiceAddRequest(
     notaCliente?: string;
   }
 ): Promise<{ success: boolean; requestId?: string; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const cantidad = Math.max(1, Math.round(Number(payload.cantidad) || 1));
     const montoAdicional = normalizeClientPaymentAmount(payload.montoAdicional);
@@ -309,7 +332,7 @@ export async function submitClientServiceAddRequest(
 
     return { success: true, requestId };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -364,7 +387,7 @@ export async function approveClientPayment(
 
     return { success: true };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -399,6 +422,7 @@ export async function updatePortalGuestRsvp(
   invitadoId: string,
   rsvp: import('@/types/fiesta').RsvpStatus
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => {
     const invitados = (fiesta.invitados ?? []).map(inv =>
       inv.id === invitadoId ? { ...inv, rsvp } : inv
@@ -430,6 +454,7 @@ export async function saveMenuSeleccion(
   fiestaId: string,
   menuSeleccion: MenuSeleccionPortal
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     menuSeleccionPortal: {
@@ -452,6 +477,7 @@ export async function saveListaMusica(
   fiestaId: string,
   listaMusica: ListaMusicaPortal
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     listaMusicaPortal: {
@@ -474,6 +500,7 @@ export async function addClientMusicSuggestion(
   listKey: keyof ListaMusicaPortal,
   suggestion: string
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const value = suggestion.trim();
   if (!value) return { success: false, error: 'Sugerencia vacía' };
 
