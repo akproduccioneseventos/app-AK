@@ -68,11 +68,9 @@ export default function BlogPostPage() {
         <BookOpen className="h-16 w-16 text-indigo-400 animate-pulse mb-4" />
         <h1 className="text-2xl font-black">Artículo no encontrado</h1>
         <p className="text-white/60 text-sm mt-1">El post de blog solicitado no existe.</p>
-        <Link href="/blog" className="mt-6">
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl">
+        <Button asChild className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl"><Link href="/blog" className="mt-6">
             <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Blog
-          </Button>
-        </Link>
+          </Link></Button>
       </div>
     );
   }
@@ -90,12 +88,10 @@ export default function BlogPostPage() {
       {/* Header Bar */}
       <header className="relative border-b border-white/10 backdrop-blur-md bg-slate-950/40 z-20">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/blog">
-            <Button variant="ghost" size="sm" className="text-white/70 hover:text-white font-bold gap-1">
+          <Button asChild variant="ghost" size="sm" className="text-white/70 hover:text-white font-bold gap-1"><Link href="/blog">
               <ArrowLeft className="h-4 w-4" />
               Volver al Blog
-            </Button>
-          </Link>
+            </Link></Button>
           <span className="text-xs font-black text-white/40 tracking-wider">AK PRODUCCIONES BLOG</span>
         </div>
       </header>
@@ -186,11 +182,9 @@ export default function BlogPostPage() {
             Ponete en contacto con el equipo de AK Producciones y simulemos tu presupuesto en vivo de manera instantánea.
           </p>
           <div className="flex justify-center gap-3">
-            <Link href="/simulador-de-presupuesto">
-              <Button className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-bold rounded-xl px-6 h-11">
+            <Button asChild className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-bold rounded-xl px-6 h-11"><Link href="/simulador-de-presupuesto">
                 Simular mi Fiesta
-              </Button>
-            </Link>
+              </Link></Button>
             <a
               href={`https://wa.me/59898355530?text=${encodeURIComponent(
                 `Hola AK Producciones, leí su artículo "${post.title}" y me interesa cotizar.`

@@ -17,11 +17,9 @@ export default function PortalNotFound() {
             El enlace al portal no es válido, ha expirado o el portal no está habilitado. Por favor,
             solicitá un nuevo enlace a tu organizador.
           </p>
-          <Link href="/">
-            <Button variant="outline" className="w-full rounded-xl">
+          <Button asChild variant="outline" className="w-full rounded-xl"><Link href="/">
               Volver al inicio
-            </Button>
-          </Link>
+            </Link></Button>
         </CardContent>
       </Card>
     </div>

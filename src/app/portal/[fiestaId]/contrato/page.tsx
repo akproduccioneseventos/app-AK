@@ -104,7 +104,7 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                       <CardDescription>El contrato aún no ha sido redactado por el organizador.</CardDescription>
                   </CardHeader>
                   <CardFooter className="justify-center">
-                      <Link href={`/portal?fiestaId=${fiestaId}`}><Button variant="outline">Volver al Portal</Button></Link>
+                      <Button asChild variant="outline"><Link href={`/portal?fiestaId=${fiestaId}`}>Volver al Portal</Link></Button>
                   </CardFooter>
               </Card>
           </div>
@@ -126,9 +126,7 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Revisión y Firma Digital</p>
                     </div>
                 </div>
-                <Link href={`/portal?fiestaId=${fiestaId}`}>
-                    <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5"/></Button>
-                </Link>
+                <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`}><ArrowLeft className="w-5 h-5"/></Link></Button>
             </header>
 
             {firma?.isSigned && (

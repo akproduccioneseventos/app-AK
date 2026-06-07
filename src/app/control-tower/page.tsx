@@ -37,31 +37,21 @@ export default async function ControlTowerPage() {
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Link href="/control-tower/post-fiesta">
-              <Button variant="outline" className="rounded-2xl font-bold">
+            <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower/post-fiesta">
                 <PartyPopper className="mr-2 h-4 w-4" /> Post-fiesta
-              </Button>
-            </Link>
-            <Link href="/control-tower/comercial">
-              <Button variant="outline" className="rounded-2xl font-bold">
+              </Link></Button>
+            <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower/comercial">
                 <PhoneCall className="mr-2 h-4 w-4" /> Comercial
-              </Button>
-            </Link>
-            <Link href="/control-tower/preparacion">
-              <Button variant="outline" className="rounded-2xl font-bold">
+              </Link></Button>
+            <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower/preparacion">
                 <ClipboardCheck className="mr-2 h-4 w-4" /> Preparación
-              </Button>
-            </Link>
-            <Link href="/control-tower/automatizaciones">
-              <Button variant="outline" className="rounded-2xl font-bold">
+              </Link></Button>
+            <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower/automatizaciones">
                 <Wand2 className="mr-2 h-4 w-4" /> Automatizaciones
-              </Button>
-            </Link>
-            <Link href="/secretaria-ak">
-              <Button className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">
+              </Link></Button>
+            <Button asChild className="rounded-2xl bg-red-600 font-bold hover:bg-red-700"><Link href="/secretaria-ak">
                 <Sparkles className="mr-2 h-4 w-4" /> Secretaria AK
-              </Button>
-            </Link>
+              </Link></Button>
           </div>
         </div>
       </section>
@@ -82,7 +72,7 @@ export default async function ControlTowerPage() {
               <h2 className="mt-1 text-xl font-black text-slate-950">{kpis.proximoEvento.nombre}</h2>
               <p className="text-sm font-medium text-slate-500">{new Date(kpis.proximoEvento.fecha).toLocaleDateString('es-UY')}</p>
             </div>
-            <Link href="/multiagente/fiestas"><Button variant="outline" className="rounded-2xl font-bold">Revisar con agente</Button></Link>
+            <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/multiagente/fiestas">Revisar con agente</Link></Button>
           </CardContent>
         </Card>
       )}
@@ -112,18 +102,18 @@ export default async function ControlTowerPage() {
                   <p className="mt-1 text-sm leading-6 text-slate-600">{item.description}</p>
                 </div>
               </div>
-              <Link href={item.href}><Button variant="outline" className="rounded-2xl font-bold">Abrir</Button></Link>
+              <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href={item.href}>Abrir</Link></Button>
             </div>
           ))}
         </CardContent>
       </Card>
 
       <div className="grid gap-4 md:grid-cols-5">
-        <Link href="/control-tower/post-fiesta"><Button className="h-14 w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700">Post-fiesta</Button></Link>
-        <Link href="/control-tower/comercial"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Seguimientos</Button></Link>
-        <Link href="/control-tower/preparacion"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Preparación</Button></Link>
-        <Link href="/control-tower/automatizaciones"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Automatizaciones</Button></Link>
-        <Link href="/multiagente/memoria"><Button variant="outline" className="h-14 w-full rounded-2xl font-bold">Memoria</Button></Link>
+        <Button asChild className="h-14 w-full rounded-2xl bg-red-600 font-bold hover:bg-red-700"><Link href="/control-tower/post-fiesta">Post-fiesta</Link></Button>
+        <Button asChild variant="outline" className="h-14 w-full rounded-2xl font-bold"><Link href="/control-tower/comercial">Seguimientos</Link></Button>
+        <Button asChild variant="outline" className="h-14 w-full rounded-2xl font-bold"><Link href="/control-tower/preparacion">Preparación</Link></Button>
+        <Button asChild variant="outline" className="h-14 w-full rounded-2xl font-bold"><Link href="/control-tower/automatizaciones">Automatizaciones</Link></Button>
+        <Button asChild variant="outline" className="h-14 w-full rounded-2xl font-bold"><Link href="/multiagente/memoria">Memoria</Link></Button>
       </div>
     </div>
   );

@@ -165,19 +165,15 @@ export default function PresupuestoCard({
         )}
 
         {presupuesto.estado === 'Aceptado' && !presupuesto.invoiceId && (
-          <Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} className="w-full">
-            <Button variant="default" size="sm" className="w-full gap-2 h-9 font-bold">
+          <Button asChild variant="default" size="sm" className="w-full gap-2 h-9 font-bold"><Link href={`/invoices/new?fromPresupuesto=${presupuesto.id}`} className="w-full">
               <FileTextIcon className="w-4 h-4" /> GENERAR FACTURA
-            </Button>
-          </Link>
+            </Link></Button>
         )}
 
         {presupuesto.estado === 'Facturado' && presupuesto.invoiceId && (
-          <Link href={`/invoices/${presupuesto.invoiceId}`} className="w-full">
-            <Button variant="outline" size="sm" className="w-full border-green-500 text-green-700 hover:bg-green-50 h-9 font-bold uppercase text-[10px] gap-2">
+          <Button asChild variant="outline" size="sm" className="w-full border-green-500 text-green-700 hover:bg-green-50 h-9 font-bold uppercase text-[10px] gap-2"><Link href={`/invoices/${presupuesto.invoiceId}`} className="w-full">
               <FileSignature className="w-4 h-4" /> Ver Factura #{presupuesto.invoiceId.split('_').pop()?.substring(0,6)}
-            </Button>
-          </Link>
+            </Link></Button>
         )}
 
         {isExpired && (
@@ -188,12 +184,8 @@ export default function PresupuestoCard({
         )}
 
         <div className="flex gap-2 w-full mt-1">
-          <Link href={`/presupuestos/${presupuesto.id}/ver`} className="flex-grow">
-            <Button variant="outline" size="sm" className="w-full h-8 text-xs">RESUMEN</Button>
-          </Link>
-          <Link href={`/presupuestos/${presupuesto.id}/editar`} className="flex-grow">
-            <Button variant="outline" size="sm" className="w-full h-8 text-xs">EDITAR</Button>
-          </Link>
+          <Button asChild variant="outline" size="sm" className="w-full h-8 text-xs"><Link href={`/presupuestos/${presupuesto.id}/ver`} className="flex-grow">RESUMEN</Link></Button>
+          <Button asChild variant="outline" size="sm" className="w-full h-8 text-xs"><Link href={`/presupuestos/${presupuesto.id}/editar`} className="flex-grow">EDITAR</Link></Button>
 
           {/* Archive / Delete dropdown */}
           <DropdownMenu>

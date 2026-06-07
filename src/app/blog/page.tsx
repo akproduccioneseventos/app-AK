@@ -108,11 +108,9 @@ export default function BlogPage() {
               <Plus className="h-4 w-4" />
               Importar de Facebook
             </Button>
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="text-white/70 hover:text-white font-bold">
+            <Button asChild variant="ghost" size="sm" className="text-white/70 hover:text-white font-bold"><Link href="/">
                 Volver
-              </Button>
-            </Link>
+              </Link></Button>
           </div>
         </div>
       </header>
@@ -300,14 +298,11 @@ export default function BlogPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <Link href={`/blog/${importedPost.slug}`} className="flex-1">
-                      <Button
-                        onClick={() => setIsImportModalOpen(false)}
+                    <Button asChild onClick={() =><Link href={`/blog/${importedPost.slug}`} className="flex-1"> setIsImportModalOpen(false)}
                         className="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold h-11 rounded-xl"
                       >
                         Ver Artículo
-                      </Button>
-                    </Link>
+                      </Link></Button>
                     <Button
                       variant="outline"
                       onClick={() => {

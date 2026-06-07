@@ -61,7 +61,7 @@ export default function CommercialFollowupsPage() {
               Revisa leads y presupuestos enviados para ayudarte a saber a quién escribir, por qué y con qué mensaje.
             </p>
           </div>
-          <Link href="/control-tower"><Button variant="outline" className="rounded-2xl font-bold"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Button></Link>
+          <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link></Button>
         </div>
       </section>
 
@@ -100,7 +100,7 @@ export default function CommercialFollowupsPage() {
               <div className="rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">{item.suggestedMessage}</div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button onClick={() => copyMessage(item)} variant="outline" className="rounded-2xl font-bold"><ClipboardCopy className="mr-2 h-4 w-4" /> {copiedId === item.id ? 'Copiado' : 'Copiar WhatsApp'}</Button>
-                <Link href={item.href}><Button className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">Abrir</Button></Link>
+                <Button asChild className="rounded-2xl bg-red-600 font-bold hover:bg-red-700"><Link href={item.href}>Abrir</Link></Button>
               </div>
             </CardContent>
           </Card>

@@ -105,9 +105,7 @@ export default function ClientMoodboardPage({ params }: { params: { fiestaId: st
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tablero de Inspiración del Evento</p>
                     </div>
                 </div>
-                <Link href={`/portal?fiestaId=${fiestaId}`}>
-                    <Button variant="outline" className="rounded-xl border-slate-200"><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Button>
-                </Link>
+                <Button asChild variant="outline" className="rounded-xl border-slate-200"><Link href={`/portal?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
             </header>
 
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">

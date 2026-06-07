@@ -84,16 +84,12 @@ export function InvoiceListItem({
       </TableCell>
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-1.5">
-          <Link href={`/invoices/${invoice.id}`}>
-            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Ver Factura ${invoice.invoiceNumber}`} title="Ver Detalle">
+          <Button asChild variant="ghost" size="icon" className="h-8 w-8" aria-label={`Ver Factura ${invoice.invoiceNumber}`} title="Ver Detalle"><Link href={`/invoices/${invoice.id}`}>
               <Eye className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href={`/invoices/${invoice.id}/edit`}>
-            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Editar Factura ${invoice.invoiceNumber}`} title="Editar Factura">
+            </Link></Button>
+          <Button asChild variant="ghost" size="icon" className="h-8 w-8" aria-label={`Editar Factura ${invoice.invoiceNumber}`} title="Editar Factura"><Link href={`/invoices/${invoice.id}/edit`}>
               <Edit className="w-4 h-4" />
-            </Button>
-          </Link>
+            </Link></Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 h-8 w-8" aria-label={`Eliminar Factura ${invoice.invoiceNumber}`} title="Eliminar Factura" disabled={isDeleting}>

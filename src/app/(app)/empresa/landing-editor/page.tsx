@@ -1,0 +1,1312 @@
+'use client';
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  ArrowLeft, Save, Loader2, Eye, Globe, Palette, Layout, Type, BarChart3, Phone, Plus, Trash2, ExternalLink, Upload, Sparkles, Camera, Video
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { getLandingSettings, saveLandingSettings } from '@/app/actions/landing-editor';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
+import { addGaleriaFoto, addGaleriaVideo, deleteGaleriaItem, getGaleriaItems } from '@/app/actions/galeria';
+import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
+import { GALERIA_CATEGORIAS, SERVICIOS_GALERIA, TIPOS_FIESTA_GALERIA } from '@/types/galeria';
+import type { LandingSettings, LandingStatItem, LandingFaqItem, LandingServiceItem } from '@/types/landing-editor';
+import { defaultLandingSettings } from '@/types/landing-editor';
+
+/**
+ * Sanitizes a URL to ensure it uses only http(s) protocol.
+ * Returns null if the URL is unsafe (e.g., javascript:).
+ */
+function sanitizeImageUrl(url: string): string | null {
+  if (!url || !url.trim()) return null;
+  try {
+    const parsed = new URL(url.trim());
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return parsed.href;
+    }
+  } catch {
+    // Invalid URL
+  }
+  return null;
+}
+
+/**
+ * Extract a hex color from a CSS color value (hex or rgba).
+ * Falls back to provided defaultHex if extraction fails.
+ */
+function extractHexColor(value: string, defaultHex: string): string {
+  if (!value) return defaultHex;
+  // Handle hex directly
+  if (/^#[0-9a-f]{3,6}$/i.test(value.trim())) return value.trim();
+  // Try to extract from rgba(r,g,b,...) by converting to hex
+  const rgbaMatch = value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbaMatch) {
+    const r = parseInt(rgbaMatch[1]).toString(16).padStart(2, '0');
+    const g = parseInt(rgbaMatch[2]).toString(16).padStart(2, '0');
+    const b = parseInt(rgbaMatch[3]).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  }
+  return defaultHex;
+}
+
+const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{1,20}$/;
+const VIMEO_ID_RE = /^\d+$/;
+
+type VideoSource = {
+  platform: 'youtube' | 'vimeo';
+  id: string;
+  embedUrl: string;
+  thumbnailUrl: string;
+};
+
+function extractVideoSource(url: string): VideoSource | null {
+  try {
+    const u = new URL(url);
+    if (!['http:', 'https:'].includes(u.protocol)) return null;
+    if (u.hostname === 'youtu.be') {
+      const id = u.pathname.slice(1).split('?')[0];
+      if (!id || !YOUTUBE_ID_RE.test(id)) return null;
+      return {
+        platform: 'youtube',
+        id,
+        embedUrl: `https://www.youtube.com/embed/${id}`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
+      };
+    }
+    else if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com' || u.hostname === 'm.youtube.com') {
+      const id = u.searchParams.get('v');
+      if (!id || !YOUTUBE_ID_RE.test(id)) return null;
+      return {
+        platform: 'youtube',
+        id,
+        embedUrl: `https://www.youtube.com/embed/${id}`,
+        thumbnailUrl: `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
+      };
+    }
+    if (u.hostname === 'vimeo.com' || u.hostname === 'www.vimeo.com' || u.hostname === 'player.vimeo.com') {
+      const maybeId = (u.pathname.split('/').filter(Boolean).pop() || '').trim();
+      if (!VIMEO_ID_RE.test(maybeId)) return null;
+      return {
+        platform: 'vimeo',
+        id: maybeId,
+        embedUrl: `https://player.vimeo.com/video/${maybeId}`,
+        thumbnailUrl: `https://vumbnail.com/${maybeId}.jpg`,
+      };
+    }
+  } catch {
+    // invalid url
+  }
+  return null;
+}
+
+const EMOJI_SHORTCUTS = ['🎉', '⭐', '❤️', '📞', '🎂', '🥂', '💍', '🎵', '📸', '🎊', '🏆', '💫', '✨', '🎈', '🕐', '👏'];
+
+export default function LandingEditorPage() {
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<LandingSettings>(defaultLandingSettings);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [isUploadingHeroImage, setIsUploadingHeroImage] = useState(false);
+  const [isUploadingOgImage, setIsUploadingOgImage] = useState(false);
+  const [uploadingServiceImageId, setUploadingServiceImageId] = useState<string | null>(null);
+  const [galeriaFotos, setGaleriaFotos] = useState<GaleriaFoto[]>([]);
+  const [galeriaVideos, setGaleriaVideos] = useState<GaleriaVideo[]>([]);
+  const [galeriaTab, setGaleriaTab] = useState<'fotos' | 'videos'>('fotos');
+  const [isLoadingGaleria, setIsLoadingGaleria] = useState(false);
+  const [fotoTipoFiesta, setFotoTipoFiesta] = useState<string>('General');
+  const [fotoCategoria, setFotoCategoria] = useState<string>('General');
+  const [fotoTitulo, setFotoTitulo] = useState('');
+  const [isUploadingFotoGaleria, setIsUploadingFotoGaleria] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoTitulo, setVideoTitulo] = useState('');
+  const [videoDescripcion, setVideoDescripcion] = useState('');
+  const [videoCategoria, setVideoCategoria] = useState<string>('General');
+  const [isSavingVideoGaleria, setIsSavingVideoGaleria] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setIsLoadingGaleria(true);
+    try {
+      const [data, galeriaData] = await Promise.all([
+        getLandingSettings(),
+        getGaleriaItems(),
+      ]);
+      setSettings(data);
+      setGaleriaFotos(galeriaData.fotos.sort((a, b) => a.orden - b.orden));
+      setGaleriaVideos(galeriaData.videos.sort((a, b) => a.orden - b.orden));
+      if (data.updatedAt) setLastSaved(new Date(data.updatedAt).toLocaleString('es-UY'));
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo cargar la configuración.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+      setIsLoadingGaleria(false);
+    }
+  }, [toast]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await saveLandingSettings(settings);
+      if (result.success) {
+        toast({ title: '✅ Guardado', description: 'La landing page se actualizó correctamente.' });
+        setLastSaved(new Date().toLocaleString('es-UY'));
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleUploadHeroImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingHeroImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('folder', 'landing-editor');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      updateHero('backgroundImageUrl', result.url);
+      toast({ title: '✅ Imagen subida', description: 'La imagen de fondo fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingHeroImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleUploadOgImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingOgImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('folder', 'landing-editor');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      updateSeo('ogImageUrl', result.url);
+      toast({ title: '✅ Imagen subida', description: 'La imagen OG fue cargada correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingOgImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const updateHero = (field: keyof LandingSettings['hero'], value: string) => {
+    setSettings(s => ({ ...s, hero: { ...s.hero, [field]: value } }));
+  };
+
+  const updateCta = (field: keyof LandingSettings['cta'], value: string) => {
+    setSettings(s => ({ ...s, cta: { ...s.cta, [field]: value } }));
+  };
+
+  const updateColors = (field: keyof LandingSettings['colors'], value: string) => {
+    setSettings(s => ({ ...s, colors: { ...s.colors, [field]: value } }));
+  };
+
+  const updateSeo = (field: keyof LandingSettings['seo'], value: string) => {
+    setSettings(s => ({ ...s, seo: { ...s.seo, [field]: value } }));
+  };
+
+  const updateStat = (index: number, field: keyof LandingStatItem, value: string) => {
+    setSettings(s => ({
+      ...s,
+      stats: s.stats.map((stat, i) => i === index ? { ...stat, [field]: value } : stat),
+    }));
+  };
+
+  const addStat = () => {
+    setSettings(s => ({
+      ...s,
+      stats: [...s.stats, { value: '0', label: 'Nuevo stat', icon: '⭐' }],
+    }));
+  };
+
+  const removeStat = (index: number) => {
+    setSettings(s => ({ ...s, stats: s.stats.filter((_, i) => i !== index) }));
+  };
+
+  const allServiceOptions = useMemo(() => {
+    const options = new Set<string>([
+      ...SERVICIOS_GALERIA,
+      ...GALERIA_CATEGORIAS,
+      ...galeriaFotos.map((f) => f.categoria).filter(Boolean),
+      ...galeriaVideos.map((v) => v.categoria).filter(Boolean),
+    ]);
+    return ['General', ...Array.from(options).sort((a, b) => a.localeCompare(b))];
+  }, [galeriaFotos, galeriaVideos]);
+
+  const groupedFotos = useMemo(() => {
+    const groups = new Map<string, { tipoFiesta: string; servicio: string; fotos: GaleriaFoto[] }>();
+    for (const foto of galeriaFotos) {
+      const tipoFiesta = foto.tipoFiesta || 'General';
+      const servicio = foto.categoria || foto.servicio || 'General';
+      const key = `${tipoFiesta}__${servicio}`;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.fotos.push(foto);
+      } else {
+        groups.set(key, { tipoFiesta, servicio, fotos: [foto] });
+      }
+    }
+    if (!groups.has('General__General')) {
+      groups.set('General__General', { tipoFiesta: 'General', servicio: 'General', fotos: [] });
+    }
+    return Array.from(groups.values()).sort((a, b) => {
+      if (a.tipoFiesta === b.tipoFiesta) return a.servicio.localeCompare(b.servicio);
+      if (a.tipoFiesta === 'General') return -1;
+      if (b.tipoFiesta === 'General') return 1;
+      return a.tipoFiesta.localeCompare(b.tipoFiesta);
+    });
+  }, [galeriaFotos]);
+
+  const handleUploadFotoGaleria = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast({ title: 'Formato no permitido', description: 'Solo se permiten imágenes JPG, PNG o WebP.', variant: 'destructive' });
+      e.target.value = '';
+      return;
+    }
+    setIsUploadingFotoGaleria(true);
+    try {
+      const formData = new FormData();
+      formData.append('folder', 'landing-galeria');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+
+      const categoria = fotoCategoria || 'General';
+      const tipoSeleccionado = fotoTipoFiesta === 'General' ? undefined : fotoTipoFiesta;
+      const newFoto: GaleriaFoto = {
+        id: `foto_${Date.now()}`,
+        tipo: 'foto',
+        url: result.url,
+        titulo: fotoTitulo.trim() || undefined,
+        categoria,
+        tipoFiesta: tipoSeleccionado,
+        servicio: categoria === 'General' ? undefined : categoria,
+        destacada: false,
+        orden: galeriaFotos.length,
+        createdAt: new Date().toISOString(),
+      };
+
+      await addGaleriaFoto(newFoto);
+      toast({ title: '✅ Foto agregada', description: 'La foto ya está disponible en la landing pública.' });
+      setFotoTitulo('');
+      await fetchData();
+    } catch (err: any) {
+      toast({ title: 'Error al subir', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploadingFotoGaleria(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleDeleteGaleriaItem = async (id: string) => {
+    try {
+      await deleteGaleriaItem(id);
+      toast({ title: '✅ Eliminado', description: 'El elemento fue eliminado de la galería pública.' });
+      await fetchData();
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo eliminar el elemento.', variant: 'destructive' });
+    }
+  };
+
+  const handleAddVideoGaleria = async () => {
+    if (!videoUrl.trim() || !videoTitulo.trim()) {
+      toast({ title: 'Campos requeridos', description: 'Ingresá URL del video y título.', variant: 'destructive' });
+      return;
+    }
+    const source = extractVideoSource(videoUrl.trim());
+    if (!source) {
+      toast({ title: 'URL inválida', description: 'Ingresá un link válido de YouTube, Vimeo, o subí un archivo de video.', variant: 'destructive' });
+      return;
+    }
+
+    setIsSavingVideoGaleria(true);
+    try {
+      const categoria = videoCategoria || 'General';
+      const video: GaleriaVideo = {
+        id: `video_${Date.now()}`,
+        tipo: 'video',
+        youtubeUrl: videoUrl.trim(),
+        youtubeId: source.id,
+        plataforma: source.platform,
+        embedUrl: source.embedUrl,
+        thumbnailUrl: source.thumbnailUrl,
+        titulo: videoTitulo.trim(),
+        descripcion: videoDescripcion.trim() || undefined,
+        categoria,
+        servicio: categoria === 'General' ? undefined : categoria,
+        destacada: false,
+        orden: galeriaVideos.length,
+        createdAt: new Date().toISOString(),
+      };
+      await addGaleriaVideo(video);
+      toast({ title: '✅ Video agregado', description: 'El video ya está disponible en la landing pública.' });
+      setVideoUrl('');
+      setVideoTitulo('');
+      setVideoDescripcion('');
+      setVideoCategoria('General');
+      await fetchData();
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo guardar el video.', variant: 'destructive' });
+    } finally {
+      setIsSavingVideoGaleria(false);
+    }
+  };
+
+  const addService = () => {
+    const newService: LandingServiceItem = {
+      id: `svc_${Date.now()}`,
+      icon: '✨',
+      title: 'Nuevo servicio',
+      description: 'Descripción del servicio.',
+      imageUrl: '',
+    };
+    setSettings(s => ({ ...s, services: [...(s.services || []), newService] }));
+  };
+
+  const updateService = (id: string, field: keyof LandingServiceItem, value: string) => {
+    setSettings(s => ({
+      ...s,
+      services: (s.services || []).map(service => service.id === id ? { ...service, [field]: value } : service),
+    }));
+  };
+
+  const removeService = (id: string) => {
+    setSettings(s => ({ ...s, services: (s.services || []).filter(service => service.id !== id) }));
+  };
+
+  const handleUploadServiceImage = async (serviceId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingServiceImageId(serviceId);
+    try {
+      const formData = new FormData();
+      formData.append('fiestaId', 'landing-services');
+      formData.append('file', file);
+      const result = await uploadPublicPageAsset(formData);
+      if (!result.success || !result.url) throw new Error(result.error || 'Error al subir');
+      updateService(serviceId, 'imageUrl', result.url);
+      toast({ title: '✅ Imagen de servicio subida' });
+    } catch (err: any) {
+      toast({ title: 'Error al subir imagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setUploadingServiceImageId(null);
+      e.target.value = '';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 pb-32">
+      {/* Header */}
+      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white shrink-0">
+            <Layout className="w-6 h-6 md:w-8 md:h-8" />
+          </div>
+          <div>
+            <h1 className="text-xl md:text-3xl font-black tracking-tight font-headline uppercase">
+              Editor de Landing Page
+            </h1>
+            <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">
+              Editá textos, colores y datos de tu página pública
+              {lastSaved && <span className="ml-2 text-emerald-500">· Guardado: {lastSaved}</span>}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2 w-full md:w-auto">
+          <Button asChild variant="outline" className="rounded-xl w-full md:w-auto"><Link href="/landing" target="_blank" className="flex-1 md:flex-none">
+              <Eye className="w-4 h-4 mr-2" />
+              Ver Landing
+              <ExternalLink className="w-3 h-3 ml-1 opacity-50" />
+            </Link></Button>
+          <Button asChild variant="outline" className="rounded-xl w-full md:w-auto"><Link href="/empresa" className="flex-1 md:flex-none">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver
+            </Link></Button>
+          <Button onClick={handleSave} disabled={isSaving} className="rounded-xl flex-1 md:flex-none">
+            {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            Guardar Cambios
+          </Button>
+        </div>
+      </header>
+
+      <Tabs defaultValue="hero" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-8 bg-slate-100 p-1 rounded-2xl h-auto border border-slate-200">
+          <TabsTrigger value="hero" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Type className="w-3 h-3" /> Hero
+          </TabsTrigger>
+          <TabsTrigger value="services" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Sparkles className="w-3 h-3" /> Servicios
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <BarChart3 className="w-3 h-3" /> Estadísticas
+          </TabsTrigger>
+          <TabsTrigger value="cta" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Phone className="w-3 h-3" /> CTA
+          </TabsTrigger>
+          <TabsTrigger value="gallery" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Camera className="w-3 h-3" /> Galería
+          </TabsTrigger>
+          <TabsTrigger value="colors" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Palette className="w-3 h-3" /> Colores
+          </TabsTrigger>
+          <TabsTrigger value="seo" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            <Globe className="w-3 h-3" /> SEO
+          </TabsTrigger>
+          <TabsTrigger value="faq" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3 flex items-center gap-1">
+            ❓ FAQ
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ── HERO ── */}
+        <TabsContent value="hero" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                <Type className="w-5 h-5 text-primary" /> Sección Principal (Hero)
+              </CardTitle>
+              <CardDescription>El primer bloque que ven los visitantes de tu página.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Número de WhatsApp Global</Label>
+                  <Input
+                    value={settings.whatsappNumber}
+                    onChange={e => setSettings(s => ({ ...s, whatsappNumber: e.target.value }))}
+                    placeholder="59898355530"
+                    className="rounded-xl"
+                  />
+                  <p className="text-[10px] text-muted-foreground">Se usa en todos los botones de WhatsApp de la página.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Texto del Badge</Label>
+                  <Input
+                    value={settings.hero.badgeText}
+                    onChange={e => updateHero('badgeText', e.target.value)}
+                    placeholder="Producción Integral de Eventos"
+                    className="rounded-xl"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Título Principal (Headline)</Label>
+                <Textarea
+                  value={settings.hero.headline}
+                  onChange={e => updateHero('headline', e.target.value)}
+                  placeholder="Hacemos Realidad&#10;tu Celebración"
+                  rows={3}
+                  className="rounded-xl"
+                />
+                <p className="text-[10px] text-muted-foreground">Usá saltos de línea (\n) para separar líneas. La segunda línea se resalta automáticamente.</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subtítulo (Subheadline)</Label>
+                <Textarea
+                  value={settings.hero.subheadline}
+                  onChange={e => updateHero('subheadline', e.target.value)}
+                  rows={3}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen de Fondo (URL o subir archivo)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={settings.hero.backgroundImageUrl}
+                    onChange={e => updateHero('backgroundImageUrl', e.target.value)}
+                    placeholder="https://..."
+                    className="rounded-xl"
+                  />
+                  <label htmlFor="hero-image-upload" className="shrink-0">
+                    <Button asChild variant="outline" className="rounded-xl" disabled={isUploadingHeroImage}>
+                      <span>
+                        {isUploadingHeroImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      </span>
+                    </Button>
+                    <input id="hero-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadHeroImage} disabled={isUploadingHeroImage} />
+                  </label>
+                </div>
+                {settings.hero.backgroundImageUrl && sanitizeImageUrl(settings.hero.backgroundImageUrl) && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={sanitizeImageUrl(settings.hero.backgroundImageUrl)!}
+                    alt="Vista previa del fondo"
+                    className="mt-2 rounded-xl w-full h-40 object-cover border border-slate-200"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Texto del Botón CTA</Label>
+                  <Input
+                    value={settings.hero.ctaLabel}
+                    onChange={e => updateHero('ctaLabel', e.target.value)}
+                    placeholder="Cotizá tu evento ahora"
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">URL del Botón CTA</Label>
+                  <Input
+                    value={settings.hero.ctaUrl}
+                    onChange={e => updateHero('ctaUrl', e.target.value)}
+                    placeholder="/simulador-de-presupuesto"
+                    className="rounded-xl"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── SERVICES ── */}
+        <TabsContent value="services" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" /> Servicios / Features
+                  </CardTitle>
+                  <CardDescription>Editá los servicios que se muestran en tu landing pública.</CardDescription>
+                </div>
+                <Button onClick={addService} size="sm" className="rounded-xl">
+                  <Plus className="w-4 h-4 mr-2" /> Agregar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {(settings.services || []).map((service) => (
+                <div key={service.id} className="border border-slate-200 rounded-2xl p-4 bg-white space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="secondary" className="rounded-lg">ID: {service.id}</Badge>
+                    <Button variant="ghost" size="icon" onClick={() => removeService(service.id)} className="text-rose-400 hover:text-rose-600">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Emoji</Label>
+                      <Input
+                        value={service.icon}
+                        onChange={e => updateService(service.id, 'icon', e.target.value)}
+                        placeholder="✨"
+                        className="rounded-xl text-center text-2xl"
+                      />
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {EMOJI_SHORTCUTS.map(emoji => (
+                          <button
+                            key={`${service.id}-${emoji}`}
+                            type="button"
+                            onClick={() => updateService(service.id, 'icon', emoji)}
+                            aria-label={`Seleccionar emoji ${emoji}`}
+                            className={`text-xl p-1 rounded-lg hover:bg-slate-100 transition-colors ${service.icon === emoji ? 'bg-primary/10 ring-1 ring-primary' : ''}`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-1 md:col-span-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Título</Label>
+                      <Input
+                        value={service.title}
+                        onChange={e => updateService(service.id, 'title', e.target.value)}
+                        className="rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-400">Descripción</Label>
+                    <Textarea
+                      value={service.description}
+                      onChange={e => updateService(service.id, 'description', e.target.value)}
+                      rows={3}
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400">Imagen opcional (URL o subir)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={service.imageUrl || ''}
+                        onChange={e => updateService(service.id, 'imageUrl', e.target.value)}
+                        placeholder="https://..."
+                        className="rounded-xl"
+                      />
+                      <label htmlFor={`service-image-upload-${service.id}`} className="shrink-0">
+                        <Button asChild variant="outline" className="rounded-xl" disabled={uploadingServiceImageId === service.id}>
+                          <span>
+                            {uploadingServiceImageId === service.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          </span>
+                        </Button>
+                        <input
+                          id={`service-image-upload-${service.id}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleUploadServiceImage(service.id, e)}
+                          disabled={uploadingServiceImageId === service.id}
+                        />
+                      </label>
+                    </div>
+                    {service.imageUrl && sanitizeImageUrl(service.imageUrl) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={sanitizeImageUrl(service.imageUrl)!}
+                        alt={`Vista previa ${service.title}`}
+                        className="rounded-xl w-full h-32 object-cover border border-slate-200"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+              {(!settings.services || settings.services.length === 0) && (
+                <p className="text-center text-muted-foreground py-8 text-sm">No hay servicios. Agregá el primero.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── STATS ── */}
+        <TabsContent value="stats" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-primary" /> Estadísticas / Logros
+                  </CardTitle>
+                  <CardDescription>Los números que aparecen en la sección de estadísticas.</CardDescription>
+                </div>
+                <Button onClick={addStat} size="sm" className="rounded-xl">
+                  <Plus className="w-4 h-4 mr-2" /> Agregar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {settings.stats.map((stat, index) => (
+                <div key={index} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="grid grid-cols-3 gap-3 flex-grow">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Icono (emoji)</Label>
+                      <Input
+                        value={stat.icon}
+                        onChange={e => updateStat(index, 'icon', e.target.value)}
+                        placeholder="🎉"
+                        className="rounded-xl text-center text-2xl"
+                      />
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {EMOJI_SHORTCUTS.map(emoji => (
+                          <button
+                            key={`${index}-${emoji}`}
+                            type="button"
+                            onClick={() => updateStat(index, 'icon', emoji)}
+                            aria-label={`Seleccionar emoji ${emoji}`}
+                            className={`text-xl p-1 rounded-lg hover:bg-slate-100 transition-colors ${stat.icon === emoji ? 'bg-primary/10 ring-1 ring-primary' : ''}`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Valor</Label>
+                      <Input
+                        value={stat.value}
+                        onChange={e => updateStat(index, 'value', e.target.value)}
+                        placeholder="+500"
+                        className="rounded-xl font-black"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Etiqueta</Label>
+                      <Input
+                        value={stat.label}
+                        onChange={e => updateStat(index, 'label', e.target.value)}
+                        placeholder="Eventos Realizados"
+                        className="rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeStat(index)}
+                    className="text-rose-400 hover:text-rose-600 shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+              {settings.stats.length === 0 && (
+                <p className="text-center text-muted-foreground py-8 text-sm">
+                  No hay estadísticas. Hacé clic en "Agregar" para añadir una.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── CTA ── */}
+        <TabsContent value="cta" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                <Phone className="w-5 h-5 text-primary" /> Sección de Llamada a la Acción (CTA)
+              </CardTitle>
+              <CardDescription>El bloque final que invita al visitante a contactarte.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-5">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Título Principal</Label>
+                <Input
+                  value={settings.cta.headline}
+                  onChange={e => updateCta('headline', e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subtítulo</Label>
+                <Textarea
+                  value={settings.cta.subheadline}
+                  onChange={e => updateCta('subheadline', e.target.value)}
+                  rows={2}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Texto del Botón</Label>
+                  <Input
+                    value={settings.cta.ctaLabel}
+                    onChange={e => updateCta('ctaLabel', e.target.value)}
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Número WhatsApp</Label>
+                  <Input
+                    value={settings.cta.whatsappNumber}
+                    onChange={e => updateCta('whatsappNumber', e.target.value)}
+                    placeholder="59898355530"
+                    className="rounded-xl"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── GALLERY ── */}
+        <TabsContent value="gallery" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle>📷 Galería Pública (Fotos y Videos)</CardTitle>
+              <CardDescription>Gestioná aquí el contenido real que se muestra en la landing pública.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <Tabs value={galeriaTab} onValueChange={(v) => setGaleriaTab(v as 'fotos' | 'videos')}>
+                <TabsList className="grid w-full grid-cols-2 rounded-xl">
+                  <TabsTrigger value="fotos" className="rounded-lg text-xs font-black uppercase tracking-widest">
+                    <Camera className="w-3.5 h-3.5 mr-1" /> Fotos
+                  </TabsTrigger>
+                  <TabsTrigger value="videos" className="rounded-lg text-xs font-black uppercase tracking-widest">
+                    <Video className="w-3.5 h-3.5 mr-1" /> Videos
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="fotos" className="space-y-5 pt-4">
+                  <Card className="border border-slate-200">
+                    <CardHeader>
+                      <CardTitle className="text-base font-black uppercase tracking-tight">+ Agregar foto</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label>Tipo de Fiesta</Label>
+                          <Select value={fotoTipoFiesta} onValueChange={setFotoTipoFiesta}>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="General">General / Todos</SelectItem>
+                              {TIPOS_FIESTA_GALERIA.map((tipo) => (
+                                <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Servicio / Categoría</Label>
+                          <Select value={fotoCategoria} onValueChange={setFotoCategoria}>
+                            <SelectTrigger className="rounded-xl">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {allServiceOptions.map((cat) => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Título (opcional)</Label>
+                        <Input
+                          value={fotoTitulo}
+                          onChange={(e) => setFotoTitulo(e.target.value)}
+                          placeholder="Ej: Fiesta de Martina"
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <label htmlFor="landing-editor-galeria-foto-upload">
+                        <Button asChild variant="outline" className="rounded-xl w-full" disabled={isUploadingFotoGaleria}>
+                          <span>
+                            {isUploadingFotoGaleria ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                            Subir foto
+                          </span>
+                        </Button>
+                        <input
+                          id="landing-editor-galeria-foto-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleUploadFotoGaleria}
+                          disabled={isUploadingFotoGaleria}
+                        />
+                      </label>
+                    </CardContent>
+                  </Card>
+
+                  {isLoadingGaleria ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : (
+                    <Accordion type="multiple" className="w-full">
+                      {groupedFotos.map((group) => (
+                        <AccordionItem key={`${group.tipoFiesta}-${group.servicio}`} value={`${group.tipoFiesta}-${group.servicio}`}>
+                          <AccordionTrigger className="text-sm font-black uppercase tracking-tight no-underline">
+                            {group.tipoFiesta} · {group.servicio} <span className="text-slate-400 ml-1">({group.fotos.length})</span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {group.fotos.length === 0 ? (
+                              <div className="w-full max-w-[220px] aspect-square rounded-2xl border border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center text-slate-500">
+                                <Camera className="w-8 h-8 mb-2" />
+                                <p className="text-xs font-bold uppercase tracking-wide">Sin fotos</p>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                {group.fotos.map((foto) => (
+                                  <div key={foto.id} className="border border-slate-200 rounded-2xl p-2 bg-white space-y-2">
+                                    {sanitizeImageUrl(foto.url) ? (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img
+                                        src={sanitizeImageUrl(foto.url)!}
+                                        alt={foto.titulo || foto.categoria}
+                                        className="w-full aspect-square object-cover rounded-xl"
+                                      />
+                                    ) : (
+                                      <div className="w-full aspect-square rounded-xl border border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center text-slate-500">
+                                        <Camera className="w-7 h-7 mb-1" />
+                                        <p className="text-[10px] font-bold uppercase tracking-wide">Sin foto</p>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-xs font-semibold truncate">{foto.titulo || foto.categoria || 'Sin título'}</p>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDeleteGaleriaItem(foto.id)}
+                                        className="text-rose-400 hover:text-rose-600"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="videos" className="space-y-5 pt-4">
+                  <Card className="border border-slate-200">
+                    <CardHeader>
+                      <CardTitle className="text-base font-black uppercase tracking-tight">+ Agregar video (YouTube/Vimeo)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-1">
+                        <Label>URL del video</Label>
+                        <Input
+                          value={videoUrl}
+                          onChange={(e) => setVideoUrl(e.target.value)}
+                          placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Título</Label>
+                        <Input
+                          value={videoTitulo}
+                          onChange={(e) => setVideoTitulo(e.target.value)}
+                          placeholder="Ej: Boda de Lucía y Mateo"
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Descripción (opcional)</Label>
+                        <Textarea
+                          value={videoDescripcion}
+                          onChange={(e) => setVideoDescripcion(e.target.value)}
+                          className="rounded-xl"
+                          rows={2}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Categoría / Servicio (opcional)</Label>
+                        <Select value={videoCategoria} onValueChange={setVideoCategoria}>
+                          <SelectTrigger className="rounded-xl">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allServiceOptions.map((cat) => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button onClick={handleAddVideoGaleria} disabled={isSavingVideoGaleria} className="rounded-xl w-full">
+                        {isSavingVideoGaleria ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+                        Agregar video
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {isLoadingGaleria ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : galeriaVideos.length === 0 ? (
+                    <div className="w-full max-w-sm aspect-video rounded-2xl border border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center text-slate-500">
+                      <Video className="w-8 h-8 mb-2" />
+                      <p className="text-xs font-bold uppercase tracking-wide">Sin videos</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {galeriaVideos.map((video) => (
+                        <div key={video.id} className="border border-slate-200 rounded-2xl p-3 bg-white space-y-2">
+                          {sanitizeImageUrl(video.thumbnailUrl) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={sanitizeImageUrl(video.thumbnailUrl)!}
+                              alt={video.titulo}
+                              className="w-full aspect-video object-cover rounded-xl"
+                            />
+                          ) : (
+                            <div className="w-full aspect-video rounded-xl border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-slate-500">
+                              <Video className="w-7 h-7" />
+                            </div>
+                          )}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold truncate">{video.titulo}</p>
+                              <p className="text-xs text-muted-foreground truncate">{video.youtubeUrl}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteGaleriaItem(video.id)}
+                              className="text-rose-400 hover:text-rose-600 shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── COLORS ── */}
+        <TabsContent value="colors" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                <Palette className="w-5 h-5 text-primary" /> Colores
+              </CardTitle>
+              <CardDescription>Personalizá la paleta de colores de tu landing page.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Color preview */}
+              <div
+                className="w-full h-28 rounded-2xl border border-slate-200 transition-all"
+                style={{
+                  background: `linear-gradient(135deg, ${settings.colors.overlayFrom}, ${settings.colors.overlayTo})`,
+                }}
+              >
+                <div className="h-full flex items-center justify-center text-white font-black text-lg uppercase tracking-widest">
+                  Vista previa del overlay del Hero
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Overlay — Color Inicio</Label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={extractHexColor(settings.colors.overlayFrom, '#58007f')}
+                      onChange={e => updateColors('overlayFrom', e.target.value + 'cc')}
+                      className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.colors.overlayFrom}
+                      onChange={e => updateColors('overlayFrom', e.target.value)}
+                      placeholder="rgba(88,28,135,0.8)"
+                      className="rounded-xl flex-1 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Overlay — Color Fin</Label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={extractHexColor(settings.colors.overlayTo, '#7e007e')}
+                      onChange={e => updateColors('overlayTo', e.target.value + '99')}
+                      className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.colors.overlayTo}
+                      onChange={e => updateColors('overlayTo', e.target.value)}
+                      placeholder="rgba(112,26,117,0.6)"
+                      className="rounded-xl flex-1 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Color de Acento</Label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={settings.colors.accentColor}
+                      onChange={e => updateColors('accentColor', e.target.value)}
+                      className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer"
+                    />
+                    <Input
+                      value={settings.colors.accentColor}
+                      onChange={e => updateColors('accentColor', e.target.value)}
+                      placeholder="#a855f7"
+                      className="rounded-xl flex-1 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── SEO ── */}
+        <TabsContent value="seo" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                <Globe className="w-5 h-5 text-primary" /> SEO &amp; Redes Sociales
+              </CardTitle>
+              <CardDescription>Configurá el título y descripción que aparecen en Google y al compartir el link.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-5">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Título de la Página (Title Tag)</Label>
+                <Input
+                  value={settings.seo.title}
+                  onChange={e => updateSeo('title', e.target.value)}
+                  className="rounded-xl"
+                />
+                <p className="text-[10px] text-muted-foreground">Máx. 60 caracteres recomendado. Actual: {settings.seo.title.length}</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Descripción Meta</Label>
+                <Textarea
+                  value={settings.seo.description}
+                  onChange={e => updateSeo('description', e.target.value)}
+                  rows={3}
+                  className="rounded-xl"
+                />
+                <p className="text-[10px] text-muted-foreground">Máx. 160 caracteres recomendado. Actual: {settings.seo.description.length}</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Imagen OG (para redes sociales — URL o subir archivo)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={settings.seo.ogImageUrl}
+                    onChange={e => updateSeo('ogImageUrl', e.target.value)}
+                    placeholder="https://..."
+                    className="rounded-xl"
+                  />
+                  <label htmlFor="og-image-upload" className="shrink-0">
+                    <Button asChild variant="outline" className="rounded-xl" disabled={isUploadingOgImage}>
+                      <span>
+                        {isUploadingOgImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      </span>
+                    </Button>
+                    <input id="og-image-upload" type="file" accept="image/*" className="hidden" onChange={handleUploadOgImage} disabled={isUploadingOgImage} />
+                  </label>
+                </div>
+                {settings.seo.ogImageUrl && sanitizeImageUrl(settings.seo.ogImageUrl) && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={sanitizeImageUrl(settings.seo.ogImageUrl)!}
+                    alt="Vista previa OG"
+                    className="mt-2 rounded-xl w-full h-40 object-cover border border-slate-200"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                )}
+              </div>
+              {/* OG Preview */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Preview en Google/Redes:</p>
+                <p className="text-base font-bold text-blue-700 leading-tight">{settings.seo.title || '(sin título)'}</p>
+                <p className="text-xs text-green-700">akproducciones.uy/landing</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{settings.seo.description || '(sin descripción)'}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── FAQ ── */}
+        <TabsContent value="faq" className="space-y-6 pt-4 animate-in fade-in duration-500">
+          <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+              <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                ❓ Preguntas Frecuentes (FAQ)
+              </CardTitle>
+              <CardDescription>Editá las preguntas y respuestas que aparecen en la sección FAQ de tu página web.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {(settings.faqs || []).map((faq, index) => (
+                <div key={faq.id} className="border border-slate-200 rounded-2xl p-4 space-y-3 bg-white">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta {index + 1}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                      onClick={() => setSettings(s => ({ ...s, faqs: (s.faqs || []).filter(f => f.id !== faq.id) }))}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta</Label>
+                    <Input
+                      value={faq.question}
+                      onChange={e => setSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, question: e.target.value } : f) }))}
+                      className="rounded-xl"
+                      placeholder="¿Cuánto cuesta...?"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Respuesta</Label>
+                    <Textarea
+                      value={faq.answer}
+                      onChange={e => setSettings(s => ({ ...s, faqs: (s.faqs || []).map(f => f.id === faq.id ? { ...f, answer: e.target.value } : f) }))}
+                      rows={3}
+                      className="rounded-xl"
+                      placeholder="La respuesta..."
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full rounded-xl border-dashed"
+                onClick={() => {
+                  const newFaq: LandingFaqItem = { id: `faq_${Date.now()}`, question: '', answer: '' };
+                  setSettings(s => ({ ...s, faqs: [...(s.faqs || []), newFaq] }));
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" /> Agregar pregunta
+              </Button>
+
+              {(!settings.faqs || settings.faqs.length === 0) && (
+                <p className="text-center text-slate-400 text-xs py-4">No hay preguntas. Agregá la primera.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Floating Save Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 flex items-center justify-between gap-4 z-50 shadow-xl print:hidden">
+        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
+          {lastSaved ? `Último guardado: ${lastSaved}` : 'Cambios sin guardar'}
+        </div>
+        <div className="flex gap-2 ml-auto">
+          <Button asChild variant="outline" size="sm" className="rounded-xl"><Link href="/landing" target="_blank">
+              <Eye className="w-4 h-4 mr-2" />
+              Ver Landing
+            </Link></Button>
+          <Button onClick={handleSave} disabled={isSaving} className="rounded-xl">
+            {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            Guardar Cambios
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

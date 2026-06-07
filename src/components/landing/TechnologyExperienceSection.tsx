@@ -100,11 +100,9 @@ export default function TechnologyExperienceSection({
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto relative z-10 shrink-0">
-            <Link href="/simulador-ak" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full h-14 px-8 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-base shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+            <Button asChild size="lg" className="w-full h-14 px-8 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-base shadow-[0_0_20px_rgba(16,185,129,0.3)]"><Link href="/simulador-ak" className="w-full sm:w-auto">
                 Probar Simulador
-              </Button>
-            </Link>
+              </Link></Button>
             <a href={waHref} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full h-14 px-8 rounded-2xl border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-white font-bold text-base backdrop-blur-md">
                 Consultar ahora

@@ -475,19 +475,15 @@ export default function GestorFiestasPage() {
             </AlertDialogContent>
           </AlertDialog>
 
-          <Link href="/calendario">
-            <Button variant="outline">
+          <Button asChild variant="outline"><Link href="/calendario">
               <CalendarDays className="w-4 h-4 mr-2" />
               Ver Calendario General
-            </Button>
-          </Link>
+            </Link></Button>
 
-          <Link href="/">
-            <Button variant="outline">
+          <Button asChild variant="outline"><Link href="/">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al Menú Principal
-            </Button>
-          </Link>
+            </Link></Button>
         </div>
       </div>
       
@@ -531,24 +527,18 @@ export default function GestorFiestasPage() {
           </div>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
-          <Link href="/marketing/demo-tecnologia">
-            <Button className="h-12 w-full rounded-2xl bg-slate-950 font-black hover:bg-slate-800">
+          <Button asChild className="h-12 w-full rounded-2xl bg-slate-950 font-black hover:bg-slate-800"><Link href="/marketing/demo-tecnologia">
               <MonitorPlay className="mr-2 h-4 w-4" />
               Ver demo tecnologia
-            </Button>
-          </Link>
-          <Link href="/presentacion-led/portafolio">
-            <Button variant="outline" className="h-12 w-full rounded-2xl font-black">
+            </Link></Button>
+          <Button asChild variant="outline" className="h-12 w-full rounded-2xl font-black"><Link href="/presentacion-led/portafolio">
               <Wand2 className="mr-2 h-4 w-4" />
               Plantilla LED
-            </Button>
-          </Link>
-          <Link href="/marketing">
-            <Button variant="outline" className="h-12 w-full rounded-2xl font-black">
+            </Link></Button>
+          <Button asChild variant="outline" className="h-12 w-full rounded-2xl font-black"><Link href="/marketing">
               <Globe2 className="mr-2 h-4 w-4" />
               Marketing 360
-            </Button>
-          </Link>
+            </Link></Button>
         </CardContent>
       </Card>
 
@@ -581,11 +571,9 @@ export default function GestorFiestasPage() {
                           {f.configuracion.nombreLugar && ` · ${f.configuracion.nombreLugar}`}
                         </span>
                       </div>
-                      <Link href={`/fiestas/nueva?fiestaId=${f.id}`}>
-                        <Button size="sm" variant="outline" className="text-xs h-7 border-red-200 text-red-700 hover:bg-red-100">
+                      <Button asChild size="sm" variant="outline" className="text-xs h-7 border-red-200 text-red-700 hover:bg-red-100"><Link href={`/fiestas/nueva?fiestaId=${f.id}`}>
                           Ver evento
-                        </Button>
-                      </Link>
+                        </Link></Button>
                     </div>
                   ))}
                 </div>
@@ -691,11 +679,9 @@ export default function GestorFiestasPage() {
                 </CardContent>
 
                 <CardFooter className="p-2 border-t flex flex-col items-stretch gap-2 print:hidden">
-                  <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
-                    <Button variant="default" size="sm" className="w-full">
+                  <Button asChild variant="default" size="sm" className="w-full"><Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
                       Planificar
-                    </Button>
-                  </Link>
+                    </Link></Button>
 
                   <div className="flex gap-2 w-full">
                     <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDuplicate(fiesta.id)} disabled={isProcessing === fiesta.id}>

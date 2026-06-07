@@ -27,7 +27,7 @@ export default async function PreparationScoresPage() {
               Vista general para saber qué fiestas están más encaminadas y cuáles tienen pendientes importantes para revisar.
             </p>
           </div>
-          <Link href="/control-tower"><Button variant="outline" className="rounded-2xl font-bold"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Button></Link>
+          <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link></Button>
         </div>
       </section>
 
@@ -64,8 +64,8 @@ export default async function PreparationScoresPage() {
                 ))}
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
-                <Link href={`/fiestas/nueva?fiestaId=${item.fiestaId}`}><Button className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">Abrir fiesta</Button></Link>
-                <Link href={`/fiestas/nueva/asistente?fiestaId=${item.fiestaId}`}><Button variant="outline" className="rounded-2xl font-bold"><Sparkles className="mr-2 h-4 w-4" /> Agente de fiesta</Button></Link>
+                <Button asChild className="rounded-2xl bg-red-600 font-bold hover:bg-red-700"><Link href={`/fiestas/nueva?fiestaId=${item.fiestaId}`}>Abrir fiesta</Link></Button>
+                <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href={`/fiestas/nueva/asistente?fiestaId=${item.fiestaId}`}><Sparkles className="mr-2 h-4 w-4" /> Agente de fiesta</Link></Button>
               </div>
             </CardContent>
           </Card>
