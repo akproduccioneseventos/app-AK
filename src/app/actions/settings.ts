@@ -6,6 +6,7 @@ import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, Whats
 import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings } from '@/types/settings';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { verifySession } from '@/lib/auth/session-token';
 
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
@@ -186,6 +187,8 @@ export async function saveCompanyInfo(
   settings: Partial<CompanyInfo>
 ): Promise<{ success: boolean; data?: CompanyInfo; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const currentSettings = await getCompanyInfo();
     const settingsToSave = { ...currentSettings, ...settings };
     await writeData(COMPANY_INFO_FILE, settingsToSave);
@@ -254,6 +257,8 @@ export async function getContractTemplate(): Promise<string> {
 
 export async function saveContractTemplate(input: string | ContractTemplateItem): Promise<{ success: boolean; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const now = new Date().toISOString();
     const templates = await getContractTemplates();
 
@@ -298,6 +303,8 @@ export async function saveContractTemplate(input: string | ContractTemplateItem)
 
 export async function deleteContractTemplate(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const templates = await getContractTemplates();
     const target = templates.find(t => t.id === id);
     if (!target) return { success: false, error: 'Plantilla no encontrada.' };
@@ -331,6 +338,8 @@ export async function saveBudgetDisplaySettings(
   settings: BudgetDisplaySettings
 ): Promise<{ success: boolean; settings?: BudgetDisplaySettings; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const settingsToSave: BudgetDisplaySettings = {
         ...defaultBudgetDisplaySettings, 
         ...settings, 
@@ -363,6 +372,8 @@ export async function saveInvoiceTemplateSettings(
   settings: Partial<InvoiceTemplateSettings>
 ): Promise<{ success: boolean; settings?: InvoiceTemplateSettings; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const currentSettings = await getInvoiceTemplateSettings();
     const settingsToSave: InvoiceTemplateSettings = {
       ...currentSettings,
@@ -389,6 +400,8 @@ export async function saveWhatsAppSettings(
   settings: Partial<WhatsAppSettings>
 ): Promise<{ success: boolean; settings?: WhatsAppSettings; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const currentSettings = await getWhatsAppSettings();
     const settingsToSave: WhatsAppSettings = { ...currentSettings, ...settings };
     await writeData(WHATSAPP_SETTINGS_FILE, settingsToSave);
@@ -410,6 +423,8 @@ export async function getContractSettings(): Promise<ContractSettings> {
 
 export async function saveContractSettings(settings: ContractSettings): Promise<{ success: boolean; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     await writeData(CONTRACT_SETTINGS_FILE, settings);
     return { success: true };
   } catch (e: any) {
@@ -431,6 +446,8 @@ export async function saveWhatsAppTemplates(
   templates: Partial<WhatsAppTemplates>
 ): Promise<{ success: boolean; templates?: WhatsAppTemplates; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const currentTemplates = await getWhatsAppTemplates();
     const templatesToSave: WhatsAppTemplates = { ...currentTemplates, ...templates };
     await writeData(WHATSAPP_TEMPLATES_FILE, templatesToSave);
@@ -493,6 +510,8 @@ export async function saveAiAssistantSettings(
   >
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const sanitizedKnowledgeDocuments = Array.isArray(settings.knowledgeDocuments)
       ? settings.knowledgeDocuments
           .map(doc => ({
