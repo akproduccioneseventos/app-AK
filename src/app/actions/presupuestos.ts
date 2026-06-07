@@ -511,6 +511,45 @@ export interface ImportarPresupuestoOptions {
   eventoFechaOverride?: string;
 }
 
+type GuestBreakdown = {
+  adultos: number;
+  ninos: number;
+  adolescentes: number;
+  warnings: string[];
+};
+
+function parseImportedGuestBreakdown(texto: string, totalInvitados: number): GuestBreakdown {
+  const lower = texto.toLowerCase();
+  const warnings: string[] = [];
+
+  const readCount = (patterns: RegExp[]) => {
+    for (const pattern of patterns) {
+      const match = lower.match(pattern);
+      if (match) return Number(match[1] || match[2] || 0) || 0;
+    }
+    return 0;
+  };
+
+  const adultos = readCount([/(?:adultos?|mayores?)\D{0,20}(\d+)/, /(\d+)\s+(?:adultos?|mayores?)/]);
+  const ninos = readCount([/(?:niños?|ninos?|menores?|infantiles?)\D{0,20}(\d+)/, /(\d+)\s+(?:niños?|ninos?|menores?|infantiles?)/]);
+  const adolescentes = readCount([/(?:adolescentes?)\D{0,20}(\d+)/, /(\d+)\s+adolescentes?/]);
+  const menores = ninos + adolescentes;
+
+  if (adultos > 0 || menores > 0) {
+    const resolvedAdultos = adultos > 0 ? adultos : Math.max(0, totalInvitados - menores);
+    const resolvedTotal = resolvedAdultos + menores;
+    if (totalInvitados > 0 && resolvedTotal !== totalInvitados) {
+      warnings.push(`La importación detectó ${resolvedTotal} invitados discriminados, distinto al total ${totalInvitados}. Revisar adultos/niños.`);
+    }
+    return { adultos: resolvedAdultos, ninos, adolescentes, warnings };
+  }
+
+  if (totalInvitados > 0) {
+    warnings.push('No se detectó desglose de adultos/niños/adolescentes. Se mantiene el total como adultos para no inventar menores.');
+  }
+  return { adultos: totalInvitados, ninos: 0, adolescentes: 0, warnings };
+}
+
 export async function importarPresupuestoDesdeTexto(
   texto: string,
   options: ImportarPresupuestoOptions = {}
@@ -543,6 +582,8 @@ export async function importarPresupuestoDesdeTexto(
   const total = parsed.totalDeclarado;
   const senaPct = parsed.senaCondicion;
   const sena = options.senaManual !== undefined ? options.senaManual : Math.round(total * senaPct / 100);
+  const guestBreakdown = parseImportedGuestBreakdown(texto, parsed.invitadosCantidad);
+  parsed.warnings.push(...guestBreakdown.warnings);
 
   const notas = [
     parsed.notas,
@@ -556,9 +597,9 @@ export async function importarPresupuestoDesdeTexto(
     eventoTipo: parsed.eventoTipo || 'Otro',
     eventoFecha,
     invitadosCantidad: parsed.invitadosCantidad,
-    invitadosAdultos: parsed.invitadosCantidad,
-    invitadosNinos: 0,
-    invitadosAdolescentes: 0,
+    invitadosAdultos: guestBreakdown.adultos,
+    invitadosNinos: guestBreakdown.ninos,
+    invitadosAdolescentes: guestBreakdown.adolescentes,
     salonFiestas: parsed.salonFiestas || '',
     itemsPresupuestados: parsed.items as ItemPresupuestado[],
     costoTotalEstimado: total,
@@ -594,9 +635,9 @@ export async function importarPresupuestoDesdeTexto(
           tipoCelebracion: parsed.eventoTipo || 'Otro',
           fechaEvento: eventoFecha,
           invitadosEstimados: parsed.invitadosCantidad,
-          invitadosAdultos: parsed.invitadosCantidad,
-          invitadosNinos: 0,
-          invitadosAdolescentes: 0,
+          invitadosAdultos: guestBreakdown.adultos,
+          invitadosNinos: guestBreakdown.ninos,
+          invitadosAdolescentes: guestBreakdown.adolescentes,
           presupuestoEstimado: total,
           nombreLugar: parsed.salonFiestas || '',
           clienteId: presupuestoResult.leadId,
