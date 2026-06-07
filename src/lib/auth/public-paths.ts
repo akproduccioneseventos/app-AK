@@ -36,5 +36,5 @@ export const PUBLIC_EXACT_PATHS = new Set(['/evento', '/evento/']);
 export const BUDGET_VIEW_REGEX = /^\/presupuestos\/[^/]+\/ver\/?$/;
 
 export function isPublicPathPrefix(pathname: string) {
-  return PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  return PUBLIC_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + '/'));
 }

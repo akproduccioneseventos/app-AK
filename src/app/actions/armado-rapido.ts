@@ -137,7 +137,9 @@ export async function generateBudgetAndLeadFromSimulator(
     });
 
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
-      return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
+      const { generateBudgetToken } = await import('@/lib/auth/session-token');
+      const token = await generateBudgetToken(budgetResult.id);
+      return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId, token };
     }
     return { success: false, error: budgetResult.error || 'No se pudo procesar la solicitud.' };
   } catch (error: any) {

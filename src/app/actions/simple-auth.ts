@@ -294,7 +294,7 @@ async function sendSecurityEmail(to: string, code: string) {
   return { sent: true };
 }
 
-export async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
+async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
     const config = await getAuthDoc();
 
@@ -318,6 +318,21 @@ export async function verifyPassword(password: string): Promise<{ success: boole
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
     return { success: false, error: 'No se pudo verificar el acceso. Intenta nuevamente.' };
+  }
+}
+
+export async function loginWithPassword(password: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await verifyPassword(password);
+    if (!result.success) {
+      return result;
+    }
+    const { writeSessionCookie } = await import('@/lib/auth/session-token');
+    await writeSessionCookie();
+    return { success: true };
+  } catch (err) {
+    console.error('[simple-auth] loginWithPassword error:', err);
+    return { success: false, error: 'Error al iniciar sesión.' };
   }
 }
 

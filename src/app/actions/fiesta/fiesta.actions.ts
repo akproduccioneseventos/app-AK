@@ -153,12 +153,29 @@ export async function updateFiestaPartial(fiestaId: string, partialData: Partial
 
 export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
     const activePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    let fiesta: FiestaEnPlanificacion | null = null;
     try {
         const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
-        if (active && active.id === fiestaId) return active;
+        if (active && active.id === fiestaId) fiesta = active;
     } catch (e) {}
-    const archivadas = await getHistorialFiestas();
-    return archivadas.find(f => f.id === fiestaId) || null;
+    if (!fiesta) {
+        const archivadas = await getHistorialFiestas();
+        fiesta = archivadas.find(f => f.id === fiestaId) || null;
+    }
+
+    if (fiesta) {
+        const { verifySession } = await import('@/lib/auth/session-token');
+        const sessionAuth = await verifySession();
+        if (!sessionAuth.success) {
+            if (fiesta.clientPortalSettings) {
+                fiesta.clientPortalSettings = {
+                    ...fiesta.clientPortalSettings,
+                    accessKey: undefined as any,
+                };
+            }
+        }
+    }
+    return fiesta;
 }
 
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {

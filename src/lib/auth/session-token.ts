@@ -9,10 +9,17 @@ export function hasPrivateSessionSecret() {
 }
 
 function getSigningSecret() {
-  return (
+  const secret =
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
-    process.env.SESSION_SECRET ||
+    process.env.SESSION_SECRET;
+
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('CRITICAL CONFIGURATION ERROR: Session secret environment variable (AK_SESSION_SECRET) is missing in production!');
+  }
+
+  return (
+    secret ||
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
     'ak-producciones-session-fallback'
   );
@@ -67,4 +74,41 @@ export async function verifySignedSessionToken(token?: string | null) {
 
 export function getSessionMaxAgeSeconds() {
   return hasPrivateSessionSecret() ? DEFAULT_MAX_AGE_SECONDS : NO_PRIVATE_SECRET_MAX_AGE_SECONDS;
+}
+
+export async function writeSessionCookie(): Promise<void> {
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, await createSignedSessionToken(), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: getSessionMaxAgeSeconds(),
+  });
+}
+
+export async function verifySession(): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const isValid = await verifySignedSessionToken(token);
+    if (!isValid) {
+      return { success: false, error: 'Sesión no válida o expirada.' };
+    }
+    return { success: true };
+  } catch {
+    return { success: false, error: 'No se pudo verificar la sesión.' };
+  }
+}
+
+export async function generateBudgetToken(budgetId: string): Promise<string> {
+  return await signPayload(`budget-token:${budgetId}`);
+}
+
+export async function verifyBudgetToken(budgetId: string, token: string): Promise<boolean> {
+  if (!token) return false;
+  const expected = await signPayload(`budget-token:${budgetId}`);
+  return constantTimeEqual(token, expected);
 }
