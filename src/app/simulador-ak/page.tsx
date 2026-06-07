@@ -296,6 +296,7 @@ export default function SimuladorAKPage() {
   const chatEndRef  = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE);
@@ -721,6 +722,7 @@ export default function SimuladorAKPage() {
 
       if (result.success && result.presupuestoId) {
         setGeneratedId(result.presupuestoId);
+        if (result.token) setToken(result.token);
         setState(prev => {
           const next = { ...prev, generatedId: result.presupuestoId! };
           saveProgress(next);
@@ -755,21 +757,21 @@ export default function SimuladorAKPage() {
       pkgMeta ? `Paquete: ${pkgMeta}` : '',
       priceStats ? `Precio vigente estimado: ${formatCurrency(priceStats.totalFinal)}` : '',
       generatedId ? `Nro presupuesto: ${generatedId}` : '',
-      generatedId ? `Link: ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1` : '',
+      generatedId ? `Link: ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1&token=${token || ''}` : '',
       `\nMe gustaría coordinar una reunión para cerrar los detalles 🎉`,
     ].filter(Boolean);
     return encodeURIComponent(parts.join('\n'));
-  }, [state, generatedId, dynamicPaquetes, priceStats]);
+  }, [state, generatedId, token, dynamicPaquetes, priceStats]);
 
   // ── Print/PDF ─────────────────────────────────────────────────────────────
 
   const handlePrint = useCallback(() => {
     if (generatedId) {
-      window.open(`/presupuestos/${generatedId}/ver?imprimir=1&cliente=1&direct=1`, '_blank');
+      window.open(`/presupuestos/${generatedId}/ver?imprimir=1&cliente=1&direct=1&token=${token || ''}`, '_blank');
       return;
     }
     window.print();
-  }, [generatedId]);
+  }, [generatedId, token]);
 
   // ── Prices ────────────────────────────────────────────────────────────────
 

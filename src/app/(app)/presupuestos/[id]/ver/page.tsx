@@ -132,7 +132,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     setIsLoading(true);
     try {
       const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections, fetchedCompanyInfo] = await Promise.all([
-        getPresupuestoById(presupuestoId),
+        getPresupuestoById(presupuestoId, searchParams.get('token') || undefined),
         getBudgetDisplaySettings(),
         getInvoiceTemplateSettings(),
         getSocialConnections(),
@@ -381,7 +381,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         metodoPago: clientPagoMetodo,
         referencia: clientPagoReferencia.trim() || undefined,
         comprobanteUrl: clientPagoComprobante,
-      });
+      }, searchParams.get('token') || undefined);
       if (!result.success) throw new Error(result.error);
       setPresupuesto(result.presupuesto!);
       setClientPagoMonto('');

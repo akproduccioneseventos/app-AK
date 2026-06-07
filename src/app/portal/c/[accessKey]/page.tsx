@@ -108,7 +108,9 @@ function mapFiestaToPortalDTO(fiesta: any): any {
   };
 }
 
-function mapPresupuestoToPortalDTO(presupuesto: any): any {
+import { generateBudgetToken } from '@/lib/auth/session-token';
+
+function mapPresupuestoToPortalDTO(presupuesto: any, token?: string): any {
   if (!presupuesto) return null;
   return {
     id: presupuesto.id,
@@ -126,6 +128,7 @@ function mapPresupuestoToPortalDTO(presupuesto: any): any {
     })),
     invitadosCantidad: presupuesto.invitadosCantidad,
     ajusteAnualPorcentaje: presupuesto.ajusteAnualPorcentaje,
+    token,
   };
 }
 
@@ -141,8 +144,9 @@ export default async function PublicPortalPage({ params }: PageProps) {
     notFound();
   }
 
+  const budgetToken = fiesta.presupuestoId ? await generateBudgetToken(fiesta.presupuestoId) : undefined;
   const [presupuesto, catalogServices] = await Promise.all([
-    fiesta.presupuestoId ? getPresupuestoById(fiesta.presupuestoId) : Promise.resolve(null as Presupuesto | null),
+    fiesta.presupuestoId ? getPresupuestoById(fiesta.presupuestoId, budgetToken) : Promise.resolve(null as Presupuesto | null),
     getServiciosEmpresa().then(servicios => servicios
       .filter(servicio => Number(servicio.precioVenta ?? servicio.precioBase ?? servicio.precioPorPersona ?? 0) > 0)
       .slice(0, 80)
@@ -162,7 +166,7 @@ export default async function PublicPortalPage({ params }: PageProps) {
   ]);
 
   const portalFiesta = mapFiestaToPortalDTO(fiesta);
-  const portalPresupuesto = mapPresupuestoToPortalDTO(presupuesto);
+  const portalPresupuesto = mapPresupuestoToPortalDTO(presupuesto, budgetToken);
 
   return (
     <PublicPortalClientExperience

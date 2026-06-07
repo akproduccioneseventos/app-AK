@@ -50,9 +50,11 @@ function createRequestId(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
+
 export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaByIdRaw(fiestaId);
     if (!fiesta || !fiesta.clientPortalSettings?.enabled || fiesta.clientPortalSettings.accessKey !== accessKey) {
       return { success: false, error: 'Acceso denegado.' };
     }
@@ -663,5 +665,18 @@ export async function rejectClientServiceChangeRequest(fiestaId: string, request
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }
+}
+
+export async function getBudgetTokenForPortal(fiestaId: string): Promise<string | null> {
+  const { verifyPortalSession } = await import('@/lib/security/portal-session');
+  if (!verifyPortalSession(fiestaId)) {
+    return null;
+  }
+  const fiesta = await getFiestaByIdRaw(fiestaId);
+  if (!fiesta || !fiesta.presupuestoId) {
+    return null;
+  }
+  const { generateBudgetToken } = await import('@/lib/auth/session-token');
+  return await generateBudgetToken(fiesta.presupuestoId);
 }
 

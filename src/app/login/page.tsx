@@ -17,9 +17,8 @@ import {
   resetPasswordWithCode,
   resetPasswordWithRecoveryCode,
   resetPasswordWithSecurityAnswers,
-  verifyPassword,
+  loginWithPassword,
 } from '@/app/actions/simple-auth';
-import { setSessionCookie } from '@/app/actions/session';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
@@ -78,7 +77,7 @@ export default function LoginPage() {
     setNotice('');
 
     try {
-      const result = await verifyPassword(password);
+      const result = await loginWithPassword(password);
       if (!result.success) {
         setError(result.error || 'Contraseña incorrecta.');
         setIsSubmitting(false);
@@ -86,7 +85,6 @@ export default function LoginPage() {
       }
 
       setSession();
-      await setSessionCookie();
       const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
       router.push(redirect);
     } catch {

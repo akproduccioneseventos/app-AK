@@ -33,8 +33,24 @@ export async function getPresupuestos(includeArchived = false): Promise<Presupue
   return includeArchived ? all : all.filter(p => !p.archived);
 }
 
-export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
+export async function getPresupuestoById(id: string, token?: string): Promise<Presupuesto | null> {
   if (!id) return null;
+
+  // Validate operator session first. If there's an operator session, bypass token check.
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const sessionAuth = await verifySession();
+
+  if (!sessionAuth.success) {
+    if (!token) {
+      return null;
+    }
+    const { verifyBudgetToken } = await import('@/lib/auth/session-token');
+    const isValidToken = await verifyBudgetToken(id, token);
+    if (!isValidToken) {
+      return null;
+    }
+  }
+
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     if (dbAdmin) {
@@ -625,9 +641,10 @@ export async function approvePresupuesto(
 
 export async function addPagoClienteFromPortal(
   presupuestoId: string,
-  pago: Omit<PagoCliente, 'id' | 'estadoPago'>
+  pago: Omit<PagoCliente, 'id' | 'estadoPago'>,
+  token?: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const presupuesto = await getPresupuestoById(presupuestoId);
+  const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
   const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
   if (!validation.ok) return { success: false, error: validation.error };
