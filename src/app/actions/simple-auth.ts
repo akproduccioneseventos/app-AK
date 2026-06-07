@@ -6,7 +6,6 @@ import { readData, writeData } from '@/lib/data-service';
 import { ensureFreshGoogleAccount, sendGoogleGmailMessage } from '@/lib/google-workspace';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
-const HARDCODED_PASSWORD = 'AKproducciones2024';
 const AUTH_COLLECTION = 'app-settings';
 const AUTH_DOC_ID = 'auth';
 const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
@@ -77,10 +76,6 @@ function normalizeAnswer(value: string) {
 
 function normalizeBackupCode(value: string) {
   return value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-}
-
-function isEmergencyPassword(password: string) {
-  return process.env.AK_DISABLE_EMERGENCY_PASSWORD !== 'true' && password === HARDCODED_PASSWORD;
 }
 
 function getActiveLockMessage(lockUntil?: string, reason = 'Por seguridad, espera') {
@@ -302,8 +297,6 @@ async function sendSecurityEmail(to: string, code: string) {
 export async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
     const config = await getAuthDoc();
-    const emergencyLogin = isEmergencyPassword(password);
-    const hasConfiguredPassword = Boolean(config?.passwordHash || config?.password);
 
     if (verifyHash(password, config?.passwordHash)) {
       await clearLoginProtection();
@@ -316,11 +309,6 @@ export async function verifyPassword(password: string): Promise<{ success: boole
       return { success: true };
     }
 
-    if (emergencyLogin && !hasConfiguredPassword) {
-      await clearLoginProtection({ lastEmergencyLoginAt: new Date().toISOString() });
-      return { success: true };
-    }
-
     const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
     if (lockMessage) {
       return { success: false, error: lockMessage };
@@ -329,7 +317,7 @@ export async function verifyPassword(password: string): Promise<{ success: boole
     return { success: false, error: await registerFailedLogin(config) };
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
-    return { success: isEmergencyPassword(password) };
+    return { success: false, error: 'No se pudo verificar el acceso. Intenta nuevamente.' };
   }
 }
 

@@ -97,10 +97,15 @@ export async function initializeAdminIfNeeded(): Promise<void> {
   try {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
+    const initialPassword = process.env.AK_INITIAL_ADMIN_PASSWORD?.trim();
+    if (!initialPassword || initialPassword.length < 10) {
+      console.error('[auth] AK_INITIAL_ADMIN_PASSWORD is required to bootstrap the first admin securely.');
+      return;
+    }
 
     await dbAdmin.collection('users').add({
       email: 'akproduccionessalto@gmail.com',
-      passwordHash: hashValue('AKproducciones2024'),
+      passwordHash: hashValue(initialPassword),
       role: 'admin',
       modules: ['all'],
       securityQuestions: {},
@@ -208,8 +213,7 @@ export async function getSecurityQuestions(
         noQuestionsConfigured: true,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Iniciá sesión con la contraseña por defecto: AKproducciones2024 ' +
-          'y luego configurá tus preguntas de seguridad desde tu perfil.',
+          'Solicitá al administrador que restablezca el acceso y luego configurá tus preguntas de seguridad.',
       };
     }
 
@@ -257,7 +261,7 @@ export async function resetPasswordWithQuestions(
         success: false,
         error:
           'Este usuario no tiene preguntas de seguridad configuradas. ' +
-          'Usá la contraseña por defecto: AKproducciones2024',
+          'Solicitá al administrador que restablezca el acceso.',
       };
     }
 

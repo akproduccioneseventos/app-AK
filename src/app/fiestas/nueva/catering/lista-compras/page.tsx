@@ -57,6 +57,18 @@ const parseSafeNumber = (val: any): number => {
     return isNaN(parsed) ? 0 : parsed;
 };
 
+const toProviderKey = (provider?: string): string => {
+    const normalized = (provider || 'Sin especificar')
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    return normalized || 'sin-especificar';
+};
+
 function ListaDeComprasContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -187,8 +199,8 @@ function ListaDeComprasContent() {
       const consolidated: Record<string, ShoppingListItem> = {};
       rawList.forEach(raw => {
           const matchedInsumo = catalogoInsumos.find(ci => ci.id === raw.origenId);
-          const rawProveedor = matchedInsumo?.proveedor || raw.proveedor || 'sin-especificar';
-          const rawProveedorId = rawProveedor.toLowerCase().replace(/[^a-z0-9]/g, '-');
+          const rawProveedor = matchedInsumo?.proveedor || raw.proveedor || 'Sin especificar';
+          const rawProveedorId = toProviderKey(rawProveedor);
           const key = `${raw.nombre.toLowerCase()}-${rawProveedorId}`;
           if (consolidated[key]) {
               consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;

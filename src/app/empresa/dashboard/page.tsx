@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, BarChart3, TrendingUp, Users, AlertCircle, Loader2, DollarSign, CalendarCheck } from 'lucide-react';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const [fiestas, setFiestas] = useState<FiestaEnPlanificacion[]>([]);
@@ -45,11 +44,7 @@ export default function DashboardPage() {
   // Pending tasks (vendors not paid fully, etc.)
   let totalPendingTasks = 0;
   fiestas.forEach(f => {
-    if (f.estadosCompra) {
-      f.estadosCompra.forEach(prov => {
-        if (!prov.pagado) totalPendingTasks++;
-      });
-    }
+    totalPendingTasks += (f.estadosCompra || []).filter(prov => !prov.pagado).length;
   });
 
   return (

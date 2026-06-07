@@ -14,7 +14,11 @@ export async function autoAssignTables(
     const newInvitados = [...invitados].map(i => ({ ...i }));
     
     // 2. Extraer mesas y su capacidad
-    const availableTables = tables.filter(t => t.category?.toLowerCase().includes('mesa')).map(t => ({
+    const availableTables = tables.filter((t): t is LayoutElement & { width: number; height: number } => (
+      t.category?.toLowerCase().includes('mesa') === true &&
+      typeof t.width === 'number' &&
+      typeof t.height === 'number'
+    )).map(t => ({
       name: t.name,
       capacity: ((t.width || 0) / 40) * 2 + ((t.height || 0) / 40) * 2, // Estimación básica: perímetro. Asumimos maxCapacity viene en props o la calculamos
       seatsOccupied: 0,
@@ -106,18 +110,10 @@ export async function chatWithGuestBot(
 
     const { ai, geminiModel } = await import('@/ai/genkit');
 
-    const formattedHistory = history.map(h => ({
-      role: h.role === 'bot' ? 'model' as const : 'user' as const,
-      content: [{ text: h.text }]
-    }));
-
-    const messages = [
-      ...formattedHistory,
-      {
-        role: 'user' as const,
-        content: [{ text: message }]
-      }
-    ];
+    const historyText = history
+      .slice(-10)
+      .map(h => `${h.role === 'bot' ? 'Asistente' : 'Invitado'}: ${h.text}`)
+      .join('\n');
 
     const response = await ai.generate({
       model: geminiModel,
@@ -135,7 +131,7 @@ Detalles de la fiesta:
 - Detalles adicionales: ${fiesta.configuracion?.notasAdicionales || '¡Traer buena onda y ganas de bailar!'}
 
 Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo que no sabés, deciles que le consulten al anfitrión o a los organizadores.`,
-      messages: messages,
+      prompt: [historyText ? `Conversacion previa:\n${historyText}` : '', `Mensaje del invitado:\n${message}`].filter(Boolean).join('\n\n'),
     });
 
     return { success: true, response: response.text };

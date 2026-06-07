@@ -199,21 +199,11 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         totalConDescuento = subtotal - desc;
     }
 
-    let finalTotal = totalConDescuento;
-    if (presupuestoData.ajusteAnualActivo && presupuestoData.eventoFecha) {
-        const yearCreated = new Date(presupuestoData.timestamp).getFullYear();
-        const yearEvent = new Date(presupuestoData.eventoFecha).getFullYear();
-        if (yearEvent > yearCreated) {
-            const diff = yearEvent - yearCreated;
-            finalTotal = totalConDescuento * Math.pow(1.15, diff);
-        }
-    }
-
     const updated: Presupuesto = normalizePresupuestoFinancials({
         ...presupuestoData,
         itemsPresupuestados: validItems,
         costoTotalEstimado: subtotal,
-        totalConDescuento: Math.round(finalTotal)
+        totalConDescuento: Math.round(totalConDescuento)
     });
 
     try {
