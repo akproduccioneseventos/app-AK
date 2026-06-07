@@ -24,6 +24,7 @@ import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
 import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import html2canvas from 'html2canvas';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
 import { calculateBudgetFinancials, getBudgetPaymentSummary, isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
@@ -99,6 +100,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const [isCreatingFiesta, setIsCreatingFiesta] = useState(false);
   const [linkedFiestaId, setLinkedFiestaId] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Sanity Check / Verification state
   const [isApprovingPresupuesto, setIsApprovingPresupuesto] = useState(false);
@@ -227,7 +229,28 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     };
   }, [presupuesto, adjustmentPct]);
 
-  const handlePrint = () => window.print();
+  const handlePrint = async () => {
+    // Instead of window.print(), we download an image using html2canvas
+    const element = document.getElementById('budget-print-area-wrapper');
+    if (!element) {
+      window.print();
+      return;
+    }
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `Presupuesto_${presupuesto?.numero || presupuesto?.id.substring(0, 6)}.png`;
+      link.href = imgData;
+      link.click();
+      toast({ title: 'Descarga completa', description: 'El presupuesto se guardó como imagen.' });
+    } catch (e) {
+      window.print();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleAudit = () => {
     if (!presupuesto) return;
@@ -552,8 +575,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   </a>
                 );
               })()}
-              <Button onClick={handlePrint} size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest" variant="secondary">
-                <Printer className="mr-1.5 h-3.5 w-3.5"/>Imprimir
+              <Button onClick={handlePrint} disabled={isDownloading} size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest" variant="secondary">
+                {isDownloading ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Printer className="mr-1.5 h-3.5 w-3.5"/>}
+                Descargar Imagen
               </Button>
               <Button
                 size="sm"
@@ -631,9 +655,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <Button
                     onClick={handleSharePublicBudget}
-                    className="h-12 rounded-xl bg-emerald-600 text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-700"
+                    className="h-12 rounded-xl bg-emerald-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-700 px-2"
                   >
-                    <Share2 className="mr-2 h-4 w-4" /> Compartir WhatsApp
+                    <Share2 className="mr-1 sm:mr-2 h-4 w-4" /> Enviar por WhatsApp
                   </Button>
                   <Button
                     variant="outline"
@@ -644,10 +668,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => window.open(`/presupuestos/${presupuestoId}/ver?imprimir=1&cliente=1&direct=1`, '_blank')}
-                    className="h-12 rounded-xl text-xs font-bold uppercase tracking-widest"
+                    onClick={handlePrint}
+                    disabled={isDownloading}
+                    className="h-12 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2"
                   >
-                    <Printer className="mr-2 h-4 w-4" /> Descargar PDF
+                    {isDownloading ? <Loader2 className="mr-1 sm:mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-1 sm:mr-2 h-4 w-4" />}
+                    Descargar Imagen
                   </Button>
                 </div>
               </div>
@@ -956,7 +982,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             </>
             )}
 
-            <div className="ver-budget-print-document bg-white print:bg-white">
+            <div className="ver-budget-print-document bg-white print:bg-white" id="budget-print-area-wrapper">
               <div className="budget-print-fixed-page-number" aria-hidden="true" />
               {/* Wrapping table for repeating thead/tfoot on each print page */}
               <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
@@ -996,6 +1022,16 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                   <tr><td className="p-0">
 
               <div className="overflow-hidden rounded-2xl p-3 shadow-xl print:rounded-none print:p-2 print:shadow-none sm:p-10 lg:p-16">
+                {/* COUNTDOWN TIMER */}
+                {presupuesto.modoDescuentoPromocional && (
+                  <div data-html2canvas-ignore="true" className="mb-6 bg-red-600 rounded-xl p-4 text-white flex flex-col items-center justify-center shadow-lg border border-red-700 animate-pulse print:hidden">
+                    <p className="text-sm font-bold uppercase tracking-widest mb-1">🔥 Promoción por Tiempo Limitado</p>
+                    <p className="text-xl sm:text-2xl font-black tabular-nums tracking-wider">
+                      La oferta finaliza pronto
+                    </p>
+                    <p className="text-xs text-red-200 mt-2 font-medium">Congelá este precio reservando hoy mismo.</p>
+                  </div>
+                )}
 
                 {/* HEADER — Title + company info + logo */}
                 <h1 className="text-center text-base sm:text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[12pt] mb-3 print:mb-2"
@@ -1152,6 +1188,27 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </p>
                   </section>
                 )}
+                     
+                {/* Benefits / Why choose us */}
+                <section className="mb-6 border-l-4 border-emerald-500 bg-emerald-50/50 p-4 rounded-r-xl print:hidden">
+                  <h4 className="text-emerald-800 font-black uppercase tracking-widest text-xs mb-3 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" /> Por qué elegir AK Producciones
+                  </h4>
+                  <ul className="space-y-2 text-xs text-emerald-900/80 font-medium">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 mt-0.5">•</span>
+                      <span><strong>Asesoramiento integral:</strong> Te acompañamos en cada paso de la planificación.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 mt-0.5">•</span>
+                      <span><strong>Transparencia total:</strong> Sin costos ocultos. Lo que ves es el valor real.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 mt-0.5">•</span>
+                      <span><strong>Experiencia garantizada:</strong> Más de 10 años creando momentos inolvidables.</span>
+                    </li>
+                  </ul>
+                </section>
                      
                 {/* Totals breakdown */}
                 <section className="flex justify-end mb-4 print:mb-3">

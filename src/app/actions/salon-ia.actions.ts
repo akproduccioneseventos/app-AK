@@ -20,7 +20,7 @@ export async function autoAssignTables(
       typeof t.height === 'number'
     )).map(t => ({
       name: t.name,
-      capacity: (t.width / 40) * 2 + (t.height / 40) * 2, // Estimación básica: perímetro. Asumimos maxCapacity viene en props o la calculamos
+      capacity: ((t.width || 0) / 40) * 2 + ((t.height || 0) / 40) * 2, // Estimación básica: perímetro. Asumimos maxCapacity viene en props o la calculamos
       seatsOccupied: 0,
       tags: new Set<string>()
     }));

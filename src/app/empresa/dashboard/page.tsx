@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, TrendingUp, Users, AlertCircle, Loader2, DollarSign, CalendarCheck } from 'lucide-react';
+import { ArrowLeft, BarChart3, TrendingUp, Users, AlertCircle, Loader2, CalendarCheck } from 'lucide-react';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 

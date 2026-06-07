@@ -45,6 +45,7 @@ import {
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
   type AnnualAdjustmentProjection,
 } from '@/lib/budget/formal-budget';
+import { getCateringDishImage } from '@/lib/catering/menu-images';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -220,7 +221,7 @@ function menuItemToServicioEmpresa(item: MenuItem & { precioVenta: number }): Se
     precioVenta: item.precioVenta,
     precioBase: item.precioVenta,
     valorUnitarioEstimado: item.totalDishCost,
-    imageUrl: undefined,
+    imageUrl: getCateringDishImage(item),
   };
 }
 

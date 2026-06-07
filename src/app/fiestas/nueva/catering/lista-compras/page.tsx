@@ -198,7 +198,9 @@ function ListaDeComprasContent() {
       // 4. CONSOLIDAR
       const consolidated: Record<string, ShoppingListItem> = {};
       rawList.forEach(raw => {
-          const rawProveedorId = toProviderKey(raw.proveedor);
+          const matchedInsumo = catalogoInsumos.find(ci => ci.id === raw.origenId);
+          const resolvedProvider = matchedInsumo?.proveedor || raw.proveedor || 'Sin especificar';
+          const rawProveedorId = toProviderKey(resolvedProvider);
           const key = `${raw.nombre.toLowerCase()}-${rawProveedorId}`;
           if (consolidated[key]) {
               consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
@@ -214,7 +216,7 @@ function ListaDeComprasContent() {
                   unit: raw.unit,
                   costoUnitario: raw.costoUnitario,
                   costoTotalFaltante: 0,
-                  proveedor: raw.proveedor,
+                  proveedor: resolvedProvider,
                   proveedorId: rawProveedorId,
                   origen: raw.origen,
                   origenId: raw.origenId,
