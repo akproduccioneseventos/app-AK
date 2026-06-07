@@ -103,6 +103,7 @@ export interface Presupuesto {
   fechaFirmaContrato?: string; // ISO date de firma del contrato
   archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
   archivedAt?: string; // ISO timestamp of archival
+  totalFinal?: number; // Added to resolve build error on approvals / client requests
 }
 
 // FormData for the new unified builder.
