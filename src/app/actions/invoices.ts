@@ -7,6 +7,7 @@ import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos
 import { addInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
+import { verifySession } from '@/lib/auth/session-token';
 
 const INVOICES_FILE = 'invoices.json';
 const MONEY_TOLERANCE = 1;
@@ -46,11 +47,15 @@ function mapDepositMethodToBudgetMethod(method: string): MetodoPago {
 }
 
 export async function getInvoices(): Promise<Invoice[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const invoices = await readData<Invoice[]>(INVOICES_FILE, []);
   return invoices.map(inv => ({ ...inv, payments: inv.payments || [] }));
 }
 
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const invoices = await getInvoices();
   return invoices.find(inv => inv.id === id) || null;
 }
@@ -59,6 +64,8 @@ export async function saveInvoice(
   invoiceDataInput: (Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }) | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   if (!invoiceDataInput.items || invoiceDataInput.items.some(item => normalizeQuantity(item.quantity) <= 0)) {
     return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
   }
@@ -168,6 +175,8 @@ export async function registerBookingDeposit(data: {
   skipFiestaSave?: boolean;
 }): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const amount = roundMoney(data.amount);
     if (amount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
     if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
@@ -247,6 +256,8 @@ export async function registerBookingDeposit(data: {
 }
 
 export async function deleteInvoice(id: string): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   let invoices = await getInvoices();
   const initialLength = invoices.length;
   invoices = invoices.filter(inv => inv.id !== id);
@@ -264,6 +275,8 @@ export async function deleteInvoice(id: string): Promise<{ success: boolean; err
 
 export async function resetAllInvoices(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;
     if (dbAdmin) {
@@ -290,6 +303,8 @@ export async function addPaymentToInvoice(
   invoiceId: string,
   formData: FormData
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const paymentDate = formData.get('paymentDate') as string || new Date().toISOString();
   const amountStr = formData.get('amount') as string;
   const method = formData.get('method') as Payment['method'] || 'Transferencia';

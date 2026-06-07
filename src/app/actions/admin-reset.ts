@@ -8,6 +8,7 @@ import { resetCrm } from './crm';
 import { resetAllNotifications } from './notifications';
 import { resetAllFiestasHistoricas } from './fiestas-historicas';
 import * as logger from '@/lib/logger';
+import { verifySession } from '@/lib/auth/session-token';
 
 /**
  * Resets ALL operational data: clientes, facturas, presupuestos, fiestas, archive,
@@ -25,6 +26,9 @@ export async function resetAppCompleto(): Promise<{
   error?: string;
 }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
+
     logger.info('[ResetCompleto] Iniciando reset completo de la aplicación...');
 
     const [
