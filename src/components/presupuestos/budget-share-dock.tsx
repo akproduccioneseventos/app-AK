@@ -41,7 +41,11 @@ function BudgetShareDockInner() {
   const isPublicOrGuestView =
     searchParams.has('token') ||
     searchParams.get('public') === '1' ||
+    searchParams.get('cliente') === '1' ||
+    searchParams.get('client') === '1' ||
     searchParams.get('guest') === '1' ||
+    searchParams.get('direct') === '1' ||
+    searchParams.get('imprimir') === '1' ||
     ['cliente', 'client', 'publico', 'public', 'invitado', 'guest'].includes(accessMode);
 
   const shouldRender = useMemo(() => isBudgetViewRoute(pathname) && !isPublicOrGuestView, [isPublicOrGuestView, pathname]);

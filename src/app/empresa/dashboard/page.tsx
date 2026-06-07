@@ -4,10 +4,9 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, TrendingUp, Users, AlertCircle, Loader2, DollarSign, CalendarCheck } from 'lucide-react';
+import { ArrowLeft, BarChart3, TrendingUp, Users, AlertCircle, Loader2, CalendarCheck } from 'lucide-react';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const [fiestas, setFiestas] = useState<FiestaEnPlanificacion[]>([]);
@@ -45,11 +44,7 @@ export default function DashboardPage() {
   // Pending tasks (vendors not paid fully, etc.)
   let totalPendingTasks = 0;
   fiestas.forEach(f => {
-    if (f.estadosCompra) {
-      f.estadosCompra.forEach(prov => {
-        if (!prov.pagado) totalPendingTasks++;
-      });
-    }
+    totalPendingTasks += (f.estadosCompra || []).filter(prov => !prov.pagado).length;
   });
 
   return (
@@ -139,9 +134,9 @@ export default function DashboardPage() {
               {fiestas.map(fiesta => (
                 <div key={fiesta.id} className="py-4 flex items-center justify-between group">
                   <div>
-                    <h3 className="font-bold text-slate-800">{fiesta.configuracion?.nombreEvento || 'Fiesta sin nombre'}</h3>
+                    <h3 className="font-bold text-slate-800">{fiesta.configuracion.nombreEvento || 'Evento sin nombre'}</h3>
                     <p className="text-sm text-slate-500">
-                      {fiesta.configuracion?.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString() : 'Sin fecha'} • {fiesta.configuracion?.tipoCelebracion || 'Evento'}
+                      {fiesta.configuracion.fechaEvento || 'Sin fecha'} • {fiesta.configuracion.tipoCelebracion || 'Evento'}
                     </p>
                   </div>
                   <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>

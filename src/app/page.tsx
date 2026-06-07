@@ -228,12 +228,12 @@ export default function MainDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         <div className="lg:col-span-8 space-y-6 sm:space-y-8">
           <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
-          <Card className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
-            <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-700 p-5 text-white sm:p-6">
-              <CardTitle className="text-xl sm:text-2xl font-black tracking-tight">Herramientas rápidas</CardTitle>
-              <CardDescription className="text-indigo-200 font-medium">Simuladores, pagos, WhatsApp y modo presentación.</CardDescription>
+          <Card className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            <CardHeader className="border-b border-slate-200 bg-slate-50 p-5 sm:p-6">
+              <CardTitle className="text-xl font-black tracking-tight text-slate-900">Herramientas rápidas</CardTitle>
+              <CardDescription className="font-medium text-slate-500">Simuladores, pagos, WhatsApp y modo presentación.</CardDescription>
             </CardHeader>
-            <CardContent className="grid auto-rows-fr grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-3">
+            <CardContent className="grid auto-rows-fr grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-5 2xl:grid-cols-3">
               <QuickTool href="/presupuestos/nuevo/crear" icon={ListChecks} title="Nuevo Presupuesto" description="Cotización manual." />
               <QuickTool href="/simulador-de-presupuesto" icon={Wand2} title="Simulador Presupuesto" description="Captura de leads." />
               <QuickTool href="/simulador-ak" icon={Bot} title="Simulador Asistente AK" description="Chat inteligente." />
@@ -314,7 +314,7 @@ export default function MainDashboardPage() {
 function QuickTool({ href, icon: Icon, title, description }: { href: string; icon: any; title: string; description: string }) {
   return (
     <Link href={href} className="block h-full">
-      <div className="group flex h-full min-h-[104px] cursor-pointer items-center gap-3 rounded-lg border border-slate-100 p-3 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50/50">
+      <div className="group flex h-full min-h-[92px] cursor-pointer items-center gap-3 rounded-lg border border-slate-200 bg-white p-3.5 transition-colors hover:border-indigo-300 hover:bg-slate-50">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shadow-inner transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white"><Icon className="h-5 w-5" /></div>
         <div className="min-w-0 flex-1"><h3 className="text-sm font-black leading-tight text-slate-800">{title}</h3><p className="mt-1 text-xs font-semibold leading-snug text-slate-500">{description}</p></div>
         <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-indigo-500" />

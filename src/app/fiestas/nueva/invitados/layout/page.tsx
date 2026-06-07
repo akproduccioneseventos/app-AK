@@ -84,7 +84,7 @@ const GuestCard: React.FC<{ guest: Invitado }> = ({ guest }) => {
         <p className="font-bold text-sm text-slate-800 truncate">{guest.nombre}</p>
         {(guest.isCeliac || (guest.dietaryRestriction && guest.dietaryRestriction !== 'Ninguna') || guest.alergiasEspecificas) && (
           <span title={guest.dietaryRestriction || 'Alerta Alimentaria'} className="shrink-0">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" aria-label={guest.dietaryRestriction || 'Alerta Alimentaria'} />
           </span>
         )}
       </div>

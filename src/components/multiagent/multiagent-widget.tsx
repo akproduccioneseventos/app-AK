@@ -60,11 +60,32 @@ const AGENT_STYLE: Record<AkAgentType, AgentStyle> = {
   central:        { label: 'Encargado General AK',       icon: Bot,          badge: 'App completa',    short: 'AK',  description: 'Control general de la aplicacion', color: 'from-slate-800 to-indigo-900' },
   fiestas_general:{ label: 'Supervisor de Fiestas',      icon: Brain,        badge: 'Todas las fiestas',short: 'FIS', description: 'Control de eventos y planificacion', color: 'from-violet-800 to-indigo-900' },
   fiesta:         { label: 'Agente de esta Fiesta',      icon: PartyPopper,  badge: 'Fiesta actual',   short: 'FIE', description: 'Control de la fiesta abierta', color: 'from-pink-800 to-rose-900' },
-  secretaria:     { label: 'Secretaria AK',              icon: CalendarCheck,badge: 'Agenda',           short: 'SEC', description: 'Agenda, llamadas y recordatorios', color: 'from-teal-800 to-cyan-900' },
-  comercial:      { label: 'Agente Comercial AK',        icon: MessageSquare,badge: 'Ventas',           short: 'COM', description: 'Leads, presupuestos y seguimiento', color: 'from-sky-800 to-blue-900' },
+  secretaria:     { label: 'Secretaria AK',              icon: CalendarCheck,badge: 'Agenda',           short: 'SEC', description: 'Agenda, llamadas y recordatorios', color: 'from-rose-700 to-violet-900' },
+  comercial:      { label: 'Agente Vendedor AK',         icon: MessageSquare,badge: 'Ventas',           short: 'VEN', description: 'Leads, presupuestos, simulaciones internas y cierre comercial', color: 'from-emerald-800 to-cyan-900' },
   contable:       { label: 'Agente Contable AK',         icon: DollarSign,   badge: 'Pagos',            short: 'CON', description: 'Pagos, saldos y rentabilidad', color: 'from-emerald-800 to-green-900' },
   marketing:      { label: 'Agente Marketing AK',        icon: Megaphone,    badge: 'Contenido',        short: 'MKT', description: 'Redes, publicaciones y campanas', color: 'from-orange-800 to-amber-900' },
 };
+
+const PUBLIC_AGENT_HIDDEN_PREFIXES = [
+  '/simulador',
+  '/simulador-ak',
+  '/simulador-de-presupuesto',
+  '/landing',
+  '/public',
+  '/portal',
+  '/portal-cliente',
+  '/portal-invitado',
+  '/portal-proveedor',
+  '/invitacion',
+  '/invitado',
+  '/feedback',
+  '/video-vida',
+  '/presentacion-led',
+  '/proveedor',
+  '/evento',
+  '/q',
+  '/i',
+];
 
 const AREA_AGENT_GROUPS: Record<AkAgentType, AkAgentType[]> = {
   fiesta:         ['fiesta', 'fiestas_general', 'secretaria', 'contable', 'marketing', 'central'],
@@ -101,9 +122,27 @@ function detectVisibleAgent(pathname: string): AkAgentType {
   if (pathname.includes('/eventos') || pathname.includes('/calendario')) return 'fiestas_general';
   if (pathname.includes('/plan-pagos') || pathname.includes('/empresa/contabilidad') || pathname.includes('/invoices') || pathname.includes('/pagos')) return 'contable';
   if (pathname.includes('/marketing') || pathname.includes('/empresa/redes-sociales') || pathname.includes('/galeria') || pathname.includes('/portfolio')) return 'marketing';
-  if (pathname.includes('/contabilidad/crm') || pathname.includes('/presupuestos') || pathname.includes('/simulador')) return 'comercial';
+  if (pathname.includes('/admin/ventas') || pathname.includes('/contabilidad/crm') || pathname.includes('/contabilidad/comercial-360') || pathname.includes('/presupuestos') || pathname.includes('/customers') || pathname.includes('/simulador')) return 'comercial';
   if (pathname.includes('/settings/google-workspace') || pathname.includes('/reuniones')) return 'secretaria';
   return 'central';
+}
+
+function shouldHideInternalAgent(pathname: string | null) {
+  if (!pathname) return false;
+  return PUBLIC_AGENT_HIDDEN_PREFIXES.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function AgentPortrait({ style, size = 'md' }: { style: AgentStyle; size?: 'sm' | 'md' | 'lg' }) {
+  const Icon = style.icon;
+  const sizeClass = size === 'sm' ? 'h-7 w-7 text-[10px]' : size === 'lg' ? 'h-[60px] w-[60px] text-sm' : 'h-10 w-10 text-xs';
+
+  return (
+    <span className={cn('relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br font-black text-white shadow-inner ring-2 ring-white/80', style.color, sizeClass)}>
+      <span className="absolute inset-x-1 top-1 h-1/2 rounded-full bg-white/20" />
+      <Icon className={cn('absolute opacity-25', size === 'sm' ? 'h-4 w-4' : 'h-6 w-6')} />
+      <span className="relative">{style.short}</span>
+    </span>
+  );
 }
 
 function getFiestaIdFromLocation(): string | undefined {
@@ -183,7 +222,6 @@ export function MultiAgentWidget() {
   }), [activeAgent, fiestaId, messages]);
 
   const style = AGENT_STYLE[activeAgent];
-  const Icon  = style.icon;
 
   // Init position once on mount
   useEffect(() => {
@@ -348,7 +386,7 @@ export function MultiAgentWidget() {
   const cardAlign = dockSide === 'left' ? 'left-0' : 'right-0';
 
   /* ── Render ─────────────────────────────────────────────── */
-  if (!isAuthenticated || !position) return null;
+  if (!isAuthenticated || !position || shouldHideInternalAgent(pathname)) return null;
 
 
   return (
@@ -368,9 +406,7 @@ export function MultiAgentWidget() {
           <CardHeader className={cn('border-b border-white/10 bg-gradient-to-br p-4 text-white', style.color)}>
             <div className="flex items-start justify-between gap-2">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
-                  <Icon className="h-5 w-5" />
-                </div>
+                <AgentPortrait style={style} />
                 <div className="min-w-0">
                   <CardTitle className="truncate text-[15px] font-black leading-tight">{style.label}</CardTitle>
                   <p className="truncate text-[11px] text-white/70">{style.description}</p>
@@ -419,7 +455,6 @@ export function MultiAgentWidget() {
             <div className="mt-3 flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
               {visibleAgents.map(agent => {
                 const s = AGENT_STYLE[agent];
-                const AgentIcon = s.icon;
                 const active = activeAgent === agent;
                 return (
                   <button
@@ -434,7 +469,7 @@ export function MultiAgentWidget() {
                         : 'border-white/25 bg-white/10 text-white hover:bg-white/25',
                     )}
                   >
-                    <AgentIcon className="h-3 w-3" />
+                    <AgentPortrait style={s} size="sm" />
                     {s.short}
                   </button>
                 );
@@ -549,7 +584,7 @@ export function MultiAgentWidget() {
           isOpen && !isDragging && 'ring-indigo-400/60',
         )}
       >
-        <Icon className={cn('h-6 w-6 transition-transform duration-200', isDragging && 'scale-90')} />
+        <AgentPortrait style={style} size="lg" />
 
         {/* Pulse ring when closed */}
         {!isOpen && !isDragging && (

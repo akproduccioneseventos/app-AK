@@ -31,6 +31,44 @@ export interface LedgerSummary {
   presupuestosAceptadosSinFactura: number;
 }
 
+export type ReconciledSalePayment = {
+  id: string;
+  date: string;
+  amount: number;
+  source: 'invoice' | 'budget';
+};
+
+export function getReconciledSalePayments(
+  invoice: Invoice,
+  linkedBudget?: Presupuesto,
+): ReconciledSalePayment[] {
+  const invoicePayments = (invoice.payments ?? [])
+    .map(payment => ({
+      id: payment.id,
+      date: payment.paymentDate,
+      amount: roundMoney(payment.amount),
+      source: 'invoice' as const,
+    }))
+    .filter(payment => payment.amount > 0);
+
+  const budgetPayments = (linkedBudget?.pagosCliente ?? [])
+    .filter(payment => payment.estadoPago !== 'pendiente_confirmacion' && payment.estadoPago !== 'rechazado')
+    .map(payment => ({
+      id: payment.id,
+      date: payment.fecha,
+      amount: roundMoney(payment.monto),
+      source: 'budget' as const,
+    }))
+    .filter(payment => payment.amount > 0);
+
+  const invoiceTotal = invoicePayments.reduce((sum, payment) => sum + payment.amount, 0);
+  const budgetTotal = budgetPayments.reduce((sum, payment) => sum + payment.amount, 0);
+
+  // Deposits are intentionally mirrored in both records. Use the most complete
+  // source instead of adding both, so cash is neither duplicated nor hidden.
+  return budgetTotal > invoiceTotal ? budgetPayments : invoicePayments;
+}
+
 /**
  * Calcula el libro mayor financiero unificado a partir de los datos crudos.
  * Esta función es pura (no llama a Firebase) para facilitar el testing.
@@ -54,6 +92,14 @@ export function calculateFinancialLedger(
     if (Number.isNaN(date.getTime())) return 'sin-fecha';
     return date.toISOString().slice(0, 7); // 'YYYY-MM'
   };
+  const addCollection = (date: string, amount: number) => {
+    getOrCreateMonth(getMes(date)).cobros += amount;
+  };
+  const linkedBudgetByInvoiceId = new Map(
+    presupuestos
+      .filter(presupuesto => presupuesto.invoiceId)
+      .map(presupuesto => [presupuesto.invoiceId!, presupuesto]),
+  );
 
   // 1. Sumar ventas de facturas
   let ventasFacturadas = 0;
@@ -65,10 +111,10 @@ export function calculateFinancialLedger(
     const m = getOrCreateMonth(mes);
     m.ventas += invoiceTotal;
 
-    // Cobros desde invoice.payments
-    const cobrosInv = (inv.payments ?? []).reduce((s, p) => s + roundMoney(p.amount), 0);
+    const reconciledPayments = getReconciledSalePayments(inv, linkedBudgetByInvoiceId.get(inv.id));
+    const cobrosInv = reconciledPayments.reduce((sum, payment) => sum + payment.amount, 0);
     totalCobradoFacturas += cobrosInv;
-    m.cobros += cobrosInv;
+    reconciledPayments.forEach(payment => addCollection(payment.date, payment.amount));
   }
 
   // 2. Sumar ventas de presupuestos aceptados no facturados
@@ -87,7 +133,9 @@ export function calculateFinancialLedger(
     // Cobros desde presupuesto.pagosCliente. Los comprobantes pendientes no cuentan como dinero cobrado.
     const cobrosP = sumConfirmedClientPayments(p.pagosCliente ?? []);
     totalCobradoPresupuestos += cobrosP;
-    m.cobros += cobrosP;
+    (p.pagosCliente ?? [])
+      .filter(payment => payment.estadoPago !== 'pendiente_confirmacion' && payment.estadoPago !== 'rechazado')
+      .forEach(payment => addCollection(payment.fecha, roundMoney(payment.monto)));
   }
 
   const ventasTotales = ventasFacturadas + ventasPresupuestadas;
