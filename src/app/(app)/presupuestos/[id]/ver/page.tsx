@@ -218,38 +218,31 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     const sortedAgrupados: Record<string, any[]> = {};
     sortedCategories.forEach(key => sortedAgrupados[key] = agrupados[key]);
 
+    const projection = buildAnnualAdjustmentProjection({
+      baseTotal: totalVigente,
+      eventDate: presupuesto.eventoFecha,
+      currentYear: new Date(presupuesto.timestamp).getFullYear(),
+      adjustmentPct: adjustmentPct,
+    });
+
+    const applies = presupuesto.ajusteAnualActivo && projection.applies;
+    const ajusteAnualVal = applies ? projection.adjustmentAmount : 0;
+    const totalFinalVal = applies ? projection.adjustedTotal : totalVigente;
+    const aniosDiferenciaVal = applies ? (projection.eventYear - projection.currentYear) : 0;
+
     return {
       itemsAgrupados: sortedAgrupados,
       subtotalBruto: brutoVenta + regalosVal,
       ahorroRegalos: Math.round(regalosVal),
       bonificacionPromo: discountAmount,
-      ajusteAnual: 0,
-      totalFinal: Math.round(totalVigente),
-      aniosDiferencia: 0
+      ajusteAnual: ajusteAnualVal,
+      totalFinal: Math.round(totalFinalVal),
+      aniosDiferencia: aniosDiferenciaVal
     };
   }, [presupuesto, adjustmentPct]);
 
-  const handlePrint = async () => {
-    // Instead of window.print(), we download an image using html2canvas
-    const element = document.getElementById('budget-print-area-wrapper');
-    if (!element) {
-      window.print();
-      return;
-    }
-    setIsDownloading(true);
-    try {
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-      const imgData = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `Presupuesto_${presupuesto?.numero || presupuesto?.id.substring(0, 6)}.png`;
-      link.href = imgData;
-      link.click();
-      toast({ title: 'Descarga completa', description: 'El presupuesto se guardó como imagen.' });
-    } catch (e) {
-      window.print();
-    } finally {
-      setIsDownloading(false);
-    }
+  const handlePrint = () => {
+    window.print();
   };
 
   const handleAudit = () => {
@@ -986,7 +979,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <tfoot>
                   <tr><td className="p-0">
                     <div className="budget-print-tfoot-content" style={{ paddingTop: '20px' }}>
-                      <p className="budget-print-page-number text-right text-[8px] text-gray-500 print:text-[6pt]">Pagina </p>
+                      <p className="budget-print-page-number text-right text-[8px] text-gray-500 print:text-[6pt]">
+                        Página <span className="print:hidden">1</span><span className="print-page-counter hidden print:inline"></span>
+                      </p>
                       {shouldShowBudgetSignatures ? (
                         <div className="flex justify-between" style={{ gap: '40px' }}>
                           <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
@@ -1078,7 +1073,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                           <tr style={{ backgroundColor: '#ffffff' }}>
                             <td className="border border-gray-300 px-2 py-1.5 font-mono">{presupuesto.clienteNombre.substring(0, 3).toUpperCase()}-{presupuesto.id.substring(0, 4).toUpperCase()}</td>
                             <td className="border border-gray-300 px-2 py-1.5 font-mono font-semibold">#{budgetNumber}</td>
-                            <td className="border border-gray-300 px-2 py-1.5 text-center">1/1</td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-center font-mono">
+                              <span className="print:hidden">1/1</span>
+                              <span className="print-page-counter hidden print:inline"></span>
+                            </td>
                             <td className="border border-gray-300 px-2 py-1.5">{formatDateShort(presupuesto.timestamp)}</td>
                             <td className="border border-gray-300 px-2 py-1.5">{formatDateShort(fechaValidoHasta.toISOString())}</td>
                           </tr>
