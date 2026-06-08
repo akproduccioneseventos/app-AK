@@ -97,7 +97,7 @@ export async function saveArmadoRapidoConfig(
 export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
   options?: { source?: PresupuestoSource; eventoTipo?: string; salonFiestas?: string }
-): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
+): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; error?: string }> {
   try {
     const source = options?.source || 'simulator_common';
     const adultos = Math.max(0, Math.round(data.adultos || 0));
