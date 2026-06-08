@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
 import { getPhotoFilePathsForZip } from '@/app/actions/social-gallery';
-import { Readable } from 'stream';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_DOMAINS = [
@@ -71,8 +70,7 @@ export async function GET(
       zip.file('DESCARGA_INCOMPLETA_LIMITE_50MB.txt', 'Se ha superado el límite máximo de 50MB de descarga. Algunos archivos no fueron incluidos para evitar agotar los recursos del servidor.');
     }
     
-    const zipStream = zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true });
-    const webStream = Readable.toWeb(zipStream);
+    const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `galeria-social-${fiestaId}-${timestamp}.zip`;
@@ -81,7 +79,7 @@ export async function GET(
     headers.set('Content-Type', 'application/zip');
     headers.set('Content-Disposition', `attachment; filename="${filename}"`);
 
-    return new NextResponse(webStream as any, { status: 200, headers });
+    return new NextResponse(zipBuffer as any, { status: 200, headers });
 
   } catch (error: any) {
     console.error(`Error creating social gallery zip for fiesta ${fiestaId}:`, error);
