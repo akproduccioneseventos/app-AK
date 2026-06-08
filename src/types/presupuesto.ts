@@ -43,6 +43,7 @@ export const ALL_TIPOS_EVENTO: (TipoEvento | 'Otro')[] = ['Boda', 'XV años', 'C
 export interface ItemPresupuestado {
   idServicioCatalogo: string;
   nombreServicio: string;
+  nombre?: string;
   descripcionServicio?: string;
   cantidad: number;
   unidad?: string;
