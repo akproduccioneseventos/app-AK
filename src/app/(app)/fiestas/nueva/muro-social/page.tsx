@@ -825,6 +825,7 @@ function MuroSocialContent() {
       chat: { type: 'chat', title: 'Chat en Vivo', durationSeconds: 30, enabled: true, layout: 'auto' },
       canciones: { type: 'canciones', title: 'Pedidos de Canciones', durationSeconds: 30, enabled: true, layout: 'auto' },
       audioritmico: { type: 'audioritmico', title: 'Momento discoteca', durationSeconds: 25, enabled: true, layout: 'auto' },
+      pauta: { type: 'pauta', title: 'Pauta publicitaria', durationSeconds: 15, enabled: true, layout: 'auto' },
     };
     setSettings((prev) => withScreenDefaults({
       ...prev,
@@ -1262,6 +1263,63 @@ function MuroSocialContent() {
                   }
                 </Button>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-t-4 border-t-indigo-600 shadow-md bg-gradient-to-br from-indigo-50/50 to-purple-50/50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+                  <span>✨ Palabras y Audios para Siempre</span>
+                </CardTitle>
+                <CardDescription className="text-xs text-indigo-950 font-medium">
+                  Buzón de Mensajes y Audios 100% Privado
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-indigo-700 bg-indigo-100/80 px-2.5 py-1 rounded-full animate-pulse">
+                  Premium Feature
+                </span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Recibí mensajes de texto y audios directo en tu celular sin que pasen por la pantalla. Vos configurás si querés que los invitados vean el muro de saludos o si preferís que sea un buzón de mensajes 100% privado solo para vos.
+            </p>
+            
+            <div className="grid grid-cols-3 gap-2 py-1 text-center">
+              <div className="rounded-xl border border-indigo-100 bg-white/60 p-2.5 shadow-sm transition-all hover:scale-[1.02]">
+                <span className="block text-lg mb-1" role="img" aria-label="chat">💬</span>
+                <span className="text-xs font-medium text-slate-800">Mensajes de texto</span>
+              </div>
+              <div className="rounded-xl border border-purple-100 bg-white/60 p-2.5 shadow-sm transition-all hover:scale-[1.02]">
+                <span className="block text-lg mb-1" role="img" aria-label="mic">🎙️</span>
+                <span className="text-xs font-medium text-slate-800">Audios</span>
+              </div>
+              <div className="rounded-xl border border-pink-100 bg-white/60 p-2.5 shadow-sm transition-all hover:scale-[1.02]">
+                <span className="block text-lg mb-1" role="img" aria-label="lock">🔒</span>
+                <span className="text-xs font-medium text-slate-800">100% privado</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl border border-indigo-200 bg-indigo-600 text-white p-4 shadow-md transition-all duration-300">
+              <div className="space-y-0.5 max-w-[80%]">
+                <span className="text-sm font-semibold flex items-center gap-1.5">
+                  🔐 Buzón de Saludos 100% Privado
+                </span>
+                <p className="text-xs text-indigo-100">
+                  Activalo para recibir todo directo a tu cel de forma confidencial, ocultando los saludos de la pantalla gigante.
+                </p>
+              </div>
+              <Switch
+                id="privateDedicationsMode"
+                checked={Boolean(settings.privateDedicationsMode)}
+                onCheckedChange={(checked) => handleToggleSetting('privateDedicationsMode', checked)}
+                className="data-[state=checked]:bg-indigo-950 data-[state=unchecked]:bg-indigo-300"
+              />
             </div>
           </CardContent>
         </Card>

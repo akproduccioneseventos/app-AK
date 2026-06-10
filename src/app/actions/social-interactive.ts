@@ -24,6 +24,7 @@ import admin from 'firebase-admin';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
+import { uploadToStorage } from '@/lib/firebase/storage';
 
 // Firestore collection names
 const POLLS_COLLECTION = 'social_polls';
@@ -239,7 +240,8 @@ export async function getDedications(fiestaId: string): Promise<Dedication[]> {
 export async function addDedication(
   fiestaId: string,
   message: string,
-  authorName: string
+  authorName: string,
+  audioUrl?: string
 ): Promise<{ success: boolean; dedication?: Dedication; error?: string }> {
   try {
     const review = reviewSocialContent({ type: 'text', text: message, authorName, moderationMode: 'automatico' });
@@ -251,6 +253,7 @@ export async function addDedication(
       message: review.sanitizedText || sanitizeSocialText(message),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
       timestamp: new Date().toISOString(),
+      ...(audioUrl ? { audioUrl } : {}),
     };
     await db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).set(newDed);
     return { success: true, dedication: newDed };
@@ -337,5 +340,23 @@ export async function activateMomento(
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
+  }
+}
+
+export async function uploadDedicationAudio(
+  fiestaId: string,
+  formData: FormData
+): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
+  try {
+    const file = formData.get('file') as File;
+    if (!fiestaId || !file) return { success: false, error: 'Faltan datos.' };
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const audioId = `audio_${Date.now()}`;
+    const storagePath = `dedications-audio/${fiestaId}/${audioId}.webm`;
+    const url = await uploadToStorage(buffer, storagePath, 'audio/webm', true);
+    return { success: true, audioUrl: url };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al subir audio.' };
   }
 }

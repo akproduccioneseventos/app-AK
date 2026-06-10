@@ -29,7 +29,8 @@ import { getSalones } from '@/app/actions/salones';
 import { isClubUruguay } from '@/lib/club-uruguay';
 import type { Salon } from '@/types/salon';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { MultiBackend } from 'react-dnd-multi-backend';
+import { HTML5toTouch } from 'rdndmb-html5-to-touch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -1115,7 +1116,7 @@ export default function SalonLayoutPage() {
     return (
         <SalonErrorBoundary>
             <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>}>
-                <DndProvider backend={HTML5Backend}>
+                <DndProvider backend={MultiBackend} options={HTML5toTouch}>
                     <SalonLayoutContent />
                 </DndProvider>
             </Suspense>

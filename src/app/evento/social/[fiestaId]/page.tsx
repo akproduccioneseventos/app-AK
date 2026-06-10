@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost } from '@/app/actions/social-gallery';
-import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication } from '@/app/actions/social-interactive';
+import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
 import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
@@ -30,7 +30,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle, ArrowLeft, Gamepad2, LayoutGrid, BarChart2, Ghost } from 'lucide-react';
+import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle, ArrowLeft, Gamepad2, LayoutGrid, BarChart2, Ghost, Mic, StopCircle } from 'lucide-react';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import {
   AlertDialog,
@@ -436,6 +436,14 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   // Guests land directly in the feed; the home grid stays available from the header.
   const [guestSection, setGuestSection] = useState<'photos' | 'song' | 'dedication' | 'chat' | 'poll' | 'game' | null>('photos');
 
+  // Audio recording state
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
+
 
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
     if(showLoadingIndicator) setIsLoading(true);
@@ -718,21 +726,81 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     }
   };
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(track => track.stop());
+      };
+      mediaRecorder.start();
+      setIsRecording(true);
+      setAudioUrl(null);
+      setAudioBlob(null);
+    } catch (err) {
+      console.error('Error accessing microphone', err);
+      toast({ title: 'Error de micrófono', description: 'Por favor, permite el acceso al micrófono para grabar audios.', variant: 'destructive' });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    setAudioUrl(null);
+    setAudioBlob(null);
+  };
+
   const handleDedicationSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newDedication.trim() || isSendingDedication) return;
+    if (isSendingDedication) return;
+    if (!newDedication.trim() && !audioBlob) return;
     setIsSendingDedication(true);
     try {
-      const result = await addDedication(params.fiestaId, newDedication.trim(), authorName || 'Anónimo');
+      let uploadedAudioUrl: string | undefined = undefined;
+      if (audioBlob) {
+        const formData = new FormData();
+        formData.append('file', new File([audioBlob], 'audio.webm', { type: 'audio/webm' }));
+        const uploadRes = await uploadDedicationAudio(params.fiestaId, formData);
+        if (uploadRes.success && uploadRes.audioUrl) {
+          uploadedAudioUrl = uploadRes.audioUrl;
+        } else {
+          toast({ title: 'Error de audio', description: uploadRes.error || 'No se pudo subir el audio.', variant: 'destructive' });
+          setIsSendingDedication(false);
+          return;
+        }
+      }
+      const messageText = newDedication.trim() || (uploadedAudioUrl ? "🎙️ Mensaje de voz" : "");
+      const result = await addDedication(params.fiestaId, messageText, authorName || 'Anónimo', uploadedAudioUrl);
       if (result.success) {
         setNewDedication('');
+        setAudioBlob(null);
+        setAudioUrl(null);
         await fetchData(false);
-        toast({ title: 'Dedicatoria enviada 💖' });
+        toast({ title: localSettings.privateDedicationsMode ? 'Mensaje privado enviado 🔒' : 'Dedicatoria enviada 💖' });
       } else {
         toast({ title: 'Error', description: result.error || 'No se pudo guardar la dedicatoria.', variant: 'destructive' });
       }
-    } catch {
-      toast({ title: 'Error al enviar dedicatoria', variant: 'destructive' });
+    } catch (err: any) {
+      toast({ title: 'Error al enviar', description: err.message, variant: 'destructive' });
     } finally {
       setIsSendingDedication(false);
     }
@@ -1320,21 +1388,92 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                   <motion.div key="dedication" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
                     <Card className="shadow-lg border-none rounded-3xl">
                       <CardContent className="p-5 space-y-4">
+                        <div className="space-y-1">
+                          <h3 className="text-lg font-black text-slate-800 flex items-center gap-1.5">
+                            {localSettings.privateDedicationsMode ? "🔐 Buzón 100% Privado" : "💌 Dedicatorias"}
+                          </h3>
+                          <p className="text-xs text-slate-500 leading-normal">
+                            {localSettings.privateDedicationsMode 
+                              ? "Tus palabras y audios irán directo a los anfitriones de forma privada." 
+                              : "Envía saludos y felicitaciones para compartir en el evento."}
+                          </p>
+                        </div>
                         <form onSubmit={handleDedicationSubmit} className="space-y-3">
-                          <Textarea value={newDedication} onChange={e => setNewDedication(e.target.value)} placeholder="Escribe tu dedicatoria aquí..." rows={4} className="rounded-2xl border-slate-200 resize-none" disabled={isSendingDedication} />
-                          <Button type="submit" disabled={!newDedication.trim() || isSendingDedication} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingDedication ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Enviar dedicatoria
+                          <Textarea 
+                            value={newDedication} 
+                            onChange={e => setNewDedication(e.target.value)} 
+                            placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria aquí..."} 
+                            rows={3} 
+                            className="rounded-2xl border-slate-200 resize-none" 
+                            disabled={isSendingDedication} 
+                          />
+                          
+                          {/* Audio voice notes recorder */}
+                          <div className="flex flex-col gap-3 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
+                            <p className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                              <span>🎙️</span>
+                              <span>{localSettings.privateDedicationsMode ? "Grabar audio privado" : "Grabar audio de felicitación"}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                              {!isRecording && !audioUrl && (
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  onClick={startRecording}
+                                  className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
+                                >
+                                  <Mic className="w-4 h-4" /> Empezar a grabar
+                                </Button>
+                              )}
+                              
+                              {isRecording && (
+                                <Button 
+                                  type="button" 
+                                  variant="destructive" 
+                                  onClick={stopRecording}
+                                  className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
+                                >
+                                  <StopCircle className="w-4 h-4" /> Detener grabación
+                                </Button>
+                              )}
+
+                              {audioUrl && (
+                                <div className="flex flex-col gap-2 w-full">
+                                  <audio src={audioUrl} controls className="w-full h-8" />
+                                  <div className="flex gap-2">
+                                    <Button 
+                                      type="button" 
+                                      variant="outline" 
+                                      onClick={cancelRecording}
+                                      className="flex-1 h-8 rounded-lg text-xs"
+                                    >
+                                      Eliminar audio
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <Button type="submit" disabled={(!newDedication.trim() && !audioBlob) || isSendingDedication} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
+                            {isSendingDedication ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} 
+                            {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                           </Button>
                         </form>
-                        <div className="space-y-2 max-h-[40vh] overflow-y-auto">
-                          {dedications.slice(-10).reverse().map(d => (
+                        <div className="space-y-2 max-h-[35vh] overflow-y-auto">
+                          {dedications.slice(-15).reverse().map(d => (
                             <div key={d.id} className={cn('rounded-2xl border px-4 py-3 text-sm', d.highlighted ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100')}>
-                              <p className="text-slate-700 leading-relaxed">{d.message}</p>
-                              <p className="text-xs text-slate-500 mt-1">— {d.authorName}</p>
+                              <p className="text-slate-700 leading-relaxed font-medium">{d.message}</p>
+                              {d.audioUrl && (
+                                <div className="mt-2">
+                                  <audio src={d.audioUrl} controls className="w-full h-8 max-w-[260px]" />
+                                </div>
+                              )}
+                              <p className="text-xs text-slate-500 mt-1.5">— {d.authorName}</p>
                             </div>
                           ))}
                           {dedications.length === 0 && (
-                            <p className="text-sm text-slate-400 text-center py-6">No hay dedicatorias aún.</p>
+                            <p className="text-sm text-slate-400 text-center py-6">No hay mensajes aún.</p>
                           )}
                         </div>
                       </CardContent>
@@ -1784,23 +1923,86 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
               <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-slate-800">
-                    <MicVocal className="w-5 h-5" style={{ color: accentColor }} /> Dedicatorias
+                    {localSettings.privateDedicationsMode ? "🔐 Buzón 100% Privado" : <><MicVocal className="w-5 h-5" style={{ color: accentColor }} /> Dedicatorias</>}
                   </CardTitle>
-                  <CardDescription>Envía un mensaje para que se vea en el control del evento.</CardDescription>
+                  <CardDescription>
+                    {localSettings.privateDedicationsMode 
+                      ? "Tus palabras y audios irán directo a los anfitriones de forma privada." 
+                      : "Envía un mensaje para que se vea en el control del evento."}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <form onSubmit={handleDedicationSubmit} className="space-y-2">
-                    <Textarea value={newDedication} onChange={e => setNewDedication(e.target.value)} placeholder="Escribe tu dedicatoria..." rows={3} />
-                    <Button type="submit" disabled={!newDedication.trim()} style={{ backgroundColor: accentColor }}>
-                      <Send className="w-4 h-4 mr-2" /> Enviar dedicatoria
+                  <form onSubmit={handleDedicationSubmit} className="space-y-3">
+                    <Textarea 
+                      value={newDedication} 
+                      onChange={e => setNewDedication(e.target.value)} 
+                      placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria..."} 
+                      rows={3} 
+                    />
+                    
+                    {/* Audio voice notes recorder */}
+                    <div className="flex flex-col gap-3 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
+                      <p className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                        <span>🎙️</span>
+                        <span>{localSettings.privateDedicationsMode ? "Grabar audio privado" : "Grabar audio de felicitación"}</span>
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {!isRecording && !audioUrl && (
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={startRecording}
+                            className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
+                          >
+                            <Mic className="w-4 h-4" /> Empezar a grabar
+                          </Button>
+                        )}
+                        
+                        {isRecording && (
+                          <Button 
+                            type="button" 
+                            variant="destructive" 
+                            onClick={stopRecording}
+                            className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
+                          >
+                            <StopCircle className="w-4 h-4" /> Detener grabación
+                          </Button>
+                        )}
+
+                        {audioUrl && (
+                          <div className="flex flex-col gap-2 w-full">
+                            <audio src={audioUrl} controls className="w-full h-8" />
+                            <div className="flex gap-2">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={cancelRecording}
+                                className="flex-1 h-8 rounded-lg text-xs"
+                              >
+                                Eliminar audio
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <Button type="submit" disabled={(!newDedication.trim() && !audioBlob) || isSendingDedication} className="w-full h-10 rounded-xl font-bold flex items-center justify-center gap-2" style={{ backgroundColor: accentColor }}>
+                      <Send className="w-4 h-4" /> 
+                      {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                     </Button>
                   </form>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {dedications.slice(-10).reverse().map((dedication) => (
+                    {dedications.slice(-15).reverse().map((dedication) => (
                       <div key={dedication.id} className={cn("rounded-xl border px-3 py-2 text-sm", dedication.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50")}>
                         <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
+                          <div className="min-w-0 font-medium">
                             <p className="text-slate-700">{dedication.message}</p>
+                            {dedication.audioUrl && (
+                              <div className="mt-2">
+                                <audio src={dedication.audioUrl} controls className="w-full h-8 max-w-[260px]" />
+                              </div>
+                            )}
                             <p className="text-xs text-slate-500 mt-1">— {dedication.authorName}</p>
                           </div>
                           {isAdminView && (

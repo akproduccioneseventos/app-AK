@@ -245,7 +245,7 @@ export default function EspejoMagicoPage() {
     if (!watermarkEnabled) return;
     
     const eventName = fiesta?.configuracion?.nombreEvento || 'Nuestra Fiesta';
-    const rawDate = fiesta?.configuracion?.fecha;
+    const rawDate = fiesta?.configuracion?.fechaEvento;
     let eventDateStr = '';
     if (rawDate) {
       try {

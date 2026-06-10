@@ -256,16 +256,28 @@ export async function moderateSocialPost(
   try {
     const db = await getDb();
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+    const snap = await ref.get();
+    if (!snap.exists) return { success: false, error: 'Publicación no encontrada.' };
+    const data = snap.data() as SocialGalleryPost;
+
+    if (moderationStatus === 'hidden' && data.imageUrl) {
+      try {
+        await deleteFromStorage(data.imageUrl);
+      } catch (fileError: any) {
+        logger.warn(`[social-gallery] Could not delete Storage file on rejection for post ${postId}: ${fileError.message}`);
+      }
+    }
+
     await ref.update({
       moderationStatus,
+      imageUrl: moderationStatus === 'hidden' ? '' : data.imageUrl,
       moderatedAt: new Date().toISOString(),
       moderatedBy,
     });
     const updated = await ref.get();
-    if (!updated.exists) return { success: false, error: 'Publicacion no encontrada.' };
     return { success: true, post: { ...updated.data() } as SocialGalleryPost };
   } catch (e: any) {
-    return { success: false, error: e.message || 'No se pudo moderar la publicacion.' };
+    return { success: false, error: e.message || 'No se pudo moderar la publicación.' };
   }
 }
 
