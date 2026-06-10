@@ -221,7 +221,7 @@ function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuest
     const o = oldItems[i];
     const n = newItems[i];
     if (o.idServicioCatalogo !== n.idServicioCatalogo) return true;
-    if (o.nombre !== n.nombre) return true;
+    if (o.nombreServicio !== n.nombreServicio) return true;
     if (o.cantidad !== n.cantidad) return true;
     if (o.precioUnitarioPresupuesto !== n.precioUnitarioPresupuesto) return true;
     if (o.costoTotalItem !== n.costoTotalItem) return true;

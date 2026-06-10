@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import { AlertCircle, BellRing, CalendarCheck, CheckCircle2, ClipboardCheck, ClipboardList, DollarSign, PhoneCall, PartyPopper, Sparkles, Users, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

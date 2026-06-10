@@ -288,6 +288,21 @@ export default function WhatsAppBusinessPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="app-secret">Meta App Secret (para firma digital)</Label>
+              <Input
+                id="app-secret"
+                type="password"
+                placeholder="El App Secret de tu aplicación de Meta..."
+                value={config.appSecret || ''}
+                onChange={e => set('appSecret', e.target.value)}
+                disabled={isSaving}
+              />
+              <p className="text-xs text-muted-foreground">
+                Requerido en producción para validar que las peticiones del webhook provienen legítimamente de Meta.
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="webhook">URL del Webhook</Label>
               <div className="flex gap-2">
                 <Input

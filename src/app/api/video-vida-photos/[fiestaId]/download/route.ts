@@ -77,7 +77,7 @@ export async function GET(
     }
 
     const zipStream = zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true });
-    const webStream = Readable.toWeb(zipStream);
+    const webStream = Readable.toWeb(zipStream as any);
     const zipFilename = `video-de-vida-${fiestaId}.zip`;
 
     const headers = new Headers();
