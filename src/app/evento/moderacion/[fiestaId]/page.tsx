@@ -269,7 +269,7 @@ function SwipeCard({ post, onApprove, onReject, disabled }: SwipeCardProps) {
       drag={!disabled ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
-      whileGrab={{ scale: 1.02 }}
+      whileDrag={{ scale: 1.02 }}
       className="absolute w-full max-w-[340px] aspect-[3/4] bg-zinc-900 border border-zinc-800 rounded-[2.2rem] shadow-2xl overflow-hidden flex flex-col cursor-grab active:cursor-grabbing select-none touch-none"
       initial={{ scale: 0.9, opacity: 0, y: 15 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
