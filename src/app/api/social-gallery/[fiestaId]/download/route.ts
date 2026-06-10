@@ -72,7 +72,7 @@ export async function GET(
     }
     
     const zipStream = zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true });
-    const webStream = Readable.toWeb(zipStream);
+    const webStream = Readable.toWeb(zipStream as any);
     
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `galeria-social-${fiestaId}-${timestamp}.zip`;

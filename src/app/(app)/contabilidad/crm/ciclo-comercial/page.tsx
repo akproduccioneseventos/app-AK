@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle2, FileSignature, PartyPopper, ReceiptText, UserRound, Users } from 'lucide-react';
 import { getCommercialLifecycleDashboard } from '@/app/actions/commercial-lifecycle';
