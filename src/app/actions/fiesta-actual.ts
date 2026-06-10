@@ -144,6 +144,10 @@ export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) {
 export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) { return await FiestaModule.updateNumerosMesa(fiestaId, data); }
 export async function updateGuestPortalSettings(fiestaId: string, settings: GuestPortalSettings) { return await FiestaModule.updateGuestPortalSettings(fiestaId, settings); }
 export async function updateContratoFiestaActual(fiestaId: string, text: string, tipo: string = 'servicios', plantillaId: string = 'default-servicios') {
+    const fiesta = await FiestaModule.getFiestaById(fiestaId);
+    if (fiesta?.contratoFirmaInfo?.isSigned) {
+      return { success: false, error: 'No se puede modificar el contrato una vez firmado.' };
+    }
     return await FiestaModule.updateFiestaPartial(fiestaId, {
       ...(tipo === 'servicios' ? { contratoServicioTexto: text } : {}),
       contratoGenerado: {
@@ -161,6 +165,9 @@ export async function savePlanPagosContrato(
   try {
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');
+    if (fiesta.contratoFirmaInfo?.isSigned) {
+      return { success: false, error: 'No se puede modificar el plan de pagos una vez firmado el contrato.' };
+    }
     return await FiestaModule.updateFiestaPartial(fiestaId, {
       contratoDatos: { ...(fiesta.contratoDatos || {}), planPagos },
     });

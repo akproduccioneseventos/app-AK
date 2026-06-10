@@ -418,22 +418,41 @@ export async function rejectClientPayment(
   fiestaId: string,
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
-  let rejectedNotification: ClientPaymentNotification | undefined;
-  const result = await updateFiestaData(fiestaId, fiesta => {
-    const updated = (fiesta.clientPaymentNotifications ?? []).map(n =>
-      n.id === notificationId ? { ...n, estado: 'rechazado' as const } : n
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const notifications = fiesta.clientPaymentNotifications ?? [];
+    const notifIndex = notifications.findIndex(n => n.id === notificationId);
+    if (notifIndex === -1) return { success: false, error: 'Notificación no encontrada' };
+
+    const notif = notifications[notifIndex];
+    if (notif.estado === 'rechazado') return { success: true };
+
+    const updatedNotif: ClientPaymentNotification = {
+      ...notif,
+      estado: 'rechazado',
+    };
+
+    const updatedNotifications = notifications.map((n, i) =>
+      i === notifIndex ? updatedNotif : n
     );
-    rejectedNotification = updated.find(n => n.id === notificationId);
-    return { ...fiesta, clientPaymentNotifications: updated };
-  });
 
-  if (result.success && rejectedNotification) {
-    notifyClientPaymentRejected(fiestaId, rejectedNotification).catch((error) => {
-      console.warn('[Google Workspace] No se pudo enviar mail de pago rechazado:', error);
-    });
+    const result = await updateFiestaData(fiestaId, f => ({
+      ...f,
+      clientPaymentNotifications: updatedNotifications,
+    }));
+
+    if (result.success) {
+      notifyClientPaymentRejected(fiestaId, updatedNotif).catch((error) => {
+        console.warn('[Google Workspace] No se pudo enviar mail de pago rechazado:', error);
+      });
+    }
+
+    return result;
+  } catch (e: any) {
+    return { success: false, error: sanitizeActionError(e) };
   }
-
-  return result;
 }
 
 /**
