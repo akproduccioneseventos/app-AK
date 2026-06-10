@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, SmilePlus, X } from 'lucide-react';
+import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, SmilePlus, X, Volume2, VolumeX, FileImage } from 'lucide-react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -44,6 +45,29 @@ export default function EspejoMagicoPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [watermarkEnabled, setWatermarkEnabled] = useState(true);
+
+  useEffect(() => {
+    getFiestaById(fiestaId).then(f => setFiesta(f)).catch(() => {});
+  }, [fiestaId]);
+
+  const speak = (text: string) => {
+    if (!voiceEnabled) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      const voices = window.speechSynthesis.getVoices();
+      const esVoice = voices.find(v => v.lang.startsWith('es'));
+      if (esVoice) utterance.voice = esVoice;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.error('SpeechSynthesis error:', e);
+    }
+  };
 
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingActiveRef = useRef(false);
@@ -198,19 +222,66 @@ export default function EspejoMagicoPage() {
     let currentCount = 3;
     setCountdown(currentCount);
     playBeep();
+    speak("Tres");
     
     const interval = setInterval(() => {
       currentCount -= 1;
       if (currentCount > 0) {
         setCountdown(currentCount);
         playBeep();
+        if (currentCount === 2) speak("Dos");
+        if (currentCount === 1) speak("Uno");
       } else {
         clearInterval(interval);
         setCountdown(null);
         playBeep(1200, 0.3);
+        speak("¡Sonríe!");
         captureToCanvas();
       }
     }, 1000);
+  };
+
+  const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    if (!watermarkEnabled) return;
+    
+    const eventName = fiesta?.configuracion?.nombreEvento || 'Nuestra Fiesta';
+    const rawDate = fiesta?.configuracion?.fecha;
+    let eventDateStr = '';
+    if (rawDate) {
+      try {
+        const date = new Date(rawDate);
+        eventDateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch (e) {
+        eventDateStr = rawDate;
+      }
+    }
+
+    // Draw semi-transparent gradient banner at the bottom
+    const bannerHeight = h * 0.08; // 8% of height
+    const grad = ctx.createLinearGradient(0, h - bannerHeight, 0, h);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.6)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+    
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
+
+    // Draw event name
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    if (eventDateStr) {
+      ctx.font = `bold ${Math.max(16, h * 0.022)}px sans-serif`;
+      ctx.fillText(eventName, w / 2, h - bannerHeight * 0.58);
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.font = `${Math.max(12, h * 0.016)}px sans-serif`;
+      ctx.fillText(eventDateStr, w / 2, h - bannerHeight * 0.28);
+    } else {
+      ctx.font = `bold ${Math.max(18, h * 0.026)}px sans-serif`;
+      ctx.fillText(eventName, w / 2, h - bannerHeight * 0.5);
+    }
   };
 
   const captureToCanvas = () => {
@@ -260,8 +331,16 @@ export default function EspejoMagicoPage() {
       ctx.fillText(s.emoji, drawX, drawY);
     });
 
+    // Draw Watermark
+    drawWatermark(ctx, canvas.width, canvas.height);
+
     setCapturedImage(canvas.toDataURL('image/jpeg', 0.9));
     stopCamera();
+
+    // Voice guidance for review screen
+    setTimeout(() => {
+      speak("¡Qué foto espectacular! Firma tu foto abajo o presiona subir al muro.");
+    }, 800);
   };
 
   const handleDownload = () => {
@@ -279,6 +358,7 @@ export default function EspejoMagicoPage() {
   const handleUpload = async () => {
     if (!capturedImage || !canvasRef.current) return;
     setIsUploading(true);
+    speak("Subiendo tu foto al muro");
     try {
       mergeDrawing();
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
@@ -294,6 +374,7 @@ export default function EspejoMagicoPage() {
       
       const res = await uploadSocialPost(formData);
       if (res.success) {
+        speak("¡Listo! Foto enviada al muro");
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
@@ -303,6 +384,7 @@ export default function EspejoMagicoPage() {
         throw new Error(res.error || 'Error al subir');
       }
     } catch (err) {
+      speak("Ups, ocurrió un error al subir");
       alert('Error: ' + (err as Error).message);
     } finally {
       setIsUploading(false);
@@ -324,18 +406,39 @@ export default function EspejoMagicoPage() {
         <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <div className="text-center flex items-center gap-2">
-          <span className="text-xl animate-pulse">✨</span>
-          <h1 className="text-lg font-black uppercase tracking-widest bg-gradient-to-r from-rose-400 to-amber-400 bg-clip-text text-transparent drop-shadow-md">
-            Espejo Mágico
-          </h1>
-          <span className="text-xl animate-pulse">✨</span>
+        <div className="text-center flex flex-col items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-xl animate-pulse">✨</span>
+            <h1 className="text-lg font-black uppercase tracking-widest bg-gradient-to-r from-rose-400 to-amber-400 bg-clip-text text-transparent drop-shadow-md">
+              Espejo Mágico
+            </h1>
+            <span className="text-xl animate-pulse">✨</span>
+          </div>
+          {fiesta && <p className="text-xs font-semibold text-zinc-300 mt-0.5">{fiesta.configuracion?.nombreEvento}</p>}
         </div>
-        {!capturedImage ? (
-          <button onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
-            <SwitchCamera className="w-6 h-6" />
-          </button>
-        ) : <div className="w-10"></div>}
+        <div className="flex items-center gap-2">
+          {!capturedImage ? (
+            <>
+              <button 
+                onClick={() => setVoiceEnabled(v => !v)} 
+                className={`p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                title={voiceEnabled ? 'Desactivar Asistente de Voz' : 'Activar Asistente de Voz'}
+              >
+                {voiceEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+              </button>
+              <button 
+                onClick={() => setWatermarkEnabled(w => !w)} 
+                className={`p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                title={watermarkEnabled ? 'Desactivar Marca de Agua' : 'Activar Marca de Agua'}
+              >
+                <FileImage className="w-6 h-6" />
+              </button>
+              <button onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+                <SwitchCamera className="w-6 h-6" />
+              </button>
+            </>
+          ) : <div className="w-10"></div>}
+        </div>
       </div>
 
       {flash && <div className="absolute inset-0 bg-white z-50 animate-[flash_0.3s_ease-out]" />}
