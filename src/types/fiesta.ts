@@ -800,7 +800,7 @@ export interface SocialGalleryBrand {
 }
 
 export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';
-export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico';
+export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico' | 'pauta';
 
 export type TotemLayoutMode = 'portrait' | 'landscape' | 'square';
 export type TotemBackgroundMode = 'aurora' | 'spotlights' | 'particles' | 'photo-float' | 'social-rain';

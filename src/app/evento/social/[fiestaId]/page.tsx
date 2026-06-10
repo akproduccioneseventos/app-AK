@@ -52,6 +52,8 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import type { Dedication, SongRequest } from '@/types/social-gallery';
+import QrFlyerGenerator from '@/components/social-wall/QrFlyerGenerator';
+import { Printer } from 'lucide-react';
 
 const MAX_DISPLAYED_SONG_REQUESTS = 12;
 
@@ -425,6 +427,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [isFlyerDialogOpen, setIsFlyerDialogOpen] = useState(false);
   
   // Projection mode state
   const [projectionMode, setProjectionMode] = useState(false);
@@ -1656,6 +1659,24 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                  <ShareLinkDialog relativePath={`/evento/social/${params.fiestaId}`} title="Muro Social · Link para invitados" description="Compartí este link para que los invitados suban fotos y participen.">
                     <Button variant="outline" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><Share2 className="w-5 h-5 text-slate-600"/></Button>
                 </ShareLinkDialog>
+                  <Dialog open={isFlyerDialogOpen} onOpenChange={setIsFlyerDialogOpen}>
+                     <DialogTrigger asChild>
+                         <Button variant="outline" title="Descargar carteles QR" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><Printer className="w-5 h-5 text-slate-600"/></Button>
+                     </DialogTrigger>
+                     <DialogContent className="rounded-3xl border-none max-w-lg">
+                         <DialogHeader>
+                             <DialogTitle className="text-xl font-bold">Generador de Cartelera QR</DialogTitle>
+                             <DialogDescription>Generá hermosos diseños para imprimir y colocar en las mesas de la fiesta.</DialogDescription>
+                         </DialogHeader>
+                         {typeof window !== 'undefined' && (
+                           <QrFlyerGenerator
+                             qrUrl={`${window.location.origin}/evento/social/${params.fiestaId}`}
+                             eventName={fiesta?.configuracion?.nombreEvento || "Nuestra Fiesta"}
+                             onClose={() => setIsFlyerDialogOpen(false)}
+                           />
+                         )}
+                     </DialogContent>
+                  </Dialog>
                  <Button variant="outline" onClick={() => window.open(`/evento/muro-en-vivo/${params.fiestaId}`, '_blank')} title="Abrir pantalla gigante" aria-label="Abrir pantalla gigante" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
               </>
             )}
