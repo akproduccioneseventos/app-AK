@@ -45,6 +45,81 @@ export default function EspejoMagicoPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
+  const isDrawingActiveRef = useRef(false);
+  const [drawColor, setDrawColor] = useState('#f43f5e');
+
+  const DRAW_COLORS = [
+    { id: 'rose', value: '#f43f5e', label: '🌹 Rosa' },
+    { id: 'gold', value: '#fbbf24', label: '⭐ Oro' },
+    { id: 'blue', value: '#3b82f6', label: '💧 Azul' },
+    { id: 'green', value: '#10b981', label: '🍀 Verde' },
+    { id: 'white', value: '#ffffff', label: '⚪ Blanco' },
+  ];
+
+  // Set drawing canvas dimensions when capturedImage changes
+  useEffect(() => {
+    if (capturedImage && drawingCanvasRef.current && containerRef.current) {
+      drawingCanvasRef.current.width = containerRef.current.clientWidth;
+      drawingCanvasRef.current.height = containerRef.current.clientHeight;
+    }
+  }, [capturedImage]);
+
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = drawColor;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = drawColor;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    isDrawingActiveRef.current = true;
+  };
+
+  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isDrawingActiveRef.current) return;
+    e.preventDefault();
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const endDrawing = () => {
+    isDrawingActiveRef.current = false;
+  };
+
+  const clearDrawing = () => {
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const mergeDrawing = () => {
+    if (!canvasRef.current || !drawingCanvasRef.current) return;
+    const baseCanvas = canvasRef.current;
+    const drawCanvas = drawingCanvasRef.current;
+    const ctx = baseCanvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(drawCanvas, 0, 0, baseCanvas.width, baseCanvas.height);
+  };
+
   useEffect(() => {
     startCamera();
     return () => stopCamera();
@@ -190,9 +265,11 @@ export default function EspejoMagicoPage() {
   };
 
   const handleDownload = () => {
-    if (!capturedImage) return;
+    if (!capturedImage || !canvasRef.current) return;
+    mergeDrawing();
+    const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.9);
     const a = document.createElement('a');
-    a.href = capturedImage;
+    a.href = dataUrl;
     a.download = `EspejoMagico-${Date.now()}.jpg`;
     document.body.appendChild(a);
     a.click();
@@ -203,6 +280,7 @@ export default function EspejoMagicoPage() {
     if (!capturedImage || !canvasRef.current) return;
     setIsUploading(true);
     try {
+      mergeDrawing();
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al procesar');
       
@@ -284,7 +362,18 @@ export default function EspejoMagicoPage() {
             style={{ filter: selectedFilter.css }}
           />
         ) : (
-          <img src={capturedImage} className="absolute inset-0 w-full h-full object-cover" alt="Captura" />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={capturedImage} className="absolute inset-0 w-full h-full object-cover" alt="Captura" />
+            <canvas
+              ref={drawingCanvasRef}
+              className="absolute inset-0 w-full h-full z-15 touch-none bg-transparent"
+              onPointerDown={startDrawing}
+              onPointerMove={draw}
+              onPointerUp={endDrawing}
+              onPointerLeave={endDrawing}
+            />
+          </>
         )}
 
         {/* STICKERS LAYER */}
@@ -406,31 +495,56 @@ export default function EspejoMagicoPage() {
           </>
         ) : (
           /* Review Controls */
-          <div className="flex items-center justify-around px-6 pb-8 pt-4">
-            <button onClick={retake} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
-              <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
-                <RefreshCw className="w-6 h-6" />
+          <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
+            {/* Color Palette Selector for Drawing */}
+            <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest mr-2">Firma:</span>
+              <div className="flex gap-3">
+                {DRAW_COLORS.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => setDrawColor(c.value)}
+                    className={`w-7 h-7 rounded-full border-2 transition-transform active:scale-95
+                      ${drawColor === c.value ? 'border-white scale-110' : 'border-transparent opacity-70'}`}
+                    style={{ backgroundColor: c.value, boxShadow: drawColor === c.value ? `0 0 8px ${c.value}` : 'none' }}
+                    title={c.label}
+                  />
+                ))}
               </div>
-              <span className="text-xs font-bold">Repetir</span>
-            </button>
+              <button
+                onClick={clearDrawing}
+                className="ml-auto text-[10px] font-black uppercase border border-zinc-800 bg-zinc-900 text-zinc-400 px-3 py-1.5 rounded-full hover:text-white"
+              >
+                Borrar
+              </button>
+            </div>
 
-            <button 
-              onClick={handleUpload}
-              disabled={isUploading || showSuccess}
-              className="flex flex-col items-center gap-2 text-white hover:text-rose-400 transition"
-            >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 shadow-[0_0_30px_rgba(244,63,94,0.3)] flex items-center justify-center">
-                {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <Send className="w-8 h-8 ml-1" />}
-              </div>
-              <span className="text-sm font-black uppercase tracking-wide">Subir al Muro</span>
-            </button>
+            <div className="flex items-center justify-around">
+              <button onClick={retake} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
+                <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
+                  <RefreshCw className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-bold">Repetir</span>
+              </button>
 
-            <button onClick={handleDownload} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
-              <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
-                <Download className="w-6 h-6" />
-              </div>
-              <span className="text-xs font-bold">Guardar</span>
-            </button>
+              <button 
+                onClick={handleUpload}
+                disabled={isUploading || showSuccess}
+                className="flex flex-col items-center gap-2 text-white hover:text-rose-400 transition"
+              >
+                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 shadow-[0_0_30px_rgba(244,63,94,0.3)] flex items-center justify-center">
+                  {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <Send className="w-8 h-8 ml-1" />}
+                </div>
+                <span className="text-sm font-black uppercase tracking-wide">Subir al Muro</span>
+              </button>
+
+              <button onClick={handleDownload} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
+                <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
+                  <Download className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-bold">Guardar</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
