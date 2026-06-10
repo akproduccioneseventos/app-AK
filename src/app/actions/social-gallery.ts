@@ -28,6 +28,7 @@ import path from 'path';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
+import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -143,8 +144,22 @@ export async function uploadSocialPost(
     const storagePath = `social-gallery/${fiestaId}/${postId}${fileExtension}`;
 
     const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    let imageAiSafe = true;
+    if (isImage) {
+      const safetyResult = await checkImageSafety(buffer);
+      imageAiSafe = safetyResult.safe;
+      if (!imageAiSafe) {
+        return { 
+          success: false, 
+          error: 'Archivo bloqueado por riesgo de contenido adulto o inapropiado.' 
+        };
+      }
+    }
+
     const imageUrl = await uploadToStorage(
-      Buffer.from(bytes),
+      buffer,
       storagePath,
       file.type || 'image/jpeg',
       true
@@ -156,6 +171,7 @@ export async function uploadSocialPost(
       text: dedication,
       authorName,
       moderationMode: requireApproval ? 'seguro' : 'automatico',
+      imageAiSafe,
     });
     if (mediaReview.status === 'blocked') return { success: false, error: mediaReview.message };
     const newPost: SocialGalleryPost = {
