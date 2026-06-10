@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw } from 'lucide-react';
+import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, Volume2, VolumeX, FileImage } from 'lucide-react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -37,6 +37,24 @@ export default function FotocabinaPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [watermarkEnabled, setWatermarkEnabled] = useState(true);
+
+  const speak = (text: string) => {
+    if (!voiceEnabled) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      const voices = window.speechSynthesis.getVoices();
+      const esVoice = voices.find(v => v.lang.startsWith('es'));
+      if (esVoice) utterance.voice = esVoice;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.error('SpeechSynthesis error:', e);
+    }
+  };
 
   useEffect(() => {
     getFiestaById(fiestaId).then(f => setFiesta(f)).catch(() => {});
@@ -91,19 +109,66 @@ export default function FotocabinaPage() {
     let currentCount = 3;
     setCountdown(currentCount);
     playBeep();
+    speak("Tres");
     
     const interval = setInterval(() => {
       currentCount -= 1;
       if (currentCount > 0) {
         setCountdown(currentCount);
         playBeep();
+        if (currentCount === 2) speak("Dos");
+        if (currentCount === 1) speak("Uno");
       } else {
         clearInterval(interval);
         setCountdown(null);
         playBeep(1200, 0.3); // High beep for capture
+        speak("¡Sonríe!");
         captureToCanvas();
       }
     }, 1000);
+  };
+
+  const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    if (!watermarkEnabled) return;
+    
+    const eventName = fiesta?.configuracion?.nombreEvento || 'Nuestra Fiesta';
+    const rawDate = fiesta?.configuracion?.fecha;
+    let eventDateStr = '';
+    if (rawDate) {
+      try {
+        const date = new Date(rawDate);
+        eventDateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch (e) {
+        eventDateStr = rawDate;
+      }
+    }
+
+    // Draw semi-transparent gradient banner at the bottom
+    const bannerHeight = h * 0.08; // 8% of height
+    const grad = ctx.createLinearGradient(0, h - bannerHeight, 0, h);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.6)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+    
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
+
+    // Draw event name
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    if (eventDateStr) {
+      ctx.font = `bold ${Math.max(16, h * 0.022)}px sans-serif`;
+      ctx.fillText(eventName, w / 2, h - bannerHeight * 0.58);
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.font = `${Math.max(12, h * 0.016)}px sans-serif`;
+      ctx.fillText(eventDateStr, w / 2, h - bannerHeight * 0.28);
+    } else {
+      ctx.font = `bold ${Math.max(18, h * 0.026)}px sans-serif`;
+      ctx.fillText(eventName, w / 2, h - bannerHeight * 0.5);
+    }
   };
 
   const captureToCanvas = () => {
@@ -135,9 +200,17 @@ export default function FotocabinaPage() {
     // Draw Frame over it
     drawFrameOverlay(ctx, canvas.width, canvas.height);
 
+    // Draw Watermark Overlay
+    drawWatermark(ctx, canvas.width, canvas.height);
+
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
     setCapturedImage(dataUrl);
     stopCamera();
+
+    // Voice guidance for review screen
+    setTimeout(() => {
+      speak("¡Mirá qué buena foto! Elegí un marco o presiona subir al muro.");
+    }, 800);
   };
 
   const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
@@ -197,6 +270,7 @@ export default function FotocabinaPage() {
   const handleUpload = async () => {
     if (!capturedImage || !canvasRef.current) return;
     setIsUploading(true);
+    speak("Subiendo tu foto al muro");
     try {
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al generar imagen');
@@ -211,6 +285,7 @@ export default function FotocabinaPage() {
       
       const res = await uploadSocialPost(formData);
       if (res.success) {
+        speak("¡Excelente! Tu foto ya está en el muro.");
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
@@ -220,6 +295,7 @@ export default function FotocabinaPage() {
         throw new Error(res.error || 'Error al subir');
       }
     } catch (err) {
+      speak("Ups, ocurrió un error al subir");
       alert('No se pudo subir la foto. ' + (err as Error).message);
     } finally {
       setIsUploading(false);
@@ -246,11 +322,29 @@ export default function FotocabinaPage() {
           <h1 className="text-sm font-bold uppercase tracking-widest text-amber-400">Fotocabina</h1>
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.configuracion?.nombreEvento}</p>}
         </div>
-        {!capturedImage ? (
-          <button onClick={toggleCamera} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
-            <SwitchCamera className="w-6 h-6" />
-          </button>
-        ) : <div className="w-10"></div>}
+        <div className="flex items-center gap-2">
+          {!capturedImage ? (
+            <>
+              <button 
+                onClick={() => setVoiceEnabled(v => !v)} 
+                className={`p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                title={voiceEnabled ? 'Desactivar Asistente de Voz' : 'Activar Asistente de Voz'}
+              >
+                {voiceEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+              </button>
+              <button 
+                onClick={() => setWatermarkEnabled(w => !w)} 
+                className={`p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                title={watermarkEnabled ? 'Desactivar Marca de Agua' : 'Activar Marca de Agua'}
+              >
+                <FileImage className="w-6 h-6" />
+              </button>
+              <button onClick={toggleCamera} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+                <SwitchCamera className="w-6 h-6" />
+              </button>
+            </>
+          ) : <div className="w-10"></div>}
+        </div>
       </div>
 
       {/* FLASH SCREEN */}
