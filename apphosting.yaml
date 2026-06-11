@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# Deploy trigger: 2026-06-11T12:09:09Z - force Firebase App Hosting rebuild
+# Deploy trigger: 2026-06-11T12:11:00Z - force Firebase App Hosting rebuild
 
 runConfig:
   cpu: 1
