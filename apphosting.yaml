@@ -56,6 +56,10 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: AUTH_ALLOWED_EMAILS
+    value: "akproduccionessalto@gmail.com"
+    availability:
+      - RUNTIME
 
   - variable: GOOGLE_API_KEY
     secret: google-api-key
