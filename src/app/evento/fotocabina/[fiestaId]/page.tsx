@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, Volume2, VolumeX, FileImage } from 'lucide-react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
@@ -423,6 +424,12 @@ export default function FotocabinaPage() {
                   {frame.label}
                 </button>
               ))}
+              <Link
+                href={`/evento/touchpix/${fiestaId}`}
+                className="shrink-0 px-4 py-2 rounded-full text-sm font-bold transition whitespace-nowrap border-2 border-fuchsia-500/60 bg-gradient-to-r from-fuchsia-600/20 to-purple-600/20 text-fuchsia-400 hover:from-fuchsia-600/30 hover:to-purple-600/30 flex items-center gap-1.5"
+              >
+                🪄 Touchpix IA
+              </Link>
             </div>
 
             {/* Shutter Button */}
