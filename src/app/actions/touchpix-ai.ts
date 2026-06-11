@@ -39,43 +39,43 @@ const THEME_DEFINITIONS: Record<TouchpixThemeId, ThemeDefinition> = {
   disco_glam: {
     label: 'Disco Glamour',
     promptDescription:
-      'Apply a dazzling disco glamour transformation: add shimmering sparkles and glitter particles floating around the person, disco ball light reflections casting colorful prismatic patterns on their skin and clothes, warm glamorous studio lighting with a soft golden glow, and a subtle bokeh background with rotating disco ball highlights. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a dazzling disco glamour transformation: add shimmering sparkles and glitter particles floating around the person, disco ball light reflections casting colorful prismatic patterns on their skin and clothes, warm glamorous studio lighting with a soft golden glow, and a subtle bokeh background with rotating disco ball highlights. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.3) brightness(1.1) contrast(1.1) hue-rotate(15deg)',
   },
   neon_retro: {
     label: 'Neon Retro 80s',
     promptDescription:
-      'Apply an 80s neon retro transformation: add vibrant neon glow outlines in hot pink, electric cyan, and purple tracing around the person's silhouette and features, a retro synthwave grid floor fading into the background, retro color grading with deep magentas and teals, scanline overlay effects, and subtle VHS-style chromatic aberration. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply an 80s neon retro transformation: add vibrant neon glow outlines in hot pink, electric cyan, and purple tracing around the person's silhouette and features, a retro synthwave grid floor fading into the background, retro color grading with deep magentas and teals, scanline overlay effects, and subtle VHS-style chromatic aberration. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.5) contrast(1.3) hue-rotate(280deg) brightness(1.05)',
   },
   fantasy_enchanted: {
     label: 'Fantasy Enchanted Forest',
     promptDescription:
-      'Apply a magical enchanted forest transformation: surround the person with floating magical fairy dust particles that emit a soft golden-green glow, add an ethereal luminous aura around them, place them in a mystical forest backdrop with bioluminescent plants and fireflies, add subtle lens flares and dreamy soft-focus edges. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a magical enchanted forest transformation: surround the person with floating magical fairy dust particles that emit a soft golden-green glow, add an ethereal luminous aura around them, place them in a mystical forest backdrop with bioluminescent plants and fireflies, add subtle lens flares and dreamy soft-focus edges. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.2) brightness(1.05) sepia(0.15) hue-rotate(90deg)',
   },
   pop_art: {
     label: 'Pop Art Warhol',
     promptDescription:
-      'Apply a bold Andy Warhol-style pop art transformation: convert the image to use flat, highly saturated primary colors (bright red, yellow, blue, green), add thick black comic-book outlines around the person's features, apply Ben-Day dot halftone patterns in the background and shadow areas, use a high-contrast posterized color palette. Keep the person's face clearly recognizable despite the stylization.',
+      "Apply a bold Andy Warhol-style pop art transformation: convert the image to use flat, highly saturated primary colors (bright red, yellow, blue, green), add thick black comic-book outlines around the person's features, apply Ben-Day dot halftone patterns in the background and shadow areas, use a high-contrast posterized color palette. Keep the person's face clearly recognizable despite the stylization.",
     cssFallbackHint: 'saturate(2.0) contrast(1.6) brightness(1.1)',
   },
   golden_luxury: {
     label: 'Golden Luxury',
     promptDescription:
-      'Apply a luxurious golden transformation: overlay delicate gold leaf textures and flakes gently floating around the person, add a rich warm golden color grade with deep amber highlights, place subtle golden baroque ornamental frames or flourishes at the edges, apply a premium soft-glow lighting that makes skin look radiant. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a luxurious golden transformation: overlay delicate gold leaf textures and flakes gently floating around the person, add a rich warm golden color grade with deep amber highlights, place subtle golden baroque ornamental frames or flourishes at the edges, apply a premium soft-glow lighting that makes skin look radiant. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'sepia(0.4) saturate(1.3) brightness(1.1) contrast(1.05)',
   },
   cosmic_galaxy: {
     label: 'Cosmic Galaxy',
     promptDescription:
-      'Apply a cosmic galaxy transformation: replace the background with a stunning deep-space nebula scene filled with colorful gas clouds in purple, blue, and pink, add twinkling distant stars and subtle galaxy spiral formations, make the person appear to float in space with gentle cosmic light reflections on their skin, add a faint stellar lens flare. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a cosmic galaxy transformation: replace the background with a stunning deep-space nebula scene filled with colorful gas clouds in purple, blue, and pink, add twinkling distant stars and subtle galaxy spiral formations, make the person appear to float in space with gentle cosmic light reflections on their skin, add a faint stellar lens flare. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.4) contrast(1.2) hue-rotate(240deg) brightness(0.95)',
   },
   carnival_fiesta: {
     label: 'Carnival Fiesta',
     promptDescription:
-      'Apply a vibrant carnival fiesta transformation: shower the scene with colorful confetti and streamers falling around the person, add festive party lights (bokeh circles in rainbow colors) in the background, include subtle party elements like a feathered mask silhouette or bunting flags at the top, apply a warm and joyful color grade with boosted vibrancy. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a vibrant carnival fiesta transformation: shower the scene with colorful confetti and streamers falling around the person, add festive party lights (bokeh circles in rainbow colors) in the background, include subtle party elements like a feathered mask silhouette or bunting flags at the top, apply a warm and joyful color grade with boosted vibrancy. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.5) brightness(1.1) contrast(1.1) hue-rotate(30deg)',
   },
 };
@@ -455,10 +455,10 @@ export async function applyFaceSwap(
         text: [
           'You are an expert image compositing artist specializing in face swaps.',
           '',
-          'TASK: Take the face from the FIRST image (the person's photo) and seamlessly place it onto the body/character in the SECOND image.',
+          "TASK: Take the face from the FIRST image (the person's photo) and seamlessly place it onto the body/character in the SECOND image.",
           '',
           'RULES:',
-          '- Keep the person's face from the first image: their exact facial features, skin tone, expression, and proportions.',
+          "- Keep the person's face from the first image: their exact facial features, skin tone, expression, and proportions.",
           '- Blend the face naturally onto the body in the second image, matching lighting, angle, and perspective.',
           '- The result must look photorealistic — no visible seams, no uncanny distortions.',
           '- Preserve the outfit, background, and setting from the second image.',
@@ -477,8 +477,8 @@ export async function applyFaceSwap(
           `TASK: Take the face of the person in the provided photo and place it onto the body of ${character.promptDescription}.`,
           '',
           'RULES:',
-          '- Keep the person's exact facial features, skin tone, expression, and proportions from the provided photo.',
-          '- Generate a complete full-body or upper-body image of the character, with the person's face seamlessly composited.',
+          "- Keep the person's exact facial features, skin tone, expression, and proportions from the provided photo.",
+          "- Generate a complete full-body or upper-body image of the character, with the person's face seamlessly composited.",
           '- Match the lighting on the face to the character scene so it looks natural and photorealistic.',
           '- The result must look like a professional movie poster or high-quality composite — no visible seams.',
           '- Output a single high-quality photorealistic image.',
