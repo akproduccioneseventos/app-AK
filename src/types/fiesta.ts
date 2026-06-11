@@ -678,6 +678,7 @@ export interface ClientPortalSettings {
   paginaPublica: PortalViewOnlyModuleSettings;
   fotografiaYFilmacion: PortalViewOnlyModuleSettings;
   moodboard: PortalModuleSettings;
+  buzon: PortalModuleSettings;
   contrato: PortalViewOnlyModuleSettings;
   pagos: PortalViewOnlyModuleSettings;
   simuladorInvitados: SimuladorInvitadosSettings;
@@ -1185,6 +1186,7 @@ export interface GuestPortalSettings {
   showMusica: boolean;
   showRegalos: boolean;
   showCheckin: boolean;
+  showBuzon?: boolean;
   welcomeMessage?: string;
   customBgColor?: string;
   customAccentColor?: string;
@@ -1419,6 +1421,13 @@ export interface FiestaEnPlanificacion {
   clienteDebeLlevar?: ClienteDebeLlevarItem[];
   guestExperienceSettings?: GuestExperienceSettings;
   clientePortalExperience?: ClientePortalExperience;
+  buzonConfig?: BuzonConfig;
+}
+
+export interface BuzonConfig {
+  welcomeAudioUrl?: string;
+  welcomeAudioPath?: string;
+  enabled?: boolean;
 }
 
 export interface ContratoFirmaInfo {

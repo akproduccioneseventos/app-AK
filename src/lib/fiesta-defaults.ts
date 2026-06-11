@@ -99,6 +99,7 @@ export const defaultClientPortalSettings: ClientPortalSettings = {
     paginaPublica: { visible: true }, 
     fotografiaYFilmacion: { visible: true }, 
     moodboard: { visible: true, editable: true },
+    buzon: { visible: true, editable: true },
     contrato: { visible: true }, 
     pagos: { visible: true }, 
     simuladorInvitados: { visible: true, minReductionPercent: 10, maxIncreasePercent: 30 },

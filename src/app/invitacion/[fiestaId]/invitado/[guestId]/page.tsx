@@ -351,16 +351,22 @@ function GuestPortalContent() {
             <div className="grid grid-cols-2 gap-2">
               <a href={`/evento/fotocabina/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
                 <span className="text-2xl">📸</span>
-                <span className="text-xs font-black uppercase tracking-wide">Fotocabina</span>
+                <span className="text-xs font-black uppercase tracking-wide text-center">Fotocabina</span>
               </a>
               <a href={`/evento/hub/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
                 <span className="text-2xl">🌐</span>
-                <span className="text-xs font-black uppercase tracking-wide">Hub del Evento</span>
+                <span className="text-xs font-black uppercase tracking-wide text-center">Hub del Evento</span>
               </a>
-              <a href={`/evento/social/${fiestaId}`} className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+              <a href={`/evento/social/${fiestaId}`} className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-pink-600 to-rose-500 text-white shadow-lg hover:scale-105 transition-transform border border-white/10 ${gps.showBuzon !== false ? '' : 'col-span-2 flex-row gap-2'}`}>
                 <span className="text-2xl">🎬</span>
-                <span className="text-sm font-black uppercase tracking-wide">Mural en Vivo</span>
+                <span className={`${gps.showBuzon !== false ? 'text-xs' : 'text-sm'} font-black uppercase tracking-wide text-center`}>Mural en Vivo</span>
               </a>
+              {gps.showBuzon !== false && (
+                <a href={`/evento/buzon/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+                  <span className="text-2xl">🎙️</span>
+                  <span className="text-xs font-black uppercase tracking-wide text-center">Buzón recuerdos</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

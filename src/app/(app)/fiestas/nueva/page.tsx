@@ -15,7 +15,7 @@ import {
     ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell,
     Activity, ShieldCheck, Users2, Search, Music, Package, Truck, UserCheck,
     Monitor, Tv, Gamepad2, Sparkles, UtensilsCrossed, Wine, CreditCard,
-    BookOpen, Image, Hash, Lock, X, CheckCircle2
+    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
@@ -79,6 +79,7 @@ const modules: ModuleDefinition[] = [
   { id: 'fotografia', title: "Foto y Video", href: "fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
   { id: 'entretenimiento', title: "Entretenimiento", href: "entretenimiento", icon: Sparkles, description: "Fotocabina, 360, Bogue y Espejo Mágico conectados al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
   { id: 'regalos', title: "Regalos", href: "regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
+  { id: 'buzon', title: "Buzón de Recuerdos", href: "buzon", icon: Mic, description: "Descarga de audios/videos del buzón y bienvenida.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-700", badge: 'Cliente' },
   { id: 'postEvento', title: "Post-Evento", href: "post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-amber-100 text-amber-700", badge: 'Interno' },
 
   // 5. EXPERIENCIA DEL INVITADO VIP
