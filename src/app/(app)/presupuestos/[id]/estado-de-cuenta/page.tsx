@@ -353,8 +353,8 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
                 Sin pagos registrados
               </div>
             ) : (
-              <div className="border rounded-xl overflow-hidden">
-                <Table>
+              <div className="border rounded-xl w-full overflow-x-auto block">
+                <Table className="min-w-[500px]">
                   <TableHeader className="bg-slate-50">
                     <TableRow>
                       <TableHead className="text-[9px] font-black uppercase tracking-widest py-3 pl-4">

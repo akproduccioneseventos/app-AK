@@ -23,4 +23,5 @@ export interface Customer {
   contractFileName?: string; 
   budgetFileName?: string;
   salonContractFileName?: string;
+  presupuestoId?: string;
 }

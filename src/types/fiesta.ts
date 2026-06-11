@@ -732,6 +732,7 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
+  privateDedicationsMode?: boolean;
   requireApproval?: boolean;
   marketingTickerText?: string;
   /** Whether the marketing ticker (social/network footer bar) is enabled */
@@ -800,7 +801,7 @@ export interface SocialGalleryBrand {
 }
 
 export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';
-export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico';
+export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico' | 'pauta';
 
 export type TotemLayoutMode = 'portrait' | 'landscape' | 'square';
 export type TotemBackgroundMode = 'aurora' | 'spotlights' | 'particles' | 'photo-float' | 'social-rain';

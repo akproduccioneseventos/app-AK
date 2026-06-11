@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# Deploy trigger: 2026-03-30T01:10:00Z - force Firebase App Hosting rebuild
+# Deploy trigger: 2026-06-11T12:11:00Z - force Firebase App Hosting rebuild
 
 runConfig:
   cpu: 1
@@ -84,6 +84,11 @@ env:
       - RUNTIME
   - variable: GEMINI_MODEL_COMMERCIAL
     value: "googleai/gemini-3-flash-preview"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GEMINI_IMAGE_MODEL
+    value: "googleai/gemini-3.1-flash-image-preview"
     availability:
       - BUILD
       - RUNTIME

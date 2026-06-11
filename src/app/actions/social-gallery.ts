@@ -21,13 +21,17 @@
  */
 
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
+import type { SocialGallerySettings } from '@/types/fiesta';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
 import path from 'path';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
+import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
+import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { isSharedKioskUpload, shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -49,21 +53,46 @@ async function getDb(): Promise<Firestore> {
 export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   try {
     const db = await getDb();
+    const canModerate = await hasAppSession();
     // Single equality filter — uses the auto-created single-field index on fiestaId.
     const snapshot = await db
       .collection(GALLERY_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .get();
-    return snapshot.docs
+    const posts = snapshot.docs
       .map((doc: QueryDocumentSnapshot) => {
         const data = { ...doc.data() } as any;
         delete data._syncedAt;
         return data as SocialGalleryPost;
       })
       .sort((a: SocialGalleryPost, b: SocialGalleryPost) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return canModerate
+      ? posts
+      : posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
   } catch (e) {
     logger.warn('[social-gallery] getSocialPosts failed:', e);
     return [];
+  }
+}
+
+export async function getSocialAdminAccess(): Promise<boolean> {
+  return hasAppSession();
+}
+
+export async function saveSocialGallerySettings(
+  fiestaId: string,
+  settings: SocialGallerySettings
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAppSession();
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    const result = await saveFiesta({ ...fiesta, socialGallerySettings: settings });
+    return result.success
+      ? { success: true }
+      : { success: false, error: result.error || 'No se pudieron guardar los ajustes.' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Sesion no autorizada.' };
   }
 }
 
@@ -76,6 +105,8 @@ export async function uploadSocialPost(
   const dedication = (formData.get('dedication') as string) || undefined;
   const momentTag = (formData.get('momentTag') as string) || undefined;
   const imageHash = (formData.get('imageHash') as string) || undefined;
+  const source = (formData.get('source') as string) || 'guest';
+  const sourceModule = (formData.get('sourceModule') as string) || undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
   const textReview = reviewSocialContent({
@@ -97,6 +128,13 @@ export async function uploadSocialPost(
   try {
     const db = await getDb();
     const fiestaData = await getFiestaById(fiestaId);
+    if (!fiestaData) return { success: false, error: 'Evento no encontrado.' };
+    if (fiestaData.socialGallerySettings?.enabled === false) {
+      return { success: false, error: 'El muro social no esta habilitado para este evento.' };
+    }
+    if (fiestaData.socialGallerySettings?.uploadsActive === false) {
+      return { success: false, error: 'Las cargas estan pausadas para este evento.' };
+    }
     const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
     const personLimit = fiestaData?.socialGallerySettings?.maxPhotosPerPerson ?? MAX_PHOTOS_PER_PERSON;
 
@@ -112,7 +150,8 @@ export async function uploadSocialPost(
 
     // Per-person limit — only applied to named (non-anonymous) users.
     const isAnonymous = !authorName || authorName.toLowerCase() === 'anónimo' || authorName.toLowerCase() === 'anonimo';
-    if (!isAnonymous) {
+    const sharedKioskUpload = isSharedKioskUpload(source, sourceModule);
+    if (!isAnonymous && !sharedKioskUpload) {
       const personSnap = await db
         .collection(GALLERY_COLLECTION)
         .where('fiestaId', '==', fiestaId)
@@ -122,19 +161,19 @@ export async function uploadSocialPost(
       if (personSnap.size >= personLimit) {
         return { success: false, error: `Ya subiste el máximo de ${personLimit} fotos permitidas por persona.` };
       }
+    }
 
-      // Duplicate image detection — reject if the same content hash was already uploaded.
-      if (imageHash) {
-        const hashSnap = await db
-          .collection(GALLERY_COLLECTION)
-          .where('fiestaId', '==', fiestaId)
-          .where('imageHash', '==', imageHash)
-          .select('id')
-          .limit(1)
-          .get();
-        if (!hashSnap.empty) {
-          return { success: false, error: 'Esta imagen ya fue subida anteriormente.' };
-        }
+    // Reject duplicate media regardless of whether it came from a guest or a shared kiosk.
+    if (imageHash) {
+      const hashSnap = await db
+        .collection(GALLERY_COLLECTION)
+        .where('fiestaId', '==', fiestaId)
+        .where('imageHash', '==', imageHash)
+        .select('id')
+        .limit(1)
+        .get();
+      if (!hashSnap.empty) {
+        return { success: false, error: 'Esta imagen ya fue subida anteriormente.' };
       }
     }
 
@@ -143,19 +182,34 @@ export async function uploadSocialPost(
     const storagePath = `social-gallery/${fiestaId}/${postId}${fileExtension}`;
 
     const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    let safetyResult: Awaited<ReturnType<typeof checkImageSafety>> = { safe: true, reason: 'clean' };
+    if (isImage) {
+      safetyResult = await checkImageSafety(buffer);
+      if (!safetyResult.safe) {
+        return { 
+          success: false, 
+          error: 'Archivo bloqueado por riesgo de contenido adulto o inapropiado.' 
+        };
+      }
+    }
+
     const imageUrl = await uploadToStorage(
-      Buffer.from(bytes),
+      buffer,
       storagePath,
       file.type || 'image/jpeg',
       true
     );
 
     const requireApproval = fiestaData?.socialGallerySettings?.requireApproval === true;
+    const queueForReview = shouldQueueForManualReview(requireApproval, safetyResult);
     const mediaReview = reviewSocialContent({
       type: isVideo ? 'video' : 'image',
       text: dedication,
       authorName,
-      moderationMode: requireApproval ? 'seguro' : 'automatico',
+      moderationMode: queueForReview ? 'seguro' : 'automatico',
+      imageAiSafe: safetyResult.safe,
     });
     if (mediaReview.status === 'blocked') return { success: false, error: mediaReview.message };
     const newPost: SocialGalleryPost = {
@@ -168,7 +222,8 @@ export async function uploadSocialPost(
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
       likes: 0,
       comments: [],
-      source: 'guest',
+      source,
+      ...(sourceModule ? { sourceModule } : {}),
       ...(dedication ? { dedication: sanitizeSocialText(dedication) } : {}),
       ...(momentTag ? { momentTag } : {}),
       ...(imageHash ? { imageHash } : {}),
@@ -238,18 +293,20 @@ export async function moderateSocialPost(
   moderatedBy: string = 'AK Producciones'
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   try {
+    await requireAppSession();
     const db = await getDb();
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+    const snap = await ref.get();
+    if (!snap.exists) return { success: false, error: 'Publicación no encontrada.' };
     await ref.update({
       moderationStatus,
       moderatedAt: new Date().toISOString(),
       moderatedBy,
     });
     const updated = await ref.get();
-    if (!updated.exists) return { success: false, error: 'Publicacion no encontrada.' };
     return { success: true, post: { ...updated.data() } as SocialGalleryPost };
   } catch (e: any) {
-    return { success: false, error: e.message || 'No se pudo moderar la publicacion.' };
+    return { success: false, error: e.message || 'No se pudo moderar la publicación.' };
   }
 }
 
@@ -299,6 +356,7 @@ export async function highlightComment(
   highlighted: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const db = await getDb();
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     await db.runTransaction(async (tx: Transaction) => {
@@ -320,6 +378,7 @@ export async function deleteSocialPost(
   postId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const db = await getDb();
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     const snap = await ref.get();
@@ -339,6 +398,7 @@ export async function deleteSocialPost(
 
 export async function clearGallery(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const db = await getDb();
     const snapshot = await db
       .collection(GALLERY_COLLECTION)
@@ -368,6 +428,7 @@ export async function getPhotoFilePathsForZip(
   fiestaId: string
 ): Promise<{ path: string; name: string }[]> {
   try {
+    await requireAppSession();
     const db = await getDb();
     const snapshot = await db
       .collection(GALLERY_COLLECTION)

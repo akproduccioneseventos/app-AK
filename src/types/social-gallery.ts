@@ -62,6 +62,8 @@ export interface Dedication {
   authorName: string;
   timestamp: string;
   highlighted?: boolean;
+  audioUrl?: string;
+  visibility?: 'public' | 'private';
 }
 
 export interface SorteoParticipant {

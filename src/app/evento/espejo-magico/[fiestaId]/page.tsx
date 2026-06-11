@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, SmilePlus, X } from 'lucide-react';
+import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, SmilePlus, X, Volume2, VolumeX, FileImage } from 'lucide-react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -44,6 +46,104 @@ export default function EspejoMagicoPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [watermarkEnabled, setWatermarkEnabled] = useState(true);
+
+  useEffect(() => {
+    getFiestaById(fiestaId).then(f => setFiesta(f)).catch(() => {});
+  }, [fiestaId]);
+
+  const speak = (text: string) => {
+    if (!voiceEnabled) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      const voices = window.speechSynthesis.getVoices();
+      const esVoice = voices.find(v => v.lang.startsWith('es'));
+      if (esVoice) utterance.voice = esVoice;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.error('SpeechSynthesis error:', e);
+    }
+  };
+
+  const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
+  const isDrawingActiveRef = useRef(false);
+  const [drawColor, setDrawColor] = useState('#f43f5e');
+
+  const DRAW_COLORS = [
+    { id: 'rose', value: '#f43f5e', label: '🌹 Rosa' },
+    { id: 'gold', value: '#fbbf24', label: '⭐ Oro' },
+    { id: 'blue', value: '#3b82f6', label: '💧 Azul' },
+    { id: 'green', value: '#10b981', label: '🍀 Verde' },
+    { id: 'white', value: '#ffffff', label: '⚪ Blanco' },
+  ];
+
+  // Set drawing canvas dimensions when capturedImage changes
+  useEffect(() => {
+    if (capturedImage && drawingCanvasRef.current && containerRef.current) {
+      drawingCanvasRef.current.width = containerRef.current.clientWidth;
+      drawingCanvasRef.current.height = containerRef.current.clientHeight;
+    }
+  }, [capturedImage]);
+
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = drawColor;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = drawColor;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    isDrawingActiveRef.current = true;
+  };
+
+  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isDrawingActiveRef.current) return;
+    e.preventDefault();
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const endDrawing = () => {
+    isDrawingActiveRef.current = false;
+  };
+
+  const clearDrawing = () => {
+    const canvas = drawingCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const mergeDrawing = () => {
+    if (!canvasRef.current || !drawingCanvasRef.current) return;
+    const baseCanvas = canvasRef.current;
+    const drawCanvas = drawingCanvasRef.current;
+    const ctx = baseCanvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(drawCanvas, 0, 0, baseCanvas.width, baseCanvas.height);
+  };
 
   useEffect(() => {
     startCamera();
@@ -123,19 +223,66 @@ export default function EspejoMagicoPage() {
     let currentCount = 3;
     setCountdown(currentCount);
     playBeep();
+    speak("Tres");
     
     const interval = setInterval(() => {
       currentCount -= 1;
       if (currentCount > 0) {
         setCountdown(currentCount);
         playBeep();
+        if (currentCount === 2) speak("Dos");
+        if (currentCount === 1) speak("Uno");
       } else {
         clearInterval(interval);
         setCountdown(null);
         playBeep(1200, 0.3);
+        speak("¡Sonríe!");
         captureToCanvas();
       }
     }, 1000);
+  };
+
+  const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    if (!watermarkEnabled) return;
+    
+    const eventName = fiesta?.configuracion?.nombreEvento || 'Nuestra Fiesta';
+    const rawDate = fiesta?.configuracion?.fechaEvento;
+    let eventDateStr = '';
+    if (rawDate) {
+      try {
+        const date = new Date(rawDate);
+        eventDateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch (e) {
+        eventDateStr = rawDate;
+      }
+    }
+
+    // Draw semi-transparent gradient banner at the bottom
+    const bannerHeight = h * 0.08; // 8% of height
+    const grad = ctx.createLinearGradient(0, h - bannerHeight, 0, h);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.6)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+    
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
+
+    // Draw event name
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    if (eventDateStr) {
+      ctx.font = `bold ${Math.max(16, h * 0.022)}px sans-serif`;
+      ctx.fillText(eventName, w / 2, h - bannerHeight * 0.58);
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.font = `${Math.max(12, h * 0.016)}px sans-serif`;
+      ctx.fillText(eventDateStr, w / 2, h - bannerHeight * 0.28);
+    } else {
+      ctx.font = `bold ${Math.max(18, h * 0.026)}px sans-serif`;
+      ctx.fillText(eventName, w / 2, h - bannerHeight * 0.5);
+    }
   };
 
   const captureToCanvas = () => {
@@ -185,14 +332,24 @@ export default function EspejoMagicoPage() {
       ctx.fillText(s.emoji, drawX, drawY);
     });
 
+    // Draw Watermark
+    drawWatermark(ctx, canvas.width, canvas.height);
+
     setCapturedImage(canvas.toDataURL('image/jpeg', 0.9));
     stopCamera();
+
+    // Voice guidance for review screen
+    setTimeout(() => {
+      speak("¡Qué foto espectacular! Firma tu foto abajo o presiona subir al muro.");
+    }, 800);
   };
 
   const handleDownload = () => {
-    if (!capturedImage) return;
+    if (!capturedImage || !canvasRef.current) return;
+    mergeDrawing();
+    const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.9);
     const a = document.createElement('a');
-    a.href = capturedImage;
+    a.href = dataUrl;
     a.download = `EspejoMagico-${Date.now()}.jpg`;
     document.body.appendChild(a);
     a.click();
@@ -202,7 +359,9 @@ export default function EspejoMagicoPage() {
   const handleUpload = async () => {
     if (!capturedImage || !canvasRef.current) return;
     setIsUploading(true);
+    speak("Subiendo tu foto al muro");
     try {
+      mergeDrawing();
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al procesar');
       
@@ -216,6 +375,7 @@ export default function EspejoMagicoPage() {
       
       const res = await uploadSocialPost(formData);
       if (res.success) {
+        speak("¡Listo! Foto enviada al muro");
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
@@ -225,6 +385,7 @@ export default function EspejoMagicoPage() {
         throw new Error(res.error || 'Error al subir');
       }
     } catch (err) {
+      speak("Ups, ocurrió un error al subir");
       alert('Error: ' + (err as Error).message);
     } finally {
       setIsUploading(false);
@@ -246,18 +407,39 @@ export default function EspejoMagicoPage() {
         <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <div className="text-center flex items-center gap-2">
-          <span className="text-xl animate-pulse">✨</span>
-          <h1 className="text-lg font-black uppercase tracking-widest bg-gradient-to-r from-rose-400 to-amber-400 bg-clip-text text-transparent drop-shadow-md">
-            Espejo Mágico
-          </h1>
-          <span className="text-xl animate-pulse">✨</span>
+        <div className="text-center flex flex-col items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-xl animate-pulse">✨</span>
+            <h1 className="text-lg font-black uppercase tracking-widest bg-gradient-to-r from-rose-400 to-amber-400 bg-clip-text text-transparent drop-shadow-md">
+              Espejo Mágico
+            </h1>
+            <span className="text-xl animate-pulse">✨</span>
+          </div>
+          {fiesta && <p className="text-xs font-semibold text-zinc-300 mt-0.5">{fiesta.configuracion?.nombreEvento}</p>}
         </div>
-        {!capturedImage ? (
-          <button onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
-            <SwitchCamera className="w-6 h-6" />
-          </button>
-        ) : <div className="w-10"></div>}
+        <div className="flex items-center gap-2">
+          {!capturedImage ? (
+            <>
+              <button 
+                onClick={() => setVoiceEnabled(v => !v)} 
+                className={`p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                title={voiceEnabled ? 'Desactivar Asistente de Voz' : 'Activar Asistente de Voz'}
+              >
+                {voiceEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+              </button>
+              <button 
+                onClick={() => setWatermarkEnabled(w => !w)} 
+                className={`p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                title={watermarkEnabled ? 'Desactivar Marca de Agua' : 'Activar Marca de Agua'}
+              >
+                <FileImage className="w-6 h-6" />
+              </button>
+              <button onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+                <SwitchCamera className="w-6 h-6" />
+              </button>
+            </>
+          ) : <div className="w-10"></div>}
+        </div>
       </div>
 
       {flash && <div className="absolute inset-0 bg-white z-50 animate-[flash_0.3s_ease-out]" />}
@@ -284,7 +466,18 @@ export default function EspejoMagicoPage() {
             style={{ filter: selectedFilter.css }}
           />
         ) : (
-          <img src={capturedImage} className="absolute inset-0 w-full h-full object-cover" alt="Captura" />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={capturedImage} className="absolute inset-0 w-full h-full object-cover" alt="Captura" />
+            <canvas
+              ref={drawingCanvasRef}
+              className="absolute inset-0 w-full h-full z-15 touch-none bg-transparent"
+              onPointerDown={startDrawing}
+              onPointerMove={draw}
+              onPointerUp={endDrawing}
+              onPointerLeave={endDrawing}
+            />
+          </>
         )}
 
         {/* STICKERS LAYER */}
@@ -379,6 +572,12 @@ export default function EspejoMagicoPage() {
                   {f.label}
                 </button>
               ))}
+              <Link
+                href={`/evento/touchpix/${fiestaId}`}
+                className="shrink-0 px-4 py-2 rounded-full text-xs font-bold transition whitespace-nowrap border border-fuchsia-500/60 bg-gradient-to-r from-fuchsia-600/20 to-purple-600/20 text-fuchsia-400 hover:from-fuchsia-600/30 hover:to-purple-600/30 flex items-center gap-1.5"
+              >
+                🪄 Touchpix IA
+              </Link>
             </div>
 
             {/* Actions Bar */}
@@ -406,31 +605,56 @@ export default function EspejoMagicoPage() {
           </>
         ) : (
           /* Review Controls */
-          <div className="flex items-center justify-around px-6 pb-8 pt-4">
-            <button onClick={retake} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
-              <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
-                <RefreshCw className="w-6 h-6" />
+          <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
+            {/* Color Palette Selector for Drawing */}
+            <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest mr-2">Firma:</span>
+              <div className="flex gap-3">
+                {DRAW_COLORS.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => setDrawColor(c.value)}
+                    className={`w-7 h-7 rounded-full border-2 transition-transform active:scale-95
+                      ${drawColor === c.value ? 'border-white scale-110' : 'border-transparent opacity-70'}`}
+                    style={{ backgroundColor: c.value, boxShadow: drawColor === c.value ? `0 0 8px ${c.value}` : 'none' }}
+                    title={c.label}
+                  />
+                ))}
               </div>
-              <span className="text-xs font-bold">Repetir</span>
-            </button>
+              <button
+                onClick={clearDrawing}
+                className="ml-auto text-[10px] font-black uppercase border border-zinc-800 bg-zinc-900 text-zinc-400 px-3 py-1.5 rounded-full hover:text-white"
+              >
+                Borrar
+              </button>
+            </div>
 
-            <button 
-              onClick={handleUpload}
-              disabled={isUploading || showSuccess}
-              className="flex flex-col items-center gap-2 text-white hover:text-rose-400 transition"
-            >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 shadow-[0_0_30px_rgba(244,63,94,0.3)] flex items-center justify-center">
-                {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <Send className="w-8 h-8 ml-1" />}
-              </div>
-              <span className="text-sm font-black uppercase tracking-wide">Subir al Muro</span>
-            </button>
+            <div className="flex items-center justify-around">
+              <button onClick={retake} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
+                <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
+                  <RefreshCw className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-bold">Repetir</span>
+              </button>
 
-            <button onClick={handleDownload} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
-              <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
-                <Download className="w-6 h-6" />
-              </div>
-              <span className="text-xs font-bold">Guardar</span>
-            </button>
+              <button 
+                onClick={handleUpload}
+                disabled={isUploading || showSuccess}
+                className="flex flex-col items-center gap-2 text-white hover:text-rose-400 transition"
+              >
+                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 shadow-[0_0_30px_rgba(244,63,94,0.3)] flex items-center justify-center">
+                  {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <Send className="w-8 h-8 ml-1" />}
+                </div>
+                <span className="text-sm font-black uppercase tracking-wide">Subir al Muro</span>
+              </button>
+
+              <button onClick={handleDownload} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">
+                <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
+                  <Download className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-bold">Guardar</span>
+              </button>
+            </div>
           </div>
         )}
       </div>

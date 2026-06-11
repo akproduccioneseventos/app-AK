@@ -23,6 +23,7 @@ function normalizeSocialSettings(settings?: SocialGallerySettings): SocialGaller
     showDedications: settings?.showDedications ?? true,
     marketingTickerText: settings?.marketingTickerText ?? '',
     ledMarqueeText: settings?.ledMarqueeText ?? '',
+    privateDedicationsMode: settings?.privateDedicationsMode ?? false,
     ...settings,
   };
 }
