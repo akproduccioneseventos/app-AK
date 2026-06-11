@@ -14,6 +14,8 @@ import {
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
 import { sanitizeActionError } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
 
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
@@ -364,15 +366,14 @@ export async function approveClientPayment(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
     const notifications = fiesta.clientPaymentNotifications ?? [];
-    const notifIndex = notifications.findIndex(n => n.id === notificationId);
-    if (notifIndex === -1) return { success: false, error: 'Notificación no encontrada' };
-
-    const notif = notifications[notifIndex];
-    if (notif.estado === 'aprobado') return { success: true };
+    const initialTransition = transitionPaymentNotification(notifications, notificationId, 'aprobado');
+    const notif = initialTransition.notification;
+    if (!initialTransition.changed) return { success: true };
 
     // First register the money. If the budget rejects it (for example over saldo),
     // keep the notification pending so it can be reviewed correctly.
@@ -388,21 +389,20 @@ export async function approveClientPayment(
       }
     }
 
-    const updatedNotif: ClientPaymentNotification = {
-      ...notif,
-      estado: 'aprobado',
-      approvedAt: new Date().toISOString(),
-    };
-
-    const updatedNotifications = notifications.map((n, i) =>
-      i === notifIndex ? updatedNotif : n
-    );
-
-    const updated: FiestaEnPlanificacion = {
-      ...fiesta,
-      clientPaymentNotifications: updatedNotifications,
-    };
-    await saveFiesta(updated);
+    let updatedNotif = initialTransition.notification;
+    const updateResult = await updateFiestaData(fiestaId, currentFiesta => {
+      const transition = transitionPaymentNotification(
+        currentFiesta.clientPaymentNotifications ?? [],
+        notificationId,
+        'aprobado'
+      );
+      updatedNotif = transition.notification;
+      return {
+        ...currentFiesta,
+        clientPaymentNotifications: transition.notifications,
+      };
+    });
+    if (!updateResult.success) return updateResult;
 
     notifyClientPaymentApproved(fiestaId, updatedNotif).catch((error) => {
       console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);
@@ -419,31 +419,24 @@ export async function rejectClientPayment(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+    await requireAppSession();
+    let updatedNotif: ClientPaymentNotification | null = null;
+    let changed = false;
+    const result = await updateFiestaData(fiestaId, currentFiesta => {
+      const transition = transitionPaymentNotification(
+        currentFiesta.clientPaymentNotifications ?? [],
+        notificationId,
+        'rechazado'
+      );
+      updatedNotif = transition.notification;
+      changed = transition.changed;
+      return {
+        ...currentFiesta,
+        clientPaymentNotifications: transition.notifications,
+      };
+    });
 
-    const notifications = fiesta.clientPaymentNotifications ?? [];
-    const notifIndex = notifications.findIndex(n => n.id === notificationId);
-    if (notifIndex === -1) return { success: false, error: 'Notificación no encontrada' };
-
-    const notif = notifications[notifIndex];
-    if (notif.estado === 'rechazado') return { success: true };
-
-    const updatedNotif: ClientPaymentNotification = {
-      ...notif,
-      estado: 'rechazado',
-    };
-
-    const updatedNotifications = notifications.map((n, i) =>
-      i === notifIndex ? updatedNotif : n
-    );
-
-    const result = await updateFiestaData(fiestaId, f => ({
-      ...f,
-      clientPaymentNotifications: updatedNotifications,
-    }));
-
-    if (result.success) {
+    if (result.success && updatedNotif && changed) {
       notifyClientPaymentRejected(fiestaId, updatedNotif).catch((error) => {
         console.warn('[Google Workspace] No se pudo enviar mail de pago rechazado:', error);
       });

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, Sparkles, Wand2, Users, QrCode, X, Palette } from 'lucide-react';
-import { uploadSocialPost } from '@/app/actions/social-gallery';
+import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -33,6 +33,13 @@ const FACE_SWAP_CHARACTERS = [
 ];
 
 type TabMode = 'foto' | 'faceswap' | 'ai_themes';
+type ProcessingResult = 'ai' | 'fallback' | null;
+
+async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
+  const response = await fetch(dataUrl);
+  const blob = await response.blob();
+  return new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+}
 
 /* ───────────────────── Component ───────────────────── */
 
@@ -61,6 +68,7 @@ export default function TouchpixPage() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingText, setProcessingText] = useState('');
+  const [processingResult, setProcessingResult] = useState<ProcessingResult>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -268,10 +276,11 @@ export default function TouchpixPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countdown, playBeep, activeTab, selectedTheme, selectedCharacter]);
 
-  const handleCapture = useCallback(() => {
+  const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();
     if (!raw) return;
     setRawCapturedImage(raw);
+    setProcessingResult(null);
     stopCamera();
 
     if (activeTab === 'foto') {
@@ -288,44 +297,50 @@ export default function TouchpixPage() {
       }
     } else if (activeTab === 'faceswap') {
       const character = FACE_SWAP_CHARACTERS.find(c => c.id === selectedCharacter);
+      if (!character) return;
       setIsProcessing(true);
-      setProcessingText('Procesando con IA...');
+      setProcessingText('Generando transformación con IA...');
 
-      // Simulate AI processing delay then apply client-side fallback
-      const steps = ['Analizando rostros...', 'Aplicando transformación...', 'Generando resultado...'];
-      let stepIdx = 0;
-      const stepInterval = setInterval(() => {
-        stepIdx++;
-        if (stepIdx < steps.length) {
-          setProcessingText(steps[stepIdx]);
-        } else {
-          clearInterval(stepInterval);
-          setProcessingText('IA no disponible. Aplicando filtro artístico ✨');
-          setTimeout(() => {
-            if (character) {
-              applyFilterToCanvas(
-                raw,
-                character.filter,
-                (result) => {
-                  setCapturedImage(result);
-                  setIsProcessing(false);
-                },
-                character.frameEmojis,
-                character.emoji
-              );
-            }
-          }, 600);
+      try {
+        const formData = new FormData();
+        formData.set('fiestaId', fiestaId);
+        formData.set('characterId', character.id);
+        formData.set('sourceFile', await dataUrlToFile(raw, `touchpix-source-${Date.now()}.jpg`));
+        const result = await applyFaceSwap(formData);
+
+        if (result.success && result.faceSwapApplied && result.imageBase64) {
+          applyFilterToCanvas(`data:image/png;base64,${result.imageBase64}`, 'none', (watermarked) => {
+            setCapturedImage(watermarked);
+            setProcessingResult('ai');
+            setIsProcessing(false);
+          });
+          return;
         }
-      }, 800);
+      } catch {
+        // The local effect below keeps the booth usable when the provider is unavailable.
+      }
+
+      setProcessingText('IA no disponible. Aplicando efecto local...');
+      applyFilterToCanvas(
+        raw,
+        character.filter,
+        (result) => {
+          setCapturedImage(result);
+          setProcessingResult('fallback');
+          setIsProcessing(false);
+        },
+        character.frameEmojis,
+        character.emoji
+      );
     } else if (activeTab === 'ai_themes') {
       // Keep raw for theme selection step
       setCapturedImage(raw);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [captureRawPhoto, stopCamera, activeTab, selectedTheme, selectedCharacter, applyFilterToCanvas]);
+  }, [captureRawPhoto, stopCamera, activeTab, selectedTheme, selectedCharacter, applyFilterToCanvas, fiestaId]);
 
   /* ── AI Themes: apply after capture ── */
-  const applyAiTheme = useCallback((themeId: string) => {
+  const applyAiTheme = useCallback(async (themeId: string) => {
     if (!rawCapturedImage) return;
     setSelectedAiTheme(themeId);
     setIsProcessing(true);
@@ -333,24 +348,35 @@ export default function TouchpixPage() {
     const theme = TOUCHPIX_THEMES.find(t => t.id === themeId);
     if (!theme) return;
 
-    setProcessingText('Aplicando tema IA...');
+    setProcessingText(`Generando ${theme.label} con IA...`);
 
-    const steps = ['Analizando imagen...', 'Transformando estilo...', `Aplicando ${theme.label}...`];
-    let stepIdx = 0;
-    const stepInterval = setInterval(() => {
-      stepIdx++;
-      if (stepIdx < steps.length) {
-        setProcessingText(steps[stepIdx]);
-      } else {
-        clearInterval(stepInterval);
-        const filterStr = theme.cssFilter === 'none' ? 'none' : theme.cssFilter;
-        applyFilterToCanvas(rawCapturedImage, filterStr, (result) => {
-          setCapturedImage(result);
+    try {
+      const formData = new FormData();
+      formData.set('fiestaId', fiestaId);
+      formData.set('themeId', themeId);
+      formData.set('file', await dataUrlToFile(rawCapturedImage, `touchpix-theme-${Date.now()}.jpg`));
+      const result = await applyTouchpixTheme(formData);
+
+      if (result.success && result.themeApplied && result.imageBase64) {
+        applyFilterToCanvas(`data:image/png;base64,${result.imageBase64}`, 'none', (watermarked) => {
+          setCapturedImage(watermarked);
+          setProcessingResult('ai');
           setIsProcessing(false);
         });
+        return;
       }
-    }, 500);
-  }, [rawCapturedImage, applyFilterToCanvas]);
+    } catch {
+      // Fall through to the explicit local effect.
+    }
+
+    setProcessingText('IA no disponible. Aplicando efecto local...');
+    const filterStr = theme.cssFilter === 'none' ? 'none' : theme.cssFilter;
+    applyFilterToCanvas(rawCapturedImage, filterStr, (result) => {
+      setCapturedImage(result);
+      setProcessingResult('fallback');
+      setIsProcessing(false);
+    });
+  }, [rawCapturedImage, applyFilterToCanvas, fiestaId]);
 
   /* ── Download ── */
   const handleDownload = useCallback(() => {
@@ -368,17 +394,19 @@ export default function TouchpixPage() {
     if (!capturedImage) return;
     setIsUploading(true);
     try {
-      const resp = await fetch(capturedImage);
-      const blob = await resp.blob();
-      const file = new File([blob], `touchpix-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const file = await dataUrlToFile(capturedImage, `touchpix-${Date.now()}.jpg`);
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
-      formData.append('authorName', 'Touchpix AK');
-      formData.append('source', 'entertainment');
-      formData.append('sourceModule', 'touchpix');
+      formData.append('authorName', 'Cabina Touchpix');
+      if (activeTab === 'ai_themes') {
+        formData.append('themeLabel', TOUCHPIX_THEMES.find(theme => theme.id === selectedAiTheme)?.label || '');
+      }
+      if (activeTab === 'faceswap') {
+        formData.append('characterLabel', FACE_SWAP_CHARACTERS.find(character => character.id === selectedCharacter)?.label || '');
+      }
 
-      const res = await uploadSocialPost(formData);
+      const res = await uploadTouchpixPhoto(formData);
       if (res.success) {
         setShowSuccess(true);
         setTimeout(() => {
@@ -394,13 +422,14 @@ export default function TouchpixPage() {
       setIsUploading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [capturedImage, fiestaId]);
+  }, [capturedImage, fiestaId, activeTab, selectedAiTheme, selectedCharacter]);
 
   /* ── Retake ── */
   const retake = useCallback(() => {
     setCapturedImage(null);
     setRawCapturedImage(null);
     setIsProcessing(false);
+    setProcessingResult(null);
     startCamera();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startCamera]);
@@ -585,7 +614,18 @@ export default function TouchpixPage() {
         ) : (
           /* Captured photo review */
           <div className="relative w-full h-full">
+            {/* Data URLs from the camera and AI result cannot use Next image optimization. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={capturedImage} className="w-full h-full object-contain bg-black" alt="Captura Touchpix" />
+            {processingResult && (
+              <div className={`absolute left-3 top-3 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wide backdrop-blur-md ${
+                processingResult === 'ai'
+                  ? 'border-emerald-300/50 bg-emerald-950/80 text-emerald-200'
+                  : 'border-amber-300/50 bg-amber-950/80 text-amber-200'
+              }`}>
+                {processingResult === 'ai' ? 'Generada con IA' : 'Efecto local'}
+              </div>
+            )}
           </div>
         )}
 
@@ -705,7 +745,10 @@ export default function TouchpixPage() {
 
               {activeTab === 'ai_themes' && (
                 <button
-                  onClick={() => { setCapturedImage(rawCapturedImage); }}
+                  onClick={() => {
+                    setCapturedImage(rawCapturedImage);
+                    setProcessingResult(null);
+                  }}
                   className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-fuchsia-400 transition"
                 >
                   <div className="w-13 h-13 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
@@ -753,6 +796,7 @@ export default function TouchpixPage() {
                 onClick={() => {
                   applyFilterToCanvas(rawCapturedImage!, 'none', (result) => {
                     setCapturedImage(result);
+                    setProcessingResult(null);
                   });
                 }}
                 className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-zinc-400 hover:text-white transition"

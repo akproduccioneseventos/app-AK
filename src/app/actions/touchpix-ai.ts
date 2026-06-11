@@ -13,8 +13,10 @@
  * CSS filters instead.
  */
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai } from '@/ai/genkit';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { requireAppSession } from '@/lib/auth/require-session';
 import * as logger from '@/lib/logger';
 
 // ──────────────────── Theme Definitions ────────────────────
@@ -39,43 +41,43 @@ const THEME_DEFINITIONS: Record<TouchpixThemeId, ThemeDefinition> = {
   disco_glam: {
     label: 'Disco Glamour',
     promptDescription:
-      'Apply a dazzling disco glamour transformation: add shimmering sparkles and glitter particles floating around the person, disco ball light reflections casting colorful prismatic patterns on their skin and clothes, warm glamorous studio lighting with a soft golden glow, and a subtle bokeh background with rotating disco ball highlights. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a dazzling disco glamour transformation: add shimmering sparkles and glitter particles floating around the person, disco ball light reflections casting colorful prismatic patterns on their skin and clothes, warm glamorous studio lighting with a soft golden glow, and a subtle bokeh background with rotating disco ball highlights. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.3) brightness(1.1) contrast(1.1) hue-rotate(15deg)',
   },
   neon_retro: {
     label: 'Neon Retro 80s',
     promptDescription:
-      'Apply an 80s neon retro transformation: add vibrant neon glow outlines in hot pink, electric cyan, and purple tracing around the person's silhouette and features, a retro synthwave grid floor fading into the background, retro color grading with deep magentas and teals, scanline overlay effects, and subtle VHS-style chromatic aberration. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply an 80s neon retro transformation: add vibrant neon glow outlines in hot pink, electric cyan, and purple tracing around the person's silhouette and features, a retro synthwave grid floor fading into the background, retro color grading with deep magentas and teals, scanline overlay effects, and subtle VHS-style chromatic aberration. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.5) contrast(1.3) hue-rotate(280deg) brightness(1.05)',
   },
   fantasy_enchanted: {
     label: 'Fantasy Enchanted Forest',
     promptDescription:
-      'Apply a magical enchanted forest transformation: surround the person with floating magical fairy dust particles that emit a soft golden-green glow, add an ethereal luminous aura around them, place them in a mystical forest backdrop with bioluminescent plants and fireflies, add subtle lens flares and dreamy soft-focus edges. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a magical enchanted forest transformation: surround the person with floating magical fairy dust particles that emit a soft golden-green glow, add an ethereal luminous aura around them, place them in a mystical forest backdrop with bioluminescent plants and fireflies, add subtle lens flares and dreamy soft-focus edges. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.2) brightness(1.05) sepia(0.15) hue-rotate(90deg)',
   },
   pop_art: {
     label: 'Pop Art Warhol',
     promptDescription:
-      'Apply a bold Andy Warhol-style pop art transformation: convert the image to use flat, highly saturated primary colors (bright red, yellow, blue, green), add thick black comic-book outlines around the person's features, apply Ben-Day dot halftone patterns in the background and shadow areas, use a high-contrast posterized color palette. Keep the person's face clearly recognizable despite the stylization.',
+      "Apply a bold Andy Warhol-style pop art transformation: convert the image to use flat, highly saturated primary colors (bright red, yellow, blue, green), add thick black comic-book outlines around the person's features, apply Ben-Day dot halftone patterns in the background and shadow areas, use a high-contrast posterized color palette. Keep the person's face clearly recognizable despite the stylization.",
     cssFallbackHint: 'saturate(2.0) contrast(1.6) brightness(1.1)',
   },
   golden_luxury: {
     label: 'Golden Luxury',
     promptDescription:
-      'Apply a luxurious golden transformation: overlay delicate gold leaf textures and flakes gently floating around the person, add a rich warm golden color grade with deep amber highlights, place subtle golden baroque ornamental frames or flourishes at the edges, apply a premium soft-glow lighting that makes skin look radiant. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a luxurious golden transformation: overlay delicate gold leaf textures and flakes gently floating around the person, add a rich warm golden color grade with deep amber highlights, place subtle golden baroque ornamental frames or flourishes at the edges, apply a premium soft-glow lighting that makes skin look radiant. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'sepia(0.4) saturate(1.3) brightness(1.1) contrast(1.05)',
   },
   cosmic_galaxy: {
     label: 'Cosmic Galaxy',
     promptDescription:
-      'Apply a cosmic galaxy transformation: replace the background with a stunning deep-space nebula scene filled with colorful gas clouds in purple, blue, and pink, add twinkling distant stars and subtle galaxy spiral formations, make the person appear to float in space with gentle cosmic light reflections on their skin, add a faint stellar lens flare. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a cosmic galaxy transformation: replace the background with a stunning deep-space nebula scene filled with colorful gas clouds in purple, blue, and pink, add twinkling distant stars and subtle galaxy spiral formations, make the person appear to float in space with gentle cosmic light reflections on their skin, add a faint stellar lens flare. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.4) contrast(1.2) hue-rotate(240deg) brightness(0.95)',
   },
   carnival_fiesta: {
     label: 'Carnival Fiesta',
     promptDescription:
-      'Apply a vibrant carnival fiesta transformation: shower the scene with colorful confetti and streamers falling around the person, add festive party lights (bokeh circles in rainbow colors) in the background, include subtle party elements like a feathered mask silhouette or bunting flags at the top, apply a warm and joyful color grade with boosted vibrancy. Keep the person's face, body, and pose completely intact and recognizable.',
+      "Apply a vibrant carnival fiesta transformation: shower the scene with colorful confetti and streamers falling around the person, add festive party lights (bokeh circles in rainbow colors) in the background, include subtle party elements like a feathered mask silhouette or bunting flags at the top, apply a warm and joyful color grade with boosted vibrancy. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint: 'saturate(1.5) brightness(1.1) contrast(1.1) hue-rotate(30deg)',
   },
 };
@@ -131,6 +133,32 @@ const CHARACTER_DEFINITIONS: Record<TouchpixCharacterId, CharacterDefinition> = 
 // ──────────────────── Helpers ────────────────────
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
+const TOUCHPIX_AI_TIMEOUT_MS = 60_000;
+export const TOUCHPIX_IMAGE_MODEL =
+  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
+
+async function ensureTouchpixAccess(fiestaId: string): Promise<void> {
+  await requireAppSession();
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) throw new Error('Evento no encontrado.');
+}
+
+async function generateTouchpixImage(options: Parameters<typeof ai.generate>[0]): Promise<any> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      ai.generate(options),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error('La generacion de imagen supero el tiempo maximo.')),
+          TOUCHPIX_AI_TIMEOUT_MS
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
 
 /** Convert a File (from FormData) to a base64-encoded string. */
 async function fileToBase64(file: File): Promise<string> {
@@ -278,6 +306,12 @@ export async function applyTouchpixTheme(
     return { success: false, error: 'Faltan datos requeridos (themeId o fiestaId).' };
   }
 
+  try {
+    await ensureTouchpixAccess(fiestaId);
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Sesion no autorizada.' };
+  }
+
   const theme = THEME_DEFINITIONS[themeId as TouchpixThemeId];
   if (!theme) {
     return { success: false, error: `Tema "${themeId}" no reconocido.` };
@@ -317,8 +351,8 @@ export async function applyTouchpixTheme(
       '- Do NOT add any text, watermarks, logos, or borders to the image.',
     ].join('\n');
 
-    const result = await ai.generate({
-      model: geminiModel,
+    const result = await generateTouchpixImage({
+      model: TOUCHPIX_IMAGE_MODEL,
       prompt: [
         {
           media: {
@@ -388,6 +422,12 @@ export async function applyFaceSwap(
     return { success: false, error: 'Falta el ID de fiesta.' };
   }
 
+  try {
+    await ensureTouchpixAccess(fiestaId);
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Sesion no autorizada.' };
+  }
+
   const sourceExtraction = await validateAndExtractImage(sourceFile, 'sourceFile');
   if (!sourceExtraction.ok) {
     return { success: false, error: sourceExtraction.error };
@@ -455,10 +495,10 @@ export async function applyFaceSwap(
         text: [
           'You are an expert image compositing artist specializing in face swaps.',
           '',
-          'TASK: Take the face from the FIRST image (the person's photo) and seamlessly place it onto the body/character in the SECOND image.',
+          "TASK: Take the face from the FIRST image (the person's photo) and seamlessly place it onto the body/character in the SECOND image.",
           '',
           'RULES:',
-          '- Keep the person's face from the first image: their exact facial features, skin tone, expression, and proportions.',
+          "- Keep the person's face from the first image: their exact facial features, skin tone, expression, and proportions.",
           '- Blend the face naturally onto the body in the second image, matching lighting, angle, and perspective.',
           '- The result must look photorealistic — no visible seams, no uncanny distortions.',
           '- Preserve the outfit, background, and setting from the second image.',
@@ -477,8 +517,8 @@ export async function applyFaceSwap(
           `TASK: Take the face of the person in the provided photo and place it onto the body of ${character.promptDescription}.`,
           '',
           'RULES:',
-          '- Keep the person's exact facial features, skin tone, expression, and proportions from the provided photo.',
-          '- Generate a complete full-body or upper-body image of the character, with the person's face seamlessly composited.',
+          "- Keep the person's exact facial features, skin tone, expression, and proportions from the provided photo.",
+          "- Generate a complete full-body or upper-body image of the character, with the person's face seamlessly composited.",
           '- Match the lighting on the face to the character scene so it looks natural and photorealistic.',
           '- The result must look like a professional movie poster or high-quality composite — no visible seams.',
           '- Output a single high-quality photorealistic image.',
@@ -487,8 +527,8 @@ export async function applyFaceSwap(
       });
     }
 
-    const result = await ai.generate({
-      model: geminiModel,
+    const result = await generateTouchpixImage({
+      model: TOUCHPIX_IMAGE_MODEL,
       prompt: promptParts,
       config: {
         temperature: 0.4,
@@ -537,13 +577,19 @@ export async function uploadTouchpixPhoto(
   formData: FormData
 ): Promise<UploadTouchpixResult> {
   const fiestaId = formData.get('fiestaId') as string;
-  const authorName = (formData.get('authorName') as string) || 'Touchpix AI';
+  const authorName = (formData.get('authorName') as string) || 'Cabina Touchpix';
   const file = formData.get('file') as File | null;
   const themeLabel = (formData.get('themeLabel') as string) || undefined;
   const characterLabel = (formData.get('characterLabel') as string) || undefined;
 
   if (!fiestaId || !file) {
     return { success: false, error: 'Faltan datos para subir la foto (fiestaId o archivo).' };
+  }
+
+  try {
+    await ensureTouchpixAccess(fiestaId);
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Sesion no autorizada.' };
   }
 
   logger.info(`[touchpix-ai] uploadTouchpixPhoto: fiesta=${fiestaId}, author=${authorName}`);
@@ -556,6 +602,8 @@ export async function uploadTouchpixPhoto(
     socialFormData.set('file', file);
     socialFormData.set('authorName', authorName);
     socialFormData.set('momentTag', 'touchpix');
+    socialFormData.set('source', 'entertainment');
+    socialFormData.set('sourceModule', 'touchpix');
 
     // Compose a dedication describing the transformation.
     const parts: string[] = ['📸 Touchpix AI'];

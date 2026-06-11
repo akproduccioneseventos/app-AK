@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost } from '@/app/actions/social-gallery';
+import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, getSocialAdminAccess, saveSocialGallerySettings } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
 import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
-import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
+import { MAX_DEDICATION_RECORDING_SECONDS } from '@/lib/social-fiesta/guardrails';
 import type { SocialConnection } from '@/types/settings';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -439,10 +440,26 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   // Audio recording state
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const discardRecordingRef = useRef(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      const recorder = mediaRecorderRef.current;
+      if (recorder?.state === 'recording') {
+        discardRecordingRef.current = true;
+        recorder.stop();
+      }
+    };
+  }, []);
 
 
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
@@ -493,26 +510,33 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   }, [params.fiestaId, toast]);
   
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-        const sessionAuth = sessionStorage.getItem('ak_producciones_auth_session') === 'true';
-        setIsAdminView(sessionAuth);
-        
-        if (sessionAuth) {
-            setAuthorName("Organización");
+    let active = true;
+    getSocialAdminAccess().then((sessionAuth) => {
+      if (!active || typeof window === 'undefined') return;
+      setIsAdminView(sessionAuth);
+
+      if (sessionAuth) {
+        setAuthorName("Organización");
+      } else {
+        const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
+        if (savedName) {
+          setAuthorName(savedName);
         } else {
-            const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
-            if (savedName) {
-                setAuthorName(savedName);
-            } else {
-                setIsNameModalOpen(true);
-            }
+          setIsNameModalOpen(true);
         }
-        // Restore platforms the guest already followed
-        const followedRaw = sessionStorage.getItem(`socialFollowed_${params.fiestaId}`);
-        if (followedRaw) {
-          try { setFollowedPlatforms(new Set(JSON.parse(followedRaw))); } catch {}
-        }
-    }
+      }
+
+      const followedRaw = sessionStorage.getItem(`socialFollowed_${params.fiestaId}`);
+      if (followedRaw) {
+        try { setFollowedPlatforms(new Set(JSON.parse(followedRaw))); } catch {}
+      }
+    }).catch(() => {
+      if (active) setIsAdminView(false);
+    });
+
+    return () => {
+      active = false;
+    };
   }, [params.fiestaId]);
 
 
@@ -730,6 +754,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
+      discardRecordingRef.current = false;
+      setRecordingSeconds(0);
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.ondataavailable = (event) => {
@@ -738,15 +764,34 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
         }
       };
       mediaRecorder.onstop = () => {
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+        setRecordingSeconds(0);
+        setIsRecording(false);
+        stream.getTracks().forEach(track => track.stop());
+        if (discardRecordingRef.current) {
+          audioChunksRef.current = [];
+          return;
+        }
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         setAudioBlob(blob);
         setAudioUrl(URL.createObjectURL(blob));
-        stream.getTracks().forEach(track => track.stop());
       };
       mediaRecorder.start();
       setIsRecording(true);
       setAudioUrl(null);
       setAudioBlob(null);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingSeconds((current) => {
+          const next = current + 1;
+          if (next >= MAX_DEDICATION_RECORDING_SECONDS && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+          }
+          return next;
+        });
+      }, 1000);
     } catch (err) {
       console.error('Error accessing microphone', err);
       toast({ title: 'Error de micrófono', description: 'Por favor, permite el acceso al micrófono para grabar audios.', variant: 'destructive' });
@@ -756,15 +801,20 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
     }
   };
 
   const cancelRecording = () => {
+    discardRecordingRef.current = true;
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
     }
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
     setIsRecording(false);
+    setRecordingSeconds(0);
     setAudioUrl(null);
     setAudioBlob(null);
   };
@@ -923,8 +973,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       if (!fiesta) return;
       setIsSavingSettings(true);
       try {
-          const updatedFiesta = { ...fiesta, socialGallerySettings: localSettings };
-          const result = await saveFiesta(updatedFiesta);
+          const result = await saveSocialGallerySettings(params.fiestaId, localSettings);
           if (result.success) {
               toast({ title: "Ajustes guardados" });
               setIsSettingsDialogOpen(false);
@@ -1433,7 +1482,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                                   onClick={stopRecording}
                                   className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
                                 >
-                                  <StopCircle className="w-4 h-4" /> Detener grabación
+                                  <StopCircle className="w-4 h-4" /> Detener {recordingSeconds}s
                                 </Button>
                               )}
 
@@ -1460,22 +1509,28 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                             {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                           </Button>
                         </form>
-                        <div className="space-y-2 max-h-[35vh] overflow-y-auto">
-                          {dedications.slice(-15).reverse().map(d => (
-                            <div key={d.id} className={cn('rounded-2xl border px-4 py-3 text-sm', d.highlighted ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100')}>
-                              <p className="text-slate-700 leading-relaxed font-medium">{d.message}</p>
-                              {d.audioUrl && (
-                                <div className="mt-2">
-                                  <audio src={d.audioUrl} controls className="w-full h-8 max-w-[260px]" />
-                                </div>
-                              )}
-                              <p className="text-xs text-slate-500 mt-1.5">— {d.authorName}</p>
-                            </div>
-                          ))}
-                          {dedications.length === 0 && (
-                            <p className="text-sm text-slate-400 text-center py-6">No hay mensajes aún.</p>
-                          )}
-                        </div>
+                        {localSettings.privateDedicationsMode && !isAdminView ? (
+                          <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-center text-xs font-semibold text-emerald-800">
+                            Tu mensaje queda visible solamente para la organización.
+                          </p>
+                        ) : (
+                          <div className="space-y-2 max-h-[35vh] overflow-y-auto">
+                            {dedications.slice(-15).reverse().map(d => (
+                              <div key={d.id} className={cn('rounded-2xl border px-4 py-3 text-sm', d.highlighted ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100')}>
+                                <p className="text-slate-700 leading-relaxed font-medium">{d.message}</p>
+                                {d.audioUrl && (
+                                  <div className="mt-2">
+                                    <audio src={d.audioUrl} controls className="w-full h-8 max-w-[260px]" />
+                                  </div>
+                                )}
+                                <p className="text-xs text-slate-500 mt-1.5">— {d.authorName}</p>
+                              </div>
+                            ))}
+                            {dedications.length === 0 && (
+                              <p className="text-sm text-slate-400 text-center py-6">No hay mensajes aún.</p>
+                            )}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </motion.div>
@@ -1965,7 +2020,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                             onClick={stopRecording}
                             className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
                           >
-                            <StopCircle className="w-4 h-4" /> Detener grabación
+                            <StopCircle className="w-4 h-4" /> Detener {recordingSeconds}s
                           </Button>
                         )}
 
@@ -1992,36 +2047,42 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                       {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                     </Button>
                   </form>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {dedications.slice(-15).reverse().map((dedication) => (
-                      <div key={dedication.id} className={cn("rounded-xl border px-3 py-2 text-sm", dedication.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50")}>
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0 font-medium">
-                            <p className="text-slate-700">{dedication.message}</p>
-                            {dedication.audioUrl && (
-                              <div className="mt-2">
-                                <audio src={dedication.audioUrl} controls className="w-full h-8 max-w-[260px]" />
-                              </div>
+                  {localSettings.privateDedicationsMode && !isAdminView ? (
+                    <p className="rounded-xl bg-emerald-50 px-3 py-3 text-center text-xs font-semibold text-emerald-800">
+                      Tu mensaje queda visible solamente para la organización.
+                    </p>
+                  ) : (
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {dedications.slice(-15).reverse().map((dedication) => (
+                        <div key={dedication.id} className={cn("rounded-xl border px-3 py-2 text-sm", dedication.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50")}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 font-medium">
+                              <p className="text-slate-700">{dedication.message}</p>
+                              {dedication.audioUrl && (
+                                <div className="mt-2">
+                                  <audio src={dedication.audioUrl} controls className="w-full h-8 max-w-[260px]" />
+                                </div>
+                              )}
+                              <p className="text-xs text-slate-500 mt-1">— {dedication.authorName}</p>
+                            </div>
+                            {isAdminView && (
+                              <button
+                                onClick={() => handleHighlightDedication(dedication.id, !!dedication.highlighted)}
+                                className={cn("flex-shrink-0 p-1 rounded-lg transition-colors", dedication.highlighted ? "text-amber-500 hover:text-amber-600" : "text-slate-300 hover:text-amber-400")}
+                                title={dedication.highlighted ? 'Quitar destacado' : 'Destacar'}
+                              >
+                                <Star className="w-4 h-4" fill={dedication.highlighted ? 'currentColor' : 'none'} />
+                              </button>
                             )}
-                            <p className="text-xs text-slate-500 mt-1">— {dedication.authorName}</p>
+                            {dedication.highlighted && !isAdminView && (
+                              <Star className="w-4 h-4 flex-shrink-0 text-amber-400 fill-current" />
+                            )}
                           </div>
-                          {isAdminView && (
-                            <button
-                              onClick={() => handleHighlightDedication(dedication.id, !!dedication.highlighted)}
-                              className={cn("flex-shrink-0 p-1 rounded-lg transition-colors", dedication.highlighted ? "text-amber-500 hover:text-amber-600" : "text-slate-300 hover:text-amber-400")}
-                              title={dedication.highlighted ? 'Quitar destacado' : 'Destacar'}
-                            >
-                              <Star className="w-4 h-4" fill={dedication.highlighted ? 'currentColor' : 'none'} />
-                            </button>
-                          )}
-                          {dedication.highlighted && !isAdminView && (
-                            <Star className="w-4 h-4 flex-shrink-0 text-amber-400 fill-current" />
-                          )}
                         </div>
-                      </div>
-                    ))}
-                    {dedications.length === 0 && <p className="text-xs text-slate-400">Todavía no hay dedicatorias.</p>}
-                  </div>
+                      ))}
+                      {dedications.length === 0 && <p className="text-xs text-slate-400">Todavía no hay dedicatorias.</p>}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

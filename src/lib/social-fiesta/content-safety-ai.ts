@@ -33,17 +33,21 @@ export interface ContentSafetyResult {
 
 /**
  * Checks if a base64 image or buffer is safe using Google Cloud Vision Safe Search.
- * Falls back gracefully to true if credentials are not configured or if there is a network issue.
+ * Reports an error state when credentials or the provider are unavailable so
+ * callers can queue the upload for manual review instead of publishing it.
  */
 export async function checkImageSafety(
   imageBufferOrBase64: Buffer | string
 ): Promise<ContentSafetyResult> {
-  const apiKey = process.env.GOOGLE_VISION_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_VISION_API_KEY;
+  const apiKey = process.env.GOOGLE_VISION_API_KEY || process.env.GOOGLE_API_KEY;
 
   if (!apiKey) {
     logger.warn('[ContentSafetyAI] Missing GOOGLE_VISION_API_KEY. Skipping AI image moderation.');
-    return { safe: true, reason: 'clean' };
+    return { safe: true, reason: 'error' };
   }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12_000);
 
   try {
     let base64Image = '';
@@ -61,6 +65,7 @@ export async function checkImageSafety(
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify({
           requests: [
             {
@@ -81,7 +86,7 @@ export async function checkImageSafety(
     if (!response.ok) {
       const errText = await response.text();
       logger.error('[ContentSafetyAI] API returned error response:', response.status, errText);
-      return { safe: true, reason: 'error' }; // Graceful fallback
+      return { safe: true, reason: 'error' };
     }
 
     const data = await response.json();
@@ -90,7 +95,7 @@ export async function checkImageSafety(
 
     if (!safeSearch) {
       logger.warn('[ContentSafetyAI] No safeSearchAnnotation in response.');
-      return { safe: true, reason: 'clean' };
+      return { safe: true, reason: 'error' };
     }
 
     // Determine safety: Block if Adult, Violence, or Racy are LIKELY or VERY_LIKELY
@@ -117,6 +122,8 @@ export async function checkImageSafety(
     return { safe: true, reason: 'clean' };
   } catch (error) {
     logger.error('[ContentSafetyAI] Exception checking image safety:', error);
-    return { safe: true, reason: 'error' }; // Graceful fallback
+    return { safe: true, reason: 'error' };
+  } finally {
+    clearTimeout(timeout);
   }
 }
