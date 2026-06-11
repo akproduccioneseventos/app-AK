@@ -12,6 +12,16 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import NextImage from 'next/image';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const REFRESH_INTERVAL_MS = 3000;
 
@@ -32,6 +42,7 @@ export default function PrintStationPage() {
   const [printedIds, setPrintedIds] = useState<Set<string>>(new Set());
   const [printPost, setPrintPost] = useState<SocialGalleryPost | null>(null);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [pendingPrintConfirmation, setPendingPrintConfirmation] = useState<SocialGalleryPost | null>(null);
 
   // Load printed IDs from localStorage on mount
   useEffect(() => {
@@ -72,34 +83,46 @@ export default function PrintStationPage() {
   }, [loadData]);
 
   // Handle printing trigger
-  const handlePrint = (post: SocialGalleryPost) => {
-    if (isPrinting) return;
+  const handlePrint = useCallback((post: SocialGalleryPost, retry = false) => {
+    if (isPrinting || (pendingPrintConfirmation && !retry)) return;
     setIsPrinting(true);
     setPrintPost(post);
 
     // Give browser time to render print template before executing window.print()
     setTimeout(() => {
       window.print();
-      
-      // Mark as printed
-      setPrintedIds(prev => {
-        const next = new Set(prev);
-        next.add(post.id);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(`printed_${fiestaId}`, JSON.stringify(Array.from(next)));
-        }
-        return next;
-      });
 
       setIsPrinting(false);
       setPrintPost(null);
-      
+      setPendingPrintConfirmation(post);
+
       toast({
-        title: 'Comando de impresión enviado 🖨️',
-        description: `Foto de ${post.authorName} enviada a la cola física.`,
+        title: 'Verifica la copia impresa',
+        description: 'La foto seguira en la cola hasta que confirmes que salio correctamente.',
         duration: 2000,
       });
     }, 600);
+  }, [isPrinting, pendingPrintConfirmation, toast]);
+
+  const confirmPrinted = () => {
+    if (!pendingPrintConfirmation) return;
+    const post = pendingPrintConfirmation;
+    setPrintedIds(prev => {
+      const next = new Set(prev);
+      next.add(post.id);
+      localStorage.setItem(`printed_${fiestaId}`, JSON.stringify(Array.from(next)));
+      return next;
+    });
+    setPendingPrintConfirmation(null);
+    toast({ title: 'Impresion confirmada', description: `Foto de ${post.authorName} completada.` });
+  };
+
+  const retryPrint = () => {
+    const post = pendingPrintConfirmation;
+    setPendingPrintConfirmation(null);
+    if (post) {
+      handlePrint(post, true);
+    }
   };
 
   const skipPrint = (postId: string) => {
@@ -124,7 +147,7 @@ export default function PrintStationPage() {
 
   // Auto-Print Trigger effect
   useEffect(() => {
-    if (!autoPrint || posts.length === 0 || isPrinting) return;
+    if (!autoPrint || posts.length === 0 || isPrinting || pendingPrintConfirmation) return;
     
     // Find first unprinted post (newest approved first)
     const nextToPrint = [...posts]
@@ -134,7 +157,7 @@ export default function PrintStationPage() {
     if (nextToPrint) {
       handlePrint(nextToPrint);
     }
-  }, [posts, autoPrint, printedIds, isPrinting]);
+  }, [posts, autoPrint, printedIds, isPrinting, pendingPrintConfirmation, handlePrint]);
 
   // Compute pending queues count
   const pendingCount = useMemo(() => {
@@ -308,6 +331,21 @@ export default function PrintStationPage() {
         </div>
 
       </div>
+
+      <AlertDialog open={pendingPrintConfirmation !== null}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿La foto salio impresa correctamente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Confirmala solamente cuando tengas la copia fisica. Si cancelaste o hubo un error, reintenta sin quitarla de la cola.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={retryPrint}>Reintentar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPrinted}>Confirmar impresa</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* PRINT STYLES */}
       <style jsx global>{`

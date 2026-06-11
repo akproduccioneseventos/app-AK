@@ -24,12 +24,34 @@ import admin from 'firebase-admin';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
-import { uploadToStorage } from '@/lib/firebase/storage';
+import { getSignedUrl, uploadToStorage } from '@/lib/firebase/storage';
+import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import {
+  canReadDedications,
+  isDedicationAudioOwnedByEvent,
+  validateDedicationAudioFile,
+} from '@/lib/social-fiesta/guardrails';
 
 // Firestore collection names
 const POLLS_COLLECTION = 'social_polls';
 const SONGS_COLLECTION = 'social_song_requests';
 const DEDICATIONS_COLLECTION = 'social_dedications';
+
+function dedicationAudioExtension(contentType: string): string {
+  switch (contentType.toLowerCase()) {
+    case 'audio/ogg':
+      return 'ogg';
+    case 'audio/mp4':
+      return 'm4a';
+    case 'audio/mpeg':
+      return 'mp3';
+    case 'audio/wav':
+    case 'audio/x-wav':
+      return 'wav';
+    default:
+      return 'webm';
+  }
+}
 
 /** Returns the Firestore Admin instance; throws if Firebase is not configured. */
 async function getDb(): Promise<Firestore> {
@@ -75,6 +97,7 @@ export async function createPoll(
   options: string[]
 ): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
   try {
+    await requireAppSession();
     const questionReview = reviewSocialContent({ type: 'text', text: question, moderationMode: 'automatico' });
     if (questionReview.status === 'blocked') return { success: false, error: questionReview.message };
     const reviewedOptions = options.map((option) => reviewSocialContent({ type: 'text', text: option, moderationMode: 'automatico' }));
@@ -141,6 +164,7 @@ export async function closePoll(
   pollId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const db = await getDb();
     await db.collection(POLLS_COLLECTION).doc(pollId).update({ active: false });
     return { success: true };
@@ -212,6 +236,7 @@ export async function markSongPlayed(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const db = await getDb();
     await db.collection(SONGS_COLLECTION).doc(requestId).update({ played: true });
     return { success: true };
@@ -224,14 +249,29 @@ export async function markSongPlayed(
 
 export async function getDedications(fiestaId: string): Promise<Dedication[]> {
   try {
+    const [fiesta, adminSession] = await Promise.all([
+      getFiestaById(fiestaId),
+      hasAppSession(),
+    ]);
+    if (!fiesta) return [];
+    const privateMode = fiesta.socialGallerySettings?.privateDedicationsMode === true;
+    if (!canReadDedications(privateMode, adminSession)) return [];
+
     const db = await getDb();
     const snapshot = await db
       .collection(DEDICATIONS_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .get();
-    return snapshot.docs
+    const dedications = snapshot.docs
       .map((doc: QueryDocumentSnapshot) => doc.data() as Dedication)
+      .filter((dedication) => adminSession || dedication.visibility !== 'private')
       .sort((a: Dedication, b: Dedication) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+    return Promise.all(dedications.map(async (dedication) => {
+      if (!dedication.audioUrl || dedication.audioUrl.startsWith('http')) return dedication;
+      const signedUrl = await getSignedUrl(dedication.audioUrl);
+      return signedUrl ? { ...dedication, audioUrl: signedUrl } : { ...dedication, audioUrl: undefined };
+    }));
   } catch {
     return [];
   }
@@ -244,6 +284,14 @@ export async function addDedication(
   audioUrl?: string
 ): Promise<{ success: boolean; dedication?: Dedication; error?: string }> {
   try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    if (fiesta.socialGallerySettings?.showDedications === false) {
+      return { success: false, error: 'Las dedicatorias estan deshabilitadas para este evento.' };
+    }
+    if (audioUrl && !isDedicationAudioOwnedByEvent(audioUrl, fiestaId)) {
+      return { success: false, error: 'El audio no pertenece a este evento.' };
+    }
     const review = reviewSocialContent({ type: 'text', text: message, authorName, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
@@ -253,6 +301,7 @@ export async function addDedication(
       message: review.sanitizedText || sanitizeSocialText(message),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
       timestamp: new Date().toISOString(),
+      visibility: fiesta.socialGallerySettings?.privateDedicationsMode ? 'private' : 'public',
       ...(audioUrl ? { audioUrl } : {}),
     };
     await db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).set(newDed);
@@ -268,6 +317,7 @@ export async function highlightDedication(
   highlighted: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const db = await getDb();
     await db.collection(DEDICATIONS_COLLECTION).doc(dedicationId).update({ highlighted });
     return { success: true };
@@ -305,6 +355,7 @@ export async function addSorteoGanador(
   nombre: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const fiesta = await getFiestaById(fiestaId);
@@ -325,6 +376,7 @@ export async function activateMomento(
   momento: FiestaMomento
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
@@ -348,14 +400,25 @@ export async function uploadDedicationAudio(
   formData: FormData
 ): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
   try {
-    const file = formData.get('file') as File;
-    if (!fiestaId || !file) return { success: false, error: 'Faltan datos.' };
+    const file = formData.get('file') as File | null;
+    if (!fiestaId || !file || !(file instanceof File)) return { success: false, error: 'Faltan datos.' };
+    const validationError = validateDedicationAudioFile(file);
+    if (validationError) return { success: false, error: validationError };
+
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    if (fiesta.socialGallerySettings?.showDedications === false) {
+      return { success: false, error: 'Las dedicatorias estan deshabilitadas para este evento.' };
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const audioId = `audio_${Date.now()}`;
-    const storagePath = `dedications-audio/${fiestaId}/${audioId}.webm`;
-    const url = await uploadToStorage(buffer, storagePath, 'audio/webm', true);
-    return { success: true, audioUrl: url };
+    const audioId = `audio_${crypto.randomUUID()}`;
+    const extension = dedicationAudioExtension(file.type);
+    const storagePath = `dedications-audio/${fiestaId}/${audioId}.${extension}`;
+    const privateMode = fiesta.socialGallerySettings?.privateDedicationsMode === true;
+    const url = await uploadToStorage(buffer, storagePath, file.type, !privateMode);
+    return { success: true, audioUrl: privateMode ? storagePath : url };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al subir audio.' };
   }
