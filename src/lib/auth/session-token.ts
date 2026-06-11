@@ -5,14 +5,20 @@ const DEFAULT_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const NO_PRIVATE_SECRET_MAX_AGE_SECONDS = 60 * 60 * 24;
 
 export function hasPrivateSessionSecret() {
-  return Boolean(process.env.AK_SESSION_SECRET || process.env.AUTH_SESSION_SECRET || process.env.SESSION_SECRET);
+  return Boolean(
+    process.env.AK_SESSION_SECRET ||
+    process.env.AUTH_SESSION_SECRET ||
+    process.env.SESSION_SECRET ||
+    process.env.GOOGLE_API_KEY
+  );
 }
 
 function getSigningSecret() {
   const secret =
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
-    process.env.SESSION_SECRET;
+    process.env.SESSION_SECRET ||
+    process.env.GOOGLE_API_KEY;
 
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
