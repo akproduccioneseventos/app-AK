@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   ArrowLeft, Save, Loader2, Eye,
   Images, Globe, MapPin, Music, Gift, QrCode,
-  PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook, Trash2,
+  PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook, Trash2, Mic, Video,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GuestPortalSettings, GuestExperienceSettings } from '@/types/fiesta';
@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: GuestPortalSettings = {
   showMusica: true,
   showRegalos: false,
   showCheckin: false,
+  showBuzon: true,
   welcomeMessage: '',
   customBgColor: '#f8f5ff',
   customAccentColor: '#9333ea',
@@ -100,6 +101,14 @@ const FEATURE_CONFIG = [
     description: 'Mostrar código QR para check-in en el evento.',
     color: 'text-teal-600',
     bg: 'bg-teal-50',
+  },
+  {
+    key: 'showBuzon' as const,
+    icon: Mic,
+    label: 'Buzón de Mensajes (Audio/Video)',
+    description: 'Permitir a los invitados grabar y subir dedicatorias de audio y video.',
+    color: 'text-purple-600',
+    bg: 'bg-purple-50',
   },
 ];
 
