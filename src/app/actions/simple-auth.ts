@@ -1,7 +1,7 @@
 'use server';
 
 import crypto from 'crypto';
-import { dbAdmin } from '@/lib/firebase/server';
+import { dbAdmin, verifyIdToken } from '@/lib/firebase/server';
 import { readData, writeData } from '@/lib/data-service';
 import { ensureFreshGoogleAccount, sendGoogleGmailMessage } from '@/lib/google-workspace';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
@@ -608,4 +608,27 @@ export async function resetPasswordWithRecoveryCode(
   });
 
   return result.success ? { success: true } : { success: false, error: result.error };
+}
+
+export async function loginWithGoogleIdToken(idToken: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const decodedToken = await verifyIdToken(idToken);
+    if (!decodedToken || !decodedToken.email) {
+      return { success: false, error: 'Token de Google no válido.' };
+    }
+
+    const email = decodedToken.email.trim().toLowerCase();
+    const allowedEmail = 'akproduccionessalto@gmail.com';
+
+    if (email !== allowedEmail) {
+      return { success: false, error: 'Acceso denegado: este mail no está habilitado para ingresar.' };
+    }
+
+    const { writeSessionCookie } = await import('@/lib/auth/session-token');
+    await writeSessionCookie();
+    return { success: true };
+  } catch (err) {
+    console.error('[simple-auth] loginWithGoogleIdToken error:', err);
+    return { success: false, error: 'Error al iniciar sesión con Google.' };
+  }
 }
