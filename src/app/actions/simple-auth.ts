@@ -298,6 +298,12 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
   try {
     const config = await getAuthDoc();
 
+    const envPassword = process.env.APP_PASSWORD || process.env.NEXT_PUBLIC_APP_PASSWORD;
+    if (envPassword && password === envPassword) {
+      await clearLoginProtection();
+      return { success: true };
+    }
+
     if (verifyHash(password, config?.passwordHash)) {
       await clearLoginProtection();
       return { success: true };
