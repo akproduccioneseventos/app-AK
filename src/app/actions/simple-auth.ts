@@ -4,6 +4,10 @@ import crypto from 'crypto';
 import { dbAdmin, verifyIdToken } from '@/lib/firebase/server';
 import { readData, writeData } from '@/lib/data-service';
 import { ensureFreshGoogleAccount, sendGoogleGmailMessage } from '@/lib/google-workspace';
+import {
+  parseAllowedGoogleEmails,
+  validateGoogleIdentityClaims,
+} from '@/lib/auth/google-identity';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
 const AUTH_COLLECTION = 'app-settings';
@@ -23,6 +27,7 @@ const RESET_REQUEST_COOLDOWN_MS = 60 * 1000;
 const RESET_REQUEST_WINDOW_MS = 60 * 60 * 1000;
 const RESET_REQUEST_WINDOW_LIMIT = 5;
 const BACKUP_CODE_COUNT = 8;
+const GOOGLE_RECOVERY_MAX_AUTH_AGE_SECONDS = 5 * 60;
 
 type SecurityQuestionKey = 'q1' | 'q2' | 'q3';
 
@@ -296,13 +301,13 @@ async function sendSecurityEmail(to: string, code: string) {
 
 async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const config = await getAuthDoc();
-
-    const envPassword = process.env.APP_PASSWORD || process.env.NEXT_PUBLIC_APP_PASSWORD;
+    const envPassword = process.env.APP_PASSWORD;
     if (envPassword && password === envPassword) {
       await clearLoginProtection();
       return { success: true };
     }
+
+    const config = await getAuthDoc();
 
     if (verifyHash(password, config?.passwordHash)) {
       await clearLoginProtection();
@@ -618,23 +623,57 @@ export async function resetPasswordWithRecoveryCode(
 
 export async function loginWithGoogleIdToken(idToken: string): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!idToken) return { success: false, error: 'Google no devolvio una credencial valida.' };
     const decodedToken = await verifyIdToken(idToken);
-    if (!decodedToken || !decodedToken.email) {
-      return { success: false, error: 'Token de Google no válido.' };
-    }
+    const validation = validateGoogleIdentityClaims(
+      decodedToken,
+      parseAllowedGoogleEmails(process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS)
+    );
+    if (!validation.success) return validation;
 
-    const email = decodedToken.email.trim().toLowerCase();
-    const allowedEmail = 'akproduccionessalto@gmail.com';
+    const { writeSessionCookie } = await import('@/lib/auth/session-token');
+    await writeSessionCookie();
+    await clearLoginProtection();
+    return { success: true };
+  } catch (err) {
+    console.error('[simple-auth] loginWithGoogleIdToken error:', err);
+    return { success: false, error: 'Error al iniciar sesion con Google.' };
+  }
+}
 
-    if (email !== allowedEmail) {
-      return { success: false, error: 'Acceso denegado: este mail no está habilitado para ingresar.' };
-    }
+export async function resetPasswordWithGoogleIdToken(
+  idToken: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  const passwordError = validateNewPassword(newPassword);
+  if (passwordError) return { success: false, error: passwordError };
+
+  try {
+    if (!idToken) return { success: false, error: 'Google no devolvio una credencial valida.' };
+    const decodedToken = await verifyIdToken(idToken);
+    const validation = validateGoogleIdentityClaims(
+      decodedToken,
+      parseAllowedGoogleEmails(process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS),
+      { maxAuthAgeSeconds: GOOGLE_RECOVERY_MAX_AUTH_AGE_SECONDS }
+    );
+    if (!validation.success) return validation;
+
+    const result = await clearRecoveryProtection({
+      passwordHash: hashValue(newPassword),
+      password: '',
+      resetCodeHash: '',
+      resetCodeExpiresAt: '',
+      failedLoginCount: 0,
+      loginLockedUntil: '',
+      passwordChangedAt: new Date().toISOString(),
+    });
+    if (!result.success) return { success: false, error: result.error };
 
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie();
     return { success: true };
   } catch (err) {
-    console.error('[simple-auth] loginWithGoogleIdToken error:', err);
-    return { success: false, error: 'Error al iniciar sesión con Google.' };
+    console.error('[simple-auth] resetPasswordWithGoogleIdToken error:', err);
+    return { success: false, error: 'No se pudo recuperar el acceso con Google.' };
   }
 }
