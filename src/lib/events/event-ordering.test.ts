@@ -1,5 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { sortPastEvents, sortUpcomingEvents } from './event-ordering';
+import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from './event-ordering';
 
 function event(id: string, fechaEvento?: string): FiestaEnPlanificacion {
   return {
@@ -20,6 +20,21 @@ function event(id: string, fechaEvento?: string): FiestaEnPlanificacion {
 }
 
 describe('event ordering', () => {
+  it('prefiere la fiesta verificada y conserva eventos que no son duplicados importados', () => {
+    const events = [
+      { ...event('fiesta_doc_cliente_2028_03_04', '2028-03-04T12:00:00.000Z') },
+      { ...event('fiesta_verified_cliente_2027_08_21', '2027-08-21T12:00:00.000Z') },
+      { ...event('evento_manual', '2028-03-04T12:00:00.000Z') },
+      { ...event('fiesta_doc_solo_2029_01_01', '2029-01-01T12:00:00.000Z') },
+    ];
+
+    expect(dedupeImportedEventCopies(events).map(item => item.id)).toEqual([
+      'fiesta_verified_cliente_2027_08_21',
+      'evento_manual',
+      'fiesta_doc_solo_2029_01_01',
+    ]);
+  });
+
   it('ordena eventos activos por la fiesta mas proxima y deja los que no tienen fecha al final', () => {
     const sorted = sortUpcomingEvents([
       event('sin-fecha'),

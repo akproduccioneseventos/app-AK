@@ -30,7 +30,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import { sortPastEvents, sortUpcomingEvents } from '@/lib/events/event-ordering';
+import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from '@/lib/events/event-ordering';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -105,10 +105,24 @@ export default function GestorFiestasPage() {
     loadData();
   }, [loadData]);
 
+  const dedupedFiestasActivas = React.useMemo(
+    () => dedupeImportedEventCopies(fiestasActivas),
+    [fiestasActivas],
+  );
+
+  const activePlanningCount = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return dedupedFiestasActivas.filter(fiesta => {
+      const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+      return !eventDate || eventDate >= today || fiesta.estado === 'Contratada';
+    }).length;
+  }, [dedupedFiestasActivas]);
+
   const filteredFiestasActivas = React.useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return sortUpcomingEvents(fiestasActivas.filter(fiesta => {
+    return sortUpcomingEvents(dedupedFiestasActivas.filter(fiesta => {
       const nombre = fiesta.configuracion.nombreEvento || '';
       const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
@@ -116,17 +130,17 @@ export default function GestorFiestasPage() {
       const isFutureOrNoDate = !eventDate || eventDate >= today;
       return matchesSearch && (isFutureOrNoDate || isContracted);
     }));
-  }, [fiestasActivas, searchTerm]);
+  }, [dedupedFiestasActivas, searchTerm]);
   
   const pastActiveEvents = React.useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return sortPastEvents(fiestasActivas.filter(fiesta => {
+    return sortPastEvents(dedupedFiestasActivas.filter(fiesta => {
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
       return eventDate && eventDate < today && !isContracted;
     }));
-  }, [fiestasActivas]);
+  }, [dedupedFiestasActivas]);
 
   const filteredFiestasArchivadas = React.useMemo(() =>
     sortPastEvents(fiestasArchivadas.filter(fiesta =>
@@ -508,7 +522,7 @@ export default function GestorFiestasPage() {
             <CalendarClock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.fiestasFuturas}</div>
+            <div className="text-2xl font-bold">{activePlanningCount}</div>
             <p className="text-xs text-muted-foreground">Eventos en planificación activa.</p>
           </CardContent>
         </Card>
