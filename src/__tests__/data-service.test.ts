@@ -60,20 +60,25 @@ describe('data-service — writeData validation', () => {
     await expect(writeData('test.json', [{ id: '1' }])).rejects.toThrow('Error al guardar datos en Firestore');
   });
 
-  it('waits for the automatic backup trigger after a successful write', async () => {
+  it('registers automatic backup as post-response work after a successful write', async () => {
     const syncToFirestore = jest.fn().mockResolvedValue(undefined);
-    const triggerAutoBackup = jest.fn().mockResolvedValue(undefined);
+    const waitUntil = jest.fn();
+    const triggerAutoBackup = jest.fn(() => new Promise<void>(() => {}));
     jest.doMock('@/lib/firebase-sync', () => ({
       syncToFirestore,
       readFromFirestore: jest.fn().mockResolvedValue([{ id: '1' }]),
     }));
     jest.doMock('@/app/actions/backup', () => ({ triggerAutoBackup }));
+    jest.doMock('next/dist/server/lib/builtin-request-context', () => ({
+      getBuiltinRequestContext: () => ({ waitUntil }),
+    }));
 
     const { writeData } = await import('@/lib/data-service');
     await writeData('customers.json', [{ id: '1' }]);
 
     expect(syncToFirestore).toHaveBeenCalled();
     expect(triggerAutoBackup).toHaveBeenCalledTimes(1);
+    expect(waitUntil).toHaveBeenCalledTimes(1);
   });
 
   it('can skip automatic backup during a restore', async () => {
