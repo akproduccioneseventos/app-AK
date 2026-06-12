@@ -11,6 +11,21 @@ import * as logger from './logger';
 
 const BACKUP_EXCLUDED_FILES = new Set(['_backup-snapshots.json']);
 
+export interface WriteDataOptions {
+  skipAutoBackup?: boolean;
+}
+
+async function runAutoBackupAfterWrite(normalizedFilePath: string, options?: WriteDataOptions): Promise<void> {
+  if (options?.skipAutoBackup || BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) return;
+
+  try {
+    const { triggerAutoBackup } = await import('@/app/actions/backup');
+    await triggerAutoBackup();
+  } catch (err) {
+    logger.warn('[data-service] Auto-backup trigger failed:', err);
+  }
+}
+
 async function readLocalJsonFallback<T>(normalizedFilePath: string): Promise<T | null> {
   try {
     const fs = await import('fs/promises');
@@ -65,7 +80,12 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
   return defaultValue;
 }
 
-export async function writeData<T>(filePath: string, data: T, sortFn?: (a: any, b: any) => number): Promise<void> {
+export async function writeData<T>(
+  filePath: string,
+  data: T,
+  sortFn?: (a: any, b: any) => number,
+  options?: WriteDataOptions,
+): Promise<void> {
   if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
 
   const normalizedFilePath = filePath.replace(/\\/g, '/');
@@ -85,11 +105,7 @@ export async function writeData<T>(filePath: string, data: T, sortFn?: (a: any, 
     throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
   }
 
-  if (!BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) {
-    import('@/app/actions/backup')
-      .then(({ triggerAutoBackup }) => triggerAutoBackup())
-      .catch((err) => logger.warn('[writeData] Auto-backup trigger failed silently:', err));
-  }
+  await runAutoBackupAfterWrite(normalizedFilePath, options);
 }
 
 function deepMerge(target: any, source: any): any {
@@ -125,7 +141,11 @@ function deepMerge(target: any, source: any): any {
   return source;
 }
 
-export async function updateDataPartial<T extends Record<string, any>>(filePath: string, partialData: Partial<T>): Promise<void> {
+export async function updateDataPartial<T extends Record<string, any>>(
+  filePath: string,
+  partialData: Partial<T>,
+  options?: WriteDataOptions,
+): Promise<void> {
   if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
 
   const normalizedFilePath = filePath.replace(/\\/g, '/');
@@ -145,9 +165,5 @@ export async function updateDataPartial<T extends Record<string, any>>(filePath:
     throw new Error(`Error al actualizar datos en Firestore: ${err instanceof Error ? err.message : err}`);
   }
 
-  if (!BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) {
-    import('@/app/actions/backup')
-      .then(({ triggerAutoBackup }) => triggerAutoBackup())
-      .catch((err) => logger.warn('[updateDataPartial] Auto-backup trigger failed silently:', err));
-  }
+  await runAutoBackupAfterWrite(normalizedFilePath, options);
 }
