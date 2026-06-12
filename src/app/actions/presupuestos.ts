@@ -21,6 +21,7 @@ import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
+import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -34,6 +35,28 @@ export async function getPresupuestos(includeArchived = false): Promise<Presupue
   if (!auth.success) throw new Error('No autorizado');
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   return includeArchived ? all : all.filter(p => !p.archived);
+}
+
+export async function repairVerifiedBudgetDates(): Promise<{ success: boolean; changedCount: number; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, changedCount: 0, error: auth.error };
+
+  try {
+    const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+    const { budgets, changedCount } = migrateVerifiedBudgetDates(all);
+    if (changedCount > 0) {
+      await writeData(PRESUPUESTOS_FILE, budgets);
+      logger.info(`[Presupuesto] Se corrigieron ${changedCount} fechas documentales importadas.`);
+    }
+    return { success: true, changedCount };
+  } catch (error) {
+    logger.error('[Presupuesto] No se pudieron corregir las fechas importadas:', error);
+    return {
+      success: false,
+      changedCount: 0,
+      error: error instanceof Error ? error.message : 'No se pudieron corregir las fechas importadas.',
+    };
+  }
 }
 
 export async function getPresupuestoById(id: string, token?: string): Promise<Presupuesto | null> {

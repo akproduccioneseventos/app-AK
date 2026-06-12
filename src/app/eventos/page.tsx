@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarClock, Archive, Loader2, AlertTriangle, PlusCircle, Info, Users, DollarSign, FileText, CalendarDays, Trash2, Copy, Search, AlertCircle, RotateCcw, Check, Wand2, MonitorPlay, Globe2 } from 'lucide-react';
 import { getFiestas, archiveFiesta, getHistorialFiestas, deleteFiestaArchivada, createFiestaVacia, duplicateFiesta, deleteFiesta as deleteFiestaAction, resetAllActiveFiestas, deleteAllFiestas } from '@/app/actions/fiesta-actual';
@@ -30,6 +30,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import { sortPastEvents, sortUpcomingEvents } from '@/lib/events/event-ordering';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -105,30 +106,32 @@ export default function GestorFiestasPage() {
   }, [loadData]);
 
   const filteredFiestasActivas = React.useMemo(() => {
-    const now = new Date();
-    return fiestasActivas.filter(fiesta => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return sortUpcomingEvents(fiestasActivas.filter(fiesta => {
       const nombre = fiesta.configuracion.nombreEvento || '';
-      const matchesSearch = nombre === '' || nombre.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
-      const isFutureOrNoDate = !eventDate || eventDate >= now;
+      const isFutureOrNoDate = !eventDate || eventDate >= today;
       return matchesSearch && (isFutureOrNoDate || isContracted);
-    });
+    }));
   }, [fiestasActivas, searchTerm]);
   
   const pastActiveEvents = React.useMemo(() => {
-    const now = new Date();
-    return fiestasActivas.filter(fiesta => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return sortPastEvents(fiestasActivas.filter(fiesta => {
       const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
       const isContracted = fiesta.estado === 'Contratada';
-      return eventDate && eventDate < now && !isContracted;
-    });
+      return eventDate && eventDate < today && !isContracted;
+    }));
   }, [fiestasActivas]);
 
-  const filteredFiestasArchivadas = React.useMemo(() => 
-    fiestasArchivadas.filter(fiesta => 
+  const filteredFiestasArchivadas = React.useMemo(() =>
+    sortPastEvents(fiestasArchivadas.filter(fiesta =>
       fiesta.configuracion.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase())
-    ), [fiestasArchivadas, searchTerm]);
+    )), [fiestasArchivadas, searchTerm]);
 
   // Phase 3.13: Multi-event resource conflict detection
   // Detect active events scheduled on the same date
@@ -645,60 +648,103 @@ export default function GestorFiestasPage() {
             <p className="text-sm">{error}</p>
           </Card>
         ) : filteredFiestasActivas.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFiestasActivas.map((fiesta) => (
-              <Card key={fiesta.id} className="bg-card hover:shadow-md transition-shadow print:shadow-none print:border print:break-inside-avoid flex flex-col">
-                <CardHeader className="pb-3 pt-4 px-4 print:pb-1 print:pt-1 print:px-2">
-                  <CardTitle className="text-md font-semibold text-primary/90 print:text-sm">
-                    {fiesta.configuracion.nombreEvento || 'Sin nombre'}
-                  </CardTitle>
-                  <CardDescription className="text-xs print:text-[10px]">
-                    {fiesta.configuracion.tipoCelebracion} - {formatDate(fiesta.configuracion.fechaEvento)}
-                  </CardDescription>
-                </CardHeader>
+          <div className="overflow-hidden rounded-md border bg-card">
+            {filteredFiestasActivas.map((fiesta, index) => {
+              const eventDate = fiesta.configuracion.fechaEvento
+                ? new Date(fiesta.configuracion.fechaEvento)
+                : null;
+              const validEventDate = eventDate && !Number.isNaN(eventDate.getTime()) ? eventDate : null;
 
-                <CardContent className="px-4 pb-4 grid grid-cols-2 gap-x-4 gap-y-1 text-xs print:px-2 print:pb-2 print:text-[10px] flex-grow">
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Users className="w-3 h-3" /> Invitados: <span className="font-medium text-foreground">{fiesta.configuracion.invitadosEstimados}</span>
+              return (
+                <div
+                  key={fiesta.id}
+                  className={cn(
+                    'grid gap-4 p-4 transition-colors hover:bg-muted/20 md:grid-cols-[96px_minmax(200px,1.5fr)_minmax(180px,1fr)_auto] md:items-center print:break-inside-avoid',
+                    index > 0 && 'border-t',
+                  )}
+                >
+                  <div className="rounded-md bg-primary/5 px-3 py-2 text-center">
+                    {validEventDate ? (
+                      <>
+                        <p className="text-xs font-semibold uppercase text-primary">
+                          {validEventDate.toLocaleDateString('es-UY', { month: 'short' })}
+                        </p>
+                        <p className="text-2xl font-bold leading-none text-foreground">
+                          {validEventDate.toLocaleDateString('es-UY', { day: '2-digit' })}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {validEventDate.toLocaleDateString('es-UY', { year: 'numeric' })}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-xs font-medium text-muted-foreground">Sin fecha</p>
+                    )}
                   </div>
 
-                  {fiesta.configuracion.presupuestoEstimado ? (
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <DollarSign className="w-3 h-3" /> Presupuesto:{' '}
-                      <span className="font-medium text-foreground">
-                        {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(fiesta.configuracion.presupuestoEstimado)}
-                      </span>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="truncate font-semibold text-foreground">
+                        {fiesta.configuracion.nombreEvento || 'Sin nombre'}
+                      </h3>
+                      <Badge variant="outline">{fiesta.estado}</Badge>
                     </div>
-                  ) : null}
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {fiesta.configuracion.tipoCelebracion || 'Evento'} · {formatDate(fiesta.configuracion.fechaEvento)}
+                    </p>
+                    {fiesta.configuracion.nombreLugar ? (
+                      <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                        <FileText className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{fiesta.configuracion.nombreLugar}</span>
+                      </p>
+                    ) : null}
+                  </div>
 
-                  {fiesta.configuracion.nombreLugar ? (
-                    <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
-                      <FileText className="w-3 h-3" /> Lugar: <span className="font-medium text-foreground truncate">{fiesta.configuracion.nombreLugar}</span>
-                    </div>
-                  ) : null}
-                </CardContent>
+                  <div className="space-y-2 text-sm">
+                    <p className="flex items-center gap-2 text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span><strong className="text-foreground">{fiesta.configuracion.invitadosEstimados || 0}</strong> invitados</span>
+                    </p>
+                    {fiesta.configuracion.presupuestoEstimado ? (
+                      <p className="flex items-center gap-2 text-muted-foreground">
+                        <DollarSign className="h-4 w-4" />
+                        <strong className="text-foreground">
+                          {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(fiesta.configuracion.presupuestoEstimado)}
+                        </strong>
+                      </p>
+                    ) : null}
+                  </div>
 
-                <CardFooter className="p-2 border-t flex flex-col items-stretch gap-2 print:hidden">
-                  <Button asChild variant="default" size="sm" className="w-full"><Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>
-                      Planificar
-                    </Link></Button>
-
-                  <div className="flex gap-2 w-full">
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDuplicate(fiesta.id)} disabled={isProcessing === fiesta.id}>
-                      {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
-                      <span className="ml-2">Duplicar</span>
+                  <div className="flex flex-wrap items-center gap-2 print:hidden md:justify-end">
+                    <Button asChild size="sm">
+                      <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>Planificar</Link>
                     </Button>
-
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9"
+                      aria-label={`Duplicar ${fiesta.configuracion.nombreEvento || 'evento'}`}
+                      title="Duplicar"
+                      onClick={() => handleDuplicate(fiesta.id)}
+                      disabled={isProcessing === fiesta.id}
+                    >
+                      {isProcessing === fiesta.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+                    </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" className="flex-1" disabled={isProcessing === fiesta.id}>
-                          {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                          <span className="ml-2">Eliminar</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          aria-label={`Eliminar ${fiesta.configuracion.nombreEvento || 'evento'}`}
+                          title="Eliminar"
+                          disabled={isProcessing === fiesta.id}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>¿Eliminar Evento Activo?</AlertDialogTitle>
+                          <AlertDialogTitle>¿Eliminar evento activo?</AlertDialogTitle>
                           <AlertDialogDescription>
                             El evento "{fiesta.configuracion.nombreEvento || 'Sin nombre'}" se eliminará permanentemente. Esta acción no se puede deshacer.
                           </AlertDialogDescription>
@@ -715,9 +761,9 @@ export default function GestorFiestasPage() {
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>
-                </CardFooter>
-              </Card>
-            ))}
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="py-6 text-center text-muted-foreground bg-muted/20 rounded-md print:hidden">

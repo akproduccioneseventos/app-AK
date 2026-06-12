@@ -7,14 +7,15 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste, Trash2 } from 'lucide-react';
+import { PlusCircle, Loader2, ListChecks, CheckCircle, FileClock, XCircle, FileText, Search, ClipboardPaste, Trash2, CalendarDays, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getPresupuestos, resetAllPresupuestos } from '@/app/actions/presupuestos';
+import { getPresupuestos, repairVerifiedBudgetDates, resetAllPresupuestos } from '@/app/actions/presupuestos';
 import PresupuestoCard from '@/components/presupuestos/presupuesto-card';
-import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { organizeBudgets, sortBudgets, type BudgetSortMode } from '@/lib/budget/budget-ordering';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,8 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
     });
 }
 
+type DashboardSortMode = 'smart' | BudgetSortMode;
+
 function PresupuestoDashboardContent() {
     const router = useRouter();
     const { toast } = useToast();
@@ -46,18 +49,27 @@ function PresupuestoDashboardContent() {
     const [searchTerm, setSearchTerm] = useState('');
     const [showArchived, setShowArchived] = useState(false);
     const [isResettingPresupuestos, setIsResettingPresupuestos] = useState(false);
+    const [sortMode, setSortMode] = useState<DashboardSortMode>('smart');
 
     const fetchPresupuestos = useCallback(async () => {
         setIsLoading(true);
-        const visibleRequest = withTimeout(getPresupuestos(showArchived), 12000, 'La lista de presupuestos');
-        const countRequest = withTimeout(getPresupuestos(true), 12000, 'El conteo total de presupuestos');
-
         try {
+            const repairResult = await withTimeout(repairVerifiedBudgetDates(), 30000, 'La correccion de fechas');
+            if (!repairResult.success) {
+                toast({
+                    title: 'No se pudieron corregir las fechas importadas',
+                    description: repairResult.error,
+                    variant: 'destructive',
+                });
+            }
+
+            const visibleRequest = withTimeout(getPresupuestos(showArchived), 12000, 'La lista de presupuestos');
+            const countRequest = withTimeout(getPresupuestos(true), 12000, 'El conteo total de presupuestos');
             const [visibleResult, countResult] = await Promise.allSettled([visibleRequest, countRequest]);
 
             if (visibleResult.status === 'fulfilled') {
                 const guardados = Array.isArray(visibleResult.value) ? visibleResult.value : [];
-                setPresupuestos(guardados.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+                setPresupuestos(guardados);
             } else {
                 setPresupuestos([]);
                 toast({
@@ -78,6 +90,14 @@ function PresupuestoDashboardContent() {
             } else {
                 setTotalPresupuestosCount(0);
             }
+        } catch (error) {
+            setPresupuestos([]);
+            setTotalPresupuestosCount(0);
+            toast({
+                title: 'No se pudieron cargar los presupuestos',
+                description: error instanceof Error ? error.message : 'Ocurrio un error inesperado.',
+                variant: 'destructive',
+            });
         } finally {
             setIsLoading(false);
         }
@@ -119,6 +139,16 @@ function PresupuestoDashboardContent() {
             p.id.includes(lower)
         );
     }, [presupuestos, searchTerm]);
+
+    const organizedBudgets = useMemo(() => {
+        const organized = organizeBudgets(filteredPresupuestos);
+        if (sortMode === 'smart') return organized;
+        return {
+            contracted: sortBudgets(organized.contracted, sortMode),
+            prospects: sortBudgets(organized.prospects, sortMode),
+            archived: sortBudgets(organized.archived, sortMode),
+        };
+    }, [filteredPresupuestos, sortMode]);
 
     const kpis = useMemo(() => ({
         aceptados: presupuestos.filter(p => p.estado === 'Aceptado').length,
@@ -175,10 +205,21 @@ function PresupuestoDashboardContent() {
             <Card>
               <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <CardTitle className="font-headline text-2xl">Todos los Presupuestos</CardTitle>
-                    <CardDescription>Gestiona las cotizaciones generadas manual o automáticamente.</CardDescription>
+                    <CardTitle className="font-headline text-2xl">Presupuestos ordenados</CardTitle>
+                    <CardDescription>Separa eventos contratados de prospectos y muestra ambas fechas importantes.</CardDescription>
                 </div>
                 <div className="flex gap-2 items-center flex-wrap">
+                  <Select value={sortMode} onValueChange={(value) => setSortMode(value as DashboardSortMode)}>
+                    <SelectTrigger className="w-full md:w-52" aria-label="Ordenar presupuestos">
+                      <SelectValue placeholder="Ordenar por" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="smart">Orden recomendado</SelectItem>
+                      <SelectItem value="event-date">Fecha de fiesta</SelectItem>
+                      <SelectItem value="created-date">Fecha del presupuesto</SelectItem>
+                      <SelectItem value="client">Nombre del cliente</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Button
                     variant={showArchived ? 'secondary' : 'outline'}
                     size="sm"
@@ -214,16 +255,69 @@ function PresupuestoDashboardContent() {
                             <p className="font-semibold text-foreground">
                               {searchTerm ? 'No hay presupuestos con esa busqueda.' : showArchived ? 'No hay presupuestos cargados, ni activos ni archivados.' : 'No hay presupuestos activos.'}
                             </p>
-                            <p className="mt-1 text-sm">Crea uno nuevo o importa un texto para probar el flujo completo.</p>
+                            <p className="mt-1 text-sm">Crea uno nuevo o importa un presupuesto para iniciar el seguimiento.</p>
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {filteredPresupuestos.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
+                          <div className="space-y-8">
+                            <section aria-labelledby="eventos-contratados">
+                              <div className="mb-3 flex items-center justify-between gap-3">
+                                <div>
+                                  <h3 id="eventos-contratados" className="flex items-center gap-2 font-semibold">
+                                    <CalendarDays className="h-4 w-4 text-primary" />
+                                    Eventos contratados
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground">Ordenados por la fecha de la fiesta más próxima.</p>
+                                </div>
+                                <span className="text-sm font-semibold tabular-nums">{organizedBudgets.contracted.length}</span>
+                              </div>
+                              {organizedBudgets.contracted.length > 0 ? (
+                                <div className="space-y-2">
+                                  {organizedBudgets.contracted.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
+                                </div>
+                              ) : (
+                                <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">No hay eventos contratados.</div>
+                              )}
+                            </section>
+
+                            <section aria-labelledby="prospectos-cotizaciones">
+                              <div className="mb-3 flex items-center justify-between gap-3">
+                                <div>
+                                  <h3 id="prospectos-cotizaciones" className="flex items-center gap-2 font-semibold">
+                                    <Users className="h-4 w-4 text-primary" />
+                                    Prospectos y cotizaciones
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground">Ordenados por la fecha en que se hizo el presupuesto.</p>
+                                </div>
+                                <span className="text-sm font-semibold tabular-nums">{organizedBudgets.prospects.length}</span>
+                              </div>
+                              {organizedBudgets.prospects.length > 0 ? (
+                                <div className="space-y-2">
+                                  {organizedBudgets.prospects.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
+                                </div>
+                              ) : (
+                                <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">No hay prospectos ni cotizaciones pendientes.</div>
+                              )}
+                            </section>
+
+                            {showArchived && organizedBudgets.archived.length > 0 ? (
+                              <section aria-labelledby="presupuestos-archivados">
+                                <div className="mb-3 flex items-center justify-between gap-3">
+                                  <h3 id="presupuestos-archivados" className="font-semibold text-muted-foreground">Archivados</h3>
+                                  <span className="text-sm font-semibold tabular-nums">{organizedBudgets.archived.length}</span>
+                                </div>
+                                <div className="space-y-2 opacity-75">
+                                  {organizedBudgets.archived.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
+                                </div>
+                              </section>
+                            ) : null}
                           </div>
                         )}
                       </TabsContent>
                        {['Borrador', 'Enviado', 'Aceptado', 'Facturado', 'Rechazado'].map(estado => {
-                           const byStatus = filteredPresupuestos.filter(p => p.estado === estado);
+                           const statusSortMode: BudgetSortMode = sortMode === 'smart'
+                             ? (estado === 'Aceptado' || estado === 'Facturado' ? 'event-date' : 'created-date')
+                             : sortMode;
+                           const byStatus = sortBudgets(filteredPresupuestos.filter(p => p.estado === estado), statusSortMode);
                            return (
                              <TabsContent key={estado} value={estado}>
                                 {byStatus.length === 0 ? (
@@ -231,7 +325,7 @@ function PresupuestoDashboardContent() {
                                     No hay presupuestos en estado {estado}.
                                   </div>
                                 ) : (
-                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  <div className="space-y-2">
                                     {byStatus.map(p => <PresupuestoCard key={p.id} presupuesto={p} onDeleteSuccess={handleBudgetMutation}/>)}
                                   </div>
                                 )}
