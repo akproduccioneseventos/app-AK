@@ -263,7 +263,7 @@ export default function BackupPage() {
             <CardContent className="space-y-4">
               <Button onClick={handleCreateRestorePoint} disabled={isCreatingPoint} className="w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">
                 {isCreatingPoint ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
-                🔒 Respaldar Ahora
+                {isCreatingPoint ? 'Creando respaldo...' : 'Respaldar ahora'}
               </Button>
               <Separator />
               <a href="/api/backup/download" download className="block w-full">
