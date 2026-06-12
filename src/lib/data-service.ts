@@ -15,15 +15,25 @@ export interface WriteDataOptions {
   skipAutoBackup?: boolean;
 }
 
-async function runAutoBackupAfterWrite(normalizedFilePath: string, options?: WriteDataOptions): Promise<void> {
+async function scheduleAutoBackupAfterWrite(normalizedFilePath: string, options?: WriteDataOptions): Promise<void> {
   if (options?.skipAutoBackup || BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) return;
 
+  const backupTask = import('@/app/actions/backup')
+    .then(({ triggerAutoBackup }) => triggerAutoBackup())
+    .catch((err) => logger.warn('[data-service] Auto-backup trigger failed:', err));
+
   try {
-    const { triggerAutoBackup } = await import('@/app/actions/backup');
-    await triggerAutoBackup();
-  } catch (err) {
-    logger.warn('[data-service] Auto-backup trigger failed:', err);
+    const { getBuiltinRequestContext } = await import('next/dist/server/lib/builtin-request-context');
+    const waitUntil = getBuiltinRequestContext()?.waitUntil;
+    if (waitUntil) {
+      waitUntil(backupTask);
+      return;
+    }
+  } catch (error) {
+    logger.warn('[data-service] Request context unavailable for auto-backup:', error);
   }
+
+  void backupTask;
 }
 
 async function readLocalJsonFallback<T>(normalizedFilePath: string): Promise<T | null> {
@@ -105,7 +115,7 @@ export async function writeData<T>(
     throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
   }
 
-  await runAutoBackupAfterWrite(normalizedFilePath, options);
+  await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
 }
 
 function deepMerge(target: any, source: any): any {
@@ -165,5 +175,5 @@ export async function updateDataPartial<T extends Record<string, any>>(
     throw new Error(`Error al actualizar datos en Firestore: ${err instanceof Error ? err.message : err}`);
   }
 
-  await runAutoBackupAfterWrite(normalizedFilePath, options);
+  await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
 }
