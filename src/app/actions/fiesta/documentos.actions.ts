@@ -174,105 +174,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
 // --- TOQUE DE ORO 2: AUTOMATIZACIÓN DE FLUJOS (DOMINÓ) ---
 
 export async function signContractDigitally(fiestaId: string, signerName: string, acceptedPlanPagos?: boolean): Promise<{ success: boolean; error?: string }> {
-    try {
-        const fiesta = await getFiestaById(fiestaId);
-        if (!fiesta) throw new Error("Evento no encontrado");
-
-        const headersList = await headers();
-        const ip = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'IP desconocida';
-
-        const updatedFiesta: FiestaEnPlanificacion = {
-            ...fiesta,
-            estado: 'Contratada',
-            contratoFirmaInfo: {
-                isSigned: true,
-                signedAt: new Date().toISOString(),
-                method: 'digital',
-                signedBy: signerName,
-                ip: ip
-            }
-        };
-
-        // Save plan acceptance if the contract has a plan and client accepted it
-        if (
-            acceptedPlanPagos &&
-            updatedFiesta.contratoDatos?.planPagos
-        ) {
-            updatedFiesta.contratoDatos = {
-                ...updatedFiesta.contratoDatos,
-                planPagos: {
-                    ...updatedFiesta.contratoDatos.planPagos,
-                    aceptadoPorCliente: true,
-                    aceptadoAt: new Date().toISOString(),
-                },
-            };
-        }
-
-        // 1. AUTOMATIZACIÓN: Habilitar portal del cliente
-        if (updatedFiesta.clientPortalSettings) {
-            updatedFiesta.clientPortalSettings.enabled = true;
-            updatedFiesta.clientPortalSettings.checklist.visible = true;
-            updatedFiesta.clientPortalSettings.checklist.editable = true;
-            updatedFiesta.clientPortalSettings.musica.visible = true;
-            updatedFiesta.clientPortalSettings.moodboard.visible = true;
-        }
-
-        // 2. AUTOMATIZACIÓN: Generar Factura de Seña (monto desde presupuesto)
-        // Solo si no existe ya una factura de seña
-        const hasDeposit = updatedFiesta.invoiceIds?.length && updatedFiesta.invoiceIds.some(id => id.includes('SEÑA'));
-        if (!hasDeposit) {
-            try {
-                const depositAmount = await resolveDepositAmount(fiesta);
-                await registerBookingDeposit({
-                    fiestaId: fiesta.id,
-                    amount: depositAmount,
-                    method: 'Transferencia',
-                    date: new Date().toISOString()
-                });
-            } catch (e) {
-                console.warn("No se pudo auto-generar factura de seña:", e);
-            }
-        }
-
-        // 3. AUTOMATIZACIÓN: Cargar tareas iniciales si está vacío
-        if (!updatedFiesta.tareas || updatedFiesta.tareas.length === 0) {
-            const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : new Date();
-            const initialTasks: Omit<Tarea, 'id'>[] = [
-                { texto: "Definir paleta de colores en Dream Designer", completada: false, asignadaA: 'Cliente', fechaLimite: addDays(new Date(), 7).toISOString() },
-                { texto: "Cargar primeras 10 fotos en Video de Vida", completada: false, asignadaA: 'Cliente' },
-                { texto: "Confirmar lista base de invitados", completada: false, asignadaA: 'Cliente' },
-                { texto: "Revisión técnica de Discoteca e Iluminación", completada: false, asignadaA: 'Organizador' }
-            ];
-            updatedFiesta.tareas = initialTasks.map((t, i) => ({ ...t, id: `auto_task_${Date.now()}_${i}_${Math.random().toString(36).substring(7)}` }));
-        }
-
-        await saveFiesta(updatedFiesta);
-
-        // 4. SINCRONIZACIÓN: Sincronizar con presupuesto si existe
-        if (updatedFiesta.presupuestoId) {
-            try {
-                const { syncFiestaFromBudget } = await import('./fiesta.actions');
-                await syncFiestaFromBudget(updatedFiesta.id);
-            } catch (e) {
-                console.warn("No se pudo sincronizar fiesta desde presupuesto:", e);
-            }
-        }
-
-        // 5. NOTIFICACIÓN: Contrato firmado digitalmente
-        createNotification({
-            titulo: 'Contrato Firmado',
-            mensaje: `Contrato firmado digitalmente por ${signerName} — ${fiesta.configuracion.nombreEvento || fiesta.id}.`,
-            href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`,
-            icono: 'ListChecks',
-            tipo: 'exito',
-            entidadRelacionadaId: fiestaId,
-            rolDestino: 'admin',
-        }).catch(err => console.warn('Error creating contract signature notification:', err));
-
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message };
-    }
+    return { success: false, error: 'La firma digital está deshabilitada. Por favor, firme físicamente el contrato.' };
 }
 
 export async function uploadPhysicalContract(formData: FormData): Promise<{ success: boolean; error?: string }> {
@@ -289,7 +191,7 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
         const storagePath = `contracts/signed-physical/${fiestaId}/${newFilename}`;
 
         const bytes = await file.arrayBuffer();
-        const publicUrl = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/pdf', false);
+        await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/pdf', false);
 
         const updatedFiesta: FiestaEnPlanificacion = {
             ...fiesta,
@@ -298,7 +200,7 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
                 isSigned: true,
                 signedAt: new Date().toISOString(),
                 method: 'physical',
-                physicalContractUrl: publicUrl
+                physicalContractUrl: storagePath
             }
         };
 
@@ -316,12 +218,16 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
         if (!hasDeposit) {
             try {
                 const depositAmount = await resolveDepositAmount(fiesta);
-                await registerBookingDeposit({
+                const depositResult = await registerBookingDeposit({
                     fiestaId: fiesta.id,
                     amount: depositAmount,
                     method: 'Transferencia',
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    skipFiestaSave: true
                 });
+                if (depositResult.success && depositResult.invoiceId) {
+                    updatedFiesta.invoiceIds = [...(updatedFiesta.invoiceIds || []), depositResult.invoiceId];
+                }
             } catch (e) {
                 console.warn("No se pudo auto-generar factura de seña:", e);
             }

@@ -192,11 +192,9 @@ export default function FinanzasPage() {
                         {formatCurrency(f.ganancia)}
                       </td>
                       <td className="py-2.5 pl-2">
-                        <Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${f.id}`}>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                        <Button asChild variant="ghost" size="icon" className="h-7 w-7"><Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${f.id}`}>
                             <ArrowRight className="w-3.5 h-3.5" />
-                          </Button>
-                        </Link>
+                          </Link></Button>
                       </td>
                     </tr>
                   ))}

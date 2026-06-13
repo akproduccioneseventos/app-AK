@@ -54,7 +54,8 @@ npm run dev:firebase
 | `FIREBASE_CLIENT_EMAIL` | Sí (server) | Email de la cuenta de servicio Firebase |
 | `FIREBASE_PRIVATE_KEY` | Sí (server) | Clave privada de la cuenta de servicio Firebase |
 | `USE_FIREBASE_DATA` | No | `true` para habilitar escritura a Firestore |
-| `NEXT_PUBLIC_APP_PASSWORD` | No | Contraseña de acceso a la app |
+| `APP_PASSWORD` | No | Contraseña de emergencia solo del servidor |
+| `AUTH_ALLOWED_EMAILS` | Sí | Correos autorizados para ingreso y recuperación con Google |
 
 Ver `.env.example` para la lista completa.
 

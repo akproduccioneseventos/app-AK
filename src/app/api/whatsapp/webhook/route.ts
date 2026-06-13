@@ -15,10 +15,13 @@ export async function GET(request: NextRequest) {
   // Meta webhook verification
   if (mode === 'subscribe' && challenge) {
     const config = await getWhatsAppConfig();
-    // Use a dedicated verifyToken if set, otherwise fall back to a default
-    const verifyToken = config.verifyToken || 'ak_whatsapp_verify';
+    const verifyToken = config.verifyToken;
+    if (!verifyToken && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'WhatsApp verify token is not configured in production' }, { status: 403 });
+    }
+    const actualVerifyToken = verifyToken || 'ak_whatsapp_verify';
 
-    if (token === verifyToken) {
+    if (token === actualVerifyToken) {
       return new NextResponse(challenge, { status: 200 });
     }
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -40,7 +43,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: 'ok' }, { status: 200 });
     }
 
-    const body = await request.json().catch(() => null);
+    const rawBody = await request.text();
+    let body: any = null;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+    }
     if (!body) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
@@ -51,6 +60,19 @@ export async function POST(request: NextRequest) {
 
     // Parse Meta (WhatsApp Business API) format
     if (body.object === 'whatsapp_business_account' || body.entry) {
+      // Strictly validate Meta Signature in production
+      const metaSignature = request.headers.get('x-hub-signature-256');
+      if (process.env.NODE_ENV === 'production') {
+        if (!config.appSecret || !metaSignature) {
+          return NextResponse.json({ error: 'Meta app secret or signature missing' }, { status: 401 });
+        }
+        const crypto = await import('crypto');
+        const expected = 'sha256=' + crypto.createHmac('sha256', config.appSecret).update(rawBody).digest('hex');
+        if (metaSignature !== expected) {
+          return NextResponse.json({ error: 'Signature verification failed' }, { status: 401 });
+        }
+      }
+
       try {
         const entry = body.entry?.[0];
         const change = entry?.changes?.[0];
@@ -70,6 +92,11 @@ export async function POST(request: NextRequest) {
 
     // Parse Twilio format
     if (!phone && body.From) {
+      const twilioSignature = request.headers.get('x-twilio-signature');
+      if (process.env.NODE_ENV === 'production' && !twilioSignature) {
+        return NextResponse.json({ error: 'Twilio signature is required in production' }, { status: 401 });
+      }
+
       phone = (body.From as string).replace('whatsapp:', '');
       messageText = body.Body ?? '';
       clientName = body.ProfileName;
@@ -77,6 +104,9 @@ export async function POST(request: NextRequest) {
 
     // Fallback: generic format { phone, message, name }
     if (!phone && body.phone) {
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Generic payload fallback is forbidden in production environment.' }, { status: 400 });
+      }
       phone = body.phone;
       messageText = body.message ?? body.text ?? '';
       clientName = body.name;

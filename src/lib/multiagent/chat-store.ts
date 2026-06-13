@@ -25,6 +25,14 @@ function normalizeTitle(message: string, agentName: string) {
   return clean.length > 70 ? `${clean.slice(0, 67)}...` : clean;
 }
 
+export function isMultiAgentSessionScopeCompatible(
+  session: Pick<AkAgentChatSession, 'agentType' | 'fiestaId'>,
+  input: Pick<AkAgentChatSession, 'agentType' | 'fiestaId'>,
+) {
+  return session.agentType === input.agentType
+    && (session.fiestaId || undefined) === (input.fiestaId || undefined);
+}
+
 async function readChatState(): Promise<ChatState> {
   const data = await readData<ChatState>(CHAT_FILE, emptyState);
   return {
@@ -51,8 +59,14 @@ export async function appendMultiAgentChatTurn(input: {
 }): Promise<AkAgentChatSession> {
   const state = await readChatState();
   const timestamp = nowIso();
-  const index = input.sessionId
+  const requestedIndex = input.sessionId
     ? state.sessions.findIndex(session => session.id === input.sessionId)
+    : -1;
+  const index = requestedIndex >= 0 && isMultiAgentSessionScopeCompatible(
+    state.sessions[requestedIndex],
+    { agentType: input.agentType, fiestaId: input.fiestaId },
+  )
+    ? requestedIndex
     : -1;
 
   const baseSession: AkAgentChatSession = index >= 0

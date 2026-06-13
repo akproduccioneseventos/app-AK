@@ -1,7 +1,6 @@
 'use client';
 
-/* eslint-disable @next/next/no-img-element */
-
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -176,7 +175,14 @@ export function ConversionClosingLayer() {
             >
               <div className="grid min-h-[560px] lg:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative min-h-[360px] overflow-hidden">
-                  <img src={activeTopic.imageUrl} alt={activeTopic.question} className="absolute inset-0 h-full w-full object-cover" />
+                  <Image
+                    src={activeTopic.imageUrl}
+                    alt={activeTopic.question}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    unoptimized
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.84)_100%)]" />
                   <div className="absolute bottom-6 left-6 right-6 text-white">
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-white/60">Argumento de venta</p>
@@ -283,7 +289,14 @@ export function ConversionClosingLayer() {
               </div>
             </div>
             <div className="relative min-h-[360px] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1500&q=82" alt="Cierre de fiesta AK" className="absolute inset-0 h-full w-full object-cover" />
+              <Image
+                src="https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1500&q=82"
+                alt="Cierre de fiesta AK"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                unoptimized
+                className="absolute inset-0 h-full w-full object-cover"
+              />
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.74)_0%,rgba(15,23,42,0.08)_100%)]" />
               <div className="absolute bottom-6 left-6 right-6 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">

@@ -75,10 +75,7 @@ export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId:
 // --- CONFIGURACIÓN Y MÓDULOS ---
 export async function updateConfiguracionFiestaActual(fiestaId: string, config: any) { return await ConfigModule.updateConfiguracion(fiestaId, config); }
 export async function updateModulosContratadosFiestaActual(fiestaId: string, modulos: ModulosContratados) {
-    const fiesta = await FiestaModule.getFiestaById(fiestaId);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
-    const updatedFiesta = { ...fiesta, modulosContratados: modulos };
-    return await FiestaModule.saveFiesta(updatedFiesta);
+    return await FiestaModule.updateFiestaPartial(fiestaId, { modulosContratados: modulos });
 }
 
 // --- GESTIÓN DE TAREAS ---
@@ -148,17 +145,17 @@ export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData)
 export async function updateGuestPortalSettings(fiestaId: string, settings: GuestPortalSettings) { return await FiestaModule.updateGuestPortalSettings(fiestaId, settings); }
 export async function updateContratoFiestaActual(fiestaId: string, text: string, tipo: string = 'servicios', plantillaId: string = 'default-servicios') {
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
-    const updatedFiesta = {
-      ...fiesta,
+    if (fiesta?.contratoFirmaInfo?.isSigned) {
+      return { success: false, error: 'No se puede modificar el contrato una vez firmado.' };
+    }
+    return await FiestaModule.updateFiestaPartial(fiestaId, {
       ...(tipo === 'servicios' ? { contratoServicioTexto: text } : {}),
       contratoGenerado: {
         tipo,
         fecha: new Date().toISOString(),
         plantillaId,
       },
-    };
-    return await FiestaModule.saveFiesta(updatedFiesta);
+    });
 }
 
 export async function savePlanPagosContrato(
@@ -168,12 +165,12 @@ export async function savePlanPagosContrato(
   try {
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');
-    const updatedFiesta: FiestaEnPlanificacion = {
-      ...fiesta,
+    if (fiesta.contratoFirmaInfo?.isSigned) {
+      return { success: false, error: 'No se puede modificar el plan de pagos una vez firmado el contrato.' };
+    }
+    return await FiestaModule.updateFiestaPartial(fiestaId, {
       contratoDatos: { ...(fiesta.contratoDatos || {}), planPagos },
-    };
-    await FiestaModule.saveFiesta(updatedFiesta);
-    return { success: true };
+    });
   } catch (e: any) {
     return { success: false, error: e.message };
   }

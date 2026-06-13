@@ -96,17 +96,6 @@ export function calculateDiscountAmount(subtotal: number, presupuesto: Pick<Pres
   return Math.min(subtotal, Math.max(0, rawDiscount));
 }
 
-function calculateAnnualMultiplier(presupuesto: Presupuesto): number {
-  if (!presupuesto.ajusteAnualActivo || !presupuesto.eventoFecha || !presupuesto.timestamp) return 1;
-  const created = new Date(presupuesto.timestamp);
-  const event = new Date(presupuesto.eventoFecha);
-  if (Number.isNaN(created.getTime()) || Number.isNaN(event.getTime())) return 1;
-  const yearsDiff = Math.max(0, event.getFullYear() - created.getFullYear());
-  const pct = Number(presupuesto.ajusteAnualPorcentaje ?? 15);
-  if (!Number.isFinite(pct)) return 1;
-  return Math.pow(1 + Math.max(0, pct) / 100, yearsDiff);
-}
-
 export function calculateBudgetFinancials(
   presupuesto: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
@@ -137,9 +126,10 @@ export function calculateBudgetFinancials(
     .reduce((sum, item) => sum + roundMoney(item.costoTotalItem), 0);
   const discount = calculateDiscountAmount(subtotal, presupuesto);
   const baseTotal = Math.max(0, subtotal - discount);
-  const annualAdjustedTotal = roundMoney(baseTotal * calculateAnnualMultiplier(presupuesto));
   const storedTotal = roundMoney(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
-  const total = options.preserveStoredTotal && storedTotal > 0 ? storedTotal : annualAdjustedTotal;
+  // The official budget, payments and balance always use today's price.
+  // Future-year adjustments are informative projections built by formal-budget.ts.
+  const total = options.preserveStoredTotal && storedTotal > 0 ? storedTotal : baseTotal;
   const confirmedPaid = sumConfirmedClientPayments(presupuesto.pagosCliente ?? []);
   const pendingReview = sumPendingClientPayments(presupuesto.pagosCliente ?? []);
   const balance = Math.max(0, total - confirmedPaid);

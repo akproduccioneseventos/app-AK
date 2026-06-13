@@ -1,6 +1,7 @@
 'use client';
 
 import { Play } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { GaleriaVideo } from '@/types/galeria';
@@ -43,10 +44,12 @@ function VideoCard({ video, onPlay }: VideoCardProps) {
     <div className="group relative rounded-3xl overflow-hidden bg-slate-800 shadow-2xl cursor-pointer" onClick={() => onPlay(video)}>
       {/* Thumbnail */}
       <div className="relative aspect-video overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={video.thumbnailUrl}
           alt={video.title}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          unoptimized
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {/* Overlay */}

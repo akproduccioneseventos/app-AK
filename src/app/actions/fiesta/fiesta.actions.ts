@@ -38,7 +38,7 @@ import {
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
 import { mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
 import { getPresupuestoById } from '../presupuestos';
@@ -141,14 +141,41 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   }
 }
 
+export async function updateFiestaPartial(fiestaId: string, partialData: Partial<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
+  try {
+    const filePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    await updateDataPartial<FiestaEnPlanificacion>(filePath, partialData);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || "No se pudo actualizar parcialmente el evento." };
+  }
+}
+
 export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
     const activePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    let fiesta: FiestaEnPlanificacion | null = null;
     try {
         const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
-        if (active && active.id === fiestaId) return active;
+        if (active && active.id === fiestaId) fiesta = active;
     } catch (e) {}
-    const archivadas = await getHistorialFiestas();
-    return archivadas.find(f => f.id === fiestaId) || null;
+    if (!fiesta) {
+        const archivadas = await getHistorialFiestas();
+        fiesta = archivadas.find(f => f.id === fiestaId) || null;
+    }
+
+    if (fiesta) {
+        const { verifySession } = await import('@/lib/auth/session-token');
+        const sessionAuth = await verifySession();
+        if (!sessionAuth.success) {
+            if (fiesta.clientPortalSettings) {
+                fiesta.clientPortalSettings = {
+                    ...fiesta.clientPortalSettings,
+                    accessKey: undefined as any,
+                };
+            }
+        }
+    }
+    return fiesta;
 }
 
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {

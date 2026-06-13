@@ -28,7 +28,7 @@ function detectAgent(input: AkMultiAgentInput): AkAgentType {
   if (path.includes('/eventos') || path.includes('/calendario') || msg.includes('todas las fiestas') || msg.includes('fiestas pendientes')) return 'fiestas_general';
   if (path.includes('/plan-pagos') || path.includes('/empresa/contabilidad') || path.includes('/invoices') || path.includes('/pagos') || FINANCIAL_REGEX.test(msg)) return 'contable';
   if (path.includes('/marketing') || path.includes('/empresa/redes-sociales') || MARKETING_REGEX.test(msg)) return 'marketing';
-  if (path.includes('/contabilidad/crm') || path.includes('/presupuestos') || path.includes('/simulador') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('presupuesto')) return 'comercial';
+  if (path.includes('/admin/ventas') || path.includes('/contabilidad/crm') || path.includes('/contabilidad/comercial-360') || path.includes('/presupuestos') || path.includes('/customers') || path.includes('/simulador') || msg.includes('lead') || msg.includes('prospecto') || msg.includes('presupuesto') || msg.includes('venta')) return 'comercial';
   if (path.includes('/reuniones') || msg.includes('agenda') || msg.includes('reunion') || msg.includes('recordatorio') || msg.includes('llamar') || msg.includes('llamada')) return 'secretaria';
   return 'central';
 }
@@ -76,7 +76,7 @@ function displayName(agentType: AkAgentType, nombre?: string): string {
     fiestas_general: 'Supervisor General de Fiestas',
     contable:        'Agente Contable AK',
     marketing:       'Agente Marketing AK',
-    comercial:       'Agente Comercial AK',
+    comercial:       'Agente Vendedor AK',
     central:         'Encargado General AK',
   };
   return names[agentType];
@@ -153,7 +153,7 @@ Si hay contexto de una fiesta real, usás esos datos concretos. Nunca inventés 
 Si no especifican plataforma, generás para Instagram (post + historia).
 ${CORE_RULES}`,
 
-    comercial: `Sos el Agente Comercial de AK Producciones.
+    comercial: `Sos el Agente Vendedor de AK Producciones.
 Tu trabajo: convertir interesados en clientes. Trabajás leads, CRM, presupuestos, seguimiento y cierre.
 Método de venta AK (siempre este orden):
 (1) Identificar el problema real del cliente (¿qué le preocupa de organizar este evento?).
@@ -252,7 +252,7 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
 FIESTA ACTIVA: "${nombre || fiesta.id}"
 • Tipo: ${fiestaTipo(fiesta) || 'sin tipo'} | Fecha: ${fiesta.configuracion?.fechaEvento || 'sin fecha'} | Salón: ${fiesta.configuracion?.nombreLugar || 'sin salón'}
 • Invitados: ${fiestaInvitados(fiesta)} (adultos: ${fiesta.configuracion?.invitadosAdultos || 0}, niños: ${(fiesta.configuracion?.invitadosNinos || 0) + (fiesta.configuracion?.invitadosAdolescentes || 0)})
-• Estado: ${fiesta.estado || 'sin estado'} | Módulos: ${(fiesta.modulosContratados || []).join(', ') || 'ninguno'}
+• Estado: ${fiesta.estado || 'sin estado'} | Módulos: ${fiesta.modulosContratados ? (Object.entries(fiesta.modulosContratados).filter(([_, v]) => v === true).map(([k]) => k).join(', ') || 'ninguno') : 'ninguno'}
 • Tareas totales: ${fiesta.tareas?.length || 0} | Pendientes: ${(fiesta.tareas || []).filter((t: any) => !t.completada).length}
 TAREAS PENDIENTES (${(fiesta.tareas || []).filter((t: any) => !t.completada).length}):
 ${(fiesta.tareas || []).filter((t: any) => !t.completada).slice(0, 20).map((t: any) => `  • [${t.fechaLimite || 'sin fecha'}] ${t.texto}${t.asignadaA ? ` → ${t.asignadaA}` : ''}`).join('\n') || '  Sin tareas pendientes.'}
@@ -274,7 +274,7 @@ ${(fiestas as any[]).slice(0, 20).map((f: any) => {
 
   // ── Alertas KPI ───────────────────────────────────────────────────────────
   const alertsBlock = (kpi?.alerts || []).length
-    ? `ALERTAS ACTIVAS:\n${(kpi.alerts as any[]).slice(0,8).map((a: any) => `  • [${String(a.level||'aviso').toUpperCase()}] ${a.message}`).join('\n')}`
+    ? `ALERTAS ACTIVAS:\n${(kpi?.alerts as any[]).slice(0,8).map((a: any) => `  • [${String(a.level||'aviso').toUpperCase()}] ${a.message}`).join('\n')}`
     : 'Sin alertas activas.';
 
   // ── Texto de contexto completo ─────────────────────────────────────────────

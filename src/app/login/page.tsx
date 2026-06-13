@@ -10,16 +10,19 @@ import { LogIn, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getSession, setSession } from '@/lib/auth';
+import { clearSession, setSession } from '@/lib/auth';
+import { getSessionStatus } from '@/app/actions/session';
+import { sanitizeAppRedirect } from '@/lib/auth/redirect';
 import {
   getPublicSecurityRecoveryStatus,
   requestPasswordResetEmail,
   resetPasswordWithCode,
+  resetPasswordWithGoogleIdToken,
   resetPasswordWithRecoveryCode,
   resetPasswordWithSecurityAnswers,
-  verifyPassword,
+  loginWithPassword,
+  loginWithGoogleIdToken,
 } from '@/app/actions/simple-auth';
-import { setSessionCookie } from '@/app/actions/session';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
@@ -39,6 +42,21 @@ function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = 3500): Pro
   ]);
 }
 
+function getRedirectPath() {
+  return sanitizeAppRedirect(new URLSearchParams(window.location.search).get('redirect'));
+}
+
+function GoogleMark() {
+  return (
+    <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'recovery'>('login');
@@ -55,20 +73,54 @@ export default function LoginPage() {
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
-    if (getSession()) {
-      router.push('/');
-      return;
-    }
+    let active = true;
 
     async function loadLoginData() {
+      const hasServerSession = await withTimeout(getSessionStatus(), false);
+      if (!active) return;
+      if (hasServerSession) {
+        setSession();
+        router.replace(getRedirectPath());
+        return;
+      }
+
+      // The signed cookie is authoritative. Clearing stale browser state avoids
+      // a redirect loop after the server session expires.
+      clearSession();
+
+      try {
+        const googleAuth = await import('@/lib/firebase/google-auth-client');
+        const redirectToken = await googleAuth.consumeGoogleRedirectToken();
+        if (redirectToken) {
+          const response = await loginWithGoogleIdToken(redirectToken);
+          await googleAuth.clearGoogleAuthSession();
+          if (response.success) {
+            setSession();
+            router.replace(getRedirectPath());
+            router.refresh();
+            return;
+          }
+          setError(response.error || 'Acceso denegado.');
+        }
+      } catch (googleError) {
+        const googleAuth = await import('@/lib/firebase/google-auth-client');
+        setError(googleAuth.getGoogleAuthErrorMessage(googleError));
+        await googleAuth.clearGoogleAuthSession();
+      }
+
       const [settings, recoveryStatus] = await Promise.all([
         withTimeout(getInvoiceTemplateSettings(), { logoUrl: null } as Awaited<ReturnType<typeof getInvoiceTemplateSettings>>),
         withTimeout(getPublicSecurityRecoveryStatus(), RECOVERY_STATUS_FALLBACK),
       ]);
+      if (!active) return;
       setLogoUrl(settings.logoUrl);
       setRecovery(recoveryStatus);
     }
     loadLoginData();
+
+    return () => {
+      active = false;
+    };
   }, [router]);
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -78,7 +130,7 @@ export default function LoginPage() {
     setNotice('');
 
     try {
-      const result = await verifyPassword(password);
+      const result = await loginWithPassword(password);
       if (!result.success) {
         setError(result.error || 'Contraseña incorrecta.');
         setIsSubmitting(false);
@@ -86,11 +138,46 @@ export default function LoginPage() {
       }
 
       setSession();
-      await setSessionCookie();
-      const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
-      router.push(redirect);
+      router.replace(getRedirectPath());
+      router.refresh();
     } catch {
       setError('Error al verificar la contraseña.');
+      setIsSubmitting(false);
+    }
+  };
+ 
+  const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
+    setError('');
+    setNotice('');
+
+    try {
+      const googleAuth = await import('@/lib/firebase/google-auth-client');
+      if (googleAuth.shouldPreferGoogleRedirect()) {
+        await googleAuth.startGoogleSignInRedirect();
+        return;
+      }
+
+      const token = await googleAuth.signInWithGooglePopup();
+      const response = await loginWithGoogleIdToken(token);
+      await googleAuth.clearGoogleAuthSession();
+      if (!response.success) {
+        setError(response.error || 'Acceso denegado.');
+        return;
+      }
+
+      setSession();
+      router.replace(getRedirectPath());
+      router.refresh();
+    } catch (googleError) {
+      const googleAuth = await import('@/lib/firebase/google-auth-client');
+      if (googleAuth.shouldFallbackToGoogleRedirect(googleError)) {
+        await googleAuth.startGoogleSignInRedirect();
+        return;
+      }
+      setError(googleAuth.getGoogleAuthErrorMessage(googleError));
+      await googleAuth.clearGoogleAuthSession();
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -125,6 +212,39 @@ export default function LoginPage() {
       return false;
     }
     return true;
+  };
+
+  const handleResetWithGoogle = async () => {
+    setIsSubmitting(true);
+    setError('');
+    setNotice('');
+    if (!validateResetPasswords()) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const googleAuth = await import('@/lib/firebase/google-auth-client');
+      const token = await googleAuth.signInWithGooglePopup();
+      const result = await resetPasswordWithGoogleIdToken(token, resetPassword);
+      await googleAuth.clearGoogleAuthSession();
+      if (!result.success) {
+        setError(result.error || 'No se pudo recuperar el acceso con Google.');
+        return;
+      }
+
+      setSession();
+      setResetPassword('');
+      setResetConfirmPassword('');
+      router.replace(getRedirectPath());
+      router.refresh();
+    } catch (googleError) {
+      const googleAuth = await import('@/lib/firebase/google-auth-client');
+      setError(googleAuth.getGoogleAuthErrorMessage(googleError));
+      await googleAuth.clearGoogleAuthSession();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleResetWithCode = async (event: FormEvent<HTMLFormElement>) => {
@@ -235,7 +355,25 @@ export default function LoginPage() {
                 {isSubmitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <LogIn className="w-5 h-5 mr-2" />}
                 {isSubmitting ? 'Ingresando...' : 'Ingresar'}
               </Button>
-              <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => { setMode('recovery'); setError(''); setNotice(''); }}>
+
+              <div className="relative flex py-2 items-center w-full">
+                <div className="flex-grow border-t border-muted"></div>
+                <span className="flex-shrink mx-4 text-muted-foreground text-xs uppercase">O</span>
+                <div className="flex-grow border-t border-muted"></div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full relative hover:bg-muted/50 transition-colors"
+                onClick={handleGoogleLogin}
+                disabled={isSubmitting}
+              >
+                <GoogleMark />
+                Ingresar con Google
+              </Button>
+
+              <Button type="button" variant="link" className="h-auto p-0 text-xs mt-2" onClick={() => { setMode('recovery'); setError(''); setNotice(''); }}>
                 Olvide mi contraseña
               </Button>
             </CardFooter>
@@ -259,8 +397,19 @@ export default function LoginPage() {
                 <Input type="password" value={resetConfirmPassword} onChange={(event) => setResetConfirmPassword(event.target.value)} placeholder="Repetir nueva contrasena" disabled={isSubmitting} />
               </div>
 
+              <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/60 p-3">
+                <p className="text-sm font-semibold text-blue-950">Recuperar verificando tu Gmail</p>
+                <p className="text-xs leading-relaxed text-blue-800">
+                  Confirma la cuenta Google autorizada y la nueva contrasena se guarda sin depender del envio de correos.
+                </p>
+                <Button type="button" className="w-full" onClick={handleResetWithGoogle} disabled={isSubmitting || !resetPassword || !resetConfirmPassword}>
+                  <GoogleMark />
+                  Verificar Gmail y recuperar acceso
+                </Button>
+              </div>
+
               <form onSubmit={handleResetWithCode} className="space-y-3 rounded-lg border p-3">
-                <p className="text-sm font-semibold">Recuperar por Gmail</p>
+                <p className="text-sm font-semibold">Recibir un codigo por correo</p>
                 {!recovery?.gmailConnected && recovery?.hasRecoveryEmail ? (
                   <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-relaxed text-amber-800">
                     El boton vuelve a verificar Gmail al tocarlo. Si la cuenta sigue desconectada, usa codigos de respaldo o preguntas de seguridad y reconecta Google Workspace desde Ajustes.

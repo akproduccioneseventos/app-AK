@@ -132,7 +132,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: undefined,
+        imageUrl: getCateringDishImage(item),
         isFeatured: item.isFeatured,
     };
 };
@@ -228,6 +228,7 @@ function SimuladorContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
+    const [generatedToken, setGeneratedToken] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     
@@ -553,6 +554,7 @@ function SimuladorContent() {
                 });
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
+                    if (result.token) setGeneratedToken(result.token);
                     setStep(4);
                 } else throw new Error(result.error || "Error al generar.");
             } catch (e: any) {
@@ -590,7 +592,7 @@ function SimuladorContent() {
 
     const handleShareBudgetWhatsApp = () => {
         if (!generatedPresupuestoId) return;
-        const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1`;
+        const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1&token=${generatedToken || ''}`;
         const texto = [
             `Hola! Te comparto el presupuesto formal de AK Producciones.`,
             `Cliente: ${clienteNombre}`,
@@ -603,7 +605,7 @@ function SimuladorContent() {
 
     const handleDownloadBudgetPdf = () => {
         if (!generatedPresupuestoId) return;
-        window.open(`/presupuestos/${generatedPresupuestoId}/ver?imprimir=1&cliente=1&direct=1`, '_blank');
+        window.open(`/presupuestos/${generatedPresupuestoId}/ver?imprimir=1&cliente=1&direct=1&token=${generatedToken || ''}`, '_blank');
     };
 
     const calculatePackageEstimatedPrice = (paquete: PaqueteArmadoRapido) => {

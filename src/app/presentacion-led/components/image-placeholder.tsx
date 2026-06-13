@@ -1,7 +1,6 @@
 'use client';
 
-/* eslint-disable @next/next/no-img-element */
-
+import Image from 'next/image';
 import { Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -85,10 +84,12 @@ export function ImagePlaceholder({ id, label, aspectRatio = '16/9', className, i
       data-placeholder-id={id}
     >
       <div className={paddingMap[aspectRatio]} />
-      <img
+      <Image
         src={resolvedImageUrl}
         alt={label}
-        loading="lazy"
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
+        unoptimized
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.05)_0%,rgba(15,23,42,0.78)_100%)]" />

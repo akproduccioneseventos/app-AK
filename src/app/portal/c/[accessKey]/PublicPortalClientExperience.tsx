@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type ElementType, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
 import {
   AlertTriangle,
   Calendar,
@@ -32,7 +32,7 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
-import { addClientMusicSuggestion, submitClientMenuChangeRequest, submitClientPayment, submitClientServiceAddRequest } from '@/app/actions/fiesta/portal.actions';
+import { addClientMusicSuggestion, initializePortalSession, submitClientMenuChangeRequest, submitClientPayment, submitClientServiceAddRequest } from '@/app/actions/fiesta/portal.actions';
 import { PublicFooter } from '@/components/public-footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -290,6 +290,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const access = resolveClientPortalAccess(fiesta);
   const portalExperience = fiesta?.clientePortalExperience ?? {};
   const presupuestoText = getBudgetSearchText(presupuesto);
+
+  useEffect(() => {
+    if (fiesta?.id && settings?.accessKey) {
+      initializePortalSession(fiesta.id, settings.accessKey).catch(err => {
+        console.error('Failed to initialize portal session:', err);
+      });
+    }
+  }, [fiesta?.id, settings?.accessKey]);
 
   const eventNameRaw = portalExperience.eventDisplayName || config.nombreEvento;
   const isDefaultEventName = !eventNameRaw || eventNameRaw === 'Nuevo Evento' || eventNameRaw === 'Evento sin configurar';

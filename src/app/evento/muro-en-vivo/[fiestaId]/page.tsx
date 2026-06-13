@@ -362,7 +362,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Empty state */}
-          {isLoaded && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones', 'audioritmico'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
+          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
               <div className="text-8xl opacity-20">📸</div>
               <div className="text-center space-y-2">
@@ -372,8 +372,49 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
+          {/* Private Greetings Mailbox Mode ("PALABRAS Y AUDIOS PARA SIEMPRE") */}
+          {isLoaded && settings.privateDedicationsMode === true && 
+            (!activeScreenItem || ['mural', 'dedicaciones', 'chat'].includes(activeScreenItem.type)) && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-12 overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white animate-fade-in">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_60%)] animate-pulse" />
+                <div className="relative z-10 text-center max-w-4xl space-y-8">
+                  {/* Floating icons animations */}
+                  <div className="flex justify-center gap-8 mb-6">
+                    <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-4xl shadow-xl shadow-indigo-500/5 backdrop-blur-md animate-bounce" style={{ animationDelay: '0s' }}>
+                      💬
+                    </div>
+                    <div className="w-24 h-24 rounded-3xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-5xl shadow-xl shadow-purple-500/10 backdrop-blur-md animate-bounce" style={{ animationDelay: '0.2s' }}>
+                      🎙️
+                    </div>
+                    <div className="w-20 h-20 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-4xl shadow-xl shadow-pink-500/5 backdrop-blur-md animate-bounce" style={{ animationDelay: '0.4s' }}>
+                      🔒
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-bold text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 tracking-[0.2em] uppercase">
+                      Palabras y Audios Para Siempre
+                    </span>
+                    <h1 className="text-5xl md:text-6xl font-black leading-tight bg-gradient-to-r from-white via-indigo-200 to-purple-200 bg-clip-text text-transparent drop-shadow-sm">
+                      Buzón de Mensajes Privado
+                    </h1>
+                  </div>
+
+                  <p className="text-lg md:text-xl text-slate-300/95 max-w-2xl mx-auto font-light leading-relaxed">
+                    Recibí mensajes de texto y audios directo en tu celular sin que pasen por la pantalla.
+                    Los saludos se envían en un buzón de mensajes 100% privado solo para los anfitriones.
+                  </p>
+
+                  <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3 backdrop-blur-sm">
+                    <span className="text-xl">✨</span>
+                    <span className="text-sm font-semibold tracking-wide text-indigo-200">¡Escaneá el QR en tu mesa para participar y enviar tu mensaje privado!</span>
+                  </div>
+                </div>
+              </div>
+          )}
+
           {/* Mural / photo slideshow — only shown when wall is enabled */}
-          {isLoaded && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
+          {isLoaded && settings.privateDedicationsMode !== true && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
             <SlideshowLayout posts={posts} />
           )}
 
@@ -381,7 +422,7 @@ export default function MuroEnVivoPage() {
           {isLoaded && activeScreenItem?.type === 'juego' && (
             activeGame
               ? <GameSlide game={activeGame} posts={posts} />
-              : posts.length > 0
+              : posts.length > 0 && settings.privateDedicationsMode !== true
                 ? <SlideshowLayout posts={posts} />
                 : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
@@ -397,13 +438,18 @@ export default function MuroEnVivoPage() {
             <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
           )}
 
+          {/* Pauta publicitaria slide */}
+          {isLoaded && activeScreenItem?.type === 'pauta' && (
+            <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
+          )}
+
           {/* Redes slide */}
           {isLoaded && activeScreenItem?.type === 'redes' && (
             <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
           )}
 
           {/* Dedicaciones full-screen slide */}
-          {isLoaded && activeScreenItem?.type === 'dedicaciones' && (
+          {isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'dedicaciones' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-12 overflow-hidden">
               <p className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-400 mb-2">💌 Dedicatorias</p>
               {highlightedDedications.length > 0 ? (
@@ -425,7 +471,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Chat en Vivo full-screen slide */}
-          {isLoaded && activeScreenItem?.type === 'chat' && (
+          {isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'chat' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-12 overflow-hidden">
               <p className="text-[11px] font-black uppercase tracking-[0.4em] text-sky-400 mb-2">💬 Chat en Vivo</p>
               {recentChatMessages.length > 0 ? (
@@ -479,7 +525,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Dedications overlay — always shown when no side panel takes up the left column */}
-          {isLoaded && highlightedDedications.length > 0 && !activePoll && (
+          {isLoaded && settings.privateDedicationsMode !== true && highlightedDedications.length > 0 && !activePoll && (
             <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedDedications.slice(0, 3).map(d => (
                 <div key={d.id} className="ak-live-panel px-5 py-4">
@@ -491,7 +537,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Comments overlay — shown when chat is enabled and no dedications */}
-          {isLoaded && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
+          {isLoaded && settings.privateDedicationsMode !== true && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
             <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedComments.slice(0, 3).map(({ comment }) => (
                 <div key={comment.id} className="ak-live-panel px-5 py-4">
@@ -503,7 +549,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Live chat messages overlay — bottom-left, always shown when chat is enabled */}
-          {isLoaded && settings.chatEnabled !== false && recentChatMessages.length > 0 && !activePoll && (
+          {isLoaded && settings.privateDedicationsMode !== true && settings.chatEnabled !== false && recentChatMessages.length > 0 && !activePoll && (
             <div className={`absolute left-6 bottom-6 z-10 space-y-1.5 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-xs'}`}>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
               {recentChatMessages.map(msg => (

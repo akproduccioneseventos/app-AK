@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { GalleryImage } from '@/types/public-landing';
 
@@ -35,23 +36,28 @@ export function GallerySection({
           {images.map((img) => (
             <div
               key={img.id}
+              tabIndex={0}
+              role="img"
+              aria-label={img.alt}
               className={cn(
                 'relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-100 to-pink-100',
                 'group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300',
+                'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-500/50',
                 img.size === 'wide' && 'col-span-2'
               )}
             >
               {/* Placeholder gradient when no real image is available */}
               <div className="absolute inset-0 bg-gradient-to-br from-purple-200/60 to-pink-200/60" />
 
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={img.src}
                 alt={img.alt}
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw"
+                unoptimized
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => {
-                  // Hide broken images and show the gradient placeholder
-                  (e.target as HTMLImageElement).style.display = 'none';
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
                 }}
               />
 

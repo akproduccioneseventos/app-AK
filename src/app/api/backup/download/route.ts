@@ -18,6 +18,12 @@ async function readFromFirestoreDirect(filePath: string): Promise<any | null> {
 
 export async function GET() {
   try {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const auth = await verifySession();
+    if (!auth.success) {
+      return new NextResponse(JSON.stringify({ error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+    }
+
     const zip = new JSZip();
     const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
     let source: 'firestore' | 'local' = 'local';
@@ -64,6 +70,6 @@ export async function GET() {
     return new NextResponse(zipContent as BodyInit, { status: 200, headers });
   } catch (error: any) {
     logger.error('[Backup] Error creating backup:', error.message || error);
-    return new NextResponse(JSON.stringify({ error: 'Failed to create backup.' }), { status: 500 });
+    return new NextResponse(JSON.stringify({ error: 'Failed to create backup.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }

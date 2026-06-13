@@ -1,12 +1,15 @@
 'use server';
 
 import crypto from 'crypto';
-import { dbAdmin } from '@/lib/firebase/server';
+import { dbAdmin, verifyIdToken } from '@/lib/firebase/server';
 import { readData, writeData } from '@/lib/data-service';
 import { ensureFreshGoogleAccount, sendGoogleGmailMessage } from '@/lib/google-workspace';
+import {
+  parseAllowedGoogleEmails,
+  validateGoogleIdentityClaims,
+} from '@/lib/auth/google-identity';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
-const HARDCODED_PASSWORD = 'AKproducciones2024';
 const AUTH_COLLECTION = 'app-settings';
 const AUTH_DOC_ID = 'auth';
 const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
@@ -24,6 +27,7 @@ const RESET_REQUEST_COOLDOWN_MS = 60 * 1000;
 const RESET_REQUEST_WINDOW_MS = 60 * 60 * 1000;
 const RESET_REQUEST_WINDOW_LIMIT = 5;
 const BACKUP_CODE_COUNT = 8;
+const GOOGLE_RECOVERY_MAX_AUTH_AGE_SECONDS = 5 * 60;
 
 type SecurityQuestionKey = 'q1' | 'q2' | 'q3';
 
@@ -77,10 +81,6 @@ function normalizeAnswer(value: string) {
 
 function normalizeBackupCode(value: string) {
   return value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-}
-
-function isEmergencyPassword(password: string) {
-  return process.env.AK_DISABLE_EMERGENCY_PASSWORD !== 'true' && password === HARDCODED_PASSWORD;
 }
 
 function getActiveLockMessage(lockUntil?: string, reason = 'Por seguridad, espera') {
@@ -299,11 +299,15 @@ async function sendSecurityEmail(to: string, code: string) {
   return { sent: true };
 }
 
-export async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
+async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const envPassword = process.env.APP_PASSWORD;
+    if (envPassword && password === envPassword) {
+      await clearLoginProtection();
+      return { success: true };
+    }
+
     const config = await getAuthDoc();
-    const emergencyLogin = isEmergencyPassword(password);
-    const hasConfiguredPassword = Boolean(config?.passwordHash || config?.password);
 
     if (verifyHash(password, config?.passwordHash)) {
       await clearLoginProtection();
@@ -316,11 +320,6 @@ export async function verifyPassword(password: string): Promise<{ success: boole
       return { success: true };
     }
 
-    if (emergencyLogin && !hasConfiguredPassword) {
-      await clearLoginProtection({ lastEmergencyLoginAt: new Date().toISOString() });
-      return { success: true };
-    }
-
     const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
     if (lockMessage) {
       return { success: false, error: lockMessage };
@@ -329,7 +328,22 @@ export async function verifyPassword(password: string): Promise<{ success: boole
     return { success: false, error: await registerFailedLogin(config) };
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
-    return { success: isEmergencyPassword(password) };
+    return { success: false, error: 'No se pudo verificar el acceso. Intenta nuevamente.' };
+  }
+}
+
+export async function loginWithPassword(password: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await verifyPassword(password);
+    if (!result.success) {
+      return result;
+    }
+    const { writeSessionCookie } = await import('@/lib/auth/session-token');
+    await writeSessionCookie();
+    return { success: true };
+  } catch (err) {
+    console.error('[simple-auth] loginWithPassword error:', err);
+    return { success: false, error: 'Error al iniciar sesión.' };
   }
 }
 
@@ -605,4 +619,61 @@ export async function resetPasswordWithRecoveryCode(
   });
 
   return result.success ? { success: true } : { success: false, error: result.error };
+}
+
+export async function loginWithGoogleIdToken(idToken: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!idToken) return { success: false, error: 'Google no devolvio una credencial valida.' };
+    const decodedToken = await verifyIdToken(idToken);
+    const validation = validateGoogleIdentityClaims(
+      decodedToken,
+      parseAllowedGoogleEmails(process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS)
+    );
+    if (!validation.success) return validation;
+
+    const { writeSessionCookie } = await import('@/lib/auth/session-token');
+    await writeSessionCookie();
+    await clearLoginProtection();
+    return { success: true };
+  } catch (err) {
+    console.error('[simple-auth] loginWithGoogleIdToken error:', err);
+    return { success: false, error: 'Error al iniciar sesion con Google.' };
+  }
+}
+
+export async function resetPasswordWithGoogleIdToken(
+  idToken: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  const passwordError = validateNewPassword(newPassword);
+  if (passwordError) return { success: false, error: passwordError };
+
+  try {
+    if (!idToken) return { success: false, error: 'Google no devolvio una credencial valida.' };
+    const decodedToken = await verifyIdToken(idToken);
+    const validation = validateGoogleIdentityClaims(
+      decodedToken,
+      parseAllowedGoogleEmails(process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS),
+      { maxAuthAgeSeconds: GOOGLE_RECOVERY_MAX_AUTH_AGE_SECONDS }
+    );
+    if (!validation.success) return validation;
+
+    const result = await clearRecoveryProtection({
+      passwordHash: hashValue(newPassword),
+      password: '',
+      resetCodeHash: '',
+      resetCodeExpiresAt: '',
+      failedLoginCount: 0,
+      loginLockedUntil: '',
+      passwordChangedAt: new Date().toISOString(),
+    });
+    if (!result.success) return { success: false, error: result.error };
+
+    const { writeSessionCookie } = await import('@/lib/auth/session-token');
+    await writeSessionCookie();
+    return { success: true };
+  } catch (err) {
+    console.error('[simple-auth] resetPasswordWithGoogleIdToken error:', err);
+    return { success: false, error: 'No se pudo recuperar el acceso con Google.' };
+  }
 }

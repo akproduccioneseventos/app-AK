@@ -58,7 +58,7 @@ export default function PostEventPage() {
               Después de cada evento, prepara mensajes para testimonio, autorización de fotos, publicación sugerida y aprendizaje para los agentes.
             </p>
           </div>
-          <Link href="/control-tower"><Button variant="outline" className="rounded-2xl font-bold"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Button></Link>
+          <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link></Button>
         </div>
       </section>
 
@@ -103,7 +103,7 @@ export default function PostEventPage() {
                 <Button onClick={() => savePackage(item)} disabled={savingId === item.fiestaId} className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">
                   {savingId === item.fiestaId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Guardar cierre
                 </Button>
-                <Link href={item.href}><Button variant="outline" className="rounded-2xl font-bold"><Sparkles className="mr-2 h-4 w-4" /> Abrir fiesta</Button></Link>
+                <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href={item.href}><Sparkles className="mr-2 h-4 w-4" /> Abrir fiesta</Link></Button>
               </div>
             </CardContent>
           </Card>

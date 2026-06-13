@@ -28,6 +28,12 @@ async function restoreJsonFile(file: File) {
 
 export async function POST(request: Request) {
   try {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const auth = await verifySession();
+    if (!auth.success) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('backupFile') as File | null;
 
@@ -95,6 +101,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message, summary, errors, skipped });
   } catch (error: any) {
     logger.error('[Backup] Error restoring backup:', error.message || error);
-    return NextResponse.json({ error: 'Fallo al restaurar el backup.', details: error.message }, { status: 500 });
+    const details = process.env.NODE_ENV === 'production' ? undefined : error.message;
+    return NextResponse.json({ error: 'Fallo al restaurar el backup.', details }, { status: 500 });
   }
 }

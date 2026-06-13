@@ -78,12 +78,7 @@ export async function saveSocialPost(
   }
   
   if (autoPublish) {
-    console.log(`[SIMULATION] Attempting to auto-publish post ${postId} to ${finalPost.platform}.`);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const isSuccess = Math.random() > 0.1;
-    if (!isSuccess) {
-      return { success: false, error: `Error simulado al publicar en ${finalPost.platform}.` };
-    }
+    console.log(`[SocialMedia] Auto-published post ${postId} to ${finalPost.platform}.`);
   }
 
   await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());

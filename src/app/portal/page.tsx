@@ -55,6 +55,8 @@ import {
   addClientMusicSuggestion,
   updateClientChecklistItem,
   updateClientNotes,
+  getBudgetTokenForPortal,
+  initializePortalSession,
 } from '@/app/actions/fiesta/portal.actions';
 import { useToast } from '@/hooks/use-toast';
 import { CompanyLogo } from '@/components/company-logo';
@@ -230,17 +232,25 @@ function ClientPortalContent() {
 
         setFiesta(data);
         setNotes(data.clientNotes ?? '');
-        if (data.presupuestoId) {
-          const presupuestoData = await getPresupuestoById(data.presupuestoId);
-          setPresupuesto(presupuestoData);
-        } else {
-          setPresupuesto(null);
-        }
 
         const storedAuthKey = sessionStorage.getItem(sessionKey);
-        if (storedAuthKey && storedAuthKey === data.clientPortalSettings.accessKey) {
-          setIsAuthenticated(true);
+        if (storedAuthKey) {
+          const authRes = await initializePortalSession(fiestaId!, storedAuthKey);
+          if (authRes.success) {
+            setIsAuthenticated(true);
+            if (data.presupuestoId) {
+              const fetchedToken = await getBudgetTokenForPortal(fiestaId!);
+              const presupuestoData = await getPresupuestoById(data.presupuestoId, fetchedToken || undefined);
+              setPresupuesto(presupuestoData);
+            } else {
+              setPresupuesto(null);
+            }
+            return;
+          } else {
+            sessionStorage.removeItem(sessionKey);
+          }
         }
+        setPresupuesto(null);
       } catch {
         setError('No se pudo cargar la información del evento.');
       } finally {
@@ -251,14 +261,23 @@ function ClientPortalContent() {
     void loadFiesta();
   }, [fiestaId]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fiesta || !fiestaId) return;
 
-    if (password === fiesta.clientPortalSettings?.accessKey) {
+    const res = await initializePortalSession(fiestaId, password);
+    if (res.success) {
       sessionStorage.setItem(`${SESSION_KEY_PREFIX}${fiestaId}`, password);
       setIsAuthenticated(true);
       setError(null);
+
+      if (fiesta.presupuestoId) {
+        const fetchedToken = await getBudgetTokenForPortal(fiestaId);
+        const presupuestoData = await getPresupuestoById(fiesta.presupuestoId, fetchedToken || undefined);
+        setPresupuesto(presupuestoData);
+      } else {
+        setPresupuesto(null);
+      }
       return;
     }
 

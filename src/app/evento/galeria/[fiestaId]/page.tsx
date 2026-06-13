@@ -211,7 +211,7 @@ export default function GaleriaPage() {
             <div className="absolute top-0 inset-x-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent pt-safe">
               <div className="text-left">
                 <p className="font-bold">{filteredPosts[lightboxIndex].authorName || 'Invitado'}</p>
-                <p className="text-xs text-zinc-400">{new Date(filteredPosts[lightboxIndex].createdAt || Date.now()).toLocaleString()}</p>
+                <p className="text-xs text-zinc-400">{new Date(filteredPosts[lightboxIndex].timestamp || Date.now()).toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-4">
                 <a 

@@ -11,6 +11,127 @@ interface PageProps {
   params: { accessKey: string };
 }
 
+function mapFiestaToPortalDTO(fiesta: any): any {
+  if (!fiesta) return null;
+  return {
+    id: fiesta.id,
+    presupuestoId: fiesta.presupuestoId,
+    configuracion: fiesta.configuracion ? {
+      clienteId: fiesta.configuracion.clienteId,
+      clienteNombre: fiesta.configuracion.clienteNombre,
+      nombreEvento: fiesta.configuracion.nombreEvento,
+      fechaEvento: fiesta.configuracion.fechaEvento,
+      horaInicio: fiesta.configuracion.horaInicio,
+      horaFin: fiesta.configuracion.horaFin,
+      nombreLugar: fiesta.configuracion.nombreLugar,
+      direccionLugar: fiesta.configuracion.direccionLugar,
+      invitadosEstimados: fiesta.configuracion.invitadosEstimados,
+      tipoCelebracion: fiesta.configuracion.tipoCelebracion,
+      primaryColor: fiesta.configuracion.primaryColor,
+      protagonistaFotoUrl: fiesta.configuracion.protagonistaFotoUrl,
+    } : {},
+    clientPortalSettings: fiesta.clientPortalSettings ? {
+      enabled: fiesta.clientPortalSettings.enabled,
+      accessKey: fiesta.clientPortalSettings.accessKey,
+      musica: fiesta.clientPortalSettings.musica,
+      videoVida: fiesta.clientPortalSettings.videoVida,
+      fotografiaYFilmacion: fiesta.clientPortalSettings.fotografiaYFilmacion,
+      menu: fiesta.clientPortalSettings.menu,
+      calculadoraBebidas: fiesta.clientPortalSettings.calculadoraBebidas,
+      moodboard: fiesta.clientPortalSettings.moodboard,
+      itinerario: fiesta.clientPortalSettings.itinerario,
+      cuentasBancarias: fiesta.clientPortalSettings.cuentasBancarias,
+    } : {},
+    clientePortalExperience: fiesta.clientePortalExperience,
+    clientChecklist: fiesta.clientChecklist || [],
+    clientNotes: fiesta.clientNotes || '',
+    faqPortal: fiesta.faqPortal || [],
+    menuSeleccionPortal: fiesta.menuSeleccionPortal || {},
+    listaMusicaPortal: fiesta.listaMusicaPortal || {},
+    socialGallerySettings: fiesta.socialGallerySettings ? {
+      enabled: fiesta.socialGallerySettings.enabled,
+      activeGame: fiesta.socialGallerySettings.activeGame,
+    } : {},
+    timeline: fiesta.timeline || [],
+    invitados: (fiesta.invitados || []).map((inv: any) => ({
+      id: inv.id,
+      rsvp: inv.rsvp,
+      nombre: inv.nombre,
+      esAcompanante: inv.esAcompanante,
+      alergias: inv.alergias,
+      mesaId: inv.mesaId,
+    })),
+    reuniones: fiesta.reuniones || [],
+    programa: fiesta.programa || [],
+    videoVida: fiesta.videoVida ? {
+      galleryEnabled: fiesta.videoVida.galleryEnabled,
+      photoCount: fiesta.videoVida.photoCount,
+    } : {},
+    fotografiaYFilmacion: fiesta.fotografiaYFilmacion ? {
+      notasGenerales: fiesta.fotografiaYFilmacion.notasGenerales,
+    } : {},
+    clientMenuChangeRequests: fiesta.clientMenuChangeRequests || [],
+    clientServiceChangeRequests: fiesta.clientServiceChangeRequests || [],
+    clienteDebeLlevar: fiesta.clienteDebeLlevar || [],
+    contratoFirmaInfo: fiesta.contratoFirmaInfo ? {
+      isSigned: fiesta.contratoFirmaInfo.isSigned,
+    } : {},
+    contratoServicioTexto: fiesta.contratoServicioTexto || '',
+    documentos: (fiesta.documentos || []).map((doc: any) => ({
+      id: doc.id,
+      fileName: doc.fileName,
+      nombre: doc.nombre,
+      titulo: doc.titulo,
+      tipo: doc.tipo,
+    })),
+    otrosDocumentos: (fiesta.otrosDocumentos || []).map((doc: any) => ({
+      id: doc.id,
+      fileName: doc.fileName,
+      nombre: doc.nombre,
+      titulo: doc.titulo,
+      tipo: doc.tipo,
+    })),
+    othersDocumentos: (fiesta.othersDocumentos || []).map((doc: any) => ({
+      id: doc.id,
+      fileName: doc.fileName,
+      nombre: doc.nombre,
+      titulo: doc.titulo,
+      tipo: doc.tipo,
+    })),
+    clientPaymentNotifications: (fiesta.clientPaymentNotifications || []).map((n: any) => ({
+      id: n.id,
+      monto: n.monto,
+      estado: n.estado,
+      timestamp: n.timestamp,
+      comprobanteNombre: n.comprobanteNombre,
+    })),
+  };
+}
+
+import { generateBudgetToken } from '@/lib/auth/session-token';
+
+function mapPresupuestoToPortalDTO(presupuesto: any, token?: string): any {
+  if (!presupuesto) return null;
+  return {
+    id: presupuesto.id,
+    totalConDescuento: presupuesto.totalConDescuento,
+    totalFinal: presupuesto.totalFinal,
+    costoTotalEstimado: presupuesto.costoTotalEstimado,
+    total: presupuesto.total,
+    itemsPresupuestados: presupuesto.itemsPresupuestados || [],
+    pagosCliente: (presupuesto.pagosCliente || []).map((p: any) => ({
+      fecha: p.fecha,
+      monto: p.monto,
+      metodoPago: p.metodoPago,
+      referencia: p.referencia,
+      estadoPago: p.estadoPago,
+    })),
+    invitadosCantidad: presupuesto.invitadosCantidad,
+    ajusteAnualPorcentaje: presupuesto.ajusteAnualPorcentaje,
+    token,
+  };
+}
+
 export default async function PublicPortalPage({ params }: PageProps) {
   const { accessKey } = params;
 
@@ -23,8 +144,9 @@ export default async function PublicPortalPage({ params }: PageProps) {
     notFound();
   }
 
+  const budgetToken = fiesta.presupuestoId ? await generateBudgetToken(fiesta.presupuestoId) : undefined;
   const [presupuesto, catalogServices] = await Promise.all([
-    fiesta.presupuestoId ? getPresupuestoById(fiesta.presupuestoId) : Promise.resolve(null as Presupuesto | null),
+    fiesta.presupuestoId ? getPresupuestoById(fiesta.presupuestoId, budgetToken) : Promise.resolve(null as Presupuesto | null),
     getServiciosEmpresa().then(servicios => servicios
       .filter(servicio => Number(servicio.precioVenta ?? servicio.precioBase ?? servicio.precioPorPersona ?? 0) > 0)
       .slice(0, 80)
@@ -43,13 +165,17 @@ export default async function PublicPortalPage({ params }: PageProps) {
       }))).catch(() => []),
   ]);
 
+  const portalFiesta = mapFiestaToPortalDTO(fiesta);
+  const portalPresupuesto = mapPresupuestoToPortalDTO(presupuesto, budgetToken);
+
   return (
     <PublicPortalClientExperience
-      fiesta={fiesta}
+      fiesta={portalFiesta}
       companyContact={companyInfo.companyContact}
       companyName={companyInfo.companyName}
-      presupuesto={presupuesto}
+      presupuesto={portalPresupuesto}
       catalogServices={catalogServices}
     />
   );
 }
+

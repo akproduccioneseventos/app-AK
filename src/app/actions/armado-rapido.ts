@@ -97,7 +97,7 @@ export async function saveArmadoRapidoConfig(
 export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
   options?: { source?: PresupuestoSource; eventoTipo?: string; salonFiestas?: string }
-): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; error?: string }> {
+): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; error?: string }> {
   try {
     const source = options?.source || 'simulator_common';
     const adultos = Math.max(0, Math.round(data.adultos || 0));
@@ -137,7 +137,9 @@ export async function generateBudgetAndLeadFromSimulator(
     });
 
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
-      return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId };
+      const { generateBudgetToken } = await import('@/lib/auth/session-token');
+      const token = await generateBudgetToken(budgetResult.id);
+      return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId, token };
     }
     return { success: false, error: budgetResult.error || 'No se pudo procesar la solicitud.' };
   } catch (error: any) {
