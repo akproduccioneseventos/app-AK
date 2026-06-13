@@ -208,8 +208,25 @@ export async function chatWithBudgetCopilot(
   }
 
   try {
+    const serviceById = new Map(services.map((service) => [service.id, service]));
+    const paquetesCatalog = (config?.paquetes || []).map((pkg) => ({
+      id: pkg.id,
+      nombre: pkg.nombre,
+      descripcion: pkg.descripcion,
+      recommended: pkg.recommended,
+      serviciosIncluidos: pkg.serviciosIncluidos.map((included) => {
+        const service = serviceById.get(included.id);
+        return {
+          id: included.id,
+          nombre: service?.nombre || 'Servicio sin nombre configurado',
+          esRegalo: Boolean(included.esRegalo),
+          precio: service?.precioVenta || service?.precioPorPersona || service?.precioBase || 0,
+          calculationMethod: service?.calculationMethod,
+        };
+      }),
+    }));
     const businessContext = JSON.stringify({
-      paquetesCatalog: config?.paquetes || [],
+      paquetesCatalog,
       menusCatalog: config?.menus || [],
       serviciosCompletos: services.map(s => ({
         id: s.id,
@@ -320,9 +337,18 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
 
   // Fallback 3: Package information request
   if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro')) {
+    const selectedPackage = (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId);
+    const recommendedPackage = selectedPackage
+      || (config?.paquetes || []).find((pkg) => pkg.recommended)
+      || config?.paquetes?.[0];
+    const includedCount = recommendedPackage?.serviciosIncluidos.length || 0;
     return {
-      response: `Bárbaro, los paquetes disponibles reúnen servicios de base como pantallas, cabina, luces o discoteca. Podés ver exactamente qué incluye cada uno en el formulario.`,
-      action: { type: 'none' as const }
+      response: recommendedPackage
+        ? `Para tu configuración te conviene revisar ${recommendedPackage.nombre}. Tiene ${includedCount} servicios configurados y ahora podés ver cada inclusión y el total estimado directamente en su tarjeta.`
+        : 'Todavía no hay paquetes configurados para este tipo de evento. Podés armar una propuesta a medida con los servicios disponibles.',
+      action: recommendedPackage
+        ? { type: 'apply_changes' as const, changes: { selectedPaqueteId: recommendedPackage.id } }
+        : { type: 'none' as const },
     };
   }
 

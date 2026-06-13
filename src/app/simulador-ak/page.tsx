@@ -40,6 +40,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import {
   calculateSimulatorPricing,
   simulatorDetailsToBudgetItems,
+  type SimulatorDetailedService,
   type SimulatorPriceStats,
 } from '@/lib/simulator/pricing';
 
@@ -223,6 +224,37 @@ function SimuladorAKContent() {
       isPackageApplicableToEventType(pkg, eventLabel)
     );
   }, [config, eventoTipo]);
+  const packageSummaries = useMemo<Map<string, {
+    total: number;
+    services: SimulatorDetailedService[];
+  }>>(() => {
+    if (!config || !allSimuladorServices.length) return new Map();
+
+    return new Map(applicablePackages.map((pkg) => {
+      const pricing = calculateSimulatorPricing({
+        config,
+        services: allSimuladorServices,
+        adultos,
+        ninosYAdolescentes,
+        selectedPaqueteId: pkg.id,
+        eventoFecha,
+        annualAdjustmentPercentage,
+      });
+
+      return [pkg.id, {
+        total: pricing.totalFinal,
+        services: pricing.detallados,
+      }];
+    }));
+  }, [
+    config,
+    allSimuladorServices,
+    applicablePackages,
+    adultos,
+    ninosYAdolescentes,
+    eventoFecha,
+    annualAdjustmentPercentage,
+  ]);
 
   useEffect(() => {
     if (selectedPaqueteId && !applicablePackages.some((pkg) => pkg.id === selectedPaqueteId)) {
@@ -688,41 +720,63 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 pl-1">
               4. Elegí un Paquete Base
             </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {applicablePackages.map(pkg => (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {applicablePackages.map(pkg => {
+                const summary = packageSummaries.get(pkg.id);
+                const isSelected = selectedPaqueteId === pkg.id;
+                return (
                 <button
                   key={pkg.id}
                   type="button"
                   onClick={() => setSelectedPaqueteId(pkg.id)}
                   className={cn(
-                    "p-4 rounded-3xl border text-left flex flex-col justify-between min-h-[120px] transition-all relative overflow-hidden group",
-                    selectedPaqueteId === pkg.id 
-                      ? "bg-purple-600/10 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)] text-white" 
-                      : "bg-white/5 border-white/10 text-zinc-400 hover:border-white/20 hover:text-white"
+                    "p-4 rounded-3xl border text-left flex flex-col min-h-[190px] transition-all relative overflow-hidden group",
+                    isSelected
+                      ? "bg-purple-500/20 border-purple-400 shadow-[0_0_24px_rgba(168,85,247,0.22)] text-white"
+                      : "bg-slate-900/80 border-white/20 text-white hover:border-purple-400/70 hover:bg-slate-800"
                   )}
                 >
                   <div className="space-y-1 relative z-10">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-black uppercase tracking-wide">{pkg.nombre}</p>
+                      <p className="text-base font-black uppercase tracking-wide text-white">{pkg.nombre}</p>
                       {pkg.recommended && (
-                        <Badge className="bg-purple-500 text-[8px] font-black uppercase py-0.5 px-1.5 rounded-full">Recomendado</Badge>
+                        <Badge className="bg-amber-400 text-slate-950 text-[9px] font-black uppercase py-0.5 px-1.5 rounded-full">Recomendado</Badge>
                       )}
                     </div>
-                    <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">{pkg.descripcion}</p>
+                    <p className="text-xs text-slate-300 leading-relaxed">{pkg.descripcion}</p>
                   </div>
-                  <div className="mt-4 flex items-center justify-between w-full relative z-10">
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                      {pkg.serviciosIncluidos.length} servicios incl.
-                    </span>
+                  <div className="my-3 h-px bg-white/10" />
+                  <div className="flex-1 space-y-1.5">
+                    {(summary?.services || []).map((service) => (
+                      <div key={service.id} className="flex items-start gap-2 text-xs text-slate-200">
+                        {service.esRegalo
+                          ? <Gift className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" />
+                          : <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-300" />}
+                        <span className="leading-snug">
+                          {service.nombre}
+                          {service.esRegalo && <strong className="ml-1 text-emerald-300">sin costo</strong>}
+                        </span>
+                      </div>
+                    ))}
+                    {!summary?.services.length && (
+                      <p className="text-xs text-amber-200">Los servicios de este paquete todavía no están vinculados al catálogo.</p>
+                    )}
+                  </div>
+                  <div className="mt-4 flex items-end justify-between gap-3 w-full relative z-10">
+                    <div>
+                      <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Estimado para tu fiesta</span>
+                      <strong className="text-lg text-white">{summary ? formatCurrency(summary.total) : 'A calcular'}</strong>
+                    </div>
                     <div className={cn(
-                      "w-5 h-5 rounded-full flex items-center justify-center border",
-                      selectedPaqueteId === pkg.id ? "bg-purple-600 border-purple-500 text-white" : "border-zinc-700"
+                      "w-7 h-7 rounded-full flex items-center justify-center border-2",
+                      isSelected ? "bg-purple-500 border-purple-300 text-white" : "border-slate-500 bg-slate-950"
                     )}>
-                      {selectedPaqueteId === pkg.id && <Check className="w-3 h-3" />}
+                      {isSelected && <Check className="w-4 h-4" />}
                     </div>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -1065,6 +1119,23 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
         {/* CONTROLS AREA */}
         <div className="p-4 border-t border-white/5 bg-slate-950/30 space-y-3 shrink-0">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {[
+              { label: 'Recomendame un paquete', message: 'Recomendame el paquete que más me conviene con esta cantidad de invitados y explicame qué incluye.' },
+              { label: 'Quiero gastar menos', message: 'Optimizá este presupuesto para gastar menos sin sacar lo esencial.' },
+              { label: 'Revisá mi fiesta', message: 'Revisá toda mi configuración y decime qué falta o qué cambiarías.' },
+            ].map((quickAction) => (
+              <button
+                key={quickAction.label}
+                type="button"
+                onClick={() => handleSendMessage(quickAction.message)}
+                disabled={isAiLoading}
+                className="rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-left text-[10px] font-black text-cyan-100 transition hover:border-cyan-300 hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {quickAction.label}
+              </button>
+            ))}
+          </div>
           
           {/* DYNAMIC PILL SUGGESTIONS */}
           {suggestionPill && !isAiLoading && (
@@ -1098,7 +1169,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           )}
 
           {/* CHAT BOX */}
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-2xl px-3.5 py-2.5 focus-within:border-purple-500 transition">
+          <div className="flex items-center gap-2 bg-slate-900 border border-white/20 rounded-2xl px-3.5 py-2.5 focus-within:border-cyan-400 transition">
             <input
               type="text"
               placeholder="Preguntale a Sofía..."
@@ -1106,12 +1177,12 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(); }}
               disabled={isAiLoading}
-              className="flex-1 bg-transparent border-none outline-none text-xs text-white placeholder:text-zinc-600"
+              className="flex-1 bg-transparent border-none outline-none text-xs text-white placeholder:text-slate-400"
             />
             <button
               onClick={() => handleSendMessage()}
               disabled={isAiLoading || !inputMessage.trim()}
-              className="p-1 rounded-full text-purple-400 hover:text-purple-300 disabled:opacity-30 disabled:text-zinc-700 transition"
+              className="rounded-full bg-cyan-500 p-2 text-slate-950 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-400 transition"
             >
               <Send className="w-4 h-4" />
             </button>

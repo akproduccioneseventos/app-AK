@@ -65,7 +65,7 @@ const navGroups: NavGroup[] = [
       { title: "CRM / Prospectos", href: "/contabilidad/crm", icon: KanbanSquare },
       { title: "Nuevo Presupuesto", href: "/presupuestos/nuevo", icon: PlusCircle, highlight: true },
       { title: "Presupuestos", href: "/presupuestos", icon: FileText, active: (pathname) => isPathActive(pathname, "/presupuestos") && !isPathActive(pathname, "/presupuestos/nuevo") },
-      { title: "Simulador", href: "/simulador-de-presupuesto", icon: Wand2 },
+      { title: "Simulador IA", href: "/simulador-ak", icon: Wand2 },
       { title: "Clientes", href: "/customers", icon: Users },
     ],
   },
