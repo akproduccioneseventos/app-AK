@@ -566,9 +566,9 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
           <CardTitle className="font-headline text-lg md:text-xl text-primary">Acciones y Compartir</CardTitle>
         </CardHeader>
         <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
-          <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2" />Imprimir o Guardar como PDF</Button>
-          <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2" />Enviar por WhatsApp</Button>
-          <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2" />Copiar Resumen</Button>
+          <Button variant="outline" onClick={handlePrint} className="w-full"><Printer className="w-4 h-4 mr-2 shrink-0" /><span className="truncate">Imprimir o Guardar como PDF</span></Button>
+          <Button variant="secondary" onClick={handleShareWhatsApp} className="w-full"><Share2 className="w-4 h-4 mr-2 shrink-0" /><span className="truncate">Enviar por WhatsApp</span></Button>
+          <Button variant="secondary" onClick={handleCopyToClipboard} className="w-full"><ClipboardCopy className="w-4 h-4 mr-2 shrink-0" /><span className="truncate">Copiar Resumen</span></Button>
         </CardContent>
       </Card>
 
