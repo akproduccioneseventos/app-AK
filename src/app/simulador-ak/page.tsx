@@ -23,22 +23,25 @@ import { getMenus } from '@/app/actions/menus-catering';
 import { getWhatsAppConfig } from '@/app/actions/whatsapp';
 import { CompanyLogo } from '@/components/company-logo';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
+import {
+  isPackageApplicableToEventType,
+  type ArmadoRapidoConfig,
+} from '@/types/armado-rapido';
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import type { ItemPresupuestado } from '@/types/presupuesto';
-import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 import {
-  buildAnnualAdjustmentProjection,
-  calculatePricePerPerson,
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
-  type AnnualAdjustmentProjection,
 } from '@/lib/budget/formal-budget';
 import { getCateringDishImage } from '@/lib/catering/menu-images';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  calculateSimulatorPricing,
+  simulatorDetailsToBudgetItems,
+  type SimulatorPriceStats,
+} from '@/lib/simulator/pricing';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -59,22 +62,6 @@ interface ChatMessage {
   role: 'assistant' | 'user';
   text: string;
   key: string;
-}
-
-interface PriceStats {
-  subtotalBruto: number;
-  subtotalVenta: number;
-  descPromo: number;
-  ahorroRegalos: number;
-  totalSinAjuste: number;
-  ajusteAnual: number;
-  totalFinal: number;
-  aniosDiferencia: number;
-  agrupados: Record<string, any[]>;
-  detallados: any[];
-  annualProjection: AnnualAdjustmentProjection;
-  precioPorPersona: number;
-  discountPercentage: number;
 }
 
 function formatCurrency(n: number) {
@@ -108,34 +95,6 @@ function menuItemToServicioEmpresa(item: MenuItem & { precioVenta: number }): Se
     valorUnitarioEstimado: item.totalDishCost,
     imageUrl: getCateringDishImage(item),
   };
-}
-
-function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninos: number): { qty: number; unitPrice: number; total: number } {
-  const itemDataForCalc: ItemPresupuestado = {
-    idServicioCatalogo: servicio.id,
-    nombreServicio: servicio.nombre,
-    cantidad: 1,
-    precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-    precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-    costoTotalItem: 0,
-    categoriaServicio: servicio.categoria,
-    subcategoria: servicio.subcategoria,
-    calculationMethod: servicio.calculationMethod,
-    precioBase: servicio.precioBase,
-    precioPorPersona: servicio.precioPorPersona,
-    invitadosPorUnidad: servicio.invitadosPorUnidad,
-    tramosDePrecio: servicio.tramosDePrecio,
-  };
-
-  const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninos);
-  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, 0, ninos);
-  if (servicio.calculationMethod === 'porPersona') return { qty: qtyTarget, unitPrice: servicio.precioPorPersona || 0, total };
-  if (servicio.calculationMethod === 'ratio') {
-    const ratio = Number(servicio.invitadosPorUnidad) || 1;
-    return { qty: Math.ceil(qtyTarget / ratio), unitPrice: servicio.precioBase || 0, total };
-  }
-  if (servicio.calculationMethod === 'tramos') return { qty: 1, unitPrice: total, total };
-  return { qty: 1, unitPrice: servicio.precioVenta || 0, total };
 }
 
 function SimuladorAKContent() {
@@ -258,128 +217,56 @@ function SimuladorAKContent() {
   const allSimuladorServices = useMemo(() => {
     return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
   }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
+  const applicablePackages = useMemo(() => {
+    const eventLabel = eventoTipo ? EVENT_META[eventoTipo]?.label : '';
+    return (config?.paquetes || []).filter((pkg) =>
+      isPackageApplicableToEventType(pkg, eventLabel)
+    );
+  }, [config, eventoTipo]);
 
-  // Reactive price calculations
-  const priceStats = useMemo<PriceStats | null>(() => {
+  useEffect(() => {
+    if (selectedPaqueteId && !applicablePackages.some((pkg) => pkg.id === selectedPaqueteId)) {
+      setSelectedPaqueteId('');
+    }
+  }, [applicablePackages, selectedPaqueteId]);
+
+  // Both public simulators use the same pricing engine and save today's price.
+  const priceStats = useMemo<SimulatorPriceStats | null>(() => {
     if (!config || !allSimuladorServices.length) return null;
 
-    const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa; esRegalo: boolean }>();
+    const selected = [
+      ...selectedServices,
+      ...selectedEntradas,
+      ...(selectedPrincipal ? [selectedPrincipal] : []),
+      ...(selectedInfantil ? [selectedInfantil] : []),
+    ].map((id) => ({ id }));
 
-    // 1. Package services
-    const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
-    if (paqueteSeleccionado) {
-      paqueteSeleccionado.serviciosIncluidos.forEach(s => {
-        const serv = allSimuladorServices.find(os => os.id === s.id);
-        if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
-      });
-    }
-
-    // 2. Extra services manual selection
-    selectedServices.forEach(id => {
-      const serv = allSimuladorServices.find(cat => cat.id === id);
-      if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: false });
-    });
-
-    // 3. Catering specific selections
-    selectedEntradas.forEach(id => {
-      const serv = allSimuladorServices.find(cat => cat.id === id);
-      if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: false });
-    });
-
-    if (selectedPrincipal) {
-      const serv = allSimuladorServices.find(cat => cat.id === selectedPrincipal);
-      if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: false });
-    }
-
-    if (selectedInfantil) {
-      const serv = allSimuladorServices.find(cat => cat.id === selectedInfantil);
-      if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: false });
-    }
-
-    // 4. Salon Club Uruguay
     const clubUruguayCfg = config.clubUruguayConfig || defaultClubUruguayConfig;
-    if (tieneSalon === false && incluirClubUruguay && clubUruguayCfg.activo) {
-      const servSalon: ServicioEmpresa = {
-        id: 'serv_salon_club_uruguay',
-        nombre: 'Salón Club Uruguay',
-        tipoItem: 'Servicio',
-        categoria: 'Otros servicios',
-        precioVenta: clubUruguayCfg.precio,
-        precioBase: clubUruguayCfg.precio,
-        calculationMethod: 'fijo'
-      };
-      allSelectedServicesMap.set(servSalon.id, { servicio: servSalon, esRegalo: false });
-    }
+    const syntheticServices = tieneSalon === false && incluirClubUruguay && clubUruguayCfg.activo
+      ? [{
+          servicio: {
+            id: 'serv_salon_club_uruguay',
+            nombre: 'Salón Club Uruguay',
+            tipoItem: 'Servicio' as const,
+            categoria: 'Otros servicios' as const,
+            precioVenta: clubUruguayCfg.precio,
+            precioBase: clubUruguayCfg.precio,
+            calculationMethod: 'fijo' as const,
+          },
+        }]
+      : [];
 
-    // 5. Dependencies
-    if (config.serviceDependencies) {
-      config.serviceDependencies.forEach(dep => {
-        if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
-          const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
-          if (servicioRequerido) allSelectedServicesMap.set(servicioRequerido.id, { servicio: servicioRequerido, esRegalo: false });
-        }
-      });
-    }
-
-    let totalBrutoMercado = 0;
-    let totalRegular = 0;
-    let totalRegalos = 0;
-    const detallados: any[] = [];
-
-    allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
-      const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
-      totalBrutoMercado += total;
-      if (esRegalo) totalRegalos += total;
-      else totalRegular += total;
-
-      detallados.push({
-        id: servicio.id,
-        nombre: servicio.nombre,
-        esRegalo,
-        cantidad: qty,
-        precioUnitario: unitPrice,
-        costoTotal: total,
-        categoria: esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Varios'),
-      });
+    return calculateSimulatorPricing({
+      config,
+      services: allSimuladorServices,
+      adultos,
+      ninosYAdolescentes,
+      selectedPaqueteId,
+      selectedServices: selected,
+      syntheticServices,
+      eventoFecha,
+      annualAdjustmentPercentage,
     });
-
-    const discountPercentage = config.descuentoGeneral ?? DEFAULT_DISCOUNT;
-    const descPromo = totalRegular * (discountPercentage / 100);
-    const totalSinAjuste = totalRegular - descPromo;
-    const totalFinal = Math.round(totalSinAjuste);
-
-    const dateStr = eventoFecha ? eventoFecha.toISOString().split('T')[0] : '';
-    const annualProjection = buildAnnualAdjustmentProjection({
-      baseTotal: totalFinal,
-      eventDate: dateStr,
-      adjustmentPct: annualAdjustmentPercentage,
-      currentYear: new Date().getFullYear(),
-    });
-
-    const precioPorPersona = calculatePricePerPerson(totalFinal, adultos + ninosYAdolescentes);
-
-    const agrupados = detallados.reduce((acc, item) => {
-      const cat = item.categoria;
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(item);
-      return acc;
-    }, {} as Record<string, any[]>);
-
-    return {
-      subtotalBruto: totalBrutoMercado,
-      subtotalVenta: totalRegular,
-      descPromo: Math.round(descPromo),
-      ahorroRegalos: totalRegalos,
-      totalSinAjuste: totalFinal,
-      ajusteAnual: annualProjection.adjustmentAmount,
-      totalFinal: totalFinal + annualProjection.adjustmentAmount,
-      aniosDiferencia: annualProjection.rows.length,
-      agrupados,
-      detallados,
-      annualProjection,
-      precioPorPersona,
-      discountPercentage,
-    };
   }, [
     config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId,
     selectedServices, selectedEntradas, selectedPrincipal, selectedInfantil,
@@ -448,7 +335,9 @@ function SimuladorAKContent() {
       if (res.action?.type === 'apply_changes' && res.action.changes) {
         const changes = res.action.changes;
         
-        if (changes.eventoTipo !== undefined) setEventoTipo(changes.eventoTipo as EventType);
+        if (changes.eventoTipo !== undefined && changes.eventoTipo in EVENT_META) {
+          setEventoTipo(changes.eventoTipo as EventType);
+        }
         if (changes.adultos !== undefined) setAdultos(changes.adultos);
         if (changes.ninosYAdolescentes !== undefined) setNinosYAdolescentes(changes.ninosYAdolescentes);
         if (changes.eventoFecha !== undefined) setEventoFecha(new Date(changes.eventoFecha));
@@ -496,15 +385,7 @@ function SimuladorAKContent() {
 
     setIsSubmitting(true);
     try {
-      const items: any[] = priceStats?.detallados.map(d => ({
-        idServicioCatalogo: d.id,
-        nombreServicio: d.nombre,
-        cantidad: d.cantidad,
-        precioUnitario: d.precioUnitario,
-        precioUnitarioPresupuesto: d.precioUnitario,
-        categoriaServicio: d.categoria === 'Regalos Incluidos' ? 'Regalos Incluidos' : 'Servicio',
-        esRegalo: d.esRegalo,
-      })) || [];
+      const items = simulatorDetailsToBudgetItems(priceStats?.detallados || []);
 
       const result = await generateBudgetAndLeadFromSimulator({
         clienteNombre: clienteNombre.trim(),
@@ -585,21 +466,22 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-purple-500/30">
       
       {/* HEADER BANNER */}
-      <header className="bg-slate-900 border-b border-white/5 px-4 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <CompanyLogo className="h-10 w-auto" />
-          <div>
-            <h1 className="text-xl font-black uppercase tracking-wider bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-1.5">
+      <header className="flex flex-col gap-3 border-b border-white/5 bg-slate-900 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <CompanyLogo className="h-9 w-auto shrink-0 sm:h-10" />
+          <div className="min-w-0">
+            <h1 className="flex items-center gap-1.5 text-base font-black uppercase tracking-wider text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text sm:text-xl">
               <Sparkles className="w-5 h-5 text-purple-400" />
               Simulador Inteligente AK
             </h1>
-            <p className="text-xs text-zinc-400">Diseñá tu fiesta ideal en tiempo real con asistencia de IA</p>
+            <p className="hidden text-xs text-zinc-400 sm:block">Diseñá tu fiesta ideal en tiempo real con asistencia de IA</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 text-zinc-300 text-xs rounded-full">
+        <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+          <Button asChild variant="outline" className="min-w-0 flex-1 rounded-full border-white/10 px-3 text-xs text-zinc-300 hover:bg-white/5 sm:flex-none">
             <Link href="/simulador-de-presupuesto">
-              Modo Clásico (Manual)
+              <span className="sm:hidden">Paquetes manuales</span>
+              <span className="hidden sm:inline">Elegir paquetes manualmente</span>
             </Link>
           </Button>
           <Button 
@@ -807,7 +689,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               4. Elegí un Paquete Base
             </h3>
             <div className="grid grid-cols-2 gap-3">
-              {config?.paquetes.map(pkg => (
+              {applicablePackages.map(pkg => (
                 <button
                   key={pkg.id}
                   type="button"

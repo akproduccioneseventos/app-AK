@@ -54,6 +54,7 @@ function resolveHref(item: (typeof links)[number], fiestaId: string | null): str
 export function Post445QuickAccess() {
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
+  if (searchParams.has('token')) return null;
 
   return (
     <div className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-white/80">

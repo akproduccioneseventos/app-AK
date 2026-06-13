@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera, FileText, Users, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAccesoById, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
+import { getAccesoPersonalPortalView } from '@/app/actions/accesos-personal-view';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
 
@@ -33,7 +32,7 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
 export default function PortalPersonalPage({ params }: { params: { tokenId: string } }) {
   const { toast } = useToast();
   const [acceso, setAcceso] = useState<AccesoPersonal | null>(null);
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<{ id: string; nombreEvento: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,20 +40,12 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
     setIsLoading(true);
     setError(null);
     try {
-      const fetchedAcceso = await getAccesoById(tokenId);
-      if (!fetchedAcceso) {
+      const portalView = await getAccesoPersonalPortalView(tokenId);
+      if (!portalView) {
         throw new Error("El enlace de acceso no es válido, ha expirado o ha sido revocado.");
       }
-      
-      // If the access is event-specific, load the event data.
-      if (fetchedAcceso.fiestaId) {
-        const fiestaData = await getFiestaById(fetchedAcceso.fiestaId);
-        if(!fiestaData) {
-            throw new Error("Este enlace de acceso es para un evento que ya no se ha encontrado.");
-        }
-        setFiesta(fiestaData);
-      }
-      setAcceso(fetchedAcceso);
+      setFiesta(portalView.fiesta || null);
+      setAcceso(portalView.acceso);
 
     } catch (e: any) {
       setError(e.message);
@@ -90,7 +81,7 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
     );
   }
 
-  const portalTitle = fiesta ? `Portal para: ${fiesta.configuracion.nombreEvento}` : "Portal de Colaborador";
+  const portalTitle = fiesta ? `Portal para: ${fiesta.nombreEvento}` : "Portal de Colaborador";
 
   return (
     <div className="min-h-screen bg-muted/40 flex flex-col">
@@ -119,7 +110,10 @@ export default function PortalPersonalPage({ params }: { params: { tokenId: stri
                         
                         if (isEventSpecific && !fiesta) return null;
 
-                        const linkHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
+                        const baseHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
+                        const linkHref = permisoId === 'carga-operativa'
+                          ? `${baseHref}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`
+                          : baseHref;
 
                         return (
                             <Button key={permisoId} asChild variant="outline" className="w-full h-auto justify-start p-4 text-left">

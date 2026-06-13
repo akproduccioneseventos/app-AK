@@ -6,6 +6,18 @@ import { readData, writeData } from '@/lib/data-service';
 import { getFiestas, getFiestaById, saveFiesta } from './fiesta.actions';
 import { getActivosFijos } from '../activos-fijos';
 import { isSameDay } from 'date-fns';
+import { verifySession } from '@/lib/auth/session-token';
+import {
+  createAccesoPersonal,
+  getAccesoById,
+  getAccesosGenerales,
+} from '@/app/actions/accesos-personal';
+import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import {
+  applyCargaOperativaItemPatch,
+  mergeCargaOperativaStructure,
+  type CargaOperativaItemPatch,
+} from '@/lib/logistics/carga-operativa';
 
 const MASTER_TEMPLATE_FILE = 'carga-operativa-master-template.json';
 const defaultMasterTemplate: ListaDeCargaOperativa = {
@@ -13,6 +25,166 @@ const defaultMasterTemplate: ListaDeCargaOperativa = {
   name: "Plantilla Maestra de Carga Operativa",
   categorias: [],
 };
+
+export type CargaOperativaAccessView = {
+  fiestaId: string;
+  nombreEvento: string;
+  fechaEvento?: string;
+  lista: ListaDeCargaOperativa;
+  logoUrl?: string | null;
+  operatorName?: string;
+};
+
+export async function getOrCreateCargaOperativaShareToken(
+  fiestaId: string,
+): Promise<{ success: boolean; token?: string; error?: string }> {
+  try {
+    if (!(await verifySession()).success) {
+      return { success: false, error: 'Debes iniciar sesión para compartir esta lista.' };
+    }
+
+    const existing = (await getAccesosGenerales()).find((access) =>
+      access.fiestaId === fiestaId
+      && access.permisos.length === 1
+      && access.permisos.includes('carga-operativa')
+    );
+    if (existing) return { success: true, token: existing.id };
+
+    const created = await createAccesoPersonal({
+      nombreAcceso: 'Equipo de carga',
+      fiestaId,
+      permisos: ['carga-operativa'],
+    });
+    if (!created.success || !created.acceso) {
+      return { success: false, error: created.error || 'No se pudo crear el acceso de carga.' };
+    }
+    return { success: true, token: created.acceso.id };
+  } catch {
+    return { success: false, error: 'No se pudo crear el enlace de carga.' };
+  }
+}
+
+async function getCargaOperativaAuthorization(
+  fiestaId: string,
+  accessToken?: string,
+): Promise<{ authorized: boolean; operatorName?: string }> {
+  if ((await verifySession()).success) return { authorized: true };
+  if (!accessToken) return { authorized: false };
+
+  const access = await getAccesoById(accessToken);
+  const authorized = Boolean(
+    access
+    && access.permisos.includes('carga-operativa')
+    && access.fiestaId === fiestaId,
+  );
+  return {
+    authorized,
+    operatorName: authorized ? access?.nombreAcceso : undefined,
+  };
+}
+
+export async function getCargaOperativaAccessView(
+  fiestaId: string,
+  accessToken?: string,
+): Promise<{ success: boolean; data?: CargaOperativaAccessView; error?: string }> {
+  try {
+    const authorization = await getCargaOperativaAuthorization(fiestaId, accessToken);
+    if (!authorization.authorized) {
+      return { success: false, error: 'Acceso no autorizado o vencido.' };
+    }
+
+    const [fiesta, settings] = await Promise.all([
+      getFiestaById(fiestaId),
+      getInvoiceTemplateSettings().catch(() => ({ logoUrl: null })),
+    ]);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+
+    return {
+      success: true,
+      data: {
+        fiestaId,
+        nombreEvento: fiesta.configuracion.nombreEvento,
+        fechaEvento: fiesta.configuracion.fechaEvento,
+        lista: fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
+        logoUrl: settings.logoUrl || null,
+        operatorName: authorization.operatorName,
+      },
+    };
+  } catch {
+    return { success: false, error: 'No se pudo cargar la lista operativa.' };
+  }
+}
+
+export async function updateCargaOperativaItemState(input: {
+  fiestaId: string;
+  categoryId: string;
+  itemId: string;
+  patch: CargaOperativaItemPatch;
+  operatorName?: string;
+  accessToken?: string;
+}): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
+  try {
+    const authorization = await getCargaOperativaAuthorization(input.fiestaId, input.accessToken);
+    if (!authorization.authorized) {
+      return { success: false, error: 'Acceso no autorizado o vencido.' };
+    }
+    const operatorName = authorization.operatorName || input.operatorName;
+
+    const allowedPatch: CargaOperativaItemPatch = {};
+    if (typeof input.patch.cargado === 'boolean') allowedPatch.cargado = input.patch.cargado;
+    if (typeof input.patch.retornado === 'boolean') allowedPatch.retornado = input.patch.retornado;
+    if (typeof input.patch.cantidad === 'string') allowedPatch.cantidad = input.patch.cantidad;
+    if (Object.keys(allowedPatch).length === 0) {
+      return { success: false, error: 'No hay cambios válidos para guardar.' };
+    }
+
+    try {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const ref = dbAdmin.collection('fiestas').doc(input.fiestaId);
+        const updatedData = await dbAdmin.runTransaction(async (transaction) => {
+          const snapshot = await transaction.get(ref);
+          if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
+          const fiesta = snapshot.data() as FiestaEnPlanificacion;
+          const current = fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
+          const updated = applyCargaOperativaItemPatch(
+            current,
+            input.categoryId,
+            input.itemId,
+            allowedPatch,
+            operatorName,
+          );
+          transaction.update(ref, {
+            listaDeCargaOperativa: updated,
+            _syncedAt: new Date().toISOString(),
+          });
+          return updated;
+        });
+        return { success: true, updatedData };
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === 'production') throw error;
+    }
+
+    const fiesta = await getFiestaById(input.fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const updatedData = applyCargaOperativaItemPatch(
+      fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
+      input.categoryId,
+      input.itemId,
+      allowedPatch,
+      operatorName,
+    );
+    const result = await saveFiesta({ ...fiesta, listaDeCargaOperativa: updatedData });
+    if (!result.success) return { success: false, error: result.error };
+    return { success: true, updatedData };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'No se pudo actualizar la lista.',
+    };
+  }
+}
 
 // --- MÓDULO 1: CEREBRO LOGÍSTICO ---
 
@@ -72,6 +244,9 @@ export async function getCargaOperativaMasterTemplate(): Promise<ListaDeCargaOpe
 export async function saveCargaOperativaMasterTemplate(
   data: ListaDeCargaOperativa
 ): Promise<{ success: boolean; data?: ListaDeCargaOperativa; error?: string }> {
+  if (!(await verifySession()).success) {
+    return { success: false, error: 'Acceso no autorizado.' };
+  }
   try {
     const dataToSave = { ...data, id: 'master', name: 'Plantilla Maestra de Carga Operativa' };
     await writeData(MASTER_TEMPLATE_FILE, dataToSave);
@@ -86,22 +261,54 @@ export async function saveCargaOperativaMasterTemplate(
 
 export async function updateListaDeCargaOperativa(fiestaId: string, lista: ListaDeCargaOperativa): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
   try {
+    if (!(await verifySession()).success) {
+      return { success: false, error: 'Debes iniciar sesión para editar la estructura de carga.' };
+    }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");
 
     // Módulo 1: Al guardar, refrescamos los estados de conflicto
+    let listaWithConflicts = lista;
     if (fiesta.configuracion.fechaEvento) {
         const updatedCategorias = await Promise.all(lista.categorias.map(async cat => ({
             ...cat,
             items: await checkAssetConflicts(fiestaId, fiesta.configuracion.fechaEvento!, cat.items)
         })));
-        lista.categorias = updatedCategorias;
+        listaWithConflicts = { ...lista, categorias: updatedCategorias };
     }
 
-    const updatedFiesta = { ...fiesta, listaDeCargaOperativa: lista };
+    try {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const ref = dbAdmin.collection('fiestas').doc(fiestaId);
+        const updatedData = await dbAdmin.runTransaction(async (transaction) => {
+          const snapshot = await transaction.get(ref);
+          if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
+          const currentFiesta = snapshot.data() as FiestaEnPlanificacion;
+          const updated = mergeCargaOperativaStructure(
+            listaWithConflicts,
+            currentFiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
+          );
+          transaction.update(ref, {
+            listaDeCargaOperativa: updated,
+            _syncedAt: new Date().toISOString(),
+          });
+          return updated;
+        });
+        return { success: true, updatedData };
+      }
+    } catch (transactionError) {
+      if (process.env.NODE_ENV === 'production') throw transactionError;
+    }
+
+    const updatedData = mergeCargaOperativaStructure(
+      listaWithConflicts,
+      fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
+    );
+    const updatedFiesta = { ...fiesta, listaDeCargaOperativa: updatedData };
     const result = await saveFiesta(updatedFiesta);
     if (!result.success) throw new Error(result.error);
-    return { success: true, updatedData: result.fiesta?.listaDeCargaOperativa };
+    return { success: true, updatedData: result.fiesta?.listaDeCargaOperativa || updatedData };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

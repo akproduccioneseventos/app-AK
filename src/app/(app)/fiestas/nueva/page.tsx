@@ -28,6 +28,7 @@ import { defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { calcFiestaProgress } from '@/lib/fiesta-progress';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -219,6 +220,7 @@ function PlannerDashboardContent() {
     }
     return modules;
   }, [searchQuery, activeMode]);
+  const progress = useMemo(() => fiesta ? calcFiestaProgress(fiesta) : null, [fiesta]);
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   if (error || !fiesta) return <div className="text-center py-20 px-4"><AlertTriangle className="mx-auto text-destructive mb-4" /><p className="font-bold text-slate-800">{error || "Error al cargar."}</p></div>;
@@ -264,6 +266,61 @@ function PlannerDashboardContent() {
         </div>
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
+
+      {progress && (
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 premium-shadow"
+          aria-labelledby="next-actions-title"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary">Guía diaria</p>
+              <h2 id="next-actions-title" className="text-lg font-black text-slate-900">Qué hacer ahora</h2>
+            </div>
+            <Badge variant="outline" className="border-slate-200 bg-slate-50 px-3 py-1 text-xs font-black text-slate-700">
+              Preparación {progress.overallPercentage}%
+            </Badge>
+          </div>
+
+          {progress.alertas.length > 0 ? (
+            <div className="mt-4 grid gap-2 lg:grid-cols-3">
+              {progress.alertas.slice(0, 3).map((alerta) => {
+                const content = (
+                  <>
+                    <AlertTriangle className={cn(
+                      'h-4 w-4 shrink-0',
+                      alerta.tipo === 'urgente' ? 'text-rose-600' : 'text-amber-600'
+                    )} />
+                    <span className="min-w-0 flex-1 text-sm font-bold text-slate-700">{alerta.mensaje}</span>
+                    {alerta.accionUrl && <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />}
+                  </>
+                );
+
+                return alerta.accionUrl ? (
+                  <Link
+                    key={alerta.id}
+                    href={alerta.accionUrl}
+                    className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={alerta.id} className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                    {content}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
+              <CheckCircle2 className="h-5 w-5 shrink-0" />
+              <p className="text-sm font-bold">No hay bloqueos críticos. Podés continuar con la preparación habitual.</p>
+            </div>
+          )}
+        </motion.section>
+      )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
         <div className="rounded-[1.5rem] border border-red-100 bg-white p-5 shadow-lg shadow-slate-950/5">
