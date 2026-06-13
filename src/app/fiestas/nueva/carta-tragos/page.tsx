@@ -257,6 +257,23 @@ function CartaTragosContent() {
     }
   };
 
+  const handleAddCustomDrink = () => {
+    const protagonist = fiesta?.configuracion.protagonista1Nombre || 'la Agasajada';
+    const newDrink: Trago = {
+      id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      nombre: `Trago Especial de ${protagonist}`,
+      imageUrl: '',
+      descripcion: `Un trago creado especialmente para celebrar el evento de ${protagonist}.`,
+      ingredientes: ['Jugo de frutas', 'Garnitura especial'],
+      stockDisponible: 99,
+    };
+    setCartaTragos((prev) => ({
+      ...prev,
+      items: [newDrink, ...(prev.items || [])],
+    }));
+    openEditModal(newDrink);
+  };
+
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
@@ -303,9 +320,28 @@ function CartaTragosContent() {
                               onChange={e => setEditingItem(prev => prev ? { ...prev, stockDisponible: Number(e.target.value) || 0 } : null)}
                             />
                          </div>
-                         <DialogFooter>
-                            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-                            <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar Trago</Button>
+                         <DialogFooter className="flex justify-between items-center w-full">
+                            {editingItem.id.startsWith('custom_') && (
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={() => {
+                                  setCartaTragos(prev => ({
+                                    ...prev,
+                                    items: prev.items.filter(item => item.id !== editingItem.id)
+                                  }));
+                                  setIsEditModalOpen(false);
+                                  setEditingItem(null);
+                                }}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                              >
+                                Eliminar Trago
+                              </Button>
+                            )}
+                            <div className="flex gap-2 ml-auto">
+                              <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+                              <Button type="submit" disabled={isUploading}>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : null} Guardar Trago</Button>
+                            </div>
                         </DialogFooter>
                     </form>
                 )}
@@ -370,10 +406,13 @@ function CartaTragosContent() {
                     {isSyncingMaster ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <RefreshCw className="w-4 h-4 mr-2"/>}
                     Sincronizar
                  </Button>
-                 <Button size="sm" onClick={handleSave} disabled={isSaving} title="Guardar Cambios">
-                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
-                    Guardar
-                 </Button>
+                  <Button size="sm" variant="outline" onClick={handleAddCustomDrink} title="Agregar trago personalizado" className="border-rose-300 text-rose-700 hover:bg-rose-50 hover:text-rose-800">
+                     + Trago Personalizado
+                  </Button>
+                  <Button size="sm" onClick={handleSave} disabled={isSaving} title="Guardar Cambios">
+                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
+                     Guardar
+                  </Button>
                  <Button onClick={handleDownloadJpg} size="sm" variant="outline" title="Descargar como JPG">
                     <Download className="w-4 h-4 mr-2"/> JPG
                  </Button>

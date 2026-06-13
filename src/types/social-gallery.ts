@@ -26,6 +26,8 @@ export interface SocialGalleryPost {
   caption?: string;
   /** SHA-256 hex hash of the image content — used to reject duplicate uploads */
   imageHash?: string;
+  drinkId?: string;
+  drinkName?: string;
 }
 
 export interface ChatMessage {

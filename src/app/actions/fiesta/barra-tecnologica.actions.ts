@@ -302,6 +302,8 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
   const caption = sanitizeText(String(formData.get('caption') || ''));
   const followConfirmed = isTruthyFollowConfirmation(formData.get('followConfirmed'));
   const file = formData.get('file') as File | null;
+  const drinkId = formData.get('drinkId') ? String(formData.get('drinkId')) : undefined;
+  const drinkName = formData.get('drinkName') ? String(formData.get('drinkName')) : undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos para subir la foto.' };
   if (!file.type.startsWith('image/')) return { success: false, error: 'Solo se aceptan fotos.' };
@@ -321,7 +323,11 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     const storagePath = `bar-tech/${fiestaId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
     const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'image/jpeg', true);
-    const shareText = `${caption || 'Mi foto en la barra tecnologica AK'} ${settings.hashtag} ${settings.instagramHandle}`.trim();
+    
+    const baseCaption = drinkName 
+      ? `Disfrutando de un ${drinkName} en la barra interactiva` 
+      : (caption || 'Mi foto en la barra tecnologica AK');
+    const shareText = `${baseCaption} ${settings.hashtag} ${settings.instagramHandle}`.trim();
 
     if (settings.autoPublishPhotos) {
       await createSocialMediaPostFromUrl({
@@ -333,7 +339,9 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
         source: 'bar-tech',
         sourceModule: 'barraTecnologica',
         momentTag: 'Barra de tragos',
-      });
+        drinkId,
+        drinkName,
+      } as any);
     }
 
     return { success: true, url, shareText };
