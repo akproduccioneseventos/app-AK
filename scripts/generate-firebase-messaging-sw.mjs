@@ -86,13 +86,53 @@ try {
       body: payload.notification?.body || '',
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-192x192.png',
-      data: payload.data || {},
+      data: {
+        ...(payload.data || {}),
+        url: payload.data?.url || payload.data?.link || '/',
+      },
     };
     self.registration.showNotification(title, options);
   });
 } catch (err) {
   console.warn('[firebase-messaging-sw] Firebase initialization failed:', err && err.message);
 }
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  let targetUrl = self.location.origin + '/';
+  try {
+    const requestedUrl = new URL(event.notification?.data?.url || '/', self.location.origin);
+    if (requestedUrl.origin === self.location.origin) {
+      targetUrl = requestedUrl.href;
+    }
+  } catch {
+    // Keep the safe same-origin fallback.
+  }
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then(async (windowClients) => {
+        const existingClient = windowClients.find((client) => {
+          try {
+            return new URL(client.url).origin === self.location.origin;
+          } catch {
+            return false;
+          }
+        });
+
+        if (existingClient) {
+          if ('navigate' in existingClient) {
+            await existingClient.navigate(targetUrl);
+          }
+          return existingClient.focus();
+        }
+
+        return self.clients.openWindow(targetUrl);
+      })
+  );
+});
 `;
 } else {
   console.warn(
