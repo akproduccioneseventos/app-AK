@@ -113,15 +113,33 @@ export function MainNav() {
   const [alertCount, setAlertCount] = useState(0);
   const prevPathname = React.useRef("");
 
+  const refreshAlertCount = React.useCallback(() => {
+    getAlertasGlobalesConLeidas()
+      .then((alertas) => setAlertCount(alertas.filter((a) => !a.leida).length))
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     const wasOnAlertas = prevPathname.current === "/alertas";
     prevPathname.current = pathname;
+    // Refresh when leaving /alertas or on any navigation
     if (wasOnAlertas || pathname !== "/alertas") {
-      getAlertasGlobalesConLeidas()
-        .then((alertas) => setAlertCount(alertas.filter((a) => !a.leida).length))
-        .catch(() => {});
+      refreshAlertCount();
     }
-  }, [pathname]);
+  }, [pathname, refreshAlertCount]);
+
+  // Polling every 5 minutes + refresh when tab becomes visible
+  useEffect(() => {
+    const interval = setInterval(refreshAlertCount, 5 * 60 * 1000);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") refreshAlertCount();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [refreshAlertCount]);
 
   const isExactly = (path: string) => pathname === path;
   const isActive = (item: NavItem) => item.active ? item.active(pathname) : isPathActive(pathname, item.href);
