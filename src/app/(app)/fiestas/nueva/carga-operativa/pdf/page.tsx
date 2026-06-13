@@ -3,19 +3,20 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, KeyRound, AlertTriangle, Info, Loader2, Save, CheckCircle2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Printer as PrinterIcon, PackageSearch, Share2, AlertTriangle, Info, Loader2, CheckCircle2, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import type { FiestaEnPlanificacion, ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem } from '@/types/fiesta';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { getActivosFijos } from '@/app/actions/activos-fijos';
-import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getCargaOperativaMasterTemplate, updateListaDeCargaOperativa } from '@/app/actions/fiesta/carga-operativa.actions';
+import type { ListaDeCargaOperativa } from '@/types/fiesta';
+import {
+  getCargaOperativaAccessView,
+  getOrCreateCargaOperativaShareToken,
+  updateCargaOperativaItemState,
+  type CargaOperativaAccessView,
+} from '@/app/actions/fiesta/carga-operativa.actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WatermarkedImage } from '@/components/watermarked-image';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
@@ -26,137 +27,91 @@ const formatDate = (dateString?: string) => {
   } catch (e) { return "Fecha inválida"; }
 };
 
-const companyName = "AK Producciones";
-
 function CargaOperativaPdfContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
+  const accessToken = searchParams.get('token') || undefined;
+  const operatorName = searchParams.get('operatorName') || 'Encargado de carga';
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [accessView, setAccessView] = useState<CargaOperativaAccessView | null>(null);
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const resolvedOperatorName = accessView?.operatorName || operatorName;
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) {
         setError("Falta el ID del evento.");
         setIsLoading(false);
         return;
     }
-    setIsLoading(true);
+    if (showLoading) setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, catalogoData, masterTemplate, settings] = await Promise.all([
-          getFiestaById(fiestaId),
-          getActivosFijos(),
-          getCargaOperativaMasterTemplate(),
-          getInvoiceTemplateSettings()
-      ]);
-
-      if (!fiestaData) throw new Error("Evento no encontrado.");
-      
-      setFiesta(fiestaData);
-      setLogoUrl(settings.logoUrl || null);
-
-      let loadedLista = fiestaData.listaDeCargaOperativa;
-      
-      const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
-      
-      if (hasNoData) {
-          if (fiestaData.presupuestoId) {
-              const presupuesto = await getPresupuestoById(fiestaData.presupuestoId);
-              if (presupuesto) {
-                  const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
-                  const budgetCategories = new Set(presupuesto.itemsPresupuestados.map(item => (item.categoriaServicio || '').toLowerCase()));
-                  const budgetNames = new Set(presupuesto.itemsPresupuestados.map(item => (item.nombreServicio || '').toLowerCase()));
-
-                  const targetAssetCategories = new Set<string>();
-                  if (budgetCategories.has('servicio de discoteca') || budgetNames.has('discoteca') || budgetNames.has('dj')) targetAssetCategories.add('Discoteca');
-                  if (budgetCategories.has('servicio de decoración') || budgetNames.has('decoración')) { targetAssetCategories.add('Decoración (Activo)'); targetAssetCategories.add('Mobiliario'); }
-                  if (budgetCategories.has('servicio de catering') || budgetNames.has('vajilla')) { targetAssetCategories.add('Vajilla (Activo)'); targetAssetCategories.add('Mantelería'); targetAssetCategories.add('Equipamiento de Cocina'); }
-                  if (budgetCategories.has('servicio de bebidas') || budgetNames.has('barra')) targetAssetCategories.add('Barra de Tragos');
-
-                  const newCategories: CargaOperativaCategoria[] = [];
-                  targetAssetCategories.forEach(catName => {
-                    const matchingAssets = catalogoData.filter(a => a.categoria === catName);
-                    if (matchingAssets.length > 0) {
-                      newCategories.push({
-                        id: `auto_pdf_${catName}`,
-                        nombre: catName,
-                        items: matchingAssets.map(asset => {
-                          let qty = '1';
-                          if (asset.calculationMethod === 'porPersona') qty = String(totalInvitados);
-                          else if (asset.calculationMethod === 'ratio' && asset.invitadosPorUnidad) qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
-                          else if (asset.precioVenta && asset.precioVenta > 0) qty = String(asset.precioVenta);
-                          return {
-                            id: `item_pdf_${asset.id}`,
-                            nombre: asset.nombre,
-                            cantidad: qty,
-                            unidad: asset.unidad || 'Uds.',
-                            cargado: false,
-                            origenId: asset.id
-                          };
-                        })
-                      });
-                    }
-                  });
-
-                  if (newCategories.length > 0) {
-                      loadedLista = { categorias: newCategories, notasGenerales: '' };
-                  } else {
-                      loadedLista = masterTemplate;
-                  }
-              } else {
-                  loadedLista = masterTemplate;
-              }
-          } else {
-              loadedLista = masterTemplate;
-          }
-      }
-
-      setListaDeCarga(loadedLista || { categorias: [], notasGenerales: '' });
-
-    } catch (err: any) {
-      setError("No se pudieron cargar los datos para el PDF de carga.");
-      console.error("Error loading data for PDF:", err);
+      const result = await getCargaOperativaAccessView(fiestaId, accessToken);
+      if (!result.success || !result.data) throw new Error(result.error || 'Evento no encontrado.');
+      setAccessView(result.data);
+      setListaDeCarga(result.data.lista);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "No se pudieron cargar los datos.");
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
-  }, [fiestaId]);
+  }, [accessToken, fiestaId]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  const handleToggleItem = async (categoryId: string, itemId: string) => {
-    if (!fiestaId || !listaDeCarga) return;
-    
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      if (!isUpdating) void loadData(false);
+    }, 5000);
+    return () => window.clearInterval(intervalId);
+  }, [isUpdating, loadData]);
+
+  const handleToggleItem = async (categoryId: string, itemId: string, field: 'cargado' | 'retornado') => {
+    if (!fiestaId || !listaDeCarga || isUpdating) return;
+
+    const currentItem = listaDeCarga.categorias
+      .find((category) => category.id === categoryId)
+      ?.items.find((item) => item.id === itemId);
+    if (!currentItem) return;
+    const nextValue = !currentItem[field];
     setIsUpdating(itemId);
-    
-    const updatedCategorias = listaDeCarga.categorias.map(cat => {
-        if (cat.id === categoryId) {
-            return {
-                ...cat,
-                items: cat.items.map(item => 
-                    item.id === itemId ? { ...item, cargado: !item.cargado } : item
-                )
-            };
-        }
-        return cat;
-    });
-    
-    const updatedLista = { ...listaDeCarga, categorias: updatedCategorias };
-    setListaDeCarga(updatedLista);
+    setListaDeCarga((current) => current ? ({
+      ...current,
+      categorias: current.categorias.map((category) => category.id === categoryId ? ({
+        ...category,
+        items: category.items.map((item) => item.id === itemId ? ({
+          ...item,
+          [field]: nextValue,
+          ...(field === 'cargado' && !nextValue ? { retornado: false } : {}),
+          ...(field === 'retornado' && nextValue ? { cargado: true } : {}),
+        }) : item),
+      }) : category),
+    }) : current);
 
     try {
-        const result = await updateListaDeCargaOperativa(fiestaId, updatedLista);
+        const result = await updateCargaOperativaItemState({
+          fiestaId,
+          categoryId,
+          itemId,
+          patch: { [field]: nextValue },
+          operatorName: resolvedOperatorName,
+          accessToken,
+        });
         if (!result.success) throw new Error(result.error);
-    } catch (e: any) {
-        toast({ title: "Error al actualizar", description: e.message, variant: "destructive" });
-        loadData(); // Revert on error
+        if (result.updatedData) setListaDeCarga(result.updatedData);
+    } catch (updateError) {
+        toast({
+          title: "Error al actualizar",
+          description: updateError instanceof Error ? updateError.message : 'No se pudo guardar.',
+          variant: "destructive",
+        });
+        await loadData(false);
     } finally {
         setIsUpdating(null);
     }
@@ -167,12 +122,32 @@ function CargaOperativaPdfContent() {
   };
   
   const handleShare = async () => {
+    let shareUrl = window.location.href;
+    if (!accessToken && fiestaId) {
+      const result = await getOrCreateCargaOperativaShareToken(fiestaId);
+      if (!result.success || !result.token) {
+        toast({
+          title: 'No se pudo crear el enlace',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.set('token', result.token);
+      url.searchParams.set('operatorName', 'Equipo de carga');
+      shareUrl = url.toString();
+    }
+
     const shareData = {
-      title: `Lista de Carga - ${fiesta?.configuracion.nombreEvento}`,
-      text: `Aquí tienes la lista de carga interactiva para el equipo.`,
-      url: window.location.href,
+      title: `Lista de Carga - ${accessView?.nombreEvento || 'AK Producciones'}`,
+      text: `Lista de carga y devolución para el equipo.`,
+      url: shareUrl,
     };
-    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
+    if (
+      typeof navigator.share === 'function'
+      && (typeof navigator.canShare !== 'function' || navigator.canShare(shareData))
+    ) {
         navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
     } else {
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
@@ -193,12 +168,9 @@ function CargaOperativaPdfContent() {
     );
   }
 
-  if (error || !fiesta || !listaDeCarga) {
+  if (error || !accessView || !listaDeCarga) {
     return (
       <div className="p-8 max-w-3xl mx-auto bg-white text-center">
-         <div className="flex justify-between items-center mb-6 print:hidden">
-             <Button asChild variant="outline" size="sm"><Link href={fiestaId ? `/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}` : "/eventos"}><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Link></Button>
-        </div>
         <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
         <p className="font-semibold text-lg text-destructive">Error al Cargar</p>
         <p className="text-sm text-muted-foreground">{error || "No se pudieron cargar los datos necesarios."}</p>
@@ -209,16 +181,16 @@ function CargaOperativaPdfContent() {
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
       <div className="max-w-3xl mx-auto space-y-4 print:space-y-0">
-        {/* MENSAJE DE COMPARTIR (Solo admin) */}
+        {/* Secure operational link */}
         <Card className="bg-green-50 border-green-200 print:hidden shadow-sm">
             <CardHeader className="py-3 px-4">
                 <CardTitle className="text-sm font-bold flex items-center gap-2 text-green-800">
-                    <CheckCircle2 className="w-4 h-4"/> Enlace Listo para Compartir
+                    <CheckCircle2 className="w-4 h-4"/> Lista sincronizada en línea
                 </CardTitle>
             </CardHeader>
             <CardContent className="py-0 px-4 pb-3">
                 <p className="text-xs text-green-700 mb-3">
-                    <strong>¡Sí!</strong> Esta página es pública y segura. Puedes enviarle el enlace de arriba directamente al <strong>Jefe de Utileros</strong>. Él podrá marcar los ítems desde su celular y tú verás los cambios aquí.
+                    Cada tilde de carga o devolución se guarda al instante. El enlace compartido permite entrar solamente a esta lista operativa.
                 </p>
                 <div className="flex gap-2">
                     <Button size="sm" variant="outline" className="bg-white border-green-300 text-green-700 hover:bg-green-100" onClick={handleShare}>
@@ -230,10 +202,12 @@ function CargaOperativaPdfContent() {
 
         <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2 relative min-h-screen">
             <div className="w-full h-24 print:h-20 mb-4 relative">
-                <WatermarkedImage src={logoUrl} alt="Logo" containerClassName='w-full h-full'/>
+                <WatermarkedImage src={accessView.logoUrl || null} alt="Logo" containerClassName='w-full h-full'/>
             </div>
-            <div className="flex justify-between items-center mb-6 print:hidden">
-            <Button asChild variant="outline" size="sm"><Link href={`/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Link></Button>
+            <div className="flex flex-wrap justify-between gap-2 items-center mb-6 print:hidden">
+            {!accessToken ? (
+              <Button asChild variant="outline" size="sm"><Link href={`/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-1.5" />Volver a Editar</Link></Button>
+            ) : <span className="text-xs font-semibold text-slate-500">Responsable: {resolvedOperatorName}</span>}
             <div className="flex gap-2">
                 <Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button>
                 <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button>
@@ -247,9 +221,9 @@ function CargaOperativaPdfContent() {
                     Planilla de Carga Operativa
                 </h1>
             </div>
-            <p className="text-md text-gray-700 print:text-sm mt-1 font-semibold">{fiesta.configuracion.nombreEvento}</p>
+            <p className="text-md text-gray-700 print:text-sm mt-1 font-semibold">{accessView.nombreEvento}</p>
             <div className="flex items-center justify-center gap-4 mt-1">
-                <p className="text-xs text-gray-500 print:text-[8pt]">Evento: {formatDate(fiesta.configuracion.fechaEvento)}</p>
+                <p className="text-xs text-gray-500 print:text-[8pt]">Evento: {formatDate(accessView.fechaEvento)}</p>
                 <span className="text-gray-300 print:text-gray-300">|</span>
                 <p className="text-xs text-gray-500 print:text-[8pt]">Impresión: {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
@@ -277,9 +251,10 @@ function CargaOperativaPdfContent() {
                                 <div className="relative flex-shrink-0 mt-0.5">
                                     <Checkbox 
                                         checked={item.cargado}
-                                        onCheckedChange={() => handleToggleItem(categoria.id, item.id)}
+                                        onCheckedChange={() => handleToggleItem(categoria.id, item.id, 'cargado')}
                                         className="w-6 h-6 border-2 border-gray-400 rounded-md print:w-5 print:h-5 print:border-gray-600 bg-white"
-                                        disabled={isUpdating === item.id}
+                                        disabled={Boolean(isUpdating)}
+                                        aria-label={`Marcar ${item.nombre} como cargado`}
                                     />
                                     {isUpdating === item.id && (
                                         <div className="absolute inset-0 flex items-center justify-center bg-white/50">
@@ -287,19 +262,42 @@ function CargaOperativaPdfContent() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex-grow cursor-pointer" onClick={() => handleToggleItem(categoria.id, item.id)}>
-                                <div className="flex justify-between items-baseline">
+                                <div className="flex-grow min-w-0">
+                                <div className="flex justify-between items-baseline gap-2">
                                     <p className={cn(
-                                        "text-sm font-bold print:text-xs",
+                                        "min-w-0 break-words text-sm font-bold print:text-xs",
                                         item.cargado ? "text-green-700 line-through opacity-70" : "text-gray-800"
                                     )}>
                                         {item.nombre}
                                     </p>
-                                    <span className="text-sm font-black text-primary print:text-xs bg-primary/5 px-2 rounded print:bg-transparent">
+                                    <span className="shrink-0 text-sm font-black text-primary print:text-xs bg-primary/5 px-2 rounded print:bg-transparent">
                                         CANT: {item.cantidad} {item.unit || item.unidad || 'Uds.'}
                                     </span>
                                 </div>
                                 {item.notas && <p className="text-[10px] text-gray-500 italic print:text-[7pt] mt-0.5">Nota: {item.notas}</p>}
+                                {(item.actualizadoPor || item.actualizadoAt) && (
+                                  <p className="mt-1 text-[10px] text-gray-400 print:hidden">
+                                    Último cambio: {item.actualizadoPor || 'Equipo AK'}
+                                    {item.actualizadoAt ? ` · ${new Date(item.actualizadoAt).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}` : ''}
+                                  </p>
+                                )}
+                                {item.cargado && (
+                                  <label className="mt-2 flex w-fit cursor-pointer items-center gap-2 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 print:hidden">
+                                    <Checkbox
+                                      checked={item.retornado}
+                                      onCheckedChange={() => handleToggleItem(categoria.id, item.id, 'retornado')}
+                                      disabled={Boolean(isUpdating)}
+                                      aria-label={`Marcar ${item.nombre} como retornado`}
+                                    />
+                                    <RotateCcw className="h-3.5 w-3.5" />
+                                    Devuelto
+                                  </label>
+                                )}
+                                {item.cargado && (
+                                  <p className="hidden print:block print:text-[8pt]">
+                                    Devolución: {item.retornado ? 'completa' : 'pendiente'}
+                                  </p>
+                                )}
                                 </div>
                             </div>
                             ))}

@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { triggerAppLogout } from '@/components/auth-guard';
@@ -260,6 +260,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const pageTitle = getPageTitle(pathname);
   const PageIcon = getPageIcon(pathname);
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
@@ -285,6 +286,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || pathname.endsWith('/reporte');
+  const isSharedPrintablePage = isPdfPage && searchParams.has('token');
   
   // Define special pages that might have their own layout
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
@@ -313,7 +315,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       );
     }
-    return <main className="min-h-screen"><ModuleNavigationDock />{children}</main>;
+    return (
+      <main className="min-h-screen">
+        {!isSharedPrintablePage && <ModuleNavigationDock />}
+        {children}
+      </main>
+    );
   }
 
   const handleLogoutClick = () => {

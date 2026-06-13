@@ -7,6 +7,9 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import * as logger from '@/lib/logger';
+import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
+import type { ServicioEmpresa } from '@/types/empresa';
+import type { FullMenu } from '@/types/catering';
 
 // Schema for chat history
 const ChatHistoryItemSchema = z.object({
@@ -64,6 +67,65 @@ const CopilotOutputSchema = z.object({
 
 export type CopilotInput = z.infer<typeof CopilotInputSchema>;
 export type CopilotOutput = z.infer<typeof CopilotOutputSchema>;
+
+function normalizeCopilotInput(input: CopilotInput): CopilotInput | null {
+  const parsed = CopilotInputSchema.safeParse(input);
+  if (!parsed.success) return null;
+
+  return {
+    ...parsed.data,
+    message: parsed.data.message.trim().slice(0, 1000),
+    history: parsed.data.history.slice(-12).map((item) => ({
+      ...item,
+      content: item.content.slice(0, 600),
+    })),
+    currentState: {
+      ...parsed.data.currentState,
+      selectedServices: parsed.data.currentState.selectedServices?.slice(0, 100),
+      selectedEntradas: parsed.data.currentState.selectedEntradas?.slice(0, 10),
+    },
+  };
+}
+
+function sanitizeCopilotOutput(
+  output: CopilotOutput,
+  config: ArmadoRapidoConfig | null,
+  services: ServicioEmpresa[],
+  menus: FullMenu[],
+): CopilotOutput {
+  if (!output.action?.changes) return output;
+
+  const packageIds = new Set((config?.paquetes || []).map((item) => item.id));
+  const serviceIds = new Set(services.map((item) => item.id));
+  const dishIds = new Set(menus.flatMap((menu) => menu.items || []).map((item) => item.id));
+  const allowedSelectionIds = new Set([...serviceIds, ...dishIds]);
+  const changes = { ...output.action.changes };
+
+  if (changes.selectedPaqueteId && !packageIds.has(changes.selectedPaqueteId)) delete changes.selectedPaqueteId;
+  if (changes.selectedServices) {
+    changes.selectedServices = [...new Set(changes.selectedServices.filter((id) => serviceIds.has(id)))].slice(0, 100);
+  }
+  if (changes.selectedEntradas) {
+    changes.selectedEntradas = [...new Set(changes.selectedEntradas.filter((id) => dishIds.has(id)))].slice(0, 2);
+  }
+  if (changes.selectedPrincipal && !allowedSelectionIds.has(changes.selectedPrincipal)) delete changes.selectedPrincipal;
+  if (changes.selectedInfantil && !allowedSelectionIds.has(changes.selectedInfantil)) delete changes.selectedInfantil;
+  if (changes.adultos !== undefined) changes.adultos = Math.min(1000, Math.max(1, Math.round(changes.adultos)));
+  if (changes.ninosYAdolescentes !== undefined) {
+    changes.ninosYAdolescentes = Math.min(500, Math.max(0, Math.round(changes.ninosYAdolescentes)));
+  }
+  if (changes.duracionHoras !== undefined) changes.duracionHoras = changes.duracionHoras > 4 ? 5 : 3;
+  if (changes.eventoFecha && !/^\d{4}-\d{2}-\d{2}$/.test(changes.eventoFecha)) delete changes.eventoFecha;
+
+  return {
+    ...output,
+    action: {
+      ...output.action,
+      type: Object.keys(changes).length > 0 ? output.action.type : 'none',
+      changes: Object.keys(changes).length > 0 ? changes : undefined,
+    },
+  };
+}
 
 const SYSTEM_PROMPT = `Sos Sofía, la Copiloto Inteligente de Planificación para AK Producciones en Salto, Uruguay.
 Ayudás al cliente final a diseñar el presupuesto de su fiesta de forma interactiva y optimizada.
@@ -124,22 +186,28 @@ const copilotPrompt = ai.definePrompt({
 export async function chatWithBudgetCopilot(
   input: CopilotInput
 ): Promise<CopilotOutput> {
+  const normalizedInput = normalizeCopilotInput(input);
+  if (!normalizedInput?.message) {
+    return {
+      response: 'Contame brevemente qué tipo de fiesta querés organizar y te ayudo a armarla.',
+      action: { type: 'none' },
+    };
+  }
+
+  const [config, services, menus] = await Promise.all([
+    getArmadoRapidoConfig().catch(() => null),
+    getServiciosEmpresa().catch(() => []),
+    getMenus().catch(() => []),
+  ]);
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
   // FALLBACK: Rule-based static response if API Key is not configured
   if (!apiKey) {
     logger.warn('[copilot] API Key missing. Falling back to rule-based engine.');
-    return getStaticFallbackResponse(input);
+    return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
   }
 
   try {
-    // 1. Fetch business catalog data in parallel
-    const [config, services, menus] = await Promise.all([
-      getArmadoRapidoConfig().catch(() => null),
-      getServiciosEmpresa().catch(() => []),
-      getMenus().catch(() => []),
-    ]);
-
     const businessContext = JSON.stringify({
       paquetesCatalog: config?.paquetes || [],
       menusCatalog: config?.menus || [],
@@ -156,13 +224,13 @@ export async function chatWithBudgetCopilot(
       }))
     });
 
-    const currentStateJson = JSON.stringify(input.currentState);
+    const currentStateJson = JSON.stringify(normalizedInput.currentState);
 
     // 2. Call Gemini
     const { output } = await copilotPrompt({
-      message: input.message,
-      history: input.history,
-      currentState: input.currentState,
+      message: normalizedInput.message,
+      history: normalizedInput.history,
+      currentState: normalizedInput.currentState,
       // Pass serialized data into the prompt template
       businessContext,
       currentStateJson
@@ -193,7 +261,7 @@ export async function chatWithBudgetCopilot(
       }
     }
 
-    return {
+    return sanitizeCopilotOutput({
       response: output.response,
       action: output.action ? {
         type: output.action.type as 'none' | 'apply_changes' | 'check_availability',
@@ -201,20 +269,19 @@ export async function chatWithBudgetCopilot(
         changes: output.action.changes || undefined
       } : { type: 'none' as const },
       suggestionPill: output.suggestionPill || undefined
-    };
+    }, config, services, menus);
 
   } catch (error: any) {
     logger.error('[copilot] Error in chatWithBudgetCopilot:', error);
-    return getStaticFallbackResponse(input);
+    return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
   }
 }
 
 /**
  * Deterministic rule-based fallback response if Gemini fails.
  */
-function getStaticFallbackResponse(input: CopilotInput): CopilotOutput {
+function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConfig | null): CopilotOutput {
   const msg = input.message.toLowerCase();
-  const state = input.currentState;
 
   // Fallback 1: Date check request
   const dateRegex = /(\d{4})[-/](\d{2})[-/](\d{2})/;
@@ -229,23 +296,32 @@ function getStaticFallbackResponse(input: CopilotInput): CopilotOutput {
 
   // Fallback 2: Reduce budget request
   if (msg.includes('barato') || msg.includes('bajar') || msg.includes('precio') || msg.includes('ahorrar') || msg.includes('reducir')) {
+    const lowerPackage = (config?.paquetes || []).find((item) => {
+      const normalized = `${item.id} ${item.nombre}`
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+      return normalized.includes('plata') || normalized.includes('bronce') || normalized.includes('basico');
+    }) || config?.paquetes?.[0];
+
     return {
-      response: `¡Dale, te ayudo a ahorrar! Una opción bárbara para bajar los costos es cambiar el paquete seleccionado por uno de nivel inicial (como Plata o Bronce) y desmarcar servicios adicionales a la izquierda. ¿Te parece bien probar el paquete Plata?`,
-      action: {
-        type: 'apply_changes' as const,
-        changes: { selectedPaqueteId: 'plata' }
-      },
-      suggestionPill: {
-        label: 'Probar paquete Plata',
-        messageToSubmit: 'Probar paquete Plata'
-      }
+      response: lowerPackage
+        ? `¡Dale, te ayudo a ahorrar! Podemos probar el paquete ${lowerPackage.nombre} y revisar los servicios adicionales.`
+        : '¡Dale, te ayudo a ahorrar! Revisemos los servicios adicionales y dejemos solamente lo esencial para tu fiesta.',
+      action: lowerPackage
+        ? { type: 'apply_changes' as const, changes: { selectedPaqueteId: lowerPackage.id } }
+        : { type: 'none' as const },
+      suggestionPill: lowerPackage ? {
+        label: `Probar ${lowerPackage.nombre}`.slice(0, 40),
+        messageToSubmit: `Probar paquete ${lowerPackage.nombre}`,
+      } : undefined,
     };
   }
 
   // Fallback 3: Package information request
   if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro')) {
     return {
-      response: `Bárbaro, los paquetes (Bronce, Plata, Oro, Platino) definen los servicios de base incluidos (pantallas, cabina, luces, DJ). Podés ver qué incluye cada uno seleccionándolo en los botones del formulario a la izquierda.`,
+      response: `Bárbaro, los paquetes disponibles reúnen servicios de base como pantallas, cabina, luces o discoteca. Podés ver exactamente qué incluye cada uno en el formulario.`,
       action: { type: 'none' as const }
     };
   }
