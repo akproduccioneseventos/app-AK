@@ -693,7 +693,7 @@ function SimuladorContent() {
                                     onClick={handleWhatsAppQuickConsult}
                                     className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-xs uppercase tracking-widest"
                                 >
-                                    <MessageSquare className="w-4 h-4 mr-2"/> Contactar AK
+                                    <MessageSquare className="w-4 h-4 mr-2"/> Coordinar una Reunión
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -827,7 +827,17 @@ function SimuladorContent() {
                                 <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
                                 <p className="text-xs text-blue-700 leading-relaxed font-medium">{budgetSettings.bookingTerms}</p>
                             </div>
-                            <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px] print:hidden">Iniciar Nueva Simulación</Button>
+                            <div className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
+                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">Iniciar Nueva Simulación</Button>
+                              <a
+                                href="https://akproduccioneseventos.com/#faq"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20 hover:bg-primary/5 transition-colors"
+                              >
+                                <Info className="w-3.5 h-3.5" /> Preguntas Frecuentes
+                              </a>
+                            </div>
                         </CardFooter>
                     </Card>
                 </motion.div>
@@ -982,9 +992,6 @@ function SimuladorContent() {
                                                   </div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
-                                                {s.imageUrl && (
-                                                    <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-slate-200 bg-white" />
-                                                )}
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -1019,9 +1026,6 @@ function SimuladorContent() {
                                                   </div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
-                                                {s.imageUrl && (
-                                                    <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-slate-200 bg-white" />
-                                                )}
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -1057,9 +1061,6 @@ function SimuladorContent() {
                                                       </div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
-                                                    {s.imageUrl && (
-                                                        <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-purple-100 bg-white" />
-                                                    )}
                                                     <div className="flex flex-col flex-grow min-w-0">
                                                         <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                         <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
