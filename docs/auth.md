@@ -2,29 +2,27 @@
 
 ## Descripción general
 
-La app usa un **sistema de autenticación propio** basado en Firestore.  
-**No depende de Firebase Auth**, lo que hace que funcione en cualquier dominio
-(`akproducciones.uy`, `*.hosted.app`, `localhost`) sin configuración adicional.
+La app mantiene la contraseña principal en un **sistema propio basado en Firestore**.
+Firebase Authentication se usa además para verificar el ingreso y la recuperación
+con la cuenta Google autorizada.
 
-Las credenciales (contraseñas y respuestas de seguridad) se almacenan **hasheadas con SHA-256**
+La contraseña principal se almacena con **scrypt** en `app-settings/auth`.
+Las cuentas y respuestas de seguridad del módulo de usuarios se mantienen separadas
 en la colección `users` de Firestore.
 
 ---
 
 ## Primer acceso
 
-Al primer uso de la app (cuando no existe ningún usuario en Firestore), se crea
-automáticamente el usuario administrador:
-
-- **Correo:** `akproduccionessalto@gmail.com`
-- **Contraseña:** `AKproducciones2024` *(temporal — cambiala desde el perfil)*
-- **Rol:** `admin` (acceso total)
+No existe una contraseña predeterminada dentro del código. El acceso inicial debe
+configurarse en Firestore, mediante `APP_PASSWORD` como emergencia del servidor,
+o verificando el correo administrador autorizado con Google.
 
 ---
 
 ## Variables de entorno
 
-Solo se requieren las variables de Firestore (ya NO se necesita Firebase Auth):
+La contraseña requiere Firestore. El acceso con Google también necesita Firebase Auth:
 
 | Variable | Descripción | Obligatoria |
 |---|---|---|
@@ -33,6 +31,7 @@ Solo se requieren las variables de Firestore (ya NO se necesita Firebase Auth):
 | `FIREBASE_PROJECT_ID` | ID del proyecto (server-side Admin SDK) | ❌ (auto) |
 | `FIREBASE_CLIENT_EMAIL` | Email de la cuenta de servicio | ❌ (GCP auto-detecta) |
 | `FIREBASE_PRIVATE_KEY` | Clave privada de la cuenta de servicio | ❌ (GCP auto-detecta) |
+| `AUTH_ALLOWED_EMAILS` | Correos autorizados para Google, separados por coma | ✅ |
 
 ---
 
@@ -50,11 +49,14 @@ El usuario **admin** puede:
 
 ## Flujo "Olvidé mi contraseña"
 
-1. Click en **¿Olvidaste tu contraseña?** en `/login`
-2. Ingresar correo
-3. Responder las 3 preguntas de seguridad configuradas
-4. Si son correctas → crear nueva contraseña
-5. Si son incorrectas → mostrar error
+1. Abrir **Olvide mi contraseña** en `/login`.
+2. Escribir y repetir la nueva contraseña.
+3. Elegir **Verificar Gmail y recuperar acceso**.
+4. Google debe confirmar una cuenta incluida en `AUTH_ALLOWED_EMAILS`.
+5. La app cambia la contraseña y crea la sesión en el mismo paso.
+
+Como alternativas siguen disponibles el código enviado por correo, los códigos de
+respaldo y las preguntas de seguridad.
 
 ---
 
@@ -73,10 +75,19 @@ Las comparaciones son insensibles a mayúsculas/minúsculas.
 
 ## Sesión del usuario
 
-La sesión se almacena en `localStorage` con la clave `ak_producciones_auth_session`.
-El token tiene el formato `btoa('ak_auth_<userId>_<timestamp>')`.
+La autorización real se almacena en la cookie firmada y `httpOnly` `ak_session`.
+El valor del navegador con el mismo nombre solo ayuda a la interfaz y nunca se usa
+como prueba de acceso en el servidor.
 
 Para cerrar sesión: **Mi Cuenta → Cerrar Sesión** (limpia el localStorage).
+
+## Configuración de Google
+
+1. Habilitar el proveedor **Google** en Firebase Authentication.
+2. Agregar el dominio `hosted.app` desplegado y el dominio personalizado a
+   **Authentication > Settings > Authorized domains**.
+3. Configurar `AUTH_ALLOWED_EMAILS`.
+4. Mantener correctas las variables `NEXT_PUBLIC_FIREBASE_*` del proyecto web.
 
 ---
 

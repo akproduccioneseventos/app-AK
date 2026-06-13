@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
+import { verifySession } from '@/lib/auth/session-token';
 
 export type ModuloPermiso = 
   | 'musica' | 'itinerario' | 'carga-operativa' | 'decoracion' | 'crm' | 'reposteria' | 'fotografia'
@@ -20,6 +21,9 @@ const ACCESOS_FILE = 'accesos-personal.json';
 export async function createAccesoPersonal(
   data: Omit<AccesoPersonal, 'id' | 'fechaCreacion'>
 ): Promise<{ success: boolean; acceso?: AccesoPersonal; error?: string }> {
+  if (!(await verifySession()).success) {
+    return { success: false, error: 'Acceso no autorizado.' };
+  }
   if (!data.nombreAcceso.trim() || data.permisos.length === 0) {
     return { success: false, error: "Faltan datos para crear el acceso." };
   }
@@ -41,16 +45,21 @@ export async function createAccesoPersonal(
 }
 
 export async function getAccesosGenerales(): Promise<AccesoPersonal[]> {
+  if (!(await verifySession()).success) return [];
   const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
   return accesos;
 }
 
 export async function getAccesoById(tokenId: string): Promise<AccesoPersonal | null> {
+    if (!tokenId || tokenId.length > 200) return null;
     const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
     return accesos.find(a => a.id === tokenId) || null;
 }
 
 export async function deleteAccesoPersonal(tokenId: string): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifySession()).success) {
+    return { success: false, error: 'Acceso no autorizado.' };
+  }
   try {
     let accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
     const initialLength = accesos.length;

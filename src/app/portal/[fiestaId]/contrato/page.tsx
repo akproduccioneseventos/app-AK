@@ -104,7 +104,7 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                       <CardDescription>El contrato aún no ha sido redactado por el organizador.</CardDescription>
                   </CardHeader>
                   <CardFooter className="justify-center">
-                      <Link href={`/portal?fiestaId=${fiestaId}`}><Button variant="outline">Volver al Portal</Button></Link>
+                      <Button asChild variant="outline"><Link href={`/portal?fiestaId=${fiestaId}`}>Volver al Portal</Link></Button>
                   </CardFooter>
               </Card>
           </div>
@@ -126,9 +126,7 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Revisión y Firma Digital</p>
                     </div>
                 </div>
-                <Link href={`/portal?fiestaId=${fiestaId}`}>
-                    <Button variant="ghost" size="icon" className="rounded-full"><ArrowLeft className="w-5 h-5"/></Button>
-                </Link>
+                <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`}><ArrowLeft className="w-5 h-5"/></Link></Button>
             </header>
 
             {firma?.isSigned && (
@@ -312,46 +310,20 @@ export default function ClientContractPage({ params }: { params: { fiestaId: str
                                   ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del 15% pactado en la Cláusula 2 del contrato.
                                 </div>
                               </div>
-                              <div className="flex items-start space-x-3 p-4 bg-white rounded-2xl border border-blue-200 shadow-sm w-full">
-                                <Checkbox
-                                  id="accept-plan-pagos"
-                                  checked={acceptedPlanPagos}
-                                  onCheckedChange={(v) => setAcceptedPlanPagos(!!v)}
-                                  className="mt-1"
-                                />
-                                <div className="space-y-1">
-                                  <Label htmlFor="accept-plan-pagos" className="font-bold text-blue-800 cursor-pointer">Entiendo y acepto el plan de pagos</Label>
-                                  <p className="text-xs text-slate-400">Al marcar esta casilla confirmo que leí y acepto el plan de pagos detallado arriba, incluyendo las fechas límite y montos mínimos.</p>
-                                </div>
-                              </div>
                             </div>
                           );
                         })()}
 
-                        <div className="flex items-start space-x-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm w-full">
-                            <Checkbox 
-                                id="accept-contract" 
-                                checked={acceptedTerms} 
-                                onCheckedChange={(v) => setAcceptedTerms(!!v)}
-                                className="mt-1"
-                            />
-                            <div className="space-y-1">
-                                <Label htmlFor="accept-contract" className="font-bold text-slate-800 cursor-pointer">Acepto los términos y condiciones</Label>
-                                <p className="text-xs text-slate-400">Al marcar esta casilla y hacer clic en firmar, declaro mi conformidad con todas las cláusulas expuestas arriba.</p>
+                        <div className="flex flex-col items-center gap-4 p-6 bg-amber-50 border border-amber-200 rounded-3xl w-full text-center">
+                            <AlertTriangle className="w-8 h-8 text-amber-600"/>
+                            <div>
+                                <h3 className="font-black text-amber-800 uppercase text-xs tracking-wider">Firma Física Requerida</h3>
+                                <p className="text-sm text-amber-700 mt-1">Este contrato debe ser firmado físicamente. Por favor descárguelo o imprímalo, fírmelo y entréguelo al organizador. Una vez escaneado y registrado por el administrador, su validez aparecerá reflejada en este portal.</p>
                             </div>
+                            <Button onClick={() => window.print()} size="lg" className="w-full h-14 rounded-2xl text-base font-black shadow-xl">
+                                IMPRIMIR / DESCARGAR CONTRATO (PDF)
+                            </Button>
                         </div>
-                        <Button 
-                            onClick={handleSign} 
-                            disabled={!acceptedTerms || isSigning || (!!fiesta.contratoDatos?.planPagos?.activo && !acceptedPlanPagos)}
-                            size="lg"
-                            className="w-full h-16 rounded-2xl text-lg font-black shadow-2xl shadow-primary/30"
-                        >
-                            {isSigning ? <Loader2 className="w-5 h-5 mr-3 animate-spin"/> : <FileSignature className="w-5 h-5 mr-3"/>}
-                            {isSigning ? 'PROCESANDO FIRMA...' : 'FIRMAR CONTRATO DIGITALMENTE'}
-                        </Button>
-                        <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest font-bold">
-                            Tu firma digital quedará registrada junto con tu IP y marca de tiempo.
-                        </p>
                     </CardFooter>
                 )}
             </Card>

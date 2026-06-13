@@ -20,6 +20,8 @@ import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
+import { verifySession } from '@/lib/auth/session-token';
+import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -29,12 +31,52 @@ function shouldDedupePaymentReference(referencia?: string): boolean {
 
 /** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
 export async function getPresupuestos(includeArchived = false): Promise<Presupuesto[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   return includeArchived ? all : all.filter(p => !p.archived);
 }
 
-export async function getPresupuestoById(id: string): Promise<Presupuesto | null> {
+export async function repairVerifiedBudgetDates(): Promise<{ success: boolean; changedCount: number; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, changedCount: 0, error: auth.error };
+
+  try {
+    const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+    const { budgets, changedCount } = migrateVerifiedBudgetDates(all);
+    if (changedCount > 0) {
+      await writeData(PRESUPUESTOS_FILE, budgets);
+      logger.info(`[Presupuesto] Se corrigieron ${changedCount} fechas documentales importadas.`);
+    }
+    return { success: true, changedCount };
+  } catch (error) {
+    logger.error('[Presupuesto] No se pudieron corregir las fechas importadas:', error);
+    return {
+      success: false,
+      changedCount: 0,
+      error: error instanceof Error ? error.message : 'No se pudieron corregir las fechas importadas.',
+    };
+  }
+}
+
+export async function getPresupuestoById(id: string, token?: string): Promise<Presupuesto | null> {
   if (!id) return null;
+
+  // Validate operator session first. If there's an operator session, bypass token check.
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const sessionAuth = await verifySession();
+
+  if (!sessionAuth.success) {
+    if (!token) {
+      return null;
+    }
+    const { verifyBudgetToken } = await import('@/lib/auth/session-token');
+    const isValidToken = await verifyBudgetToken(id, token);
+    if (!isValidToken) {
+      return null;
+    }
+  }
+
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     if (dbAdmin) {
@@ -85,6 +127,8 @@ export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   let presupuestos = await getPresupuestos(true);
   
   const maxNumero = presupuestos.reduce((max, p) => Math.max(max, p.numero || 0), 0);
@@ -175,10 +219,52 @@ export async function savePresupuesto(
   return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
 }
 
+async function isBudgetContractSigned(presupuestoId: string): Promise<boolean> {
+  try {
+    const fiestas = await getAllFiestas();
+    const linked = fiestas.find(f => f.presupuestoId === presupuestoId);
+    return !!linked?.contratoFirmaInfo?.isSigned;
+  } catch {
+    return false;
+  }
+}
+
+function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuesto): boolean {
+  if (oldBudget.invitadosCantidad !== newBudget.invitadosCantidad) return true;
+  if (oldBudget.invitadosAdultos !== newBudget.invitadosAdultos) return true;
+  if (oldBudget.invitadosNinos !== newBudget.invitadosNinos) return true;
+  if (oldBudget.invitadosAdolescentes !== newBudget.invitadosAdolescentes) return true;
+  if (oldBudget.descuentoTipo !== newBudget.descuentoTipo) return true;
+  if (oldBudget.descuentoValor !== newBudget.descuentoValor) return true;
+  
+  const oldItems = oldBudget.itemsPresupuestados || [];
+  const newItems = newBudget.itemsPresupuestados || [];
+  if (oldItems.length !== newItems.length) return true;
+  for (let i = 0; i < oldItems.length; i++) {
+    const o = oldItems[i];
+    const n = newItems[i];
+    if (o.idServicioCatalogo !== n.idServicioCatalogo) return true;
+    if (o.nombreServicio !== n.nombreServicio) return true;
+    if (o.cantidad !== n.cantidad) return true;
+    if (o.precioUnitarioPresupuesto !== n.precioUnitarioPresupuesto) return true;
+    if (o.costoTotalItem !== n.costoTotalItem) return true;
+    if (o.esRegalo !== n.esRegalo) return true;
+  }
+  return false;
+}
+
 export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     let presupuestos = await getPresupuestos(true);
     const index = presupuestos.findIndex(p => p.id === presupuestoData.id);
     if (index === -1) return { success: false, error: "No encontrado" };
+
+    const oldBudget = presupuestos[index];
+    const isSigned = await isBudgetContractSigned(presupuestoData.id);
+    if (isSigned && hasBudgetStructureChanged(oldBudget, presupuestoData)) {
+      return { success: false, error: 'El presupuesto no se puede modificar porque tiene un contrato firmado.' };
+    }
 
     const adultos = presupuestoData.invitadosAdultos || 0;
     const adolescentes = presupuestoData.invitadosAdolescentes || 0;
@@ -228,6 +314,12 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
 
 /** Soft-delete: marks the presupuesto as archived so it disappears from active lists. */
 export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
+  const isSigned = await isBudgetContractSigned(id);
+  if (isSigned) {
+    return { success: false, error: 'No se puede archivar un presupuesto con contrato firmado.' };
+  }
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const index = all.findIndex(p => p.id === id);
   if (index === -1) return { success: false, error: 'Presupuesto no encontrado.' };
@@ -242,6 +334,12 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
 
 /** Hard-delete: permanently removes the presupuesto and cleans up CRM lead references and linked fiesta. */
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
+  const isSigned = await isBudgetContractSigned(id);
+  if (isSigned) {
+    return { success: false, error: 'No se puede eliminar un presupuesto con contrato firmado.' };
+  }
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const target = all.find(p => p.id === id);
   const remaining = all.filter(p => p.id !== id);
@@ -299,6 +397,8 @@ export async function markPresupuestoAsFacturado(
   presupuestoId: string,
   invoiceId: string
 ): Promise<{ success: boolean; error?: string; suggestContractFlow?: boolean }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   let presupuestos = await getPresupuestos();
   const index = presupuestos.findIndex(p => p.id === presupuestoId);
 
@@ -346,6 +446,8 @@ export async function markPresupuestoAsFacturado(
 }
 
 export async function recalculatePresupuestoFromCatalog(presupuestoId: string): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'No encontrado' };
   
@@ -370,6 +472,8 @@ export async function addPagoToPresupuesto(
   presupuestoId: string,
   pago: Omit<PagoCliente, 'id'>
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
   const referencia = pago.referencia?.trim() || undefined;
@@ -415,6 +519,8 @@ export async function deletePagoFromPresupuesto(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
@@ -428,6 +534,45 @@ export interface ImportarPresupuestoOptions {
   eventoFechaOverride?: string;
 }
 
+type GuestBreakdown = {
+  adultos: number;
+  ninos: number;
+  adolescentes: number;
+  warnings: string[];
+};
+
+function parseImportedGuestBreakdown(texto: string, totalInvitados: number): GuestBreakdown {
+  const lower = texto.toLowerCase();
+  const warnings: string[] = [];
+
+  const readCount = (patterns: RegExp[]) => {
+    for (const pattern of patterns) {
+      const match = lower.match(pattern);
+      if (match) return Number(match[1] || match[2] || 0) || 0;
+    }
+    return 0;
+  };
+
+  const adultos = readCount([/(?:adultos?|mayores?)\D{0,20}(\d+)/, /(\d+)\s+(?:adultos?|mayores?)/]);
+  const ninos = readCount([/(?:niños?|ninos?|menores?|infantiles?)\D{0,20}(\d+)/, /(\d+)\s+(?:niños?|ninos?|menores?|infantiles?)/]);
+  const adolescentes = readCount([/(?:adolescentes?)\D{0,20}(\d+)/, /(\d+)\s+adolescentes?/]);
+  const menores = ninos + adolescentes;
+
+  if (adultos > 0 || menores > 0) {
+    const resolvedAdultos = adultos > 0 ? adultos : Math.max(0, totalInvitados - menores);
+    const resolvedTotal = resolvedAdultos + menores;
+    if (totalInvitados > 0 && resolvedTotal !== totalInvitados) {
+      warnings.push(`La importación detectó ${resolvedTotal} invitados discriminados, distinto al total ${totalInvitados}. Revisar adultos/niños.`);
+    }
+    return { adultos: resolvedAdultos, ninos, adolescentes, warnings };
+  }
+
+  if (totalInvitados > 0) {
+    warnings.push('No se detectó desglose de adultos/niños/adolescentes. Se mantiene el total como adultos para no inventar menores.');
+  }
+  return { adultos: totalInvitados, ninos: 0, adolescentes: 0, warnings };
+}
+
 export async function importarPresupuestoDesdeTexto(
   texto: string,
   options: ImportarPresupuestoOptions = {}
@@ -438,6 +583,8 @@ export async function importarPresupuestoDesdeTexto(
   warnings?: string[];
   error?: string;
 }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   if (!texto || texto.trim().length < 20) {
     return { success: false, error: 'El texto pegado está vacío o es demasiado corto.' };
   }
@@ -458,6 +605,8 @@ export async function importarPresupuestoDesdeTexto(
   const total = parsed.totalDeclarado;
   const senaPct = parsed.senaCondicion;
   const sena = options.senaManual !== undefined ? options.senaManual : Math.round(total * senaPct / 100);
+  const guestBreakdown = parseImportedGuestBreakdown(texto, parsed.invitadosCantidad);
+  parsed.warnings.push(...guestBreakdown.warnings);
 
   const notas = [
     parsed.notas,
@@ -471,9 +620,9 @@ export async function importarPresupuestoDesdeTexto(
     eventoTipo: parsed.eventoTipo || 'Otro',
     eventoFecha,
     invitadosCantidad: parsed.invitadosCantidad,
-    invitadosAdultos: parsed.invitadosCantidad,
-    invitadosNinos: 0,
-    invitadosAdolescentes: 0,
+    invitadosAdultos: guestBreakdown.adultos,
+    invitadosNinos: guestBreakdown.ninos,
+    invitadosAdolescentes: guestBreakdown.adolescentes,
     salonFiestas: parsed.salonFiestas || '',
     itemsPresupuestados: parsed.items as ItemPresupuestado[],
     costoTotalEstimado: total,
@@ -509,9 +658,9 @@ export async function importarPresupuestoDesdeTexto(
           tipoCelebracion: parsed.eventoTipo || 'Otro',
           fechaEvento: eventoFecha,
           invitadosEstimados: parsed.invitadosCantidad,
-          invitadosAdultos: parsed.invitadosCantidad,
-          invitadosNinos: 0,
-          invitadosAdolescentes: 0,
+          invitadosAdultos: guestBreakdown.adultos,
+          invitadosNinos: guestBreakdown.ninos,
+          invitadosAdolescentes: guestBreakdown.adolescentes,
           presupuestoEstimado: total,
           nombreLugar: parsed.salonFiestas || '',
           clienteId: presupuestoResult.leadId,
@@ -547,6 +696,8 @@ export async function importarPresupuestoDesdeTexto(
 export async function createFiestaFromPresupuesto(
   presupuestoId: string
 ): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
 
@@ -596,6 +747,8 @@ export async function approvePresupuesto(
   presupuestoId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const presupuestos = await getPresupuestos();
     const index = presupuestos.findIndex(p => p.id === presupuestoId);
     if (index === -1) return { success: false, error: 'Presupuesto no encontrado' };
@@ -625,9 +778,10 @@ export async function approvePresupuesto(
 
 export async function addPagoClienteFromPortal(
   presupuestoId: string,
-  pago: Omit<PagoCliente, 'id' | 'estadoPago'>
+  pago: Omit<PagoCliente, 'id' | 'estadoPago'>,
+  token?: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const presupuesto = await getPresupuestoById(presupuestoId);
+  const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
   const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
   if (!validation.ok) return { success: false, error: validation.error };
@@ -662,6 +816,8 @@ export async function confirmPagoCliente(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
@@ -695,6 +851,8 @@ export async function rejectPagoCliente(
   pagoId: string,
   motivo: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
@@ -726,6 +884,8 @@ export async function rejectPagoCliente(
 }
 
 export async function getPresupuestosWithPendingPayments(): Promise<Presupuesto[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const presupuestos = await getPresupuestos();
   return presupuestos.filter(p =>
     (p.pagosCliente || []).some(pago => pago.estadoPago === 'pendiente_confirmacion')
@@ -738,6 +898,8 @@ export async function getPresupuestosWithPendingPayments(): Promise<Presupuesto[
  */
 export async function resetAllPresupuestos(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const all = await getPresupuestos(true);
     const deletedIds = new Set(all.map(p => p.id));
     const deletedCount = all.length;

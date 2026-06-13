@@ -66,18 +66,14 @@ export function MainNav() {
       <SidebarContent className="px-6 gap-8 scrollbar-hide">
         {/* Quick Access Buttons */}
         <div className="flex gap-2">
-          <Link href="/fiestas/nueva" className="flex-1">
-            <Button className="w-full h-11 rounded-xl bg-gradient-to-r from-primary to-red-500 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-primary/20 font-bold text-[10px] uppercase tracking-wider transition-all duration-300 hover:scale-[1.02]">
+          <Button asChild className="w-full h-11 rounded-xl bg-gradient-to-r from-primary to-red-500 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-primary/20 font-bold text-[10px] uppercase tracking-wider transition-all duration-300 hover:scale-[1.02]"><Link href="/fiestas/nueva" className="flex-1">
               <PartyPopper className="w-4 h-4 mr-1.5" />
               Nueva Fiesta
-            </Button>
-          </Link>
-          <Link href="/presupuestos/nuevo" className="flex-1">
-            <Button variant="outline" className="w-full h-11 rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5 font-bold text-[10px] uppercase tracking-wider text-primary transition-all duration-300 hover:scale-[1.02]">
+            </Link></Button>
+          <Button asChild variant="outline" className="w-full h-11 rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5 font-bold text-[10px] uppercase tracking-wider text-primary transition-all duration-300 hover:scale-[1.02]"><Link href="/presupuestos/nuevo" className="flex-1">
               <CircleDollarSign className="w-4 h-4 mr-1.5" />
               Presupuesto
-            </Button>
-          </Link>
+            </Link></Button>
         </div>
 
         <SidebarMenu>

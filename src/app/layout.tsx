@@ -7,11 +7,8 @@ import './ak-release-polish.css';
 import './ak-internal-experience-polish.css';
 import './ak-no-red-experience.css';
 import './ak-budget-mobile-fixes.css';
-import { AppShell } from '@/components/app-shell';
-import { BudgetShareDock } from '@/components/presupuestos/budget-share-dock';
 import { Toaster } from "@/components/ui/toaster";
 import localFont from 'next/font/local';
-import { AuthGuard } from './auth-guard';
 
 const inter = localFont({
   src: [
@@ -85,10 +82,7 @@ export default function RootLayout({
       <head>
       </head>
       <body className={`font-body antialiased`}>
-        <AuthGuard>
-          <AppShell>{children}</AppShell>
-          <BudgetShareDock />
-        </AuthGuard>
+        {children}
         <Toaster />
       </body>
     </html>

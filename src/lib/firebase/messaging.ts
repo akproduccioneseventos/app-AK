@@ -7,6 +7,23 @@ import type { Messaging } from 'firebase/messaging';
 
 let messagingInstance: Messaging | null = null;
 
+export const FCM_SERVICE_WORKER_URL = '/firebase-messaging-sw.js';
+export const FCM_SERVICE_WORKER_SCOPE = '/firebase-cloud-messaging-push-scope';
+
+async function registerFcmServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+  try {
+    return await navigator.serviceWorker.register(FCM_SERVICE_WORKER_URL, {
+      scope: FCM_SERVICE_WORKER_SCOPE,
+      updateViaCache: 'none',
+    });
+  } catch (err: unknown) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[FCM] Service worker registration failed:', (err as Error)?.message);
+    }
+    return null;
+  }
+}
+
 /**
  * Lazily initialize and return the FCM Messaging instance.
  * Returns null if FCM is not supported or not configured in this environment.
@@ -52,13 +69,15 @@ export async function requestAndSaveFcmToken(userId?: string): Promise<string | 
     if (!messaging) return null;
 
     const { getToken } = await import('firebase/messaging');
+    const serviceWorkerRegistration = await registerFcmServiceWorker();
+    if (!serviceWorkerRegistration) return null;
 
     // VAPID key should be set in env; fall back to undefined (tokens still work without it for basic FCM)
     const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || undefined;
 
     const token = await getToken(messaging, {
       vapidKey,
-      serviceWorkerRegistration: await navigator.serviceWorker.ready,
+      serviceWorkerRegistration,
     });
 
     if (!token) return null;

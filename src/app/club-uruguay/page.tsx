@@ -65,16 +65,12 @@ export default async function ClubUruguayPublicPage() {
                   <MessageCircle className="mr-2 h-5 w-5" /> Consultar por WhatsApp
                 </Button>
               </a>
-              <Link href="/simulador-de-presupuesto">
-                <Button variant="outline" className="h-12 rounded-xl border-slate-300 bg-white px-6 font-black text-slate-900 hover:bg-slate-50">
+              <Button asChild variant="outline" className="h-12 rounded-xl border-slate-300 bg-white px-6 font-black text-slate-900 hover:bg-slate-50"><Link href="/simulador-de-presupuesto">
                   Simular presupuesto
-                </Button>
-              </Link>
-              <Link href="/presentacion-led">
-                <Button variant="outline" className="h-12 rounded-xl border-red-200 bg-red-50 px-6 font-black text-red-700 hover:bg-red-100">
+                </Link></Button>
+              <Button asChild variant="outline" className="h-12 rounded-xl border-red-200 bg-red-50 px-6 font-black text-red-700 hover:bg-red-100"><Link href="/presentacion-led">
                   <MonitorPlay className="mr-2 h-5 w-5" /> Ver presentacion LED
-                </Button>
-              </Link>
+                </Link></Button>
             </div>
           </div>
 

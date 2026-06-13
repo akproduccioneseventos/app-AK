@@ -3,7 +3,7 @@
 
 import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
-import { saveCustomer } from '@/app/actions/customers'; 
+import { saveCustomer, getCustomers } from '@/app/actions/customers'; 
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
@@ -13,6 +13,7 @@ import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import * as logger from '@/lib/logger';
 import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
+import { verifySession } from '@/lib/auth/session-token';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -65,6 +66,8 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 }
 
 export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
   const decoratedLeads = await (async () => {
     try {
@@ -98,10 +101,14 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
 }
 
 export async function getCrmLeadsForDashboard(): Promise<CrmLead[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   return readData<CrmLead[]>(LEADS_FILE, []);
 }
 
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
   const nameOnlyLetters = nameCleaned.replace(/\p{Emoji}/gu, '').replace(/\d/g, '').trim();
   if (nameCleaned.length < 3) {
@@ -193,6 +200,8 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
 }
 
 export async function moveCrmLead(leadId: string, newStageId: string, meetingDate?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   let leads = await getCrmLeads();
   const index = leads.findIndex(l => l.id === leadId);
   if (index === -1) return { success: false, error: "No encontrado" };
@@ -206,6 +215,8 @@ export async function moveCrmLead(leadId: string, newStageId: string, meetingDat
 }
 
 export async function scheduleCrmMeeting(leadId: string, date: string, title?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     let leads = await getCrmLeads();
     const index = leads.findIndex(l => l.id === leadId);
     if (index === -1) return { success: false, error: "Prospecto no encontrado" };
@@ -222,6 +233,8 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
 }
 
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     let leads = await getCrmLeads();
     const initialLength = leads.length;
     leads = leads.filter(l => l.id !== leadId);
@@ -236,6 +249,8 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
  */
 export async function resetCrm(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
     try {
+        const auth = await verifySession();
+        if (!auth.success) return { success: false, error: auth.error };
         const leads = await getCrmLeads();
         const deletedCount = leads.length;
 
@@ -272,6 +287,8 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
 }
 
 export async function recordWhatsAppContact(leadId: string, message: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const leads = await getCrmLeads();
     const index = leads.findIndex(l => l.id === leadId);
     if (index === -1) return { success: false, error: "Prospecto no encontrado" };
@@ -301,6 +318,8 @@ export async function updateCrmLeadField(
     leadId: string,
     fields: Partial<Pick<CrmLead, 'assignedTo' | 'notes' | 'followUpDate'>>
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const leads = await getCrmLeads();
     const index = leads.findIndex(l => l.id === leadId);
     if (index === -1) return { success: false, error: "Prospecto no encontrado" };
@@ -311,6 +330,8 @@ export async function updateCrmLeadField(
 }
 
 export async function checkDuplicatePhone(phone: string): Promise<{ duplicate: CrmLead | null }> {
+    const auth = await verifySession();
+    if (!auth.success) throw new Error('No autorizado');
     if (!phone) return { duplicate: null };
     const leads = await getCrmLeads();
     const normalized = normalizePhone(phone);
@@ -386,6 +407,8 @@ export async function registerContractDeposit(params: {
 
 export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const leadId = formData.get('leadId') as string;
     const presupuestoId = formData.get('presupuestoId') as string;
     const contractFile = formData.get('contract') as File | null;
@@ -411,14 +434,24 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       throw new Error('El archivo de contrato debe ser un PDF.');
     }
 
-    const [leads, presupuesto, stages] = await Promise.all([
+    const [leads, presupuesto, stages, customersList, fiestas] = await Promise.all([
       getCrmLeads(),
       getPresupuestoById(presupuestoId),
-      getCrmStages()
+      getCrmStages(),
+      getCustomers(),
+      getFiestas(true)
     ]);
 
     const lead = leads.find(l => l.id === leadId);
     if (!lead || !presupuesto) throw new Error('Datos no encontrados');
+
+    // Idempotency: Check if a Fiesta for this budget already exists
+    const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
+    if (existingFiesta) {
+      logger.info(`[CRM] Reservación ya confirmada para presupuestoId ${presupuestoId}. Retornando fiesta existente: ${existingFiesta.id}`);
+      return { success: true, fiestaId: existingFiesta.id };
+    }
+
     const conversionStage = stages.find(s => s.isConversionStage);
 
     // Usar datos del formulario cuando estén disponibles; fallback a los datos del lead/presupuesto
@@ -442,23 +475,29 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     }
 
     // 2. Create Customer with overridden form data
-    const customerResult = await saveCustomer({
-      name: finalName,
-      phone: finalPhone,
-      companyName: finalCompanyName || undefined,
-      taxId: finalTaxId || undefined,
-      ci,
-      address,
-      estadoCliente: 'Actual',
-      partyDate: finalFechaEvento,
-      partyType: presupuesto.eventoTipo,
-      venueName: finalSalon,
-      guestCount: presupuesto.invitadosCantidad,
-      ...(contractFileName ? { contractFileName } : {}),
-      presupuestoId: presupuesto.id,
-    } as any, { skipFiestaCreation: true });
+    const existingCustomer = customersList.find(c => c.presupuestoId === presupuestoId);
+    let customerId = existingCustomer?.id;
 
-    if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
+    if (!customerId) {
+      const customerResult = await saveCustomer({
+        name: finalName,
+        phone: finalPhone,
+        companyName: finalCompanyName || undefined,
+        taxId: finalTaxId || undefined,
+        ci,
+        address,
+        estadoCliente: 'Actual',
+        partyDate: finalFechaEvento,
+        partyType: presupuesto.eventoTipo,
+        venueName: finalSalon,
+        guestCount: presupuesto.invitadosCantidad,
+        ...(contractFileName ? { contractFileName } : {}),
+        presupuestoId: presupuesto.id,
+      } as any, { skipFiestaCreation: true });
+
+      if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
+      customerId = customerResult.id;
+    }
 
     // 3. Construir info de firma del contrato
     const now = new Date().toISOString();
@@ -506,7 +545,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       contratoFirmaInfo,
       configuracion: {
         ...initialFiestaActualData.configuracion,
-        clienteId: customerResult.id,
+        clienteId: customerId,
         nombreEvento: `${presupuesto.eventoTipo} de ${finalName}`,
         fechaEvento: finalFechaEvento,
         nombreLugar: finalSalon,
@@ -577,33 +616,50 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
 
 export async function confirmBooking(leadId: string, presupuestoId: string, archiveLead = false): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
-    const [leads, presupuesto, stages] = await Promise.all([
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
+    const [leads, presupuesto, stages, customersList, fiestas] = await Promise.all([
       getCrmLeads(),
       getPresupuestoById(presupuestoId),
-      getCrmStages()
+      getCrmStages(),
+      getCustomers(),
+      getFiestas(true)
     ]);
 
     const lead = leads.find(l => l.id === leadId);
     if (!lead || !presupuesto) throw new Error("Datos no encontrados");
 
+    // Idempotency: Check if a Fiesta for this budget already exists
+    const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
+    if (existingFiesta) {
+      logger.info(`[CRM] Reservación ya confirmada para presupuestoId ${presupuestoId}. Retornando fiesta existente: ${existingFiesta.id}`);
+      return { success: true, fiestaId: existingFiesta.id };
+    }
+
     const conversionStage = stages.find(s => s.isConversionStage);
 
     // 1. Crear Cliente con datos completos del presupuesto y lead
     //    Skip automatic fiesta creation - we create the fiesta manually below with budget data
-    const customerResult = await saveCustomer({
-      name: lead.name,
-      phone: lead.phone,
-      companyName: (lead as any).companyName || (presupuesto as any).clienteEmpresa || undefined,
-      taxId: (lead as any).taxId || undefined,
-      estadoCliente: 'Actual',
-      partyDate: presupuesto.eventoFecha,
-      partyType: presupuesto.eventoTipo,
-      venueName: presupuesto.salonFiestas,
-      guestCount: presupuesto.invitadosCantidad,
-      presupuestoId: presupuesto.id,
-    } as any, { skipFiestaCreation: true });
+    const existingCustomer = customersList.find(c => c.presupuestoId === presupuestoId);
+    let customerId = existingCustomer?.id;
 
-    if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
+    if (!customerId) {
+      const customerResult = await saveCustomer({
+        name: lead.name,
+        phone: lead.phone,
+        companyName: (lead as any).companyName || (presupuesto as any).clienteEmpresa || undefined,
+        taxId: (lead as any).taxId || undefined,
+        estadoCliente: 'Actual',
+        partyDate: presupuesto.eventoFecha,
+        partyType: presupuesto.eventoTipo,
+        venueName: presupuesto.salonFiestas,
+        guestCount: presupuesto.invitadosCantidad,
+        presupuestoId: presupuesto.id,
+      } as any, { skipFiestaCreation: true });
+
+      if (!customerResult.success || !customerResult.id) throw new Error(customerResult.error);
+      customerId = customerResult.id;
+    }
 
     // 2. Crear Fiesta
     const newFiesta: FiestaEnPlanificacion = {
@@ -613,7 +669,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
       presupuestoId: presupuesto.id,
       configuracion: {
         ...initialFiestaActualData.configuracion,
-        clienteId: customerResult.id,
+        clienteId: customerId,
         nombreEvento: `${presupuesto.eventoTipo} de ${lead.name}`,
         fechaEvento: presupuesto.eventoFecha,
         nombreLugar: presupuesto.salonFiestas,
@@ -651,6 +707,8 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 }
 
 export async function getCrmKpiData() {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const [leads, presupuestos] = await Promise.all([getCrmLeads(), readData<any[]>('presupuestos.json', []).catch(() => [])]);
     const activeLeads = leads.filter(l => l.currentStageId !== 's4' && l.currentStageId !== 's5');
     const pipelineValue = (presupuestos || [])

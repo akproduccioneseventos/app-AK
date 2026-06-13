@@ -23,6 +23,7 @@ export function mergeClientPortalSettingsForSync(current?: ClientPortalSettings)
     invitados: { ...existing.invitados, visible: true },
     fotografiaYFilmacion: { ...existing.fotografiaYFilmacion, visible: true },
     moodboard: { ...existing.moodboard, visible: true, editable: true },
+    buzon: { ...existing.buzon, visible: true, editable: true },
     contrato: { ...existing.contrato, visible: true },
     pagos: { ...existing.pagos, visible: true },
     calculadoraBebidas: { items: defaultClientPortalSettings.calculadoraBebidas?.items ?? [], ...existing.calculadoraBebidas, visible: true },

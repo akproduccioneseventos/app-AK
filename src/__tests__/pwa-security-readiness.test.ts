@@ -11,6 +11,7 @@ describe('PWA and practical security readiness', () => {
     delete process.env.AK_SESSION_SECRET;
     delete process.env.AUTH_SESSION_SECRET;
     delete process.env.SESSION_SECRET;
+    delete process.env.GOOGLE_API_KEY;
   });
 
   afterAll(() => {
@@ -33,6 +34,13 @@ describe('PWA and practical security readiness', () => {
 
   it('keeps longer sessions only when a private secret exists', () => {
     process.env.AK_SESSION_SECRET = 'private-local-test-secret';
+
+    expect(hasPrivateSessionSecret()).toBe(true);
+    expect(getSessionMaxAgeSeconds()).toBe(60 * 60 * 24 * 7);
+  });
+
+  it('uses the private App Hosting Google key when a dedicated session secret is absent', () => {
+    process.env.GOOGLE_API_KEY = 'private-app-hosting-secret';
 
     expect(hasPrivateSessionSecret()).toBe(true);
     expect(getSessionMaxAgeSeconds()).toBe(60 * 60 * 24 * 7);

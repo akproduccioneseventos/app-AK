@@ -678,6 +678,7 @@ export interface ClientPortalSettings {
   paginaPublica: PortalViewOnlyModuleSettings;
   fotografiaYFilmacion: PortalViewOnlyModuleSettings;
   moodboard: PortalModuleSettings;
+  buzon: PortalModuleSettings;
   contrato: PortalViewOnlyModuleSettings;
   pagos: PortalViewOnlyModuleSettings;
   simuladorInvitados: SimuladorInvitadosSettings;
@@ -732,6 +733,7 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
+  privateDedicationsMode?: boolean;
   requireApproval?: boolean;
   marketingTickerText?: string;
   /** Whether the marketing ticker (social/network footer bar) is enabled */
@@ -800,7 +802,7 @@ export interface SocialGalleryBrand {
 }
 
 export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';
-export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico';
+export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico' | 'pauta';
 
 export type TotemLayoutMode = 'portrait' | 'landscape' | 'square';
 export type TotemBackgroundMode = 'aurora' | 'spotlights' | 'particles' | 'photo-float' | 'social-rain';
@@ -1016,6 +1018,12 @@ export interface CargaOperativaItem {
   cantidad: string; 
   cargado: boolean;
   retornado?: boolean;
+  cargadoAt?: string;
+  cargadoPor?: string;
+  retornadoAt?: string;
+  retornadoPor?: string;
+  actualizadoAt?: string;
+  actualizadoPor?: string;
   notas?: string;
   origenId?: string; 
   unidad?: string;
@@ -1035,6 +1043,8 @@ export interface ListaDeCargaOperativa {
   name?: string;
   categorias: CargaOperativaCategoria[];
   notasGenerales?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface CostoItem {
@@ -1184,6 +1194,7 @@ export interface GuestPortalSettings {
   showMusica: boolean;
   showRegalos: boolean;
   showCheckin: boolean;
+  showBuzon?: boolean;
   welcomeMessage?: string;
   customBgColor?: string;
   customAccentColor?: string;
@@ -1418,6 +1429,13 @@ export interface FiestaEnPlanificacion {
   clienteDebeLlevar?: ClienteDebeLlevarItem[];
   guestExperienceSettings?: GuestExperienceSettings;
   clientePortalExperience?: ClientePortalExperience;
+  buzonConfig?: BuzonConfig;
+}
+
+export interface BuzonConfig {
+  welcomeAudioUrl?: string;
+  welcomeAudioPath?: string;
+  enabled?: boolean;
 }
 
 export interface ContratoFirmaInfo {
@@ -1593,6 +1611,7 @@ export interface ClientPaymentNotification {
   id: string;
   monto: number;
   comprobanteBase64?: string; // base64 encoded receipt image
+  comprobanteUrl?: string; // Firebase Storage path
   comprobanteNombre?: string;
   estado: 'pendiente' | 'aprobado' | 'rechazado';
   timestamp: string;

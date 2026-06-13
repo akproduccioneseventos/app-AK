@@ -4,13 +4,19 @@
 
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
-import { addPagoToPresupuesto } from '../presupuestos';
+import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '../presupuestos';
 import { createNotification } from '../notifications';
 import {
   notifyClientPaymentApproved,
   notifyClientPaymentRejected,
   notifyClientPaymentSubmitted,
 } from '../google-workspace-extended';
+import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
+import { sanitizeActionError } from '@/lib/utils';
+import { uploadToStorage } from '@/lib/firebase/storage';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
+
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
 
@@ -35,7 +41,7 @@ async function updateFiestaData(
     return { success: true };
   } catch (e: any) {
     console.error("Error updating fiesta data in portal.actions:", e.message);
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -46,7 +52,24 @@ function createRequestId(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
+
+export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaByIdRaw(fiestaId);
+    if (!fiesta || !fiesta.clientPortalSettings?.enabled || fiesta.clientPortalSettings.accessKey !== accessKey) {
+      return { success: false, error: 'Acceso denegado.' };
+    }
+    setPortalSessionCookie(fiestaId, accessKey);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+
 export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   return updateFiestaData(fiestaId, data => ({ ...data, clientChecklist: checklist }));
 }
 
@@ -55,6 +78,7 @@ export async function updateClientChecklistItem(
   itemId: string,
   completed: boolean
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, data => {
     const currentChecklist = data.clientChecklist ?? [];
     return {
@@ -81,6 +105,7 @@ export async function updateClientChecklistItem(
 }
 
 export async function updateClientNotes(fiestaId: string, notes: string) {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, data => ({ ...data, clientNotes: notes }));
   if (result.success) {
     await createNotification({
@@ -167,6 +192,7 @@ export async function submitClientPayment(
   comprobanteBase64?: string,
   comprobanteNombre?: string
 ): Promise<{ success: boolean; notificationId?: string; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const safeMonto = normalizeClientPaymentAmount(monto);
     if (safeMonto <= 0) return { success: false, error: 'Monto inválido' };
@@ -174,10 +200,30 @@ export async function submitClientPayment(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
+    let comprobanteUrl = undefined;
+    if (comprobanteBase64) {
+      try {
+        const matches = comprobanteBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+          const filename = comprobanteNombre || 'comprobante.png';
+          const docId = `cpn_${crypto.randomUUID()}`;
+          const storagePath = `payments/${fiestaId}/${docId}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+          
+          await uploadToStorage(buffer, storagePath, mimeType, false);
+          comprobanteUrl = storagePath;
+        }
+      } catch (uploadError) {
+        console.error('[Portal Action] Failed to upload receipt to Storage:', uploadError);
+      }
+    }
+
     const notification: ClientPaymentNotification = {
       id: `cpn_${crypto.randomUUID()}`,
       monto: safeMonto,
-      comprobanteBase64,
+      comprobanteUrl, // Store only the path!
       comprobanteNombre,
       estado: 'pendiente',
       timestamp: new Date().toISOString(),
@@ -205,7 +251,7 @@ export async function submitClientPayment(
 
     return { success: true, notificationId: notification.id };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -219,6 +265,7 @@ export async function submitClientMenuChangeRequest(
     notaCliente?: string;
   }
 ): Promise<{ success: boolean; requestId?: string; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   try {
     if (payload.adultosDelta <= 0 && payload.ninosAdolescentesDelta <= 0) {
       return { success: false, error: 'No hay cambios para solicitar.' };
@@ -252,7 +299,7 @@ export async function submitClientMenuChangeRequest(
 
     return { success: true, requestId };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -270,6 +317,7 @@ export async function submitClientServiceAddRequest(
     notaCliente?: string;
   }
 ): Promise<{ success: boolean; requestId?: string; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const cantidad = Math.max(1, Math.round(Number(payload.cantidad) || 1));
     const montoAdicional = normalizeClientPaymentAmount(payload.montoAdicional);
@@ -309,7 +357,7 @@ export async function submitClientServiceAddRequest(
 
     return { success: true, requestId };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -318,15 +366,14 @@ export async function approveClientPayment(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
     const notifications = fiesta.clientPaymentNotifications ?? [];
-    const notifIndex = notifications.findIndex(n => n.id === notificationId);
-    if (notifIndex === -1) return { success: false, error: 'Notificación no encontrada' };
-
-    const notif = notifications[notifIndex];
-    if (notif.estado === 'aprobado') return { success: true };
+    const initialTransition = transitionPaymentNotification(notifications, notificationId, 'aprobado');
+    const notif = initialTransition.notification;
+    if (!initialTransition.changed) return { success: true };
 
     // First register the money. If the budget rejects it (for example over saldo),
     // keep the notification pending so it can be reviewed correctly.
@@ -342,21 +389,20 @@ export async function approveClientPayment(
       }
     }
 
-    const updatedNotif: ClientPaymentNotification = {
-      ...notif,
-      estado: 'aprobado',
-      approvedAt: new Date().toISOString(),
-    };
-
-    const updatedNotifications = notifications.map((n, i) =>
-      i === notifIndex ? updatedNotif : n
-    );
-
-    const updated: FiestaEnPlanificacion = {
-      ...fiesta,
-      clientPaymentNotifications: updatedNotifications,
-    };
-    await saveFiesta(updated);
+    let updatedNotif = initialTransition.notification;
+    const updateResult = await updateFiestaData(fiestaId, currentFiesta => {
+      const transition = transitionPaymentNotification(
+        currentFiesta.clientPaymentNotifications ?? [],
+        notificationId,
+        'aprobado'
+      );
+      updatedNotif = transition.notification;
+      return {
+        ...currentFiesta,
+        clientPaymentNotifications: transition.notifications,
+      };
+    });
+    if (!updateResult.success) return updateResult;
 
     notifyClientPaymentApproved(fiestaId, updatedNotif).catch((error) => {
       console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);
@@ -364,7 +410,7 @@ export async function approveClientPayment(
 
     return { success: true };
   } catch (e: any) {
-    return { success: false, error: e.message };
+    return { success: false, error: sanitizeActionError(e) };
   }
 }
 
@@ -372,22 +418,34 @@ export async function rejectClientPayment(
   fiestaId: string,
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
-  let rejectedNotification: ClientPaymentNotification | undefined;
-  const result = await updateFiestaData(fiestaId, fiesta => {
-    const updated = (fiesta.clientPaymentNotifications ?? []).map(n =>
-      n.id === notificationId ? { ...n, estado: 'rechazado' as const } : n
-    );
-    rejectedNotification = updated.find(n => n.id === notificationId);
-    return { ...fiesta, clientPaymentNotifications: updated };
-  });
-
-  if (result.success && rejectedNotification) {
-    notifyClientPaymentRejected(fiestaId, rejectedNotification).catch((error) => {
-      console.warn('[Google Workspace] No se pudo enviar mail de pago rechazado:', error);
+  try {
+    await requireAppSession();
+    let updatedNotif: ClientPaymentNotification | null = null;
+    let changed = false;
+    const result = await updateFiestaData(fiestaId, currentFiesta => {
+      const transition = transitionPaymentNotification(
+        currentFiesta.clientPaymentNotifications ?? [],
+        notificationId,
+        'rechazado'
+      );
+      updatedNotif = transition.notification;
+      changed = transition.changed;
+      return {
+        ...currentFiesta,
+        clientPaymentNotifications: transition.notifications,
+      };
     });
-  }
 
-  return result;
+    if (result.success && updatedNotif && changed) {
+      notifyClientPaymentRejected(fiestaId, updatedNotif).catch((error) => {
+        console.warn('[Google Workspace] No se pudo enviar mail de pago rechazado:', error);
+      });
+    }
+
+    return result;
+  } catch (e: any) {
+    return { success: false, error: sanitizeActionError(e) };
+  }
 }
 
 /**
@@ -399,6 +457,7 @@ export async function updatePortalGuestRsvp(
   invitadoId: string,
   rsvp: import('@/types/fiesta').RsvpStatus
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => {
     const invitados = (fiesta.invitados ?? []).map(inv =>
       inv.id === invitadoId ? { ...inv, rsvp } : inv
@@ -430,6 +489,7 @@ export async function saveMenuSeleccion(
   fiestaId: string,
   menuSeleccion: MenuSeleccionPortal
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     menuSeleccionPortal: {
@@ -452,6 +512,7 @@ export async function saveListaMusica(
   fiestaId: string,
   listaMusica: ListaMusicaPortal
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     listaMusicaPortal: {
@@ -474,6 +535,7 @@ export async function addClientMusicSuggestion(
   listKey: keyof ListaMusicaPortal,
   suggestion: string
 ): Promise<{ success: boolean; error?: string }> {
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
   const value = suggestion.trim();
   if (!value) return { success: false, error: 'Sugerencia vacía' };
 
@@ -502,3 +564,130 @@ export async function addClientMusicSuggestion(
   }
   return result;
 }
+
+export async function approveClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientMenuChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'aprobada';
+
+    fiesta.configuracion.invitadosEstimados = (fiesta.configuracion.invitadosEstimados ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta;
+    if (fiesta.presupuestoId) {
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        presupuesto.invitadosCantidad = (presupuesto.invitadosCantidad ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta;
+        presupuesto.totalConDescuento = (presupuesto.totalConDescuento ?? 0) + request.montoAdicional;
+        presupuesto.totalFinal = (presupuesto.totalFinal ?? 0) + request.montoAdicional;
+        await updatePresupuesto(presupuesto);
+      }
+    }
+
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function rejectClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientMenuChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'rechazada';
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientServiceChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'aprobada';
+
+    if (fiesta.presupuestoId) {
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        const items = presupuesto.itemsPresupuestados ?? [];
+        items.push({
+          idServicioCatalogo: request.servicioId,
+          nombreServicio: request.nombreServicio,
+          categoriaServicio: request.categoria ?? 'Otros Servicios',
+          cantidad: request.cantidad,
+          precioUnitario: request.precioBase,
+          precioUnitarioPresupuesto: request.precioBase,
+          costoTotalItem: request.montoAdicional,
+        });
+        presupuesto.itemsPresupuestados = items;
+        presupuesto.totalConDescuento = (presupuesto.totalConDescuento ?? 0) + request.montoAdicional;
+        presupuesto.totalFinal = (presupuesto.totalFinal ?? 0) + request.montoAdicional;
+        await updatePresupuesto(presupuesto);
+      }
+    }
+
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function rejectClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientServiceChangeRequests ?? [];
+    const requestIndex = requests.findIndex(r => r.id === requestId);
+    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[requestIndex];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    request.status = 'rechazada';
+    await saveFiesta(fiesta);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function getBudgetTokenForPortal(fiestaId: string): Promise<string | null> {
+  const { verifyPortalSession } = await import('@/lib/security/portal-session');
+  if (!verifyPortalSession(fiestaId)) {
+    return null;
+  }
+  const fiesta = await getFiestaByIdRaw(fiestaId);
+  if (!fiesta || !fiesta.presupuestoId) {
+    return null;
+  }
+  const { generateBudgetToken } = await import('@/lib/auth/session-token');
+  return await generateBudgetToken(fiesta.presupuestoId);
+}
+

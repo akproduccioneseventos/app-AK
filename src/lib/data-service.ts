@@ -11,6 +11,31 @@ import * as logger from './logger';
 
 const BACKUP_EXCLUDED_FILES = new Set(['_backup-snapshots.json']);
 
+export interface WriteDataOptions {
+  skipAutoBackup?: boolean;
+}
+
+async function scheduleAutoBackupAfterWrite(normalizedFilePath: string, options?: WriteDataOptions): Promise<void> {
+  if (options?.skipAutoBackup || BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) return;
+
+  const backupTask = import('@/app/actions/backup')
+    .then(({ triggerAutoBackup }) => triggerAutoBackup())
+    .catch((err) => logger.warn('[data-service] Auto-backup trigger failed:', err));
+
+  try {
+    const { getBuiltinRequestContext } = await import('next/dist/server/lib/builtin-request-context');
+    const waitUntil = getBuiltinRequestContext()?.waitUntil;
+    if (waitUntil) {
+      waitUntil(backupTask);
+      return;
+    }
+  } catch (error) {
+    logger.warn('[data-service] Request context unavailable for auto-backup:', error);
+  }
+
+  void backupTask;
+}
+
 async function readLocalJsonFallback<T>(normalizedFilePath: string): Promise<T | null> {
   try {
     const fs = await import('fs/promises');
@@ -65,7 +90,12 @@ export async function readData<T>(filePath: string, defaultValue: T): Promise<T>
   return defaultValue;
 }
 
-export async function writeData<T>(filePath: string, data: T, sortFn?: (a: any, b: any) => number): Promise<void> {
+export async function writeData<T>(
+  filePath: string,
+  data: T,
+  sortFn?: (a: any, b: any) => number,
+  options?: WriteDataOptions,
+): Promise<void> {
   if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
 
   const normalizedFilePath = filePath.replace(/\\/g, '/');
@@ -85,14 +115,47 @@ export async function writeData<T>(filePath: string, data: T, sortFn?: (a: any, 
     throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
   }
 
-  if (!BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) {
-    import('@/app/actions/backup')
-      .then(({ triggerAutoBackup }) => triggerAutoBackup())
-      .catch((err) => logger.warn('[writeData] Auto-backup trigger failed silently:', err));
-  }
+  await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
 }
 
-export async function updateDataPartial<T extends Record<string, any>>(filePath: string, partialData: Partial<T>): Promise<void> {
+function deepMerge(target: any, source: any): any {
+  if (Array.isArray(target) && Array.isArray(source)) {
+    const merged = [...target];
+    source.forEach((sourceItem, index) => {
+      if (sourceItem && typeof sourceItem === 'object' && 'id' in sourceItem && sourceItem.id) {
+        const targetIndex = merged.findIndex(item => item && typeof item === 'object' && 'id' in item && item.id === sourceItem.id);
+        if (targetIndex > -1) {
+          merged[targetIndex] = deepMerge(merged[targetIndex], sourceItem);
+        } else {
+          merged.push(sourceItem);
+        }
+      } else if (index < merged.length) {
+        merged[index] = deepMerge(merged[index], sourceItem);
+      } else {
+        merged.push(sourceItem);
+      }
+    });
+    return merged;
+  }
+  if (target && typeof target === 'object' && source && typeof source === 'object') {
+    const result = { ...target };
+    for (const key of Object.keys(source)) {
+      if (key in target) {
+        result[key] = deepMerge(target[key], source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+    return result;
+  }
+  return source;
+}
+
+export async function updateDataPartial<T extends Record<string, any>>(
+  filePath: string,
+  partialData: Partial<T>,
+  options?: WriteDataOptions,
+): Promise<void> {
   if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
 
   const normalizedFilePath = filePath.replace(/\\/g, '/');
@@ -104,7 +167,7 @@ export async function updateDataPartial<T extends Record<string, any>>(filePath:
     // 2. Actualización local JSON (Merge manual)
     if (isSafeTopLevelJsonFile(normalizedFilePath)) {
       const existing = await readGenericJsonFile(normalizedFilePath) as Record<string, any> || {};
-      const merged = { ...existing, ...partialData };
+      const merged = deepMerge(existing, partialData);
       await syncGenericJsonFile(normalizedFilePath, merged);
     }
   } catch (err) {
@@ -112,9 +175,5 @@ export async function updateDataPartial<T extends Record<string, any>>(filePath:
     throw new Error(`Error al actualizar datos en Firestore: ${err instanceof Error ? err.message : err}`);
   }
 
-  if (!BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) {
-    import('@/app/actions/backup')
-      .then(({ triggerAutoBackup }) => triggerAutoBackup())
-      .catch((err) => logger.warn('[updateDataPartial] Auto-backup trigger failed silently:', err));
-  }
+  await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
 }

@@ -43,6 +43,7 @@ export const ALL_TIPOS_EVENTO: (TipoEvento | 'Otro')[] = ['Boda', 'XV años', 'C
 export interface ItemPresupuestado {
   idServicioCatalogo: string;
   nombreServicio: string;
+  nombre?: string;
   descripcionServicio?: string;
   cantidad: number;
   unidad?: string;
@@ -103,6 +104,7 @@ export interface Presupuesto {
   fechaFirmaContrato?: string; // ISO date de firma del contrato
   archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
   archivedAt?: string; // ISO timestamp of archival
+  totalFinal?: number; // Added to resolve build error on approvals / client requests
 }
 
 // FormData for the new unified builder.

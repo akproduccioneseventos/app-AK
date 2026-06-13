@@ -8,6 +8,7 @@ import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 import { createNotification } from './notifications';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import * as logger from '@/lib/logger';
+import { verifySession } from '@/lib/auth/session-token';
 
 const CUSTOMERS_FILE = 'customers.json';
 
@@ -18,10 +19,14 @@ const STORAGE_SALON_CONTRACTS_PATH = 'salon-contracts';
 
 
 export async function getCustomers(): Promise<Customer[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   return readData<Customer[]>(CUSTOMERS_FILE, []);
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const customers = await getCustomers();
   return customers.find(c => c.id === id) || null;
 }
@@ -30,6 +35,8 @@ export async function saveCustomer(
   customerData: Omit<Customer, 'id'> | Customer | FormData,
   options?: { skipFiestaCreation?: boolean }
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   let customers = await getCustomers();
   let customerId: string;
   let customerToSave: Partial<Customer> = {}; 
@@ -206,6 +213,8 @@ export async function saveCustomer(
 
 
 export async function deleteCustomer(id: string): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   let customers = await getCustomers();
   const customerToDelete = customers.find(c => c.id === id);
   const initialLength = customers.length;
@@ -252,18 +261,24 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
 }
 
 export async function getContractFilePath(filename: string): Promise<string | null> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   // filename may now be a Firebase Storage URL — return it directly
   if (filename.startsWith('https://')) return filename;
   return null;
 }
 
 export async function getBudgetFilePath(filename: string): Promise<string | null> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   // filename may now be a Firebase Storage URL — return it directly
   if (filename.startsWith('https://')) return filename;
   return null;
 }
 
 export async function getSalonContractFilePath(filename: string): Promise<string | null> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   // filename may now be a Firebase Storage URL — return it directly
   if (filename.startsWith('https://')) return filename;
   return null;
@@ -273,6 +288,8 @@ export async function syncCustomerFromFiestaConfig(
   customerId: string,
   config: Partial<import('@/types/fiesta').ConfigEventoDataStorage>
 ): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
   const customerToUpdate = await getCustomerById(customerId);
   if (!customerToUpdate) {
     return { success: false, error: `Customer with ID ${customerId} not found for sync.` };
@@ -326,6 +343,8 @@ export async function syncCustomerFromFiestaConfig(
  */
 export async function resetAllCustomers(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const all = await getCustomers();
     const deletedCount = all.length;
 
@@ -350,6 +369,8 @@ export async function resetAllCustomers(): Promise<{ success: boolean; deletedCo
 }
 
 export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget' | 'salonContract', filename: string): Promise<{ success: boolean, error?: string}> {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
     const customers = await getCustomers();
     const customerIndex = customers.findIndex(c => c.id === customerId);
     if (customerIndex === -1) {

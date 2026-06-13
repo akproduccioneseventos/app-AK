@@ -154,6 +154,33 @@ export default function EventoHubPage() {
             </div>
           </Link>
 
+          <Link href={`/evento/touchpix/${fiestaId}`} className="group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between aspect-square bg-gradient-to-br from-fuchsia-600 to-purple-800 shadow-xl hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(217,70,239,0.4)] transition-all duration-300">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+            <div className="relative z-10 flex justify-between items-start">
+              <span className="text-5xl drop-shadow-md group-hover:scale-110 transition-transform duration-300">🪄</span>
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-bold text-white shadow-inner">
+                <span className="animate-pulse">✨</span>
+                CON IA
+              </div>
+            </div>
+            <div className="relative z-10 mt-auto pt-4">
+              <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-1">Touchpix</h2>
+              <p className="text-fuchsia-100 font-medium text-sm leading-tight">7 temas + Face Swap con IA</p>
+            </div>
+          </Link>
+
+          {fiesta.guestPortalSettings?.showBuzon !== false && (
+            <Link href={`/evento/buzon/${fiestaId}`} className="group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between aspect-square bg-gradient-to-br from-violet-600 to-fuchsia-600 shadow-xl hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(139,92,246,0.3)] transition-all duration-300">
+              <div className="relative z-10">
+                <span className="text-5xl drop-shadow-md group-hover:scale-110 transition-transform duration-300">🎙️</span>
+              </div>
+              <div className="relative z-10 mt-auto pt-4">
+                <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-1">Buzón de Voz</h2>
+                <p className="text-violet-100 font-medium text-sm leading-tight">Dejá tu saludo de audio o video</p>
+              </div>
+            </Link>
+          )}
+
           <Link href={`/evento/dj/${fiestaId}`} className="group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between aspect-square bg-gradient-to-br from-green-600 to-emerald-500 shadow-xl hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] transition-all duration-300">
             <div className="relative z-10">
               <span className="text-5xl drop-shadow-md group-hover:scale-110 transition-transform duration-300">🎵</span>

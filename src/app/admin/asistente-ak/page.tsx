@@ -13,9 +13,7 @@ export default function AsistenteAkPage() {
             <Bot className="w-8 h-8 text-muted-foreground" />
             <h1 className="text-2xl font-bold">Asistente de Marketing con IA</h1>
         </div>
-        <Link href="/empresa/redes-sociales">
-          <Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Button>
-        </Link>
+        <Button asChild variant="outline"><Link href="/empresa/redes-sociales"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
       </div>
       <Card className="text-center">
         <CardHeader>

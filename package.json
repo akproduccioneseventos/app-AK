@@ -68,10 +68,13 @@
     "lucide-react": "^0.480.0",
     "next": "14.2.35",
     "qrcode.react": "^3.1.0",
+    "rdndmb-html5-to-touch": "^9.0.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
+    "react-dnd-multi-backend": "^9.0.0",
+    "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "^18.3.1",
     "react-draggable": "^4.4.6",
     "react-hook-form": "^7.0.0",
@@ -98,6 +101,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/three": "^0.169.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.35",
     "jest": "^30.3.0",
@@ -106,7 +110,6 @@
     "tailwindcss": "^3.4.4",
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
-    "concurrently": "^8.2.2"
+    "typescript": "^5.9.3"
   }
 }
