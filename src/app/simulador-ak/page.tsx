@@ -19,6 +19,7 @@ import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido'
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
+import { askSimulatorAssistant } from '@/app/actions/simulator-ai';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getCuponesRegaloActivos } from '@/app/actions/cupones';
 import { getMenus } from '@/app/actions/menus-catering';
@@ -45,6 +46,7 @@ import {
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
   type AnnualAdjustmentProjection,
 } from '@/lib/budget/formal-budget';
+import type { SimulatorAdvisorResult } from '@/lib/simulator-ai-advisor';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -155,10 +157,26 @@ const EVENT_META: Record<EventType, { label: string; emoji: string; basePP: numb
   empresarial:{ label: 'Evento empresarial',emoji: '🏢', basePP: 680, fixed: 10000 },
 };
 
-const PACKAGE_META: Record<PackageType, { label: string; description: string; multiplier: number; recommended?: boolean }> = {
-  basico:     { label: 'Básico',     description: 'Simple pero bien organizada',         multiplier: 1.00 },
-  intermedio: { label: 'Intermedio', description: 'Completa y sin preocuparme por nada', multiplier: 1.38, recommended: true },
-  premium:    { label: 'Premium',    description: 'Nivel alto, todo incluido',           multiplier: 1.80 },
+const PACKAGE_META: Record<PackageType, { label: string; description: string; multiplier: number; recommended?: boolean; includes: string[] }> = {
+  basico: {
+    label: 'Básico',
+    description: 'Simple pero bien organizada',
+    multiplier: 1.00,
+    includes: ['Coordinación general', 'Sonido y DJ', 'Ambientación base'],
+  },
+  intermedio: {
+    label: 'Intermedio',
+    description: 'Completa y sin preocuparme por nada',
+    multiplier: 1.38,
+    recommended: true,
+    includes: ['Todo lo del Básico', 'Iluminación ampliada', 'Servicio y producción reforzados'],
+  },
+  premium: {
+    label: 'Premium',
+    description: 'Nivel alto, todo incluido',
+    multiplier: 1.80,
+    includes: ['Todo lo del Intermedio', 'Producción premium', 'Experiencia personalizada'],
+  },
 };
 
 const DISCOUNT_RATE = 0.15; // 15% as a decimal, aligned with the standard simulator
@@ -293,6 +311,7 @@ const STEP_LABELS = [
 export default function SimuladorAKPage() {
   const { toast } = useToast();
   const chatEndRef  = useRef<HTMLDivElement>(null);
+  const adviceSignatureRef = useRef('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
@@ -313,6 +332,9 @@ export default function SimuladorAKPage() {
   const [empresaPhone, setEmpresaPhone] = useState<string>(WHATSAPP_NUMBER);
   const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
   const [dateWarning, setDateWarning] = useState('');
+  const [assistantQuestion, setAssistantQuestion] = useState('');
+  const [assistantBusy, setAssistantBusy] = useState(false);
+  const [assistantRecommendation, setAssistantRecommendation] = useState<SimulatorAdvisorResult | null>(null);
 
   // ── Persistence ──────────────────────────────────────────────────────────
 
@@ -630,6 +652,107 @@ export default function SimuladorAKPage() {
     });
     return map;
   }, [config, availablePaquetes, computePackageFinalPrice]);
+
+  const advisorPackages = useMemo(() => availablePaquetes.map((pkg) => ({
+    id: pkg.id,
+    name: pkg.nombre,
+    description: pkg.descripcion,
+    includedServices: (pkg.serviciosIncluidos || [])
+      .map((serviceRef) => (allSimuladorServices.find((service) => service.id === serviceRef.id)?.nombre || serviceRef.id).trim())
+      .filter(Boolean),
+    price: allPackagePricesMap[pkg.id],
+    recommended: pkg.recommended,
+  })), [availablePaquetes, allPackagePricesMap, allSimuladorServices]);
+
+  const requestAssistantAdvice = useCallback(async (question?: string) => {
+    if (assistantBusy) return;
+
+    const cleanQuestion = question?.trim() || 'Analizá mi evento y recomendame el paquete más conveniente.';
+    if (question?.trim()) {
+      setChatHistory((prev) => [
+        ...prev,
+        { role: 'user', text: cleanQuestion, key: `user_${Date.now()}` },
+      ]);
+    }
+
+    setAssistantBusy(true);
+    try {
+      const selectedMenuItems = [
+        ...state.selectedEntradas,
+        state.selectedPrincipal,
+        state.selectedInfantil,
+      ]
+        .filter(Boolean)
+        .map((id) => allSimuladorServices.find((service) => service.id === id)?.nombre || id);
+
+      const result = await askSimulatorAssistant({
+        question: cleanQuestion,
+        eventType: state.eventoTipo ? EVENT_META[state.eventoTipo].label : undefined,
+        guests: state.adultos + state.ninos,
+        durationHours: state.duracionHoras,
+        hasVenue: state.tieneSalon,
+        selectedPackageId: state.paquete || undefined,
+        selectedMenuItems,
+        packages: advisorPackages,
+      });
+
+      setAssistantRecommendation(result);
+      setChatHistory((prev) => [
+        ...prev,
+        { role: 'assistant', text: result.response, key: `advisor_${Date.now()}` },
+      ]);
+    } catch {
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          text: 'No pude analizarlo ahora. Tus precios y selecciones siguen guardados; probá de nuevo en un momento.',
+          key: `advisor_error_${Date.now()}`,
+        },
+      ]);
+    } finally {
+      setAssistantBusy(false);
+      setAssistantQuestion('');
+    }
+  }, [advisorPackages, allSimuladorServices, assistantBusy, state]);
+
+  useEffect(() => {
+    if (state.step !== 7 || advisorPackages.length === 0) return;
+    const signature = JSON.stringify({
+      eventType: state.eventoTipo,
+      guests: state.adultos + state.ninos,
+      duration: state.duracionHoras,
+      venue: state.tieneSalon,
+      packages: advisorPackages.map((pkg) => [pkg.id, pkg.price]),
+    });
+    if (adviceSignatureRef.current === signature) return;
+    adviceSignatureRef.current = signature;
+    void requestAssistantAdvice();
+  }, [
+    advisorPackages,
+    requestAssistantAdvice,
+    state.adultos,
+    state.duracionHoras,
+    state.eventoTipo,
+    state.ninos,
+    state.step,
+    state.tieneSalon,
+  ]);
+
+  const applyAssistantRecommendation = useCallback(() => {
+    const packageId = assistantRecommendation?.recommendedPackageId;
+    const target = advisorPackages.find((pkg) => pkg.id === packageId);
+    if (!target) return;
+    updateState('paquete', target.id);
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        role: 'assistant',
+        text: `Apliqué ${target.name}. El presupuesto ya se recalculó con sus servicios reales.`,
+        key: `advisor_applied_${Date.now()}`,
+      },
+    ]);
+  }, [advisorPackages, assistantRecommendation, updateState]);
 
   useEffect(() => {
     if (!state.paquete) return;
@@ -1025,11 +1148,43 @@ export default function SimuladorAKPage() {
                 </div>
               </motion.div>
             ))}
+            {assistantBusy && (
+              <div className="flex items-center gap-2 text-xs text-cyan-100">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                </div>
+                Analizando tu evento y el catálogo real...
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
 
-          {/* Chat footer hint */}
+          {/* Real AI controls */}
           <div className="p-3 border-t border-white/10">
+            {assistantRecommendation?.recommendedPackageId && (
+              <div className="mb-3 rounded-2xl border border-emerald-300/30 bg-emerald-400/10 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                    Recomendación inteligente
+                  </p>
+                  <Badge className="bg-emerald-300 text-slate-950 hover:bg-emerald-300">
+                    {assistantRecommendation.source === 'ai' ? 'Gemini' : 'Modo seguro'}
+                  </Badge>
+                </div>
+                {assistantRecommendation.rationale && (
+                  <p className="mt-2 text-xs leading-relaxed text-white/80">
+                    {assistantRecommendation.rationale}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={applyAssistantRecommendation}
+                  className="mt-3 w-full rounded-xl bg-emerald-300 px-3 py-2 text-xs font-black text-slate-950 transition hover:bg-emerald-200"
+                >
+                  Aplicar al presupuesto
+                </button>
+              </div>
+            )}
             {landingFaqs.length > 0 && (
               <div className="mb-2 space-y-1">
                 <p className="text-violet-400 text-[10px] uppercase tracking-widest font-bold mb-1">Preguntas frecuentes:</p>
@@ -1048,9 +1203,40 @@ export default function SimuladorAKPage() {
                 ))}
               </div>
             )}
-            <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
-              <MessageSquare className="w-4 h-4 text-violet-400 flex-shrink-0" />
-              <span className="text-violet-300 text-xs">Asistente guiado · Paso a paso</span>
+            <form
+              className="flex items-center gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (!assistantQuestion.trim()) return;
+                void requestAssistantAdvice(assistantQuestion);
+              }}
+            >
+              <label className="sr-only" htmlFor="simulator-assistant-question">
+                Preguntale al Asistente AK
+              </label>
+              <Input
+                id="simulator-assistant-question"
+                value={assistantQuestion}
+                onChange={(event) => setAssistantQuestion(event.target.value)}
+                placeholder="¿Qué incluye? ¿Cuál me conviene?"
+                disabled={assistantBusy}
+                className="h-10 border-white/20 bg-slate-950/70 text-white placeholder:text-white/45 focus-visible:ring-cyan-300"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={assistantBusy || !assistantQuestion.trim()}
+                aria-label="Enviar pregunta"
+                className="h-10 w-10 shrink-0 bg-cyan-500 text-slate-950 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-400"
+              >
+                {assistantBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              </Button>
+            </form>
+            <div className="mt-2 flex items-center gap-2 px-1">
+              <MessageSquare className="w-3.5 h-3.5 text-cyan-300 flex-shrink-0" />
+              <span className="text-cyan-100/70 text-[10px]">
+                Consulta paquetes, inclusiones y presupuesto con datos de AK.
+              </span>
             </div>
           </div>
         </div>
@@ -1465,7 +1651,7 @@ function StepPackage({
         {hasDynamic ? (
           dynamicPaquetes.map((pkg) => {
             const includedServices = (pkg.serviciosIncluidos || [])
-              .map((serviceRef) => allSimuladorServices.find((service) => service.id === serviceRef.id)?.nombre || serviceRef.id)
+              .map((serviceRef) => (allSimuladorServices.find((service) => service.id === serviceRef.id)?.nombre || serviceRef.id).trim())
               .filter(Boolean);
             const pkgPrice = allPackagePricesMap?.[pkg.id];
             return (
@@ -1532,6 +1718,14 @@ function StepPackage({
                     )}
                   </div>
                   <p className="text-violet-300 text-xs">{meta.description}</p>
+                  <ul className="mt-2 space-y-1 text-xs text-violet-100">
+                    {meta.includes.map((serviceName) => (
+                      <li key={serviceName} className="flex items-start gap-1.5">
+                        <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-300" />
+                        <span>{serviceName}</span>
+                      </li>
+                    ))}
+                  </ul>
                   {pkgPrice !== undefined && (
                     <p className={cn(
                       'text-sm font-black uppercase tracking-wider mt-2',

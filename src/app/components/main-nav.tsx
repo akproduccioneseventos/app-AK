@@ -280,8 +280,8 @@ export function MainNav() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-2">
               <SidebarMenuItem>
-                <Link href="/simulador-de-presupuesto">
-                  <SidebarMenuButton isActive={isActive("/simulador-de-presupuesto")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
+                <Link href="/simulador-ak">
+                  <SidebarMenuButton isActive={isActive("/simulador-ak")} className="h-12 rounded-xl font-bold text-xs text-slate-500 hover:text-primary transition-all duration-300">
                     <Wand2 className="w-5 h-5 text-amber-500" />
                     <span className="ml-2">Simulador IA</span>
                   </SidebarMenuButton>
