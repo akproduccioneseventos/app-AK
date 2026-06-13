@@ -4,7 +4,24 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, CheckCircle2, Clock3, ExternalLink, Info, Instagram, Loader2, Martini, Search, Share2, Shuffle, Sparkles, Upload, Video, Wine, X } from 'lucide-react';
+import {
+  Camera,
+  CheckCircle2,
+  Clock3,
+  ExternalLink,
+  Info,
+  Instagram,
+  Loader2,
+  Martini,
+  Search,
+  Share2,
+  Shuffle,
+  Sparkles,
+  Upload,
+  Video,
+  Wine,
+  X,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,11 +31,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import type { BarDrinkOrder, BarTechnologyDashboard } from '@/types/barra-tecnologica';
 import type { Trago } from '@/types/fiesta';
+import type { SocialGalleryPost } from '@/types/social-gallery';
 import {
   createBarDrinkOrder,
   getBarraTecnologicaDashboard,
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
+import { getSocialPosts } from '@/app/actions/social-gallery';
 import { buildInstagramUrl, getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 
 function dataUrlToFile(dataUrl: string, fileName: string) {
@@ -45,6 +64,7 @@ export default function BarraTecnologicaTouchPage() {
   const { toast } = useToast();
 
   const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
+  const [barPhotos, setBarPhotos] = useState<SocialGalleryPost[]>([]);
   const [selectedDrink, setSelectedDrink] = useState<Trago | null>(null);
   const [guestName, setGuestName] = useState('');
   const [tableNumber, setTableNumber] = useState('');
@@ -68,17 +88,30 @@ export default function BarraTecnologicaTouchPage() {
   const streamRef = useRef<MediaStream | null>(null);
 
   const loadData = useCallback(async () => {
-    const result = await getBarraTecnologicaDashboard(fiestaId);
-    if (result.success && result.data) {
-      setDashboard(result.data);
+    const [dashResult, postsResult] = await Promise.all([
+      getBarraTecnologicaDashboard(fiestaId),
+      getSocialPosts(fiestaId).catch(() => []),
+    ]);
+
+    if (dashResult.success && dashResult.data) {
+      setDashboard(dashResult.data);
     } else {
-      toast({ title: 'No se pudo abrir la barra', description: result.error, variant: 'destructive' });
+      toast({ title: 'No se pudo abrir la barra', description: dashResult.error, variant: 'destructive' });
     }
+
+    const approvedBarPhotos = (postsResult || [])
+      .filter((post) => (post.moderationStatus ?? 'approved') === 'approved')
+      .filter((post) => post.source === 'bar-tech' || post.sourceModule === 'barraTecnologica');
+    setBarPhotos(approvedBarPhotos);
+
     setIsLoading(false);
   }, [fiestaId, toast]);
 
   useEffect(() => {
     loadData();
+    // Poll data every 5 seconds to sync orders and photos
+    const interval = setInterval(loadData, 5000);
+    return () => clearInterval(interval);
   }, [loadData]);
 
   useEffect(() => {
@@ -109,6 +142,10 @@ export default function BarraTecnologicaTouchPage() {
 
   const submitOrder = async () => {
     if (!selectedDrink) return;
+    if (!guestName.trim()) {
+      toast({ title: 'Tu nombre es necesario', description: 'Por favor, ingresá tu nombre para hacer el pedido.', variant: 'destructive' });
+      return;
+    }
     setIsOrdering(true);
     const result = await createBarDrinkOrder({
       fiestaId,
@@ -122,6 +159,7 @@ export default function BarraTecnologicaTouchPage() {
       setSelectedDrink(null);
       setNote('');
       toast({ title: 'Pedido enviado', description: 'El barman ya lo ve en su pantalla.' });
+      loadData();
     } else {
       toast({ title: 'No se pudo pedir', description: result.error, variant: 'destructive' });
     }
@@ -183,14 +221,26 @@ export default function BarraTecnologicaTouchPage() {
     canvas.height = video.videoHeight || 720;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    
+    // Draw horizontal mirror if facing user
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
-    ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+
+    // Overlay photo banner
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+    ctx.fillRect(0, canvas.height - 130, canvas.width, 130);
+    
+    ctx.fillStyle = '#f43f5e';
+    ctx.font = 'bold 36px Arial';
+    ctx.fillText(settings?.hashtag || '#AKProducciones', 40, canvas.height - 70);
+    
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 42px Arial';
-    ctx.fillText(settings?.hashtag || '#AKProducciones', 40, canvas.height - 58);
-    ctx.font = '28px Arial';
-    ctx.fillText(settings?.brandText || 'Barra tecnologica AK', 40, canvas.height - 22);
+    ctx.font = '24px Arial';
+    const activeDrinkName = selectedDrink?.nombre || lastOrder?.drinkName || 'un Trago AK';
+    ctx.fillText(`Disfrutando de mi ${activeDrinkName} 🍸`, 40, canvas.height - 30);
+    
     setCapturedDataUrl(canvas.toDataURL('image/jpeg', 0.92));
   };
 
@@ -201,14 +251,22 @@ export default function BarraTecnologicaTouchPage() {
     const formData = new FormData();
     formData.append('fiestaId', fiestaId);
     formData.append('authorName', guestName || 'Invitado barra AK');
-    formData.append('caption', `Foto desde la barra tecnologica de ${dashboard?.eventName || 'AK Producciones'}`);
+    
+    const activeDrinkName = selectedDrink?.nombre || lastOrder?.drinkName;
+    const activeDrinkId = selectedDrink?.id || lastOrder?.drinkId;
+    formData.append('caption', activeDrinkName ? `Tomando un ${activeDrinkName} en la barra` : 'En la barra tecnologica de AK');
     formData.append('followConfirmed', String(canSharePhotos));
     formData.append('file', finalFile);
+    
+    if (activeDrinkId) formData.append('drinkId', activeDrinkId);
+    if (activeDrinkName) formData.append('drinkName', activeDrinkName);
+
     const result = await uploadBarMagicPhoto(formData);
     if (result.success) {
       setUploadedPhotoUrl(result.url || null);
       setShareText(result.shareText || '');
       toast({ title: 'Foto subida', description: 'Ya puede aparecer en el muro social.' });
+      loadData();
     } else {
       toast({ title: 'No se pudo subir', description: result.error, variant: 'destructive' });
     }
@@ -227,7 +285,7 @@ export default function BarraTecnologicaTouchPage() {
 
   if (isLoading) {
     return (
-      <div className="ak-live-stage flex min-h-screen items-center justify-center text-white">
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-rose-500">
         <Loader2 className="h-10 w-10 animate-spin" />
       </div>
     );
@@ -235,201 +293,262 @@ export default function BarraTecnologicaTouchPage() {
 
   if (!dashboard || !settings) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-center text-white">
         <div>
-          <h1 className="text-2xl font-black">Barra no disponible</h1>
-          <p className="mt-2 text-slate-500">No se pudo cargar la experiencia de tragos.</p>
+          <h1 className="text-2xl font-black text-rose-500">Barra no disponible</h1>
+          <p className="mt-2 text-slate-400">No se pudo cargar la experiencia de tragos.</p>
         </div>
       </div>
     );
   }
 
+  const accentColor = settings.accentColor || '#f43f5e';
+
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(220,38,38,0.16),_transparent_32%),linear-gradient(135deg,#ffffff,#f8fafc_45%,#eef2ff)] text-slate-950">
-      <section className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-8">
-        <header className="flex flex-col gap-4 rounded-lg border border-white/70 bg-white/90 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-3xl text-white shadow-xl" style={{ backgroundColor: settings.accentColor }}>
-              <Martini className="h-8 w-8" />
-            </div>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.28em]" style={{ color: settings.accentColor }}>AK barra interactiva</p>
-              <h1 className="text-3xl font-black tracking-tight sm:text-5xl">{settings.title}</h1>
-              <p className="mt-1 max-w-3xl text-sm font-semibold text-slate-500 sm:text-base">{settings.subtitle}</p>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Compartir</p>
-            <p className="text-xl font-black" style={{ color: settings.accentColor }}>{settings.hashtag}</p>
-            <p className="text-sm font-bold text-slate-500">{settings.instagramHandle}</p>
-          </div>
-        </header>
+    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-rose-500/30 overflow-y-auto">
+      {/* Background Aurora Drift */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -left-20 top-0 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-20 bg-[radial-gradient(circle,rgba(244,63,94,0.4),transparent)] animate-[pulse_8s_infinite]" />
+        <div className="absolute -right-20 bottom-0 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-20 bg-[radial-gradient(circle,rgba(6,182,212,0.4),transparent)] animate-[pulse_10s_infinite_reverse]" />
+      </div>
 
-        <section className="grid gap-3 rounded-lg border border-white/80 bg-white/90 p-4 shadow-xl shadow-slate-200/70 backdrop-blur lg:grid-cols-[minmax(0,1fr)_auto_auto]">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar por nombre, sabor o ingrediente"
-              className="h-14 rounded-2xl border-slate-200 bg-white pl-12 text-base font-bold"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant={drinkFilter === 'todos' ? 'default' : 'outline'} className="h-14 rounded-2xl font-black" onClick={() => setDrinkFilter('todos')} style={drinkFilter === 'todos' ? { backgroundColor: settings.accentColor } : undefined}>Todos</Button>
-            <Button variant={drinkFilter === 'sinAlcohol' ? 'default' : 'outline'} className="h-14 rounded-2xl font-black" onClick={() => setDrinkFilter('sinAlcohol')} style={drinkFilter === 'sinAlcohol' ? { backgroundColor: settings.accentColor } : undefined}>Sin alcohol</Button>
-          </div>
-          <Button variant="outline" className="h-14 rounded-2xl font-black" onClick={openRandomDrink}>
-            <Shuffle className="mr-2 h-5 w-5" /> Sorprendeme
+      <section className="relative z-10 mx-auto flex min-h-screen w-full max-w-[56.25vh] flex-col justify-between bg-slate-900/60 backdrop-blur-md shadow-2xl border-x border-white/5 px-4 py-6">
+        <div className="space-y-6">
+          {/* Header */}
+          <header className="flex flex-col gap-4 rounded-3xl border border-white/5 bg-slate-950/70 p-5 shadow-2xl backdrop-blur-lg">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)]">
+                <Martini className="h-7 w-7 animate-pulse" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-rose-500">AK Barra Interactiva</p>
+                <h1 className="text-2xl font-black tracking-tight text-white truncate">{settings.title}</h1>
+                <p className="text-xs font-semibold text-slate-400 mt-0.5 line-clamp-2">{settings.subtitle}</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between border-t border-white/5 pt-3 mt-1">
+              <div className="text-left">
+                <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Tag del Evento</p>
+                <p className="text-sm font-black text-rose-500">{settings.hashtag}</p>
+              </div>
+              {settings.instagramHandle && (
+                <div className="text-right">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Instagram</p>
+                  <p className="text-sm font-bold text-slate-300">{settings.instagramHandle}</p>
+                </div>
+              )}
+            </div>
+          </header>
+
+          {/* Guest Info Prompt */}
+          <section className="rounded-3xl border border-white/5 bg-slate-950/50 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-black uppercase tracking-wider text-white">1. Ingresa tu Nombre</h2>
+              <span className="text-[10px] font-bold text-rose-400/80 animate-pulse">Obligatorio para pedir</span>
+            </div>
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <Input
+                value={guestName}
+                onChange={(event) => setGuestName(event.target.value)}
+                placeholder="Escribí tu nombre aquí..."
+                className="h-11 rounded-xl border-white/10 bg-slate-900 text-white placeholder-slate-500 text-sm font-bold focus:border-rose-500 focus:ring-rose-500"
+              />
+              <Input
+                value={tableNumber}
+                onChange={(event) => setTableNumber(event.target.value)}
+                placeholder="Mesa"
+                className="h-11 w-16 text-center rounded-xl border-white/10 bg-slate-900 text-white placeholder-slate-500 text-sm font-bold focus:border-rose-500 focus:ring-rose-500"
+              />
+            </div>
+          </section>
+
+          {/* Search & Filters */}
+          <section className="grid grid-cols-[1fr_auto] gap-2 rounded-2xl border border-white/5 bg-slate-950/40 p-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <Input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Buscar trago o ingrediente..."
+                className="h-10 rounded-xl border-none bg-transparent pl-9 text-xs font-bold text-white placeholder-slate-500"
+              />
+            </div>
+            <div className="flex gap-1">
+              <Button
+                variant={drinkFilter === 'todos' ? 'default' : 'ghost'}
+                size="sm"
+                className={`h-10 rounded-xl text-xs font-black ${
+                  drinkFilter === 'todos'
+                    ? 'bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.4)]'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                onClick={() => setDrinkFilter('todos')}
+              >
+                Todos
+              </Button>
+              <Button
+                variant={drinkFilter === 'sinAlcohol' ? 'default' : 'ghost'}
+                size="sm"
+                className={`h-10 rounded-xl text-xs font-black ${
+                  drinkFilter === 'sinAlcohol'
+                    ? 'bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.4)]'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                onClick={() => setDrinkFilter('sinAlcohol')}
+              >
+                Sin Alcohol
+              </Button>
+            </div>
+          </section>
+
+          {/* Randomizer */}
+          <Button variant="outline" className="h-11 w-full rounded-2xl border-white/10 bg-white/5 text-xs font-black text-rose-400 hover:bg-white/10 hover:text-white" onClick={openRandomDrink}>
+            <Shuffle className="mr-2 h-4 w-4" /> Sorprendeme con un trago al azar
           </Button>
-        </section>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {/* Drinks Grid */}
+          <section className="grid grid-cols-2 gap-3 min-h-0">
             {visibleDrinks.map((drink) => (
               <motion.button
                 key={drink.id}
-                whileTap={{ scale: 0.97 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => setSelectedDrink(drink)}
-                className="overflow-hidden rounded-lg border border-white bg-white text-left shadow-xl shadow-slate-200/70 transition hover:-translate-y-1 hover:shadow-2xl"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/5 bg-slate-950/60 p-3 text-left shadow-lg transition hover:bg-slate-950/80 hover:border-white/15"
               >
-                <div className="relative h-44 bg-slate-100">
+                <div className="relative h-28 w-full overflow-hidden rounded-2xl bg-slate-900">
                   {drink.imageUrl ? (
-                    <NextImage src={drink.imageUrl} alt={drink.nombre} fill className="object-cover" unoptimized />
+                    <NextImage src={drink.imageUrl} alt={drink.nombre} fill className="object-cover transition duration-300 group-hover:scale-105" unoptimized />
                   ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-slate-100 via-white to-rose-100">
-                      <Wine className="h-16 w-16" style={{ color: settings.accentColor }} />
+                    <div className="flex h-full w-full items-center justify-center bg-slate-900 text-rose-500/40">
+                      <Wine className="h-10 w-10" />
                     </div>
                   )}
                   {settings.showAlcoholFreeTag && isAlcoholFree(drink) && (
-                    <Badge className="absolute left-3 top-3 bg-emerald-600 text-white">Sin alcohol</Badge>
+                    <Badge className="absolute left-2 top-2 bg-emerald-600/90 text-[8px] font-bold tracking-wider text-white">Sin alcohol</Badge>
                   )}
                   {settings.showDrinkVideo && getDrinkVideoUrl(drink) && (
-                    <Badge className="absolute right-3 top-3 gap-1 bg-slate-950/80 text-white"><Video className="h-3 w-3" /> Video</Badge>
+                    <Badge className="absolute right-2 top-2 gap-0.5 bg-cyan-600/90 text-[8px] font-bold tracking-wider text-white">
+                      <Video className="h-2.5 w-2.5" /> Video
+                    </Badge>
                   )}
                 </div>
-                <div className="space-y-2 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <h2 className="text-2xl font-black">{drink.nombre}</h2>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500">Ver</span>
-                  </div>
-                  {settings.showDrinkDescription ? (
-                    <p className="line-clamp-2 text-sm font-semibold text-slate-500">{getDrinkDescription(drink)}</p>
-                  ) : null}
-                  <div className="flex flex-wrap gap-1">
-                    {getDrinkTags(drink).map((tag) => (
-                      <span key={tag} className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-black uppercase tracking-wide text-slate-500">{tag}</span>
-                    ))}
-                  </div>
+                <div className="mt-3 space-y-1">
+                  <h3 className="font-headline text-base font-black tracking-tight text-white leading-snug truncate">{drink.nombre}</h3>
                   {settings.showIngredients && drink.ingredientes?.length ? (
-                    <p className="line-clamp-2 text-sm font-semibold text-slate-500">{drink.ingredientes.join(' · ')}</p>
+                    <p className="text-[10px] font-semibold text-slate-500 line-clamp-1">{drink.ingredientes.join(', ')}</p>
                   ) : (
-                    <p className="text-sm font-semibold text-slate-400">Toca para pedirlo al barman</p>
+                    <p className="text-[10px] font-semibold text-rose-400">Ver y pedir</p>
                   )}
                 </div>
               </motion.button>
             ))}
           </section>
 
-          <aside className="sticky top-4 h-fit space-y-4 rounded-lg border border-white/80 bg-white/90 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Paso 1</p>
-              <h2 className="text-2xl font-black">Tus datos</h2>
-              <p className="text-sm text-slate-500">{settings.guestPrompt}</p>
+          {/* Last Order Feedback */}
+          {lastOrder && (
+            <div className="rounded-3xl border border-emerald-500/20 bg-emerald-950/20 p-4 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+              <div className="flex items-center gap-2 text-sm font-black"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> ¡Pedido Enviado!</div>
+              <p className="mt-1 text-xs font-semibold">{lastOrder.drinkName} preparado para {lastOrder.guestName}</p>
+              <p className="mt-1.5 text-[10px] font-mono text-emerald-500">CODIGO: {lastOrder.id.slice(-6).toUpperCase()}</p>
             </div>
-            <div className="space-y-3">
-              <div>
-                <Label>Nombre</Label>
-                <Input value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder="Tu nombre" className="h-12 rounded-2xl text-lg" />
-              </div>
-              <div>
-                <Label>Mesa o referencia</Label>
-                <Input value={tableNumber} onChange={(event) => setTableNumber(event.target.value)} placeholder="Mesa 8, barra, VIP..." className="h-12 rounded-2xl text-lg" />
-              </div>
-            </div>
-
-            {lastOrder && (
-              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
-                <div className="flex items-center gap-2 font-black"><CheckCircle2 className="h-5 w-5" /> Pedido enviado</div>
-                <p className="mt-1 text-sm font-semibold">{lastOrder.drinkName} para {lastOrder.guestName}</p>
-                <p className="mt-1 text-xs text-emerald-700">Codigo: {lastOrder.id.slice(-6).toUpperCase()}</p>
-              </div>
-            )}
-
-            {settings.requireSocialFollowForPhotos && (
-              <div className={`rounded-3xl border p-4 ${hasFollowedSocials ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>
-                <div className="flex items-center gap-2 font-black">
-                  {hasFollowedSocials ? <CheckCircle2 className="h-5 w-5" /> : <Instagram className="h-5 w-5" />}
-                  {hasFollowedSocials ? 'Redes confirmadas' : 'Fotos con redes'}
-                </div>
-                <p className="mt-1 text-sm font-semibold">{hasFollowedSocials ? 'Ya podes subir fotos al muro.' : settings.socialFollowPrompt}</p>
-                {!hasFollowedSocials && (
-                  <Button variant="outline" className="mt-3 w-full rounded-2xl font-black" onClick={() => setShowFollowGate(true)}>
-                    <Instagram className="mr-2 h-4 w-4" /> Seguir para subir foto
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {settings.allowPhotoCapture && (
-              <Button className="h-14 w-full rounded-2xl text-base font-black" style={{ backgroundColor: settings.accentColor }} onClick={startCamera} disabled={isStartingCamera}>
-                {isStartingCamera ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Camera className="mr-2 h-5 w-5" />}
-                Sacarme foto AK
-              </Button>
-            )}
-          </aside>
+          )}
         </div>
+
+        {/* Gallery Carousel */}
+        {barPhotos.length > 0 && (
+          <div className="mt-8 border-t border-white/5 pt-6 relative z-10">
+            <h3 className="text-xs font-black uppercase tracking-widest text-rose-500 mb-3 flex items-center gap-2">
+              <Camera className="h-4 w-4" /> Fotos de la Barra
+            </h3>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+              {barPhotos.map((post) => (
+                <div key={post.id} className="relative w-28 aspect-[4/5] shrink-0 rounded-2xl overflow-hidden border border-white/5 bg-slate-900 shadow-md snap-start">
+                  <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-cover" unoptimized />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-transparent to-transparent" />
+                  <div className="absolute bottom-2 left-2 right-2 text-center min-w-0">
+                    <p className="text-[9px] font-bold text-white truncate">{post.authorName}</p>
+                    {post.drinkName && <p className="text-[8px] text-rose-400 font-extrabold truncate">{post.drinkName}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
+      {/* Drink Detail Drawer / Modal */}
       <AnimatePresence>
         {selectedDrink && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-lg rounded-lg bg-white p-5 shadow-2xl">
+          <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="w-full max-w-[56.25vh] rounded-t-[2.5rem] bg-slate-900 border-t border-white/10 p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto"
+            >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Confirmar pedido</p>
-                  <h2 className="text-3xl font-black">{selectedDrink.nombre}</h2>
-                  {selectedDrink.ingredientes?.length ? <p className="mt-1 text-sm font-semibold text-slate-500">{selectedDrink.ingredientes.join(' · ')}</p> : null}
+                  <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Detalle del Trago</p>
+                  <h2 className="text-2xl font-black text-white">{selectedDrink.nombre}</h2>
+                  {settings.showAlcoholFreeTag && isAlcoholFree(selectedDrink) && (
+                    <Badge className="bg-emerald-600 text-[9px] font-bold uppercase tracking-wider text-white mt-1">Sin Alcohol</Badge>
+                  )}
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setSelectedDrink(null)}><X className="h-5 w-5" /></Button>
+                <Button variant="ghost" size="icon" className="rounded-full bg-white/5 text-slate-400 hover:text-white" onClick={() => setSelectedDrink(null)}>
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
-              <div className="mt-4 overflow-hidden rounded-lg border bg-slate-50">
+
+              <div className="mt-4 overflow-hidden rounded-3xl border border-white/5 bg-slate-950">
                 {settings.showDrinkVideo && getDrinkVideoUrl(selectedDrink) ? (
-                  <video src={getDrinkVideoUrl(selectedDrink)} controls playsInline className="max-h-72 w-full bg-slate-950 object-contain" />
+                  <video src={getDrinkVideoUrl(selectedDrink)} controls autoPlay loop playsInline className="max-h-56 w-full bg-slate-950 object-contain" />
                 ) : selectedDrink.imageUrl ? (
-                  <div className="relative h-56">
+                  <div className="relative h-48">
                     <NextImage src={selectedDrink.imageUrl} alt={selectedDrink.nombre} fill className="object-cover" unoptimized />
                   </div>
                 ) : (
-                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-slate-100 via-white to-rose-100">
-                    <Wine className="h-16 w-16" style={{ color: settings.accentColor }} />
-                  </div>
-                )}
-                {settings.showDrinkDescription && (
-                  <div className="space-y-3 p-4">
-                    <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-slate-400">
-                      <Info className="h-4 w-4" /> Que lleva
-                    </div>
-                    <p className="text-sm font-semibold leading-6 text-slate-600">{getDrinkDescription(selectedDrink)}</p>
-                    {settings.showIngredients && selectedDrink.ingredientes?.length ? (
-                      <div className="flex flex-wrap gap-2">
-                        {selectedDrink.ingredientes.map((ingredient) => (
-                          <span key={ingredient} className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600 shadow-sm">{ingredient}</span>
-                        ))}
-                      </div>
-                    ) : null}
+                  <div className="flex h-36 items-center justify-center bg-slate-950 text-rose-500/30">
+                    <Wine className="h-12 w-12" />
                   </div>
                 )}
               </div>
+
+              {settings.showDrinkDescription && (selectedDrink.descripcion || selectedDrink.description) && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                    <Info className="h-3.5 w-3.5" /> Descripción
+                  </div>
+                  <p className="text-xs font-semibold leading-relaxed text-slate-300">{getDrinkDescription(selectedDrink)}</p>
+                </div>
+              )}
+
+              {settings.showIngredients && selectedDrink.ingredientes?.length && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Ingredientes</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedDrink.ingredientes.map((ingredient) => (
+                      <span key={ingredient} className="rounded-full bg-white/5 border border-white/5 px-2.5 py-1 text-[10px] font-black text-slate-300">{ingredient}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-4">
-                <Label>Nota para el barman</Label>
-                <Textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ej: sin hielo, menos dulce, para retirar en barra..." className="min-h-24 rounded-2xl" />
+                <Label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Nota para el barman (opcional)</Label>
+                <Textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ej: sin hielo, con limón, más dulce..." className="min-h-16 rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-600 text-xs font-bold" />
               </div>
-              <div className="mt-5 flex gap-3">
-                <Button variant="outline" className="h-12 flex-1 rounded-2xl font-bold" onClick={() => setSelectedDrink(null)}>Cancelar</Button>
-                <Button className="h-12 flex-1 rounded-2xl font-black" style={{ backgroundColor: settings.accentColor }} onClick={submitOrder} disabled={isOrdering}>
-                  {isOrdering ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Clock3 className="mr-2 h-5 w-5" />}
-                  Enviar
+
+              <div className="mt-5 flex gap-2">
+                {settings.allowPhotoCapture && (
+                  <Button variant="outline" className="h-12 flex-1 rounded-2xl border-white/10 bg-white/5 font-black text-xs" onClick={startCamera} disabled={isStartingCamera}>
+                    {isStartingCamera ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4 text-rose-400" />}
+                    Sacarme Foto 📸
+                  </Button>
+                )}
+                <Button className="h-12 flex-1 rounded-2xl bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)] font-black text-xs hover:bg-rose-600" onClick={submitOrder} disabled={isOrdering}>
+                  {isOrdering ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Clock3 className="mr-2 h-4 w-4" />}
+                  Pedir Trago
                 </Button>
               </div>
             </motion.div>
@@ -437,84 +556,92 @@ export default function BarraTecnologicaTouchPage() {
         )}
       </AnimatePresence>
 
+      {/* Social Follow Gate */}
       <AnimatePresence>
         {showFollowGate && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-sm rounded-[2rem] bg-slate-900 border border-white/10 p-6 shadow-2xl text-center">
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Paso social</p>
-                  <h2 className="text-3xl font-black">Segui a AK para compartir</h2>
+                <div className="text-left">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Paso Social</p>
+                  <h2 className="text-xl font-black text-white mt-1">Seguinos en Redes</h2>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowFollowGate(false)}><X className="h-5 w-5" /></Button>
-              </div>
-              <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">{settings.socialFollowPrompt}</p>
-              <div className="mt-5 space-y-3">
-                <a href={instagramUrl} target="_blank" rel="noreferrer" className="block">
-                  <Button className="h-12 w-full rounded-2xl font-black" style={{ backgroundColor: settings.accentColor }}>
-                    <Instagram className="mr-2 h-5 w-5" /> Abrir Instagram <ExternalLink className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
-                <Button variant="outline" className="h-12 w-full rounded-2xl font-black" onClick={confirmSocialFollow}>
-                  <CheckCircle2 className="mr-2 h-5 w-5" /> Ya segui, quiero subir mi foto
+                <Button variant="ghost" size="icon" className="rounded-full bg-white/5 text-slate-400" onClick={() => setShowFollowGate(false)}>
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="mt-4 text-xs font-semibold text-slate-400">La app no entra a tu cuenta: solo te pide confirmar el paso antes de publicar.</p>
+              <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-400">{settings.socialFollowPrompt}</p>
+              <div className="mt-5 space-y-2">
+                <a href={instagramUrl} target="_blank" rel="noreferrer" className="block">
+                  <Button className="h-11 w-full rounded-xl bg-rose-500 text-white font-black text-xs">
+                    <Instagram className="mr-2 h-4 w-4" /> Abrir Instagram <ExternalLink className="ml-1.5 h-3 w-3" />
+                  </Button>
+                </a>
+                <Button variant="outline" className="h-11 w-full rounded-xl border-white/10 bg-white/5 font-black text-xs" onClick={confirmSocialFollow}>
+                  <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-400" /> Ya segui, subir foto
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Camera Capture Screen */}
       <AnimatePresence>
         {isCameraOpen && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Card className="w-full max-w-3xl overflow-hidden rounded-lg border-none bg-white shadow-2xl">
-              <CardContent className="space-y-4 p-4 sm:p-6">
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm animate-fade-in" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <Card className="w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-900 shadow-2xl">
+              <CardContent className="space-y-4 p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.22em]" style={{ color: settings.accentColor }}>Espejo barra AK</p>
-                    <h2 className="text-2xl font-black">Foto para el muro social</h2>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Espejo Mágico de Barra</p>
+                    <h2 className="text-xl font-black text-white mt-0.5">Capturar mi Selfi</h2>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={stopCamera}><X className="h-5 w-5" /></Button>
+                  <Button variant="ghost" size="icon" className="rounded-full bg-white/5 text-slate-400" onClick={stopCamera}><X className="h-4 w-4" /></Button>
                 </div>
-                <div className="relative overflow-hidden rounded-lg bg-slate-950">
+                
+                <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 aspect-[4/5] border border-white/5">
                   {capturedDataUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={capturedDataUrl} alt="Foto capturada" className="max-h-[62vh] w-full object-contain" />
+                    <img src={capturedDataUrl} alt="Foto capturada" className="h-full w-full object-cover" />
                   ) : (
-                    <video ref={videoRef} className="max-h-[62vh] w-full object-contain" playsInline muted />
+                    <video ref={videoRef} className="h-full w-full object-cover scale-x-[-1]" playsInline muted />
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 to-transparent p-5 text-white">
-                    <p className="text-2xl font-black">{settings.hashtag}</p>
-                    <p className="font-semibold">{settings.brandText}</p>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 to-transparent p-5 text-left pointer-events-none">
+                    <p className="text-lg font-black text-rose-500">{settings.hashtag}</p>
+                    <p className="text-xs font-bold text-white/80">
+                      Disfrutando de mi {selectedDrink?.nombre || lastOrder?.drinkName || 'Trago AK'} 🍸
+                    </p>
                   </div>
                 </div>
+                
                 <canvas ref={canvasRef} className="hidden" />
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex flex-col gap-2">
                   {!capturedDataUrl ? (
-                    <Button className="h-12 flex-1 rounded-2xl font-black" style={{ backgroundColor: settings.accentColor }} onClick={capturePhoto}>
-                      <Camera className="mr-2 h-5 w-5" /> Capturar
+                    <Button className="h-11 w-full rounded-xl bg-rose-500 text-white font-black text-xs shadow-lg" onClick={capturePhoto}>
+                      <Camera className="mr-2 h-4 w-4" /> Capturar Foto
                     </Button>
                   ) : (
-                    <>
-                      <Button variant="outline" className="h-12 flex-1 rounded-2xl font-bold" onClick={() => setCapturedDataUrl(null)}>Repetir</Button>
-                      <Button className="h-12 flex-1 rounded-2xl font-black" style={{ backgroundColor: settings.accentColor }} onClick={() => uploadCapturedPhoto()} disabled={isUploadingPhoto}>
-                        {isUploadingPhoto ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-5 w-5" />}
-                        Subir al muro
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" className="h-11 rounded-xl border-white/10 bg-white/5 font-bold text-xs" onClick={() => setCapturedDataUrl(null)}>Repetir</Button>
+                      <Button className="h-11 rounded-xl bg-rose-500 text-white font-black text-xs" onClick={() => uploadCapturedPhoto()} disabled={isUploadingPhoto}>
+                        {isUploadingPhoto ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                        Subir al Muro
                       </Button>
-                    </>
+                    </div>
                   )}
-                  <label className="flex h-12 flex-1 cursor-pointer items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 font-bold text-slate-700">
-                    <Upload className="mr-2 h-5 w-5" /> Subir foto
+                  <label className="flex h-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-slate-800/50 hover:bg-slate-800 text-xs font-bold text-slate-300 transition-all">
+                    <Upload className="mr-2 h-4 w-4" /> Subir desde el celular
                     <input type="file" accept="image/*" capture="user" className="hidden" onChange={(event) => event.target.files?.[0] && uploadCapturedPhoto(event.target.files[0])} />
                   </label>
                 </div>
+                
                 {uploadedPhotoUrl && (
-                  <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-4">
-                    <p className="font-black text-emerald-900">Foto lista para compartir</p>
-                    <p className="text-sm font-semibold text-emerald-700">{shareText}</p>
-                    <Button className="mt-3 rounded-2xl font-black" onClick={sharePhoto}>
-                      <Share2 className="mr-2 h-4 w-4" /> Compartir
+                  <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4 text-center">
+                    <p className="font-black text-emerald-300 text-xs">¡Foto Subida con Éxito!</p>
+                    <p className="text-[10px] font-semibold text-slate-400 mt-1">{shareText}</p>
+                    <Button className="mt-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] h-9 w-full" onClick={sharePhoto}>
+                      <Share2 className="mr-2 h-3.5 w-3.5" /> Compartir Link
                     </Button>
                   </div>
                 )}

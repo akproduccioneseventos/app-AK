@@ -14,7 +14,7 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
-import { Facebook, Instagram, MessageCircle, Music2, Maximize } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, Music2, Maximize, Martini } from 'lucide-react';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 
@@ -1255,6 +1255,13 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
             priority
           />
             </>
+          )}
+          {/* Drink badge (if post has a drink) */}
+          {post.drinkName && (
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-rose-600/90 px-5 py-2 backdrop-blur-sm border border-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.6)] animate-pulse">
+              <Martini className="h-5 w-5 text-white" />
+              <span className="text-base font-black tracking-wider text-white">Tomando: {post.drinkName}</span>
+            </div>
           )}
           {/* Author badge */}
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-5 py-1.5 backdrop-blur-sm border border-white/20">

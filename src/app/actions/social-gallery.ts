@@ -248,6 +248,8 @@ export async function createSocialMediaPostFromUrl(input: {
   momentTag?: string;
   source?: string;
   sourceModule?: string;
+  drinkId?: string;
+  drinkName?: string;
 }): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   if (!input.fiestaId || !input.mediaUrl) {
     return { success: false, error: 'Faltan datos para publicar en el muro social.' };
@@ -277,6 +279,8 @@ export async function createSocialMediaPostFromUrl(input: {
       ...(input.sourceModule ? { sourceModule: input.sourceModule } : {}),
       ...(input.caption ? { caption: sanitizeSocialText(input.caption), dedication: sanitizeSocialText(input.caption) } : {}),
       ...(input.momentTag ? { momentTag: input.momentTag } : {}),
+      ...(input.drinkId ? { drinkId: input.drinkId } : {}),
+      ...(input.drinkName ? { drinkName: input.drinkName } : {}),
     };
 
     await db.collection(GALLERY_COLLECTION).doc(postId).set(newPost);
