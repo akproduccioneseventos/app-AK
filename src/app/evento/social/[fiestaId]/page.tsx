@@ -465,7 +465,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
     if(showLoadingIndicator) setIsLoading(true);
     try {
-      const [fetchedPosts, fiestaData, fetchedChat, settingsData, socialConnections, fetchedSongRequests, fetchedDedications, poll] = await Promise.all([
+      const results = await Promise.allSettled([
           getSocialPosts(params.fiestaId),
           getFiestaById(params.fiestaId),
           getChatMessages(params.fiestaId),
@@ -475,7 +475,17 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           getDedications(params.fiestaId),
           getActivePoll(params.fiestaId),
       ]);
-      setPosts(fetchedPosts);
+
+      const fetchedPosts = results[0].status === 'fulfilled' ? results[0].value : [];
+      const fiestaData = results[1].status === 'fulfilled' ? results[1].value : null;
+      const fetchedChat = results[2].status === 'fulfilled' ? (results[2].value || []) : [];
+      const settingsData = results[3].status === 'fulfilled' ? results[3].value : null;
+      const socialConnections = results[4].status === 'fulfilled' ? (results[4].value || []) : [];
+      const fetchedSongRequests = results[5].status === 'fulfilled' ? (results[5].value || []) : [];
+      const fetchedDedications = results[6].status === 'fulfilled' ? (results[6].value || []) : [];
+      const poll = results[7].status === 'fulfilled' ? results[7].value : null;
+
+      setPosts(fetchedPosts || []);
       setFiesta(fiestaData);
       if (fiestaData?.socialGallerySettings) {
           setLocalSettings(prev => mergeGuestSettings(prev, fiestaData.socialGallerySettings!));
@@ -484,10 +494,12 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setSongRequests(fetchedSongRequests);
       setDedications(fetchedDedications);
       setActivePoll(poll);
-      setCompanyLogoUrl(settingsData.logoUrl ?? null);
-      setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
-      const igConn = socialConnections.find(c => c.platform === 'Instagram');
-      const fbConn = socialConnections.find(c => c.platform === 'Facebook');
+      setCompanyLogoUrl(settingsData?.logoUrl ?? null);
+
+      const socialList = Array.isArray(socialConnections) ? socialConnections : [];
+      setWhatsappNumber(socialList.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
+      const igConn = socialList.find(c => c.platform === 'Instagram');
+      const fbConn = socialList.find(c => c.platform === 'Facebook');
       // Use brand handle if set, otherwise fall back to company social connections
       const brandIg = fiestaData?.socialGallerySettings?.brand?.instagramHandle;
       const brandFb = fiestaData?.socialGallerySettings?.brand?.facebookHandle;
@@ -503,11 +515,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       );
 
     } catch (e) {
-      toast({ title: "Error al cargar galería", variant: "destructive" });
+      console.error("Error al cargar galería:", e);
     } finally {
       if(showLoadingIndicator) setIsLoading(false);
     }
-  }, [params.fiestaId, toast]);
+  }, [params.fiestaId]);
   
   useEffect(() => {
     let active = true;

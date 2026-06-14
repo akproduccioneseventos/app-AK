@@ -441,6 +441,62 @@ function SimuladorContent() {
         }).totalFinal;
     };
 
+    const handleSwitchPackage = async (paqueteId: string) => {
+        if (!config) return;
+        setIsGenerating(true);
+        setSelectedPaqueteId(paqueteId);
+        
+        const newPackageName = config.paquetes.find(p => p.id === paqueteId)?.nombre;
+        
+        // Calculate new pricing stats
+        const newStats = calculateSimulatorPricing({
+            config,
+            services: allSimuladorServices,
+            adultos,
+            ninosYAdolescentes,
+            selectedPaqueteId: paqueteId,
+            selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
+                id,
+                esRegalo: data.esRegalo,
+            })),
+            eventoFecha,
+            annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+            currentYear,
+        });
+
+        const data = {
+            clienteNombre,
+            clienteContacto,
+            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+            adultos,
+            ninos: ninosYAdolescentes,
+            subtotal: newStats.subtotalVenta,
+            costoEstimado: newStats.totalFinal,
+            descuentoGeneral: newStats.discountPercentage,
+            ajusteAnualActivo: newStats.annualProjection.applies,
+            ajusteAnualPorcentaje: newStats.annualProjection.adjustmentPct,
+            serviciosIncluidos: newStats.detallados.map(s => s.id),
+            paqueteNombre: newPackageName ? `${newPackageName} — ${eventoTipo}` : undefined,
+            items: simulatorDetailsToBudgetItems(newStats.detallados)
+        };
+
+        try {
+            const result = await generateBudgetAndLeadFromSimulator(data, {
+                source: 'simulator_common',
+                eventoTipo,
+            });
+            if (result.success && result.presupuestoId) {
+                setGeneratedPresupuestoId(result.presupuestoId);
+                if (result.token) setGeneratedToken(result.token);
+                toast({ title: "Presupuesto actualizado", description: `Se ha cambiado al paquete ${newPackageName} con éxito.` });
+            } else throw new Error(result.error || "Error al generar.");
+        } catch (e: any) {
+            toast({ title: "Error", description: e.message, variant: "destructive" });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     const sortedPaquetes = useMemo(() => {
         return (config?.paquetes || []).filter((p) => isPackageApplicableToEventType(p, eventoTipo));
     }, [config?.paquetes, eventoTipo]);
@@ -614,6 +670,38 @@ function SimuladorContent() {
                                     <p className="mt-3 text-xs font-medium text-slate-500">
                                         El presupuesto principal muestra el precio vigente {stats.annualProjection.currentYear}. El ajuste futuro es informativo y se aplica por contrato si la fecha pasa a otro anio.
                                     </p>
+                                </div>
+                            )}
+
+                            {sortedPaquetes.filter(p => p.id !== selectedPaqueteId).length > 0 && (
+                                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 space-y-4 print:hidden">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                        ¿Querés comparar con otros paquetes para esta misma configuración?
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {sortedPaquetes
+                                            .filter(p => p.id !== selectedPaqueteId)
+                                            .map(p => {
+                                                const estimatedPrice = calculatePackageEstimatedPrice(p);
+                                                return (
+                                                    <div key={p.id} className="flex flex-col justify-between p-4 bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                                                        <div className="space-y-1">
+                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.nombre}</span>
+                                                            <p className="text-lg font-black text-slate-800">{formatCurrency(estimatedPrice)}</p>
+                                                        </div>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            disabled={isGenerating}
+                                                            onClick={() => handleSwitchPackage(p.id)}
+                                                            className="mt-3 w-full rounded-xl font-bold uppercase tracking-wider text-[10px] border-primary text-primary hover:bg-primary/5 h-10"
+                                                        >
+                                                            {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500"/> : `Cambiar a ${p.nombre}`}
+                                                        </Button>
+                                                    </div>
+                                                );
+                                            })}
+                                    </div>
                                 </div>
                             )}
                         </CardContent>
