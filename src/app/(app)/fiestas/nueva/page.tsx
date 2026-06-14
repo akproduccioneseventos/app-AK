@@ -340,7 +340,7 @@ function PlannerDashboardContent() {
         <Button asChild className="h-full min-h-20 w-full rounded-[1.5rem] bg-red-600 px-6 font-black hover:bg-red-700"><Link href={`/fiestas/${encodeURIComponent(fiestaId!)}/show-control`} className="flex">
             <Tv className="mr-2 h-5 w-5" /> Control en vivo
           </Link></Button>
-        <Button asChild variant="outline" className="h-full min-h-20 w-full rounded-[1.5rem] border-slate-200 bg-white px-6 font-black"><Link href="/experiencia-ak" className="flex">
+        <Button asChild variant="outline" className="h-full min-h-20 w-full rounded-[1.5rem] border-slate-200 bg-white px-6 font-black"><Link href="/marketing/demo-tecnologia" className="flex">
             <Sparkles className="mr-2 h-5 w-5" /> Demo AK
           </Link></Button>
       </motion.div>

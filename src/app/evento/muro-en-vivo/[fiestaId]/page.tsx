@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { getSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
@@ -77,6 +77,45 @@ export default function MuroEnVivoPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
+
+  const footerSocials = useMemo(() => {
+    const brand = settings.brand;
+    const list = [];
+    
+    // Instagram
+    const ig = brand?.instagramHandle?.trim() || '@akproducciones';
+    list.push({
+      platform: 'Instagram',
+      handle: ig,
+      url: `https://instagram.com/${ig.replace('@', '')}`
+    });
+    
+    // Facebook
+    const fb = brand?.facebookHandle?.trim() || 'akproducciones';
+    list.push({
+      platform: 'Facebook',
+      handle: fb,
+      url: `https://facebook.com/${fb}`
+    });
+    
+    // TikTok
+    const tt = brand?.tiktokHandle?.trim() || '@akproducciones';
+    list.push({
+      platform: 'TikTok',
+      handle: tt,
+      url: `https://tiktok.com/${tt}`
+    });
+    
+    // WhatsApp (Fijo)
+    const wa = brand?.whatsappNumber?.trim() || '59899123456';
+    list.push({
+      platform: 'WhatsApp',
+      handle: wa,
+      url: `https://wa.me/${wa}`
+    });
+    
+    return list;
+  }, [settings.brand]);
 
   const postsRef = useRef<SocialGalleryPost[]>([]);
   // Track whether we already triggered the spin angle for the current sorteoSpinActive session
@@ -445,7 +484,17 @@ export default function MuroEnVivoPage() {
 
           {/* Redes slide */}
           {isLoaded && activeScreenItem?.type === 'redes' && (
-            <SocialTemplateSlide item={activeScreenItem} eventName={eventName} brand={settings.brand} />
+            posts.length > 0 ? (
+              <SlideshowLayout posts={posts} />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+                <div className="text-8xl opacity-20">📸</div>
+                <div className="text-center space-y-2">
+                  <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
+                  <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
+                </div>
+              </div>
+            )
           )}
 
           {/* Dedicaciones full-screen slide */}
@@ -614,29 +663,28 @@ export default function MuroEnVivoPage() {
 
       {/* ── Bottom bar — in flow ── */}
       <div className="relative z-30 shrink-0">
-        {socialConnections.length > 0 && (
-          <div className={`flex items-center justify-center gap-6 border-t px-6 py-2.5 backdrop-blur-sm ${settings.screenDarkMode !== false ? 'border-white/10 bg-black/70' : 'border-slate-200 bg-white/80'}`}>
-            {socialConnections.map((connection) => {
-              const Icon = connection.platform === 'Instagram'
-                ? Instagram
-                : connection.platform === 'Facebook'
-                ? Facebook
-                : connection.platform === 'TikTok'
-                ? Music2
-                : MessageCircle;
-              const handle = connection.username || connection.phoneNumber || '';
-              return (
-                <div key={connection.platform} className={`flex items-center gap-2 ${settings.screenDarkMode !== false ? 'text-white/90' : 'text-slate-700'}`}>
-                  <Icon className={`h-5 w-5 flex-shrink-0 ${settings.screenDarkMode !== false ? 'text-white/70' : 'text-slate-500'}`} />
-                  <div className="flex flex-col leading-tight">
-                    <span className="text-sm font-bold">{handle || connection.platform}</span>
-                    <span className={`text-[10px] uppercase tracking-wider ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Suscríbete</span>
-                  </div>
+        <div className={`flex items-center justify-center gap-8 border-t px-6 py-3 backdrop-blur-md ${settings.screenDarkMode !== false ? 'border-white/10 bg-black/75' : 'border-slate-200 bg-white/90'}`}>
+          {footerSocials.map((social) => {
+            const Icon = social.platform === 'Instagram'
+              ? Instagram
+              : social.platform === 'Facebook'
+              ? Facebook
+              : social.platform === 'TikTok'
+              ? Music2
+              : MessageCircle;
+            return (
+              <div key={social.platform} className={`flex items-center gap-3 transition-all duration-300 hover:scale-105 ${settings.screenDarkMode !== false ? 'text-white/90' : 'text-slate-800'}`}>
+                <div className={`p-1.5 rounded-lg ${settings.screenDarkMode !== false ? 'bg-white/5 border border-white/10 text-indigo-400' : 'bg-slate-100 border border-slate-200 text-indigo-600'}`}>
+                  <Icon className="h-4 w-4 flex-shrink-0" />
                 </div>
-              );
-            })}
-          </div>
-        )}
+                <div className="flex flex-col leading-tight">
+                  <span className="text-sm font-semibold tracking-wide">{social.handle}</span>
+                  <span className={`text-[10px] font-bold uppercase tracking-widest ${settings.screenDarkMode !== false ? 'text-indigo-300/60' : 'text-indigo-600/65'}`}>{social.platform}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
         {settings.ledMarqueeEnabled !== false && settings.ledMarqueeText && (
           <div
             className="overflow-hidden border-y py-2"

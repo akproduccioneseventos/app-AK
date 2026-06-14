@@ -1890,7 +1890,7 @@ function MuroSocialContent() {
                           {filledCount < 6 && (
                             <button
                               type="button"
-                              onClick={() => setGameCustomOptions((prev) => prev ? prev + '\n' : '')}
+                              onClick={() => setGameCustomOptions(prev => prev ? prev + '\n' : '')}
                               className="flex items-center gap-1.5 text-xs font-semibold text-violet-500 hover:text-violet-700"
                             >
                               <PlusCircle className="w-4 h-4" /> Agregar opción
