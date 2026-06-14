@@ -10,9 +10,19 @@ import type { BarDrinkOrder, BarDrinkOrderStatus, BarTechnologyDashboard } from 
 import {
   getBarraTecnologicaDashboard,
   updateBarDrinkOrderStatus,
+  createBarmanManualOrder,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import type { Trago } from '@/types/fiesta';
 
 const STATUS_LABELS: Record<BarDrinkOrderStatus, string> = {
   nuevo: 'Nuevo',
@@ -43,6 +53,7 @@ export default function BarmanScreenPage() {
   const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [quickDrink, setQuickDrink] = useState<Trago | null>(null);
   const knownOrderIdsRef = useRef<Set<string>>(new Set());
 
   const beep = useCallback(() => {
@@ -92,6 +103,19 @@ export default function BarmanScreenPage() {
     setUpdatingId(null);
   };
 
+  const handleQuickOrder = async (drinkId: string) => {
+    setUpdatingId(drinkId);
+    const result = await createBarmanManualOrder({ fiestaId, drinkId });
+    if (!result.success) {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'Registrado', description: 'Trago descontado del stock.', variant: 'default' });
+      setQuickDrink(null);
+      await loadData(false);
+    }
+    setUpdatingId(null);
+  };
+
   const grouped = useMemo(() => {
     const orders = dashboard?.orders || [];
     return {
@@ -130,6 +154,28 @@ export default function BarmanScreenPage() {
           <RefreshCw className="mr-2 h-4 w-4" /> Actualizar
         </Button>
       </header>
+
+      {/* Panel de Consumo Rápido */}
+      {dashboard?.drinks && dashboard.drinks.length > 0 && (
+        <section className="ak-live-panel mb-4 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-amber-400" />
+            <h2 className="text-xl font-black">Registro de Consumo Rápido</h2>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {dashboard.drinks.map((drink) => (
+              <Button 
+                key={drink.id} 
+                variant="secondary" 
+                className="whitespace-nowrap rounded-2xl h-12 font-bold bg-white/10 hover:bg-white/20 text-white border border-white/5"
+                onClick={() => setQuickDrink(drink)}
+              >
+                {drink.nombre}
+              </Button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-4 xl:grid-cols-3">
         <OrderColumn
@@ -191,6 +237,27 @@ export default function BarmanScreenPage() {
           {grouped.historial.length === 0 && <p className="text-sm text-white/45">Todavia no hay historial.</p>}
         </div>
       </section>
+
+      <Dialog open={!!quickDrink} onOpenChange={(o) => !o && setQuickDrink(null)}>
+        <DialogContent className="sm:max-w-md bg-slate-900 text-white border-white/10">
+          <DialogHeader>
+            <DialogTitle>Registro Rápido</DialogTitle>
+            <DialogDescription className="text-white/60">
+              ¿Registrar entrega de {quickDrink?.nombre}? Se descontará del stock.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setQuickDrink(null)} className="border-white/20 bg-transparent text-white hover:bg-white/10">No, cancelar</Button>
+            <Button 
+               disabled={updatingId === quickDrink?.id} 
+               onClick={() => quickDrink && handleQuickOrder(quickDrink.id)}
+               className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              Sí, registrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
