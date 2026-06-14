@@ -528,36 +528,7 @@ export default function GestorFiestasPage() {
         </Card>
       </div>
 
-      <Card className="border-slate-200 bg-white shadow-lg print:hidden">
-        <CardHeader>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <MonitorPlay className="h-5 w-5 text-slate-900" />
-                Demo comercial AK
-              </CardTitle>
-              <CardDescription>
-                Muestra portal, pantalla LED, QR, muro social y tecnologia AK sin crear una fiesta falsa en planificacion.
-              </CardDescription>
-            </div>
-            <Badge className="w-fit bg-slate-950 text-white">Solo demostracion</Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-3">
-          <Button asChild className="h-12 w-full rounded-2xl bg-slate-950 font-black hover:bg-slate-800"><Link href="/marketing/demo-tecnologia">
-              <MonitorPlay className="mr-2 h-4 w-4" />
-              Ver demo tecnologia
-            </Link></Button>
-          <Button asChild variant="outline" className="h-12 w-full rounded-2xl font-black"><Link href="/presentacion-led/portafolio">
-              <Wand2 className="mr-2 h-4 w-4" />
-              Plantilla LED
-            </Link></Button>
-          <Button asChild variant="outline" className="h-12 w-full rounded-2xl font-black"><Link href="/marketing">
-              <Globe2 className="mr-2 h-4 w-4" />
-              Marketing 360
-            </Link></Button>
-        </CardContent>
-      </Card>
+
 
       {/* Phase 3.13: Resource Conflict Detection */}
       {conflictingDates.length > 0 && !isLoading && (
