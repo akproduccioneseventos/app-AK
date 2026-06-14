@@ -133,7 +133,8 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
       adjustmentPct,
     });
 
-    const applies = presupuesto.ajusteAnualActivo && projection.applies;
+    const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+    const applies = isContracted && presupuesto.ajusteAnualActivo && projection.applies;
     const annualAdjustment = applies ? projection.adjustmentAmount : 0;
     const total = applies ? projection.adjustedTotal : baseTotal;
     const yearsDiff = applies ? (projection.eventYear - projection.currentYear) : 0;

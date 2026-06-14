@@ -225,7 +225,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       adjustmentPct: adjustmentPct,
     });
 
-    const applies = presupuesto.ajusteAnualActivo && projection.applies;
+    const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+    const applies = isContracted && presupuesto.ajusteAnualActivo && projection.applies;
     const ajusteAnualVal = applies ? projection.adjustmentAmount : 0;
     const totalFinalVal = applies ? projection.adjustedTotal : totalVigente;
     const aniosDiferenciaVal = applies ? (projection.eventYear - projection.currentYear) : 0;
@@ -483,6 +484,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     presupuesto.estado === 'Facturado' ||
     Boolean(presupuesto.fechaFirmaContrato);
   const isDirectPrintAccess = searchParams.get('imprimir') === '1' || searchParams.get('direct') === '1';
+  const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
   const annualProjection = buildAnnualAdjustmentProjection({
     baseTotal: calculatedValues.totalFinal,
     eventDate: presupuesto.eventoFecha,
@@ -501,7 +503,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           }}
           logoUrl={logoUrl}
           adjustmentPct={adjustmentPct}
-          annualProjection={annualProjection}
+          annualProjection={isContracted ? annualProjection : undefined}
           pricePerPerson={pricePerPerson}
           bookingDepositAmount={DEFAULT_BOOKING_DEPOSIT_AMOUNT}
           clienteNombre={cliente?.name || presupuesto.clienteNombre}
@@ -1255,7 +1257,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </section>
                     
                 {/* Footer — booking terms + notes */}
-                {annualProjection.applies && (
+                {isContracted && annualProjection.applies && (
                   <section className="mb-4 print:mb-3 border border-gray-300 rounded bg-white overflow-hidden">
                     <div className="px-4 py-2 bg-slate-100 border-b border-gray-300 text-[10px] font-black uppercase tracking-widest text-gray-700">
                       Proyeccion informativa por ajuste anual ({annualProjection.adjustmentPct}%)

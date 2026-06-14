@@ -207,10 +207,11 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
   const currentYear = new Date().getFullYear();
   const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
+  const isContracted = presupuesto?.estado === 'Aceptado' || presupuesto?.estado === 'Facturado';
   const showAnnualAdjustmentLegend = 
+    isContracted &&
     adjustmentPct > 0 && 
     eventYear > currentYear && 
-    presupuesto?.estado !== 'Facturado' &&
     presupuesto?.ajusteAnualActivo === true;
 
   const projectionRows = showAnnualAdjustmentLegend
