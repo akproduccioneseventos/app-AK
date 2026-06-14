@@ -1082,7 +1082,24 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
         {/* CONTROLS AREA */}
         <div className="p-4 border-t border-slate-200 bg-slate-50 flex flex-col gap-2 shrink-0">
-          
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {[
+              { label: 'Recomendame un paquete', message: 'Recomendame el paquete que más me conviene con esta cantidad de invitados y explicame qué incluye.' },
+              { label: 'Quiero gastar menos', message: 'Optimizá este presupuesto para gastar menos sin sacar lo esencial.' },
+              { label: 'Revisá mi fiesta', message: 'Revisá toda mi configuración y decime qué falta o qué cambiarías.' },
+            ].map((quickAction) => (
+              <button
+                key={quickAction.label}
+                type="button"
+                onClick={() => handleSendMessage(quickAction.message)}
+                disabled={isAiLoading}
+                className="rounded-xl border border-purple-500/20 bg-purple-50 px-3 py-2 text-left text-[10px] font-black text-purple-700 transition hover:border-purple-300 hover:bg-purple-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {quickAction.label}
+              </button>
+            ))}
+          </div>
+
           {/* DYNAMIC PILL SUGGESTIONS */}
           {suggestionPill && !isAiLoading && (
             <div className="flex justify-center w-full pb-2">
