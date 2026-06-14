@@ -321,14 +321,15 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
   // Fallback 3: Package information request
   if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro')) {
     return {
-      response: `Bárbaro, los paquetes disponibles reúnen servicios de base como pantallas, cabina, luces o discoteca. Podés ver exactamente qué incluye cada uno en el formulario.`,
+      response: `Bárbaro, los paquetes disponibles reúnen servicios de base como pantallas, cabina, luces o discoteca. Podés ver exactamente qué incluye cada uno en el formulario izquierdo seleccionándolos manualmente.`,
       action: { type: 'none' as const }
     };
   }
 
   // Generic conversational fallback
   return {
-    response: `¡Hola! Soy Sofía. Ajustá los invitados, menús o paquetes a la izquierda y el presupuesto se calculará al instante. Si tenés dudas sobre los servicios, consultame por acá. ¿De qué tipo es tu fiesta?`,
+    response: `¡Hola! Soy Sofía. En este momento estoy con intermitencias en mi conexión inteligente 📡, pero podés ajustar los invitados, menús o paquetes directamente a la izquierda y el presupuesto se calculará al instante. ¡Armá tu fiesta ahí!`,
     action: { type: 'none' as const }
   };
 }
+
