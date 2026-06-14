@@ -477,7 +477,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-purple-500/30">
       
       {/* HEADER BANNER */}
-      <header className="flex flex-col gap-3 border-b border-slate-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
+      <header className="sticky top-0 z-50 flex flex-col gap-3 border-b border-slate-200 bg-white/80 backdrop-blur-xl px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5 shadow-sm">
         <div className="flex min-w-0 items-center gap-3">
           <CompanyLogo className="h-9 w-auto shrink-0 sm:h-10" />
           <div className="min-w-0">
@@ -513,7 +513,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           
           {/* STEP 1: CLIENT INFO */}
           <Card className={cn(
-            "bg-white border-slate-200 text-white rounded-3xl transition-all duration-300",
+            "bg-white/80 backdrop-blur-lg border-slate-200 text-white rounded-3xl transition-all duration-300 shadow-xl shadow-slate-200/50",
             pulsingFields.nombre && "ring-2 ring-purple-500 bg-purple-50"
           )}>
             <CardHeader className="pb-3">
@@ -546,7 +546,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
           {/* STEP 2: EVENT GENERALS */}
           <Card className={cn(
-            "bg-white border-slate-200 text-white rounded-3xl transition-all duration-300",
+            "bg-white/80 backdrop-blur-lg border-slate-200 text-white rounded-3xl transition-all duration-300 shadow-xl shadow-slate-200/50",
             (pulsingFields.eventoTipo || pulsingFields.eventoFecha || pulsingFields.duracionHoras) && "ring-2 ring-purple-500 bg-purple-50"
           )}>
             <CardHeader className="pb-3">
@@ -909,7 +909,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
           {/* FINAL BUDGET SUMMARY CARD */}
           {priceStats && (
-            <Card className="bg-gradient-to-br from-slate-900 to-indigo-950 border-purple-500/20 text-white rounded-3xl overflow-hidden shadow-2xl relative">
+            <Card className="bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900 border-purple-500/30 text-white rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(168,85,247,0.25)] relative transform transition-all duration-500 hover:scale-[1.02]">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
               <CardHeader className="pb-3 border-b border-white/5">
                 <CardTitle className="text-sm font-black uppercase tracking-wider text-purple-600 flex items-center justify-between">
@@ -1052,7 +1052,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                     "px-4 py-2.5 rounded-2xl text-xs max-w-[80%] leading-relaxed",
                     isUser 
                       ? "bg-purple-600 text-white rounded-br-none shadow-md" 
-                      : "bg-white/5 border border-white/10 text-zinc-100 rounded-bl-none shadow-inner"
+                      : "bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm"
                   )}
                 >
                   {msg.text}
@@ -1115,7 +1115,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           )}
 
           {/* CHAT BOX */}
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 focus-within:border-purple-500 transition shadow-sm w-full">
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2.5 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20 transition-all shadow-sm w-full">
             <input
               type="text"
               placeholder="Preguntale a Sofía..."
