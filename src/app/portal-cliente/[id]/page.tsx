@@ -408,6 +408,26 @@ export default function PortalClientePage() {
           </div>
         )}
 
+        {isEventPast && (
+          <div className="rounded-3xl p-5 border border-indigo-100 bg-indigo-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm">
+            <div className="flex gap-3.5 items-start">
+              <span className="text-3xl shrink-0">✨</span>
+              <div className="text-left">
+                <p className="text-xs font-black uppercase tracking-widest text-indigo-700 mb-1">¡Evento Concluido!</p>
+                <h3 className="text-base font-black text-slate-800">Muro de Recuerdos & Descargas</h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Ya podés acceder a todas las fotos y videos compartidos por tus invitados, así como a las dedicatorias y audios.
+                </p>
+              </div>
+            </div>
+            <Link href={`/portal-cliente/${fiestaId}/fotos-video`} className="w-full sm:w-auto shrink-0">
+              <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold px-5 h-11">
+                Acceder a Recuerdos
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {/* ── Progreso del Evento ──────────────────────── */}
         <EventProgressBar fiesta={fiesta} />
 
