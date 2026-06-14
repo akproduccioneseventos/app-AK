@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
@@ -34,13 +34,22 @@ import {
   Users,
   Video,
   Wand2,
+  Mic,
+  Trash2,
+  FileAudio,
+  Settings,
+  ListTodo,
+  ExternalLink,
+  ChevronRight,
+  ChevronLeft,
+  Square,
+  Volume2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -52,8 +61,24 @@ import {
   saveEntretenimientoFiesta,
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getBuzonMessages,
+  deleteBuzonMessage,
+  uploadWelcomeAudio,
+  deleteWelcomeAudio,
+  BuzonMessage
+} from '@/app/actions/buzon';
 
-type StationId = 'fotocabina' | 'plataforma360' | 'bogue' | 'espejoMagico' | 'totems' | 'laboratorioAk';
+type StationId =
+  | 'fotocabina'
+  | 'plataforma360'
+  | 'bogue'
+  | 'espejoMagicoFoto'
+  | 'espejoMagicoFirma'
+  | 'espejoMagicoIA'
+  | 'totems'
+  | 'capsulaTiempo';
+
 type StationStatus = 'preparando' | 'listo' | 'en-vivo' | 'pausado';
 type ModerationMode = 'auto' | 'revision' | 'solo-equipo';
 
@@ -68,7 +93,7 @@ interface EntertainmentMediaItem {
   moduleId: StationId;
   fileName: string;
   url: string;
-  type: 'image' | 'video';
+  type: 'image' | 'video' | 'audio';
   caption?: string;
   authorName?: string;
   uploadedAt: string;
@@ -147,50 +172,71 @@ interface EntertainmentData {
 }
 
 const STATUS_META: Record<StationStatus, { label: string; className: string }> = {
-  preparando: { label: 'Preparando', className: 'bg-slate-100 text-slate-700 border-slate-200' },
-  listo: { label: 'Listo', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  'en-vivo': { label: 'En vivo', className: 'bg-blue-100 text-blue-700 border-blue-200' },
-  pausado: { label: 'Pausado', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+  preparando: { label: 'Preparando', className: 'bg-zinc-800/80 text-zinc-300 border-zinc-700/50' },
+  listo: { label: 'Listo', className: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+  'en-vivo': { label: 'En vivo', className: 'bg-blue-500/20 text-blue-300 border-blue-500/30 animate-pulse' },
+  pausado: { label: 'Pausado', className: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
 };
 
-const STATION_IDS: StationId[] = ['fotocabina', 'plataforma360', 'bogue', 'espejoMagico', 'totems', 'laboratorioAk'];
+const STATION_IDS: StationId[] = [
+  'fotocabina',
+  'plataforma360',
+  'bogue',
+  'espejoMagicoFoto',
+  'espejoMagicoFirma',
+  'espejoMagicoIA',
+  'totems',
+  'capsulaTiempo',
+];
 
 const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ElementType }> = {
   fotocabina: {
-    shortLabel: 'Fotocabina',
-    description: 'Cabina social con fotos, GIFs, boomerangs, branding AK, QR, WhatsApp, galeria viva y salida para pantalla.',
+    shortLabel: 'Fotocabina Social',
+    description: 'Cabina clásica o tótem fotográfico para fotos, GIFs, boomerangs con marca del evento, QR y WhatsApp.',
     caption: 'Captura fotocabina',
     icon: Camera,
   },
   plataforma360: {
     shortLabel: 'Plataforma 360',
-    description: 'Clips 360 cinematicos con slow motion, speed ramp, intro/outro, overlay AK, QR instantaneo y muro social.',
-    caption: 'Captura 360',
+    description: 'Videos en slow motion con giros de cámara, intros/outros cinemáticas, speed ramp y descarga al instante.',
+    caption: 'Captura plataforma 360',
     icon: RotateCcw,
   },
   bogue: {
-    shortLabel: 'Bogue',
-    description: 'Clips boomerang cortos con loop, musica, overlay y QR para compartir al instante.',
-    caption: 'Clip Bogue / Boomerang',
+    shortLabel: 'Bogue (Boomerang)',
+    description: 'Clips cortos y dinámicos estilo boomerang con loops y música, listos para historias de Instagram.',
+    caption: 'Captura bogue',
     icon: Video,
   },
-  espejoMagico: {
-    shortLabel: 'Espejo magico',
-    description: 'Espejo interactivo premium con pantalla tactil, prompts, firma, dibujo, props, impresion y galeria QR.',
-    caption: 'Captura Espejo Magico',
+  espejoMagicoFoto: {
+    shortLabel: 'Espejo (Foto)',
+    description: 'Espejo táctil interactivo configurado exclusivamente para toma de fotografías limpias de alta calidad.',
+    caption: 'Foto espejo limpio',
     icon: Sparkles,
   },
+  espejoMagicoFirma: {
+    shortLabel: 'Espejo (Firma)',
+    description: 'Espejo interactivo completo con prompts guiados, stickers y lienzo táctil para firmas y dibujos.',
+    caption: 'Foto espejo firmado',
+    icon: Sparkles,
+  },
+  espejoMagicoIA: {
+    shortLabel: 'Espejo (Retrato IA)',
+    description: 'Estación de inteligencia artificial y face-swap utilizando plantillas del multiverso (Marvel, princesas, etc.).',
+    caption: 'Retrato IA',
+    icon: Wand2,
+  },
   totems: {
-    shortLabel: 'Totems interactivos',
-    description: 'Totems tactiles para fotos, encuesta, QR, bienvenida, juegos, galeria y orientacion de invitados por sectores.',
-    caption: 'Captura Totem AK',
+    shortLabel: 'Tótems Interactivos',
+    description: 'Pantallas informativas y de juegos táctiles para guiar invitados, realizar encuestas y ver el muro en vivo.',
+    caption: 'Interacción tótem',
     icon: Monitor,
   },
-  laboratorioAk: {
-    shortLabel: 'Invento AK',
-    description: 'Laboratorio de nueva tecnologia AK para probar ideas propias: dinamicas, sensores, juegos, pantallas y experiencias futuras.',
-    caption: 'Prueba Invento AK',
-    icon: Wand2,
+  capsulaTiempo: {
+    shortLabel: 'Cápsula del Tiempo',
+    description: 'Buzón digital interactivo de video y mensajes de voz para que los invitados regalen recuerdos eternos.',
+    caption: 'Mensaje de cápsula',
+    icon: Mic,
   },
 };
 
@@ -203,267 +249,188 @@ const CHANNELS = [
 ];
 
 const FEATURE_LIBRARY: Record<StationId, string[]> = {
-  fotocabina: ['Foto', 'GIF', 'Boomerang', 'Filtros', 'Marcos', 'Impresion', 'Galeria live', 'QR/WhatsApp'],
-  plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Musica', 'QR por video', 'Overlay animado', 'TV/LED'],
-  bogue: ['Boomerang', 'Loop forward/reverse', 'Video corto', 'Musica', 'Overlay animado', 'QR por clip'],
-  espejoMagico: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos', 'Impresion', 'Galeria QR', 'Prompts animados', 'Lead capture'],
-  totems: ['Pantalla tactil', 'Bienvenida', 'Encuestas', 'Juegos', 'QR por estacion', 'Galeria', 'Mapa salon', 'Pedidos'],
-  laboratorioAk: ['Prototipo', 'Sensor o interaccion', 'Pantalla LED', 'QR', 'Ranking', 'Modo sorpresa', 'Medicion', 'Guion comercial'],
+  fotocabina: ['Foto', 'GIF', 'Boomerang', 'Filtros', 'Marcos', 'Impresión', 'Galería live', 'QR/WhatsApp'],
+  plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Música', 'QR por video', 'Overlay animado', 'Salida LED'],
+  bogue: ['Boomerang', 'Loop adelante/atrás', 'Video corto', 'Música', 'Overlay animado', 'Compartir por QR'],
+  espejoMagicoFoto: ['Pantalla táctil', 'Foto limpia', 'Impresión premium', 'Filtros de piel', 'Galería QR', 'Prompts animados'],
+  espejoMagicoFirma: ['Pantalla táctil', 'Firma digital', 'Dibujo libre', 'Stickers/Props', 'Impresión', 'Galería QR', 'Asistente de voz'],
+  espejoMagicoIA: ['Face Swap', 'Marvel / Fantasía / Realeza', 'Estilo Cómics', 'Procesado IA en la nube', 'QR de descarga', 'Glow premium'],
+  totems: ['Pantalla táctil', 'Bienvenida', 'Encuestas', 'Juegos interactivos', 'Mapa de salón', 'Muro social en vivo'],
+  capsulaTiempo: ['Grabar Audio', 'Grabar Video', 'Reproducción de voz', 'Descarga ZIP', 'Audio de bienvenida', 'Notificaciones de pantalla'],
 };
 
 const MODERATION_LABELS: Record<ModerationMode, string> = {
-  auto: 'Publicar automatico',
+  auto: 'Publicar automático',
   revision: 'Revisar antes de publicar',
   'solo-equipo': 'Solo equipo AK',
 };
 
 const PRO_EQUIPMENT: Record<StationId, string[]> = {
-  fotocabina: ['Camara o tablet', 'Aro de luz', 'Fondo o marco', 'Impresora opcional', 'QR visible'],
-  plataforma360: ['Celular AK', 'Soporte estable', 'Luz frontal', 'Plataforma fisica', 'Bateria externa'],
-  bogue: ['Celular o tablet', 'Soporte vertical', 'Luz continua', 'Musica corta', 'Cartel de QR'],
-  espejoMagico: ['Espejo/pantalla tactil', 'Camara', 'Impresora opcional', 'Props fisicos', 'Limpieza de pantalla'],
-  totems: ['Pantalla o tablet', 'Soporte/totem fisico', 'Extension electrica', 'QR visible', 'Conexion o modo offline'],
-  laboratorioAk: ['Equipo prototipo', 'Notebook o celular controlador', 'Pantalla LED opcional', 'Kit de cables', 'Plan de prueba'],
+  fotocabina: ['Cámara Reflex o iPad Pro', 'Aro de luz profesional', 'Estructura totem', 'Impresora fotográfica opcional'],
+  plataforma360: ['iPhone con app AK', 'Plataforma circular estable', 'Brazo giratorio motorizado', 'Aro de luz LED', 'Batería externa'],
+  bogue: ['Celular o tablet', 'Trípode vertical', 'Iluminación continua', 'Código QR de sharing'],
+  espejoMagicoFoto: ['Espejo táctil', 'Cámara DSLR oculta', 'Impresora fotográfica', 'Iluminación flash interna'],
+  espejoMagicoFirma: ['Espejo táctil capacitivo', 'Cámara DSLR', 'Impresora fotográfica', 'Props físicos y cartel QR'],
+  espejoMagicoIA: ['Tablet o espejo conectado', 'Cámara HD', 'Conexión a internet estable', 'Instrucciones del multiverso'],
+  totems: ['Pantalla táctil vertical', 'Soporte físico reforzado', 'Cables de alimentación ocultos', 'Conexión local/offline'],
+  capsulaTiempo: ['iPad/Celular con soporte', 'Micrófono de solapa con supresión de ruido', 'Luz de relleno suave', 'Auriculares de monitoreo'],
 };
 
 const PRO_FLOW: Record<StationId, string[]> = {
-  fotocabina: ['Invitado elige plantilla', 'Captura foto/GIF', 'Se aplica overlay', 'Ve QR o comparte', 'Aparece en galeria/muro'],
-  plataforma360: ['Invitado sube a plataforma', 'Se graba clip corto', 'Se aplica slow/speed ramp', 'Se sube al modulo', 'Se comparte por QR/muro'],
-  bogue: ['Invitado hace movimiento corto', 'Se graba loop', 'Se reproduce ida/vuelta', 'Se aplica musica/overlay', 'Se comparte como clip viral'],
-  espejoMagico: ['Invitado toca el espejo', 'Sigue prompts guiados', 'Firma o agrega sellos', 'Confirma o repite', 'Recibe QR/impresion/galeria'],
-  totems: ['Invitado toca el totem', 'Elige juego o accion', 'Escanea QR o deja dato', 'Aparece en pantalla/muro', 'Recibe proximo paso'],
-  laboratorioAk: ['Equipo AK activa la prueba', 'Invitados participan', 'Se mide respuesta', 'Se muestra resultado en LED', 'Se decide si pasa a producto'],
+  fotocabina: ['Invitado toca pantalla', 'Captura fotos/GIF', 'Aplica marco temático', 'Escanea QR o recibe por WhatsApp'],
+  plataforma360: ['Invitado sube a plataforma', 'Giro del brazo con grabación', 'Generación de cámara lenta y speed ramp', 'Descarga por QR'],
+  bogue: ['Invitado posa haciendo acción corta', 'Se graba loop corto', 'Se añade overlay y música', 'Comparte en redes'],
+  espejoMagicoFoto: ['Invitado toca el espejo', 'Cuenta regresiva guiada', 'Toma foto espectacular', 'Imprime y escanea QR'],
+  espejoMagicoFirma: ['Invitado toca el espejo', 'Cuenta regresiva', 'Dibuja o firma en pantalla', 'Elige stickers', 'Imprime / QR'],
+  espejoMagicoIA: ['Invitado elige avatar', 'Toma foto de rostro', 'El motor IA procesa el face swap', 'Escanea QR del retrato mágico'],
+  totems: ['Invitado interactúa con el menú', 'Completa encuesta o juego', 'Ve fotos de la fiesta en el muro', 'Consulta mapa/agenda'],
+  capsulaTiempo: ['Invitado toca pantalla', 'Escucha mensaje de bienvenida del anfitrión', 'Graba su video o audio de felicitación', 'Guarda el recuerdo'],
 };
 
 const PRO_HIGHLIGHTS: Record<StationId, string[]> = {
-  fotocabina: ['Plantillas por evento', 'Filtros en vivo', 'Impresion opcional', 'Galeria QR', 'Datos de invitados', 'Modo sharing station'],
-  plataforma360: ['Slow motion', 'Speed ramp', 'Intro/outro', 'Overlay animado', 'Salida social', 'Clip listo para reels'],
-  bogue: ['Loop ida/vuelta', 'Clip rapido', 'Musica por evento', 'Overlay animado', 'Formato vertical'],
-  espejoMagico: ['Pantalla tactil', 'Firma y dibujo', 'Sellos/props', 'Prompts guiados', 'Experiencia premium', 'Recuerdo firmado'],
-  totems: ['Punto de autoservicio', 'Encuestas y juegos', 'QR por sector', 'Contenido para LED', 'Captura de datos', 'Orientacion de invitados'],
-  laboratorioAk: ['Diferencial propio', 'Producto en validacion', 'Prueba controlada', 'Guion para vender', 'Aprendizaje post-fiesta', 'Escalable a futuro'],
+  fotocabina: ['Diseños personalizados', 'Filtros en vivo', 'Impresión rápida', 'Captura de correos'],
+  plataforma360: ['Efectos cinemáticos', 'Música incorporada', 'Renderizado en 15 segundos', 'Muro social integrado'],
+  bogue: ['Contenido super liviano', 'Efecto repetitivo viral', 'Música de fiesta', 'Estilo vertical historias'],
+  espejoMagicoFoto: ['Look premium elegante', 'Fotos sin distracciones', 'Filtro de brillo glam', 'Impresión 4x6 instantánea'],
+  espejoMagicoFirma: ['Altamente interactivo', 'Mensajes personalizados', 'Confeti digital', 'Props virtuales y físicos'],
+  espejoMagicoIA: ['Experiencia tecnológica wow', 'Resultados realistas', 'Atracción garantizada', 'Integración Touchpix AI'],
+  totems: ['Autoservicio total', 'Captura de feedback', 'Mapeo de mesas', 'Estadísticas de participación'],
+  capsulaTiempo: ['Mensajes de voz emotivos', 'Videos divertidos de pista', 'Álbum digital privado', 'Descarga zip completa'],
 };
 
 const MARKET_BENCHMARK_INSIGHTS = [
-  { label: 'Sparkbooth', detail: 'Layout editor, kiosk de impresion/compartir y modo espejo con animaciones.' },
-  { label: 'Touchpix', detail: 'Dashboard remoto, 6 modos de captura, QR, WhatsApp, offline queue y TV/AirPlay.' },
-  { label: 'Snappic', detail: '360 cinematico con slow motion, speed ramps, intros/outros y overlays de marca.' },
-  { label: 'Simple Booth', detail: 'Galerias live con branding, hashtag, performance movil y analitica de shares.' },
+  { label: 'Touchpix AI', detail: 'Sincronización remota, face swap automático, plantillas y modo sharing station offline.' },
+  { label: 'Snappic Premium', detail: 'Filtros de beauty avanzados, edición de videos con speed-ramping y micrositios de galería.' },
+  { label: 'Audio Guestbook Físico', detail: 'Teléfonos retro que graban audios. AK lo supera integrando video y QR en una sola tablet.' },
 ];
-
-const AK_SUPERIORITY_STACK = [
-  'Un QR conecta invitado, galeria, muro social y pantalla LED.',
-  'Cada estacion nace con marca AK y marca del evento, no como proveedor suelto.',
-  'Modo operativo: responsable, checklist, plan B offline y estado en vivo.',
-  'Post-fiesta: recuerdos, galeria, material para redes y proxima venta.',
-];
-
-const BENCHMARK_FEATURES: Record<StationId, string[]> = {
-  fotocabina: ['Editor de layout', 'Kiosk/sharing station', 'Foto + GIF + boomerang', 'Impresion/QR', 'Galeria live con analytics'],
-  plataforma360: ['Bluetooth/trigger remoto', 'Slow motion + speed ramp', 'Intro/outro con marca', 'QR por video', 'TV/LED para descarga'],
-  bogue: ['Loop vertical rapido', 'Overlay animado', 'Musica corta', 'QR por clip', 'Formato historia/reel'],
-  espejoMagico: ['Modo espejo animado', 'Pantalla tactil', 'Firma/dibujo/stickers', 'Print premium', 'Galeria QR'],
-  totems: ['Kiosk tactil', 'Encuestas/juegos', 'QR por pantalla', 'Integracion LED', 'Modo autoservicio'],
-  laboratorioAk: ['Prototipo configurable', 'Experiencia propia', 'Medicion de uso', 'Salida a pantalla', 'Iteracion rapida'],
-};
-
-const AK_SELLING_PROOF: Record<StationId, string[]> = {
-  fotocabina: ['La foto no queda aislada: entra a galeria, muro social y WhatsApp.', 'Sirve para recuerdos y tambien para capturar datos del cliente/invitado.'],
-  plataforma360: ['El clip se vende como contenido social premium, no solo como giro.', 'AK lo conecta a pantalla, QR y post-fiesta para multiplicar el impacto.'],
-  bogue: ['Ideal para momentos de pista: rapido, liviano y compartible.', 'Complementa la 360 cuando hay mucha gente y se necesita velocidad.'],
-  espejoMagico: ['Se siente como atraccion premium de entrada o recepcion.', 'El invitado participa, firma y se lleva un recuerdo con marca del evento.'],
-  totems: ['Convierte pantallas en puntos activos, no solo decoracion.', 'Ayuda a guiar invitados y alimentar el muro o la LED.'],
-  laboratorioAk: ['Permite vender innovacion AK aunque el producto todavia este en prueba.', 'Ordena hipotesis, equipamiento y medicion antes de prometerlo.'],
-};
-
-const OUTPUT_FORMATS: Record<StationId, string> = {
-  fotocabina: 'JPG + GIF + print 4x6',
-  plataforma360: 'MP4 vertical 1080p',
-  bogue: 'MP4 loop + GIF',
-  espejoMagico: 'JPG firmado + print 4x6',
-  totems: 'Pantalla tactil + QR + galeria',
-  laboratorioAk: 'Prototipo AK + salida LED',
-};
 
 const TEMPLATE_PRESETS: Record<StationId, EntertainmentTemplatePreset[]> = {
   fotocabina: [
     {
-      id: 'photo-premium',
-      name: 'Premium blanco',
-      mood: 'Elegante y limpio',
-      overlayName: 'Marco blanco premium con logo AK',
-      accentColor: '#2563eb',
-      outputFormat: 'JPG + GIF + print 4x6',
-      qualityPreset: 'Alta calidad + copia web',
-      filterPreset: 'Piel natural + contraste suave',
-      musicTrack: 'Sin musica, foco en captura',
-      backgroundStyle: 'Fondo claro con marco fino',
-      printLayout: 'Foto 4x6 + QR inferior',
-      animationStyle: 'Flash suave + entrada limpia',
-    },
-    {
-      id: 'photo-party',
-      name: 'Fiesta social',
-      mood: 'Colorido y compartible',
-      overlayName: 'Marco social con stickers del evento',
-      accentColor: '#7c3aed',
-      outputFormat: 'JPG + GIF + historia vertical',
-      qualityPreset: 'Social HD + copia impresion',
-      filterPreset: 'Brillo fiesta + piel calida',
-      musicTrack: 'Intro corta para GIF',
-      backgroundStyle: 'Fondo con luces y detalle del evento',
-      printLayout: 'Tira doble + QR de galeria',
-      animationStyle: 'Pop de stickers + brillo final',
+      id: 'fc-elegante',
+      name: 'Elegante Blanco',
+      mood: 'Estilo boda minimalista',
+      overlayName: 'Marco blanco con flores finas',
+      accentColor: '#ffffff',
+      outputFormat: 'JPG + GIF + Print 4x6',
+      qualityPreset: 'Alta calidad DSLR',
+      filterPreset: 'Brillo suave + piel natural',
+      musicTrack: 'Ninguna',
+      backgroundStyle: 'Cortina clara o fondo de flores',
+      printLayout: 'Foto completa 4x6 con QR',
+      animationStyle: 'Flash tradicional',
     },
   ],
   plataforma360: [
     {
-      id: '360-cinematic',
-      name: 'Cinematico 360',
-      mood: 'Premium para pantalla grande',
-      overlayName: 'Overlay 360 cinematic con intro AK',
-      accentColor: '#0ea5e9',
+      id: '360-party',
+      name: 'Pista de Baño 360',
+      mood: 'Alta energía, pista de baile',
+      overlayName: 'Overlay de luces de neon',
+      accentColor: '#a855f7',
       outputFormat: 'MP4 vertical 1080p',
-      qualityPreset: 'Social HD 1080p',
-      filterPreset: 'Contraste alto + luces frias',
-      musicTrack: 'Beat elegante de 12 segundos',
-      backgroundStyle: 'Escena oscura con aro de luz',
-      printLayout: 'Video vertical + portada automatica',
-      animationStyle: 'Slow motion + speed ramp + outro',
-    },
-    {
-      id: '360-neon',
-      name: 'Neon viral',
-      mood: 'Energia de pista',
-      overlayName: 'Overlay neon con hashtag del evento',
-      accentColor: '#22c55e',
-      outputFormat: 'MP4/Reel 1080p + miniatura',
-      qualityPreset: 'Reel social con compresion liviana',
-      filterPreset: 'Neon vivo + piel natural',
-      musicTrack: 'Drop corto para redes',
-      backgroundStyle: 'Luces de pista y fondo oscuro',
-      printLayout: 'Miniatura vertical con QR',
-      animationStyle: 'Speed ramp agresivo + flash beat',
+      qualityPreset: 'HD 60fps',
+      filterPreset: 'Contraste alto + colores saturados',
+      musicTrack: 'Beat electrónico de 10s',
+      backgroundStyle: 'Luces led de pista',
+      printLayout: 'Video vertical con logo del evento',
+      animationStyle: 'Slow-motion central con aceleración en puntas',
     },
   ],
   bogue: [
     {
-      id: 'bogue-loop',
-      name: 'Loop viral',
-      mood: 'Rapido y divertido',
-      overlayName: 'Overlay Bogue loop con marca del evento',
-      accentColor: '#8b5cf6',
-      outputFormat: 'MP4 loop + GIF',
-      qualityPreset: 'Loop HD liviano',
-      filterPreset: 'Color vivo + nitidez social',
-      musicTrack: 'Beat corto repetible',
-      backgroundStyle: 'Fondo vertical con luces suaves',
-      printLayout: 'GIF + portada para QR',
-      animationStyle: 'Ida/vuelta + rebote final',
-    },
-    {
       id: 'bogue-glam',
-      name: 'Glam Bogue',
-      mood: 'Estetico tipo alfombra',
-      overlayName: 'Overlay glam con firma AK',
-      accentColor: '#f59e0b',
-      outputFormat: 'MP4 vertical + GIF social',
-      qualityPreset: 'Glam social HD',
-      filterPreset: 'Glow suave + piel premium',
-      musicTrack: 'Intro glam de 6 segundos',
-      backgroundStyle: 'Fondo claro con destellos',
-      printLayout: 'Portada vertical + QR',
-      animationStyle: 'Loop suave + destello de cierre',
+      name: 'Glam Boomerang',
+      mood: 'Estetico y chic',
+      overlayName: 'Filtro destellos dorados',
+      accentColor: '#eab308',
+      outputFormat: 'MP4 loop + GIF',
+      qualityPreset: 'HD Liviano',
+      filterPreset: 'Golden hour glam',
+      musicTrack: 'Pop bailable corto',
+      backgroundStyle: 'Fondo de lentejuelas doradas',
+      printLayout: 'Historia 9:16 con QR inferior',
+      animationStyle: 'Loop ida y vuelta rápido',
     },
   ],
-  espejoMagico: [
+  espejoMagicoFoto: [
+    {
+      id: 'mirror-clean',
+      name: 'Foto Limpia Pro',
+      mood: 'Retrato formal premium',
+      overlayName: 'Sin marco sobreimpreso',
+      accentColor: '#10b981',
+      outputFormat: 'JPG + Print 4x6',
+      qualityPreset: 'Super HD',
+      filterPreset: 'Retoque de piel natural',
+      musicTrack: 'Prompt de voz suave',
+      backgroundStyle: 'Espejo real',
+      printLayout: 'Fotografía completa 4x6 con logo pequeño',
+      animationStyle: 'Destello estroboscópico',
+    },
+  ],
+  espejoMagicoFirma: [
     {
       id: 'mirror-signature',
-      name: 'Firma premium',
-      mood: 'Recuerdo elegante',
-      overlayName: 'Marco espejo con firma y sellos',
-      accentColor: '#f59e0b',
-      outputFormat: 'JPG firmado + print 4x6',
-      qualityPreset: 'Alta calidad + impresion',
-      filterPreset: 'Piel natural + brillo espejo',
-      musicTrack: 'Prompt sonoro suave',
-      backgroundStyle: 'Fondo espejo con borde luminoso',
-      printLayout: '4x6 firmado + QR discreto',
-      animationStyle: 'Prompt tactil + brillo de firma',
-    },
-    {
-      id: 'mirror-fun',
-      name: 'Espejo divertido',
-      mood: 'Juego con props',
-      overlayName: 'Marco espejo con props y stickers',
+      name: 'Firma y Dedicatoria',
+      mood: 'Divertido y familiar',
+      overlayName: 'Marco de felicitaciones interactivo',
       accentColor: '#ec4899',
-      outputFormat: 'JPG + GIF + print opcional',
-      qualityPreset: 'Social + impresion opcional',
-      filterPreset: 'Color fiesta + suavizado',
-      musicTrack: 'Sonidos de premio y captura',
-      backgroundStyle: 'Fondo con props y sellos',
-      printLayout: 'Collage 2 fotos + QR',
-      animationStyle: 'Prompts animados + confeti digital',
+      outputFormat: 'JPG con dibujo',
+      qualityPreset: 'Alta calidad 300dpi',
+      filterPreset: 'Contraste vivo',
+      musicTrack: 'Música alegre de fondo',
+      backgroundStyle: 'Lienzo interactivo',
+      printLayout: 'Foto con dedicatoria firmada',
+      animationStyle: 'Confeti digital al finalizar',
+    },
+  ],
+  espejoMagicoIA: [
+    {
+      id: 'mirror-ia-marvel',
+      name: 'Héroes del Multiverso',
+      mood: 'Tecnológico y lúdico',
+      overlayName: 'Borde cómic Marvel',
+      accentColor: '#ef4444',
+      outputFormat: 'JPG Face Swap',
+      qualityPreset: 'FHD optimizado',
+      filterPreset: 'Fusión de texturas IA',
+      musicTrack: 'Fanfarria heroica',
+      backgroundStyle: 'Fondo de ciudad destruida o galaxia',
+      printLayout: 'Póster de superhéroe con rostro de invitado',
+      animationStyle: 'Efecto escáner futurista',
     },
   ],
   totems: [
     {
       id: 'totem-welcome',
-      name: 'Totem bienvenida',
-      mood: 'Recepcion guiada',
-      overlayName: 'Pantalla tactil con bienvenida y QR',
-      accentColor: '#14b8a6',
-      outputFormat: 'Pantalla tactil + QR + galeria',
-      qualityPreset: 'Kiosk estable + modo offline',
-      filterPreset: 'Visual claro alto contraste',
-      musicTrack: 'Loop suave de bienvenida',
-      backgroundStyle: 'Fondo del evento con logo AK',
-      printLayout: 'QR grande + acciones rapidas',
-      animationStyle: 'Transiciones tactiles simples',
-    },
-    {
-      id: 'totem-games',
-      name: 'Totem juegos',
-      mood: 'Participativo',
-      overlayName: 'Totem con encuesta, ranking y retos',
-      accentColor: '#2563eb',
-      outputFormat: 'Pantalla + ranking + salida LED',
-      qualityPreset: 'Interaccion rapida para fila',
-      filterPreset: 'Color vivo + lectura facil',
-      musicTrack: 'Beat corto de juego',
-      backgroundStyle: 'Fondo dinamico por desafio',
-      printLayout: 'Resultado + QR de participacion',
-      animationStyle: 'Ranking animado + celebracion',
+      name: 'Bienvenida Interactiva',
+      mood: 'Informativo y social',
+      overlayName: 'Pantalla con agenda de la fiesta',
+      accentColor: '#06b6d4',
+      outputFormat: 'Pantalla interactiva',
+      qualityPreset: 'Modo kiosco rápido',
+      filterPreset: 'Contraste para interiores',
+      musicTrack: 'Chill out suave',
+      backgroundStyle: 'Fondo temático del evento',
+      printLayout: 'Agenda + QR de fotos',
+      animationStyle: 'Transiciones de diapositiva suaves',
     },
   ],
-  laboratorioAk: [
+  capsulaTiempo: [
     {
-      id: 'lab-sorpresa',
-      name: 'Experiencia sorpresa',
-      mood: 'Invento en validacion',
-      overlayName: 'Prototipo AK conectado a pantalla',
-      accentColor: '#f97316',
-      outputFormat: 'Prototipo AK + salida LED',
-      qualityPreset: 'Prueba controlada por equipo',
-      filterPreset: 'Look tecnico premium',
-      musicTrack: 'Audio corto de activacion',
-      backgroundStyle: 'Pantalla experimental AK',
-      printLayout: 'Resultado visual + QR',
-      animationStyle: 'Activacion sorpresa + resultado',
-    },
-    {
-      id: 'lab-ranking',
-      name: 'Ranking interactivo',
-      mood: 'Juego propio AK',
-      overlayName: 'Ranking en vivo con participantes',
-      accentColor: '#0f172a',
-      outputFormat: 'Ranking + QR + medicion',
-      qualityPreset: 'Prueba de producto con datos',
-      filterPreset: 'Contraste alto para LED',
-      musicTrack: 'Stinger de puntaje',
-      backgroundStyle: 'Fondo competitivo con marca AK',
-      printLayout: 'Resultado final para redes',
-      animationStyle: 'Subida de puntaje + ganador',
+      id: 'capsula-default',
+      name: 'Cofre de Recuerdos',
+      mood: 'Sentimental y alegre',
+      overlayName: 'Buzón digital grabador',
+      accentColor: '#f43f5e',
+      outputFormat: 'Audio / Video mensaje',
+      qualityPreset: 'Audio HD sin pérdidas / Video HD',
+      filterPreset: 'Iluminación cálida de rostro',
+      musicTrack: 'Sonido de campana para grabar',
+      backgroundStyle: 'Cabina aislada',
+      printLayout: 'Tarjeta digital de agradecimiento',
+      animationStyle: 'Onda de audio reactiva',
     },
   ],
 };
@@ -472,22 +439,21 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
   const shared = [
     'Branding del evento cargado',
     'QR visible para invitados',
-    'WhatsApp / descarga probados',
-    'Galeria y muro social abiertos',
-    'Prueba de envio realizada',
-    'Plan B offline definido',
-    'Responsable asignado',
+    'Prueba de envío realizada',
+    'Plan B de respaldo definido',
+    'Responsable de estación asignado',
   ];
   const specificByType: Record<StationId, string[]> = {
-    fotocabina: ['Plantilla de foto aprobada', 'Fondo o marco elegido', 'Impresora / salida digital verificada', 'Modo sharing station listo'],
-    plataforma360: ['Celular con bateria suficiente', 'Tripode o soporte estable', 'Prueba de giro y encuadre hecha', 'Intro/outro y musica probadas'],
-    bogue: ['Duracion del loop configurada', 'Musica o sonido corto elegido', 'Prueba de ida y vuelta realizada'],
-    espejoMagico: ['Espejo/pantalla tactil limpia', 'Firma y sellos probados', 'Plantilla de impresion aprobada', 'Prompts de bienvenida cargados'],
-    totems: ['Pantalla/totem probado', 'Menu tactil definido', 'QR de acciones activo', 'Salida a LED o muro revisada'],
-    laboratorioAk: ['Hipotesis de prueba escrita', 'Equipo prototipo probado', 'Guion de uso definido', 'Criterio de exito acordado'],
+    fotocabina: ['Plantilla de foto cargada', 'Cámara y aro de luz calibrados', 'Impresora conectada y con papel'],
+    plataforma360: ['Celular cargado al 100%', 'Brazo giratorio calibrado', 'Ángulo y luz de pista chequeados'],
+    bogue: ['Configuración de duración ajustada', 'Efecto loop testeado', 'Soporte de celular bloqueado'],
+    espejoMagicoFoto: ['Espejo limpio y calibrado', 'Impresión de prueba lista', 'Guía de voz activada'],
+    espejoMagicoFirma: ['Pincel de firma probado', 'Stickers virtuales cargados', 'Espejo limpio y listo'],
+    espejoMagicoIA: ['Conexión de red de alta velocidad', 'Límites de créditos IA validados', 'Plantillas cargadas'],
+    totems: ['Menú táctil configurado', 'Muro en vivo enlazado', 'Código QR de mesas verificado'],
+    capsulaTiempo: ['Micrófono inalámbrico probado', 'Audio de bienvenida grabado', 'Espacio en disco suficiente'],
   };
-  const specific = specificByType[type];
-
+  const specific = specificByType[type] || [];
   return [...specific, ...shared].map((text, index) => ({
     id: `${type}_check_${index + 1}`,
     text,
@@ -495,205 +461,84 @@ function makeChecklist(type: StationId): EntertainmentChecklistItem[] {
   }));
 }
 
-function makeProDefaults(type: StationId, eventName: string): Pick<
-  EntertainmentStation,
-  | 'activeTemplateId'
-  | 'templateName'
-  | 'brandText'
-  | 'footerText'
-  | 'qrCallout'
-  | 'logoUrl'
-  | 'filterPreset'
-  | 'musicTrack'
-  | 'backgroundStyle'
-  | 'printLayout'
-  | 'animationStyle'
-  | 'outputFormat'
-  | 'qualityPreset'
-  | 'sessionGoal'
-  | 'shareMessage'
-  | 'printCopies'
-  | 'maxRetakes'
-  | 'estimatedDurationSeconds'
-  | 'moderationMode'
-  | 'offlineQueueEnabled'
-  | 'autoPublish'
-  | 'leadCaptureEnabled'
-  | 'analyticsEnabled'
-  | 'backupPlan'
-  | 'equipment'
-  | 'guestFlow'
-  | 'proHighlights'
-> {
-  const label = STATION_META[type].shortLabel;
-  const isVideoExperience = type === 'plataforma360' || type === 'bogue';
-  const preset = TEMPLATE_PRESETS[type][0];
+function makeProDefaults(type: StationId, eventName: string): Omit<EntertainmentStation, 'id' | 'title' | 'enabled' | 'status' | 'operatorName' | 'deviceName' | 'location' | 'startTime' | 'overlayName' | 'accentColor' | 'captureModes' | 'deliveryChannels' | 'checklist' | 'script' | 'notes' | 'media'> {
+  const preset = TEMPLATE_PRESETS[type]?.[0] || TEMPLATE_PRESETS['fotocabina'][0];
   return {
     activeTemplateId: preset.id,
-    templateName: `${eventName} - ${label} Pro`,
+    templateName: `${eventName} - Pro`,
     brandText: eventName,
     footerText: 'AK Producciones',
-    qrCallout: 'Escanea, descarga y comparti tu recuerdo',
+    qrCallout: 'Escaneá y llevate tu recuerdo al instante',
     logoUrl: '',
     filterPreset: preset.filterPreset,
     musicTrack: preset.musicTrack,
     backgroundStyle: preset.backgroundStyle,
     printLayout: preset.printLayout,
     animationStyle: preset.animationStyle,
-    outputFormat: preset.outputFormat || OUTPUT_FORMATS[type],
-    qualityPreset: preset.qualityPreset || (isVideoExperience ? 'Social HD 1080p' : 'Alta calidad + copia web'),
-    sessionGoal: type === 'espejoMagico' ? 'Entrada premium y recuerdo firmado' : 'Contenido compartible durante la fiesta',
-    shareMessage: `Tu recuerdo de ${eventName} ya esta listo en la experiencia AK. Abrilo, descargalo y compartilo por WhatsApp.`,
-    printCopies: type === 'fotocabina' || type === 'espejoMagico' ? 1 : 0,
-    maxRetakes: type === 'espejoMagico' ? 2 : 1,
-    estimatedDurationSeconds: type === 'plataforma360' ? 12 : type === 'bogue' ? 6 : 18,
-    moderationMode: isVideoExperience ? 'revision' : 'auto',
+    outputFormat: preset.outputFormat,
+    qualityPreset: preset.qualityPreset,
+    sessionGoal: 'Entregar el mejor recuerdo de la fiesta',
+    shareMessage: `¡Tu recuerdo de ${eventName} ya está listo! Ingresá al link, descargalo y compartilo en tus redes.`,
+    printCopies: type.startsWith('espejoMagico') || type === 'fotocabina' ? 1 : 0,
+    maxRetakes: 2,
+    estimatedDurationSeconds: 15,
+    moderationMode: 'auto',
     offlineQueueEnabled: true,
-    autoPublish: type !== 'espejoMagico',
-    leadCaptureEnabled: type === 'espejoMagico' || type === 'fotocabina',
+    autoPublish: true,
+    leadCaptureEnabled: true,
     analyticsEnabled: true,
-    backupPlan: isVideoExperience
-      ? 'Guardar copia local, mostrar QR general y subir la cola al volver internet.'
-      : 'Guardar original local, usar QR general y repetir con modo digital si falla impresion.',
-    equipment: PRO_EQUIPMENT[type],
-    guestFlow: PRO_FLOW[type],
-    proHighlights: PRO_HIGHLIGHTS[type],
+    backupPlan: 'Guardar localmente en la cola offline y subir al retornar internet.',
+    equipment: PRO_EQUIPMENT[type] || [],
+    guestFlow: PRO_FLOW[type] || [],
+    proHighlights: PRO_HIGHLIGHTS[type] || [],
   };
 }
 
 function makeStation(type: StationId, fiesta?: FiestaEnPlanificacion | null): EntertainmentStation {
   const eventName = fiesta?.configuracion?.nombreEvento || 'Evento AK';
   const proDefaults = makeProDefaults(type, eventName);
+  const meta = STATION_META[type];
 
-  if (type === 'fotocabina') {
-    return {
-      id: 'fotocabina',
-      title: 'Fotocabina AK Pro',
-      enabled: true,
-      status: 'listo',
-      operatorName: '',
-      deviceName: 'Tablet / camara / notebook',
-      location: 'Zona de fotos',
-      startTime: '22:30',
-      overlayName: `${eventName} - marco premium`,
-      accentColor: '#2563eb',
-      ...proDefaults,
-      captureModes: ['Foto', 'GIF', 'Boomerang'],
-      deliveryChannels: ['qr', 'mail', 'whatsapp', 'galeria'],
-      checklist: makeChecklist('fotocabina'),
-      script: 'Captura, aplica marco AK, muestra QR y deja la foto lista para galeria y muro social.',
-      notes: '',
-      media: [],
-    };
-  }
-
-  if (type === 'bogue') {
-    return {
-      id: 'bogue',
-      title: 'Bogue AK',
-      enabled: true,
-      status: 'listo',
-      operatorName: '',
-      deviceName: 'Celular / tablet con soporte',
-      location: 'Zona de activacion',
-      startTime: '23:30',
-      overlayName: `${eventName} - loop social`,
-      accentColor: '#0ea5e9',
-      ...proDefaults,
-      captureModes: ['Boomerang', 'Loop forward/reverse', 'Video corto'],
-      deliveryChannels: ['qr', 'whatsapp', 'galeria', 'descarga'],
-      checklist: makeChecklist('bogue'),
-      script: 'Grabar clips cortos de movimiento, aplicar marca AK y publicarlos como loop para QR, galeria y muro social.',
-      notes: 'Ideal para entrada, cotillon o momento de pista con mucha energia.',
-      media: [],
-    };
-  }
-
-  if (type === 'espejoMagico') {
-    return {
-      id: 'espejoMagico',
-      title: 'Espejo Magico AK',
-      enabled: true,
-      status: 'preparando',
-      operatorName: '',
-      deviceName: 'Espejo / pantalla tactil / camara',
-      location: 'Recepcion o salon principal',
-      startTime: '21:30',
-      overlayName: `${eventName} - espejo interactivo`,
-      accentColor: '#f59e0b',
-      ...proDefaults,
-      captureModes: ['Pantalla tactil', 'Firma', 'Dibujo', 'Sellos'],
-      deliveryChannels: ['qr', 'mail', 'whatsapp', 'galeria', 'descarga'],
-      checklist: makeChecklist('espejoMagico'),
-      script: 'El invitado toca el espejo, sigue prompts, firma o dibuja sobre la foto y la recibe por QR o galeria.',
-      notes: 'Pensado como experiencia premium de entrada, elegante y muy visual.',
-      media: [],
-    };
-  }
-
-  if (type === 'totems') {
-    return {
-      id: 'totems',
-      title: 'Totems Interactivos AK',
-      enabled: true,
-      status: 'preparando',
-      operatorName: '',
-      deviceName: 'Pantalla / tablet en totem',
-      location: 'Recepcion, pista o sector de juegos',
-      startTime: '21:00',
-      overlayName: `${eventName} - totem interactivo`,
-      accentColor: '#14b8a6',
-      ...proDefaults,
-      captureModes: ['Bienvenida', 'Encuesta', 'Juegos', 'QR por sector'],
-      deliveryChannels: ['qr', 'galeria', 'whatsapp'],
-      checklist: makeChecklist('totems'),
-      script: 'Instalar una pantalla tactil para guiar invitados, activar juegos, mostrar QR y alimentar el muro o la pantalla LED.',
-      notes: 'Pensado para recepcion, fila de fotos, zona adolescente o punto de informacion del evento.',
-      media: [],
-    };
-  }
-
-  if (type === 'laboratorioAk') {
-    return {
-      id: 'laboratorioAk',
-      title: 'Laboratorio de Inventos AK',
-      enabled: false,
-      status: 'preparando',
-      operatorName: '',
-      deviceName: 'Prototipo / notebook / celular controlador',
-      location: 'Zona de prueba controlada',
-      startTime: '23:00',
-      overlayName: `${eventName} - invento AK`,
-      accentColor: '#f97316',
-      ...proDefaults,
-      captureModes: ['Prototipo', 'Ranking', 'Sensor/accion', 'Salida LED'],
-      deliveryChannels: ['qr', 'galeria', 'descarga'],
-      checklist: makeChecklist('laboratorioAk'),
-      script: 'Probar una experiencia nueva con invitados, medir respuesta y decidir si se convierte en producto fijo de AK.',
-      notes: 'Usar solo cuando el alcance este claro: que hace, que equipo necesita, que se muestra y como se mide.',
-      media: [],
-    };
-  }
+  let captureModes = ['Foto'];
+  if (type === 'plataforma360') captureModes = ['Video 360', 'Slow motion'];
+  else if (type === 'bogue') captureModes = ['Boomerang', 'Loop'];
+  else if (type === 'espejoMagicoFirma') captureModes = ['Foto', 'Firma', 'Stickers'];
+  else if (type === 'espejoMagicoIA') captureModes = ['Foto', 'IA Face Swap'];
+  else if (type === 'totems') captureModes = ['Información', 'Juegos', 'Muro'];
+  else if (type === 'capsulaTiempo') captureModes = ['Audio', 'Video'];
 
   return {
-    id: 'plataforma360',
-    title: 'Plataforma 360 AK',
+    id: type,
+    title: meta.shortLabel,
     enabled: true,
-    status: 'listo',
+    status: 'preparando',
     operatorName: '',
-    deviceName: 'Celular principal AK',
-    location: 'Pista / entrada luminica',
-    startTime: '02:30',
-    overlayName: `${eventName} - 360 cinematic`,
-    accentColor: '#7c3aed',
+    deviceName: 'iPad / Notebook / Android',
+    location: 'Salón Principal',
+    startTime: '22:00',
+    overlayName: `${eventName} - Overlay AK`,
+    accentColor: presetColor(type),
     ...proDefaults,
-    captureModes: ['Video 360', 'Slow motion', 'Speed ramp'],
-    deliveryChannels: ['qr', 'whatsapp', 'galeria', 'descarga'],
-    checklist: makeChecklist('plataforma360'),
-    script: 'Grabar con celular en vertical u horizontal, subir video al modulo y compartir por QR o muro social.',
-    notes: 'Modo recomendado: celular cargado, buena luz frontal, clip corto de 8 a 12 segundos.',
+    captureModes,
+    deliveryChannels: ['qr', 'whatsapp', 'galeria'],
+    checklist: makeChecklist(type),
+    script: `El operador asiste a los invitados, inicia la captura en el ${meta.shortLabel} y les indica que escaneen el QR al terminar.`,
+    notes: '',
     media: [],
   };
+}
+
+function presetColor(type: StationId): string {
+  switch (type) {
+    case 'fotocabina': return '#3b82f6';
+    case 'plataforma360': return '#a855f7';
+    case 'bogue': return '#eab308';
+    case 'espejoMagicoFoto': return '#10b981';
+    case 'espejoMagicoFirma': return '#ec4899';
+    case 'espejoMagicoIA': return '#f43f5e';
+    case 'totems': return '#06b6d4';
+    case 'capsulaTiempo': return '#f43f5e';
+  }
 }
 
 function makeDefaultEntertainment(fiesta?: FiestaEnPlanificacion | null, origin = ''): EntertainmentData {
@@ -708,14 +553,10 @@ function makeDefaultEntertainment(fiesta?: FiestaEnPlanificacion | null, origin 
     eventName,
     eventHashtag: `#${safeName || 'FiestaAK'}`,
     galleryUrl: origin && fiesta?.id ? `${origin}/evento/social/${fiesta.id}` : '',
-    modules: {
-      fotocabina: makeStation('fotocabina', fiesta),
-      plataforma360: makeStation('plataforma360', fiesta),
-      bogue: makeStation('bogue', fiesta),
-      espejoMagico: makeStation('espejoMagico', fiesta),
-      totems: makeStation('totems', fiesta),
-      laboratorioAk: makeStation('laboratorioAk', fiesta),
-    },
+    modules: STATION_IDS.reduce((acc, id) => {
+      acc[id] = makeStation(id, fiesta);
+      return acc;
+    }, {} as Record<StationId, EntertainmentStation>),
   };
 }
 
@@ -725,8 +566,22 @@ function mergeEntertainmentData(
   origin = ''
 ): EntertainmentData {
   const defaults = makeDefaultEntertainment(fiesta, origin);
+  
+  // Migración del antiguo espejoMagico unificado a las nuevas variantes divididas
+  const storedOldEspejo = (stored?.modules as any)?.[ 'espejoMagico' ];
+
   const modules = STATION_IDS.reduce((acc, stationId) => {
-    const storedStation = stored?.modules?.[stationId];
+    let storedStation = stored?.modules?.[stationId];
+    
+    // Si no hay datos específicos de la estación dividida, pero existía la unificada, la heredamos
+    if (!storedStation && storedOldEspejo && (stationId === 'espejoMagicoFoto' || stationId === 'espejoMagicoFirma' || stationId === 'espejoMagicoIA')) {
+      storedStation = {
+        ...storedOldEspejo,
+        id: stationId,
+        title: STATION_META[stationId].shortLabel,
+      };
+    }
+
     const defaultStation = defaults.modules[stationId];
     acc[stationId] = {
       ...defaultStation,
@@ -736,7 +591,7 @@ function mergeEntertainmentData(
       equipment: storedStation?.equipment || defaultStation.equipment,
       guestFlow: storedStation?.guestFlow || defaultStation.guestFlow,
       proHighlights: storedStation?.proHighlights || defaultStation.proHighlights,
-      moderationMode: storedStation?.moderationMode || defaultStation.moderationMode,
+      moderationMode: (storedStation?.moderationMode || defaultStation.moderationMode) as ModerationMode,
       activeTemplateId: storedStation?.activeTemplateId || defaultStation.activeTemplateId,
       brandText: storedStation?.brandText || defaultStation.brandText,
       footerText: storedStation?.footerText || defaultStation.footerText,
@@ -767,26 +622,14 @@ function mergeEntertainmentData(
 
 function stationScore(station: EntertainmentStation) {
   const checksDone = station.checklist.filter((item) => item.done).length;
-  const checksScore = station.checklist.length ? Math.round((checksDone / station.checklist.length) * 38) : 0;
+  const checksScore = station.checklist.length ? Math.round((checksDone / station.checklist.length) * 35) : 0;
   let score = checksScore;
   if (station.enabled) score += 15;
-  if (station.status === 'listo' || station.status === 'en-vivo') score += 14;
-  if (station.overlayName.trim()) score += 10;
-  if (station.deliveryChannels.length >= 3) score += 10;
-  if (station.captureModes.length >= 2) score += 8;
-  if (station.media.length > 0) score += 5;
-  if (station.offlineQueueEnabled) score += 2;
-  if (station.analyticsEnabled) score += 2;
-  if (station.templateName?.trim()) score += 2;
-  if (station.backupPlan?.trim()) score += 2;
-  if (station.activeTemplateId?.trim()) score += 3;
-  if (station.brandText?.trim()) score += 3;
-  if (station.qrCallout?.trim()) score += 2;
-  if (station.filterPreset?.trim()) score += 2;
-  if (station.musicTrack?.trim()) score += 2;
-  if (station.backgroundStyle?.trim()) score += 2;
-  if (station.printLayout?.trim()) score += 2;
-  if (station.animationStyle?.trim()) score += 2;
+  if (station.status === 'listo' || station.status === 'en-vivo') score += 15;
+  if (station.operatorName?.trim()) score += 10;
+  if (station.location?.trim()) score += 10;
+  if (station.overlayName?.trim()) score += 5;
+  if (station.deliveryChannels.length >= 2) score += 10;
   return Math.min(100, score);
 }
 
@@ -821,588 +664,9 @@ function formatDateTime(value?: string) {
 
 function StatusBadge({ status }: { status: StationStatus }) {
   return (
-    <span className={cn('inline-flex rounded-full border px-3 py-1 text-xs font-black uppercase tracking-widest', STATUS_META[status].className)}>
+    <span className={cn('inline-flex rounded-full border px-3 py-0.5 text-[10px] font-black uppercase tracking-wider', STATUS_META[status].className)}>
       {STATUS_META[status].label}
     </span>
-  );
-}
-
-interface StationPanelProps {
-  station: EntertainmentStation;
-  galleryUrl: string;
-  eventHashtag: string;
-  uploading: boolean;
-  onUpdate: (patch: Partial<EntertainmentStation>) => void;
-  onToggleChecklist: (checkId: string) => void;
-  onToggleArrayValue: (field: 'captureModes' | 'deliveryChannels', value: string) => void;
-  onUpload: (file: File, stationId: StationId) => Promise<void>;
-}
-
-function StationPanel({
-  station,
-  galleryUrl,
-  eventHashtag,
-  uploading,
-  onUpdate,
-  onToggleChecklist,
-  onToggleArrayValue,
-  onUpload,
-}: StationPanelProps) {
-  const Icon = STATION_META[station.id].icon;
-  const score = stationScore(station);
-  const pendingSync = stationPendingCount(station);
-  const captureAccept = station.id === 'plataforma360' || station.id === 'bogue' ? 'video/*,image/*' : 'image/*,video/*';
-
-  return (
-    <div className="space-y-5">
-      <Card className="border-slate-200 bg-white/95 shadow-xl">
-        <CardHeader className="space-y-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="rounded-2xl bg-slate-950 p-4 text-white shadow-xl">
-                <Icon className="h-7 w-7" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <CardTitle className="text-2xl font-black text-slate-900">{station.title}</CardTitle>
-                  <StatusBadge status={station.status} />
-                </div>
-                <p className="mt-2 max-w-2xl text-sm font-semibold text-slate-500">
-                  {STATION_META[station.id].description}
-                </p>
-              </div>
-            </div>
-            <div className="min-w-[180px] rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-400">Preparacion</span>
-                <span className="text-lg font-black text-slate-900">{score}%</span>
-              </div>
-              <Progress value={score} className="h-2" />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <Label className="mb-2 block text-xs font-black uppercase tracking-widest text-slate-500">Activo</Label>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-bold text-slate-700">{station.enabled ? 'Disponible' : 'Apagado'}</span>
-                <Switch checked={station.enabled} onCheckedChange={(enabled) => onUpdate({ enabled })} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Responsable</Label>
-              <Input value={station.operatorName} onChange={(event) => onUpdate({ operatorName: event.target.value })} placeholder="Nombre del operador" />
-            </div>
-            <div className="space-y-2">
-              <Label>Equipo</Label>
-              <Input value={station.deviceName} onChange={(event) => onUpdate({ deviceName: event.target.value })} />
-            </div>
-            <div className="space-y-2">
-              <Label>Hora de uso</Label>
-              <Input value={station.startTime} onChange={(event) => onUpdate({ startTime: event.target.value })} placeholder="02:30" />
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {(['preparando', 'listo', 'en-vivo', 'pausado'] as StationStatus[]).map((status) => {
-              const active = station.status === status;
-              return (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => onUpdate({ status })}
-                  className={cn(
-                    'rounded-2xl border p-4 text-left transition-all',
-                    active ? 'border-slate-900 bg-slate-950 text-white shadow-xl' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'
-                  )}
-                >
-                  <div className="mb-2 flex items-center gap-2">
-                    {status === 'en-vivo' ? <Play className="h-4 w-4" /> : status === 'pausado' ? <Pause className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                    <span className="text-xs font-black uppercase tracking-widest">{STATUS_META[status].label}</span>
-                  </div>
-                  <p className={cn('text-xs font-semibold', active ? 'text-white/70' : 'text-slate-400')}>
-                    Cambia el estado operativo visible para el equipo.
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <BarChart3 className="mb-2 h-5 w-5 text-blue-600" />
-              <p className="text-2xl font-black text-slate-950">{station.media.length}</p>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Capturas</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <Share2 className="mb-2 h-5 w-5 text-violet-600" />
-              <p className="text-2xl font-black text-slate-950">{station.deliveryChannels.length}</p>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Salidas</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <Cloud className="mb-2 h-5 w-5 text-emerald-600" />
-              <p className="text-2xl font-black text-slate-950">{pendingSync}</p>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Pendientes</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <Gauge className="mb-2 h-5 w-5 text-amber-600" />
-              <p className="text-2xl font-black text-slate-950">{station.estimatedDurationSeconds}s</p>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">Sesion</p>
-            </div>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-[.9fr_1.1fr]">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <Gauge className="h-5 w-5 text-slate-700" />
-                <p className="text-xs font-black uppercase tracking-widest text-slate-500">Benchmark mercado</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {BENCHMARK_FEATURES[station.id].map((feature) => (
-                  <span key={feature} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600">
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-emerald-700" />
-                <p className="text-xs font-black uppercase tracking-widest text-emerald-800">Ventaja AK superior</p>
-              </div>
-              <div className="grid gap-2 md:grid-cols-2">
-                {AK_SELLING_PROOF[station.id].map((proof) => (
-                  <div key={proof} className="rounded-xl bg-white/80 px-3 py-2 text-sm font-bold leading-relaxed text-emerald-900">
-                    {proof}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
-            <Card className="border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base font-black">
-                  <Wand2 className="h-5 w-5 text-indigo-600" />
-                  Plantilla, marca y salidas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="space-y-2 md:col-span-2">
-                    <Label>Overlay / marco</Label>
-                    <Input value={station.overlayName} onChange={(event) => onUpdate({ overlayName: event.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Color acento</Label>
-                    <Input type="color" value={station.accentColor} onChange={(event) => onUpdate({ accentColor: event.target.value })} />
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <Label>Plantillas listas</Label>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {TEMPLATE_PRESETS[station.id].map((preset) => {
-                      const active = station.activeTemplateId === preset.id;
-                      return (
-                        <button
-                          type="button"
-                          key={preset.id}
-                          onClick={() => onUpdate(templatePresetToPatch(station, preset))}
-                          className={cn(
-                            'rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5',
-                            active ? 'border-slate-900 bg-slate-950 text-white shadow-xl' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'
-                          )}
-                        >
-                          <div className="mb-3 flex items-center gap-2">
-                            <span className="h-4 w-4 rounded-full border border-white/40 shadow-inner" style={{ backgroundColor: preset.accentColor }} />
-                            <span className="text-sm font-black">{preset.name}</span>
-                          </div>
-                          <p className={cn('text-xs font-semibold leading-relaxed', active ? 'text-white/65' : 'text-slate-500')}>{preset.mood}</p>
-                          <p className={cn('mt-2 text-[10px] font-black uppercase tracking-widest', active ? 'text-white/45' : 'text-slate-400')}>{preset.outputFormat}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Texto principal</Label>
-                    <Input value={station.brandText} onChange={(event) => onUpdate({ brandText: event.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Pie / marca</Label>
-                    <Input value={station.footerText} onChange={(event) => onUpdate({ footerText: event.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Texto QR</Label>
-                    <Input value={station.qrCallout} onChange={(event) => onUpdate({ qrCallout: event.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Logo o imagen de marca</Label>
-                    <Input value={station.logoUrl} onChange={(event) => onUpdate({ logoUrl: event.target.value })} placeholder="URL opcional" />
-                  </div>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Filtro / look</Label>
-                    <Input value={station.filterPreset} onChange={(event) => onUpdate({ filterPreset: event.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Musica / sonido</Label>
-                    <Input value={station.musicTrack} onChange={(event) => onUpdate({ musicTrack: event.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Fondo / escena</Label>
-                    <Input value={station.backgroundStyle} onChange={(event) => onUpdate({ backgroundStyle: event.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Layout final</Label>
-                    <Input value={station.printLayout} onChange={(event) => onUpdate({ printLayout: event.target.value })} />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label>Animacion / edicion</Label>
-                    <Input value={station.animationStyle} onChange={(event) => onUpdate({ animationStyle: event.target.value })} />
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <Label>Modos de captura</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {FEATURE_LIBRARY[station.id].map((mode) => {
-                      const active = station.captureModes.includes(mode);
-                      return (
-                        <button
-                          type="button"
-                          key={mode}
-                          onClick={() => onToggleArrayValue('captureModes', mode)}
-                          className={cn(
-                            'rounded-full border px-4 py-2 text-xs font-black uppercase tracking-widest transition-all',
-                            active ? 'border-slate-900 bg-slate-950 text-white' : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-400'
-                          )}
-                        >
-                          {mode}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <Label>Canales de entrega</Label>
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-                    {CHANNELS.map((channel) => {
-                      const ChannelIcon = channel.icon;
-                      const active = station.deliveryChannels.includes(channel.id);
-                      return (
-                        <button
-                          type="button"
-                          key={channel.id}
-                          onClick={() => onToggleArrayValue('deliveryChannels', channel.id)}
-                          className={cn(
-                            'flex min-h-[4rem] items-center justify-center gap-2 rounded-2xl border px-3 text-xs font-black uppercase tracking-widest transition-all',
-                            active ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-400 hover:border-slate-400'
-                          )}
-                        >
-                          <ChannelIcon className="h-4 w-4" />
-                          {channel.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="overflow-hidden border-slate-200 bg-slate-950 text-white">
-              <CardContent className="p-5">
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-white/50">QR de experiencia</p>
-                    <p className="text-lg font-black">{eventHashtag}</p>
-                  </div>
-                  <RadioTower className="h-6 w-6 text-blue-300" />
-                </div>
-                <div className="rounded-2xl bg-white p-4">
-                  <QRCodeSVG value={galleryUrl || 'https://akproducciones.uy'} size={140} />
-                </div>
-                <div
-                  className="overflow-hidden rounded-2xl border border-white/10 p-4 shadow-inner"
-                  style={{
-                    background: `linear-gradient(135deg, ${station.accentColor} 0%, #020617 58%, #0f172a 100%)`,
-                  }}
-                >
-                  <div className="mb-8 flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-widest text-white/70">
-                    <span>{station.footerText || 'AK Producciones'}</span>
-                    <span>{station.outputFormat}</span>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-2xl font-black leading-tight text-white">{station.brandText}</p>
-                    <p className="text-xs font-semibold leading-relaxed text-white/70">{station.overlayName}</p>
-                  </div>
-                  <div className="mt-6 grid gap-2 text-[10px] font-black uppercase tracking-widest text-white/75">
-                    <span className="rounded-full bg-white/10 px-3 py-2">{station.filterPreset}</span>
-                    <span className="rounded-full bg-white/10 px-3 py-2">{station.animationStyle}</span>
-                    <span className="rounded-full bg-white px-3 py-2 text-slate-950">{station.qrCallout}</span>
-                  </div>
-                </div>
-                <p className="mt-4 text-xs font-semibold leading-relaxed text-white/60">
-                  Este QR apunta a la experiencia social de la fiesta para que el invitado vea, comparta y participe.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="border-slate-200 bg-white">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-black">
-                <SlidersHorizontal className="h-5 w-5 text-slate-700" />
-                Control pro de la estacion
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div className="space-y-2">
-                  <Label>Plantilla activa</Label>
-                  <Input value={station.templateName} onChange={(event) => onUpdate({ templateName: event.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Formato de salida</Label>
-                  <Input value={station.outputFormat} onChange={(event) => onUpdate({ outputFormat: event.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Calidad</Label>
-                  <Input value={station.qualityPreset} onChange={(event) => onUpdate({ qualityPreset: event.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Objetivo</Label>
-                  <Input value={station.sessionGoal} onChange={(event) => onUpdate({ sessionGoal: event.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Duracion sesion</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={station.estimatedDurationSeconds}
-                    onChange={(event) => onUpdate({ estimatedDurationSeconds: Number(event.target.value) || 1 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Reintentos</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={station.maxRetakes}
-                    onChange={(event) => onUpdate({ maxRetakes: Number(event.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Copias impresion</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={station.printCopies}
-                    onChange={(event) => onUpdate({ printCopies: Number(event.target.value) || 0 })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Moderacion</Label>
-                  <select
-                    value={station.moderationMode}
-                    onChange={(event) => onUpdate({ moderationMode: event.target.value as ModerationMode })}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-semibold ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {Object.entries(MODERATION_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                {[
-                  { key: 'offlineQueueEnabled', label: 'Cola offline', icon: Cloud },
-                  { key: 'autoPublish', label: 'Auto publicar', icon: RadioTower },
-                  { key: 'leadCaptureEnabled', label: 'Captura datos', icon: ClipboardCheck },
-                  { key: 'analyticsEnabled', label: 'Metricas', icon: BarChart3 },
-                ].map((item) => {
-                  const ItemIcon = item.icon;
-                  const checked = Boolean(station[item.key as keyof EntertainmentStation]);
-                  return (
-                    <div key={item.key} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-center gap-3">
-                        <ItemIcon className="h-5 w-5 text-slate-500" />
-                        <span className="text-sm font-black text-slate-700">{item.label}</span>
-                      </div>
-                      <Switch checked={checked} onCheckedChange={(value) => onUpdate({ [item.key]: value } as Partial<EntertainmentStation>)} />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Mensaje de envio</Label>
-                  <Textarea value={station.shareMessage} onChange={(event) => onUpdate({ shareMessage: event.target.value })} rows={3} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Plan B operativo</Label>
-                  <Textarea value={station.backupPlan} onChange={(event) => onUpdate({ backupPlan: event.target.value })} rows={3} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-4 lg:grid-cols-3">
-            <Card className="border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base font-black">
-                  <Eye className="h-5 w-5 text-blue-600" />
-                  Flujo invitado
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {station.guestFlow.map((step, index) => (
-                  <div key={`${step}-${index}`} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-950 text-xs font-black text-white">{index + 1}</span>
-                    <p className="text-sm font-bold leading-relaxed text-slate-600">{step}</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base font-black">
-                  <ShieldCheck className="h-5 w-5 text-emerald-600" />
-                  Equipo minimo
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {station.equipment.map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                    <span className="text-sm font-bold text-slate-600">{item}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base font-black">
-                  <Sparkles className="h-5 w-5 text-violet-600" />
-                  Funciones pro
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                {station.proHighlights.map((item) => (
-                  <span key={item} className="rounded-full border border-violet-100 bg-violet-50 px-3 py-2 text-xs font-black uppercase tracking-widest text-violet-700">
-                    {item}
-                  </span>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-[.85fr_1.15fr]">
-            <Card className="border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle className="text-base font-black">Checklist operativo</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {station.checklist.map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => onToggleChecklist(item.id)}
-                    className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-slate-400"
-                  >
-                    <span className={cn('flex h-7 w-7 items-center justify-center rounded-full border', item.done ? 'border-emerald-200 bg-emerald-100 text-emerald-700' : 'border-slate-300 bg-white text-slate-300')}>
-                      <CheckCircle2 className="h-4 w-4" />
-                    </span>
-                    <span className={cn('text-sm font-bold', item.done ? 'text-slate-900' : 'text-slate-500')}>{item.text}</span>
-                  </button>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle className="text-base font-black">Capturas del evento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-                  <div className="space-y-2">
-                    <Label>Subir desde celular o equipo</Label>
-                    <p className="text-xs font-semibold text-slate-400">
-                      En celular abre camara/galeria; en PC permite cargar archivos ya editados.
-                    </p>
-                  </div>
-                  <label className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-black uppercase tracking-widest text-white shadow-xl transition hover:-translate-y-0.5">
-                    {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    Subir
-                    <input
-                      type="file"
-                      accept={captureAccept}
-                      capture={station.id === 'plataforma360' || station.id === 'bogue' ? 'environment' : undefined}
-                      className="hidden"
-                      disabled={uploading}
-                      onChange={async (event) => {
-                        const file = event.target.files?.[0];
-                        if (file) await onUpload(file, station.id);
-                        event.currentTarget.value = '';
-                      }}
-                    />
-                  </label>
-                </div>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                  {station.media.length === 0 ? (
-                    <div className="col-span-full rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
-                      <ImageIcon className="mx-auto mb-2 h-7 w-7 text-slate-300" />
-                      <p className="text-sm font-bold text-slate-500">Todavia no hay capturas cargadas.</p>
-                    </div>
-                  ) : (
-                    station.media.slice(0, 6).map((item) => (
-                      <a
-                        key={item.id}
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:border-blue-200 hover:bg-blue-50"
-                      >
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
-                            {item.type === 'video' ? <Video className="h-4 w-4 text-violet-600" /> : <ImageIcon className="h-4 w-4 text-blue-600" />}
-                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">{item.type === 'video' ? 'Video' : 'Foto'}</span>
-                          </div>
-                          <span className="text-[10px] font-bold text-slate-400">{formatDateTime(item.uploadedAt)}</span>
-                        </div>
-                        <p className="line-clamp-2 text-sm font-black text-slate-800">{item.fileName}</p>
-                        <p className="mt-1 text-xs font-semibold text-slate-400">
-                          {item.syncStatus === 'pendiente' ? 'Pendiente de sincronizar con muro social' : 'Publicado en muro social'}
-                        </p>
-                      </a>
-                    ))
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Guion operativo</Label>
-              <Textarea value={station.script} onChange={(event) => onUpdate({ script: event.target.value })} rows={4} />
-            </div>
-            <div className="space-y-2">
-              <Label>Notas internas</Label>
-              <Textarea value={station.notes} onChange={(event) => onUpdate({ notes: event.target.value })} rows={4} placeholder="Ej: llevar aro de luz, probar sonido, ubicar carteleria." />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
   );
 }
 
@@ -1417,9 +681,39 @@ function EntretenimientoContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingStation, setUploadingStation] = useState<StationId | null>(null);
 
+  // Active sub-section / Wizard state
+  const [activeStationId, setActiveStationId] = useState<StationId | null>(null);
+  const [wizardStep, setWizardStep] = useState<number>(1);
+
+  // Buzon configuration/messages state for Capsula de Tiempo
+  const [buzonMessages, setBuzonMessages] = useState<BuzonMessage[]>([]);
+  const [isWelcomeSaving, setIsWelcomeSaving] = useState(false);
+  const [isDeletingMsg, setIsDeletingMsg] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isWelcomePlaying, setIsWelcomePlaying] = useState(false);
+  const welcomeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
+  const msgAudioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
+
+  const loadBuzonData = useCallback(async () => {
+    if (!fiestaId) return;
+    try {
+      const msgs = await getBuzonMessages(fiestaId);
+      setBuzonMessages(msgs);
+    } catch (err) {
+      console.error('Error al cargar mensajes de buzon:', err);
+    }
+  }, [fiestaId]);
 
   useEffect(() => {
     const load = async () => {
@@ -1437,13 +731,16 @@ function EntretenimientoContent() {
       setFiesta(result.fiesta);
       setData(mergeEntertainmentData(result.data, result.fiesta, window.location.origin));
       setIsLoading(false);
+      
+      // Cargar mensajes de buzon para capsula de tiempo
+      await loadBuzonData();
     };
     load();
-  }, [fiestaId, toast]);
+  }, [fiestaId, toast, loadBuzonData]);
 
   const overallScore = useMemo(() => {
     if (!data) return 0;
-    return Math.round(STATION_IDS.reduce((sum, stationId) => sum + stationScore(data.modules[stationId]), 0) / STATION_IDS.length);
+    return Math.round(STATION_IDS.reduce((sum, id) => sum + stationScore(data.modules[id]), 0) / STATION_IDS.length);
   }, [data]);
 
   const updateStation = useCallback((stationId: StationId, patch: Partial<EntertainmentStation>) => {
@@ -1508,17 +805,19 @@ function EntretenimientoContent() {
       return;
     }
     setData(mergeEntertainmentData(result.data, fiesta, origin));
-    toast({ title: 'Entretenimiento guardado', description: 'Todas las estaciones quedaron actualizadas.' });
+    toast({ title: 'Entretenimiento guardado', description: 'Los ajustes se sincronizaron con éxito.' });
   }, [data, fiesta, fiestaId, origin, toast]);
 
   const uploadMedia = useCallback(async (file: File, stationId: StationId) => {
     if (!fiestaId) return;
+    
+    // Si la estación es la Cápsula del Tiempo, subimos de forma diferente si es el audio de bienvenida
     setUploadingStation(stationId);
     const formData = new FormData();
     formData.append('fiestaId', fiestaId);
     formData.append('moduleId', stationId);
     formData.append('file', file);
-    formData.append('authorName', 'AK Producciones');
+    formData.append('authorName', 'Equipo AK');
     formData.append('caption', STATION_META[stationId].caption);
 
     const result = await uploadEntretenimientoMedia(formData);
@@ -1530,244 +829,1192 @@ function EntretenimientoContent() {
     }
 
     setData(mergeEntertainmentData(result.data, fiesta, origin));
-    toast({ title: 'Captura subida', description: 'Quedo guardada dentro del modulo de entretenimiento.' });
+    toast({ title: 'Captura de prueba subida', description: 'Se guardó en la galería interna del módulo.' });
   }, [fiesta, fiestaId, origin, toast]);
+
+  // Audio Welcome Controls for Cápsula del Tiempo
+  const toggleWelcomePlay = () => {
+    if (!fiesta?.buzonConfig?.welcomeAudioUrl) return;
+    if (!welcomeAudioRef.current) {
+      welcomeAudioRef.current = new Audio(fiesta.buzonConfig.welcomeAudioUrl);
+      welcomeAudioRef.current.onended = () => setIsWelcomePlaying(false);
+    }
+    if (isWelcomePlaying) {
+      welcomeAudioRef.current.pause();
+      setIsWelcomePlaying(false);
+    } else {
+      if (playingMsgId && msgAudioRef.current) {
+        msgAudioRef.current.pause();
+        setPlayingMsgId(null);
+      }
+      welcomeAudioRef.current.play();
+      setIsWelcomePlaying(true);
+    }
+  };
+
+  const startRecording = async () => {
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingSeconds(0);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks: BlobPart[] = [];
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingSeconds(prev => prev + 1);
+      }, 1000);
+    } catch {
+      toast({
+        title: 'Error de micrófono',
+        description: 'Permití el acceso al micrófono para grabar el audio.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+  };
+
+  const saveRecordedWelcome = async () => {
+    if (!audioBlob || !fiestaId) return;
+    setIsWelcomeSaving(true);
+    const formData = new FormData();
+    formData.append('fiestaId', fiestaId);
+    formData.append('file', audioBlob, 'bienvenida.webm');
+    try {
+      const res = await uploadWelcomeAudio(formData);
+      if (res.success) {
+        toast({ title: 'Mensaje de Bienvenida guardado' });
+        setAudioBlob(null);
+        setAudioUrl(null);
+        welcomeAudioRef.current = null;
+        // Refrescar fiesta
+        const result = await getEntretenimientoFiesta(fiestaId);
+        if (result.success && result.fiesta) {
+          setFiesta(result.fiesta);
+        }
+      } else {
+        toast({ title: 'Error al subir', description: res.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error de red', variant: 'destructive' });
+    } finally {
+      setIsWelcomeSaving(false);
+    }
+  };
+
+  const handleDeleteWelcome = async () => {
+    if (!fiestaId) return;
+    if (!confirm('¿Seguro que deseás eliminar el audio de bienvenida?')) return;
+    setIsWelcomeSaving(true);
+    try {
+      const res = await deleteWelcomeAudio(fiestaId);
+      if (res.success) {
+        toast({ title: 'Bienvenida eliminada' });
+        welcomeAudioRef.current = null;
+        setIsWelcomePlaying(false);
+        // Refrescar fiesta
+        const result = await getEntretenimientoFiesta(fiestaId);
+        if (result.success && result.fiesta) {
+          setFiesta(result.fiesta);
+        }
+      } else {
+        toast({ title: 'Error al eliminar', description: res.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error de red', variant: 'destructive' });
+    } finally {
+      setIsWelcomeSaving(false);
+    }
+  };
+
+  // Play messages from guests
+  const handlePlayMessage = (msg: BuzonMessage) => {
+    if (playingMsgId === msg.id) {
+      msgAudioRef.current?.pause();
+      setPlayingMsgId(null);
+    } else {
+      if (msgAudioRef.current) {
+        msgAudioRef.current.pause();
+      }
+      if (isWelcomePlaying && welcomeAudioRef.current) {
+        welcomeAudioRef.current.pause();
+        setIsWelcomePlaying(false);
+      }
+      msgAudioRef.current = new Audio(msg.mediaUrl);
+      msgAudioRef.current.onended = () => setPlayingMsgId(null);
+      msgAudioRef.current.play();
+      setPlayingMsgId(msg.id);
+    }
+  };
+
+  const handleDeleteMessage = async (id: string) => {
+    if (!confirm('¿Seguro que deseás eliminar este saludo?')) return;
+    setIsDeletingMsg(id);
+    try {
+      const res = await deleteBuzonMessage(id);
+      if (res.success) {
+        setBuzonMessages(prev => prev.filter(m => m.id !== id));
+        toast({ title: 'Saludo eliminado correctamente.' });
+      } else {
+        toast({ title: 'Error al eliminar', description: res.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error de red', variant: 'destructive' });
+    } finally {
+      setIsDeletingMsg(null);
+    }
+  };
+
+  // Helpers to get execution links for station
+  const getLaunchLink = (stationId: StationId) => {
+    if (stationId === 'espejoMagicoFoto') {
+      return `/evento/espejo-magico/${fiestaId}?mode=foto`;
+    }
+    if (stationId === 'espejoMagicoFirma') {
+      return `/evento/espejo-magico/${fiestaId}?mode=firma`;
+    }
+    if (stationId === 'espejoMagicoIA') {
+      return `/evento/touchpix/${fiestaId}`;
+    }
+    if (stationId === 'capsulaTiempo') {
+      return `/evento/buzon/${fiestaId}`;
+    }
+    return `/evento/social/${fiestaId}?module=${stationId}`;
+  };
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <Loader2 className="h-12 w-12 animate-spin text-slate-900" />
+      <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-rose-500 mx-auto" />
+          <p className="text-zinc-400 text-xs uppercase tracking-widest font-black">Cargando Tecnología de Entretenimiento...</p>
+        </div>
       </div>
     );
   }
 
   if (!fiestaId || !data) {
     return (
-      <div className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center bg-slate-50 p-6 text-center">
-        <Camera className="mb-4 h-12 w-12 text-slate-400" />
-        <h1 className="text-2xl font-black text-slate-900">Falta seleccionar una fiesta</h1>
-        <p className="mt-2 text-sm font-semibold text-slate-500">Entrá desde el planificador para usar este módulo.</p>
-        <Button asChild><Link href="/eventos" className="mt-6">Volver a eventos</Link></Button>
+      <div className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center bg-[#09090b] px-6 text-center text-white">
+        <Camera className="mb-4 h-16 w-16 text-rose-500" />
+        <h1 className="text-3xl font-black tracking-tight">Falta seleccionar una fiesta</h1>
+        <p className="mt-2 text-zinc-400 font-semibold text-sm">Entrá desde el planificador para usar este módulo.</p>
+        <Button asChild className="mt-6 bg-rose-600 hover:bg-rose-500 font-black"><Link href="/eventos">Volver a eventos</Link></Button>
       </div>
     );
   }
 
+  // Active Station details for the wizard
+  const activeStation = (activeStationId ? data.modules[activeStationId] : null) as EntertainmentStation;
+
   return (
-    <div className="ak-entertainment-page min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="min-h-screen bg-[#09090b] text-white px-4 py-8 sm:px-6 lg:px-8 font-sans">
+      <div className="mx-auto max-w-7xl space-y-8">
+        
+        {/* HEADER GENERAL */}
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-zinc-800/60 pb-8">
           <div className="flex items-start gap-4">
-            <Button asChild variant="outline" size="icon" className="rounded-2xl"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
+            <Button asChild variant="outline" size="icon" className="rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 hover:text-white">
+              <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
                 <ArrowLeft className="h-5 w-5" />
-              </Link></Button>
+              </Link>
+            </Button>
             <div>
-              <Badge className="mb-3 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-50">Tecnologia de fiesta</Badge>
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
-                Entretenimiento
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className="border-rose-500/20 bg-rose-500/10 text-rose-400 hover:bg-rose-500/10 font-bold text-[10px] uppercase tracking-widest">
+                  Tecnología Operativa
+                </Badge>
+                <Badge className="border-zinc-800 bg-zinc-900 text-zinc-400 font-bold text-[10px] uppercase tracking-widest">
+                  AK Suite v2
+                </Badge>
+              </div>
+              <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent sm:text-5xl">
+                Entretenimiento en Vivo
               </h1>
-              <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-slate-500 sm:text-base">
-                Fotocabina, Plataforma 360, Bogue y Espejo Magico como estaciones profesionales conectadas al evento, al QR, WhatsApp, pantalla LED, galeria y muro social.
+              <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
+                Configuración progresiva del equipamiento en campo para operadores y personal técnico de AK Producciones.
               </p>
             </div>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Button asChild variant="outline" className="w-full rounded-2xl font-black"><Link href={`/fiestas/nueva/muro-social?fiestaId=${fiestaId}`}>
+          
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="outline" className="rounded-xl border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800 hover:text-white font-black">
+              <Link href={`/fiestas/nueva/muro-social?fiestaId=${fiestaId}`}>
                 <Monitor className="mr-2 h-4 w-4" />
-                Muro social
-              </Link></Button>
-            <Button onClick={saveNow} disabled={isSaving} className="rounded-2xl bg-slate-950 font-black text-white hover:bg-slate-800">
+                Muro Social
+              </Link>
+            </Button>
+            <Button onClick={saveNow} disabled={isSaving} className="rounded-xl bg-rose-600 font-black text-white hover:bg-rose-500 transition-all shadow-[0_0_20px_rgba(225,29,72,0.2)]">
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Guardar
+              Guardar Cambios
             </Button>
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1.3fr_.7fr]">
-          <Card className="overflow-hidden border-slate-200 bg-white shadow-xl">
-            <CardContent className="grid gap-6 p-5 lg:grid-cols-[1fr_.85fr] lg:p-7">
-              <div className="space-y-5">
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-100">App interna AK</Badge>
-                  <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50">Activa por fiesta</Badge>
-                  <Badge className="border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-50">Celular compatible</Badge>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black text-slate-950 sm:text-4xl">{data.eventName}</h2>
-                  <p className="mt-2 text-sm font-semibold text-slate-500">
-                    Preparacion general del modulo: {overallScore}%.
+        {/* SI NO HAY NINGUNA ESTACION SELECCIONADA: MOSTRAR DASHBOARD DE TARJETAS */}
+        {!activeStationId ? (
+          <div className="space-y-8 animate-[fadeIn_0.4s_ease-out]">
+            
+            {/* PANEL DE PROGRESO GENERAL */}
+            <Card className="border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-32 w-32 bg-rose-500/10 rounded-full blur-3xl" />
+              <CardContent className="grid gap-6 p-6 md:grid-cols-[1.5fr_1fr] lg:p-8">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-black text-white">{data.eventName}</h2>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-zinc-400">
+                      <span>Puesta a punto general</span>
+                      <span className="text-white">{overallScore}%</span>
+                    </div>
+                    <Progress value={overallScore} className="h-2.5 bg-zinc-800" />
+                  </div>
+                  <p className="text-zinc-400 text-xs font-medium">
+                    Sincronizá el checklist operativo de todas las cabinas contratadas para garantizar un evento sin fallas.
                   </p>
                 </div>
-                <Progress value={overallScore} className="h-3 max-w-xl" />
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <Users className="mb-2 h-5 w-5 text-blue-600" />
-                    <p className="text-2xl font-black text-slate-950">{fiesta?.configuracion?.invitadosEstimados || 0}</p>
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Invitados</p>
+                
+                <div className="grid grid-cols-2 gap-4 border-t border-zinc-800/80 pt-4 md:border-t-0 md:border-l md:pt-0 md:pl-6">
+                  <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4">
+                    <Users className="h-5 w-5 text-rose-400 mb-2" />
+                    <p className="text-2xl font-black">{fiesta?.configuracion?.invitadosEstimados || 0}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Invitados</p>
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <Clock className="mb-2 h-5 w-5 text-amber-600" />
-                    <p className="text-2xl font-black text-slate-950">{data.modules.plataforma360.startTime}</p>
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Momento 360</p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <Sparkles className="mb-2 h-5 w-5 text-violet-600" />
-                    <p className="text-2xl font-black text-slate-950">{STATION_IDS.length}</p>
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Estaciones</p>
+                  <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4">
+                    <Sparkles className="h-5 w-5 text-amber-400 mb-2" />
+                    <p className="text-2xl font-black">{STATION_IDS.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Módulos Totales</p>
                   </div>
                 </div>
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-3 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-violet-600" />
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-500">Modelo AK frente al mercado</p>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {AK_SUPERIORITY_STACK.map((item) => (
-                      <div key={item} className="rounded-2xl bg-white px-4 py-3 text-sm font-bold leading-relaxed text-slate-700">
-                        {item}
+              </CardContent>
+            </Card>
+
+            {/* DASHBOARD GRID DE TARJETAS */}
+            <div>
+              <h2 className="text-xl font-black mb-6 uppercase tracking-wider text-zinc-300">Estaciones Disponibles</h2>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {STATION_IDS.map((stationId) => {
+                  const station = data.modules[stationId];
+                  const meta = STATION_META[stationId];
+                  const Icon = meta.icon;
+                  const score = stationScore(station);
+                  const activeStyle = station.enabled 
+                    ? 'border-rose-500/40 bg-zinc-950/90 shadow-[0_0_30px_rgba(244,63,94,0.05)]' 
+                    : 'border-zinc-800 bg-zinc-950/40 opacity-70';
+
+                  return (
+                    <div 
+                      key={stationId} 
+                      className={cn(
+                        'rounded-[2rem] border p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1',
+                        activeStyle
+                      )}
+                    >
+                      <div className="space-y-4">
+                        <div className="flex items-start justify-between">
+                          <div className={cn(
+                            'rounded-2xl p-3 text-white shadow-lg',
+                            station.enabled ? 'bg-rose-600' : 'bg-zinc-800'
+                          )}>
+                            <Icon className="h-6 w-6" />
+                          </div>
+                          <StatusBadge status={station.status} />
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-lg font-black leading-tight text-white">{meta.shortLabel}</h3>
+                          <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
+                            {meta.description}
+                          </p>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                            <span>Preparación</span>
+                            <span className="text-white">{score}%</span>
+                          </div>
+                          <Progress value={score} className="h-1.5 bg-zinc-900" />
+                        </div>
                       </div>
-                    ))}
+
+                      <div className="mt-6 pt-4 border-t border-zinc-900 flex items-center justify-between gap-3">
+                        <div className="text-[10px] font-black uppercase text-zinc-500">
+                          {station.enabled ? 'Activa' : 'Inactiva'}
+                        </div>
+                        <Button 
+                          onClick={() => {
+                            setActiveStationId(stationId);
+                            setWizardStep(1);
+                          }}
+                          className="rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider border border-zinc-800 px-4 py-2"
+                        >
+                          Configurar
+                          <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* SECCIÓN BENCHMARK DE MERCADO */}
+            <Card className="border-zinc-800/60 bg-zinc-950/40">
+              <CardHeader>
+                <CardTitle className="text-sm font-black uppercase tracking-wider text-zinc-400">Benchmark del mercado y ventajas AK</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {MARKET_BENCHMARK_INSIGHTS.map((item) => (
+                    <div key={item.label} className="bg-zinc-900/30 border border-zinc-800/30 rounded-2xl p-4">
+                      <p className="text-xs font-black text-rose-400 uppercase tracking-widest mb-1">{item.label}</p>
+                      <p className="text-xs font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
+        ) : (
+          
+          /* SI HAY UNA ESTACION SELECCIONADA: MOSTRAR EL ASISTENTE PROGRESIVO (WIZARD) */
+          <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
+            
+            {/* CABECERA DEL WIZARD */}
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between bg-zinc-950/90 border border-zinc-800/80 rounded-[2rem] p-6">
+              <div className="flex items-center gap-4">
+                <Button 
+                  onClick={() => setActiveStationId(null)}
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black uppercase tracking-widest text-rose-500">Paso {wizardStep} de 4</span>
+                    <Badge className="border-zinc-800 bg-zinc-900 text-zinc-300 font-bold text-[9px] uppercase tracking-widest">
+                      {activeStation.title}
+                    </Badge>
                   </div>
+                  <h2 className="text-xl font-black">Asistente de Configuración</h2>
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl">
-                <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-blue-500/20 blur-3xl" />
-                <div className="absolute -bottom-12 -left-12 h-44 w-44 rounded-full bg-violet-500/20 blur-3xl" />
-                <div className="relative">
-                  <div className="mb-5 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-widest text-white/50">Modo celular</p>
-                      <p className="text-xl font-black">Plataforma 360</p>
-                    </div>
-                    <Smartphone className="h-8 w-8 text-blue-200" />
+              {/* INDICADORES VISUALES DE PASOS */}
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4].map((step) => {
+                  const stepLabels = ['Datos', 'Temas', 'Checklist', 'Lanzar'];
+                  const active = wizardStep === step;
+                  const done = wizardStep > step;
+                  return (
+                    <button
+                      key={step}
+                      disabled
+                      className={cn(
+                        'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all',
+                        active 
+                          ? 'bg-rose-600 text-white font-black' 
+                          : done 
+                            ? 'bg-zinc-800 text-zinc-300 border border-zinc-700/50' 
+                            : 'bg-zinc-900/40 text-zinc-600 border border-zinc-900'
+                      )}
+                    >
+                      <span className={cn('h-4 w-4 rounded-full text-[9px] flex items-center justify-center font-black', active ? 'bg-white text-rose-600' : done ? 'bg-zinc-900 text-zinc-400' : 'bg-zinc-950 text-zinc-700')}>
+                        {step}
+                      </span>
+                      <span className="hidden sm:inline">{stepLabels[step - 1]}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* CONTENIDO DEL PASO ACTIVO */}
+            <div className="bg-zinc-950/60 border border-zinc-800/40 rounded-[2rem] p-6 lg:p-8 min-h-[400px]">
+              
+              {/* PASO 1: DATOS OPERATIVOS */}
+              {wizardStep === 1 && (
+                <div className="space-y-8 animate-[fadeIn_0.2s_ease-out]">
+                  <div className="border-b border-zinc-900 pb-4">
+                    <h3 className="text-lg font-black text-white flex items-center gap-2">
+                      <Settings className="h-5 w-5 text-rose-500" />
+                      1. Datos Operativos de Estación
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1">Configuración del personal, ubicación física y estado en vivo.</p>
                   </div>
-                  <div className="rounded-[1.75rem] border border-white/10 bg-white/10 p-4 backdrop-blur">
-                    <div className="mx-auto max-w-[180px] rounded-[2rem] border border-white/15 bg-slate-900 p-3">
-                      <div className="aspect-[9/16] rounded-[1.4rem] bg-gradient-to-b from-slate-800 via-blue-950 to-violet-950 p-4">
-                        <div className="flex h-full flex-col justify-between">
-                          <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-white/60">
-                            <span>AK 360</span>
-                            <span>REC</span>
+
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-5 flex flex-col justify-between">
+                      <Label className="text-zinc-400 text-xs font-black uppercase tracking-widest">Estado de Módulo</Label>
+                      <div className="flex items-center justify-between mt-4">
+                        <span className="text-sm font-bold text-white">{activeStation.enabled ? 'Habilitado' : 'Deshabilitado'}</span>
+                        <Switch 
+                          checked={activeStation.enabled} 
+                          onCheckedChange={(enabled) => updateStation(activeStationId, { enabled })} 
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Responsable / Operador</Label>
+                      <Input 
+                        value={activeStation.operatorName} 
+                        onChange={(e) => updateStation(activeStationId, { operatorName: e.target.value })} 
+                        placeholder="Nombre del personal AK"
+                        className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Ubicación en Salón</Label>
+                      <Input 
+                        value={activeStation.location} 
+                        onChange={(e) => updateStation(activeStationId, { location: e.target.value })} 
+                        placeholder="Ej: Entrada, Pista de Baile"
+                        className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Hora Programada Inicio</Label>
+                      <Input 
+                        value={activeStation.startTime} 
+                        onChange={(e) => updateStation(activeStationId, { startTime: e.target.value })} 
+                        placeholder="Ej: 22:30"
+                        className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Estado de Operación Actual</Label>
+                    <div className="grid gap-4 md:grid-cols-4">
+                      {(['preparando', 'listo', 'en-vivo', 'pausado'] as StationStatus[]).map((status) => {
+                        const active = activeStation.status === status;
+                        return (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => updateStation(activeStationId, { status })}
+                            className={cn(
+                              'rounded-2xl border p-4 text-left transition-all duration-200',
+                              active 
+                                ? 'border-rose-500 bg-rose-950/20 text-white shadow-xl' 
+                                : 'border-zinc-800/80 bg-zinc-900/20 text-zinc-400 hover:border-zinc-700 hover:text-white'
+                            )}
+                          >
+                            <div className="mb-2 flex items-center gap-2">
+                              {status === 'en-vivo' ? <Play className="h-4 w-4 text-rose-500" /> : status === 'pausado' ? <Pause className="h-4 w-4 text-amber-500" /> : <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                              <span className="text-xs font-black uppercase tracking-widest">{STATUS_META[status].label}</span>
+                            </div>
+                            <p className="text-[10px] leading-relaxed text-zinc-500">
+                              Define el estado visible en el feed del evento.
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* EQUIPAMIENTO REQUERIDO */}
+                  <div className="bg-zinc-900/20 border border-zinc-800/50 rounded-3xl p-6">
+                    <h4 className="text-sm font-black uppercase tracking-wider text-zinc-300 mb-4 flex items-center gap-2">
+                      <ListTodo className="h-4 w-4 text-zinc-400" />
+                      Equipamiento Técnico Mínimo Requerido:
+                    </h4>
+                    <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                      {activeStation.equipment.map((item) => (
+                        <div key={item} className="flex items-center gap-3 bg-zinc-900/40 border border-zinc-800/30 rounded-xl p-3">
+                          <CheckCircle2 className="h-4 w-4 text-rose-500 shrink-0" />
+                          <span className="text-xs font-bold text-zinc-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* PASO 2: AJUSTES Y TEMAS (PERSONALIZACIÓN) */}
+              {wizardStep === 2 && (
+                <div className="space-y-8 animate-[fadeIn_0.2s_ease-out]">
+                  <div className="border-b border-zinc-900 pb-4">
+                    <h3 className="text-lg font-black text-white flex items-center gap-2">
+                      <SlidersHorizontal className="h-5 w-5 text-rose-500" />
+                      2. Personalización y Temas Visuales
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1">Configuración del branding del cliente, plantillas y canales de entrega.</p>
+                  </div>
+
+                  {/* PLANTILLAS PREESTABLECIDAS */}
+                  {TEMPLATE_PRESETS[activeStationId] && TEMPLATE_PRESETS[activeStationId].length > 0 && (
+                    <div className="space-y-3">
+                      <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Presets de Plantilla</Label>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {TEMPLATE_PRESETS[activeStationId].map((preset) => {
+                          const active = activeStation.activeTemplateId === preset.id;
+                          return (
+                            <button
+                              type="button"
+                              key={preset.id}
+                              onClick={() => updateStation(activeStationId, templatePresetToPatch(activeStation, preset))}
+                              className={cn(
+                                'rounded-[1.5rem] border p-5 text-left transition-all duration-200 hover:-translate-y-0.5',
+                                active 
+                                  ? 'border-rose-500 bg-rose-950/20 text-white shadow-xl' 
+                                  : 'border-zinc-800 bg-zinc-900/20 text-zinc-400 hover:border-zinc-700'
+                              )}
+                            >
+                              <div className="mb-3 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="h-4 w-4 rounded-full border border-white/20 shadow-inner" style={{ backgroundColor: preset.accentColor }} />
+                                  <span className="text-sm font-black">{preset.name}</span>
+                                </div>
+                                <Badge className="text-[9px] font-black uppercase tracking-wider bg-zinc-800 text-zinc-300">Preset</Badge>
+                              </div>
+                              <p className="text-xs text-zinc-400 leading-relaxed">{preset.mood}</p>
+                              <div className="mt-3 flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-zinc-500">
+                                <span>{preset.outputFormat}</span>
+                                <span>•</span>
+                                <span>{preset.qualityPreset}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CONFIGURACIÓN BRANDING */}
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-black uppercase tracking-wider text-zinc-300">Textos de Marca</h4>
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Título del Evento (Brand Text)</Label>
+                          <Input 
+                            value={activeStation.brandText} 
+                            onChange={(e) => updateStation(activeStationId, { brandText: e.target.value })} 
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Pie de Impresión / Copyright</Label>
+                          <Input 
+                            value={activeStation.footerText} 
+                            onChange={(e) => updateStation(activeStationId, { footerText: e.target.value })} 
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Llamado al QR de Descarga</Label>
+                          <Input 
+                            value={activeStation.qrCallout} 
+                            onChange={(e) => updateStation(activeStationId, { qrCallout: e.target.value })} 
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Overlay / Nombre del Marco</Label>
+                          <Input 
+                            value={activeStation.overlayName} 
+                            onChange={(e) => updateStation(activeStationId, { overlayName: e.target.value })} 
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-black uppercase tracking-wider text-zinc-300">Canales y Modos de Captura</h4>
+                      
+                      {activeStationId !== 'capsulaTiempo' && (
+                        <div className="space-y-3">
+                          <Label className="text-xs text-zinc-400 font-bold">Modos de Captura Habilitados</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {FEATURE_LIBRARY[activeStationId]?.map((mode) => {
+                              const active = activeStation.captureModes.includes(mode);
+                              return (
+                                <button
+                                  type="button"
+                                  key={mode}
+                                  onClick={() => toggleArrayValue(activeStationId, 'captureModes', mode)}
+                                  className={cn(
+                                    'rounded-full border px-4 py-2 text-xs font-black uppercase tracking-widest transition-all',
+                                    active 
+                                      ? 'border-rose-500 bg-rose-500/10 text-rose-400' 
+                                      : 'border-zinc-800 bg-zinc-900/40 text-zinc-500 hover:border-zinc-700'
+                                  )}
+                                >
+                                  {mode}
+                                </button>
+                              );
+                            })}
                           </div>
-                          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/10">
-                            <Video className="h-9 w-9 text-white" />
-                          </div>
-                          <div className="rounded-2xl bg-white/10 p-3 text-center text-[10px] font-black uppercase tracking-widest text-white/70">
-                            QR + video listo
+                        </div>
+                      )}
+
+                      <div className="space-y-3">
+                        <Label className="text-xs text-zinc-400 font-bold">Métodos de Entrega</Label>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                          {CHANNELS.map((channel) => {
+                            const ChannelIcon = channel.icon;
+                            const active = activeStation.deliveryChannels.includes(channel.id);
+                            return (
+                              <button
+                                type="button"
+                                key={channel.id}
+                                onClick={() => toggleArrayValue(activeStationId, 'deliveryChannels', channel.id)}
+                                className={cn(
+                                  'flex items-center gap-2 rounded-xl border p-3 text-xs font-black uppercase tracking-widest transition-all',
+                                  active 
+                                    ? 'border-rose-500 bg-rose-500/10 text-rose-400' 
+                                    : 'border-zinc-800 bg-zinc-900/40 text-zinc-500 hover:border-zinc-700'
+                                )}
+                              >
+                                <ChannelIcon className="h-4 w-4" />
+                                {channel.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Copias de Impresión</Label>
+                          <Input 
+                            type="number"
+                            min={0}
+                            value={activeStation.printCopies} 
+                            onChange={(e) => updateStation(activeStationId, { printCopies: Number(e.target.value) || 0 })} 
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Color Acento</Label>
+                          <div className="flex gap-2">
+                            <Input 
+                              type="color"
+                              value={activeStation.accentColor} 
+                              onChange={(e) => updateStation(activeStationId, { accentColor: e.target.value })} 
+                              className="h-10 w-12 bg-zinc-900/40 border-zinc-800 text-white rounded-xl p-1 shrink-0 cursor-pointer"
+                            />
+                            <Input 
+                              value={activeStation.accentColor} 
+                              onChange={(e) => updateStation(activeStationId, { accentColor: e.target.value })} 
+                              className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="border-slate-200 bg-white shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-black">
-                <QrCode className="h-5 w-5 text-blue-600" />
-                QR general
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                <p className="mb-3 text-xs font-black uppercase tracking-widest text-blue-700">Referencias usadas como benchmark</p>
-                <div className="grid gap-2">
-                  {MARKET_BENCHMARK_INSIGHTS.map((item) => (
-                    <div key={item.label} className="rounded-xl bg-white px-3 py-2">
-                      <p className="text-sm font-black text-slate-900">{item.label}</p>
-                      <p className="text-xs font-semibold leading-relaxed text-slate-500">{item.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="mx-auto flex w-fit rounded-3xl border border-slate-200 bg-white p-4 shadow-lg">
-                <QRCodeSVG value={data.galleryUrl || `${origin}/evento/social/${fiestaId}`} size={168} />
-              </div>
-              <div className="space-y-2">
-                <Label>Link de galeria / muro</Label>
-                <Input value={data.galleryUrl} onChange={(event) => setData({ ...data, galleryUrl: event.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Hashtag</Label>
-                <Input value={data.eventHashtag} onChange={(event) => setData({ ...data, eventHashtag: event.target.value })} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {STATION_IDS.map((stationId) => {
-            const station = data.modules[stationId];
-            const StationIcon = STATION_META[stationId].icon;
-            return (
-              <div key={stationId} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg">
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-slate-950 p-3 text-white">
-                      <StationIcon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-black text-slate-950">{STATION_META[stationId].shortLabel}</p>
-                      <p className="text-xs font-semibold text-slate-400">{station.outputFormat}</p>
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-black uppercase tracking-wider text-zinc-300">Mensajes de Compartir y Plan B</h4>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-zinc-400 font-bold">Mensaje a Compartir (WhatsApp/Mail)</Label>
+                        <Textarea 
+                          value={activeStation.shareMessage} 
+                          onChange={(e) => updateStation(activeStationId, { shareMessage: e.target.value })} 
+                          rows={3}
+                          className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-zinc-400 font-bold">Plan B Operativo (Falla técnica)</Label>
+                        <Textarea 
+                          value={activeStation.backupPlan} 
+                          onChange={(e) => updateStation(activeStationId, { backupPlan: e.target.value })} 
+                          rows={3}
+                          className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                        />
+                      </div>
                     </div>
                   </div>
-                  <StatusBadge status={station.status} />
                 </div>
-                <div className="mb-3 flex items-center justify-between text-xs font-black uppercase tracking-widest text-slate-400">
-                  <span>Pro readiness</span>
-                  <span className="text-slate-900">{stationScore(station)}%</span>
-                </div>
-                <Progress value={stationScore(station)} className="h-2" />
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-2xl bg-slate-50 p-2">
-                    <p className="text-lg font-black text-slate-950">{station.media.length}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">media</p>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 p-2">
-                    <p className="text-lg font-black text-slate-950">{station.captureModes.length}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">modos</p>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 p-2">
-                    <p className="text-lg font-black text-slate-950">{station.deliveryChannels.length}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">salidas</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              )}
 
-        <Tabs defaultValue="fotocabina" className="space-y-5">
-          <TabsList className="grid h-auto grid-cols-2 rounded-2xl bg-white p-1 shadow-lg lg:grid-cols-3 xl:grid-cols-6">
-            {STATION_IDS.map((stationId) => {
-              const StationIcon = STATION_META[stationId].icon;
-              return (
-                <TabsTrigger key={stationId} value={stationId} className="rounded-xl py-3 font-black">
-                  <StationIcon className="mr-2 h-4 w-4" />
-                  {STATION_META[stationId].shortLabel}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+              {/* PASO 3: CHECKLIST OPERATIVO */}
+              {wizardStep === 3 && (
+                <div className="space-y-8 animate-[fadeIn_0.2s_ease-out]">
+                  <div className="border-b border-zinc-900 pb-4">
+                    <h3 className="text-lg font-black text-white flex items-center gap-2">
+                      <ListTodo className="h-5 w-5 text-rose-500" />
+                      3. Checklist de Puesta a Punto
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1">El operador debe marcar todos los requerimientos listos antes de iniciar operaciones.</p>
+                  </div>
 
-          {STATION_IDS.map((stationId) => (
-            <TabsContent key={stationId} value={stationId}>
-              <StationPanel
-                station={data.modules[stationId]}
-                galleryUrl={data.galleryUrl}
-                eventHashtag={data.eventHashtag}
-                uploading={uploadingStation === stationId}
-                onUpdate={(patch) => updateStation(stationId, patch)}
-                onToggleChecklist={(checkId) => toggleChecklist(stationId, checkId)}
-                onToggleArrayValue={(field, value) => toggleArrayValue(stationId, field, value)}
-                onUpload={uploadMedia}
-              />
-            </TabsContent>
-          ))}
-        </Tabs>
+                  <div className="max-w-2xl mx-auto space-y-4">
+                    <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">
+                      <span>Tareas completadas</span>
+                      <span>{activeStation.checklist.filter(i => i.done).length} de {activeStation.checklist.length}</span>
+                    </div>
+                    <Progress 
+                      value={activeStation.checklist.length ? (activeStation.checklist.filter(i => i.done).length / activeStation.checklist.length) * 100 : 0} 
+                      className="h-2 bg-zinc-900"
+                    />
+
+                    <div className="grid gap-3 pt-4">
+                      {activeStation.checklist.map((item) => (
+                        <button
+                          type="button"
+                          key={item.id}
+                          onClick={() => toggleChecklist(activeStationId, item.id)}
+                          className={cn(
+                            'flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition-all duration-200',
+                            item.done 
+                              ? 'border-emerald-500/30 bg-emerald-950/10 text-emerald-300' 
+                              : 'border-zinc-800 bg-zinc-900/20 text-zinc-400 hover:border-zinc-700'
+                          )}
+                        >
+                          <span className={cn(
+                            'flex h-7 w-7 items-center justify-center rounded-full border shrink-0',
+                            item.done 
+                              ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400' 
+                              : 'border-zinc-700 bg-zinc-950 text-zinc-600'
+                          )}>
+                            <CheckCircle2 className="h-4 w-4" />
+                          </span>
+                          <span className="text-sm font-bold">{item.text}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* PASO 4: MODO OPERATIVO Y LANZAMIENTO */}
+              {wizardStep === 4 && (
+                <div className="space-y-8 animate-[fadeIn_0.2s_ease-out]">
+                  <div className="border-b border-[#18181b] pb-4">
+                    <h3 className="text-lg font-black text-white flex items-center gap-2">
+                      <RadioTower className="h-5 w-5 text-rose-500 animate-pulse" />
+                      4. Lanzamiento y Control Técnico
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1">Lanzá el servicio interactivo, probá la cámara y visualizá los mensajes grabados.</p>
+                  </div>
+
+                  <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+                    
+                    {/* PANEL IZQUIERDO: CONTROLES / BUZÓN DE RECUERDOS SI ES CÁPSULA DEL TIEMPO */}
+                    <div className="space-y-6">
+                      
+                      {/* SI ES LA CÁPSULA DEL TIEMPO, RENDERIZAMOS LA INTERFAZ DE CONFIGURACIÓN DEL BUZÓN */}
+                      {activeStationId === 'capsulaTiempo' ? (
+                        <div className="space-y-6">
+                          
+                          {/* SALUDO DE BIENVENIDA DEL ANFITRIÓN */}
+                          <Card className="border-zinc-800 bg-zinc-900/30">
+                            <CardHeader>
+                              <CardTitle className="text-sm font-black uppercase tracking-wider text-zinc-300 flex items-center gap-2">
+                                <Volume2 className="h-4 w-4 text-rose-400" />
+                                Mensaje de Bienvenida de los Anfitriones
+                              </CardTitle>
+                              <CardDescription className="text-zinc-500 text-xs">
+                                Este audio sonará automáticamente en la tablet cuando el invitado vaya a dejar su saludo.
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                              
+                              {/* Estado del audio actual */}
+                              {fiesta?.buzonConfig?.welcomeAudioUrl ? (
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/80 border border-zinc-800/80 rounded-2xl p-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="rounded-xl bg-rose-600/10 border border-rose-500/20 p-3 text-rose-400">
+                                      <FileAudio className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-bold text-white">Audio de Bienvenida Activo</p>
+                                      <p className="text-[10px] text-zinc-500">Subido para esta fiesta</p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <Button 
+                                      onClick={toggleWelcomePlay}
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="rounded-xl border-zinc-800 bg-zinc-900 text-xs font-bold"
+                                    >
+                                      {isWelcomePlaying ? <Pause className="h-3.5 w-3.5 mr-1" /> : <Play className="h-3.5 w-3.5 mr-1" />}
+                                      {isWelcomePlaying ? 'Pausar' : 'Escuchar'}
+                                    </Button>
+                                    <Button 
+                                      onClick={handleDeleteWelcome}
+                                      variant="destructive" 
+                                      size="sm" 
+                                      className="rounded-xl text-xs font-bold"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/40 p-6 text-center">
+                                  <Volume2 className="mx-auto mb-2 h-8 w-8 text-zinc-600" />
+                                  <p className="text-xs font-bold text-zinc-400">No hay audio de bienvenida cargado aún.</p>
+                                </div>
+                              )}
+
+                              {/* Formulario para grabar o subir */}
+                              <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                                <div className="bg-zinc-950/80 border border-zinc-800/60 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-3">
+                                  <Mic className="h-6 w-6 text-rose-400" />
+                                  <p className="text-xs font-bold">Grabar desde micrófono</p>
+                                  
+                                  {isRecording ? (
+                                    <div className="flex flex-col items-center gap-2">
+                                      <span className="text-xs font-black text-rose-500 animate-pulse uppercase">Grabando... {recordingSeconds}s</span>
+                                      <Button onClick={stopRecording} variant="destructive" size="sm" className="rounded-xl font-bold">
+                                        <Square className="h-3 w-3 mr-1.5 fill-current animate-pulse text-rose-600" /> Detener
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-col items-center gap-2">
+                                      {audioUrl ? (
+                                        <div className="flex items-center gap-2 mt-1">
+                                          <Button onClick={() => new Audio(audioUrl!).play()} variant="outline" size="sm" className="rounded-xl text-[10px] font-bold">Reproducir grabación</Button>
+                                          <Button onClick={saveRecordedWelcome} disabled={isWelcomeSaving} className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-bold">
+                                            {isWelcomeSaving ? 'Subiendo...' : 'Guardar'}
+                                          </Button>
+                                        </div>
+                                      ) : (
+                                        <Button onClick={startRecording} variant="outline" size="sm" className="rounded-xl font-bold text-xs">Iniciar Grabación</Button>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="bg-zinc-950/80 border border-zinc-800/60 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-3">
+                                  <Upload className="h-6 w-6 text-zinc-400" />
+                                  <p className="text-xs font-bold">Subir archivo de audio</p>
+                                  <label className="cursor-pointer inline-flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl px-4 py-2 text-xs font-bold text-zinc-300">
+                                    {isWelcomeSaving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Upload className="h-3 w-3 mr-1.5" />}
+                                    Seleccionar
+                                    <input 
+                                      type="file" 
+                                      accept="audio/*" 
+                                      className="hidden" 
+                                      disabled={isWelcomeSaving}
+                                      onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        setIsWelcomeSaving(true);
+                                        const formData = new FormData();
+                                        formData.append('fiestaId', fiestaId);
+                                        formData.append('file', file);
+                                        const res = await uploadWelcomeAudio(formData);
+                                        setIsWelcomeSaving(false);
+                                        if (res.success) {
+                                          toast({ title: 'Audio cargado con éxito.' });
+                                          // Refrescar fiesta
+                                          const result = await getEntretenimientoFiesta(fiestaId);
+                                          if (result.success && result.fiesta) {
+                                            setFiesta(result.fiesta);
+                                          }
+                                        } else {
+                                          toast({ title: 'Error al subir', description: res.error, variant: 'destructive' });
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* RECUERDOS GRABADOS POR INVITADOS */}
+                          <Card className="border-zinc-800 bg-zinc-900/30">
+                            <CardHeader className="flex flex-row items-center justify-between">
+                              <div>
+                                <CardTitle className="text-sm font-black uppercase tracking-wider text-zinc-300">Recuerdos Grabados por Invitados</CardTitle>
+                                <CardDescription className="text-zinc-500 text-xs">Listado de mensajes grabados por los asistentes a la fiesta.</CardDescription>
+                              </div>
+                              <Badge className="bg-rose-500/20 text-rose-400 border border-rose-500/30">{buzonMessages.length}</Badge>
+                            </CardHeader>
+                            <CardContent className="max-h-[350px] overflow-y-auto space-y-3">
+                              {buzonMessages.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/20 p-8 text-center">
+                                  <FileAudio className="mx-auto mb-2 h-8 w-8 text-zinc-700" />
+                                  <p className="text-xs font-semibold text-zinc-500">Nadie grabó recuerdos en la Cápsula del Tiempo aún.</p>
+                                </div>
+                              ) : (
+                                buzonMessages.map((msg) => (
+                                  <div key={msg.id} className="flex items-center justify-between gap-4 bg-zinc-950/80 border border-zinc-800/60 rounded-2xl p-4">
+                                    <div className="flex items-center gap-3">
+                                      <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-2.5 text-zinc-400">
+                                        {msg.mediaType === 'video' ? <Video className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                                      </div>
+                                      <div>
+                                        <p className="text-xs font-bold text-white">{msg.authorName}</p>
+                                        <p className="text-[9px] text-zinc-500">
+                                          {msg.mediaType === 'video' ? 'Video' : 'Voz'} • {msg.durationSeconds}s • {formatDateTime(msg.timestamp)}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                      {msg.mediaType === 'audio' ? (
+                                        <Button 
+                                          onClick={() => handlePlayMessage(msg)}
+                                          variant="outline" 
+                                          size="sm" 
+                                          className="rounded-lg text-[10px] font-bold"
+                                        >
+                                          {playingMsgId === msg.id ? <Pause className="h-3 w-3 mr-1" /> : <Play className="h-3 w-3 mr-1" />}
+                                          {playingMsgId === msg.id ? 'Pausar' : 'Escuchar'}
+                                        </Button>
+                                      ) : (
+                                        <Button 
+                                          asChild
+                                          variant="outline" 
+                                          size="sm" 
+                                          className="rounded-lg text-[10px] font-bold"
+                                        >
+                                          <a href={msg.mediaUrl} target="_blank" rel="noopener noreferrer">Ver Video</a>
+                                        </Button>
+                                      )}
+                                      <Button 
+                                        onClick={() => handleDeleteMessage(msg.id)}
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="text-rose-500 hover:text-rose-400 hover:bg-rose-950/20 rounded-lg"
+                                        disabled={isDeletingMsg === msg.id}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </CardContent>
+                          </Card>
+
+                        </div>
+                      ) : (
+                        
+                        /* SI NO ES CÁPSULA DEL TIEMPO, MOSTRAMOS LA SUBIDA DE ARCHIVOS DE PRUEBA Y GUION */
+                        <div className="space-y-6">
+                          <Card className="border-zinc-800 bg-zinc-900/30">
+                            <CardHeader>
+                              <CardTitle className="text-sm font-black uppercase tracking-wider text-zinc-300 flex items-center gap-2">
+                                <Upload className="h-4 w-4 text-zinc-400" />
+                                Subir Capturas de Prueba
+                              </CardTitle>
+                              <CardDescription className="text-zinc-500 text-xs">
+                                Subí fotos o videos para validar que el overlay, filtros y branding se apliquen correctamente.
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                              <div className="flex items-center gap-4">
+                                <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-white hover:bg-zinc-200 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-zinc-950 shadow-xl transition-all">
+                                  {uploadingStation === activeStationId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                                  Subir Archivo
+                                  <input
+                                    type="file"
+                                    accept={activeStationId === 'plataforma360' || activeStationId === 'bogue' ? 'video/*' : 'image/*'}
+                                    className="hidden"
+                                    disabled={uploadingStation === activeStationId}
+                                    onChange={async (e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) await uploadMedia(file, activeStationId);
+                                      e.currentTarget.value = '';
+                                    }}
+                                  />
+                                </label>
+                              </div>
+
+                              {/* LISTA DE CAPTURAS RECIENTES */}
+                              <div className="grid gap-4 sm:grid-cols-2">
+                                {activeStation.media.length === 0 ? (
+                                  <div className="col-span-full rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/20 p-6 text-center text-zinc-500">
+                                    <ImageIcon className="mx-auto mb-2 h-7 w-7 text-zinc-700" />
+                                    <p className="text-xs font-semibold">No hay capturas cargadas para esta estación aún.</p>
+                                  </div>
+                                ) : (
+                                  activeStation.media.slice(0, 4).map((item) => (
+                                    <a
+                                      key={item.id}
+                                      href={item.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="group rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4 transition hover:border-rose-500/40 hover:bg-zinc-950"
+                                    >
+                                      <div className="mb-2 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                                        <div className="flex items-center gap-1.5">
+                                          {item.type === 'video' ? <Video className="h-3 w-3" /> : <ImageIcon className="h-3 w-3" />}
+                                          <span>{item.type}</span>
+                                        </div>
+                                        <span>{formatDateTime(item.uploadedAt)}</span>
+                                      </div>
+                                      <p className="line-clamp-1 text-xs font-bold text-zinc-300">{item.fileName}</p>
+                                    </a>
+                                  ))
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* GUION Y NOTAS INTERNAS */}
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                              <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Guion del Operador</Label>
+                              <Textarea 
+                                value={activeStation.script} 
+                                onChange={(e) => updateStation(activeStationId, { script: e.target.value })} 
+                                rows={3}
+                                className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl text-xs"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Notas de Montaje Técnico</Label>
+                              <Textarea 
+                                value={activeStation.notes} 
+                                onChange={(e) => updateStation(activeStationId, { notes: e.target.value })} 
+                                rows={3}
+                                placeholder="Ej: llevar trípode de repuesto, asegurar wifi, probar sensor."
+                                className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl text-xs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                    </div>
+
+                    {/* PANEL DERECHO: QR DE ACCESO Y ENLACES DE OPERACIÓN */}
+                    <div className="space-y-6">
+                      
+                      {/* CARTEL DE QR DE LA ESTACIÓN */}
+                      <Card className="overflow-hidden border-zinc-800 bg-zinc-950/80 text-white flex flex-col items-center p-6 text-center">
+                        <div className="mb-4 flex items-center justify-between w-full border-b border-zinc-900 pb-3">
+                          <div className="text-left">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">QR de Acceso Invitados</p>
+                            <p className="text-sm font-black text-rose-400">{data.eventHashtag}</p>
+                          </div>
+                          <RadioTower className="h-5 w-5 text-rose-500 animate-pulse" />
+                        </div>
+
+                        <div className="rounded-3xl bg-white p-5 shadow-2xl shadow-rose-500/5 my-3">
+                          <QRCodeSVG 
+                            value={activeStationId === 'capsulaTiempo' ? `${origin}/evento/buzon/${fiestaId}` : (data.galleryUrl || `${origin}/evento/social/${fiestaId}`)} 
+                            size={180} 
+                          />
+                        </div>
+
+                        <div className="w-full mt-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4 text-left space-y-3">
+                          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                            <span>Marca: {activeStation.footerText || 'AK'}</span>
+                            <span>{activeStation.outputFormat}</span>
+                          </div>
+                          <p className="text-sm font-black leading-snug">{activeStation.brandText}</p>
+                          <p className="text-xs text-zinc-400">{activeStation.qrCallout}</p>
+                        </div>
+                      </Card>
+
+                      {/* ENLACES OPERATIVOS PARA EL OPERADOR */}
+                      <Card className="border-zinc-800 bg-zinc-950/80">
+                        <CardHeader>
+                          <CardTitle className="text-sm font-black uppercase tracking-wider text-zinc-300">Pantallas de Funcionamiento</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <p className="text-xs text-zinc-400 leading-relaxed">
+                            Copiá o abrí estos enlaces en el dispositivo operativo (tablet, celular o notebook del operador) para iniciar el funcionamiento interactivo.
+                          </p>
+                          
+                          <div className="grid gap-2">
+                            <Button 
+                              asChild 
+                              className="w-full rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(225,29,72,0.15)]"
+                            >
+                              <a 
+                                href={getLaunchLink(activeStationId)} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="mr-2 h-4 w-4" />
+                                Abrir Pantalla Operativa
+                              </a>
+                            </Button>
+                            <Button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(`${origin}${getLaunchLink(activeStationId)}`);
+                                toast({ title: 'Enlace copiado al portapapeles.' });
+                              }}
+                              variant="outline" 
+                              className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
+                            >
+                              Copiar Link de Operación
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* BOTONES DE NAVEGACIÓN DEL WIZARD */}
+            <div className="flex items-center justify-between bg-zinc-950/90 border border-zinc-800/80 rounded-[2rem] p-6">
+              <Button 
+                onClick={() => {
+                  if (wizardStep === 1) {
+                    setActiveStationId(null);
+                  } else {
+                    setWizardStep(prev => prev - 1);
+                  }
+                }}
+                variant="outline" 
+                className="rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 hover:text-white font-black text-xs uppercase tracking-wider"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1.5" />
+                {wizardStep === 1 ? 'Dashboard' : 'Anterior'}
+              </Button>
+
+              <Button 
+                onClick={() => {
+                  if (wizardStep === 4) {
+                    saveNow();
+                    setActiveStationId(null);
+                  } else {
+                    setWizardStep(prev => prev + 1);
+                  }
+                }}
+                className="rounded-xl bg-rose-600 hover:bg-rose-500 font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(225,29,72,0.2)] text-white"
+              >
+                {wizardStep === 4 ? 'Finalizar y Guardar' : 'Siguiente'}
+                {wizardStep !== 4 && <ChevronRight className="h-4 w-4 ml-1.5" />}
+              </Button>
+            </div>
+
+          </div>
+        )}
+
       </div>
     </div>
   );
@@ -1775,7 +2022,11 @@ function EntretenimientoContent() {
 
 export default function EntretenimientoPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#09090b]">
+        <Loader2 className="h-10 w-10 animate-spin text-rose-500" />
+      </div>
+    }>
       <EntretenimientoContent />
     </Suspense>
   );
