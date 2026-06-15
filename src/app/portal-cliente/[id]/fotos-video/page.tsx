@@ -302,7 +302,7 @@ export default function FotosVideoPortalPage() {
                       {servicio.fechaEntregaEstimada && (
                         <p>📅 Entrega estimada: {new Date(servicio.fechaEntregaEstimada).toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
                       )}
-                      {servicio.notas && <p className="text-slate-500">{servicio.notes ?? servicio.notas}</p>}
+                      {servicio.notas && <p className="text-slate-500">{servicio.notas}</p>}
                       {servicio.linkEntrega && (
                         <a href={servicio.linkEntrega} target="_blank" rel="noopener noreferrer">
                           <Button size="sm" className="bg-purple-600 hover:bg-purple-700 mt-1">
