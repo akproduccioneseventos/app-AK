@@ -82,7 +82,7 @@ export default async function ProspectDashboardPage({ params }: { params: { pros
               </h3>
               {prospect.budgets && prospect.budgets.length > 0 ? (
                 <div className="grid gap-4 md:grid-cols-2">
-                  {prospect.budgets.map((b) => (
+                  {prospect.budgets.map((b: any) => (
                     <div key={b.id} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
                       <div>
                         <p className="font-bold text-white text-lg">{b.serviceType}</p>

@@ -353,7 +353,7 @@ function PantallasTotemContent() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  const urls = totem.heroPhotoUrl.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean);
+                                  const urls = (totem.heroPhotoUrl || '').split(/[\n,]+/).map((u) => u.trim()).filter(Boolean);
                                   urls.splice(i, 1);
                                   updateTotem(totem.id, { heroPhotoUrl: urls.join('\n') });
                                 }}
