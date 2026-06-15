@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import type { FiestaEnPlanificacion, SocialGallerySettings, TotemScreenSettings } from '@/types/fiesta';
 
 const DEFAULT_ACCENT = '#dc2626';
@@ -91,6 +92,58 @@ function PantallasTotemContent() {
   const [origin, setOrigin] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadingTotemId, setUploadingTotemId] = useState<string | null>(null);
+
+  const handleUploadPhotos = async (totemId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0 || !fiestaId) return;
+
+    setUploadingTotemId(totemId);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', fiestaId);
+
+        const res = await uploadPublicPageAsset(formData);
+        if (res.success && res.url) {
+          uploadedUrls.push(res.url);
+        } else {
+          toast({
+            title: `Error al subir ${file.name}`,
+            description: res.error || 'Ocurrió un problema',
+            variant: 'destructive',
+          });
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        const currentTotem = totems.find((t) => t.id === totemId);
+        const existingUrls = currentTotem?.heroPhotoUrl
+          ? currentTotem.heroPhotoUrl.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean)
+          : [];
+        const newUrls = [...existingUrls, ...uploadedUrls].join('\n');
+        updateTotem(totemId, { heroPhotoUrl: newUrls });
+        toast({
+          title: 'Fotos subidas',
+          description: `${uploadedUrls.length} foto(s) se agregaron con éxito.`,
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error de carga',
+        description: err.message || 'No se pudieron subir las imágenes.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingTotemId(null);
+      // Reset input value
+      event.target.value = '';
+    }
+  };
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -253,9 +306,66 @@ function PantallasTotemContent() {
                     <Label>Texto secundario</Label>
                     <Textarea value={totem.subtitle || ''} onChange={(event) => updateTotem(totem.id, { subtitle: event.target.value })} />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Foto principal URL</Label>
-                    <Input value={totem.heroPhotoUrl || ''} onChange={(event) => updateTotem(totem.id, { heroPhotoUrl: event.target.value })} placeholder="https://..." />
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Fotos del Tótem (URLs o carga directa)</Label>
+                    <Textarea
+                      value={totem.heroPhotoUrl || ''}
+                      onChange={(event) => updateTotem(totem.id, { heroPhotoUrl: event.target.value })}
+                      placeholder="Escribí una URL por línea o cargá fotos directamente."
+                      rows={3}
+                      className="rounded-2xl"
+                    />
+                    <div className="flex flex-col gap-2 mt-1">
+                      <div>
+                        <Input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleUploadPhotos(totem.id, e)}
+                          disabled={uploadingTotemId === totem.id}
+                          className="hidden"
+                          id={`upload-totem-photos-${totem.id}`}
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => document.getElementById(`upload-totem-photos-${totem.id}`)?.click()}
+                          disabled={uploadingTotemId === totem.id}
+                          className="rounded-2xl w-full text-xs font-bold"
+                        >
+                          {uploadingTotemId === totem.id ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Subiendo imágenes...
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="mr-2 h-4 w-4" /> Subir fotos de la Quinceañera / Evento
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      {totem.heroPhotoUrl && (
+                        <div className="flex flex-wrap gap-2 p-3 rounded-2xl border bg-slate-50 mt-1 max-h-40 overflow-y-auto">
+                          {totem.heroPhotoUrl.split(/[\n,]+/).map((url) => url.trim()).filter(Boolean).map((url, i) => (
+                            <div key={i} className="relative w-12 h-16 rounded-xl overflow-hidden group border border-slate-200 shadow-sm bg-white shrink-0">
+                              <img src={url} alt="" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const urls = totem.heroPhotoUrl.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean);
+                                  urls.splice(i, 1);
+                                  updateTotem(totem.id, { heroPhotoUrl: urls.join('\n') });
+                                }}
+                                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Logo URL</Label>

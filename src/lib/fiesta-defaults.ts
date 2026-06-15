@@ -243,16 +243,76 @@ export const defaultCartaTragosData: CartaTragosData = {
   backgroundColor: '#ffffff',
   paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
   items: [
-    { id: 'trago_1', nombre: 'Daiquiri de Durazno', imageUrl: '', aiHint: 'peach daiquiri cocktail', descripcion: 'Cremoso, frutal y muy facil de elegir para arrancar la noche con un sabor suave.', ingredientes: ['Ron', 'Durazno', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_2', nombre: 'Caipirinha', imageUrl: '', aiHint: 'caipirinha lime cocktail', descripcion: 'Un clasico fresco y citrico, ideal para quienes quieren un trago con personalidad.', ingredientes: ['Cachaça', 'Lima', 'Azúcar'], stockDisponible: 120 },
-    { id: 'trago_3', nombre: 'Arizona', imageUrl: '', aiHint: 'arizona iced tea cocktail', descripcion: 'Refrescante y liviano, con perfil de te helado y limon para mantener la pista activa.', ingredientes: ['Vodka', 'Té helado', 'Limón'], stockDisponible: 120 },
-    { id: 'trago_4', nombre: 'Daiquiri de Ananá', imageUrl: '', aiHint: 'pineapple daiquiri cocktail', descripcion: 'Tropical, dulce y brillante; perfecto para fotos y para una barra con energia de fiesta.', ingredientes: ['Ron', 'Ananá', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_5', nombre: 'Daiquiri de Frutilla', imageUrl: '', aiHint: 'strawberry daiquiri cocktail', descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_6', nombre: 'Atomic Green', imageUrl: '', aiHint: 'green cocktail atomic', descripcion: 'Verde intenso, moderno y llamativo para pantallas, fotos y momentos de discoteca.', ingredientes: ['Licor de melón', 'Vodka', 'Sprite'], stockDisponible: 120 },
-    { id: 'trago_7', nombre: 'Daiquiri Primavera', imageUrl: '', aiHint: 'spring daiquiri colorful cocktail', descripcion: 'Mix frutal alegre, pensado para una experiencia fresca y facil de recomendar.', ingredientes: ['Ron', 'Mix de frutas', 'Jugo de limón'], stockDisponible: 120 },
-    { id: 'trago_8', nombre: 'Fernet con Coca', imageUrl: '', aiHint: 'fernet cola drink', descripcion: 'Directo, conocido y rapido de servir; una opcion segura para invitados clasicos.', ingredientes: ['Fernet', 'Coca-Cola', 'Hielo'], stockDisponible: 120 },
-    { id: 'trago_9', nombre: 'Atardecer', imageUrl: '', aiHint: 'sunset tequila sunrise cocktail', descripcion: 'Naranja y granadina para un efecto visual tipo sunset, ideal para barra fotografiable.', ingredientes: ['Tequila', 'Jugo de naranja', 'Granadina'], stockDisponible: 120 },
-    { id: 'trago_10', nombre: 'Destornillador', imageUrl: '', aiHint: 'screwdriver vodka orange cocktail', descripcion: 'Simple, fresco y reconocible: vodka con naranja para pedir en pocos segundos.', ingredientes: ['Vodka', 'Jugo de naranja', 'Hielo'], stockDisponible: 120 },
+    { 
+      id: 'trago_1', nombre: 'Gin con Pomelo', 
+      imageUrl: 'https://images.unsplash.com/photo-1560512823-829485b8bf24?q=80&w=600&auto=format&fit=crop', 
+      aiHint: 'gin grapefruit cocktail', 
+      descripcion: 'Fresco y amargo, la combinación perfecta para la pista de baile.', 
+      ingredientes: ['Gin', 'Gaseosa de Pomelo', 'Hielo'], 
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-gin', nombre: 'Gin', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-pomelo', nombre: 'Gaseosa de Pomelo', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    { 
+      id: 'trago_2', nombre: 'Ron Cola', 
+      imageUrl: 'https://images.unsplash.com/photo-1615887023516-9bfa0dd98ae7?q=80&w=600&auto=format&fit=crop', 
+      aiHint: 'rum and cola drink', 
+      descripcion: 'El clásico de siempre que nunca falla.', 
+      ingredientes: ['Ron', 'Coca-Cola', 'Hielo'], 
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    { 
+      id: 'trago_3', nombre: 'Vodka Sunrise', 
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop', 
+      aiHint: 'vodka orange sunrise cocktail', 
+      descripcion: 'Divertido, dulce y perfecto para compartir en redes sociales.', 
+      ingredientes: ['Vodka', 'Jugo de Naranja', 'Granadina'], 
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    { 
+      id: 'trago_4', nombre: 'Caipirinha', 
+      imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=600&auto=format&fit=crop', 
+      aiHint: 'caipirinha lime cocktail', 
+      descripcion: 'Un clasico fresco y citrico, ideal para quienes quieren un trago con personalidad.', 
+      ingredientes: ['Cachaça', 'Lima', 'Azúcar'], 
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-cachaca', nombre: 'Cachaça', cantidad: 0.05, unidad: 'Botella' },
+      ]
+    },
+    { 
+      id: 'trago_5', nombre: 'Daiquiri de Frutilla', 
+      imageUrl: 'https://images.unsplash.com/photo-1620084360341-38f12a2df7f2?q=80&w=600&auto=format&fit=crop', 
+      aiHint: 'strawberry daiquiri cocktail', 
+      descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.', 
+      ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'], 
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.05, unidad: 'Botella' },
+      ]
+    },
+    { 
+      id: 'trago_6', nombre: 'Atomic Green', 
+      imageUrl: 'https://images.unsplash.com/photo-1587223962930-cb7f31384c19?q=80&w=600&auto=format&fit=crop', 
+      aiHint: 'green cocktail atomic', 
+      descripcion: 'Verde intenso, moderno y llamativo para pantallas, fotos y momentos de discoteca.', 
+      ingredientes: ['Vodka', 'Sprite', 'Licor de Melón'], 
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-sprite', nombre: 'Sprite', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    }
   ],
   empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
 };

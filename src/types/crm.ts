@@ -76,3 +76,22 @@ export interface CrmLead {
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;
+export interface Prospect {
+  id: string;
+  name: string;
+  phone: string;
+  createdAt: string;
+  updatedAt: string;
+  budgets: ProspectBudget[];
+  notes?: string;
+  status: 'new' | 'contacted' | 'negotiating' | 'won' | 'lost';
+}
+
+export interface ProspectBudget {
+  id: string;
+  createdAt: string;
+  serviceType: string;
+  guests: number;
+  totalEstimate: number;
+  details: any;
+}

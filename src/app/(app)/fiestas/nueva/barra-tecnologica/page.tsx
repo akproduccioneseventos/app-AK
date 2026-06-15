@@ -62,11 +62,12 @@ function BarraTecnologicaContent() {
   }, [loadData]);
 
   const urls = useMemo(() => {
-    if (!fiestaId || !origin) return { guest: '', barman: '', muro: '' };
+    if (!fiestaId || !origin) return { guest: '', barman: '', muro: '', stats: '' };
     return {
       guest: `${origin}/evento/barra/${fiestaId}`,
       barman: `${origin}/evento/barra/${fiestaId}/barman`,
       muro: `${origin}/evento/muro-en-vivo/${fiestaId}`,
+      stats: `${origin}/evento/barra/${fiestaId}/stats`,
     };
   }, [fiestaId, origin]);
 
@@ -184,6 +185,14 @@ function BarraTecnologicaContent() {
                 <Label>Titulo pantalla barman</Label>
                 <Input value={settings.barmanTitle} onChange={(event) => updateSetting('barmanTitle', event.target.value)} />
               </div>
+              <div className="space-y-2">
+                <Label>Horario de Apertura (HH:MM)</Label>
+                <Input type="time" value={settings.openingTime || ''} onChange={(event) => updateSetting('openingTime', event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Horario de Cierre (HH:MM)</Label>
+                <Input type="time" value={settings.closingTime || ''} onChange={(event) => updateSetting('closingTime', event.target.value)} />
+              </div>
             </CardContent>
           </Card>
 
@@ -255,6 +264,7 @@ function BarraTecnologicaContent() {
         <aside className="space-y-6">
           <QrCard title="Pantalla tactil invitados" icon={Smartphone} url={urls.guest} onCopy={copyLink} />
           <QrCard title="Pantalla barman" icon={Monitor} url={urls.barman} onCopy={copyLink} />
+          <QrCard title="Estadísticas de la Barra" icon={Sparkles} url={urls.stats} onCopy={copyLink} />
           <QrCard title="Muro social pantalla grande" icon={Tv} url={urls.muro} onCopy={copyLink} />
         </aside>
       </section>

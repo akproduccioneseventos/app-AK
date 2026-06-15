@@ -35,6 +35,8 @@ export interface BarTechnologySettings {
   showDrinkVideo: boolean;
   requireSocialFollowForPhotos: boolean;
   socialFollowPrompt: string;
+  openingTime?: string; // Formato HH:mm
+  closingTime?: string; // Formato HH:mm
 }
 
 export interface BarTechnologyData {
