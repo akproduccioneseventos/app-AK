@@ -5,6 +5,7 @@ import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from 
 import { readData, writeData } from '@/lib/data-service';
 import { savePresupuesto } from './presupuestos';
 import type { ItemPresupuestado, Presupuesto, PresupuestoSource } from '@/types/presupuesto';
+import { saveProspectBudget, getProspects } from './crm.actions';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const SIMULATOR_DISCOUNT_PERCENTAGE = 15;
@@ -96,7 +97,7 @@ export async function saveArmadoRapidoConfig(
 
 export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
-  options?: { source?: PresupuestoSource; eventoTipo?: string; salonFiestas?: string }
+  options?: { source?: PresupuestoSource; eventoTipo?: string; salonFiestas?: string; prospectId?: string }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; error?: string }> {
   try {
     const source = options?.source || 'simulator_common';
@@ -139,6 +140,28 @@ export async function generateBudgetAndLeadFromSimulator(
     if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
       const { generateBudgetToken } = await import('@/lib/auth/session-token');
       const token = await generateBudgetToken(budgetResult.id);
+      
+      // Auto-save to Prospect CRM if prospectId is provided, or matching phone
+      try {
+        let pId = options?.prospectId;
+        if (!pId) {
+          const prospects = await getProspects();
+          const existing = prospects.find(p => p.phone === (data.clienteContacto || '').trim());
+          if (existing) pId = existing.id;
+        }
+        
+        if (pId) {
+          await saveProspectBudget(pId, {
+            serviceType: options?.eventoTipo || 'Evento (desde Simulador)',
+            guests: totalInvitados,
+            totalEstimate: totalConDescuento,
+            details: { items: data.items, presupuestoId: budgetResult.id }
+          });
+        }
+      } catch (err) {
+        console.error('Error linking to prospect CRM:', err);
+      }
+
       return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId, token };
     }
     return { success: false, error: budgetResult.error || 'No se pudo procesar la solicitud.' };

@@ -9,7 +9,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2,
   AlertTriangle,
@@ -35,6 +35,7 @@ import type { FiestaEnPlanificacion, Invitado, GuestPortalSettings } from '@/typ
 import type { SocialConnection } from '@/types/settings';
 import { Button } from '@/components/ui/button';
 import QRCodeStylized from 'qrcode.react';
+import { MiniQuiosco } from './MiniQuiosco';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -121,6 +122,7 @@ function GuestPortalContent() {
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [showQuiosco, setShowQuiosco] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId || !guestId) {
@@ -367,6 +369,11 @@ function GuestPortalContent() {
                   <span className="text-xs font-black uppercase tracking-wide text-center">Buzón recuerdos</span>
                 </a>
               )}
+              {/* Barra Interactiva / Mini Quiosco */}
+              <button onClick={() => setShowQuiosco(true)} className="col-span-2 flex items-center justify-center gap-3 p-3 mt-1 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform border border-white/20">
+                <span className="text-2xl">🍸</span>
+                <span className="text-sm font-black uppercase tracking-widest text-center">Quiosco de Tragos</span>
+              </button>
             </div>
           </div>
         </div>
@@ -795,6 +802,10 @@ function GuestPortalContent() {
 
         <p className="text-xs text-zinc-600 text-center py-2">AK Producciones Eventos · Salto, Uruguay</p>
       </div>
+
+      <AnimatePresence>
+        {showQuiosco && <MiniQuiosco fiestaId={fiestaId} guest={guest} onClose={() => setShowQuiosco(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

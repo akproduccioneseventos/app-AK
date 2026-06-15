@@ -53,6 +53,22 @@ export default function TotemPublicPage() {
   const analyzerRef = useRef<AnalyserNode | null>(null);
   const rafRef = useRef<number | null>(null);
 
+  const [heroPhotoIndex, setHeroPhotoIndex] = useState(0);
+
+  const heroPhotos = useMemo(() => {
+    if (!totem?.heroPhotoUrl) return [];
+    return totem.heroPhotoUrl
+      .split(/[\n,]+/)
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+  }, [totem?.heroPhotoUrl]);
+
+  useEffect(() => {
+    if (heroPhotos.length <= 1) return;
+    const interval = window.setInterval(() => setHeroPhotoIndex((current) => (current + 1) % heroPhotos.length), 4200);
+    return () => window.clearInterval(interval);
+  }, [heroPhotos.length]);
+
   const loadData = useCallback(async () => {
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     setOrigin(currentOrigin);
@@ -207,14 +223,31 @@ export default function TotemPublicPage() {
             </div>
 
             <div className="relative flex min-h-0 items-center justify-center">
-              {totem.heroPhotoUrl ? (
-                <motion.div
-                  animate={{ y: [0, -14, 0], rotate: [-1, 1.5, -1] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                  className="relative aspect-[4/5] w-full max-w-[46vh] overflow-hidden rounded-[2rem] border border-white/20 shadow-2xl"
-                >
-                  <NextImage src={totem.heroPhotoUrl} alt={totem.honoreeName || 'Tótem AK'} fill className="object-cover" unoptimized priority />
-                </motion.div>
+              {heroPhotos.length > 0 ? (
+                heroPhotos.length === 1 ? (
+                  <motion.div
+                    animate={{ y: [0, -14, 0], rotate: [-1, 1.5, -1] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                    className="relative aspect-[4/5] w-full max-w-[46vh] overflow-hidden rounded-[2rem] border border-white/20 shadow-2xl bg-black"
+                  >
+                    <NextImage src={heroPhotos[0]} alt={totem.honoreeName || 'Tótem AK'} fill className="object-cover" unoptimized priority />
+                  </motion.div>
+                ) : (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={heroPhotos[heroPhotoIndex]}
+                      initial={{ opacity: 0, scale: 0.94, rotate: -2 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 1 }}
+                      exit={{ opacity: 0, scale: 1.04, rotate: 3 }}
+                      transition={{ duration: 0.7 }}
+                      className="relative aspect-[4/5] w-full max-w-[46vh] overflow-hidden rounded-[2rem] border-[10px] border-white bg-white shadow-2xl"
+                    >
+                      <div className="relative h-full w-full">
+                        <NextImage src={heroPhotos[heroPhotoIndex]} alt={totem.honoreeName || 'Tótem AK'} fill className="object-cover" unoptimized priority />
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                )
               ) : activePost && totem.showLatestPhotos ? (
                 <AnimatePresence mode="wait">
                   <motion.div

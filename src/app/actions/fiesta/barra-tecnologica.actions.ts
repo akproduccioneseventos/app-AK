@@ -18,6 +18,7 @@ import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
 import { isTruthyFollowConfirmation } from '@/lib/barra-tecnologica';
+import { getInsumoById, saveInsumo } from '@/app/actions/insumos';
 import * as logger from '@/lib/logger';
 
 const BAR_ORDERS_COLLECTION = 'bar_drink_orders';
@@ -120,6 +121,23 @@ async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
     }));
 }
 
+async function descontarStock(drink: Trago) {
+  if (!drink.recetaIngredientes) return;
+  for (const ing of drink.recetaIngredientes) {
+    if (!ing.insumoId) continue;
+    try {
+      const insumo = await getInsumoById(ing.insumoId);
+      if (insumo && insumo.cantidadDisponible !== undefined) {
+        insumo.cantidadDisponible -= ing.cantidad;
+        if (insumo.cantidadDisponible < 0) insumo.cantidadDisponible = 0;
+        await saveInsumo(insumo);
+      }
+    } catch (error) {
+      logger.error(`[barra-tecnologica] error al descontar stock del insumo ${ing.insumoId}`, error);
+    }
+  }
+}
+
 async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | null> {
   const db = await getDb();
   if (!db) return null;
@@ -218,6 +236,17 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     const stored = getStoredBarData(fiesta);
     if (!stored.settings.enabled) return { success: false, error: 'La barra tecnologica esta pausada.' };
 
+    const { openingTime, closingTime } = stored.settings;
+    if (openingTime || closingTime) {
+      const nowTime = new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Montevideo', hour12: false });
+      if (openingTime && nowTime < openingTime) {
+        return { success: false, error: `La barra abrirá a las ${openingTime} hs.` };
+      }
+      if (closingTime && nowTime > closingTime) {
+        return { success: false, error: `La barra está cerrada por hoy.` };
+      }
+    }
+
     const drinks = await getBarDrinks(fiesta);
     const drink = drinks.find((item) => item.id === input.drinkId);
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
@@ -261,6 +290,97 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
   }
 }
 
+export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(input.fiestaId);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+
+    const drinks = await getBarDrinks(fiesta);
+    const drink = drinks.find((item) => item.id === input.drinkId);
+    if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
+
+    const now = new Date().toISOString();
+    const order: BarDrinkOrder = {
+      id: `bar_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      fiestaId: input.fiestaId,
+      drinkId: drink.id,
+      drinkName: drink.nombre,
+      guestName: 'Barman',
+      status: 'entregado',
+      createdAt: now,
+      updatedAt: now,
+      source: 'staff',
+    };
+
+    const db = await getDb();
+    const stored = getStoredBarData(fiesta);
+    if (db) {
+      try {
+        await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);
+      } catch (error) {
+        await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+      }
+    } else {
+      await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+    }
+
+    await descontarStock(drink);
+
+    return { success: true, order };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudo crear el pedido manual.' };
+  }
+}
+
+export async function cancelBarDrinkOrder(fiestaId: string, orderId: string): Promise<{ success: boolean; error?: string }> {
+  return updateBarDrinkOrderStatus(fiestaId, orderId, 'cancelado');
+}
+
+export async function changeBarDrinkOrder(fiestaId: string, orderId: string, newDrinkId: string): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+
+    const drinks = await getBarDrinks(fiesta);
+    const drink = drinks.find((item) => item.id === newDrinkId);
+    if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
+
+    const db = await getDb();
+    const updatedAt = new Date().toISOString();
+    if (db) {
+      try {
+        const ref = db.collection(BAR_ORDERS_COLLECTION).doc(orderId);
+        const snapshot = await ref.get();
+        const orderData = snapshot.data() as BarDrinkOrder;
+        if (!orderData) return { success: false, error: 'Pedido no encontrado.' };
+        if (orderData.status !== 'nuevo' && orderData.status !== 'preparando') {
+          return { success: false, error: 'No se puede cambiar un pedido que ya está listo o entregado.' };
+        }
+        await ref.update({ drinkId: drink.id, drinkName: drink.nombre, updatedAt });
+        const updatedSnapshot = await ref.get();
+        return { success: true, order: updatedSnapshot.data() as BarDrinkOrder };
+      } catch (error) {
+        logger.warn('[barra-tecnologica] firestore change order failed, using fallback:', error);
+      }
+    }
+
+    const stored = getStoredBarData(fiesta);
+    const existingOrder = stored.orders?.find(o => o.id === orderId);
+    if (!existingOrder) return { success: false, error: 'Pedido no encontrado.' };
+    if (existingOrder.status !== 'nuevo' && existingOrder.status !== 'preparando') {
+        return { success: false, error: 'No se puede cambiar un pedido que ya está listo o entregado.' };
+    }
+
+    const orders = (stored.orders || []).map((order) => (
+      order.id === orderId ? { ...order, drinkId: drink.id, drinkName: drink.nombre, updatedAt } : order
+    ));
+    await saveFallbackOrders(fiesta, orders);
+    return { success: true, order: orders.find((order) => order.id === orderId) };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudo cambiar el pedido.' };
+  }
+}
+
 export async function updateBarDrinkOrderStatus(
   fiestaId: string,
   orderId: string,
@@ -277,7 +397,18 @@ export async function updateBarDrinkOrderStatus(
         const ref = db.collection(BAR_ORDERS_COLLECTION).doc(orderId);
         await ref.update({ status, updatedAt });
         const snapshot = await ref.get();
-        return { success: true, order: snapshot.data() as BarDrinkOrder };
+        const orderData = snapshot.data() as BarDrinkOrder;
+        
+        if (status === 'entregado') {
+          const fiesta = await getFiestaById(fiestaId);
+          if (fiesta) {
+            const drinks = await getBarDrinks(fiesta);
+            const drink = drinks.find(d => d.id === orderData.drinkId);
+            if (drink) await descontarStock(drink);
+          }
+        }
+        
+        return { success: true, order: orderData };
       } catch (error) {
         logger.warn('[barra-tecnologica] firestore status update failed, using fallback:', error);
       }
@@ -290,7 +421,15 @@ export async function updateBarDrinkOrderStatus(
       order.id === orderId ? { ...order, status, updatedAt } : order
     ));
     await saveFallbackOrders(fiesta, orders);
-    return { success: true, order: orders.find((order) => order.id === orderId) };
+    const updatedOrder = orders.find((order) => order.id === orderId);
+    
+    if (status === 'entregado' && updatedOrder) {
+      const drinks = await getBarDrinks(fiesta);
+      const drink = drinks.find(d => d.id === updatedOrder.drinkId);
+      if (drink) await descontarStock(drink);
+    }
+    
+    return { success: true, order: updatedOrder };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo actualizar el pedido.' };
   }
