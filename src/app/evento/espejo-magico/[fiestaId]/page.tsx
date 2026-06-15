@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, SmilePlus, X, Volume2, VolumeX, FileImage } from 'lucide-react';
@@ -25,7 +25,9 @@ const STICKERS_LIST = ['🎉', '🎊', '🥂', '💫', '⭐', '🎈', '💖', '�
 export default function EspejoMagicoPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
+  const mode = searchParams.get('mode') || 'firma'; // 'foto' | 'firma'
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -340,13 +342,15 @@ export default function EspejoMagicoPage() {
 
     // Voice guidance for review screen
     setTimeout(() => {
-      speak("¡Qué foto espectacular! Firma tu foto abajo o presiona subir al muro.");
+      speak(mode === 'foto' ? "¡Qué foto espectacular! Presiona subir al muro para compartirla." : "¡Qué foto espectacular! Firma tu foto abajo o presiona subir al muro.");
     }, 800);
   };
 
   const handleDownload = () => {
     if (!capturedImage || !canvasRef.current) return;
-    mergeDrawing();
+    if (mode !== 'foto') {
+      mergeDrawing();
+    }
     const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.9);
     const a = document.createElement('a');
     a.href = dataUrl;
@@ -361,7 +365,9 @@ export default function EspejoMagicoPage() {
     setIsUploading(true);
     speak("Subiendo tu foto al muro");
     try {
-      mergeDrawing();
+      if (mode !== 'foto') {
+        mergeDrawing();
+      }
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al procesar');
       
@@ -369,9 +375,9 @@ export default function EspejoMagicoPage() {
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
-      formData.append('authorName', 'Espejo Mágico');
+      formData.append('authorName', mode === 'foto' ? 'Espejo Mágico Foto' : 'Espejo Mágico Firma');
       formData.append('source', 'entertainment');
-      formData.append('sourceModule', 'espejoMagico');
+      formData.append('sourceModule', mode === 'foto' ? 'espejoMagicoFoto' : 'espejoMagicoFirma');
       
       const res = await uploadSocialPost(formData);
       if (res.success) {
@@ -469,14 +475,16 @@ export default function EspejoMagicoPage() {
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={capturedImage} className="absolute inset-0 w-full h-full object-cover" alt="Captura" />
-            <canvas
-              ref={drawingCanvasRef}
-              className="absolute inset-0 w-full h-full z-15 touch-none bg-transparent"
-              onPointerDown={startDrawing}
-              onPointerMove={draw}
-              onPointerUp={endDrawing}
-              onPointerLeave={endDrawing}
-            />
+            {mode !== 'foto' && (
+              <canvas
+                ref={drawingCanvasRef}
+                className="absolute inset-0 w-full h-full z-15 touch-none bg-transparent"
+                onPointerDown={startDrawing}
+                onPointerMove={draw}
+                onPointerUp={endDrawing}
+                onPointerLeave={endDrawing}
+              />
+            )}
           </>
         )}
 
@@ -607,27 +615,29 @@ export default function EspejoMagicoPage() {
           /* Review Controls */
           <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
             {/* Color Palette Selector for Drawing */}
-            <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
-              <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest mr-2">Firma:</span>
-              <div className="flex gap-3">
-                {DRAW_COLORS.map(c => (
-                  <button
-                    key={c.id}
-                    onClick={() => setDrawColor(c.value)}
-                    className={`w-7 h-7 rounded-full border-2 transition-transform active:scale-95
-                      ${drawColor === c.value ? 'border-white scale-110' : 'border-transparent opacity-70'}`}
-                    style={{ backgroundColor: c.value, boxShadow: drawColor === c.value ? `0 0 8px ${c.value}` : 'none' }}
-                    title={c.label}
-                  />
-                ))}
+            {mode !== 'foto' && (
+              <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest mr-2">Firma:</span>
+                <div className="flex gap-3">
+                  {DRAW_COLORS.map(c => (
+                    <button
+                      key={c.id}
+                      onClick={() => setDrawColor(c.value)}
+                      className={`w-7 h-7 rounded-full border-2 transition-transform active:scale-95
+                        ${drawColor === c.value ? 'border-white scale-110' : 'border-transparent opacity-70'}`}
+                      style={{ backgroundColor: c.value, boxShadow: drawColor === c.value ? `0 0 8px ${c.value}` : 'none' }}
+                      title={c.label}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={clearDrawing}
+                  className="ml-auto text-[10px] font-black uppercase border border-zinc-800 bg-zinc-900 text-zinc-400 px-3 py-1.5 rounded-full hover:text-white"
+                >
+                  Borrar
+                </button>
               </div>
-              <button
-                onClick={clearDrawing}
-                className="ml-auto text-[10px] font-black uppercase border border-zinc-800 bg-zinc-900 text-zinc-400 px-3 py-1.5 rounded-full hover:text-white"
-              >
-                Borrar
-              </button>
-            </div>
+            )}
 
             <div className="flex items-center justify-around">
               <button onClick={retake} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">

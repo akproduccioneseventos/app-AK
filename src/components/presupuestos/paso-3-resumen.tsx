@@ -113,7 +113,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     });
   };
 
-  const { itemsAgrupados, subtotalBruto, ahorroRegalos, bonificacionPromo, totalFinal, annualProjection, precioLista, ahorroMarketing } = useMemo(() => {
+  const { itemsAgrupados, subtotalBruto, ahorroRegalos, bonificacionPromo, totalFinal, annualProjection, isContracted, precioLista, ahorroMarketing } = useMemo(() => {
     const adultos = formData.invitadosAdultos || 0;
     const ninos = (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
@@ -156,6 +156,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
     // Cupón = descuento REAL (no marketing)
     const descuentoCupon = formData.cuponDescuento || 0;
     const totalConCupon = Math.max(0, Math.round(totalSinAj - descuentoCupon));
+    const isContracted = formData.estado === 'Aceptado' || formData.estado === 'Facturado';
     const annualProjection = buildAnnualAdjustmentProjection({
       baseTotal: totalConCupon,
       eventDate: formData.eventoFecha,
@@ -175,6 +176,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       descuentoCupon: Math.round(descuentoCupon),
       totalFinal: totalConCupon,
       annualProjection,
+      isContracted,
       precioLista,
       ahorroMarketing,
     };
@@ -363,7 +365,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
                 <span className="text-5xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(totalFinal)}</span>
             </div>
 
-            {annualProjection.applies && (
+            {isContracted && annualProjection.applies && (
               <div className="relative z-10 rounded-xl border border-white/10 bg-white/5 p-4">
                 <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-amber-300">
                   Proyección informativa para la fecha del evento
