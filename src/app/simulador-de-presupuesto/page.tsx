@@ -34,15 +34,12 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { ItemPresupuestado } from '@/types/presupuesto';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
-import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
+import { getGuestCountForItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 import {
-  buildAnnualAdjustmentProjection,
-  calculatePricePerPerson,
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -50,6 +47,10 @@ import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
 import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
+import {
+  calculateSimulatorPricing,
+  simulatorDetailsToBudgetItems,
+} from '@/lib/simulator/pricing';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -71,54 +72,6 @@ const DURATION_OPTIONS = [
     { value: 3, title: 'Menos de 4 horas', subtitle: 'Fiesta chica', detail: '1 entrada habilitada' },
     { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
 ] as const;
-
-function getServicioCalculatedData(servicio: ServicioEmpresa, adultos: number, ninosYAdolescentes: number): { qty: number, unitPrice: number, total: number } {
-  if (!servicio) return { qty: 0, unitPrice: 0, total: 0 };
-  
-  const itemDataForCalc: ItemPresupuestado = {
-    idServicioCatalogo: servicio.id,
-    nombreServicio: servicio.nombre,
-    cantidad: 1,
-    precioUnitario: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-    precioUnitarioPresupuesto: servicio.precioVenta || servicio.precioPorPersona || servicio.precioBase || 0,
-    costoTotalItem: 0,
-    categoriaServicio: servicio.categoria,
-    subcategoria: servicio.subcategoria,
-    calculationMethod: servicio.calculationMethod,
-    precioBase: servicio.precioBase,
-    precioPorPersona: servicio.precioPorPersona,
-    invitadosPorUnidad: servicio.invitadosPorUnidad,
-    tramosDePrecio: servicio.tramosDePrecio,
-  };
-
-  const total = recalcularCostoItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
-  const qtyTarget = getGuestCountForItem(itemDataForCalc, adultos, 0, ninosYAdolescentes);
-
-  let qty = 1;
-  let unitPrice = 0;
-
-  switch (servicio.calculationMethod) {
-    case 'porPersona':
-      qty = qtyTarget;
-      unitPrice = servicio.precioPorPersona || 0;
-      break;
-    case 'ratio':
-      const ratio = Number(servicio.invitadosPorUnidad) || 1;
-      qty = Math.ceil(qtyTarget / ratio);
-      unitPrice = servicio.precioBase || 0;
-      break;
-    case 'tramos':
-      qty = 1;
-      unitPrice = total; 
-      break;
-    case 'fijo':
-    default:
-      qty = 1;
-      unitPrice = servicio.precioVenta || 0;
-  }
-
-  return { qty, unitPrice, total };
-}
 
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
     return {
@@ -167,19 +120,6 @@ const menuItemToServicioSeleccionado = (item: ServicioEmpresa, invitados: number
         precioPorPersona: item.precioPorPersona || 0,
     };
 };
-
-interface ServicioDetallado {
-  id: string;
-  nombre: string;
-  esRegalo: boolean;
-  cantidad: number;
-  precioUnitario: number;
-  costoTotal: number;
-  categoria: string;
-  calculationMethod?: string;
-  esRecomendado?: boolean;
-  imageUrl?: string;
-}
 
 /** Returns true if the category or calculation method indicates a per-person food/catering item. */
 function esCategoriaGastronomica(categoria: string, calculationMethod?: string): boolean {
@@ -362,129 +302,21 @@ function SimuladorContent() {
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
     const stats = useMemo(() => {
-        if (!config || !allSimuladorServices.length) {
-            const emptyProjection = buildAnnualAdjustmentProjection({
-                baseTotal: 0,
-                eventDate: eventoFecha,
-                adjustmentPct: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
-                currentYear,
-            });
-            return {
-                subtotalBruto: 0,
-                subtotalVenta: 0,
-                descPromo: 0,
-                ahorroRegalos: 0,
-                totalSinAjuste: 0,
-                ajusteAnual: 0,
-                totalFinal: 0,
-                aniosDiferencia: 0,
-                agrupados: {},
-                detallados: [],
-                annualProjection: emptyProjection,
-                precioPorPersona: 0,
-                discountPercentage: config?.descuentoGeneral ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
-            };
-        }
-
-        const allSelectedServicesMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
-        
-        const paqueteSeleccionado = config.paquetes.find(p => p.id === selectedPaqueteId);
-        if (paqueteSeleccionado) {
-            paqueteSeleccionado.serviciosIncluidos.forEach(s => {
-                const serv = allSimuladorServices.find(os => os.id === s.id);
-                if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
-            });
-        }
-
-        formData.serviciosSeleccionados.forEach((data, id) => {
-            const serv = allSimuladorServices.find(cat => cat.id === id);
-            if (serv) allSelectedServicesMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
-        });
-
-        if (config.serviceDependencies) {
-            config.serviceDependencies.forEach(dep => {
-                if (allSelectedServicesMap.has(dep.triggerServiceId) && !allSelectedServicesMap.has(dep.requiredServiceId)) {
-                    const servicioRequerido = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
-                    if (servicioRequerido) allSelectedServicesMap.set(servicioRequerido.id, { servicio: servicioRequerido, esRegalo: false });
-                }
-            });
-        }
-
-        let totalBrutoMercado = 0; 
-        let totalRegular = 0;  
-        let totalRegalos = 0;  
-        const detallados: ServicioDetallado[] = [];
-
-        // Build recommended ids set from config
-        const recommendedIds = new Set<string>();
-        config.platosVisibles?.forEach(p => { if (p.recommended) recommendedIds.add(p.id); });
-        config.recommendedDishIds?.forEach((id: string) => recommendedIds.add(id));
-        
-        allSelectedServicesMap.forEach(({ servicio, esRegalo }) => {
-            const { qty, unitPrice, total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
-            totalBrutoMercado += total;
-            if (esRegalo) totalRegalos += total;
-            else totalRegular += total;
-            
-            detallados.push({ 
-                id: servicio.id, 
-                nombre: servicio.nombre, 
-                esRegalo, 
-                cantidad: qty, 
-                precioUnitario: unitPrice, 
-                costoTotal: total, 
-                categoria: (esRegalo ? 'Regalos Incluidos' : (servicio.categoria || 'Varios')) as string,
-                calculationMethod: servicio.calculationMethod,
-                esRecomendado: recommendedIds.has(servicio.id) || Boolean(servicio.isFeatured),
-                imageUrl: safeImageUrl(servicio.imageUrl),
-            });
-        });
-        
-        const discountPercentage = Math.max(0, Number(config.descuentoGeneral ?? 15) || 0);
-        const descPromo = totalRegular * (discountPercentage / 100);
-        const totalSinAjuste = totalRegular - descPromo;
-        const totalFinal = Math.round(totalSinAjuste);
-        const annualProjection = buildAnnualAdjustmentProjection({
-            baseTotal: totalFinal,
-            eventDate: eventoFecha,
-            adjustmentPct: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+        const pricingConfig = config || { menus: [], paquetes: [], descuentoGeneral: 15 };
+        return calculateSimulatorPricing({
+            config: pricingConfig,
+            services: allSimuladorServices,
+            adultos,
+            ninosYAdolescentes,
+            selectedPaqueteId,
+            selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
+                id,
+                esRegalo: data.esRegalo,
+            })),
+            eventoFecha,
+            annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
             currentYear,
         });
-        const precioPorPersona = calculatePricePerPerson(totalFinal, adultos + ninosYAdolescentes);
-
-        const agrupados = detallados.reduce((acc, item) => {
-            const cat = item.categoria;
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(item);
-            return acc;
-        }, {} as Record<string, ServicioDetallado[]>);
-
-        const sortedCategories = Object.keys(agrupados).sort((a, b) => {
-            if (a === 'Regalos Incluidos') return 1;
-            if (b === 'Regalos Incluidos') return -1;
-            return a.localeCompare(b);
-        });
-
-        const sortedAgrupados: Record<string, ServicioDetallado[]> = {};
-        sortedCategories.forEach(cat => {
-            sortedAgrupados[cat] = agrupados[cat].sort((a, b) => a.nombre.localeCompare(b.nombre));
-        });
-
-        return { 
-            subtotalBruto: totalBrutoMercado, 
-            subtotalVenta: totalRegular,  
-            descPromo: Math.round(descPromo),
-            ahorroRegalos: totalRegalos,
-            totalSinAjuste: totalFinal,
-            ajusteAnual: annualProjection.adjustmentAmount,
-            totalFinal,
-            aniosDiferencia: annualProjection.rows.length,
-            agrupados: sortedAgrupados,
-            detallados,
-            annualProjection,
-            precioPorPersona,
-            discountPercentage,
-        };
     }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
     
     const handleNext = async () => {
@@ -527,25 +359,7 @@ function SimuladorContent() {
                 ajusteAnualPorcentaje: stats.annualProjection.adjustmentPct,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
                 paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
-                items: stats.detallados.map(s => {
-                    const original = allSimuladorServices.find(os => os.id === s.id);
-                    return {
-                        idServicioCatalogo: s.id,
-                        nombreServicio: s.nombre,
-                        cantidad: s.cantidad,
-                        unidad: original?.unidad,
-                        precioUnitario: s.precioUnitario,
-                        precioUnitarioPresupuesto: s.precioUnitario,
-                        esRegalo: s.esRegalo,
-                        categoriaServicio: s.categoria,
-                        subcategoria: original?.subcategoria,
-                        calculationMethod: original?.calculationMethod,
-                        precioBase: original?.precioBase,
-                        precioPorPersona: original?.precioPorPersona,
-                        invitadosPorUnidad: original?.invitadosPorUnidad,
-                        tramosDePrecio: original?.tramosDePrecio,
-                    };
-                }) as Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[]
+                items: simulatorDetailsToBudgetItems(stats.detallados)
             };
             try {
                 const result = await generateBudgetAndLeadFromSimulator(data, {
@@ -610,40 +424,77 @@ function SimuladorContent() {
 
     const calculatePackageEstimatedPrice = (paquete: PaqueteArmadoRapido) => {
         if (!config || !allSimuladorServices.length) return 0;
+
+        return calculateSimulatorPricing({
+            config,
+            services: allSimuladorServices,
+            adultos,
+            ninosYAdolescentes,
+            selectedPaqueteId: paquete.id,
+            selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
+                id,
+                esRegalo: data.esRegalo,
+            })),
+            eventoFecha,
+            annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+            currentYear,
+        }).totalFinal;
+    };
+
+    const handleSwitchPackage = async (paqueteId: string) => {
+        if (!config) return;
+        setIsGenerating(true);
+        setSelectedPaqueteId(paqueteId);
         
-        const tempSelectedMap = new Map<string, { servicio: ServicioEmpresa, esRegalo: boolean }>();
+        const newPackageName = config.paquetes.find(p => p.id === paqueteId)?.nombre;
         
-        paquete.serviciosIncluidos.forEach(s => {
-            const serv = allSimuladorServices.find(os => os.id === s.id);
-            if (serv) tempSelectedMap.set(serv.id, { servicio: serv, esRegalo: s.esRegalo || false });
+        // Calculate new pricing stats
+        const newStats = calculateSimulatorPricing({
+            config,
+            services: allSimuladorServices,
+            adultos,
+            ninosYAdolescentes,
+            selectedPaqueteId: paqueteId,
+            selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
+                id,
+                esRegalo: data.esRegalo,
+            })),
+            eventoFecha,
+            annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+            currentYear,
         });
 
-        formData.serviciosSeleccionados.forEach((data, id) => {
-            const serv = allSimuladorServices.find(cat => cat.id === id);
-            if (serv) tempSelectedMap.set(serv.id, { servicio: serv, esRegalo: data.esRegalo });
-        });
+        const data = {
+            clienteNombre,
+            clienteContacto,
+            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+            adultos,
+            ninos: ninosYAdolescentes,
+            subtotal: newStats.subtotalVenta,
+            costoEstimado: newStats.totalFinal,
+            descuentoGeneral: newStats.discountPercentage,
+            ajusteAnualActivo: newStats.annualProjection.applies,
+            ajusteAnualPorcentaje: newStats.annualProjection.adjustmentPct,
+            serviciosIncluidos: newStats.detallados.map(s => s.id),
+            paqueteNombre: newPackageName ? `${newPackageName} — ${eventoTipo}` : undefined,
+            items: simulatorDetailsToBudgetItems(newStats.detallados)
+        };
 
-        if (config.serviceDependencies) {
-            config.serviceDependencies.forEach(dep => {
-                if (tempSelectedMap.has(dep.triggerServiceId) && !tempSelectedMap.has(dep.requiredServiceId)) {
-                    const serv = allSimuladorServices.find(s => s.id === dep.requiredServiceId);
-                    if (serv) tempSelectedMap.set(serv.id, { servicio: serv, esRegalo: false });
-                }
+        try {
+            const result = await generateBudgetAndLeadFromSimulator(data, {
+                source: 'simulator_common',
+                eventoTipo,
             });
+            if (result.success && result.presupuestoId) {
+                setGeneratedPresupuestoId(result.presupuestoId);
+                if (result.token) setGeneratedToken(result.token);
+                toast({ title: "Presupuesto actualizado", description: `Se ha cambiado al paquete ${newPackageName} con éxito.` });
+            } else throw new Error(result.error || "Error al generar.");
+        } catch (e: any) {
+            toast({ title: "Error", description: e.message, variant: "destructive" });
+        } finally {
+            setIsGenerating(false);
         }
-
-        let totalRegular = 0;
-        tempSelectedMap.forEach(({ servicio, esRegalo }) => {
-            if (!esRegalo) {
-                const { total } = getServicioCalculatedData(servicio, adultos, ninosYAdolescentes);
-                totalRegular += total;
-            }
-        });
-
-        const discountPercentage = Math.max(0, Number(config.descuentoGeneral ?? 15) || 0);
-        const descPromo = totalRegular * (discountPercentage / 100);
-        const totalSinAjuste = totalRegular - descPromo;
-        return Math.round(totalSinAjuste);
     };
 
     const sortedPaquetes = useMemo(() => {
@@ -693,7 +544,7 @@ function SimuladorContent() {
                                     onClick={handleWhatsAppQuickConsult}
                                     className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-xs uppercase tracking-widest"
                                 >
-                                    <MessageSquare className="w-4 h-4 mr-2"/> Contactar AK
+                                    <MessageSquare className="w-4 h-4 mr-2"/> Coordinar una Reunión
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -821,13 +672,55 @@ function SimuladorContent() {
                                     </p>
                                 </div>
                             )}
+
+                            {sortedPaquetes.filter(p => p.id !== selectedPaqueteId).length > 0 && (
+                                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 space-y-4 print:hidden">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                        ¿Querés comparar con otros paquetes para esta misma configuración?
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {sortedPaquetes
+                                            .filter(p => p.id !== selectedPaqueteId)
+                                            .map(p => {
+                                                const estimatedPrice = calculatePackageEstimatedPrice(p);
+                                                return (
+                                                    <div key={p.id} className="flex flex-col justify-between p-4 bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                                                        <div className="space-y-1">
+                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.nombre}</span>
+                                                            <p className="text-lg font-black text-slate-800">{formatCurrency(estimatedPrice)}</p>
+                                                        </div>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            disabled={isGenerating}
+                                                            onClick={() => handleSwitchPackage(p.id)}
+                                                            className="mt-3 w-full rounded-xl font-bold uppercase tracking-wider text-[10px] border-primary text-primary hover:bg-primary/5 h-10"
+                                                        >
+                                                            {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500"/> : `Cambiar a ${p.nombre}`}
+                                                        </Button>
+                                                    </div>
+                                                );
+                                            })}
+                                    </div>
+                                </div>
+                            )}
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
                             <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 w-full">
                                 <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
                                 <p className="text-xs text-blue-700 leading-relaxed font-medium">{budgetSettings.bookingTerms}</p>
                             </div>
-                            <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px] print:hidden">Iniciar Nueva Simulación</Button>
+                            <div className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
+                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">Iniciar Nueva Simulación</Button>
+                              <a
+                                href="https://akproduccioneseventos.com/#faq"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20 hover:bg-primary/5 transition-colors"
+                              >
+                                <Info className="w-3.5 h-3.5" /> Preguntas Frecuentes
+                              </a>
+                            </div>
                         </CardFooter>
                     </Card>
                 </motion.div>
@@ -844,12 +737,12 @@ function SimuladorContent() {
                   <div className="flex items-center gap-3">
                     <MessageSquare className="w-6 h-6 shrink-0 text-yellow-300" />
                     <div>
-                      <p className="font-black text-sm">¿Preferís hablar con el Asistente AK?</p>
-                      <p className="text-xs text-white/70">Simulador tipo chat · El bot te hace las preguntas y arma el presupuesto paso a paso</p>
+                      <p className="font-black text-sm">También podés armarlo con el Asistente AK</p>
+                      <p className="text-xs text-white/70">La IA usa los mismos paquetes, servicios y precios de este simulador manual</p>
                     </div>
                   </div>
                   <div className="shrink-0 bg-white/20 group-hover:bg-white/30 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors">
-                    Ir al Chat →
+                    Probar IA →
                   </div>
                 </div>
               </Link>
@@ -982,9 +875,6 @@ function SimuladorContent() {
                                                   </div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
-                                                {s.imageUrl && (
-                                                    <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-slate-200 bg-white" />
-                                                )}
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -1019,9 +909,6 @@ function SimuladorContent() {
                                                   </div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
-                                                {s.imageUrl && (
-                                                    <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-slate-200 bg-white" />
-                                                )}
                                                 <div className="flex flex-col flex-grow min-w-0">
                                                     <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
@@ -1057,9 +944,6 @@ function SimuladorContent() {
                                                       </div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
-                                                    {s.imageUrl && (
-                                                        <img src={s.imageUrl} alt={s.nombre} loading="lazy" className="h-16 w-16 shrink-0 rounded-xl object-cover border border-purple-100 bg-white" />
-                                                    )}
                                                     <div className="flex flex-col flex-grow min-w-0">
                                                         <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
                                                         <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>

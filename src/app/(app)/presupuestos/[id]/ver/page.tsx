@@ -564,7 +564,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               })()}
               <Button onClick={handlePrint} disabled={isDownloading} size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest" variant="secondary">
                 {isDownloading ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Printer className="mr-1.5 h-3.5 w-3.5"/>}
-                Descargar Imagen
+                Descargar PDF
               </Button>
               <Button
                 size="sm"
@@ -640,14 +640,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     onClick={handleSharePublicBudget}
                     className="h-12 rounded-xl bg-emerald-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-700 px-2"
                   >
-                    <Share2 className="mr-1 sm:mr-2 h-4 w-4" /> Enviar por WhatsApp
+                    <Share2 className="mr-1 sm:mr-2 h-4 w-4 shrink-0" /> <span className="truncate">Compartir por WhatsApp</span>
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={handleWhatsAppDirectContact}
+                    onClick={handleWhatsAppMeetingRequest}
                     className="h-12 rounded-xl border-emerald-200 text-xs font-bold uppercase tracking-widest text-emerald-700 hover:bg-emerald-50"
                   >
-                    <MessageSquare className="mr-2 h-4 w-4" /> Contactar AK
+                    <MessageSquare className="mr-2 h-4 w-4 shrink-0" /> <span className="truncate">Coordinar una Reunión</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -656,7 +656,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     className="h-12 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2"
                   >
                     {isDownloading ? <Loader2 className="mr-1 sm:mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-1 sm:mr-2 h-4 w-4" />}
-                    Descargar Imagen
+                    <span className="truncate">Descargar PDF</span>
                   </Button>
                 </div>
               </div>
@@ -1337,7 +1337,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             </div>
 
             {/* ── HISTORIAL DE PAGOS (admin only, hidden on print) ── */}
-            {!isBorrador && (
+            {isOperatorBudgetAccess && !isBorrador && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="print:hidden">
                 <Card className="border-none shadow-xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
                     <CardHeader className="pb-2 px-6 sm:px-10 pt-8">

@@ -1018,6 +1018,12 @@ export interface CargaOperativaItem {
   cantidad: string; 
   cargado: boolean;
   retornado?: boolean;
+  cargadoAt?: string;
+  cargadoPor?: string;
+  retornadoAt?: string;
+  retornadoPor?: string;
+  actualizadoAt?: string;
+  actualizadoPor?: string;
   notas?: string;
   origenId?: string; 
   unidad?: string;
@@ -1037,6 +1043,8 @@ export interface ListaDeCargaOperativa {
   name?: string;
   categorias: CargaOperativaCategoria[];
   notasGenerales?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface CostoItem {

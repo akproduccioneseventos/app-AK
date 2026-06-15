@@ -334,47 +334,98 @@ export default function BudgetPrintTemplate({
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(itemsAgrupados).map(([categoria, items], catIdx) => (
-                  <React.Fragment key={categoria}>
-                    <tr style={{ backgroundColor: '#f1f5f9' }}>
-                      <td
-                        colSpan={6}
-                        className="border border-gray-400 px-2 py-1 font-bold text-gray-700 uppercase tracking-wide"
-                      >
-                        {categoria}
-                      </td>
-                    </tr>
-                    {items.map((item, itemIdx) => (
-                      <tr
-                        key={`${catIdx}-${itemIdx}`}
-                        style={{ backgroundColor: '#ffffff' }}
-                      >
-                        <td className="border border-gray-300 px-2 py-1.5 align-top">
-                          {item.esRegalo ? (
-                            <span className="italic text-gray-600">{item.nombreServicio} (Regalo)</span>
-                          ) : (
-                            item.nombreServicio
-                          )}
-                        </td>
-                        <td className="border border-gray-300 px-2 py-1.5 text-center align-top">
-                          {item.cantidad}
-                        </td>
-                        <td className="border border-gray-300 px-2 py-1.5 text-center align-top">
-                          {getItemUnitLabel(item)}
-                        </td>
-                        <td className="border border-gray-300 px-2 py-1.5 text-right align-top">
-                          {formatCurrency(item.precioUnitarioPresupuesto ?? item.precioUnitario)}
-                        </td>
-                        <td className="border border-gray-300 px-2 py-1.5 text-center align-top">
-                          {item.esRegalo ? '100%' : '—'}
-                        </td>
-                        <td className="border border-gray-300 px-2 py-1.5 text-right align-top font-semibold">
-                          {item.esRegalo ? '$ 0,00' : formatCurrency(item.costoTotalItem)}
+                {Object.entries(itemsAgrupados).map(([categoria, items], catIdx) => {
+                  const sortedItems = (() => {
+                    if (categoria.toLowerCase().includes('catering')) {
+                      return [...items].sort((a, b) => {
+                        const getScore = (x: typeof a) => {
+                          const name = (x.nombreServicio || '').toLowerCase();
+                          const subcat = (x.subcategoria || '').toLowerCase();
+                          if (name.includes('vajilla') || name.includes('manteler') || name.includes('mobiliario') || name.includes('moviliario')) {
+                            return 1;
+                          }
+                          if (name.includes('entrada') || subcat.includes('entrada')) {
+                            return 2;
+                          }
+                          if (name.includes('principal') || name.includes('plato') || subcat.includes('principal')) {
+                            return 3;
+                          }
+                          if (name.includes('niño') || name.includes('nino') || name.includes('adolescente') || name.includes('infantil')) {
+                            return 4;
+                          }
+                          return 5;
+                        };
+                        return getScore(a) - getScore(b);
+                      });
+                    }
+                    return items;
+                  })();
+
+                  return (
+                    <React.Fragment key={categoria}>
+                      <tr style={{ backgroundColor: '#f1f5f9' }}>
+                        <td
+                          colSpan={6}
+                          className="border border-gray-400 px-2 py-1 font-bold text-gray-700 uppercase tracking-wide"
+                        >
+                          {categoria}
                         </td>
                       </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
+                      {sortedItems.map((item, itemIdx) => {
+                        const displayName = (() => {
+                          const name = item.nombreServicio;
+                          if (categoria.toLowerCase().includes('catering')) {
+                            const lowerName = name.toLowerCase();
+                            const subcat = (item.subcategoria || '').toLowerCase();
+                            if ((lowerName.includes('entrada') || subcat.includes('entrada')) && !lowerName.startsWith('entrada')) {
+                              return `entradas: ${name}`;
+                            }
+                            if ((lowerName.includes('principal') || lowerName.includes('plato') || subcat.includes('principal')) && !lowerName.includes('plato principal')) {
+                              return `plato principal: ${name}`;
+                            }
+                            if ((lowerName.includes('niño') || lowerName.includes('nino') || lowerName.includes('adolescente') || lowerName.includes('infantil')) && !lowerName.includes('niño')) {
+                              return `menu niño y adolescente: ${name}`;
+                            }
+                          }
+                          return name;
+                        })();
+
+                        return (
+                          <tr
+                            key={`${catIdx}-${itemIdx}`}
+                            style={{ backgroundColor: '#ffffff' }}
+                          >
+                            <td 
+                              className="border border-gray-300 px-2 py-1.5 align-top font-semibold"
+                              style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
+                            >
+                              {item.esRegalo ? (
+                                <span className="italic" style={{ color: '#dc2626' }}>{displayName} (Regalo)</span>
+                              ) : (
+                                displayName
+                              )}
+                            </td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                              {item.cantidad}
+                            </td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                              {getItemUnitLabel(item)}
+                            </td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-right align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                              {formatCurrency(item.precioUnitarioPresupuesto ?? item.precioUnitario)}
+                            </td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                              {item.esRegalo ? '100%' : '—'}
+                            </td>
+                            <td className="border border-gray-300 px-2 py-1.5 text-right align-top font-semibold" style={{ color: item.esRegalo ? '#dc2626' : undefined }}>
+                              {item.esRegalo ? '$ 0,00' : formatCurrency(item.costoTotalItem)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
 
                 {descuentoPromo > 0 && (
                   <tr style={{ backgroundColor: '#f8fafc' }}>

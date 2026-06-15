@@ -84,14 +84,15 @@ export async function getDashboardKpiData() {
     const totalPendiente = ledger.saldoPendiente;
     const prospectosActivos = leadsData.filter((lead) => lead.currentStageId !== 's4' && lead.currentStageId !== 's5').length;
 
+    const activeFiestas = fiestasData.filter(f => f.estado !== 'Archivado' && f.estado !== 'Demo AK' && !f.id.startsWith('demo_'));
     const activeCustomerIds = new Set(
-      fiestasData
+      activeFiestas
         .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
         .map(f => f.configuracion.clienteId)
     );
     const clientesActivos = activeCustomerIds.size;
-    const fiestasPasadas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < now).length;
-    const fiestasFuturas = fiestasData.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today).length;
+    const fiestasPasadas = activeFiestas.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < now).length;
+    const fiestasFuturas = activeFiestas.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today).length;
 
     const alerts: GlobalAlert[] = [];
 
@@ -218,7 +219,7 @@ export async function getDashboardKpiData() {
         alerts: alerts.filter(a => !prioridadesDescartadas.has(a.id)).sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6),
         notificacionesNoLeidas: notificationsData.filter(n => !n.leida).length,
         proximoEvento: (() => {
-          const futuras = fiestasData
+          const futuras = activeFiestas
             .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today)
             .sort((a, b) => new Date(a.configuracion.fechaEvento!).getTime() - new Date(b.configuracion.fechaEvento!).getTime());
           if (futuras.length === 0) return null;

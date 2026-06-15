@@ -235,8 +235,8 @@ export default function MainDashboardPage() {
             </CardHeader>
             <CardContent className="grid auto-rows-fr grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-5 2xl:grid-cols-3">
               <QuickTool href="/presupuestos/nuevo/crear" icon={ListChecks} title="Nuevo Presupuesto" description="Cotización manual." />
-              <QuickTool href="/simulador-de-presupuesto" icon={Wand2} title="Simulador Presupuesto" description="Captura de leads." />
-              <QuickTool href="/simulador-ak" icon={Bot} title="Simulador Asistente AK" description="Chat inteligente." />
+              <QuickTool href="/simulador-ak" icon={Wand2} title="Simulador Inteligente" description="Asiste, cotiza y captura leads." />
+              <QuickTool href="/simulador-de-presupuesto" icon={Bot} title="Simulador Manual" description="Configuración detallada clásica." />
               <QuickTool href="/pagos-rapidos" icon={Wallet} title="Registrar Pago Rápido" description="Cobrar y enviar recibo." />
               <QuickTool href="/contabilidad/crm/outbox" icon={Send} title="Envíos de WhatsApp" description="Mensajes del día pendientes." />
               <QuickTool href="/empresa/menus" icon={ChefHat} title="Planificador Gastronómico" description="Menús, recetas y bebidas." />

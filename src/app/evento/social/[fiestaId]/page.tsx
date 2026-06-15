@@ -55,6 +55,8 @@ import { cn } from '@/lib/utils';
 import type { Dedication, SongRequest } from '@/types/social-gallery';
 import QrFlyerGenerator from '@/components/social-wall/QrFlyerGenerator';
 import { Printer } from 'lucide-react';
+import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
+import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
 
 const MAX_DISPLAYED_SONG_REQUESTS = 12;
 
@@ -465,7 +467,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const fetchData = useCallback(async (showLoadingIndicator = true) => {
     if(showLoadingIndicator) setIsLoading(true);
     try {
-      const [fetchedPosts, fiestaData, fetchedChat, settingsData, socialConnections, fetchedSongRequests, fetchedDedications, poll] = await Promise.all([
+      const results = await Promise.allSettled([
           getSocialPosts(params.fiestaId),
           getFiestaById(params.fiestaId),
           getChatMessages(params.fiestaId),
@@ -475,7 +477,17 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           getDedications(params.fiestaId),
           getActivePoll(params.fiestaId),
       ]);
-      setPosts(fetchedPosts);
+
+      const fetchedPosts = results[0].status === 'fulfilled' ? results[0].value : [];
+      const fiestaData = results[1].status === 'fulfilled' ? results[1].value : null;
+      const fetchedChat = results[2].status === 'fulfilled' ? (results[2].value || []) : [];
+      const settingsData = results[3].status === 'fulfilled' ? results[3].value : null;
+      const socialConnections = results[4].status === 'fulfilled' ? (results[4].value || []) : [];
+      const fetchedSongRequests = results[5].status === 'fulfilled' ? (results[5].value || []) : [];
+      const fetchedDedications = results[6].status === 'fulfilled' ? (results[6].value || []) : [];
+      const poll = results[7].status === 'fulfilled' ? results[7].value : null;
+
+      setPosts(fetchedPosts || []);
       setFiesta(fiestaData);
       if (fiestaData?.socialGallerySettings) {
           setLocalSettings(prev => mergeGuestSettings(prev, fiestaData.socialGallerySettings!));
@@ -484,10 +496,12 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setSongRequests(fetchedSongRequests);
       setDedications(fetchedDedications);
       setActivePoll(poll);
-      setCompanyLogoUrl(settingsData.logoUrl ?? null);
-      setWhatsappNumber(socialConnections.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
-      const igConn = socialConnections.find(c => c.platform === 'Instagram');
-      const fbConn = socialConnections.find(c => c.platform === 'Facebook');
+      setCompanyLogoUrl(settingsData?.logoUrl ?? null);
+
+      const socialList = Array.isArray(socialConnections) ? socialConnections : [];
+      setWhatsappNumber(socialList.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
+      const igConn = socialList.find(c => c.platform === 'Instagram');
+      const fbConn = socialList.find(c => c.platform === 'Facebook');
       // Use brand handle if set, otherwise fall back to company social connections
       const brandIg = fiestaData?.socialGallerySettings?.brand?.instagramHandle;
       const brandFb = fiestaData?.socialGallerySettings?.brand?.facebookHandle;
@@ -503,11 +517,11 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       );
 
     } catch (e) {
-      toast({ title: "Error al cargar galería", variant: "destructive" });
+      console.error("Error al cargar galería:", e);
     } finally {
       if(showLoadingIndicator) setIsLoading(false);
     }
-  }, [params.fiestaId, toast]);
+  }, [params.fiestaId]);
   
   useEffect(() => {
     let active = true;
@@ -540,13 +554,18 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   }, [params.fiestaId]);
 
 
+  const fechaEvento = fiesta?.configuracion?.fechaEvento;
+  const windowInfo = isEventInActiveWindow(fechaEvento);
+  const isEventPast30Days = !windowInfo.isActive && windowInfo.phase === 'after';
+
   useEffect(() => {
     fetchData();
+    if (isEventPast30Days) return;
     const interval = setInterval(() => {
         fetchData(false);
     }, 4000); 
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [fetchData, isEventPast30Days]);
 
   const visiblePosts = useMemo(() => posts.filter(isPostVisibleForAudience), [posts]);
   const galleryPosts = isAdminView ? posts : visiblePosts;
@@ -1059,17 +1078,21 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       ════════════════════════════════════════════════════════════════ */}
       {!isAdminView && (
         <>
-          {/* Wall disabled by organizer */}
-          {localSettings.enabled === false && (
-            <div className="min-h-screen flex flex-col items-center justify-center text-center p-8" style={{ backgroundColor: localSettings.backgroundColor || '#f1f5f9' }}>
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-xl font-bold text-slate-700">El muro social no está disponible en este momento</h2>
-              <p className="text-sm text-slate-400 mt-2">El organizador lo activará pronto.</p>
-            </div>
-          )}
+          {isEventPast30Days && fiesta ? (
+            <PostEventMemoryHub fiesta={fiesta} posts={posts} dedications={dedications} />
+          ) : (
+            <>
+              {/* Wall disabled by organizer */}
+              {localSettings.enabled === false && (
+                <div className="min-h-screen flex flex-col items-center justify-center text-center p-8" style={{ backgroundColor: localSettings.backgroundColor || '#f1f5f9' }}>
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h2 className="text-xl font-bold text-slate-700">El muro social no está disponible en este momento</h2>
+                  <p className="text-sm text-slate-400 mt-2">El organizador lo activará pronto.</p>
+                </div>
+              )}
 
-          {/* Normal guest UI — only shown when the wall is enabled */}
-          {localSettings.enabled !== false && (<>
+              {/* Normal guest UI — only shown when the wall is enabled */}
+              {localSettings.enabled !== false && (<>
           {/* Upload dialog for guests (standalone, no trigger button needed here) */}
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogContent className="rounded-3xl border-none">
@@ -1873,7 +1896,10 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                   </Dialog>
                  <Button variant="outline" onClick={() => window.open(`/evento/muro-en-vivo/${params.fiestaId}`, '_blank')} title="Abrir pantalla gigante" aria-label="Abrir pantalla gigante" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
               </>
-            )}
+            </>
+          )}
+        </>
+      )}
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-11 w-11 rounded-2xl"><RefreshCw className={`w-5 h-5 text-slate-400 ${isLoading ? 'animate-spin' : ''}`}/></Button>
           </div>
         </div>

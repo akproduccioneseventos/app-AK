@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -16,26 +16,36 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { getFiestaById, updateListaDeCargaOperativaFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { getCargaOperativaMasterTemplate, checkAssetConflicts, updateListaDeCargaOperativa, generateCargaFromActivos } from '@/app/actions/fiesta/carga-operativa.actions';
+import {
+  getCargaOperativaAccessView,
+  getCargaOperativaMasterTemplate,
+  checkAssetConflicts,
+  updateCargaOperativaItemState,
+  updateListaDeCargaOperativa,
+  generateCargaFromActivos,
+} from '@/app/actions/fiesta/carga-operativa.actions';
+import type { CargaOperativaItemPatch } from '@/lib/logistics/carga-operativa';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
-function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQuantityChange, onDelete }: {
+function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQuantityChange, onQuantityCommit, onDelete }: {
     item: CargaOperativaItem;
     categoryId: string;
     onToggle: (categoryId: string, itemId: string) => void;
     onToggleRetornado: (categoryId: string, itemId: string) => void;
     onQuantityChange: (categoryId: string, itemId: string, quantity: string) => void;
+    onQuantityCommit: (categoryId: string, itemId: string, quantity: string) => void;
     onDelete: (categoryId: string, itemId: string) => void;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
@@ -94,6 +104,11 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
                       {item.retornado ? 'Retornado' : 'Pendiente de retorno'}
                     </p>
                   )}
+                  {item.actualizadoAt && (
+                    <p className="text-[10px] text-slate-400">
+                      {item.actualizadoPor || 'Equipo AK'} · {new Date(item.actualizadoAt).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  )}
                   {item.notas && <p className={cn("text-[10px] italic", item.cargado ? "text-muted-foreground/60" : "text-muted-foreground/80")}>Nota: {item.notas}</p>}
                 </div>
               </div>
@@ -103,6 +118,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
                         type="text"
                         value={item.cantidad}
                         onChange={(e) => onQuantityChange(categoryId, item.id, e.target.value)}
+                        onBlur={(e) => onQuantityCommit(categoryId, item.id, e.target.value)}
                         className={cn(
                             "h-9 w-20 text-center font-black text-primary rounded-lg transition-colors",
                             item.hasConflict ? "border-rose-400 focus-visible:ring-rose-400 bg-white" : "bg-muted/50 border-none"
@@ -120,6 +136,41 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
     );
 }
 
+function mergeRemoteOperationalState(
+  local: ListaDeCargaOperativa,
+  remote: ListaDeCargaOperativa,
+): ListaDeCargaOperativa {
+  const remoteItems = new Map(
+    (remote.categorias || []).flatMap((category) =>
+      (category.items || []).map((item) => [`${category.id}:${item.id}`, item] as const),
+    ),
+  );
+
+  return {
+    ...local,
+    updatedAt: remote.updatedAt,
+    updatedBy: remote.updatedBy,
+    categorias: (local.categorias || []).map((category) => ({
+      ...category,
+      items: (category.items || []).map((item) => {
+        const remoteItem = remoteItems.get(`${category.id}:${item.id}`);
+        if (!remoteItem) return item;
+        return {
+          ...item,
+          cargado: remoteItem.cargado,
+          retornado: remoteItem.retornado,
+          cargadoAt: remoteItem.cargadoAt,
+          cargadoPor: remoteItem.cargadoPor,
+          retornadoAt: remoteItem.retornadoAt,
+          retornadoPor: remoteItem.retornadoPor,
+          actualizadoAt: remoteItem.actualizadoAt,
+          actualizadoPor: remoteItem.actualizadoPor,
+        };
+      }),
+    })),
+  };
+}
+
 function ListaDeCargaOperativaContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -132,6 +183,11 @@ function ListaDeCargaOperativaContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [operatorName, setOperatorName] = useState('');
+  const [pendingItemUpdates, setPendingItemUpdates] = useState(0);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [hasPendingStructure, setHasPendingStructure] = useState(false);
 
   const [newCategoryName, setNewCategoryName] = useState('');
   
@@ -176,6 +232,7 @@ function ListaDeCargaOperativaContent() {
         items: cat.items || [] 
       }));
       setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
+      setHasPendingStructure(false);
       setFiesta(fiestaData);
       setActivosCatalogo(catalogoData);
 
@@ -190,6 +247,56 @@ function ListaDeCargaOperativaContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const savedName = window.localStorage.getItem('ak-carga-operator-name');
+    if (savedName) setOperatorName(savedName);
+  }, []);
+
+  useEffect(() => {
+    if (!operatorName.trim()) return;
+    window.localStorage.setItem('ak-carga-operator-name', operatorName.trim());
+  }, [operatorName]);
+
+  useEffect(() => {
+    if (!fiestaId) return;
+    const intervalId = window.setInterval(async () => {
+      if (pendingItemUpdates > 0) return;
+      const result = await getCargaOperativaAccessView(fiestaId);
+      if (!result.success || !result.data) return;
+      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.data!.lista));
+    }, 5000);
+    return () => window.clearInterval(intervalId);
+  }, [fiestaId, pendingItemUpdates]);
+
+  const persistItemPatch = useCallback(async (
+    categoryId: string,
+    itemId: string,
+    patch: CargaOperativaItemPatch,
+  ) => {
+    if (!fiestaId) return;
+    setPendingItemUpdates((count) => count + 1);
+    setSaveError(null);
+    try {
+      const result = await updateCargaOperativaItemState({
+        fiestaId,
+        categoryId,
+        itemId,
+        patch,
+        operatorName,
+      });
+      if (!result.success || !result.updatedData) {
+        throw new Error(result.error || 'No se pudo guardar el cambio.');
+      }
+      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.updatedData!));
+      setLastSaved(new Date());
+    } catch (patchError) {
+      setSaveError(patchError instanceof Error ? patchError.message : 'No se pudo guardar.');
+      await loadData(false);
+    } finally {
+      setPendingItemUpdates((count) => Math.max(0, count - 1));
+    }
+  }, [fiestaId, loadData, operatorName]);
 
   const handleSyncWithBudget = async () => {
     if (!fiestaId) return;
@@ -264,6 +371,7 @@ function ListaDeCargaOperativaContent() {
         ...prev,
         categorias: [...(prev.categorias || []), ...newCategories]
       }));
+      setHasPendingStructure(true);
 
       toast({ title: "Sincronización Inteligente", description: "Cantidades calculadas según invitados y tipo de servicios." });
 
@@ -286,6 +394,7 @@ function ListaDeCargaOperativaContent() {
           ...masterTemplate,
           categorias: itemsWithConflicts
         });
+        setHasPendingStructure(true);
         toast({ title: "Plantilla Maestro Cargada"});
     } catch(e) {
       toast({ title: "Error", description: "No se pudo cargar la plantilla maestra.", variant: "destructive" });
@@ -299,6 +408,9 @@ function ListaDeCargaOperativaContent() {
       const result = await updateListaDeCargaOperativa(fiestaId, listaDeCarga);
       if (result.success) {
         toast({ title: "¡Logística Actualizada!", description: "Se han guardado los cambios y verificado los conflictos." });
+        setHasPendingStructure(false);
+        setLastSaved(new Date());
+        setSaveError(null);
         if (result.updatedData) {
            const categoriasConItems = (result.updatedData.categorias || []).map((cat: CargaOperativaCategoria) => ({
             ...cat,
@@ -363,6 +475,7 @@ function ListaDeCargaOperativaContent() {
       ...prev,
       categorias: [...(prev.categorias || []), newCategory],
     }));
+    setHasPendingStructure(true);
     setNewCategoryName('');
   };
 
@@ -371,6 +484,7 @@ function ListaDeCargaOperativaContent() {
       ...prev,
       categorias: (prev.categorias || []).filter(cat => cat.id !== categoryId),
     }));
+    setHasPendingStructure(true);
   };
   
   const handleCatalogItemSelected = async (selectedAsset: ServicioEmpresa) => {
@@ -409,6 +523,7 @@ function ListaDeCargaOperativaContent() {
           : cat
       ),
     }));
+    setHasPendingStructure(true);
     
     toast({ description: `"${selectedAsset.nombre}" añadido.` });
   };
@@ -420,25 +535,37 @@ function ListaDeCargaOperativaContent() {
   };
 
   const toggleItemCargado = (categoryId: string, itemId: string) => {
+    const currentItem = listaDeCarga.categorias
+      .find((category) => category.id === categoryId)
+      ?.items.find((item) => item.id === itemId);
+    if (!currentItem) return;
+    const cargado = !currentItem.cargado;
     setListaDeCarga(prev => ({
       ...prev,
       categorias: (prev.categorias || []).map(cat =>
         cat.id === categoryId
-          ? { ...cat, items: (cat.items || []).map(item => item.id === itemId ? { ...item, cargado: !item.cargado } : item) }
+          ? { ...cat, items: (cat.items || []).map(item => item.id === itemId ? { ...item, cargado, retornado: cargado ? item.retornado : false } : item) }
           : cat
       ),
     }));
+    void persistItemPatch(categoryId, itemId, { cargado });
   };
 
   const toggleItemRetornado = (categoryId: string, itemId: string) => {
+    const currentItem = listaDeCarga.categorias
+      .find((category) => category.id === categoryId)
+      ?.items.find((item) => item.id === itemId);
+    if (!currentItem) return;
+    const retornado = !currentItem.retornado;
     setListaDeCarga(prev => ({
       ...prev,
       categorias: (prev.categorias || []).map(cat =>
         cat.id === categoryId
-          ? { ...cat, items: (cat.items || []).map(item => item.id === itemId ? { ...item, retornado: !item.retornado } : item) }
+          ? { ...cat, items: (cat.items || []).map(item => item.id === itemId ? { ...item, cargado: retornado ? true : item.cargado, retornado } : item) }
           : cat
       ),
     }));
+    void persistItemPatch(categoryId, itemId, { retornado });
   };
   
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
@@ -452,6 +579,10 @@ function ListaDeCargaOperativaContent() {
     }));
   };
 
+  const handleItemQuantityCommit = (categoryId: string, itemId: string, quantity: string) => {
+    void persistItemPatch(categoryId, itemId, { cantidad: quantity });
+  };
+
   const handleDeleteItem = (categoryId: string, itemId: string) => {
     setListaDeCarga(prev => ({
       ...prev,
@@ -461,6 +592,7 @@ function ListaDeCargaOperativaContent() {
           : cat
       ),
     }));
+    setHasPendingStructure(true);
   };
   
   const handleDragEnd = (event: DragEndEvent) => {
@@ -479,6 +611,7 @@ function ListaDeCargaOperativaContent() {
             });
             return { ...prev, categorias: newCategorias };
         });
+        setHasPendingStructure(true);
     }
   };
   
@@ -540,6 +673,37 @@ function ListaDeCargaOperativaContent() {
             <Button asChild variant="outline" className="w-full rounded-xl border-slate-200 shadow-sm" disabled={isSaving}><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Volver
               </Link></Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+        <div className="w-full sm:max-w-xs space-y-1.5">
+          <Label htmlFor="carga-operator-name" className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+            Encargado de carga
+          </Label>
+          <Input
+            id="carga-operator-name"
+            value={operatorName}
+            onChange={(event) => setOperatorName(event.target.value)}
+            placeholder="Ej: Juan"
+            maxLength={80}
+            className="h-11 rounded-xl"
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <AutoSaveIndicator
+            isSaving={pendingItemUpdates > 0}
+            lastSaved={lastSaved}
+            saveError={saveError}
+          />
+          <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+            Tildes sincronizadas online
+          </Badge>
+          {hasPendingStructure && (
+            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
+              Guardar cambios de lista
+            </Badge>
+          )}
         </div>
       </div>
       
@@ -629,6 +793,7 @@ function ListaDeCargaOperativaContent() {
                                         onToggle={toggleItemCargado}
                                         onToggleRetornado={toggleItemRetornado}
                                         onQuantityChange={handleItemQuantityChange}
+                                        onQuantityCommit={handleItemQuantityCommit}
                                         onDelete={handleDeleteItem}
                                     />
                                 ))}
@@ -703,7 +868,14 @@ function ListaDeCargaOperativaContent() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 print:hidden">
-        <div className="max-w-4xl mx-auto flex justify-end gap-3">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <AutoSaveIndicator
+              isSaving={pendingItemUpdates > 0}
+              lastSaved={lastSaved}
+              saveError={saveError}
+              className="justify-center sm:justify-start"
+            />
+            <div className="flex flex-col sm:flex-row gap-3">
             <Button onClick={handleSyncFromActivos} disabled={isSyncing || isSaving || isLoading} variant="outline" size="lg" className="rounded-2xl px-8 h-14 font-black text-base">
             {isSyncing ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <RefreshCw className="w-5 h-5 mr-3" />}
             {isSyncing ? 'SINCRONIZANDO...' : 'REGENERAR DESDE ACTIVOS'}
@@ -712,6 +884,7 @@ function ListaDeCargaOperativaContent() {
             {isSaving ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <Save className="w-5 h-5 mr-3" />}
             {isSaving ? 'REVISANDO STOCK...' : 'GUARDAR LOGÍSTICA'}
             </Button>
+            </div>
         </div>
       </div>
     </div>

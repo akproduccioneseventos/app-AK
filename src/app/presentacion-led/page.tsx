@@ -583,13 +583,24 @@ export default function PresentacionLedPage() {
           </div>
         )}
 
-        <button
-          onClick={toggleFullscreen}
-          className="p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-          title={isFullscreen ? 'Salir de pantalla completa (F)' : 'Pantalla completa (F)'}
-        >
-          {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            asChild
+            className="text-white/60 hover:text-white hover:bg-white/10 border border-white/10 h-9 px-3 text-xs rounded-lg font-semibold"
+          >
+            <a href="/marketing/demo-tecnologia">
+              Demo Comercial
+            </a>
+          </Button>
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            title={isFullscreen ? 'Salir de pantalla completa (F)' : 'Pantalla completa (F)'}
+          >
+            {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Slides */}

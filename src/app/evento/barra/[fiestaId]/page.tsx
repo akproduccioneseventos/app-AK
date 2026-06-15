@@ -1,62 +1,35 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Camera,
   CheckCircle2,
-  Clock3,
-  ExternalLink,
-  Info,
-  Instagram,
+  ChevronLeft,
+  Crown,
   Loader2,
   Martini,
-  Search,
-  Share2,
   Shuffle,
-  Sparkles,
-  Upload,
   Video,
   Wine,
   X,
+  Instagram,
+  Phone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import type { BarDrinkOrder, BarTechnologyDashboard } from '@/types/barra-tecnologica';
 import type { Trago } from '@/types/fiesta';
-import type { SocialGalleryPost } from '@/types/social-gallery';
 import {
   createBarDrinkOrder,
   getBarraTecnologicaDashboard,
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
-import { getSocialPosts } from '@/app/actions/social-gallery';
-import { buildInstagramUrl, getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 
-function dataUrlToFile(dataUrl: string, fileName: string) {
-  const [meta, data] = dataUrl.split(',');
-  const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
-  const binary = atob(data);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return new File([bytes], fileName, { type: mime });
-}
-
-function isAlcoholFree(drink: Trago) {
-  const text = `${drink.nombre} ${(drink.ingredientes || []).join(' ')}`.toLowerCase();
-  return text.includes('sin alcohol') || text.includes('mocktail') || text.includes('virgen');
-}
-
-function getDrinkVideoUrl(drink: Trago) {
-  return drink.videoUrl?.trim();
-}
+type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
 export default function BarraTecnologicaTouchPage() {
   const params = useParams();
@@ -64,134 +37,62 @@ export default function BarraTecnologicaTouchPage() {
   const { toast } = useToast();
 
   const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
-  const [barPhotos, setBarPhotos] = useState<SocialGalleryPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentScreen, setCurrentScreen] = useState<ScreenState>('HOME');
+  
+  // Ordering State
   const [selectedDrink, setSelectedDrink] = useState<Trago | null>(null);
   const [guestName, setGuestName] = useState('');
-  const [tableNumber, setTableNumber] = useState('');
-  const [note, setNote] = useState('');
-  const [lastOrder, setLastOrder] = useState<BarDrinkOrder | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isOrdering, setIsOrdering] = useState(false);
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [isStartingCamera, setIsStartingCamera] = useState(false);
-  const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
-  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
-  const [shareText, setShareText] = useState('');
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [hasFollowedSocials, setHasFollowedSocials] = useState(false);
-  const [showFollowGate, setShowFollowGate] = useState(false);
-  const [query, setQuery] = useState('');
-  const [drinkFilter, setDrinkFilter] = useState<'todos' | 'sinAlcohol'>('todos');
+  const [lastOrder, setLastOrder] = useState<BarDrinkOrder | null>(null);
 
+  // Camera State
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
 
   const loadData = useCallback(async () => {
-    const [dashResult, postsResult] = await Promise.all([
-      getBarraTecnologicaDashboard(fiestaId),
-      getSocialPosts(fiestaId).catch(() => []),
-    ]);
-
+    const dashResult = await getBarraTecnologicaDashboard(fiestaId);
     if (dashResult.success && dashResult.data) {
       setDashboard(dashResult.data);
     } else {
-      toast({ title: 'No se pudo abrir la barra', description: dashResult.error, variant: 'destructive' });
+      toast({ title: 'Error de conexión', description: dashResult.error, variant: 'destructive' });
     }
-
-    const approvedBarPhotos = (postsResult || [])
-      .filter((post) => (post.moderationStatus ?? 'approved') === 'approved')
-      .filter((post) => post.source === 'bar-tech' || post.sourceModule === 'barraTecnologica');
-    setBarPhotos(approvedBarPhotos);
-
     setIsLoading(false);
   }, [fiestaId, toast]);
 
   useEffect(() => {
     loadData();
-    // Poll data every 5 seconds to sync orders and photos
     const interval = setInterval(loadData, 5000);
     return () => clearInterval(interval);
   }, [loadData]);
 
+  const stopCamera = useCallback(() => {
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    setIsCameraOpen(false);
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+    }
+  }, [isRecording]);
+
   useEffect(() => {
-    if (!fiestaId) return;
-    setHasFollowedSocials(window.localStorage.getItem(`ak-bar-follow-${fiestaId}`) === 'true');
-  }, [fiestaId]);
+    return () => stopCamera();
+  }, [stopCamera]);
 
-  useEffect(() => {
-    return () => {
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-    };
-  }, []);
-
-  const settings = dashboard?.settings;
-  const visibleDrinks = useMemo(() => {
-    const search = query.trim().toLowerCase();
-    return (dashboard?.drinks || [])
-      .filter((drink) => (drink.stockDisponible ?? 1) > 0)
-      .filter((drink) => drinkFilter === 'todos' || isAlcoholFree(drink))
-      .filter((drink) => {
-        if (!search) return true;
-        return `${drink.nombre} ${(drink.ingredientes || []).join(' ')} ${drink.descripcion || drink.description || ''}`.toLowerCase().includes(search);
-      });
-  }, [dashboard, drinkFilter, query]);
-
-  const instagramUrl = useMemo(() => buildInstagramUrl(settings?.instagramHandle), [settings?.instagramHandle]);
-  const canSharePhotos = !settings?.requireSocialFollowForPhotos || hasFollowedSocials;
-
-  const submitOrder = async () => {
-    if (!selectedDrink) return;
-    if (!guestName.trim()) {
-      toast({ title: 'Tu nombre es necesario', description: 'Por favor, ingresá tu nombre para hacer el pedido.', variant: 'destructive' });
-      return;
-    }
-    setIsOrdering(true);
-    const result = await createBarDrinkOrder({
-      fiestaId,
-      drinkId: selectedDrink.id,
-      guestName,
-      tableNumber,
-      note,
-    });
-    if (result.success && result.order) {
-      setLastOrder(result.order);
-      setSelectedDrink(null);
-      setNote('');
-      toast({ title: 'Pedido enviado', description: 'El barman ya lo ve en su pantalla.' });
-      loadData();
-    } else {
-      toast({ title: 'No se pudo pedir', description: result.error, variant: 'destructive' });
-    }
-    setIsOrdering(false);
-  };
-
-  const confirmSocialFollow = () => {
-    window.localStorage.setItem(`ak-bar-follow-${fiestaId}`, 'true');
-    setHasFollowedSocials(true);
-    setShowFollowGate(false);
-    toast({ title: 'Listo', description: 'Ahora podes subir tu foto al muro social.' });
-  };
-
-  const openRandomDrink = () => {
-    if (!visibleDrinks.length) return;
-    const index = Math.floor(Math.random() * visibleDrinks.length);
-    setSelectedDrink(visibleDrinks[index]);
-  };
-
-  const startCamera = async () => {
-    if (!canSharePhotos) {
-      setShowFollowGate(true);
-      return;
-    }
-    setIsStartingCamera(true);
+  const startCamera = async (isVideo: boolean = false) => {
     setCapturedDataUrl(null);
-    setUploadedPhotoUrl(null);
-    setShareText('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false,
+        video: { facingMode: 'user', width: { ideal: 1080 }, height: { ideal: 1920 } },
+        audio: isVideo,
       });
       streamRef.current = stream;
       if (videoRef.current) {
@@ -200,453 +101,395 @@ export default function BarraTecnologicaTouchPage() {
       }
       setIsCameraOpen(true);
     } catch {
-      toast({ title: 'Camara no disponible', description: 'Podes subir una foto desde el celular.', variant: 'destructive' });
-      setIsCameraOpen(true);
-    } finally {
-      setIsStartingCamera(false);
+      toast({ title: 'Error de Cámara', description: 'No se pudo acceder a la cámara del dispositivo.', variant: 'destructive' });
     }
-  };
-
-  const stopCamera = () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    setIsCameraOpen(false);
   };
 
   const capturePhoto = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
+    
+    canvas.width = video.videoWidth || 1080;
+    canvas.height = video.videoHeight || 1920;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Draw horizontal mirror if facing user
+    // Espejo
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // Overlay photo banner
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-    ctx.fillRect(0, canvas.height - 130, canvas.width, 130);
-    
+    // Banner AK
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
     ctx.fillStyle = '#f43f5e';
-    ctx.font = 'bold 36px Arial';
-    ctx.fillText(settings?.hashtag || '#AKProducciones', 40, canvas.height - 70);
+    ctx.font = 'bold 40px Arial';
+    ctx.fillText('#AKProducciones', 50, canvas.height - 80);
     
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '24px Arial';
-    const activeDrinkName = selectedDrink?.nombre || lastOrder?.drinkName || 'un Trago AK';
-    ctx.fillText(`Disfrutando de mi ${activeDrinkName} 🍸`, 40, canvas.height - 30);
-    
-    setCapturedDataUrl(canvas.toDataURL('image/jpeg', 0.92));
+    setCapturedDataUrl(canvas.toDataURL('image/jpeg', 0.9));
   };
 
-  const uploadCapturedPhoto = async (file?: File) => {
-    const finalFile = file || (capturedDataUrl ? dataUrlToFile(capturedDataUrl, `barra-ak-${Date.now()}.jpg`) : null);
-    if (!finalFile) return;
-    setIsUploadingPhoto(true);
-    const formData = new FormData();
-    formData.append('fiestaId', fiestaId);
-    formData.append('authorName', guestName || 'Invitado barra AK');
+  const uploadMedia = async () => {
+    if (!capturedDataUrl) return;
+    setIsUploadingMedia(true);
     
-    const activeDrinkName = selectedDrink?.nombre || lastOrder?.drinkName;
-    const activeDrinkId = selectedDrink?.id || lastOrder?.drinkId;
-    formData.append('caption', activeDrinkName ? `Tomando un ${activeDrinkName} en la barra` : 'En la barra tecnologica de AK');
-    formData.append('followConfirmed', String(canSharePhotos));
-    formData.append('file', finalFile);
-    
-    if (activeDrinkId) formData.append('drinkId', activeDrinkId);
-    if (activeDrinkName) formData.append('drinkName', activeDrinkName);
+    try {
+      // Helper to convert data URL to File
+      const [meta, data] = capturedDataUrl.split(',');
+      const mime = meta.match(/:(.*?);/)?.[1] || 'image/jpeg';
+      const binary = atob(data);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const file = new File([bytes], `kiosco-${Date.now()}.${mime === 'video/webm' ? 'webm' : 'jpg'}`, { type: mime });
 
-    const result = await uploadBarMagicPhoto(formData);
-    if (result.success) {
-      setUploadedPhotoUrl(result.url || null);
-      setShareText(result.shareText || '');
-      toast({ title: 'Foto subida', description: 'Ya puede aparecer en el muro social.' });
-      loadData();
-    } else {
-      toast({ title: 'No se pudo subir', description: result.error, variant: 'destructive' });
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('authorName', 'Invitado Kiosco');
+      formData.append('caption', 'Capturado en el Kiosco Tecnológico');
+      formData.append('followConfirmed', 'true');
+      formData.append('file', file);
+      formData.append('source', 'kiosco');
+
+      const result = await uploadBarMagicPhoto(formData);
+      if (result.success) {
+        toast({ title: '¡Éxito!', description: 'El archivo se envió al Muro Social.' });
+        stopCamera();
+        setCurrentScreen('HOME');
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Ocurrió un error al subir el archivo.', variant: 'destructive' });
     }
-    setIsUploadingPhoto(false);
+    setIsUploadingMedia(false);
   };
 
-  const sharePhoto = async () => {
-    const text = shareText || `${settings?.brandText || 'AK Producciones'} ${settings?.hashtag || '#AKProducciones'}`;
-    if (navigator.share) {
-      await navigator.share({ title: 'Barra tecnologica AK', text, url: uploadedPhotoUrl || window.location.href }).catch(() => undefined);
+  // Recording Video Logic
+  const startRecording = () => {
+    if (!streamRef.current) return;
+    const mediaRecorder = new MediaRecorder(streamRef.current, { mimeType: 'video/webm' });
+    mediaRecorderRef.current = mediaRecorder;
+    
+    const chunks: Blob[] = [];
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      setCapturedDataUrl(url);
+    };
+
+    mediaRecorder.start();
+    setIsRecording(true);
+    setRecordingTime(15);
+
+    const timer = setInterval(() => {
+      setRecordingTime((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          mediaRecorder.stop();
+          setIsRecording(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleScreenChange = (screen: ScreenState) => {
+    if (screen === 'PHOTO') {
+      startCamera(false);
+    } else if (screen === 'VIDEO') {
+      startCamera(true);
+    } else {
+      stopCamera();
+    }
+    setCurrentScreen(screen);
+    setLastOrder(null);
+  };
+
+  const submitOrder = async () => {
+    if (!selectedDrink || !guestName.trim()) {
+      toast({ title: 'Falta tu nombre', description: 'Por favor, ingresa tu nombre.', variant: 'destructive' });
       return;
     }
-    await navigator.clipboard?.writeText(`${text} ${uploadedPhotoUrl || ''}`.trim()).catch(() => undefined);
-    toast({ title: 'Texto copiado', description: 'Pegalo en tu red social y etiquetanos.' });
+    setIsOrdering(true);
+    const result = await createBarDrinkOrder({
+      fiestaId,
+      drinkId: selectedDrink.id,
+      guestName,
+      tableNumber: 'Kiosco',
+    });
+    if (result.success && result.order) {
+      setLastOrder(result.order);
+      setSelectedDrink(null);
+      setGuestName('');
+      toast({ title: '¡Trago Pedido!', description: 'Acércate a la barra en unos minutos.' });
+    } else {
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    }
+    setIsOrdering(false);
+  };
+
+  const openRandomDrink = () => {
+    const drinks = dashboard?.drinks || [];
+    if (!drinks.length) return;
+    const randomIndex = Math.floor(Math.random() * drinks.length);
+    setSelectedDrink(drinks[randomIndex]);
   };
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-rose-500">
-        <Loader2 className="h-10 w-10 animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <Loader2 className="h-16 w-16 animate-spin text-rose-500" />
       </div>
     );
   }
 
-  if (!dashboard || !settings) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-center text-white">
-        <div>
-          <h1 className="text-2xl font-black text-rose-500">Barra no disponible</h1>
-          <p className="mt-2 text-slate-400">No se pudo cargar la experiencia de tragos.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const accentColor = settings.accentColor || '#f43f5e';
+  const settings = dashboard?.settings;
+  const quinceaneraPhoto = 'https://images.unsplash.com/photo-1541250848049-b4f7146174fb?q=80&w=1080&auto=format&fit=crop';
+  const drinks = dashboard?.drinks || [];
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-rose-500/30 overflow-y-auto">
-      {/* Background Aurora Drift */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -left-20 top-0 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-20 bg-[radial-gradient(circle,rgba(244,63,94,0.4),transparent)] animate-[pulse_8s_infinite]" />
-        <div className="absolute -right-20 bottom-0 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-20 bg-[radial-gradient(circle,rgba(6,182,212,0.4),transparent)] animate-[pulse_10s_infinite_reverse]" />
+    <main className="relative flex min-h-screen w-full max-w-full flex-col bg-black text-slate-100 font-sans overflow-hidden">
+      
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0">
+        <NextImage src={quinceaneraPhoto} alt="Background" fill className="object-cover opacity-40 blur-[2px]" unoptimized />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20" />
       </div>
 
-      <section className="relative z-10 mx-auto flex min-h-screen w-full max-w-[56.25vh] flex-col justify-between bg-slate-900/60 backdrop-blur-md shadow-2xl border-x border-white/5 px-4 py-6">
-        <div className="space-y-6">
-          {/* Header */}
-          <header className="flex flex-col gap-4 rounded-3xl border border-white/5 bg-slate-950/70 p-5 shadow-2xl backdrop-blur-lg">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)]">
-                <Martini className="h-7 w-7 animate-pulse" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-rose-500">AK Barra Interactiva</p>
-                <h1 className="text-2xl font-black tracking-tight text-white truncate">{settings.title}</h1>
-                <p className="text-xs font-semibold text-slate-400 mt-0.5 line-clamp-2">{settings.subtitle}</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between border-t border-white/5 pt-3 mt-1">
-              <div className="text-left">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Tag del Evento</p>
-                <p className="text-sm font-black text-rose-500">{settings.hashtag}</p>
-              </div>
-              {settings.instagramHandle && (
-                <div className="text-right">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Instagram</p>
-                  <p className="text-sm font-bold text-slate-300">{settings.instagramHandle}</p>
-                </div>
-              )}
-            </div>
-          </header>
-
-          {/* Guest Info Prompt */}
-          <section className="rounded-3xl border border-white/5 bg-slate-950/50 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-black uppercase tracking-wider text-white">1. Ingresa tu Nombre</h2>
-              <span className="text-[10px] font-bold text-rose-400/80 animate-pulse">Obligatorio para pedir</span>
-            </div>
-            <div className="grid grid-cols-[1fr_auto] gap-2">
-              <Input
-                value={guestName}
-                onChange={(event) => setGuestName(event.target.value)}
-                placeholder="Escribí tu nombre aquí..."
-                className="h-11 rounded-xl border-white/10 bg-slate-900 text-white placeholder-slate-500 text-sm font-bold focus:border-rose-500 focus:ring-rose-500"
-              />
-              <Input
-                value={tableNumber}
-                onChange={(event) => setTableNumber(event.target.value)}
-                placeholder="Mesa"
-                className="h-11 w-16 text-center rounded-xl border-white/10 bg-slate-900 text-white placeholder-slate-500 text-sm font-bold focus:border-rose-500 focus:ring-rose-500"
-              />
-            </div>
-          </section>
-
-          {/* Search & Filters */}
-          <section className="grid grid-cols-[1fr_auto] gap-2 rounded-2xl border border-white/5 bg-slate-950/40 p-2">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              <Input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Buscar trago o ingrediente..."
-                className="h-10 rounded-xl border-none bg-transparent pl-9 text-xs font-bold text-white placeholder-slate-500"
-              />
-            </div>
-            <div className="flex gap-1">
-              <Button
-                variant={drinkFilter === 'todos' ? 'default' : 'ghost'}
-                size="sm"
-                className={`h-10 rounded-xl text-xs font-black ${
-                  drinkFilter === 'todos'
-                    ? 'bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.4)]'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-                onClick={() => setDrinkFilter('todos')}
-              >
-                Todos
-              </Button>
-              <Button
-                variant={drinkFilter === 'sinAlcohol' ? 'default' : 'ghost'}
-                size="sm"
-                className={`h-10 rounded-xl text-xs font-black ${
-                  drinkFilter === 'sinAlcohol'
-                    ? 'bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.4)]'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-                onClick={() => setDrinkFilter('sinAlcohol')}
-              >
-                Sin Alcohol
-              </Button>
-            </div>
-          </section>
-
-          {/* Randomizer */}
-          <Button variant="outline" className="h-11 w-full rounded-2xl border-white/10 bg-white/5 text-xs font-black text-rose-400 hover:bg-white/10 hover:text-white" onClick={openRandomDrink}>
-            <Shuffle className="mr-2 h-4 w-4" /> Sorprendeme con un trago al azar
+      {/* HEADER GLOBALS */}
+      {currentScreen !== 'HOME' && (
+        <div className="absolute top-6 left-6 z-50">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="rounded-full bg-black/50 border-white/20 text-white backdrop-blur-md h-16 px-6 text-xl"
+            onClick={() => handleScreenChange('HOME')}
+          >
+            <ChevronLeft className="w-8 h-8 mr-2" /> Volver al Inicio
           </Button>
-
-          {/* Drinks Grid */}
-          <section className="grid grid-cols-2 gap-3 min-h-0">
-            {visibleDrinks.map((drink) => (
-              <motion.button
-                key={drink.id}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => setSelectedDrink(drink)}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/5 bg-slate-950/60 p-3 text-left shadow-lg transition hover:bg-slate-950/80 hover:border-white/15"
-              >
-                <div className="relative h-28 w-full overflow-hidden rounded-2xl bg-slate-900">
-                  {drink.imageUrl ? (
-                    <NextImage src={drink.imageUrl} alt={drink.nombre} fill className="object-cover transition duration-300 group-hover:scale-105" unoptimized />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-slate-900 text-rose-500/40">
-                      <Wine className="h-10 w-10" />
-                    </div>
-                  )}
-                  {settings.showAlcoholFreeTag && isAlcoholFree(drink) && (
-                    <Badge className="absolute left-2 top-2 bg-emerald-600/90 text-[8px] font-bold tracking-wider text-white">Sin alcohol</Badge>
-                  )}
-                  {settings.showDrinkVideo && getDrinkVideoUrl(drink) && (
-                    <Badge className="absolute right-2 top-2 gap-0.5 bg-cyan-600/90 text-[8px] font-bold tracking-wider text-white">
-                      <Video className="h-2.5 w-2.5" /> Video
-                    </Badge>
-                  )}
-                </div>
-                <div className="mt-3 space-y-1">
-                  <h3 className="font-headline text-base font-black tracking-tight text-white leading-snug truncate">{drink.nombre}</h3>
-                  {settings.showIngredients && drink.ingredientes?.length ? (
-                    <p className="text-[10px] font-semibold text-slate-500 line-clamp-1">{drink.ingredientes.join(', ')}</p>
-                  ) : (
-                    <p className="text-[10px] font-semibold text-rose-400">Ver y pedir</p>
-                  )}
-                </div>
-              </motion.button>
-            ))}
-          </section>
-
-          {/* Last Order Feedback */}
-          {lastOrder && (
-            <div className="rounded-3xl border border-emerald-500/20 bg-emerald-950/20 p-4 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
-              <div className="flex items-center gap-2 text-sm font-black"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> ¡Pedido Enviado!</div>
-              <p className="mt-1 text-xs font-semibold">{lastOrder.drinkName} preparado para {lastOrder.guestName}</p>
-              <p className="mt-1.5 text-[10px] font-mono text-emerald-500">CODIGO: {lastOrder.id.slice(-6).toUpperCase()}</p>
-            </div>
-          )}
         </div>
+      )}
 
-        {/* Gallery Carousel */}
-        {barPhotos.length > 0 && (
-          <div className="mt-8 border-t border-white/5 pt-6 relative z-10">
-            <h3 className="text-xs font-black uppercase tracking-widest text-rose-500 mb-3 flex items-center gap-2">
-              <Camera className="h-4 w-4" /> Fotos de la Barra
-            </h3>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
-              {barPhotos.map((post) => (
-                <div key={post.id} className="relative w-28 aspect-[4/5] shrink-0 rounded-2xl overflow-hidden border border-white/5 bg-slate-900 shadow-md snap-start">
-                  <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-cover" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-transparent to-transparent" />
-                  <div className="absolute bottom-2 left-2 right-2 text-center min-w-0">
-                    <p className="text-[9px] font-bold text-white truncate">{post.authorName}</p>
-                    {post.drinkName && <p className="text-[8px] text-rose-400 font-extrabold truncate">{post.drinkName}</p>}
-                  </div>
-                </div>
-              ))}
+      {/* RENDER SCREENS */}
+      <AnimatePresence mode="wait">
+        
+        {/* --- HOME SCREEN --- */}
+        {currentScreen === 'HOME' && (
+          <motion.div 
+            key="home"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            className="relative z-10 flex flex-1 flex-col items-center justify-center p-10 text-center"
+          >
+            <div className="mb-16">
+              <h2 className="text-3xl font-black uppercase tracking-[0.3em] text-rose-500 animate-pulse">Experiencia Interactiva</h2>
+              <h1 className="mt-4 text-7xl font-black text-white drop-shadow-2xl">BARRA DE TRAGOS AK</h1>
             </div>
-          </div>
-        )}
-      </section>
 
-      {/* Drink Detail Drawer / Modal */}
-      <AnimatePresence>
-        {selectedDrink && (
-          <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="w-full max-w-[56.25vh] rounded-t-[2.5rem] bg-slate-900 border-t border-white/10 p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Detalle del Trago</p>
-                  <h2 className="text-2xl font-black text-white">{selectedDrink.nombre}</h2>
-                  {settings.showAlcoholFreeTag && isAlcoholFree(selectedDrink) && (
-                    <Badge className="bg-emerald-600 text-[9px] font-bold uppercase tracking-wider text-white mt-1">Sin Alcohol</Badge>
-                  )}
-                </div>
-                <Button variant="ghost" size="icon" className="rounded-full bg-white/5 text-slate-400 hover:text-white" onClick={() => setSelectedDrink(null)}>
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
+            <div className="flex flex-col gap-6 w-full max-w-2xl">
+              <Button 
+                onClick={() => handleScreenChange('MENU')}
+                className="h-32 rounded-3xl bg-gradient-to-r from-rose-600 to-orange-500 text-3xl font-black text-white shadow-[0_0_40px_rgba(225,29,72,0.4)] hover:scale-105 transition-transform"
+              >
+                <Martini className="w-12 h-12 mr-4" /> Elige tu Trago
+              </Button>
+              
+              <Button 
+                onClick={() => handleScreenChange('PHOTO')}
+                className="h-32 rounded-3xl bg-white/10 backdrop-blur-xl border-2 border-white/20 text-3xl font-black text-white hover:bg-white/20 hover:scale-105 transition-transform"
+              >
+                <Camera className="w-12 h-12 mr-4 text-cyan-400" /> Captura tu Momento
+              </Button>
+              
+              <Button 
+                onClick={() => handleScreenChange('VIDEO')}
+                className="h-32 rounded-3xl bg-white/10 backdrop-blur-xl border-2 border-white/20 text-3xl font-black text-white hover:bg-white/20 hover:scale-105 transition-transform"
+              >
+                <Video className="w-12 h-12 mr-4 text-purple-400" /> Graba un Saludo VIP
+              </Button>
+            </div>
 
-              <div className="mt-4 overflow-hidden rounded-3xl border border-white/5 bg-slate-950">
-                {settings.showDrinkVideo && getDrinkVideoUrl(selectedDrink) ? (
-                  <video src={getDrinkVideoUrl(selectedDrink)} controls autoPlay loop playsInline className="max-h-56 w-full bg-slate-950 object-contain" />
-                ) : selectedDrink.imageUrl ? (
-                  <div className="relative h-48">
-                    <NextImage src={selectedDrink.imageUrl} alt={selectedDrink.nombre} fill className="object-cover" unoptimized />
-                  </div>
-                ) : (
-                  <div className="flex h-36 items-center justify-center bg-slate-950 text-rose-500/30">
-                    <Wine className="h-12 w-12" />
-                  </div>
-                )}
-              </div>
-
-              {settings.showDrinkDescription && (selectedDrink.descripcion || selectedDrink.description) && (
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-slate-500">
-                    <Info className="h-3.5 w-3.5" /> Descripción
-                  </div>
-                  <p className="text-xs font-semibold leading-relaxed text-slate-300">{getDrinkDescription(selectedDrink)}</p>
-                </div>
-              )}
-
-              {settings.showIngredients && selectedDrink.ingredientes?.length && (
-                <div className="mt-4 space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Ingredientes</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedDrink.ingredientes.map((ingredient) => (
-                      <span key={ingredient} className="rounded-full bg-white/5 border border-white/5 px-2.5 py-1 text-[10px] font-black text-slate-300">{ingredient}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-4">
-                <Label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Nota para el barman (opcional)</Label>
-                <Textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ej: sin hielo, con limón, más dulce..." className="min-h-16 rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-600 text-xs font-bold" />
-              </div>
-
-              <div className="mt-5 flex gap-2">
-                {settings.allowPhotoCapture && (
-                  <Button variant="outline" className="h-12 flex-1 rounded-2xl border-white/10 bg-white/5 font-black text-xs" onClick={startCamera} disabled={isStartingCamera}>
-                    {isStartingCamera ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4 text-rose-400" />}
-                    Sacarme Foto 📸
-                  </Button>
-                )}
-                <Button className="h-12 flex-1 rounded-2xl bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)] font-black text-xs hover:bg-rose-600" onClick={submitOrder} disabled={isOrdering}>
-                  {isOrdering ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Clock3 className="mr-2 h-4 w-4" />}
-                  Pedir Trago
-                </Button>
-              </div>
-            </motion.div>
+            {/* Redes Footer */}
+            <div className="absolute bottom-10 flex items-center justify-center gap-10 opacity-70">
+              <div className="flex items-center gap-3"><Instagram className="w-8 h-8" /> <span className="text-2xl font-bold">{settings?.instagramHandle || '@akproducciones'}</span></div>
+              <div className="flex items-center gap-3"><Phone className="w-8 h-8" /> <span className="text-2xl font-bold">AK Producciones</span></div>
+            </div>
           </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* Social Follow Gate */}
-      <AnimatePresence>
-        {showFollowGate && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div initial={{ y: 30, scale: 0.97 }} animate={{ y: 0, scale: 1 }} exit={{ y: 30, scale: 0.97 }} className="w-full max-w-sm rounded-[2rem] bg-slate-900 border border-white/10 p-6 shadow-2xl text-center">
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-left">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Paso Social</p>
-                  <h2 className="text-xl font-black text-white mt-1">Seguinos en Redes</h2>
-                </div>
-                <Button variant="ghost" size="icon" className="rounded-full bg-white/5 text-slate-400" onClick={() => setShowFollowGate(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-400">{settings.socialFollowPrompt}</p>
-              <div className="mt-5 space-y-2">
-                <a href={instagramUrl} target="_blank" rel="noreferrer" className="block">
-                  <Button className="h-11 w-full rounded-xl bg-rose-500 text-white font-black text-xs">
-                    <Instagram className="mr-2 h-4 w-4" /> Abrir Instagram <ExternalLink className="ml-1.5 h-3 w-3" />
-                  </Button>
-                </a>
-                <Button variant="outline" className="h-11 w-full rounded-xl border-white/10 bg-white/5 font-black text-xs" onClick={confirmSocialFollow}>
-                  <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-400" /> Ya segui, subir foto
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* --- MENU SCREEN --- */}
+        {currentScreen === 'MENU' && (
+          <motion.div 
+            key="menu"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            className="relative z-10 flex flex-1 flex-col pt-32 p-10 overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-5xl font-black text-white">Menú de Tragos</h1>
+              <Button onClick={openRandomDrink} className="h-16 px-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-2xl font-black shadow-[0_0_30px_rgba(147,51,234,0.5)] animate-pulse border-0">
+                <Shuffle className="w-8 h-8 mr-3" /> ¡Sorpréndeme!
+              </Button>
+            </div>
 
-      {/* Camera Capture Screen */}
-      <AnimatePresence>
-        {isCameraOpen && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm animate-fade-in" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Card className="w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-900 shadow-2xl">
-              <CardContent className="space-y-4 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Espejo Mágico de Barra</p>
-                    <h2 className="text-xl font-black text-white mt-0.5">Capturar mi Selfi</h2>
-                  </div>
-                  <Button variant="ghost" size="icon" className="rounded-full bg-white/5 text-slate-400" onClick={stopCamera}><X className="h-4 w-4" /></Button>
-                </div>
-                
-                <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 aspect-[4/5] border border-white/5">
-                  {capturedDataUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={capturedDataUrl} alt="Foto capturada" className="h-full w-full object-cover" />
-                  ) : (
-                    <video ref={videoRef} className="h-full w-full object-cover scale-x-[-1]" playsInline muted />
-                  )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 to-transparent p-5 text-left pointer-events-none">
-                    <p className="text-lg font-black text-rose-500">{settings.hashtag}</p>
-                    <p className="text-xs font-bold text-white/80">
-                      Disfrutando de mi {selectedDrink?.nombre || lastOrder?.drinkName || 'Trago AK'} 🍸
-                    </p>
-                  </div>
-                </div>
-                
-                <canvas ref={canvasRef} className="hidden" />
-                <div className="flex flex-col gap-2">
-                  {!capturedDataUrl ? (
-                    <Button className="h-11 w-full rounded-xl bg-rose-500 text-white font-black text-xs shadow-lg" onClick={capturePhoto}>
-                      <Camera className="mr-2 h-4 w-4" /> Capturar Foto
-                    </Button>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" className="h-11 rounded-xl border-white/10 bg-white/5 font-bold text-xs" onClick={() => setCapturedDataUrl(null)}>Repetir</Button>
-                      <Button className="h-11 rounded-xl bg-rose-500 text-white font-black text-xs" onClick={() => uploadCapturedPhoto()} disabled={isUploadingPhoto}>
-                        {isUploadingPhoto ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        Subir al Muro
+            <div className="flex-1 overflow-y-auto pb-20 scrollbar-none">
+              <div className="grid grid-cols-2 gap-6">
+                {drinks.map((drink, idx) => {
+                  const isSignature = idx === 0;
+                  return (
+                    <motion.button
+                      key={drink.id}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedDrink(drink)}
+                      className={`relative flex flex-col items-start overflow-hidden rounded-[2.5rem] p-6 text-left transition-all ${isSignature ? 'bg-gradient-to-br from-amber-500/20 to-orange-600/20 border-2 border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.3)]' : 'bg-black/50 border border-white/10 backdrop-blur-md hover:bg-black/70'}`}
+                    >
+                      {isSignature && (
+                        <div className="absolute -top-6 -right-6 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl" />
+                      )}
+                      <div className="relative w-full aspect-[4/3] rounded-3xl bg-slate-900 mb-6 overflow-hidden">
+                        {drink.imageUrl ? (
+                          <NextImage src={drink.imageUrl} alt={drink.nombre} fill className="object-cover" unoptimized />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-slate-800 text-rose-500/50">
+                            <Wine className="w-20 h-20" />
+                          </div>
+                        )}
+                        {isSignature && (
+                          <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-400 text-black px-4 py-1.5 rounded-full text-xs font-black flex items-center gap-2 shadow-lg">
+                            <Crown className="w-4 h-4" /> Trago de la Cumpleañera
+                          </div>
+                        )}
+                      </div>
+                      <h3 className={`text-3xl font-black line-clamp-1 w-full ${isSignature ? 'text-amber-400' : 'text-white'}`}>{drink.nombre}</h3>
+                      <p className="text-lg text-slate-400 font-semibold mt-2 line-clamp-2">{drink.ingredientes?.join(', ')}</p>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ORDER MODAL */}
+            <AnimatePresence>
+              {selectedDrink && (
+                <motion.div 
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xl p-10"
+                >
+                  <motion.div 
+                    initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }}
+                    className="w-full max-w-2xl bg-slate-900 rounded-[3rem] border border-white/10 p-10 shadow-2xl flex flex-col items-center text-center"
+                  >
+                    <div className="w-40 h-40 rounded-full bg-rose-500/20 flex items-center justify-center mb-8 border-4 border-rose-500 shadow-[0_0_40px_rgba(244,63,94,0.3)]">
+                      <Martini className="w-20 h-20 text-rose-500" />
+                    </div>
+                    <h2 className="text-5xl font-black text-white mb-4">{selectedDrink.nombre}</h2>
+                    <p className="text-xl text-slate-400 font-semibold mb-10">¡Excelente elección! ¿Para quién es este trago?</p>
+                    
+                    <Input 
+                      value={guestName}
+                      onChange={e => setGuestName(e.target.value)}
+                      placeholder="Toca para ingresar tu nombre"
+                      className="h-24 rounded-full bg-black/50 border-white/20 text-center text-4xl font-bold text-white mb-10 placeholder:text-slate-600 focus:border-rose-500 focus:ring-rose-500"
+                    />
+
+                    <div className="flex gap-4 w-full">
+                      <Button onClick={() => setSelectedDrink(null)} variant="outline" className="flex-1 h-20 rounded-full border-white/20 bg-transparent text-2xl font-bold text-white hover:bg-white/10">
+                        Cancelar
+                      </Button>
+                      <Button onClick={submitOrder} disabled={isOrdering} className="flex-1 h-20 rounded-full bg-gradient-to-r from-rose-600 to-orange-500 text-2xl font-black text-white shadow-xl border-0">
+                        {isOrdering ? <Loader2 className="w-8 h-8 animate-spin" /> : 'Pedir Ahora'}
                       </Button>
                     </div>
-                  )}
-                  <label className="flex h-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-slate-800/50 hover:bg-slate-800 text-xs font-bold text-slate-300 transition-all">
-                    <Upload className="mr-2 h-4 w-4" /> Subir desde el celular
-                    <input type="file" accept="image/*" capture="user" className="hidden" onChange={(event) => event.target.files?.[0] && uploadCapturedPhoto(event.target.files[0])} />
-                  </label>
-                </div>
-                
-                {uploadedPhotoUrl && (
-                  <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4 text-center">
-                    <p className="font-black text-emerald-300 text-xs">¡Foto Subida con Éxito!</p>
-                    <p className="text-[10px] font-semibold text-slate-400 mt-1">{shareText}</p>
-                    <Button className="mt-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] h-9 w-full" onClick={sharePhoto}>
-                      <Share2 className="mr-2 h-3.5 w-3.5" /> Compartir Link
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* ORDER SUCCESS OVERLAY */}
+            <AnimatePresence>
+              {lastOrder && !selectedDrink && (
+                <motion.div 
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-emerald-950/90 backdrop-blur-xl"
+                >
+                  <div className="text-center">
+                    <CheckCircle2 className="w-40 h-40 text-emerald-400 mx-auto mb-8 animate-bounce" />
+                    <h2 className="text-6xl font-black text-white mb-4">¡Pedido Enviado!</h2>
+                    <p className="text-3xl text-emerald-300 font-bold">Acércate a la barra en unos minutos</p>
+                    <Button onClick={() => setLastOrder(null)} className="mt-12 h-20 px-12 rounded-full bg-white text-emerald-900 text-3xl font-black hover:bg-slate-200">
+                      Entendido
                     </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {/* --- CAMERA SCREENS (PHOTO/VIDEO) --- */}
+        {(currentScreen === 'PHOTO' || currentScreen === 'VIDEO') && (
+          <motion.div 
+            key="camera"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-20 bg-black flex flex-col"
+          >
+            {/* Live Camera View */}
+            <div className="relative flex-1 overflow-hidden">
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                className={`w-full h-full object-cover transform -scale-x-100 ${capturedDataUrl ? 'hidden' : 'block'}`} 
+              />
+              <canvas ref={canvasRef} className="hidden" />
+              
+              {/* Captured Image / Video Preview */}
+              {capturedDataUrl && (
+                currentScreen === 'PHOTO' ? (
+                  <img src={capturedDataUrl} className="w-full h-full object-cover" alt="Preview" />
+                ) : (
+                  <video src={capturedDataUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
+                )
+              )}
+
+              {/* Recording Overlay */}
+              {isRecording && (
+                <div className="absolute top-10 right-10 flex items-center gap-3 bg-red-600/90 px-6 py-3 rounded-full animate-pulse">
+                  <div className="w-4 h-4 bg-white rounded-full" />
+                  <span className="text-2xl font-black text-white">00:{recordingTime.toString().padStart(2, '0')}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Controls */}
+            <div className="absolute bottom-0 left-0 right-0 p-10 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center items-center pb-20">
+              {!capturedDataUrl ? (
+                currentScreen === 'PHOTO' ? (
+                  <Button onClick={capturePhoto} className="w-32 h-32 rounded-full border-8 border-white/50 bg-white hover:bg-slate-200 transition-transform hover:scale-105 shadow-[0_0_50px_rgba(255,255,255,0.3)]" />
+                ) : (
+                  <Button onClick={isRecording ? undefined : startRecording} disabled={isRecording} className={`w-32 h-32 rounded-full border-8 border-white/50 bg-red-500 hover:bg-red-600 transition-transform ${isRecording ? 'scale-110 shadow-[0_0_50px_rgba(220,38,38,0.8)] animate-pulse' : 'hover:scale-105 shadow-[0_0_50px_rgba(220,38,38,0.3)]'}`} />
+                )
+              ) : (
+                <div className="flex gap-6">
+                  <Button onClick={() => setCapturedDataUrl(null)} variant="outline" className="h-24 px-10 rounded-full bg-black/50 border-white/20 text-3xl font-bold text-white backdrop-blur-md">
+                    <X className="w-10 h-10 mr-3" /> Reintentar
+                  </Button>
+                  <Button onClick={uploadMedia} disabled={isUploadingMedia} className="h-24 px-10 rounded-full bg-emerald-500 border-0 text-3xl font-black text-white shadow-[0_0_40px_rgba(16,185,129,0.5)]">
+                    {isUploadingMedia ? <Loader2 className="w-10 h-10 animate-spin mr-3" /> : <CheckCircle2 className="w-10 h-10 mr-3" />}
+                    Enviar al Muro
+                  </Button>
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
