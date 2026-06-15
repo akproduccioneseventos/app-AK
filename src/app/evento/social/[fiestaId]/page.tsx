@@ -1778,7 +1778,14 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           </div>
         </>
       )}
+          </>
+        )}
+      </>
+    )}
+  </>
+)}
 
+      {/* ── Name modal (shared) ──────────────────────────────────────── */}
       {/* ════════════════════════════════════════════════════════════════
           ADMIN VIEW — existing complex layout, unchanged
       ════════════════════════════════════════════════════════════════ */}
@@ -1896,10 +1903,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                   </Dialog>
                  <Button variant="outline" onClick={() => window.open(`/evento/muro-en-vivo/${params.fiestaId}`, '_blank')} title="Abrir pantalla gigante" aria-label="Abrir pantalla gigante" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
               </>
-            </>
-          )}
-        </>
-      )}
+            )}
              <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-11 w-11 rounded-2xl"><RefreshCw className={`w-5 h-5 text-slate-400 ${isLoading ? 'animate-spin' : ''}`}/></Button>
           </div>
         </div>
@@ -2268,10 +2272,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                  </div>
             </div>
         </div>
-      )}
-        </>)}
-      </>
-      )}
+      </div>
+    )}
     </div>
   );
 }
