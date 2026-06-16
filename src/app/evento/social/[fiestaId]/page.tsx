@@ -1783,6 +1783,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     </>
   )}
 
+      {/* ── Name modal (shared) ──────────────────────────────────────── */}
       {/* ════════════════════════════════════════════════════════════════
           ADMIN VIEW — existing complex layout, unchanged
       ════════════════════════════════════════════════════════════════ */}
@@ -2269,8 +2270,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
                  </div>
             </div>
         </div>
-      )}
-        </>)}
+    )}
+      </>
+    )}
     </div>
   );
 }
