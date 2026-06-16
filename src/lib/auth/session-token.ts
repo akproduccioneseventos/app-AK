@@ -4,12 +4,17 @@ const SESSION_VERSION = 'v1';
 const DEFAULT_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const NO_PRIVATE_SECRET_MAX_AGE_SECONDS = 60 * 60 * 24;
 
+export interface SessionUserData {
+  email: string;
+  role: string;
+  userId: string;
+}
+
 export function hasPrivateSessionSecret() {
   return Boolean(
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
-    process.env.SESSION_SECRET ||
-    process.env.GOOGLE_API_KEY
+    process.env.SESSION_SECRET
   );
 }
 
@@ -17,8 +22,7 @@ function getSigningSecret() {
   const secret =
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
-    process.env.SESSION_SECRET ||
-    process.env.GOOGLE_API_KEY;
+    process.env.SESSION_SECRET;
 
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
@@ -57,34 +61,48 @@ function constantTimeEqual(a: string, b: string) {
   return diff === 0;
 }
 
-export async function createSignedSessionToken(maxAgeSeconds = DEFAULT_MAX_AGE_SECONDS) {
+export async function createSignedSessionToken(
+  userData: SessionUserData = { email: 'admin@akproducciones.com', role: 'admin', userId: 'admin' },
+  maxAgeSeconds = DEFAULT_MAX_AGE_SECONDS
+) {
   const expiresAt = Date.now() + maxAgeSeconds * 1000;
   const nonce = crypto.randomUUID();
-  const payload = `${SESSION_VERSION}.${expiresAt}.${nonce}`;
+  const userPayload = encodeURIComponent(JSON.stringify(userData));
+  const payload = `${SESSION_VERSION}.${expiresAt}.${nonce}.${userPayload}`;
   const signature = await signPayload(payload);
   return `${payload}.${signature}`;
 }
 
-export async function verifySignedSessionToken(token?: string | null) {
-  if (!token) return false;
+export async function verifySignedSessionToken(token?: string | null): Promise<{ isValid: boolean; user?: SessionUserData }> {
+  if (!token) return { isValid: false };
   const parts = token.split('.');
-  if (parts.length !== 4) return false;
-  const [version, expiresAtRaw, nonce, signature] = parts;
-  if (version !== SESSION_VERSION || !nonce || !signature) return false;
+  if (parts.length !== 5) return { isValid: false };
+  const [version, expiresAtRaw, nonce, userPayloadRaw, signature] = parts;
+  if (version !== SESSION_VERSION || !nonce || !userPayloadRaw || !signature) return { isValid: false };
   const expiresAt = Number(expiresAtRaw);
-  if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return false;
-  const expected = await signPayload(`${version}.${expiresAtRaw}.${nonce}`);
-  return constantTimeEqual(signature, expected);
+  if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return { isValid: false };
+  
+  const expected = await signPayload(`${version}.${expiresAtRaw}.${nonce}.${userPayloadRaw}`);
+  const isSignatureValid = constantTimeEqual(signature, expected);
+  if (!isSignatureValid) return { isValid: false };
+
+  try {
+    const user = JSON.parse(decodeURIComponent(userPayloadRaw)) as SessionUserData;
+    return { isValid: true, user };
+  } catch {
+    return { isValid: false };
+  }
 }
 
 export function getSessionMaxAgeSeconds() {
   return hasPrivateSessionSecret() ? DEFAULT_MAX_AGE_SECONDS : NO_PRIVATE_SECRET_MAX_AGE_SECONDS;
 }
 
-export async function writeSessionCookie(): Promise<void> {
+export async function writeSessionCookie(userData?: SessionUserData): Promise<void> {
   const { cookies } = await import('next/headers');
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, await createSignedSessionToken(), {
+  const token = await createSignedSessionToken(userData);
+  cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -93,16 +111,16 @@ export async function writeSessionCookie(): Promise<void> {
   });
 }
 
-export async function verifySession(): Promise<{ success: boolean; error?: string }> {
+export async function verifySession(): Promise<{ success: boolean; error?: string; user?: SessionUserData }> {
   try {
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
     const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-    const isValid = await verifySignedSessionToken(token);
+    const { isValid, user } = await verifySignedSessionToken(token);
     if (!isValid) {
       return { success: false, error: 'Sesión no válida o expirada.' };
     }
-    return { success: true };
+    return { success: true, user };
   } catch {
     return { success: false, error: 'No se pudo verificar la sesión.' };
   }

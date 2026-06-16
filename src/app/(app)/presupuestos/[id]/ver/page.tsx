@@ -31,7 +31,8 @@ import { calculateBudgetFinancials, getBudgetPaymentSummary, isConfirmedClientPa
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import BudgetPrintTemplate from '@/components/presupuestos/BudgetPrintTemplate';
+import BudgetDocument from '@/components/budget/BudgetDocument';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   buildAnnualAdjustmentProjection,
   calculatePricePerPerson,
@@ -496,11 +497,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   if (isDirectPrintAccess) {
     return (
       <div className="min-h-screen bg-white p-4 print:p-0">
-        <BudgetPrintTemplate
-          presupuesto={{
-            ...presupuesto,
-            totalConDescuento: calculatedValues.totalFinal,
-          }}
+        <BudgetDocument
+          presupuesto={presupuesto}
           logoUrl={logoUrl}
           adjustmentPct={adjustmentPct}
           annualProjection={isContracted ? annualProjection : undefined}
@@ -508,6 +506,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           bookingDepositAmount={DEFAULT_BOOKING_DEPOSIT_AMOUNT}
           clienteNombre={cliente?.name || presupuesto.clienteNombre}
           showSignatures={false}
+          clubUruguayCosto={clubUruguayCosto}
+          itemsAgrupadosOverride={calculatedValues.itemsAgrupados}
+          subtotalBrutoOverride={calculatedValues.subtotalBruto}
+          descuentoPromoOverride={calculatedValues.bonificacionPromo}
+          totalFinalOverride={calculatedValues.totalFinal}
         />
       </div>
     );
@@ -662,72 +665,78 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               </div>
             )}
 
-            {isOperatorBudgetAccess && showAudit && auditResult && (
-              <div className="print:hidden bg-white rounded-2xl shadow-lg p-5 space-y-4 border border-violet-100" data-testid="audit-panel">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-violet-600" />
-                    <h3 className="font-black text-slate-800 text-base uppercase tracking-tight">Auditoría del Presupuesto</h3>
-                  </div>
-                  <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-slate-400" onClick={() => setShowAudit(false)}>
-                    Cerrar
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                  <div className="bg-slate-50 rounded-xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Subtotal ítems</p>
-                    <p className="font-black text-slate-800">{formatCurrency(auditResult.subtotalItems)}</p>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Regalos</p>
-                    <p className="font-black text-slate-800">{formatCurrency(auditResult.subtotalRegalos)}</p>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Descuento</p>
-                    <p className="font-black text-slate-800">{formatCurrency(auditResult.descuentoCalculado)}</p>
-                  </div>
-                  <div className="bg-violet-50 rounded-xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-1">Total a pagar</p>
-                    <p className="font-black text-violet-800">{formatCurrency(auditResult.totalReal)}</p>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Seña</p>
-                    <p className="font-black text-slate-800">{formatCurrency(presupuesto.senia)}</p>
-                  </div>
-                  <div className="bg-amber-50 rounded-xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Saldo pendiente</p>
-                    <p className="font-black text-amber-800">{formatCurrency(Math.max(0, auditResult.saldoPendiente))}</p>
-                  </div>
-                  <div className="bg-emerald-50 rounded-xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1">Total pagos</p>
-                    <p className="font-black text-emerald-800">{formatCurrency(auditResult.totalPagosRegistrados)}</p>
-                  </div>
-                  <div className={`rounded-xl p-3 col-span-2 ${auditResult.esConsistente ? 'bg-emerald-50' : 'bg-rose-50'}`}>
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: auditResult.esConsistente ? '#059669' : '#dc2626' }}>Estado</p>
-                    <p className={`font-black text-sm ${auditResult.esConsistente ? 'text-emerald-800' : 'text-rose-800'}`}>
-                      {auditResult.esConsistente ? '✅ Consistente' : '⚠️ Hay inconsistencias'}
-                    </p>
-                  </div>
-                </div>
-                {auditResult.observaciones.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Advertencias</p>
-                    {auditResult.observaciones.map((obs, i) => (
-                      <div
-                        key={i}
-                        className={`text-xs p-3 rounded-xl border ${
-                          obs.severidad === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' :
-                          obs.severidad === 'advertencia' ? 'bg-amber-50 border-amber-200 text-amber-800' :
-                          'bg-slate-50 border-slate-200 text-slate-600'
-                        }`}
-                      >
-                        <span className="font-bold">{obs.campo}: </span>{obs.mensaje}
+            <Dialog open={showAudit} onOpenChange={setShowAudit}>
+              <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-violet-700 uppercase font-black tracking-tight">
+                    <ShieldCheck className="w-5 h-5 shrink-0" />
+                    Auditoría del Presupuesto
+                  </DialogTitle>
+                  <DialogDescription>
+                    Resumen del análisis matemático y consistencia de totales del presupuesto.
+                  </DialogDescription>
+                </DialogHeader>
+
+                {auditResult && (
+                  <div className="space-y-4 pt-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                      <div className="bg-slate-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Subtotal ítems</p>
+                        <p className="font-black text-slate-800">{formatCurrency(auditResult.subtotalItems)}</p>
                       </div>
-                    ))}
+                      <div className="bg-slate-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Regalos</p>
+                        <p className="font-black text-slate-800">{formatCurrency(auditResult.subtotalRegalos)}</p>
+                      </div>
+                      <div className="bg-slate-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Descuento</p>
+                        <p className="font-black text-slate-800">{formatCurrency(auditResult.descuentoCalculado)}</p>
+                      </div>
+                      <div className="bg-violet-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-1">Total a pagar</p>
+                        <p className="font-black text-violet-800">{formatCurrency(auditResult.totalReal)}</p>
+                      </div>
+                      <div className="bg-slate-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Seña</p>
+                        <p className="font-black text-slate-800">{formatCurrency(presupuesto.senia)}</p>
+                      </div>
+                      <div className="bg-amber-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Saldo pendiente</p>
+                        <p className="font-black text-amber-800">{formatCurrency(Math.max(0, auditResult.saldoPendiente))}</p>
+                      </div>
+                      <div className="bg-emerald-50 rounded-xl p-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-1">Total pagos</p>
+                        <p className="font-black text-emerald-800">{formatCurrency(auditResult.totalPagosRegistrados)}</p>
+                      </div>
+                      <div className={`rounded-xl p-3 col-span-2 ${auditResult.esConsistente ? 'bg-emerald-50' : 'bg-rose-50'}`}>
+                        <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: auditResult.esConsistente ? '#059669' : '#dc2626' }}>Estado</p>
+                        <p className={`font-black text-sm ${auditResult.esConsistente ? 'text-emerald-800' : 'text-rose-800'}`}>
+                          {auditResult.esConsistente ? '✅ Consistente' : '⚠️ Hay Inconsistencias'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {auditResult.observaciones.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Advertencias</p>
+                        {auditResult.observaciones.map((obs, i) => (
+                          <div
+                            key={i}
+                            className={`text-xs p-3 rounded-xl border ${
+                              obs.severidad === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' :
+                              obs.severidad === 'advertencia' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+                              'bg-slate-50 border-slate-200 text-slate-600'
+                            }`}
+                          >
+                            <span className="font-bold">{obs.campo}: </span>{obs.mensaje}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            )}
+              </DialogContent>
+            </Dialog>
 
             {/* SANITY CHECK BANNER — shown when estado is 'Pendiente Verificación' */}
             {isOperatorBudgetAccess && presupuesto.estado === 'Pendiente Verificación' && (
@@ -956,384 +965,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                     Tu pago quedará pendiente de confirmación por el administrador.
                                 </p>
                             </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </motion.div>
-
-            {/* ═══ PRINTABLE DOCUMENT — Classic Invoice Format ═══ */}
-            </>
-            )}
-
-            <div className="ver-budget-print-document bg-white print:bg-white" id="budget-print-area-wrapper">
-              <div className="budget-print-fixed-page-number" aria-hidden="true" />
-              {/* Wrapping table for repeating thead/tfoot on each print page */}
-              <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
-                <thead>
-                  <tr><td className="p-0">
-                    <div className="budget-print-thead-content" style={{ padding: '0 0 4px 0' }}>
-                      <p className="text-[8px] text-gray-500 text-center print:text-[7pt]">
-                        {presupuesto.clienteNombre} — Presupuesto #{presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase()} — {formatDateShort(presupuesto.timestamp)}
-                      </p>
-                    </div>
-                  </td></tr>
-                </thead>
-                <tfoot>
-                  <tr><td className="p-0">
-                    <div className="budget-print-tfoot-content" style={{ paddingTop: '20px' }}>
-                      <p className="budget-print-page-number text-right text-[8px] text-gray-500 print:text-[6pt]">
-                        Página <span className="print:hidden">1</span><span className="print-page-counter hidden print:inline"></span>
-                      </p>
-                      {shouldShowBudgetSignatures ? (
-                        <div className="flex justify-between" style={{ gap: '40px' }}>
-                          <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
-                            <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma del Cliente</p>
-                            <p className="text-[8px] text-gray-500 print:text-[6pt]">{cliente?.name || presupuesto.clienteNombre}</p>
-                          </div>
-                          <div className="text-center flex-1" style={{ borderTop: '1px solid #666', paddingTop: '6px' }}>
-                            <p className="text-[9px] text-gray-700 font-semibold print:text-[7pt]">Firma y sello de la empresa</p>
-                            <p className="text-[8px] text-gray-500 print:text-[6pt]">AK PRODUCCIONES</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-center text-[8px] font-semibold text-gray-500 print:text-[6pt]">
-                          Documento de presupuesto. La reserva, confirmacion final y firmas corresponden al contrato confirmado.
-                        </p>
-                      )}
-                    </div>
-                  </td></tr>
-                </tfoot>
-                <tbody>
-                  <tr><td className="p-0">
-
-              <div className="overflow-hidden rounded-2xl p-3 shadow-xl print:rounded-none print:p-2 print:shadow-none sm:p-10 lg:p-16">
-                {/* COUNTDOWN TIMER */}
-                {presupuesto.modoDescuentoPromocional && (
-                  <div data-html2canvas-ignore="true" className="mb-6 bg-red-600 rounded-xl p-4 text-white flex flex-col items-center justify-center shadow-lg border border-red-700 animate-pulse print:hidden">
-                    <p className="text-sm font-bold uppercase tracking-widest mb-1">🔥 Promoción por Tiempo Limitado</p>
-                    <p className="text-xl sm:text-2xl font-black tabular-nums tracking-wider">
-                      La oferta finaliza pronto
-                    </p>
-                    <p className="text-xs text-red-200 mt-2 font-medium">Congelá este precio reservando hoy mismo.</p>
-                  </div>
-                )}
-
-                {/* HEADER — Title + company info + logo */}
-                <h1 className="text-center text-base sm:text-lg font-extrabold uppercase tracking-wide text-gray-900 print:text-[12pt] mb-3 print:mb-2"
-                    style={{ borderBottom: '2px solid #0f172a', paddingBottom: '4px' }}>
-                  {COMPANY_MAIN_TITLE}
-                </h1>
-
-                <header className="mb-4 print:mb-3 flex justify-between items-start gap-4">
-                    <div className="space-y-0.5 text-xs print:text-[8pt]">
-                        <p className="font-bold text-gray-800">{COMPANY_CONTACT_PERSON}</p>
-                        <p className="text-gray-600">{COMPANY_ADDRESS_LINE1_PDF}, {COMPANY_ADDRESS_LINE2_PDF}</p>
-                        <p className="text-gray-600">{COMPANY_CONTACT_EMAIL_PDF}</p>
-                        <p className="text-gray-600">{COMPANY_WEBSITE_PDF}</p>
-                    </div>
-                    {logoUrl ? (
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 relative shrink-0">
-                            <Image src={logoUrl} alt="Logo" layout="fill" className="object-contain" />
-                        </div>
-                    ) : (
-                        <span className="text-lg font-extrabold tracking-widest text-gray-800 uppercase print:text-[14pt] shrink-0">
-                          AK PRODUCCIONES
-                        </span>
-                    )}
-                </header>
-
-                {/* Centered "Presupuesto" label */}
-                <p className="text-center font-bold text-sm uppercase tracking-widest text-gray-700 mb-4 print:text-[10pt]"
-                   style={{ backgroundColor: '#f8fafc', padding: '4px 0', borderRadius: '2px' }}>
-                  Presupuesto
-                </p>
-
-                {/* Note at top */}
-                <p className="text-[10px] text-center text-gray-600 italic print:text-[7pt] border border-gray-300 rounded px-2 py-1 mb-4 print:border-gray-400"
-                   style={{ backgroundColor: '#ffffff' }}>
-                  {BUDGET_VALIDITY_NOTE_PDF}
-                </p>
-
-                {/* Document data table */}
-                {(() => {
-                  const fechaValidoHasta = new Date(presupuesto.timestamp);
-                  fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
-                  const budgetNumber = presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase();
-                  return (
-                    <section className="mb-4 print:mb-3">
-                      <table className="w-full text-xs print:text-[8pt] border-collapse">
-                        <thead>
-                          <tr style={{ backgroundColor: '#f8fafc' }}>
-                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de cliente</th>
-                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Nº de Documento</th>
-                            <th className="border border-gray-400 px-2 py-1.5 text-center font-semibold">Página</th>
-                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Fecha</th>
-                            <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">Válido hasta</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr style={{ backgroundColor: '#ffffff' }}>
-                            <td className="border border-gray-300 px-2 py-1.5 font-mono">{presupuesto.clienteNombre.substring(0, 3).toUpperCase()}-{presupuesto.id.substring(0, 4).toUpperCase()}</td>
-                            <td className="border border-gray-300 px-2 py-1.5 font-mono font-semibold">#{budgetNumber}</td>
-                            <td className="border border-gray-300 px-2 py-1.5 text-center font-mono">
-                              <span className="print:hidden">1/1</span>
-                              <span className="print-page-counter hidden print:inline"></span>
-                            </td>
-                            <td className="border border-gray-300 px-2 py-1.5">{formatDateShort(presupuesto.timestamp)}</td>
-                            <td className="border border-gray-300 px-2 py-1.5">{formatDateShort(fechaValidoHasta.toISOString())}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </section>
-                  );
-                })()}
-
-                {/* Client + event info */}
-                <section className="budget-print-client-info mb-4 print:mb-3 border border-gray-300 rounded px-3 py-2 print:border-gray-400 bg-white">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-[11px] sm:text-sm">
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Cliente</p><p className="font-bold truncate">{presupuesto.clienteNombre}</p></div>
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Fecha Evento</p><p className="font-bold">{formatDate(presupuesto.eventoFecha)}</p></div>
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Hora Inicio</p><p className="font-bold">{eventStartTime || '—'}</p></div>
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Invitados</p><p className="font-bold">{totalInvitados}</p></div>
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Tipo Evento</p><p className="font-bold">{presupuesto.eventoTipo}</p></div>
-                        <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Salón</p><p className="font-bold truncate">{presupuesto.salonFiestas || '—'}</p></div>
-                        {presupuesto.clienteContacto && (
-                          <div className="space-y-1"><p className="text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">Contacto</p><p className="font-bold truncate">{presupuesto.clienteContacto}</p></div>
-                        )}
-                    </div>
-                </section>
-
-                {/* Services/items table */}
-                <section className="budget-print-items-section mb-4 print:mb-3">
-                    <table className="w-full text-xs print:text-[8pt] border-collapse">
-                      <thead>
-                        <tr style={{ backgroundColor: '#0f172a', color: 'white' }}>
-                          <th className="border border-gray-300 px-2 py-1.5 text-left font-semibold" style={{ width: '35%' }}>Artículo</th>
-                          <th className="border border-gray-300 px-2 py-1.5 text-center font-semibold">Cantidad</th>
-                          <th className="border border-gray-300 px-2 py-1.5 text-center font-semibold">Unidad</th>
-                          <th className="border border-gray-300 px-2 py-1.5 text-right font-semibold">Precio</th>
-                          <th className="border border-gray-300 px-2 py-1.5 text-center font-semibold">Desc.%</th>
-                          <th className="border border-gray-300 px-2 py-1.5 text-right font-semibold">Importe total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(calculatedValues.itemsAgrupados).map(([categoria, items]) => (
-                            <React.Fragment key={categoria}>
-                                <tr style={{ backgroundColor: '#f8fafc' }}>
-                                  <td colSpan={6} className="border border-gray-400 px-2 py-1 font-bold text-gray-700 text-xs print:text-[7.5pt] uppercase tracking-wide">
-                                    {categoria}
-                                  </td>
-                                </tr>
-                                {items.map((item: ItemPresupuestado) => {
-                                    const effectiveQty = getEffectiveQty(item);
-                                    return (
-                                        <tr key={item.idServicioCatalogo} style={{ backgroundColor: '#ffffff' }}>
-                                            <td className="border border-gray-300 px-2 py-1.5 align-top text-[11px] sm:text-xs">
-                                                {item.esRegalo ? (
-                                                  <div>
-                                                    <span className="text-slate-700 font-semibold flex items-center gap-1">
-                                                      <Gift className="w-3 h-3 print:hidden"/> {item.nombreServicio}
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-500 italic block print:text-[7pt]">Regalo exclusivo</span>
-                                                  </div>
-                                                ) : item.nombreServicio}
-                                            </td>
-                                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top">{effectiveQty}</td>
-                                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top">Serv.</td>
-                                            <td className="border border-gray-300 px-2 py-1.5 text-right align-top">
-                                                {formatCurrency(item.precioUnitarioPresupuesto || item.precioUnitario)}
-                                            </td>
-                                            <td className="border border-gray-300 px-2 py-1.5 text-center align-top">
-                                                {item.esRegalo ? '100%' : '—'}
-                                            </td>
-                                            <td className="border border-gray-300 px-2 py-1.5 text-right align-top font-semibold">
-                                                {item.esRegalo
-                                                  ? <span className="text-slate-700 font-bold">$ 0,00</span>
-                                                  : formatCurrency(item.costoTotalItem)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </React.Fragment>
-                        ))}
-                        {/* Total row */}
-                        <tr style={{ backgroundColor: '#f8fafc', color: '#111827' }}>
-                          <td colSpan={5} className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
-                            Importe total
-                          </td>
-                          <td className="border border-gray-300 px-2 py-2 text-right font-bold text-sm print:text-[10pt]">
-                            {formatCurrency(calculatedValues.totalFinal)}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                </section>
-                {clubUruguayItem && (
-                  <section className="mb-4 print:mb-3 border border-emerald-300 rounded px-4 py-3 bg-emerald-50/60">
-                    <p className="text-sm font-black text-emerald-800">✅ Salón seleccionado: Club Uruguay</p>
-                    <p className="text-xs text-emerald-700 mt-1">
-                      Costo: {formatCurrency(clubUruguayCosto)} — Este monto se coordinará y formará parte del presupuesto final.
-                    </p>
-                  </section>
-                )}
-                     
-                {/* Benefits / Why choose us */}
-                <section className="mb-6 border-l-4 border-emerald-500 bg-emerald-50/50 p-4 rounded-r-xl print:hidden">
-                  <h4 className="text-emerald-800 font-black uppercase tracking-widest text-xs mb-3 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" /> Por qué elegir AK Producciones
-                  </h4>
-                  <ul className="space-y-2 text-xs text-emerald-900/80 font-medium">
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 mt-0.5">•</span>
-                      <span><strong>Asesoramiento integral:</strong> Te acompañamos en cada paso de la planificación.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 mt-0.5">•</span>
-                      <span><strong>Transparencia total:</strong> Sin costos ocultos. Lo que ves es el valor real.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 mt-0.5">•</span>
-                      <span><strong>Experiencia garantizada:</strong> Más de 10 años creando momentos inolvidables.</span>
-                    </li>
-                  </ul>
-                </section>
-                     
-                {/* Totals breakdown */}
-                <section className="flex justify-end mb-4 print:mb-3">
-                    <div className="w-full max-w-sm space-y-2 py-4 px-6 border border-gray-300 rounded print:border-gray-400 bg-white">
-                        <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-gray-500 tracking-widest">
-                            <span>Valor Real Servicios:</span>
-                            <span>{formatCurrency(calculatedValues.subtotalBruto)}</span>
-                        </div>
-                        {calculatedValues.ahorroRegalos > 0 && (
-                            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black text-slate-700 tracking-widest">
-                                <span>Ahorro Regalos:</span>
-                                <span>-{formatCurrency(calculatedValues.ahorroRegalos)}</span>
-                            </div>
-                        )}
-                        {calculatedValues.bonificacionPromo > 0 && (
-                            <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-rose-500 tracking-widest">
-                                <span>Bonificación Promo{presupuesto.modoDescuentoPromocional ? ' (Promo Visual)' : ''}:</span>
-                                <span>-{formatCurrency(calculatedValues.bonificacionPromo)}</span>
-                            </div>
-                        )}
-                        {(() => {
-                            const markupPct = presupuesto.marketingMarkupPercent || 0;
-                            const precioLista = markupPct > 0 ? Math.round(calculatedValues.totalFinal * (1 + markupPct / 100)) : 0;
-                            const ahorroMkt = precioLista > 0 ? precioLista - calculatedValues.totalFinal : 0;
-                            if (precioLista <= 0) return null;
-                            return (
-                                <>
-                                    <Separator className="bg-gray-300" />
-                                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-gray-400 tracking-widest line-through">
-                                        <span>Precio de Lista (+{markupPct}%):</span>
-                                        <span>{formatCurrency(precioLista)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase text-violet-600 tracking-widest">
-                                        <span>Ahorro Cliente:</span>
-                                        <span>{formatCurrency(ahorroMkt)}</span>
-                                    </div>
-                                </>
-                            );
-                        })()}
-                        <div className="border-t-2 border-gray-700 pt-2" />
-                        <div className="flex justify-between items-center text-xl sm:text-2xl font-black text-gray-900 pt-1">
-                            <span className="tracking-tighter">TOTAL A PAGAR:</span>
-                            <span>{formatCurrency(calculatedValues.totalFinal)}</span>
-                        </div>
-                        {pricePerPerson > 0 && (
-                          <div className="flex justify-between items-center text-[10px] font-black uppercase text-gray-600 tracking-widest">
-                            <span>Valor aprox. por persona:</span>
-                            <span>{formatCurrency(pricePerPerson)}</span>
-                          </div>
-                        )}
-                        {presupuesto.modoDescuentoPromocional && (
-                          <div className="mt-2 p-2 bg-violet-50 rounded-lg border border-violet-200 text-[9px] font-bold uppercase tracking-wider text-violet-700 flex items-center gap-1.5">
-                            <span>🏷️</span>
-                            <span>Descuento promocional aplicado — Total a pagar refleja precio especial.</span>
-                          </div>
-                        )}
-                    </div>
-                </section>
-                    
-                {/* Footer — booking terms + notes */}
-                {isContracted && annualProjection.applies && (
-                  <section className="mb-4 print:mb-3 border border-gray-300 rounded bg-white overflow-hidden">
-                    <div className="px-4 py-2 bg-slate-100 border-b border-gray-300 text-[10px] font-black uppercase tracking-widest text-gray-700">
-                      Proyeccion informativa por ajuste anual ({annualProjection.adjustmentPct}%)
-                    </div>
-                    <table className="w-full text-xs print:text-[8pt] border-collapse">
-                      <tbody>
-                        {annualProjection.rows.map((row) => (
-                          <tr key={row.year}>
-                            <td className="border-b border-gray-200 px-4 py-2 font-semibold text-gray-700">
-                              Total estimado {row.year}
-                            </td>
-                            <td className="border-b border-gray-200 px-4 py-2 text-right font-bold text-gray-900">
-                              {formatCurrency(row.total)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <p className="px-4 py-2 text-[10px] text-gray-600 font-medium">
-                      El importe total corresponde al precio vigente {currentYear}. Esta proyeccion muestra como quedaria el total si el evento pertenece a un anio posterior.
-                    </p>
-                  </section>
-                )}
-
-                <footer className="space-y-4 mt-6">
-                    <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400 bg-white">
-                        <h4 className="text-[10px] font-black uppercase text-gray-700 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
-                        <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed font-medium">{displaySettings.bookingTerms}</p>
-                    </div>
-                    {presupuesto.notas && (
-                        <div className="border border-gray-300 rounded px-4 py-3 print:border-gray-400 bg-white">
-                            <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2">Notas y Observaciones</h4>
-                            <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{presupuesto.notas}</p>
-                        </div>
-                    )}
-
-                    {/* Note at bottom */}
-                    <p className="text-[10px] text-center text-gray-600 italic print:text-[7pt] font-semibold">
-                      {BUDGET_VALIDITY_NOTE_PDF}
-                    </p>
-
-                    {/* Signature area — visible on screen */}
-                    {shouldShowBudgetSignatures ? (
-                    <div className="mt-12 grid grid-cols-2 gap-8 sm:gap-20 text-center print:hidden">
-                        <div className="border-t-2 border-gray-400 pt-4 relative mt-16">
-                            {companyInfo?.signatureUrl ? (
-                                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-14 pointer-events-none">
-                                    <Image src={companyInfo.signatureUrl} alt="Firma Empresa" layout="fill" objectFit="contain" />
-                                </div>
-                            ) : (
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-36 pointer-events-none">
-                                    <div className="border-b border-dashed border-gray-300 h-6 w-full"></div>
-                                </div>
-                            )}
-                            <p className="font-black text-sm uppercase tracking-tighter text-gray-900">Tec. Alexander Knuth</p>
-                            <p className="text-[10px] text-gray-400 font-sans uppercase tracking-widest">Por la Empresa</p>
-                        </div>
-                        <div className="border-t-2 border-gray-400 pt-4 relative mt-16">
-                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-36 pointer-events-none">
-                                <div className="border-b border-dashed border-gray-300 h-6 w-full"></div>
-                            </div>
-                            <p className="font-black text-sm uppercase tracking-tighter text-gray-900 truncate">{cliente?.name || presupuesto.clienteNombre}</p>
-                            <p className="text-[8px] sm:text-[9px] text-gray-400 uppercase font-bold">Firma del Cliente</p>
-                        </div>
-                    </div>
-                    ) : (
-                      <p className="rounded border border-gray-300 px-3 py-2 text-center text-[10px] font-semibold leading-snug text-gray-600 print:hidden">
-                        Este documento es un presupuesto. Las firmas se emiten en el contrato confirmado.
-                      </p>
-                    )}
-                </footer>
-              </div>
-
-                  </td></tr>
-                </tbody>
-              </table>
+                <div id="budget-print-area-wrapper">
+              <BudgetDocument
+                presupuesto={presupuesto}
+                logoUrl={logoUrl}
+                adjustmentPct={adjustmentPct}
+                annualProjection={isContracted ? annualProjection : undefined}
+                pricePerPerson={pricePerPerson}
+                bookingDepositAmount={DEFAULT_BOOKING_DEPOSIT_AMOUNT}
+                clienteNombre={cliente?.name || presupuesto.clienteNombre}
+                showSignatures={shouldShowBudgetSignatures}
+                clubUruguayCosto={clubUruguayCosto}
+                itemsAgrupadosOverride={calculatedValues.itemsAgrupados}
+                subtotalBrutoOverride={calculatedValues.subtotalBruto}
+                descuentoPromoOverride={calculatedValues.bonificacionPromo}
+                totalFinalOverride={calculatedValues.totalFinal}
+              />
             </div>
 
             {/* ── HISTORIAL DE PAGOS (admin only, hidden on print) ── */}

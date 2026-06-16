@@ -301,13 +301,18 @@ async function sendSecurityEmail(to: string, code: string) {
 
 async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const config = await getAuthDoc();
+
+    const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
+    if (lockMessage) {
+      return { success: false, error: lockMessage };
+    }
+
     const envPassword = process.env.APP_PASSWORD;
     if (envPassword && password === envPassword) {
       await clearLoginProtection();
       return { success: true };
     }
-
-    const config = await getAuthDoc();
 
     if (verifyHash(password, config?.passwordHash)) {
       await clearLoginProtection();
@@ -318,11 +323,6 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
       await ensurePasswordHash(config, password);
       await clearLoginProtection();
       return { success: true };
-    }
-
-    const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
-    if (lockMessage) {
-      return { success: false, error: lockMessage };
     }
 
     return { success: false, error: await registerFailedLogin(config) };
@@ -632,7 +632,11 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
     if (!validation.success) return validation;
 
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
-    await writeSessionCookie();
+    await writeSessionCookie({
+      email: decodedToken?.email ?? 'google-user@akproducciones.com',
+      role: 'admin',
+      userId: decodedToken?.uid ?? 'google-uid',
+    });
     await clearLoginProtection();
     return { success: true };
   } catch (err) {
@@ -670,7 +674,11 @@ export async function resetPasswordWithGoogleIdToken(
     if (!result.success) return { success: false, error: result.error };
 
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
-    await writeSessionCookie();
+    await writeSessionCookie({
+      email: decodedToken?.email ?? 'google-user@akproducciones.com',
+      role: 'admin',
+      userId: decodedToken?.uid ?? 'google-uid',
+    });
     return { success: true };
   } catch (err) {
     console.error('[simple-auth] resetPasswordWithGoogleIdToken error:', err);
