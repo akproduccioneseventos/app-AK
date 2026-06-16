@@ -146,7 +146,7 @@ export async function generateBudgetAndLeadFromSimulator(
         let pId = options?.prospectId;
         if (!pId) {
           const prospects = await getProspects();
-          const existing = prospects.find(p => p.phone === (data.clienteContacto || '').trim());
+          const existing = prospects.find((p: any) => p.phone === (data.clienteContacto || '').trim());
           if (existing) pId = existing.id;
         }
         

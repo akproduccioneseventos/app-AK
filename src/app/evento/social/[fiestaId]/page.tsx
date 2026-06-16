@@ -1776,12 +1776,12 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
               </div>
             )}
           </div>
-        </>
-      )}
           </>
         )}
-      </>
-    )}
+        </>
+      )}
+    </>
+  )}
 
       {/* ── Name modal (shared) ──────────────────────────────────────── */}
       {/* ════════════════════════════════════════════════════════════════
@@ -2271,8 +2271,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
             </div>
         </div>
     )}
-        </>
-      )}
+      </>
+    )}
     </div>
   );
 }
