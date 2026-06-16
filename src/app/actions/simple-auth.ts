@@ -339,7 +339,11 @@ export async function loginWithPassword(password: string): Promise<{ success: bo
       return result;
     }
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
-    await writeSessionCookie();
+    await writeSessionCookie({
+      email: process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim() || 'admin@akproducciones.com',
+      role: 'admin',
+      userId: 'password-admin',
+    });
     return { success: true };
   } catch (err) {
     console.error('[simple-auth] loginWithPassword error:', err);

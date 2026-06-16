@@ -157,8 +157,11 @@ export function calculateFinancialLedger(
   };
 }
 
+/**
  * TODO (Fase 4) — Conectar reportes/flujo de caja: COMPLETADO
- * Se ha integrado getFinancialLedger() y calculateFinancialLedger() en el gráfico del dashboard de ventas y pagos, así como en la estimación del flujo de caja mensual (CFO Virtual en actions/dashboard.ts) para evitar la duplicación de cobros y mantener la consistencia matemática en toda la aplicación.
+ * Se ha integrado getFinancialLedger() y calculateFinancialLedger() en el gráfico del dashboard de ventas y pagos,
+ * así como en la estimación del flujo de caja mensual (CFO Virtual en actions/dashboard.ts) para evitar la
+ * duplicación de cobros y mantener la consistencia matemática en toda la aplicación.
  */
 export async function getFinancialLedger(): Promise<LedgerSummary> {
   const { getPresupuestos } = await import('@/app/actions/presupuestos');
