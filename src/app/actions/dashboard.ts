@@ -8,7 +8,7 @@ import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonth
 import { es } from 'date-fns/locale';
 import { getCrmLeadsForDashboard } from './crm';
 import { getRoles } from './roles';
-import { calculateFinancialLedger } from '@/lib/commercial-flow/ledger-service';
+import { calculateFinancialLedger, getReconciledSalePayments } from '@/lib/commercial-flow/ledger-service';
 import { getPrioridadesDescartadas } from './alertas.actions';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 
@@ -174,36 +174,20 @@ export async function getDashboardKpiData() {
     });
 
     const monthlyData: MonthlyChartData[] = [];
-    const monthlyDataByKey = new Map<string, MonthlyChartData>();
+    const ledgerMonthsMap = new Map(ledger.porMes.map(m => [m.mes, m]));
+
     for (let i = 11; i >= 0; i--) {
       const date = subMonths(now, i);
       const monthName = getMonthKey(date);
-      const entry = { month: monthName, ventas: 0, pagos: 0 };
-      monthlyData.push(entry);
-      monthlyDataByKey.set(monthName, entry);
-    }
-
-    invoicesData.forEach(invoice => {
-      const monthEntry = monthlyDataByKey.get(getMonthKey(new Date(invoice.issueDate)));
-      if (monthEntry) monthEntry.ventas += roundMoney(invoice.totalAmount);
-
-      invoice.payments?.forEach(payment => {
-        const paymentMonthEntry = monthlyDataByKey.get(getMonthKey(new Date(payment.paymentDate)));
-        if (paymentMonthEntry) paymentMonthEntry.pagos += roundMoney(payment.amount);
+      const monthKey = format(date, 'yyyy-MM');
+      const ledgerMonth = ledgerMonthsMap.get(monthKey);
+      
+      monthlyData.push({
+        month: monthName,
+        ventas: ledgerMonth ? ledgerMonth.ventas : 0,
+        pagos: ledgerMonth ? ledgerMonth.cobros : 0,
       });
-    });
-
-    const invoicedPresupuestoIds = new Set(presupuestosData.filter(p => p.invoiceId).map(p => p.id));
-    presupuestosData.forEach(pres => {
-      if (!isFirmBudgetStatus(pres.estado)) return;
-      if (invoicedPresupuestoIds.has(pres.id)) return;
-      if (!pres.eventoFecha) return;
-      const monthEntry = monthlyDataByKey.get(getMonthKey(new Date(pres.eventoFecha)));
-      if (!monthEntry) return;
-      const summary = getBudgetPaymentSummary(pres);
-      monthEntry.ventas += summary.total;
-      monthEntry.pagos += summary.paid;
-    });
+    }
 
     return {
       success: true,
@@ -267,9 +251,17 @@ export async function getCashFlowProjection() {
 
     const invoicedPresupuestoIds = new Set(presupuestos.filter(p => p.invoiceId).map(p => p.id));
 
+    const linkedBudgetByInvoiceId = new Map(
+      presupuestos
+        .filter(p => p.invoiceId)
+        .map(p => [p.invoiceId!, p])
+    );
+
     invoices.forEach(inv => {
       if (inv.status === 'Paid') return;
-      const remaining = Math.max(0, roundMoney(inv.totalAmount) - getInvoicePaidAmount(inv));
+      const reconciledPayments = getReconciledSalePayments(inv, linkedBudgetByInvoiceId.get(inv.id));
+      const paidAmount = reconciledPayments.reduce((sum, p) => sum + p.amount, 0);
+      const remaining = Math.max(0, roundMoney(inv.totalAmount) - paidAmount);
       if (remaining <= 0) return;
       const dueDate = inv.dueDate ? new Date(inv.dueDate) : today;
       const monthKey = isAfter(dueDate, today) || isSameDay(dueDate, today) ? getMonthKey(dueDate) : currentMonthKey;

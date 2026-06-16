@@ -5,19 +5,8 @@
  * incluyendo el manejo correcto de descuentos promocionales (modoDescuentoPromocional)
  * y markup de marketing. Los descuentos promocionales son lógica comercial válida,
  * no errores.
- *
- * TODO (Fase 4) — UI de auditoría de presupuesto: PENDIENTE
- * Agregar botón "Auditar presupuesto" en la vista de presupuesto (/presupuestos/[id]/ver).
- * Al hacer clic debe mostrar un panel/modal con:
- *   - subtotalItems
- *   - regalos
- *   - descuento promocional
- *   - total a pagar
- *   - seña
- *   - saldo
- *   - pagos
- *   - advertencias
- * Este componente debe usar auditPresupuestoTotals() de este archivo.
+ * TODO (Fase 4) — UI de auditoría de presupuesto: COMPLETADO
+ * Se ha integrado un modal Radix Dialog en la vista del presupuesto (/presupuestos/[id]/ver) que consume auditPresupuestoTotals() para mostrar el desglose de totales, señas, saldos, pagos registrados y advertencias de forma interactiva.
  */
 
 import type { Presupuesto } from '@/types/presupuesto';
