@@ -494,6 +494,19 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   });
   const pricePerPerson = calculatePricePerPerson(calculatedValues.totalFinal, totalInvitados);
 
+  // Pre-compute WhatsApp operator button to avoid IIFE inside JSX (SWC build compat)
+  const whatsappOperatorButton = (cliente?.phone || whatsappNumber) ? (() => {
+    const phone = (cliente?.phone?.replace(/\D/g, '') || whatsappNumber) as string;
+    const text = `Hola ${presupuesto?.clienteNombre ?? ''}, te contactamos sobre el presupuesto #${presupuesto?.numero || (presupuesto?.id ?? '').substring(0, 6).toUpperCase()}.`;
+    return (
+      <a href={`https://wa.me/${phone}?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+        <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest text-[#25D366] border-[#25D366]/30 hover:bg-[#25D366]/5">
+          <MessageSquare className="mr-1.5 h-3.5 w-3.5"/>WhatsApp
+        </Button>
+      </a>
+    );
+  })() : null;
+
   if (isDirectPrintAccess) {
     return (
       <div className="min-h-screen bg-white p-4 print:p-0">
@@ -554,17 +567,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     <Receipt className="mr-1.5 h-3.5 w-3.5"/>Recibo de Seña
                   </Link></Button>
               )}
-              {(cliente?.phone || whatsappNumber) && (() => {
-                const phone = cliente?.phone?.replace(/\D/g, '') || whatsappNumber;
-                const text = `Hola ${presupuesto.clienteNombre}, te contactamos sobre el presupuesto #${presupuesto.numero || presupuesto.id.substring(0, 6).toUpperCase()}.`;
-                return (
-                  <a href={`https://wa.me/${phone}?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest text-[#25D366] border-[#25D366]/30 hover:bg-[#25D366]/5">
-                      <MessageSquare className="mr-1.5 h-3.5 w-3.5"/>WhatsApp
-                    </Button>
-                  </a>
-                );
-              })()}
+              {whatsappOperatorButton}
               <Button onClick={handlePrint} disabled={isDownloading} size="sm" className="rounded-xl text-xs font-bold uppercase tracking-widest" variant="secondary">
                 {isDownloading ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Printer className="mr-1.5 h-3.5 w-3.5"/>}
                 Descargar PDF
