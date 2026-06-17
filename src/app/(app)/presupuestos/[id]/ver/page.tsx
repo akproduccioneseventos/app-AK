@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, CalendarDays, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink, ShieldCheck, ShieldAlert, Upload, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Printer, Edit, Loader2, AlertTriangle, FileText as FileTextIcon, Users, MapPin, Share2, Gift, ClipboardCopy, TrendingUp, Info, CalendarDays as CalendarIcon, PartyPopper, CheckCircle2, MessageSquare, PlusCircle, Trash2, CreditCard, Receipt, Clock, FileSignature, ExternalLink, ShieldCheck, ShieldAlert, Upload, ImageIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-status-badge';
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
@@ -494,7 +494,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   });
   const pricePerPerson = calculatePricePerPerson(calculatedValues.totalFinal, totalInvitados);
 
-  // Pre-compute WhatsApp operator button to avoid IIFE inside JSX (SWC build compat)
+  // Pre-compute WhatsApp operator button to avoid IIFE inside JSX (SWC build compat) - clean trigger
   const whatsappOperatorButton = (cliente?.phone || whatsappNumber) ? (() => {
     const phone = (cliente?.phone?.replace(/\D/g, '') || whatsappNumber) as string;
     const text = `Hola ${presupuesto?.clienteNombre ?? ''}, te contactamos sobre el presupuesto #${presupuesto?.numero || (presupuesto?.id ?? '').substring(0, 6).toUpperCase()}.`;
@@ -857,6 +857,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </CardContent>
                 </Card>
             </motion.div>
+            </>
+            )}
 
             {/* ── INFORMAR PAGO — Client-facing payment notification ── */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="print:hidden">
@@ -968,7 +970,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                     Tu pago quedará pendiente de confirmación por el administrador.
                                 </p>
                             </div>
-                <div id="budget-print-area-wrapper">
+                        )}
+                    </CardContent>
+                </Card>
+            </motion.div>
+
+            <div id="budget-print-area-wrapper">
               <BudgetDocument
                 presupuesto={presupuesto}
                 logoUrl={logoUrl}

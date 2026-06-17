@@ -14,7 +14,7 @@ import {
   Send, Loader2, BarChart3, Heart, MessageSquare, Share2, FolderDown,
 } from 'lucide-react';
 import { getFiestaById, updateFiestaPostEvento } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 
 const formatCurrency = (n: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(n);
@@ -36,7 +36,7 @@ function isSafeUrl(url: string): boolean {
 }
 
 /** Returns true if the invitado has any documented dietary/allergy concern. */
-function hasAlergiaOrDietaryRestriction(inv: import('@/types/fiesta').Invitado): boolean {
+function hasAlergiaOrDietaryRestriction(inv: Invitado): boolean {
   return !!(inv.alergiasEspecificas || (inv.dietaryRestriction && inv.dietaryRestriction !== 'Ninguna') || inv.isCeliac);
 }
 
