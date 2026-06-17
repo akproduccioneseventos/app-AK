@@ -494,7 +494,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   });
   const pricePerPerson = calculatePricePerPerson(calculatedValues.totalFinal, totalInvitados);
 
-  // Pre-compute WhatsApp operator button to avoid IIFE inside JSX (SWC build compat)
+  // Pre-compute WhatsApp operator button to avoid IIFE inside JSX (SWC build compat) - clean trigger
   const whatsappOperatorButton = (cliente?.phone || whatsappNumber) ? (() => {
     const phone = (cliente?.phone?.replace(/\D/g, '') || whatsappNumber) as string;
     const text = `Hola ${presupuesto?.clienteNombre ?? ''}, te contactamos sobre el presupuesto #${presupuesto?.numero || (presupuesto?.id ?? '').substring(0, 6).toUpperCase()}.`;
