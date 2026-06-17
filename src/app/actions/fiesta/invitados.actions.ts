@@ -4,10 +4,73 @@ import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado } f
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 
+// Lock registry for concurrency control
+const locks = new Map<string, Promise<void>>();
+
+async function acquireLock(key: string): Promise<() => void> {
+  let release: () => void = () => {};
+  const newPromise = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  
+  const existingPromise = locks.get(key);
+  locks.set(key, newPromise);
+  
+  if (existingPromise) {
+    await existingPromise;
+  }
+  
+  return () => {
+    release();
+    if (locks.get(key) === newPromise) {
+      locks.delete(key);
+    }
+  };
+}
+
+function normalizeString(str: string): string {
+  if (!str) return '';
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents/diacritics
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' '); // Normalize internal spaces
+}
+
+function getLevenshteinDistance(a: string, b: string): number {
+  const tmp = [];
+  let i, j;
+  for (i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (i = 1; i <= a.length; i++) {
+    for (j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1,
+        tmp[i][j - 1] + 1,
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+}
+
+function getSimilarity(a: string, b: string): number {
+  const distance = getLevenshteinDistance(a, b);
+  const maxLength = Math.max(a.length, b.length);
+  if (maxLength === 0) return 1.0;
+  return 1.0 - distance / maxLength;
+}
+
 async function updateFiestaData(
   fiestaId: string, 
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
+  const release = await acquireLock(fiestaId);
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) {
@@ -21,6 +84,8 @@ async function updateFiestaData(
     return { success: true, updatedFiesta: result.fiesta };
   } catch (e: any) {
     return { success: false, error: e.message };
+  } finally {
+    release();
   }
 }
 
@@ -59,8 +124,9 @@ export async function deleteInvitado(fiestaId: string, invitadoId: string) {
 export async function handleRsvpSubmission(fiestaId: string, submission: {
     nombreCompleto: string, 
     confirmacion: string, 
-    adultsCount: number, 
-    kidsCount: number, 
+    adultsCount?: number, 
+    kidsCount?: number, 
+    numeroAsistentes?: number,
     mensaje: string, 
     companionNames: string[], 
     isCeliac?: boolean, 
@@ -69,7 +135,10 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {
    let updatedInvitado: Invitado | undefined;
    
    const result = await updateFiestaData(fiestaId, data => {
-     const totalNew = submission.adultsCount + submission.kidsCount;
+     // Support both payload types (discrete adults/kids count or single total)
+     const adults = submission.adultsCount !== undefined ? Number(submission.adultsCount) : Number(submission.numeroAsistentes || 1);
+     const kids = submission.kidsCount !== undefined ? Number(submission.kidsCount) : 0;
+     const totalNew = adults + kids;
      
      // 1. Validar Cupos por Categoría
      const currentInvitados = data.invitados || [];
@@ -79,52 +148,67 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {
      const limitAdults = Number(data.configuracion.invitadosAdultos) || 0;
      const limitKids = Number(data.configuracion.invitadosNinos) || 0;
 
-     if (confirmedAdults + submission.adultsCount > limitAdults) {
+     if (confirmedAdults + adults > limitAdults) {
          throw new Error(`Cupos de ADULTOS agotados. Límite: ${limitAdults}. Contacta al organizador.`);
      }
-     if (confirmedKids + submission.kidsCount > limitKids) {
+     if (confirmedKids + kids > limitKids) {
          throw new Error(`Cupos de NIÑOS agotados. Límite: ${limitKids}. Contacta al organizador.`);
      }
 
-     const invitadoExistenteIndex = currentInvitados.findIndex(
-        inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
-      );
+     // Normalización de nombres para evitar duplicaciones
+     const normInput = normalizeString(submission.nombreCompleto);
+     
+     let invitadoExistenteIndex = currentInvitados.findIndex(
+        inv => normalizeString(inv.nombre) === normInput
+     );
+
+     // Si no hay coincidencia exacta normalizada, probamos Fuzzy Matching con 85% de similitud
+     if (invitadoExistenteIndex === -1) {
+        for (let i = 0; i < currentInvitados.length; i++) {
+           const inv = currentInvitados[i];
+           const normExisting = normalizeString(inv.nombre);
+           if (getSimilarity(normInput, normExisting) >= 0.85) {
+              invitadoExistenteIndex = i;
+              break;
+           }
+        }
+     }
       
-      const combinedNotes = [
-        (invitadoExistenteIndex > -1 ? currentInvitados[invitadoExistenteIndex].notes : ''),
-        submission.mensaje
-      ].filter(Boolean).join('\n---\n');
+     const combinedNotes = [
+       (invitadoExistenteIndex > -1 ? currentInvitados[invitadoExistenteIndex].notes : ''),
+       submission.mensaje
+     ].filter(Boolean).join('\n---\n');
 
-      // Determinamos categoría principal basado en la mayoría o default
-      const mainCategory: CategoriaInvitado = submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'Niño/Adolescente';
+     // Determinamos categoría principal
+     const mainCategory: CategoriaInvitado = adults >= kids ? 'Adulto' : 'Niño/Adolescente';
 
-      if (invitadoExistenteIndex > -1) {
-         updatedInvitado = {
-           ...(currentInvitados[invitadoExistenteIndex]),
-           rsvp: submission.confirmacion as RsvpStatus,
-           partySize: totalNew,
-           categoria: mainCategory,
-           notes: combinedNotes,
-           companionNames: submission.companionNames,
-           isCeliac: submission.isCeliac ?? currentInvitados[invitadoExistenteIndex].isCeliac,
-           tag: submission.tag || currentInvitados[invitadoExistenteIndex].tag
-         };
-         currentInvitados[invitadoExistenteIndex] = updatedInvitado;
-      } else {
-         updatedInvitado = {
-           id: `inv_rsvp_${Date.now()}`,
-           nombre: submission.nombreCompleto,
-           rsvp: submission.confirmacion as RsvpStatus,
-           partySize: totalNew,
-           categoria: mainCategory,
-           notes: combinedNotes,
-           companionNames: submission.companionNames,
-           isCeliac: submission.isCeliac,
-           tag: submission.tag
-         };
-         data.invitados = [...currentInvitados, updatedInvitado];
-      }
-      return data;
+     if (invitadoExistenteIndex > -1) {
+        updatedInvitado = {
+          ...(currentInvitados[invitadoExistenteIndex]),
+          rsvp: submission.confirmacion as RsvpStatus,
+          partySize: totalNew,
+          categoria: mainCategory,
+          notes: combinedNotes,
+          companionNames: submission.companionNames,
+          isCeliac: submission.isCeliac ?? currentInvitados[invitadoExistenteIndex].isCeliac,
+          tag: submission.tag || currentInvitados[invitadoExistenteIndex].tag
+        };
+        currentInvitados[invitadoExistenteIndex] = updatedInvitado;
+     } else {
+        updatedInvitado = {
+          id: `inv_rsvp_${Date.now()}`,
+          nombre: submission.nombreCompleto,
+          rsvp: submission.confirmacion as RsvpStatus,
+          partySize: totalNew,
+          categoria: mainCategory,
+          notes: combinedNotes,
+          companionNames: submission.companionNames,
+          isCeliac: submission.isCeliac,
+          tag: submission.tag
+        };
+        data.invitados = [...currentInvitados, updatedInvitado];
+     }
+     return data;
    });
    
    return {...result, invitado: updatedInvitado};

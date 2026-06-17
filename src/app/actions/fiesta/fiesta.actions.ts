@@ -74,7 +74,9 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
     try {
         const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
         if (active && active.id === fiestaId) return active;
-    } catch (e) {}
+    } catch (e) {
+        console.error(`Error reading active fiesta file at ${activePath}:`, e);
+    }
     const archivadas = await getHistorialFiestas();
     return archivadas.find(f => f.id === fiestaId) || null;
 }

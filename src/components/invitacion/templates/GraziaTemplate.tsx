@@ -266,6 +266,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       confirmacion: 'Confirmado',
       adultsCount: numAdults,
       kidsCount: numKids,
+      numeroAsistentes: numAdults + numKids,
       isCeliac: isCeliac,
       mensaje: rsvpMusicSuggestion.trim() ? `Sugerencia: ${rsvpMusicSuggestion}` : '',
       companionNames: companionNames,
