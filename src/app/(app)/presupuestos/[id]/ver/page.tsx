@@ -857,6 +857,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </CardContent>
                 </Card>
             </motion.div>
+            </>
+            )}
 
             {/* ── INFORMAR PAGO — Client-facing payment notification ── */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="print:hidden">
@@ -968,7 +970,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                     Tu pago quedará pendiente de confirmación por el administrador.
                                 </p>
                             </div>
-                <div id="budget-print-area-wrapper">
+                        )}
+                    </CardContent>
+                </Card>
+            </motion.div>
+
+            <div id="budget-print-area-wrapper">
               <BudgetDocument
                 presupuesto={presupuesto}
                 logoUrl={logoUrl}
