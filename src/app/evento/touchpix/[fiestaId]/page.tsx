@@ -24,6 +24,7 @@ import {
 import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
 
