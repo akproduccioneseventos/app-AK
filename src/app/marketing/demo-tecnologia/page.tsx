@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -9,39 +12,11 @@ import {
   RotateCcw,
   Smartphone,
   Users,
+  Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const demoLayers = [
-  {
-    title: 'Portal del cliente',
-    detail: 'Presupuesto, pagos, servicios, reuniones y avances en una vista clara para la familia.',
-    icon: Users,
-    href: '/presentacion-led/portafolio',
-    tone: 'border-blue-100 bg-blue-50 text-blue-700',
-  },
-  {
-    title: 'Invitados y QR',
-    detail: 'Invitacion web, RSVP, mesa, check-in y acceso movil para participar sin papeles.',
-    icon: QrCode,
-    href: '/experiencia-ak',
-    tone: 'border-emerald-100 bg-emerald-50 text-emerald-700',
-  },
-  {
-    title: 'Pantalla LED',
-    detail: 'Muro social, mensajes, fotos, musica y momentos de fiesta listos para mostrar en vivo.',
-    icon: MonitorPlay,
-    href: '/presentacion',
-    tone: 'border-indigo-100 bg-indigo-50 text-indigo-700',
-  },
-  {
-    title: 'Entretenimiento',
-    detail: 'Fotocabina, plataforma 360, totems, espejo y futuras experiencias AK conectadas a galeria.',
-    icon: Camera,
-    href: '/fiestas/nueva/entretenimiento',
-    tone: 'border-pink-100 bg-pink-50 text-pink-700',
-  },
-];
+import { createDemoFiesta } from '@/app/actions/fiesta-actual';
 
 const salesScript = [
   'Primero mostramos que AK organiza la fiesta completa: salon, servicios, equipo y control.',
@@ -57,6 +32,69 @@ const proofCards = [
 ];
 
 export default function MarketingDemoTecnologiaPage() {
+  const [demoFiestaId, setDemoFiestaId] = useState<string | null>(null);
+  const [loadingKind, setLoadingKind] = useState<string | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('ak_demo_fiesta_id');
+    if (stored) {
+      setDemoFiestaId(stored);
+    }
+  }, []);
+
+  const handleCreateDemo = async (kind: 'xv' | 'boda' | 'tecnologia-total') => {
+    setLoadingKind(kind);
+    try {
+      const res = await createDemoFiesta(kind);
+      if (res.success && res.newFiestaId) {
+        setDemoFiestaId(res.newFiestaId);
+        localStorage.setItem('ak_demo_fiesta_id', res.newFiestaId);
+      } else {
+        alert('Error al crear la demo: ' + res.error);
+      }
+    } catch (e: any) {
+      alert('Error de red/servidor: ' + e.message);
+    } finally {
+      setLoadingKind(null);
+    }
+  };
+
+  const handleClearDemo = () => {
+    setDemoFiestaId(null);
+    localStorage.removeItem('ak_demo_fiesta_id');
+  };
+
+  const demoLayers = [
+    {
+      title: 'Portal del cliente',
+      detail: 'Presupuesto, pagos, servicios, reuniones y avances en una vista clara para la familia.',
+      icon: Users,
+      href: demoFiestaId ? `/portal-cliente/${demoFiestaId}` : '/fiestas/nueva/portal-cliente',
+      tone: 'border-blue-100 bg-blue-50 text-blue-700',
+    },
+    {
+      title: 'Invitados y QR',
+      detail: 'Invitacion web, RSVP, mesa, check-in y acceso movil para participar sin papeles.',
+      icon: QrCode,
+      href: demoFiestaId ? `/invitacion/${demoFiestaId}` : '/fiestas/nueva/modulo-invitado',
+      tone: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    },
+    {
+      title: 'Pantalla LED',
+      detail: 'Muro social, mensajes, fotos, musica y momentos de fiesta listos para mostrar en vivo.',
+      icon: MonitorPlay,
+      href: demoFiestaId ? `/evento/muro-en-vivo/${demoFiestaId}` : '/presentacion-led/portafolio',
+      tone: 'border-indigo-100 bg-indigo-50 text-indigo-700',
+    },
+    {
+      title: 'Entretenimiento',
+      detail: 'Fotocabina, plataforma 360, totems, espejo y futuras experiencias AK conectadas a galeria.',
+      icon: Camera,
+      href: demoFiestaId ? `/evento/plataforma-360/${demoFiestaId}` : '/fiestas/nueva/entretenimiento',
+      tone: 'border-pink-100 bg-pink-50 text-pink-700',
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <section className="relative overflow-hidden">
@@ -72,19 +110,106 @@ export default function MarketingDemoTecnologiaPage() {
               Marketing
             </Link>
             <div>
-              <p className="mb-4 text-xs font-black uppercase tracking-[0.35em] text-blue-200">Demo comercial sin crear eventos</p>
+              <p className="mb-4 text-xs font-black uppercase tracking-[0.35em] text-blue-200">Demo interactiva en tiempo real</p>
               <h1 className="max-w-4xl text-4xl font-black leading-none sm:text-6xl lg:text-7xl">
                 La tecnologia AK se vende como una experiencia completa
               </h1>
               <p className="mt-6 max-w-2xl text-lg font-semibold leading-relaxed text-white/70">
                 Esta pantalla sirve para mostrarle a una familia como se veria el portal, la pantalla LED,
-                los QR, el muro social y los entretenimientos sin cargar una fiesta falsa en el planificador.
+                los QR, el muro social y los entretenimientos con un solo clic y de forma interactiva.
               </p>
             </div>
+
+            {/* Panel de Control de Demo (Glassmorphism) */}
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-md space-y-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-yellow-400" />
+                    Panel de Control de Demo
+                  </h3>
+                  <p className="text-xs text-white/50">Crea un evento demo en Firestore para activar todos los enlaces interactivos</p>
+                </div>
+                {demoFiestaId && (
+                  <span className="self-start sm:self-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-medium text-emerald-400">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Demo Conectada
+                  </span>
+                )}
+              </div>
+
+              {demoFiestaId ? (
+                <div className="space-y-4">
+                  <div className="rounded-2xl bg-white/5 p-4 border border-white/10">
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div>
+                        <p className="text-xs text-white/40 uppercase tracking-wider">Demo Activa</p>
+                        <p className="text-base font-black text-blue-300 mt-0.5">
+                          {demoFiestaId.includes('xv') ? 'XV Años Martina' : demoFiestaId.includes('boda') ? 'Boda Sofía y Mateo' : 'Tecnología Total'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-white/40 uppercase tracking-wider">ID de Evento</p>
+                        <p className="text-xs font-mono text-white/60 mt-1 break-all">{demoFiestaId}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleClearDemo()}
+                      className="inline-flex items-center gap-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-red-400 transition-all hover:scale-[1.02]"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Desconectar Demo
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-white/70">Selecciona una fiesta demo para generar datos reales en vivo:</p>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <button
+                      onClick={() => handleCreateDemo('xv')}
+                      disabled={loadingKind !== null}
+                      className={cn(
+                        "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 font-black uppercase tracking-widest text-slate-950 text-xs shadow-2xl transition hover:-translate-y-0.5 disabled:opacity-50",
+                        loadingKind === 'xv' && "animate-pulse"
+                      )}
+                    >
+                      {loadingKind === 'xv' ? 'Creando XV...' : 'Generar XV Martina'}
+                    </button>
+                    <button
+                      onClick={() => handleCreateDemo('boda')}
+                      disabled={loadingKind !== null}
+                      className={cn(
+                        "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-550 border border-indigo-500 px-4 font-black uppercase tracking-widest text-white text-xs shadow-2xl transition hover:-translate-y-0.5 disabled:opacity-50",
+                        loadingKind === 'boda' && "animate-pulse"
+                      )}
+                    >
+                      {loadingKind === 'boda' ? 'Creando Boda...' : 'Generar Boda Sofía'}
+                    </button>
+                    <button
+                      onClick={() => handleCreateDemo('tecnologia-total')}
+                      disabled={loadingKind !== null}
+                      className={cn(
+                        "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 hover:bg-white/15 px-4 font-black uppercase tracking-widest text-white text-xs backdrop-blur transition hover:-translate-y-0.5 disabled:opacity-50",
+                        loadingKind === 'tecnologia-total' && "animate-pulse"
+                      )}
+                    >
+                      {loadingKind === 'tecnologia-total' ? 'Creando Tecno...' : 'Generar Tecno Total'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/presentacion-led/portafolio" className="inline-flex min-h-12 items-center justify-center gap-3 rounded-2xl bg-white px-6 font-black uppercase tracking-widest text-slate-950 shadow-2xl transition hover:-translate-y-0.5">
+              <Link
+                href={demoFiestaId ? `/evento/muro-en-vivo/${demoFiestaId}` : '/presentacion-led/portafolio'}
+                className="inline-flex min-h-12 items-center justify-center gap-3 rounded-2xl bg-white px-6 font-black uppercase tracking-widest text-slate-950 shadow-2xl transition hover:-translate-y-0.5"
+              >
                 <MonitorPlay className="h-5 w-5" />
-                Abrir demo LED
+                {demoFiestaId ? 'Abrir Muro en Vivo' : 'Abrir demo LED'}
               </Link>
               <Link href="/landing" className="inline-flex min-h-12 items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-6 font-black uppercase tracking-widest text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/15">
                 <Globe2 className="h-5 w-5" />
@@ -190,7 +315,10 @@ export default function MarketingDemoTecnologiaPage() {
                 </span>
               ))}
             </div>
-            <Link href="/fiestas/nueva/entretenimiento" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black uppercase tracking-widest text-white transition hover:bg-slate-800">
+            <Link
+              href={demoFiestaId ? `/evento/plataforma-360/${demoFiestaId}` : '/fiestas/nueva/entretenimiento'}
+              className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black uppercase tracking-widest text-white transition hover:bg-slate-800"
+            >
               Ver modulo de entretenimiento
               <RotateCcw className="h-4 w-4" />
             </Link>

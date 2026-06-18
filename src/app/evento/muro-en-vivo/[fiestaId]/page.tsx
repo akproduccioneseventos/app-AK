@@ -108,11 +108,11 @@ export default function MuroEnVivoPage() {
     });
     
     // WhatsApp (Fijo)
-    const wa = brand?.whatsappNumber?.trim() || '59899123456';
+    const wa = brand?.whatsappNumber?.trim();
     list.push({
       platform: 'WhatsApp',
-      handle: wa,
-      url: `https://wa.me/${wa}`
+      handle: wa || 'Teléfono no configurado',
+      url: wa ? `https://wa.me/${wa}` : '#'
     });
     
     return list;
