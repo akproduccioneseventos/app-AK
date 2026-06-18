@@ -61,6 +61,16 @@ env:
     availability:
       - RUNTIME
 
+  # Secure server-side authentication. Values live in Google Secret Manager.
+  - variable: APP_PASSWORD
+    secret: admin-bootstrap-password
+    availability:
+      - RUNTIME
+  - variable: AK_SESSION_SECRET
+    secret: session-secret
+    availability:
+      - RUNTIME
+
   - variable: GOOGLE_API_KEY
     secret: google-api-key
     availability:
@@ -97,20 +107,29 @@ env:
       - BUILD
       - RUNTIME
 
-  # Google Workspace OAuth is optional. Do not declare client secrets here unless
-  # they already exist in Secret Manager and App Hosting has been granted access.
-  # Declaring a missing or unauthorized secret makes Firebase App Hosting fail
-  # before the app build starts.
-  #
-  # To enable Calendar/Gmail sync later:
-  # 1) create the secrets google-client-id and google-client-secret
-  # 2) grant App Hosting access with firebase apphosting:secrets:grantaccess
-  # 3) restore GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET as secret variables.
+  # Google Workspace OAuth: Calendar and Gmail recovery messages.
+  - variable: NEXT_PUBLIC_APP_URL
+    value: "https://akproducciones.uy"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: GOOGLE_CLIENT_ID
+    secret: google-client-id
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_CLIENT_SECRET
+    secret: google-client-secret
+    availability:
+      - RUNTIME
   - variable: GOOGLE_OAUTH_REDIRECT_PATH
     value: "/api/google/oauth/callback"
     availability:
       - RUNTIME
   - variable: GOOGLE_WORKSPACE_CALENDAR_ID
     value: "primary"
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_WORKSPACE_SEND_UPDATES
+    value: "all"
     availability:
       - RUNTIME
