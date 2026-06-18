@@ -12,6 +12,8 @@ interface HeroSectionProps {
   promoActiva?: PromoActiva | null;
   whatsappMessage?: string;
   ctaLabel?: string;
+  simulatorHref?: string;
+  simulatorLabel?: string;
 }
 
 export function HeroSection({
@@ -22,6 +24,8 @@ export function HeroSection({
   promoActiva,
   whatsappMessage = 'Hola AK Producciones, vi su pagina y me gustaria cotizar mi evento.',
   ctaLabel = 'Cotiza tu evento',
+  simulatorHref = '/simulador-ak',
+  simulatorLabel = 'Ver simulador',
 }: HeroSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -89,7 +93,7 @@ export function HeroSection({
               {ctaLabel}
             </a>
             <a
-              href="/simulador-ak"
+              href={simulatorHref}
               className={cn(
                 'flex items-center gap-3 px-8 py-4 rounded-2xl',
                 'bg-white/10 text-white hover:bg-white/15',
@@ -99,7 +103,7 @@ export function HeroSection({
                 'min-w-[220px] justify-center'
               )}
             >
-              Ver simulador
+              {simulatorLabel}
               <ArrowRight className="w-5 h-5 shrink-0" />
             </a>
           </div>

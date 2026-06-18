@@ -9,80 +9,41 @@ export interface Testimonial {
   name: string;
   role: string;
   eventType: string;
-  rating: number;
+  rating?: number;
   text: string;
   avatarInitials: string;
   avatarColor: string;
 }
 
-const DEFAULT_TESTIMONIALS: Testimonial[] = [
-  {
-    id: 't1',
-    name: 'Valentina & Rodrigo',
-    role: 'Novios',
-    eventType: 'Boda',
-    rating: 5,
-    text: 'Nunca imaginamos que nuestra boda pudiera ser tan perfecta. El equipo de AK Producciones se encargó de absolutamente todo, desde la decoración hasta el último detalle del catering. ¡Nuestros invitados todavía hablan de lo bien que estuvo!',
-    avatarInitials: 'V&R',
-    avatarColor: 'bg-pink-500',
-  },
-  {
-    id: 't2',
-    name: 'Florencia Méndez',
-    role: 'Quinceañera',
-    eventType: 'XV Años',
-    rating: 5,
-    text: 'Fue la fiesta más hermosa que pude imaginar. Todo el equipo estuvo presente desde el primer ensayo del vals hasta el último baile. Mi mamá y yo quedamos enamoradas del resultado. ¡100% recomendados!',
-    avatarInitials: 'FM',
-    avatarColor: 'bg-fuchsia-500',
-  },
-  {
-    id: 't3',
-    name: 'Carlos Suárez',
-    role: 'Organizador',
-    eventType: 'Evento Corporativo',
-    rating: 5,
-    text: 'Contratamos a AK Producciones para nuestra gala anual de empresa con 250 personas. La logística fue impecable, el ambiente espectacular y los empleados siempre atentos. Definitivamente los volveremos a contratar.',
-    avatarInitials: 'CS',
-    avatarColor: 'bg-purple-500',
-  },
-  {
-    id: 't4',
-    name: 'María José Álvarez',
-    role: 'Mamá de los festejados',
-    eventType: 'Cumpleaños',
-    rating: 5,
-    text: 'Organicé el cumpleaños de 50 de mi esposo con AK y fue todo lo que soñé. La atención personalizada, la creatividad y los precios son incomparables. ¡Gracias por hacer ese día tan especial!',
-    avatarInitials: 'MJ',
-    avatarColor: 'bg-violet-500',
-  },
-];
-
 interface TestimonialsSectionProps {
   testimonials?: Testimonial[];
 }
 
-export function TestimonialsSection({ testimonials = DEFAULT_TESTIMONIALS }: TestimonialsSectionProps) {
+export function TestimonialsSection({ testimonials = [] }: TestimonialsSectionProps) {
   const [current, setCurrent] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const total = testimonials.length;
+  const safeTotal = Math.max(total, 1);
 
   const go = useCallback(
     (dir: 1 | -1) => {
       if (isAnimating) return;
       setIsAnimating(true);
-      setCurrent((c) => (c + dir + total) % total);
+      setCurrent((c) => (c + dir + safeTotal) % safeTotal);
       setTimeout(() => setIsAnimating(false), 400);
     },
-    [isAnimating, total]
+    [isAnimating, safeTotal]
   );
 
   // Auto-advance
   useEffect(() => {
+    if (total < 2) return;
     const id = setInterval(() => go(1), 6000);
     return () => clearInterval(id);
-  }, [go]);
+  }, [go, total]);
+
+  if (total === 0) return null;
 
   const t = testimonials[current];
 
@@ -110,11 +71,13 @@ export function TestimonialsSection({ testimonials = DEFAULT_TESTIMONIALS }: Tes
             <Quote className="absolute top-6 right-6 w-12 h-12 text-purple-100 fill-purple-100" />
 
             {/* Stars */}
-            <div className="flex gap-1 mb-6">
+            {t.rating && t.rating > 0 && (
+              <div className="flex gap-1 mb-6">
               {[...Array(t.rating)].map((_, i) => (
                 <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
               ))}
-            </div>
+              </div>
+            )}
 
             {/* Text */}
             <p className="text-slate-700 text-lg sm:text-xl leading-relaxed mb-8 font-medium italic">

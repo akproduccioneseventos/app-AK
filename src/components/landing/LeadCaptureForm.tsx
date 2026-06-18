@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MessageSquare, Send, Loader2, Check } from 'lucide-react';
 import { saveLead, type LandingLeadData } from '@/app/actions/crm';
 import { cn } from '@/lib/utils';
+import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
+import type { CommercialSource } from '@/lib/commercial/acquisition';
 
 interface LeadCaptureFormProps {
   fuente: LandingLeadData['fuente'];
@@ -20,6 +23,7 @@ export function LeadCaptureForm({
   title = '¡Cotizá tu Evento!',
   subtitle = 'Completá el formulario y te contactamos en menos de 24 horas.',
 }: LeadCaptureFormProps) {
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({
     nombre: '',
     telefono: '',
@@ -41,6 +45,15 @@ export function LeadCaptureForm({
     }
     setError('');
     setLoading(true);
+    const fallbackSource: CommercialSource = fuente === 'promo-widget'
+      ? 'campaign'
+      : fuente === 'landing-bodas'
+        ? 'landing_bodas'
+        : fuente === 'landing-xv'
+          ? 'landing_xv'
+          : fuente === 'landing-eventos'
+            ? 'landing_eventos'
+            : fuente;
 
     const data: LandingLeadData = {
       nombre: form.nombre.trim(),
@@ -51,6 +64,10 @@ export function LeadCaptureForm({
       invitados: form.invitados ? parseInt(form.invitados) : undefined,
       mensaje: form.mensaje.trim() || undefined,
       fuente,
+      acquisition: {
+        ...commercialAttributionFromSearchParams(searchParams, fallbackSource),
+        entryPath: window.location.pathname,
+      },
     };
 
     const res = await saveLead(data);
