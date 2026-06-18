@@ -433,7 +433,17 @@ export interface InvitacionDigitalCronograma {
   icono?: string;
 }
 
-export type InvitacionPlantillaId = 'EleganteDorado' | 'ModernoMinimalista' | 'RomanticoFloral' | 'FiestaVibrante' | 'Grazia' | 'Allegria';
+export type InvitacionPlantillaId = 
+  | 'EleganteDorado' 
+  | 'ModernoMinimalista' 
+  | 'RomanticoFloral' 
+  | 'FiestaVibrante' 
+  | 'Grazia' 
+  | 'Allegria'
+  | 'XV_NeonParty'
+  | 'XV_PrincesaClasica'
+  | 'XV_GlowInTheDark'
+  | 'XV_MinimalChic';
 
 export type InvitacionSectionId =
   | 'hero'
