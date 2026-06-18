@@ -82,7 +82,7 @@ export default function CRMPredictivoPage() {
           </div>
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Buscar por nombre..." className="pl-9 h-10 rounded-xl bg-white border-slate-200" />
+            <Input placeholder="Buscar por nombre..." className="pl-9 h-10 rounded-xl bg-white border-slate-200 text-slate-900" />
           </div>
         </CardHeader>
         <CardContent className="p-0">
