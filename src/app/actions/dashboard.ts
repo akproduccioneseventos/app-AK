@@ -66,10 +66,10 @@ export async function getDashboardKpiData() {
       notificationsData,
       prioridadesDescartadas,
     ] = await Promise.all([
-      getPresupuestos(),
-      getInvoices(),
-      getAllFiestas(),
-      getCrmLeadsForDashboard(),
+      getPresupuestos().catch(err => { console.error('Dashboard getPresupuestos failed:', err); return []; }),
+      getInvoices().catch(err => { console.error('Dashboard getInvoices failed:', err); return []; }),
+      getAllFiestas().catch(err => { console.error('Dashboard getAllFiestas failed:', err); return []; }),
+      getCrmLeadsForDashboard().catch(err => { console.error('Dashboard getCrmLeadsForDashboard failed:', err); return []; }),
       getNotifications().catch(() => []),
       getPrioridadesDescartadas().catch(() => new Set<string>()),
     ]);
@@ -250,10 +250,10 @@ export async function getDashboardKpiData() {
 export async function getCashFlowProjection() {
   try {
     const [fiestas, invoices, roles, presupuestos] = await Promise.all([
-      getAllFiestas(),
-      getInvoices(),
-      getRoles(),
-      getPresupuestos(),
+      getAllFiestas().catch(err => { console.error('CashFlow getAllFiestas failed:', err); return []; }),
+      getInvoices().catch(err => { console.error('CashFlow getInvoices failed:', err); return []; }),
+      getRoles().catch(err => { console.error('CashFlow getRoles failed:', err); return []; }),
+      getPresupuestos().catch(err => { console.error('CashFlow getPresupuestos failed:', err); return []; }),
     ]);
 
     const today = startOfToday();

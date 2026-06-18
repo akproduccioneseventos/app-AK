@@ -16,6 +16,7 @@ import { sanitizeAppRedirect } from '@/lib/auth/redirect';
 import {
   getPublicSecurityRecoveryStatus,
   requestPasswordResetEmail,
+  verifyResetCode,
   resetPasswordWithCode,
   resetPasswordWithGoogleIdToken,
   resetPasswordWithRecoveryCode,
@@ -60,6 +61,10 @@ function GoogleMark() {
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'recovery'>('login');
+  const [recoveryStep, setRecoveryStep] = useState<'method' | 'verify' | 'new-password'>('method');
+  const [selectedMethod, setSelectedMethod] = useState<'email' | 'google' | 'backup' | 'questions' | null>(null);
+  const [codeSent, setCodeSent] = useState(false);
+  const [googleIdToken, setGoogleIdToken] = useState('');
   const [password, setPassword] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [backupCode, setBackupCode] = useState('');
@@ -189,6 +194,7 @@ export default function LoginPage() {
     const result = await requestPasswordResetEmail();
     if (result.success) {
       setNotice(result.sent ? 'Te enviamos un codigo al mail de recuperacion.' : result.warning || 'Codigo generado.');
+      setCodeSent(true);
     } else {
       setError(result.error || 'No se pudo enviar el codigo.');
       if (result.error && !recovery?.gmailConnected) {
@@ -196,6 +202,71 @@ export default function LoginPage() {
       }
     }
     setIsSubmitting(false);
+  };
+
+  const handleVerifyEmailCode = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    setNotice('');
+    try {
+      const result = await verifyResetCode(resetCode);
+      if (result.success) {
+        setNotice('Codigo verificado con exito. Escribi tu nueva contraseña.');
+        setRecoveryStep('new-password');
+      } else {
+        setError(result.error || 'Codigo incorrecto.');
+      }
+    } catch {
+      setError('Error al verificar el codigo.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyGoogle = async () => {
+    setIsSubmitting(true);
+    setError('');
+    setNotice('');
+    try {
+      const googleAuth = await import('@/lib/firebase/google-auth-client');
+      const token = await googleAuth.signInWithGooglePopup();
+      if (!token) {
+        setError('No se pudo autenticar con Google.');
+        setIsSubmitting(false);
+        return;
+      }
+      setGoogleIdToken(token);
+      setNotice('Identidad de Google verificada. Escribi tu nueva contraseña.');
+      setRecoveryStep('new-password');
+    } catch (googleError) {
+      const googleAuth = await import('@/lib/firebase/google-auth-client');
+      setError(googleAuth.getGoogleAuthErrorMessage(googleError));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleContinueWithBackupCode = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!backupCode.trim()) {
+      setError('Ingresa el codigo de respaldo.');
+      return;
+    }
+    setError('');
+    setNotice('Codigo de respaldo ingresado. Escribi tu nueva contraseña.');
+    setRecoveryStep('new-password');
+  };
+
+  const handleContinueWithQuestions = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!answers.q1.trim() || !answers.q2.trim() || !answers.q3.trim()) {
+      setError('Responde las 3 preguntas de seguridad.');
+      return;
+    }
+    setError('');
+    setNotice('Respuestas completadas. Escribi tu nueva contraseña.');
+    setRecoveryStep('new-password');
   };
 
   const validateResetPasswords = () => {
@@ -214,103 +285,53 @@ export default function LoginPage() {
     return true;
   };
 
-  const handleResetWithGoogle = async () => {
+  const handleResetPassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setIsSubmitting(true);
     setError('');
     setNotice('');
+
     if (!validateResetPasswords()) {
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const googleAuth = await import('@/lib/firebase/google-auth-client');
-      const token = await googleAuth.signInWithGooglePopup();
-      const result = await resetPasswordWithGoogleIdToken(token, resetPassword);
-      await googleAuth.clearGoogleAuthSession();
-      if (!result.success) {
-        setError(result.error || 'No se pudo recuperar el acceso con Google.');
+      let result: { success: boolean; error?: string };
+      if (selectedMethod === 'email') {
+        result = await resetPasswordWithCode(resetCode, resetPassword);
+      } else if (selectedMethod === 'google') {
+        result = await resetPasswordWithGoogleIdToken(googleIdToken, resetPassword);
+      } else if (selectedMethod === 'backup') {
+        result = await resetPasswordWithRecoveryCode(backupCode, resetPassword);
+      } else if (selectedMethod === 'questions') {
+        result = await resetPasswordWithSecurityAnswers({ answers, newPassword: resetPassword });
+      } else {
+        setError('Metodo de recuperacion no valido.');
+        setIsSubmitting(false);
         return;
       }
 
-      setSession();
-      setResetPassword('');
-      setResetConfirmPassword('');
-      router.replace(getRedirectPath());
-      router.refresh();
-    } catch (googleError) {
-      const googleAuth = await import('@/lib/firebase/google-auth-client');
-      setError(googleAuth.getGoogleAuthErrorMessage(googleError));
-      await googleAuth.clearGoogleAuthSession();
+      if (result.success) {
+        setNotice('Contraseña actualizada con exito. Ya podes ingresar.');
+        setMode('login');
+        setRecoveryStep('method');
+        setSelectedMethod(null);
+        setCodeSent(false);
+        setGoogleIdToken('');
+        setResetCode('');
+        setBackupCode('');
+        setResetPassword('');
+        setResetConfirmPassword('');
+        setAnswers({ q1: '', q2: '', q3: '' });
+      } else {
+        setError(result.error || 'No se pudo actualizar la contraseña.');
+      }
+    } catch {
+      setError('Error al procesar la solicitud.');
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleResetWithCode = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-    setNotice('');
-    if (!validateResetPasswords()) {
-      setIsSubmitting(false);
-      return;
-    }
-    const result = await resetPasswordWithCode(resetCode, resetPassword);
-    if (result.success) {
-      setNotice('Contraseña actualizada. Ya podes entrar.');
-      setMode('login');
-      setResetCode('');
-      setResetPassword('');
-      setResetConfirmPassword('');
-    } else {
-      setError(result.error || 'No se pudo cambiar la contraseña.');
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleResetWithBackupCode = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-    setNotice('');
-    if (!validateResetPasswords()) {
-      setIsSubmitting(false);
-      return;
-    }
-    const result = await resetPasswordWithRecoveryCode(backupCode, resetPassword);
-    if (result.success) {
-      setNotice('Contraseña actualizada. Ya podes entrar.');
-      setMode('login');
-      setBackupCode('');
-      setResetPassword('');
-      setResetConfirmPassword('');
-    } else {
-      setError(result.error || 'No se pudo cambiar la contraseña.');
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleResetWithAnswers = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-    setNotice('');
-    if (!validateResetPasswords()) {
-      setIsSubmitting(false);
-      return;
-    }
-    const result = await resetPasswordWithSecurityAnswers({ answers, newPassword: resetPassword });
-    if (result.success) {
-      setNotice('Contraseña actualizada. Ya podes entrar.');
-      setMode('login');
-      setAnswers({ q1: '', q2: '', q3: '' });
-      setResetPassword('');
-      setResetConfirmPassword('');
-    } else {
-      setError(result.error || 'No se pudo cambiar la contraseña.');
-    }
-    setIsSubmitting(false);
   };
 
   return (
@@ -326,8 +347,18 @@ export default function LoginPage() {
               <span className="text-xl font-bold text-muted-foreground">AK Producciones</span>
             )}
           </div>
-          <CardTitle className="text-3xl font-bold font-headline">Acceso Protegido</CardTitle>
-          <CardDescription>{mode === 'login' ? 'Ingresa la contraseña para acceder.' : 'Recupera el acceso con el Gmail de AK.'}</CardDescription>
+          <CardTitle className="text-3xl font-bold font-headline">
+            {mode === 'login' ? 'Acceso Protegido' : 'Recuperar Acceso'}
+          </CardTitle>
+          <CardDescription>
+            {mode === 'login'
+              ? 'Ingresa la contraseña para acceder.'
+              : recoveryStep === 'method'
+              ? 'Elige un método para recuperar tu acceso.'
+              : recoveryStep === 'verify'
+              ? 'Completa la verificación requerida.'
+              : 'Escribe tu nueva contraseña de acceso.'}
+          </CardDescription>
         </CardHeader>
 
         {mode === 'login' ? (
@@ -381,67 +412,212 @@ export default function LoginPage() {
         ) : (
           <div>
             <CardContent className="space-y-5">
-              <div className="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground space-y-1">
-                <p>{recovery?.hasRecoveryEmail ? `Mail de recuperacion: ${recovery.recoveryEmailHint}.` : 'Todavia no hay mail de recuperacion configurado.'}</p>
-                <p className={recovery?.gmailConnected ? 'text-emerald-700' : 'text-amber-700'}>
-                  {recovery?.gmailConnected
-                    ? `Gmail conectado${recovery.gmailAccountHint ? `: ${recovery.gmailAccountHint}` : ''}.`
-                    : recovery?.gmailWarning || 'Gmail todavia no esta conectado para enviar codigos.'}
-                </p>
-                {recovery?.hasBackupCodes ? <p>Tenes {recovery.backupCodeCount} codigo(s) de respaldo disponible(s).</p> : null}
-              </div>
+              {recoveryStep === 'method' && (
+                <div className="space-y-4">
+                  <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground space-y-1">
+                    <p>{recovery?.hasRecoveryEmail ? `Mail de recuperación: ${recovery.recoveryEmailHint}.` : 'Todavía no hay mail de recuperación configurado.'}</p>
+                    <p className={recovery?.gmailConnected ? 'text-emerald-700' : 'text-amber-700'}>
+                      {recovery?.gmailConnected
+                        ? `Gmail conectado${recovery.gmailAccountHint ? `: ${recovery.gmailAccountHint}` : ''}.`
+                        : recovery?.gmailWarning || 'Gmail todavía no está conectado para enviar códigos.'}
+                    </p>
+                    {recovery?.hasBackupCodes ? <p>Tenés {recovery.backupCodeCount} código(s) de respaldo disponible(s).</p> : null}
+                  </div>
 
-              <div className="space-y-3 rounded-lg border p-3">
-                <p className="text-sm font-semibold">Nueva contrasena para recuperar acceso</p>
-                <Input type="password" value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} placeholder="Minimo 10 caracteres, letras y numeros" disabled={isSubmitting} />
-                <Input type="password" value={resetConfirmPassword} onChange={(event) => setResetConfirmPassword(event.target.value)} placeholder="Repetir nueva contrasena" disabled={isSubmitting} />
-              </div>
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Elige el método de verificación</p>
+                    <div className="grid gap-2">
+                      {recovery?.hasRecoveryEmail && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full justify-start py-5 text-left border hover:bg-muted/50 transition-all"
+                          onClick={() => { setSelectedMethod('email'); setRecoveryStep('verify'); setError(''); setNotice(''); }}
+                          disabled={isSubmitting}
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-sm">Código por Correo</span>
+                            <span className="text-xs text-muted-foreground">Envía un código de 6 números a {recovery.recoveryEmailHint}</span>
+                          </div>
+                        </Button>
+                      )}
 
-              <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50/60 p-3">
-                <p className="text-sm font-semibold text-blue-950">Recuperar verificando tu Gmail</p>
-                <p className="text-xs leading-relaxed text-blue-800">
-                  Confirma la cuenta Google autorizada y la nueva contrasena se guarda sin depender del envio de correos.
-                </p>
-                <Button type="button" className="w-full" onClick={handleResetWithGoogle} disabled={isSubmitting || !resetPassword || !resetConfirmPassword}>
-                  <GoogleMark />
-                  Verificar Gmail y recuperar acceso
-                </Button>
-              </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start py-5 text-left border hover:bg-muted/50 transition-all"
+                        onClick={() => { setSelectedMethod('google'); setRecoveryStep('verify'); setError(''); setNotice(''); }}
+                        disabled={isSubmitting}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-sm">Verificar con Google</span>
+                          <span className="text-xs text-muted-foreground">Confirma rápido con tu cuenta autorizada</span>
+                        </div>
+                      </Button>
 
-              <form onSubmit={handleResetWithCode} className="space-y-3 rounded-lg border p-3">
-                <p className="text-sm font-semibold">Recibir un codigo por correo</p>
-                {!recovery?.gmailConnected && recovery?.hasRecoveryEmail ? (
-                  <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-relaxed text-amber-800">
-                    El boton vuelve a verificar Gmail al tocarlo. Si la cuenta sigue desconectada, usa codigos de respaldo o preguntas de seguridad y reconecta Google Workspace desde Ajustes.
-                  </p>
-                ) : null}
-                <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail}>
-                  {recovery?.gmailConnected ? 'Enviar codigo por Gmail' : 'Verificar Gmail y enviar codigo'}
-                </Button>
-                <Input value={resetCode} onChange={(event) => setResetCode(event.target.value)} placeholder="Codigo de 6 numeros" inputMode="numeric" disabled={isSubmitting} />
-                <Button type="submit" className="w-full" disabled={isSubmitting || !resetCode || !resetPassword}>
-                  Cambiar con codigo
-                </Button>
-              </form>
+                      {recovery?.hasBackupCodes && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full justify-start py-5 text-left border hover:bg-muted/50 transition-all"
+                          onClick={() => { setSelectedMethod('backup'); setRecoveryStep('verify'); setError(''); setNotice(''); }}
+                          disabled={isSubmitting}
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-sm">Código de Respaldo</span>
+                            <span className="text-xs text-muted-foreground">Usa uno de tus códigos de 12 letras de respaldo</span>
+                          </div>
+                        </Button>
+                      )}
 
-              {recovery?.hasBackupCodes && (
-                <form onSubmit={handleResetWithBackupCode} className="space-y-3 rounded-lg border p-3">
-                  <p className="text-sm font-semibold">Recuperar con codigo de respaldo</p>
-                  <Input value={backupCode} onChange={(event) => setBackupCode(event.target.value)} placeholder="XXXX-XXXX-XXXX" disabled={isSubmitting} />
-                  <Button type="submit" variant="secondary" className="w-full" disabled={isSubmitting || !backupCode || !resetPassword}>
-                    Cambiar con respaldo
-                  </Button>
-                </form>
+                      {recovery?.questions && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full justify-start py-5 text-left border hover:bg-muted/50 transition-all"
+                          onClick={() => { setSelectedMethod('questions'); setRecoveryStep('verify'); setError(''); setNotice(''); }}
+                          disabled={isSubmitting}
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-sm">Preguntas de Seguridad</span>
+                            <span className="text-xs text-muted-foreground">Responde las 3 preguntas secretas configuradas</span>
+                          </div>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
 
-              {recovery?.questions && (
-                <form onSubmit={handleResetWithAnswers} className="space-y-3 rounded-lg border p-3">
-                  <p className="text-sm font-semibold">O responder preguntas de seguridad</p>
-                  <Input value={answers.q1} onChange={(event) => setAnswers((current) => ({ ...current, q1: event.target.value }))} placeholder={recovery.questions.q1} disabled={isSubmitting} />
-                  <Input value={answers.q2} onChange={(event) => setAnswers((current) => ({ ...current, q2: event.target.value }))} placeholder={recovery.questions.q2} disabled={isSubmitting} />
-                  <Input value={answers.q3} onChange={(event) => setAnswers((current) => ({ ...current, q3: event.target.value }))} placeholder={recovery.questions.q3} disabled={isSubmitting} />
-                  <Button type="submit" variant="secondary" className="w-full" disabled={isSubmitting || !resetPassword}>
-                    Cambiar con preguntas
+              {recoveryStep === 'verify' && (
+                <div className="space-y-4">
+                  {selectedMethod === 'email' && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold">Recibir un código por correo</p>
+                        {!recovery?.gmailConnected && recovery?.hasRecoveryEmail ? (
+                          <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-relaxed text-amber-800">
+                            El botón vuelve a verificar Gmail al tocarlo. Si la cuenta sigue desconectada, usa códigos de respaldo o preguntas de seguridad y reconecta Google Workspace desde Ajustes.
+                          </p>
+                        ) : null}
+                        <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail}>
+                          {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                          {codeSent ? 'Reenviar código por Gmail' : 'Enviar código por Gmail'}
+                        </Button>
+                      </div>
+
+                      {codeSent && (
+                        <form onSubmit={handleVerifyEmailCode} className="space-y-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="verify-email-code">Ingresa el código enviado</Label>
+                            <Input
+                              id="verify-email-code"
+                              value={resetCode}
+                              onChange={(event) => setResetCode(event.target.value)}
+                              placeholder="Código de 6 números"
+                              inputMode="numeric"
+                              required
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                          <Button type="submit" className="w-full" disabled={isSubmitting || !resetCode}>
+                            {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                            Verificar Código
+                          </Button>
+                        </form>
+                      )}
+                    </div>
+                  )}
+
+                  {selectedMethod === 'google' && (
+                    <div className="space-y-4 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        Haz clic a continuación para abrir la ventana de verificación de Google y confirmar tu identidad.
+                      </p>
+                      <Button type="button" className="w-full" onClick={handleVerifyGoogle} disabled={isSubmitting}>
+                        {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <GoogleMark />}
+                        Verificar identidad con Google
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedMethod === 'backup' && (
+                    <form onSubmit={handleContinueWithBackupCode} className="space-y-3">
+                      <p className="text-sm font-semibold">Código de Respaldo</p>
+                      <div className="space-y-2">
+                        <Label htmlFor="verify-backup-code">Ingresa un código disponible</Label>
+                        <Input
+                          id="verify-backup-code"
+                          value={backupCode}
+                          onChange={(event) => setBackupCode(event.target.value)}
+                          placeholder="XXXX-XXXX-XXXX"
+                          required
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      <Button type="submit" className="w-full" disabled={isSubmitting || !backupCode}>
+                        Continuar
+                      </Button>
+                    </form>
+                  )}
+
+                  {selectedMethod === 'questions' && recovery?.questions && (
+                    <form onSubmit={handleContinueWithQuestions} className="space-y-3">
+                      <p className="text-sm font-semibold">Preguntas de Seguridad</p>
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">{recovery.questions.q1}</Label>
+                          <Input value={answers.q1} onChange={(event) => setAnswers((current) => ({ ...current, q1: event.target.value }))} placeholder="Respuesta 1" required disabled={isSubmitting} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">{recovery.questions.q2}</Label>
+                          <Input value={answers.q2} onChange={(event) => setAnswers((current) => ({ ...current, q2: event.target.value }))} placeholder="Respuesta 2" required disabled={isSubmitting} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">{recovery.questions.q3}</Label>
+                          <Input value={answers.q3} onChange={(event) => setAnswers((current) => ({ ...current, q3: event.target.value }))} placeholder="Respuesta 3" required disabled={isSubmitting} />
+                        </div>
+                      </div>
+                      <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
+                        Continuar
+                      </Button>
+                    </form>
+                  )}
+                </div>
+              )}
+
+              {recoveryStep === 'new-password' && (
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div className="space-y-3 rounded-lg border p-3 bg-muted/20">
+                    <p className="text-sm font-semibold">Establecer nueva contraseña</p>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-pwd">Nueva Contraseña</Label>
+                      <Input
+                        id="new-pwd"
+                        type="password"
+                        value={resetPassword}
+                        onChange={(event) => setResetPassword(event.target.value)}
+                        placeholder="Mínimo 10 caracteres, letras y números"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-pwd-confirm">Confirmar Contraseña</Label>
+                      <Input
+                        id="new-pwd-confirm"
+                        type="password"
+                        value={resetConfirmPassword}
+                        onChange={(event) => setResetConfirmPassword(event.target.value)}
+                        placeholder="Repetir nueva contraseña"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isSubmitting || !resetPassword || !resetConfirmPassword}>
+                    {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                    Guardar nueva contraseña
                   </Button>
                 </form>
               )}
@@ -450,8 +626,35 @@ export default function LoginPage() {
               {error && <p className="text-sm text-destructive text-center">{error}</p>}
             </CardContent>
             <CardFooter>
-              <Button type="button" variant="ghost" className="w-full" onClick={() => { setMode('login'); setError(''); setNotice(''); }}>
-                Volver al ingreso
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  if (recoveryStep === 'method') {
+                    setMode('login');
+                  } else if (recoveryStep === 'verify') {
+                    setRecoveryStep('method');
+                    setSelectedMethod(null);
+                  } else if (recoveryStep === 'new-password') {
+                    if (selectedMethod === 'google') {
+                      // Google goes back to method selection since identity token is validated in popup
+                      setRecoveryStep('method');
+                      setSelectedMethod(null);
+                      setGoogleIdToken('');
+                    } else {
+                      setRecoveryStep('verify');
+                    }
+                  }
+                  setError('');
+                  setNotice('');
+                }}
+              >
+                {recoveryStep === 'method'
+                  ? 'Volver al ingreso'
+                  : recoveryStep === 'verify'
+                  ? 'Volver a métodos de recuperación'
+                  : 'Volver a verificación'}
               </Button>
             </CardFooter>
           </div>

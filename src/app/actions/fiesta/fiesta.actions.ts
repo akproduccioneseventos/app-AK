@@ -57,14 +57,15 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   let historiales: FiestaEnPlanificacion[] = [];
   let firestoreSucceeded = false;
 
-  if (isProduction) {
-    try {
+  try {
+    const { isFirebaseAvailable } = await import('@/lib/firebase');
+    if (isProduction || isFirebaseAvailable()) {
       const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
       historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
       firestoreSucceeded = true;
-    } catch (e) {
-      // fall through to filesystem fallback
     }
+  } catch (e) {
+    // fall through to filesystem fallback
   }
 
   if (!firestoreSucceeded) {
@@ -89,14 +90,15 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
     let activas: FiestaEnPlanificacion[] = [];
     let firestoreSucceeded = false;
 
-    if (isProduction) {
-        try {
+    try {
+        const { isFirebaseAvailable } = await import('@/lib/firebase');
+        if (isProduction || isFirebaseAvailable()) {
             const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
             activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
             firestoreSucceeded = true;
-        } catch (e) {
-            // fall through to filesystem fallback
         }
+    } catch (e) {
+        // fall through to filesystem fallback
     }
 
     if (!firestoreSucceeded) {

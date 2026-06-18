@@ -41,6 +41,22 @@ function getDb() {
   return dbAdmin;
 }
 
+async function queryWithTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T> {
+  let timeoutId: any;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Timeout de consulta a base de datos superado (${timeoutMs}ms)`));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
 // ============================================================
 // CREATE - Add a new document
 // ============================================================
@@ -83,7 +99,7 @@ export async function getDocument<T>(
   if (!db) return { success: false, error: 'Firestore not available' };
 
   try {
-    const docSnap = await db.collection(collection).doc(docId).get();
+    const docSnap = await queryWithTimeout(db.collection(collection).doc(docId).get());
     if (!docSnap.exists) {
       return { success: false, error: 'Document not found' };
     }
@@ -129,7 +145,7 @@ export async function getAllDocuments<T>(
       query = query.limit(options.limit);
     }
 
-    const snapshot = await query.get();
+    const snapshot = await queryWithTimeout(query.get());
     const data = snapshot.docs.map((doc: QueryDocumentSnapshot) => ({ id: doc.id, ...doc.data() })) as T[];
     return { success: true, data };
   } catch (error: any) {
@@ -231,7 +247,7 @@ export async function checkFirestoreConnection(): Promise<boolean> {
 
   try {
     // Try a lightweight read to verify connectivity
-    await db.collection('_health_check').limit(1).get();
+    await queryWithTimeout(db.collection('_health_check').limit(1).get(), 2000);
     return true;
   } catch (error) {
     console.error('Firestore connection check failed:', error);

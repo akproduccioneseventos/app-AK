@@ -514,6 +514,24 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
   }
 }
 
+export async function verifyResetCode(code: string): Promise<{ success: boolean; error?: string }> {
+  const config = await getAuthDoc().catch(() => null);
+  const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
+  if (recoveryLock) return { success: false, error: recoveryLock };
+
+  if (!config?.resetCodeHash || !config.resetCodeExpiresAt) {
+    return { success: false, error: 'No hay codigo de recuperacion activo.' };
+  }
+  if (new Date(config.resetCodeExpiresAt).getTime() < Date.now()) {
+    return { success: false, error: 'El codigo vencio. Pedi uno nuevo.' };
+  }
+  if (!verifyHash(code.trim(), config.resetCodeHash)) {
+    return { success: false, error: await registerFailedRecovery(config) };
+  }
+
+  return { success: true };
+}
+
 export async function resetPasswordWithCode(code: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
   const config = await getAuthDoc().catch(() => null);
   const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');

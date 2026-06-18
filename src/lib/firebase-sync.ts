@@ -156,6 +156,22 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
   throw lastError;
 }
 
+async function queryWithTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T> {
+  let timeoutId: any;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Timeout de consulta a base de datos superado (${timeoutMs}ms)`));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
 /**
  * Synchronize data written to a JSON file to the corresponding Firestore collection.
  * This is called asynchronously from data-service.ts writeData() when USE_FIREBASE_DATA=true.
@@ -355,7 +371,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
     // Config file → read from 'configuracion' collection
     const configDocId = CONFIG_FILES[normalizedPath];
     if (configDocId) {
-      const doc = await db.collection('configuracion').doc(configDocId).get();
+      const doc = await queryWithTimeout(db.collection('configuracion').doc(configDocId).get());
       if (doc.exists) {
         const data = doc.data();
         if (data) delete data._syncedAt;
@@ -367,7 +383,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
     // Array collection → read all docs and return as array
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName) {
-      const snapshot = await db.collection(collectionName).get();
+      const snapshot = await queryWithTimeout(db.collection(collectionName).get());
       if (snapshot.empty) return ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath) ? [] : null;
       return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
@@ -382,7 +398,7 @@ export async function readFromFirestore(filePath: string): Promise<any> {
       const [dir, filename] = pathParts;
       if (!filename.endsWith('.json')) return null;
       const docId = filename.replace('.json', '');
-      const doc = await db.collection(dir).doc(docId).get();
+      const doc = await queryWithTimeout(db.collection(dir).doc(docId).get());
       if (doc.exists) {
         const data = doc.data();
         if (data) {
@@ -464,7 +480,7 @@ export async function listCollectionFromFirestore(collectionName: string): Promi
   try {
     const { dbAdmin } = await import('./firebase/server');
     if (!dbAdmin) return [];
-    const snapshot = await dbAdmin.collection(collectionName).get();
+    const snapshot = await queryWithTimeout(dbAdmin.collection(collectionName).get());
     if (snapshot.empty) return [];
     return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
       const data = doc.data();
