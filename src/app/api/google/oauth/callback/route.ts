@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveGoogleWorkspaceAccountFromOAuth } from '@/app/actions/google-workspace';
-import { decodeGoogleState, exchangeGoogleCode } from '@/lib/google-workspace';
+import {
+  decodeGoogleState,
+  exchangeGoogleCode,
+  getPublicAppOrigin,
+  getSafeGoogleReturnPath,
+} from '@/lib/google-workspace';
 
 export const runtime = 'nodejs';
 
@@ -13,7 +18,9 @@ export async function GET(request: NextRequest) {
   const fallbackPath = state.kind === 'employee' && state.employeeId
     ? `/personal/${state.employeeId}`
     : '/settings/google-workspace';
-  const redirectUrl = new URL(state.returnTo || fallbackPath, url.origin);
+  const publicOrigin = getPublicAppOrigin(url.origin);
+  const returnPath = getSafeGoogleReturnPath(state.returnTo, fallbackPath);
+  const redirectUrl = new URL(returnPath, publicOrigin);
 
   if (error) {
     redirectUrl.searchParams.set('error', error);
@@ -26,7 +33,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const token = await exchangeGoogleCode(code, url.origin);
+    const token = await exchangeGoogleCode(code, publicOrigin);
     await saveGoogleWorkspaceAccountFromOAuth({
       kind: state.kind,
       employeeId: state.employeeId,
