@@ -68,6 +68,48 @@ export async function sendPersistentMultiAgentMessage(input: {
     imageDataUri: input.imageDataUri,
   });
 
+  // Ejecutar acciones reales detectadas por la IA
+  if (result.success && result.action && result.action.type !== 'none') {
+    const action = result.action;
+    try {
+      if (action.type === 'create_task') {
+        const data = action.data as any;
+        if (input.fiestaId) {
+          const taskRes = await crearTareaDesdeMultiagente({
+            fiestaId: input.fiestaId,
+            texto: data.texto || 'Nueva tarea',
+            descripcion: data.descripcion,
+            fechaLimite: data.fechaLimite,
+            asignadaA: data.asignadaA || 'Organizador',
+          });
+          if (taskRes.success) {
+            result.response += `\n\n✅ **¡Tarea creada al toque!** 📝\n• **Tarea**: ${data.texto}\n• **Asignado**: ${data.asignadaA || 'Organizador'}`;
+          } else {
+            result.response += `\n\n❌ **No pude guardar la tarea**: ${taskRes.error || 'error desconocido'}`;
+          }
+        } else {
+          result.response += `\n\n⚠️ **Che, para crear una tarea primero tenés que estar dentro de una fiesta específica.** Pero te puedo crear un recordatorio general si querés, pedímelo. 😉`;
+        }
+      } else if (action.type === 'create_reminder') {
+        const data = action.data as any;
+        const reminderRes = await crearRecordatorioDesdeMultiagente({
+          titulo: data.titulo || 'Recordatorio Multiagente',
+          mensaje: data.mensaje || 'Aviso importante',
+          fiestaId: input.fiestaId,
+          tipo: data.tipo || 'aviso',
+        });
+        if (reminderRes.success) {
+          result.response += `\n\n🔔 **¡Recordatorio agendado!** 📅\n• **Aviso**: ${data.mensaje}`;
+        } else {
+          result.response += `\n\n❌ **No pude agendar el recordatorio**: ${reminderRes.error || 'error desconocido'}`;
+        }
+      }
+    } catch (err: any) {
+      console.error('[Multiagent Actions] Error al ejecutar acción real:', err);
+      result.response += `\n\n❌ **Hubo un problema al procesar el pedido**: ${err.message || 'error desconocido'}`;
+    }
+  }
+
   let sessionId = input.sessionId;
   let savedChat = false;
 

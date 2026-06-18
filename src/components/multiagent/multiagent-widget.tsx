@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { getSession } from '@/lib/auth';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   ArrowLeftRight,
   Bot,
@@ -41,6 +41,7 @@ type AgentStyle = {
   icon: LucideIcon;
   badge: string;
   short: string;
+  emoji: string;
   description: string;
   color: string;
 };
@@ -57,13 +58,13 @@ const FAB_SIZE = 60;
 const DOCK_MARGIN = 16;
 
 const AGENT_STYLE: Record<AkAgentType, AgentStyle> = {
-  central:        { label: 'Encargado General AK',       icon: Bot,          badge: 'App completa',    short: 'AK',  description: 'Control general de la aplicacion', color: 'from-slate-800 to-indigo-900' },
-  fiestas_general:{ label: 'Supervisor de Fiestas',      icon: Brain,        badge: 'Todas las fiestas',short: 'FIS', description: 'Control de eventos y planificacion', color: 'from-violet-800 to-indigo-900' },
-  fiesta:         { label: 'Agente de esta Fiesta',      icon: PartyPopper,  badge: 'Fiesta actual',   short: 'FIE', description: 'Control de la fiesta abierta', color: 'from-pink-800 to-rose-900' },
-  secretaria:     { label: 'Secretaria AK',              icon: CalendarCheck,badge: 'Agenda',           short: 'SEC', description: 'Agenda, llamadas y recordatorios', color: 'from-rose-700 to-violet-900' },
-  comercial:      { label: 'Agente Vendedor AK',         icon: MessageSquare,badge: 'Ventas',           short: 'VEN', description: 'Leads, presupuestos, simulaciones internas y cierre comercial', color: 'from-emerald-800 to-cyan-900' },
-  contable:       { label: 'Agente Contable AK',         icon: DollarSign,   badge: 'Pagos',            short: 'CON', description: 'Pagos, saldos y rentabilidad', color: 'from-emerald-800 to-green-900' },
-  marketing:      { label: 'Agente Marketing AK',        icon: Megaphone,    badge: 'Contenido',        short: 'MKT', description: 'Redes, publicaciones y campanas', color: 'from-orange-800 to-amber-900' },
+  central:        { label: 'Encargado General AK',       icon: Bot,          badge: 'App completa',    short: 'General',   emoji: '🤵', description: 'Control general de la aplicacion', color: 'from-slate-800 to-indigo-900' },
+  fiestas_general:{ label: 'Supervisor de Fiestas',      icon: Brain,        badge: 'Todas las fiestas',short: 'Eventos',   emoji: '🕵️‍♂️', description: 'Control de eventos y planificacion', color: 'from-violet-800 to-indigo-900' },
+  fiesta:         { label: 'Agente de esta Fiesta',      icon: PartyPopper,  badge: 'Fiesta actual',   short: 'Fiesta',    emoji: '🥳', description: 'Control de la fiesta abierta', color: 'from-pink-800 to-rose-900' },
+  secretaria:     { label: 'Secretaria AK',              icon: CalendarCheck,badge: 'Agenda',           short: 'Agenda',    emoji: '👩‍💼', description: 'Agenda, llamadas y recordatorios', color: 'from-rose-700 to-violet-900' },
+  comercial:      { label: 'Agente Vendedor AK',         icon: MessageSquare,badge: 'Ventas',           short: 'Ventas',    emoji: '🤝', description: 'Leads, presupuestos, simulaciones internas y cierre comercial', color: 'from-emerald-800 to-cyan-900' },
+  contable:       { label: 'Agente Contable AK',         icon: DollarSign,   badge: 'Pagos',            short: 'Caja',      emoji: '💰', description: 'Pagos, saldos y rentabilidad', color: 'from-emerald-800 to-green-900' },
+  marketing:      { label: 'Agente Marketing AK',        icon: Megaphone,    badge: 'Contenido',        short: 'Marketing', emoji: '📢', description: 'Redes, publicaciones y campanas', color: 'from-orange-800 to-amber-900' },
 };
 
 const PUBLIC_AGENT_HIDDEN_PREFIXES = [
@@ -134,13 +135,13 @@ function shouldHideInternalAgent(pathname: string | null) {
 
 function AgentPortrait({ style, size = 'md' }: { style: AgentStyle; size?: 'sm' | 'md' | 'lg' }) {
   const Icon = style.icon;
-  const sizeClass = size === 'sm' ? 'h-7 w-7 text-[10px]' : size === 'lg' ? 'h-[60px] w-[60px] text-sm' : 'h-10 w-10 text-xs';
+  const sizeClass = size === 'sm' ? 'h-7 w-7 text-xs' : size === 'lg' ? 'h-[60px] w-[60px] text-3xl' : 'h-10 w-10 text-lg';
 
   return (
     <span className={cn('relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br font-black text-white shadow-inner ring-2 ring-white/80', style.color, sizeClass)}>
       <span className="absolute inset-x-1 top-1 h-1/2 rounded-full bg-white/20" />
-      <Icon className={cn('absolute opacity-25', size === 'sm' ? 'h-4 w-4' : 'h-6 w-6')} />
-      <span className="relative">{style.short}</span>
+      <Icon className={cn('absolute opacity-10', size === 'sm' ? 'h-4 w-4' : 'h-6 w-6')} />
+      <span className="relative z-10">{style.emoji}</span>
     </span>
   );
 }
@@ -187,6 +188,8 @@ function getDefaultPosition(side: DockSide): DockPosition {
 
 export function MultiAgentWidget() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isOpen, setIsOpen]         = useState(false);
   const [input, setInput]           = useState('');
@@ -352,6 +355,28 @@ export function MultiAgentWidget() {
         setSessionIds(prev => ({ ...prev, [currentSessionKey]: result.sessionId! }));
       }
 
+      // Procesar acciones de navegación y toasts en la UI
+      if (result.action && result.action.type !== 'none') {
+        const type = result.action.type;
+        let msg = '';
+        if (type === 'create_task') {
+          msg = `📝 Tarea creada al toque`;
+        } else if (type === 'create_reminder') {
+          msg = `🔔 Recordatorio agendado`;
+        } else if (type === 'navigate') {
+          const path = (result.action.data as any)?.path;
+          if (path) {
+            msg = `🚀 Navegando...`;
+            router.push(path);
+          }
+        }
+
+        if (msg) {
+          setToast({ message: msg, type: 'success' });
+          setTimeout(() => setToast(null), 3500);
+        }
+      }
+
       setMessages(prev => [
         ...prev,
         {
@@ -478,7 +503,15 @@ export function MultiAgentWidget() {
           </CardHeader>
 
           {/* Messages */}
-          <CardContent className="flex min-h-0 flex-1 flex-col p-0">
+          <CardContent className="relative flex min-h-0 flex-1 flex-col p-0">
+            {toast && (
+              <div className={cn(
+                "absolute top-3 left-1/2 z-[80] -translate-x-1/2 flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold text-white shadow-lg backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-top-4",
+                toast.type === 'success' ? 'bg-emerald-600/90 border border-emerald-500/20 shadow-lg shadow-emerald-500/10' : 'bg-indigo-600/90 border border-indigo-500/20'
+              )}>
+                <span>{toast.message}</span>
+              </div>
+            )}
             <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {visibleMessages.length === 0 && (
                 <div className="rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-slate-50 p-4 text-sm leading-6 text-slate-700">

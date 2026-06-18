@@ -51,6 +51,7 @@ import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
 import { descartarPrioridad } from '@/app/actions/alertas.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { recoverFromDeploymentMismatch } from '@/lib/deployment-recovery';
 
 const mainHubItems = [
   { title: 'Nuevo Lead / Contacto', description: 'Registrar un nuevo prospecto en el CRM.', href: '/contabilidad/crm', icon: UserPlus, lightColor: 'bg-violet-50 text-violet-600', featured: false },
@@ -111,7 +112,8 @@ export default function MainDashboardPage() {
       } else {
         toast({ title: 'Error', description: 'No se pudieron cargar los datos del panel.', variant: 'destructive' });
       }
-    } catch {
+    } catch (error) {
+      if (await recoverFromDeploymentMismatch(error)) return;
       toast({ title: 'Error', description: 'No se pudieron cargar los datos del panel.', variant: 'destructive' });
     } finally {
       setIsLoading(false);

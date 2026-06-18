@@ -31,11 +31,8 @@ export const geminiMarketingModel = resolveGeminiModel(process.env.GEMINI_MODEL_
 export const geminiCommercialModel = resolveGeminiModel(process.env.GEMINI_MODEL_COMMERCIAL, geminiFastModel, 'commercial');
 
 export function getGeminiModelForAgent(agentType?: AkAgentType, options?: { deep?: boolean }): string {
-  if (options?.deep) return geminiProModel;
-  if (agentType === 'marketing') return geminiMarketingModel;
-  if (agentType === 'comercial') return geminiCommercialModel;
-  if (agentType === 'fiestas_general' || agentType === 'contable') return geminiProModel;
-  return geminiFastModel;
+  // Retorna siempre el modelo Pro para maximizar la capacidad intelectual de todos los agentes, como solicitó el usuario.
+  return geminiProModel;
 }
 
 export function getGeminiGenerationConfigForAgent(agentType?: AkAgentType, options?: { deep?: boolean }): GeminiGenerationConfig {

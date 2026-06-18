@@ -8,6 +8,7 @@ import './ak-internal-experience-polish.css';
 import './ak-no-red-experience.css';
 import './ak-budget-mobile-fixes.css';
 import { Toaster } from "@/components/ui/toaster";
+import { DeploymentRecovery } from '@/components/deployment-recovery';
 import localFont from 'next/font/local';
 
 const inter = localFont({
@@ -82,6 +83,7 @@ export default function RootLayout({
       <head>
       </head>
       <body className={`font-body antialiased`}>
+        <DeploymentRecovery />
         {children}
         <Toaster />
       </body>
