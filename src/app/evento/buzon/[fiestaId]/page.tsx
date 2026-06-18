@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Mic, Video, Play, Pause, Square, Trash2, Send, ArrowLeft, Loader2, CheckCircle2, 
-  Volume2, Sparkles, AlertCircle, RefreshCw, Upload
+  Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Camera, X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -44,6 +44,146 @@ export default function GuestBuzonPage() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Video Recording & Camera States
+  const [videoMode, setVideoMode] = useState<'choice' | 'recording' | 'preview'>('choice');
+  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [videoRecorder, setVideoRecorder] = useState<MediaRecorder | null>(null);
+  const [videoCountdown, setVideoCountdown] = useState<number | null>(null);
+  const [videoSeconds, setVideoSeconds] = useState(0);
+  const liveVideoRef = useRef<HTMLVideoElement | null>(null);
+  const videoSecondsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Open camera and start countdown
+  const startCamera = async () => {
+    setVideoFile(null);
+    setVideoUrl(null);
+    setVideoDuration(0);
+    setVideoSeconds(0);
+    setVideoCountdown(3);
+    setVideoMode('recording');
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: true
+      });
+      setVideoStream(stream);
+
+      // Bind stream to video element
+      setTimeout(() => {
+        if (liveVideoRef.current) {
+          liveVideoRef.current.srcObject = stream;
+          liveVideoRef.current.play().catch(console.error);
+        }
+      }, 150);
+
+      // Start 3, 2, 1 Countdown
+      let count = 3;
+      const cInterval = setInterval(() => {
+        count -= 1;
+        if (count <= 0) {
+          clearInterval(cInterval);
+          setVideoCountdown(null);
+          startRecordingVideo(stream);
+        } else {
+          setVideoCountdown(count);
+        }
+      }, 1000);
+
+    } catch (err) {
+      console.error('Error starting video camera:', err);
+      setVideoMode('choice');
+      toast({
+        title: '¡Permiso denegado! 📸',
+        description: 'Che, por favor permití el acceso a la cámara y micrófono en tu navegador para poder grabarte.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Start actual MediaRecorder
+  const startRecordingVideo = (stream: MediaStream) => {
+    const chunks: Blob[] = [];
+    let mimeType = 'video/webm;codecs=vp9';
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = 'video/webm;codecs=vp8';
+    }
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = 'video/webm';
+    }
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = 'video/mp4';
+    }
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = '';
+    }
+
+    const options = mimeType ? { mimeType } : undefined;
+    const recorder = new MediaRecorder(stream, options);
+
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        chunks.push(e.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: mimeType || 'video/mp4' });
+      const url = URL.createObjectURL(blob);
+      setVideoFile(new File([blob], 'saludo_video.mp4', { type: mimeType || 'video/mp4' }));
+      setVideoUrl(url);
+      setVideoMode('preview');
+    };
+
+    setVideoRecorder(recorder);
+    recorder.start();
+
+    // 15 seconds timer limit
+    let sec = 0;
+    videoSecondsIntervalRef.current = setInterval(() => {
+      sec += 1;
+      setVideoSeconds(sec);
+      setVideoDuration(sec);
+      if (sec >= 15) {
+        stopRecordingVideo(recorder);
+      }
+    }, 1000);
+  };
+
+  const stopRecordingVideo = (recorderInstance?: MediaRecorder | null) => {
+    if (videoSecondsIntervalRef.current) {
+      clearInterval(videoSecondsIntervalRef.current);
+      videoSecondsIntervalRef.current = null;
+    }
+
+    const rec = recorderInstance || videoRecorder;
+    if (rec && rec.state !== 'inactive') {
+      rec.stop();
+    }
+
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+    }
+    setVideoStream(null);
+    setVideoRecorder(null);
+  };
+
+  const cancelVideoRecording = () => {
+    if (videoSecondsIntervalRef.current) {
+      clearInterval(videoSecondsIntervalRef.current);
+      videoSecondsIntervalRef.current = null;
+    }
+    if (videoRecorder && videoRecorder.state !== 'inactive') {
+      videoRecorder.stop();
+    }
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+    }
+    setVideoStream(null);
+    setVideoRecorder(null);
+    setVideoMode('choice');
+  };
 
   // Load Fiesta Data
   useEffect(() => {
@@ -147,8 +287,8 @@ export default function GuestBuzonPage() {
     } catch (err) {
       console.error('Error accessing microphone:', err);
       toast({
-        title: 'Acceso Denegado',
-        description: 'Por favor, permite el acceso al micrófono para grabar tu saludo.',
+        title: '¡Micrófono apagado! 🎙️',
+        description: 'Che, por favor permití el acceso al micrófono para poder grabarte el audio.',
         variant: 'destructive',
       });
     }
@@ -210,8 +350,8 @@ export default function GuestBuzonPage() {
 
     if (!file.type.startsWith('video/')) {
       toast({
-        title: 'Archivo Inválido',
-        description: 'Por favor selecciona un archivo de video.',
+        title: '¡Formato incorrecto! ❌',
+        description: 'Che, seleccioná un archivo de video válido.',
         variant: 'destructive',
       });
       return;
@@ -219,8 +359,8 @@ export default function GuestBuzonPage() {
 
     if (file.size > 40 * 1024 * 1024) {
       toast({
-        title: 'Video demasiado grande',
-        description: 'El video no debe superar los 40MB.',
+        title: '¡Pesa demasiado! ⚖️',
+        description: 'El video no puede superar los 40MB. ¡Buscate uno más liviano!',
         variant: 'destructive',
       });
       return;
@@ -239,8 +379,8 @@ export default function GuestBuzonPage() {
 
       if (duration > 16) {
         toast({
-          title: 'Duración excedida',
-          description: 'El video no debe durar más de 15 segundos para no saturar el servidor.',
+          title: '¡Video muy largo! ⏳',
+          description: 'El video tiene que ser de 15 segundos como máximo, bo. Recortalo o grabá uno nuevo.',
           variant: 'destructive',
         });
         setVideoFile(null);
@@ -248,6 +388,7 @@ export default function GuestBuzonPage() {
       } else {
         setVideoFile(file);
         setVideoUrl(URL.createObjectURL(file));
+        setVideoMode('preview');
       }
     };
   };
@@ -259,6 +400,7 @@ export default function GuestBuzonPage() {
     setVideoUrl(null);
     setVideoDuration(0);
     if (videoInputRef.current) videoInputRef.current.value = '';
+    setVideoMode('choice');
   };
 
   // Submit Handler
@@ -266,8 +408,8 @@ export default function GuestBuzonPage() {
     const trimmedName = authorName.trim();
     if (!trimmedName) {
       toast({
-        title: 'Nombre requerido',
-        description: 'Por favor ingresa tu nombre para que los anfitriones sepan quién grabó el saludo.',
+        title: '¿Quién sos? 🤔',
+        description: 'Che, poné tu nombre y apellido para que sepan de quién es el saludo. ✍️',
         variant: 'destructive',
       });
       return;
@@ -288,8 +430,8 @@ export default function GuestBuzonPage() {
       formData.append('durationSeconds', Math.round(videoDuration).toString());
     } else {
       toast({
-        title: 'Error de envío',
-        description: 'Graba o selecciona un saludo antes de enviar.',
+        title: 'Falta tu saludo 📢',
+        description: 'Che, acordate de grabar o subir tu saludo antes de presionar enviar.',
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -303,23 +445,23 @@ export default function GuestBuzonPage() {
         resetAudioRecording();
         resetVideoUpload();
         toast({
-          title: '¡Mensaje guardado!',
-          description: 'Tu saludo se ha guardado en el buzón de los anfitriones.',
+          title: '¡Mensaje guardado! 🎉',
+          description: '¡Buenísimo! Tu saludo ya está a salvo en el buzón de los anfitriones. 💌',
         });
         setTimeout(() => {
           setShowCelebration(false);
         }, 5000);
       } else {
         toast({
-          title: 'Error al subir',
-          description: result.error || 'Ocurrió un error al procesar la subida.',
+          title: 'Falló la subida 😢',
+          description: result.error || 'Hubo un problema al subir tu saludo. Probá de nuevo.',
           variant: 'destructive',
         });
       }
     } catch (err: any) {
       toast({
-        title: 'Error de Red',
-        description: 'No se pudo conectar con el servidor.',
+        title: 'Problema de red 🔌',
+        description: 'Che, no nos pudimos conectar. Revisá tu conexión e intentalo de nuevo.',
         variant: 'destructive',
       });
     } finally {
@@ -410,6 +552,21 @@ export default function GuestBuzonPage() {
       {/* MAIN CONTAINER */}
       <main className="flex-1 max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-start gap-6">
         
+        {/* PREMIUM BANNER WITH FADE */}
+        <div className="relative w-full h-44 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group">
+          <img 
+            src="/media/mailbox_banner.png" 
+            alt="Buzón de Recuerdos" 
+            className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 flex flex-col items-center">
+            <span className="text-[9px] font-black uppercase tracking-widest text-white bg-purple-600/90 border border-purple-400/30 px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm animate-pulse">
+              📸 ¡Dejá tu video o audio de regalo! 🎁
+            </span>
+          </div>
+        </div>
+
         {/* WELCOME AUDIO CARD */}
         {hasWelcomeAudio && (
           <div className="p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl relative overflow-hidden group">
@@ -461,6 +618,7 @@ export default function GuestBuzonPage() {
           <button
             onClick={() => {
               if (isRecording) stopRecording();
+              cancelVideoRecording();
               setActiveTab('audio');
             }}
             className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
@@ -597,50 +755,153 @@ export default function GuestBuzonPage() {
 
           {/* TAB VIDEO */}
           {activeTab === 'video' && (
-            <div className="flex-1 flex flex-col items-center justify-center gap-6">
+            <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full">
               
-              {!videoUrl ? (
-                // UPLOAD VIDEO INTERFACE
+              {videoMode === 'choice' && (
+                // CHOICE INTERFACE
                 <div className="flex flex-col items-center gap-6 text-center w-full">
                   <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">
-                    Seleccioná o grabá un video corto
+                    Seleccioná cómo querés dejar tu saludo
                   </p>
 
-                  <input 
-                    type="file" 
-                    accept="video/*" 
-                    capture="user" 
-                    onChange={handleVideoChange}
-                    ref={videoInputRef}
-                    className="hidden"
-                  />
+                  <div className="grid grid-cols-1 gap-4 w-full">
+                    {/* Opción 1: Grabar en vivo */}
+                    <button
+                      onClick={startCamera}
+                      className="w-full p-6 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all flex items-center gap-4 text-left group"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Camera className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-black text-white">Grabar con mi cámara 📸</h4>
+                        <p className="text-[11px] text-zinc-500 font-semibold mt-0.5">
+                          Grabá directamente desde la app en el momento.
+                        </p>
+                      </div>
+                    </button>
 
-                  <button
-                    onClick={() => videoInputRef.current?.click()}
-                    className="w-full p-8 rounded-3xl border-2 border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group"
-                  >
-                    <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-purple-400 border border-white/10 transition-colors">
-                      <Upload className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-black text-white">Grabar/Subir Video</p>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
-                        Cámara frontal o galería
-                      </p>
-                    </div>
-                  </button>
+                    {/* Opción 2: Subir archivo */}
+                    <input 
+                      type="file" 
+                      accept="video/*" 
+                      onChange={handleVideoChange}
+                      ref={videoInputRef}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => videoInputRef.current?.click()}
+                      className="w-full p-6 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-indigo-500/50 transition-all flex items-center gap-4 text-left group"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-black text-white">Subir un video de mi galería 📂</h4>
+                        <p className="text-[11px] text-zinc-500 font-semibold mt-0.5">
+                          Elegí un video que ya tengas guardado en tu celu.
+                        </p>
+                      </div>
+                    </button>
+                  </div>
 
+                  {/* Restricciones */}
                   <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 text-left flex items-start gap-3 w-full">
                     <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs font-bold text-amber-500 uppercase tracking-widest">Restricciones</p>
-                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
-                        Para asegurar una subida rápida, el video tiene un límite de **15 segundos** y máximo **40MB**.
+                      <p className="text-xs font-bold text-amber-500 uppercase tracking-widest">⚠️ Límite de Tiempo</p>
+                      <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
+                        El saludo en video debe durar **15 segundos como máximo** para que todos puedan subir el suyo y no sature el servidor. ¡Hacelo cortito y con amor! ❤️
                       </p>
                     </div>
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {videoMode === 'recording' && (
+                // RECORDING CAMERA INTERFACE
+                <div className="flex flex-col items-center gap-5 text-center w-full">
+                  <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                    {videoCountdown !== null ? (
+                      <>⏳ Preparate...</>
+                    ) : (
+                      <>
+                        <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse inline-block" />
+                        Grabando saludo en vivo
+                      </>
+                    )}
+                  </p>
+
+                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
+                    <video 
+                      ref={liveVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full h-full object-cover transform -scale-x-100"
+                    />
+
+                    {/* COUNTDOWN OVERLAY */}
+                    {videoCountdown !== null && (
+                      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center">
+                        <motion.div
+                          key={videoCountdown}
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1.2, opacity: 1 }}
+                          exit={{ scale: 1.5, opacity: 0 }}
+                          transition={{ duration: 0.8 }}
+                          className="w-28 h-28 rounded-full border-4 border-purple-500 flex items-center justify-center bg-purple-950/80 shadow-2xl"
+                        >
+                          <span className="text-5xl font-black text-white">{videoCountdown}</span>
+                        </motion.div>
+                      </div>
+                    )}
+
+                    {/* RECORDING STATUS OVERLAYS */}
+                    {videoCountdown === null && (
+                      <>
+                        {/* Flashing RED REC tag */}
+                        <div className="absolute top-4 left-4 bg-red-600/90 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                          REC
+                        </div>
+
+                        {/* Remaining seconds indicator */}
+                        <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-[10px] font-black tracking-wider px-3 py-1 rounded-full shadow-lg tabular-nums">
+                          0:{videoSeconds.toString().padStart(2, '0')} / 0:15
+                        </div>
+
+                        {/* Bottom progress bar */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">
+                          <div 
+                            className="h-full bg-gradient-to-r from-red-500 to-purple-600 transition-all duration-1000 ease-linear"
+                            style={{ width: `${(videoSeconds / 15) * 100}%` }}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4 justify-center w-full">
+                    {videoCountdown === null && (
+                      <button
+                        onClick={() => stopRecordingVideo(videoRecorder)}
+                        className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg transition transform active:scale-95"
+                      >
+                        <Square className="w-4 h-4 fill-white" /> Terminar
+                      </button>
+                    )}
+                    <button
+                      onClick={cancelVideoRecording}
+                      className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg transition transform active:scale-95"
+                    >
+                      <X className="w-4 h-4" /> Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {videoMode === 'preview' && (
                 // PREVIEW VIDEO INTERFACE
                 <div className="w-full flex flex-col items-center gap-4 text-center">
                   <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
@@ -649,7 +910,7 @@ export default function GuestBuzonPage() {
 
                   <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
                     <video 
-                      src={videoUrl} 
+                      src={videoUrl || undefined} 
                       controls 
                       className="w-full h-full object-contain"
                     />
@@ -657,7 +918,7 @@ export default function GuestBuzonPage() {
 
                   <div className="flex items-center justify-between w-full px-2">
                     <div className="text-left">
-                      <p className="text-xs font-bold text-white">Archivo de Video</p>
+                      <p className="text-xs font-bold text-white">Tu video-saludo 🎥</p>
                       <p className="text-[10px] text-zinc-500 font-bold">
                         Duración: {Math.round(videoDuration)} segundos
                       </p>
@@ -667,7 +928,7 @@ export default function GuestBuzonPage() {
                       onClick={resetVideoUpload}
                       className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-2xl text-xs font-bold transition-all"
                     >
-                      <RefreshCw className="w-3.5 h-3.5" /> Cambiar video
+                      <RefreshCw className="w-3.5 h-3.5" /> Volver a grabar
                     </button>
                   </div>
                 </div>
