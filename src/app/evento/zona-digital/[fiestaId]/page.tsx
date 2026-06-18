@@ -218,7 +218,7 @@ export default function ZonaDigitalPublicPage() {
             if (item.id === 'muro_social') href = `/evento/social/${fiestaId}`;
             if (item.id === 'fotocabina') href = `/evento/fotocabina/${fiestaId}`;
             if (item.id === 'plataforma360') href = `/evento/plataforma-360/${fiestaId}`;
-            if (item.id === 'bogue') href = `/evento/fotocabina/${fiestaId}`;
+            if (item.id === 'bogue') href = `/evento/bogue/${fiestaId}`;
             if (item.id === 'espejo_magico') href = `/evento/espejo-magico/${fiestaId}`;
             if (item.id === 'barra') href = `/evento/barra/${fiestaId}`;
             if (item.id === 'totems') href = `/evento/hub/${fiestaId}`;

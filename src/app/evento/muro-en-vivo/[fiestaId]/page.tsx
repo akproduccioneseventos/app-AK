@@ -17,6 +17,7 @@ import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize, Martini } from 'lucide-react';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
+import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
@@ -939,6 +940,7 @@ export default function MuroEnVivoPage() {
           100% { transform: translateX(-50%); }
         }
       `}</style>
+      <KioskUnlockButton />
     </div>
   );
 }
