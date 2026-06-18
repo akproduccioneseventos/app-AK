@@ -683,7 +683,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           </div>
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
-          <Button asChild variant="outline" className="min-w-0 flex-1 rounded-full border-white/10 px-4 text-xs text-slate-300 bg-white/5 hover:bg-white/10 sm:flex-none">
+          <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-white/10 px-4 text-xs text-slate-300 bg-white/5 hover:bg-white/10 sm:flex-none">
             <Link href="/simulador-de-presupuesto">
               <span>Simulador Manual</span>
             </Link>
@@ -821,9 +821,9 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">¿Cuántos adultos son?</p>
                   <div className="flex items-center justify-between gap-4 py-2">
-                    <Button size="icon" variant="outline" className="rounded-full border-white/20 h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setAdultos(a => Math.max(10, a - 5))}>-</Button>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setAdultos(a => Math.max(10, a - 5))}>-</Button>
                     <span className="text-3xl font-black text-white">{adultos}</span>
-                    <Button size="icon" variant="outline" className="rounded-full border-white/20 h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setAdultos(a => Math.min(1000, a + 5))}>+</Button>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setAdultos(a => Math.min(1000, a + 5))}>+</Button>
                   </div>
                   <Button
                     onClick={() => handleSendMessage(`Son ${adultos} adultos`)}
@@ -839,9 +839,9 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">¿Cuántos niños / adolescentes?</p>
                   <div className="flex items-center justify-between gap-4 py-2">
-                    <Button size="icon" variant="outline" className="rounded-full border-white/20 h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.max(0, k - 5))}>-</Button>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.max(0, k - 5))}>-</Button>
                     <span className="text-3xl font-black text-white">{ninosYAdolescentes}</span>
-                    <Button size="icon" variant="outline" className="rounded-full border-white/20 h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.min(500, k + 5))}>+</Button>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.min(500, k + 5))}>+</Button>
                   </div>
                   <Button
                     onClick={() => handleSendMessage(`Son ${ninosYAdolescentes} niños y adolescentes`)}

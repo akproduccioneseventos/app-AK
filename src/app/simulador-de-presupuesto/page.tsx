@@ -774,8 +774,8 @@ function SimuladorContent() {
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nombre Completo</Label><Input value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold px-6"/></div>
-                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">WhatsApp (9 dígitos)</Label><Input type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="098355530" className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold px-6"/></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nombre Completo</Label><Input value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold px-6 text-slate-900"/></div>
+                                <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">WhatsApp (9 dígitos)</Label><Input type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="098355530" className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold px-6 text-slate-900"/></div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2.5"><Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nº Adultos</Label><Input type="number" value={adultos} onChange={e => setAdultos(Number(e.target.value))} className="h-14 rounded-2xl font-black bg-slate-50 border-none shadow-inner text-xl text-primary px-6"/></div>
@@ -785,7 +785,7 @@ function SimuladorContent() {
                                 <div className="space-y-2.5">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tipo de Evento</Label>
                                     <Select value={eventoTipo} onValueChange={setEventoTipo}>
-                                        <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"><SelectValue /></SelectTrigger>
+                                        <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-slate-900"><SelectValue /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Cumpleaños">Cumpleaños</SelectItem>
                                             <SelectItem value="Cumpleaños infantil">Cumpleaños infantil</SelectItem>
@@ -826,7 +826,7 @@ function SimuladorContent() {
                             </div>
                             <div className="space-y-2.5">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fecha del Evento *</Label>
-                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner"/>
+                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-slate-900"/>
                                 {dateWarning && (
                                     <div className="p-3 rounded-xl border border-amber-400/40 bg-amber-500/10">
                                         <p className="text-amber-800 text-xs font-bold">{dateWarning}</p>
@@ -857,7 +857,7 @@ function SimuladorContent() {
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700">
                             <div className="relative">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
-                                <Input placeholder="Busca tu plato favorito..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-12 h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold"/>
+                                <Input placeholder="Busca tu plato favorito..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-12 h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold text-slate-900"/>
                             </div>
                             
                             <div className="space-y-6">

@@ -576,7 +576,7 @@ export function MultiAgentWidget() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   placeholder={`Hablar con ${style.short}...`}
-                  className="min-h-[44px] resize-none rounded-xl border-slate-200 bg-white text-[13px] shadow-sm focus-visible:ring-indigo-400"
+                  className="min-h-[44px] resize-none rounded-xl border-slate-200 bg-white text-[13px] text-slate-900 shadow-sm focus-visible:ring-indigo-400"
                   rows={1}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {

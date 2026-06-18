@@ -503,7 +503,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
             </Badge>
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Buscar plato..." value={dishSearchTerm} onChange={(e) => setDishSearchTerm(e.target.value)} className="pl-9 bg-white" />
+              <Input placeholder="Buscar plato..." value={dishSearchTerm} onChange={(e) => setDishSearchTerm(e.target.value)} className="pl-9 bg-white text-slate-900" />
             </div>
             <Button type="button" variant="secondary" onClick={addItem} className="rounded-xl shrink-0">
               <PlusCircle className="w-4 h-4 mr-2" />Añadir Plato

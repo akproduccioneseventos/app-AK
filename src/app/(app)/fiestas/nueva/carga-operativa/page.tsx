@@ -840,7 +840,7 @@ function ListaDeCargaOperativaContent() {
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="new-category-name" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nombre</Label>
-                        <Input id="new-category-name" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Ej: Decoración Extra" className="rounded-xl h-12 bg-slate-50 border-none shadow-inner" disabled={isSaving} />
+                        <Input id="new-category-name" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Ej: Decoración Extra" className="rounded-xl h-12 bg-slate-50 border-none shadow-inner text-slate-900" disabled={isSaving} />
                     </div>
                     <Button onClick={handleAddCategory} disabled={isSaving || !newCategoryName.trim()} className="w-full h-12 rounded-xl font-bold">
                         <PlusCircle className="w-4 h-4 mr-2"/> Crear Categoría

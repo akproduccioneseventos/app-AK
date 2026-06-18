@@ -245,7 +245,7 @@ export default function PrintStationPage() {
 
           {/* Reset Queue */}
           <div className="flex justify-end gap-3">
-            <Button variant="outline" className="border-zinc-800 text-zinc-400 hover:text-white rounded-2xl" onClick={resetQueue}>
+            <Button variant="ghost" className="border border-zinc-800 bg-transparent text-zinc-400 hover:text-white rounded-2xl" onClick={resetQueue}>
               Reiniciar Cola
             </Button>
             <Button

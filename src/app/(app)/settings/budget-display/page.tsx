@@ -719,7 +719,7 @@ export default function BudgetDisplaySettingsPage() {
                     </div>
                     <div className="relative w-full md:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
-                        <Input placeholder="Buscar plato..." value={dishSearchTerm} onChange={e => setDishSearchTerm(e.target.value)} className="rounded-xl pl-9 bg-white h-10"/>
+                        <Input placeholder="Buscar plato..." value={dishSearchTerm} onChange={e => setDishSearchTerm(e.target.value)} className="rounded-xl pl-9 bg-white h-10 text-slate-900"/>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
