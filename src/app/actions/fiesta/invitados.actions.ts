@@ -1,15 +1,76 @@
 'use server';
 
-import { randomUUID } from 'crypto';
-import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
-// ─── Core helper ────────────────────────────────────────────────────────────
+
+// Lock registry for concurrency control
+const locks = new Map<string, Promise<void>>();
+
+async function acquireLock(key: string): Promise<() => void> {
+  let release: () => void = () => {};
+  const newPromise = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  
+  const existingPromise = locks.get(key);
+  locks.set(key, newPromise);
+  
+  if (existingPromise) {
+    await existingPromise;
+  }
+  
+  return () => {
+    release();
+    if (locks.get(key) === newPromise) {
+      locks.delete(key);
+    }
+  };
+}
+
+function normalizeString(str: string): string {
+  if (!str) return '';
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents/diacritics
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' '); // Normalize internal spaces
+}
+
+function getLevenshteinDistance(a: string, b: string): number {
+  const tmp = [];
+  let i, j;
+  for (i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (i = 1; i <= a.length; i++) {
+    for (j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1,
+        tmp[i][j - 1] + 1,
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+}
+
+function getSimilarity(a: string, b: string): number {
+  const distance = getLevenshteinDistance(a, b);
+  const maxLength = Math.max(a.length, b.length);
+  if (maxLength === 0) return 1.0;
+  return 1.0 - distance / maxLength;
+}
 
 async function updateFiestaData(
-  fiestaId: string,
+  fiestaId: string, 
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
+  const release = await acquireLock(fiestaId);
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) {
@@ -18,373 +79,163 @@ async function updateFiestaData(
     const updatedData = updateFn(currentData);
     const result = await saveFiesta(updatedData);
     if (!result.success || !result.fiesta) {
-      throw new Error(result.error || 'No se pudo guardar la fiesta después de actualizar los invitados.');
+        throw new Error(result.error || "No se pudo guardar la fiesta después de actualizar los invitados.");
     }
     return { success: true, updatedFiesta: result.fiesta };
   } catch (e: any) {
     return { success: false, error: e.message };
+  } finally {
+    release();
   }
 }
 
-// ─── Guest queries ───────────────────────────────────────────────────────────
-
 export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
-  const fiesta = await getFiestaById(fiestaId);
-  return fiesta?.invitados || [];
+    const fiesta = await getFiestaById(fiestaId);
+    return fiesta?.invitados || [];
 }
-
-export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
-  const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta?.invitados) return 0;
-  return fiesta.invitados.filter(i => i.rsvp === 'Confirmado').length;
-}
-
-// ─── Guest CRUD ──────────────────────────────────────────────────────────────
 
 export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) {
-  let nuevoInvitado: Invitado | null = null;
-  const result = await updateFiestaData(fiestaId, data => {
-    nuevoInvitado = {
-      ...nuevoInvitadoData,
-      id: `inv_${Date.now()}`,
-      guestAccessToken: nuevoInvitadoData.guestAccessToken ?? randomUUID(),
-    };
-    const invitados = [...(data.invitados || []), nuevoInvitado];
-    return { ...data, invitados };
-  });
-  return { ...result, invitado: nuevoInvitado };
+    let nuevoInvitado: Invitado | null = null;
+    const result = await updateFiestaData(fiestaId, data => {
+        nuevoInvitado = { ...nuevoInvitadoData, id: `inv_${Date.now()}` };
+        const invitados = [...(data.invitados || []), nuevoInvitado];
+        return { ...data, invitados };
+    });
+    return { ...result, invitado: nuevoInvitado };
 }
 
 export async function updateInvitado(fiestaId: string, invitadoActualizado: Invitado) {
-  const result = await updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).map(inv =>
-      inv.id === invitadoActualizado.id ? invitadoActualizado : inv
-    );
-    return { ...data, invitados };
-  });
-  return { ...result, invitado: invitadoActualizado };
+    const result = await updateFiestaData(fiestaId, data => {
+        const invitados = (data.invitados || []).map(inv => 
+            inv.id === invitadoActualizado.id ? invitadoActualizado : inv
+        );
+        return { ...data, invitados };
+    });
+    return {...result, invitado: invitadoActualizado};
 }
 
 export async function deleteInvitado(fiestaId: string, invitadoId: string) {
-  return updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).filter(inv => inv.id !== invitadoId);
-    return { ...data, invitados };
-  });
-}
-
-// ─── RSVP ────────────────────────────────────────────────────────────────────
-
-/**
- * Full RSVP update from the individual guest page.
- * Covers: attendance status, party size, companion names, dietary restrictions,
- * specific allergies, DJ song suggestions, and optional message to hosts.
- */
-export async function updateGuestRsvp(
-  fiestaId: string,
-  invitadoId: string,
-  submission: {
-    rsvp: RsvpStatus;
-    partySize?: number;
-    companionNames?: string[];
-    dietaryRestriction?: DietaryRestriction;
-    alergiasEspecificas?: string;
-    cancionesDJ?: string[];
-    mensaje?: string;
-    requiereAccesibilidad?: boolean;
-  }
-): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
-  let updatedInvitado: Invitado | undefined;
-  const result = await updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).map(inv => {
-      if (inv.id !== invitadoId) return inv;
-      updatedInvitado = {
-        ...inv,
-        rsvp: submission.rsvp,
-        partySize: submission.partySize ?? inv.partySize,
-        companionNames: submission.companionNames ?? inv.companionNames,
-        dietaryRestriction: submission.dietaryRestriction ?? inv.dietaryRestriction,
-        alergiasEspecificas:
-          submission.alergiasEspecificas !== undefined
-            ? submission.alergiasEspecificas
-            : inv.alergiasEspecificas,
-        cancionesDJ: submission.cancionesDJ ?? inv.cancionesDJ,
-        isCeliac: submission.dietaryRestriction === 'Celiaco' || inv.isCeliac,
-        ...(submission.mensaje !== undefined ? { mensaje: submission.mensaje } : {}),
-        ...(submission.requiereAccesibilidad !== undefined ? { requiereAccesibilidad: submission.requiereAccesibilidad } : {}),
-      };
-      return updatedInvitado;
+    return updateFiestaData(fiestaId, data => {
+        const invitados = (data.invitados || []).filter(inv => inv.id !== invitadoId);
+        return { ...data, invitados };
     });
-    return { ...data, invitados };
-  });
-  return { ...result, invitado: updatedInvitado };
 }
 
-/** Legacy full-form RSVP used by the invitation templates. */
-export async function handleRsvpSubmission(
-  fiestaId: string,
-  submission: {
-    nombreCompleto: string;
-    confirmacion: string;
-    adultsCount: number;
-    kidsCount: number;
-    mensaje: string;
-    companionNames: string[];
-    isCeliac?: boolean;
-    tag?: string;
-  }
-): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
-  let updatedInvitado: Invitado | undefined;
+export async function handleRsvpSubmission(fiestaId: string, submission: {
+    nombreCompleto: string, 
+    confirmacion: string, 
+    adultsCount?: number, 
+    kidsCount?: number, 
+    numeroAsistentes?: number,
+    mensaje: string, 
+    companionNames: string[], 
+    isCeliac?: boolean, 
+    tag?: string 
+}): Promise<{ success: boolean, invitado?: Invitado, error?: string}> {
+   let updatedInvitado: Invitado | undefined;
+   
+   const result = await updateFiestaData(fiestaId, data => {
+     // Support both payload types (discrete adults/kids count or single total)
+     const adults = submission.adultsCount !== undefined ? Number(submission.adultsCount) : Number(submission.numeroAsistentes || 1);
+     const kids = submission.kidsCount !== undefined ? Number(submission.kidsCount) : 0;
+     const totalNew = adults + kids;
+     
+     // 1. Validar Cupos por Categoría
+     const currentInvitados = data.invitados || [];
+     const confirmedAdults = currentInvitados.reduce((sum, inv) => sum + (inv.categoria === 'Adulto' ? (inv.partySize || 1) : 0), 0);
+     const confirmedKids = currentInvitados.reduce((sum, inv) => sum + (inv.categoria === 'Niño/Adolescente' ? (inv.partySize || 1) : 0), 0);
+     
+     const limitAdults = Number(data.configuracion.invitadosAdultos) || 0;
+     const limitKids = Number(data.configuracion.invitadosNinos) || 0;
 
-  const result = await updateFiestaData(fiestaId, data => {
-    const totalNew = submission.adultsCount + submission.kidsCount;
+     if (confirmedAdults + adults > limitAdults) {
+         throw new Error(`Cupos de ADULTOS agotados. Límite: ${limitAdults}. Contacta al organizador.`);
+     }
+     if (confirmedKids + kids > limitKids) {
+         throw new Error(`Cupos de NIÑOS agotados. Límite: ${limitKids}. Contacta al organizador.`);
+     }
 
-    const currentInvitados = data.invitados || [];
-    const confirmedAdults = currentInvitados.reduce(
-      (sum, inv) => sum + (inv.categoria === 'Adulto' ? (inv.partySize || 1) : 0),
-      0
-    );
-    const confirmedKids = currentInvitados.reduce(
-      (sum, inv) => sum + (inv.categoria === 'Niño/Adolescente' ? (inv.partySize || 1) : 0),
-      0
-    );
+     // Normalización de nombres para evitar duplicaciones
+     const normInput = normalizeString(submission.nombreCompleto);
+     
+     let invitadoExistenteIndex = currentInvitados.findIndex(
+        inv => normalizeString(inv.nombre) === normInput
+     );
 
-    const limitAdults = Number(data.configuracion.invitadosAdultos) || 0;
-    const limitKids = Number(data.configuracion.invitadosNinos) || 0;
-
-    if (confirmedAdults + submission.adultsCount > limitAdults) {
-      throw new Error(`Cupos de ADULTOS agotados. Límite: ${limitAdults}. Contacta al organizador.`);
-    }
-    if (confirmedKids + submission.kidsCount > limitKids) {
-      throw new Error(`Cupos de NIÑOS agotados. Límite: ${limitKids}. Contacta al organizador.`);
-    }
-
-    const invitadoExistenteIndex = currentInvitados.findIndex(
-      inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
-    );
-
-    const combinedNotes = [
-      invitadoExistenteIndex > -1 ? currentInvitados[invitadoExistenteIndex].notes : '',
-      submission.mensaje,
-    ]
-      .filter(Boolean)
-      .join('\n---\n');
-
-    const mainCategory: CategoriaInvitado =
-      submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'Niño/Adolescente';
-
-    if (invitadoExistenteIndex > -1) {
-      updatedInvitado = {
-        ...currentInvitados[invitadoExistenteIndex],
-        rsvp: submission.confirmacion as RsvpStatus,
-        partySize: totalNew,
-        categoria: mainCategory,
-        notes: combinedNotes,
-        companionNames: submission.companionNames,
-        isCeliac: submission.isCeliac ?? currentInvitados[invitadoExistenteIndex].isCeliac,
-        tag: submission.tag || currentInvitados[invitadoExistenteIndex].tag,
-      };
-      currentInvitados[invitadoExistenteIndex] = updatedInvitado;
-    } else {
-      updatedInvitado = {
-        id: `inv_rsvp_${Date.now()}`,
-        nombre: submission.nombreCompleto,
-        rsvp: submission.confirmacion as RsvpStatus,
-        partySize: totalNew,
-        categoria: mainCategory,
-        notes: combinedNotes,
-        companionNames: submission.companionNames,
-        isCeliac: submission.isCeliac,
-        tag: submission.tag,
-      };
-      data.invitados = [...currentInvitados, updatedInvitado];
-    }
-    return data;
-  });
-
-  return { ...result, invitado: updatedInvitado };
-}
-
-// ─── Personalized experience ─────────────────────────────────────────────────
-
-/**
- * Update the guest's personalized experience fields:
- * message to hosts and/or uploaded photos.
- */
-export async function updateGuestExperience(
-  fiestaId: string,
-  invitadoId: string,
-  data: { mensaje?: string; fotosSubidas?: string[] }
-): Promise<{ success: boolean; error?: string }> {
-  const result = await updateFiestaData(fiestaId, fiesta => {
-    const invitados = (fiesta.invitados ?? []).map(inv =>
-      inv.id === invitadoId ? { ...inv, ...data } : inv
-    );
-    return { ...fiesta, invitados };
-  });
-  return { success: result.success, error: result.error };
-}
-
-// ─── Restrictions & companions ────────────────────────────────────────────────
-
-/**
- * Update only the guest's dietary restrictions and companion information
- * without touching RSVP status.
- */
-export async function updateGuestDetails(
-  fiestaId: string,
-  invitadoId: string,
-  details: {
-    dietaryRestriction?: DietaryRestriction;
-    alergiasEspecificas?: string;
-    companionNames?: string[];
-    partySize?: number;
-    cancionesDJ?: string[];
-  }
-): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
-  let updatedInvitado: Invitado | undefined;
-  const result = await updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).map(inv => {
-      if (inv.id !== invitadoId) return inv;
-      updatedInvitado = {
-        ...inv,
-        ...details,
-        isCeliac: details.dietaryRestriction === 'Celiaco' || inv.isCeliac,
-      };
-      return updatedInvitado;
-    });
-    return { ...data, invitados };
-  });
-  return { ...result, invitado: updatedInvitado };
-}
-
-// ─── Check-in ────────────────────────────────────────────────────────────────
-
-export async function checkInGuest(
-  fiestaId: string,
-  guestId: string
-): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
-  let invitadoActualizado: Invitado | undefined;
-  let found = false;
-  const result = await updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).map(inv => {
-      if (inv.id === guestId) {
-        found = true;
-        if (inv.checkedIn) {
-          invitadoActualizado = inv;
-          return inv;
+     // Si no hay coincidencia exacta normalizada, probamos Fuzzy Matching con 85% de similitud
+     if (invitadoExistenteIndex === -1) {
+        for (let i = 0; i < currentInvitados.length; i++) {
+           const inv = currentInvitados[i];
+           const normExisting = normalizeString(inv.nombre);
+           if (getSimilarity(normInput, normExisting) >= 0.85) {
+              invitadoExistenteIndex = i;
+              break;
+           }
         }
-        invitadoActualizado = { ...inv, checkedIn: true, checkInTimestamp: new Date().toISOString() };
-        return invitadoActualizado;
-      }
-      return inv;
-    });
-    if (!found) return data;
-    return { ...data, invitados };
-  });
+     }
+      
+     const combinedNotes = [
+       (invitadoExistenteIndex > -1 ? currentInvitados[invitadoExistenteIndex].notes : ''),
+       submission.mensaje
+     ].filter(Boolean).join('\n---\n');
 
-  if (!found) return { success: false, error: 'Invitado no encontrado.' };
-  return { ...result, invitado: invitadoActualizado };
+     // Determinamos categoría principal
+     const mainCategory: CategoriaInvitado = adults >= kids ? 'Adulto' : 'Niño/Adolescente';
+
+     if (invitadoExistenteIndex > -1) {
+        updatedInvitado = {
+          ...(currentInvitados[invitadoExistenteIndex]),
+          rsvp: submission.confirmacion as RsvpStatus,
+          partySize: totalNew,
+          categoria: mainCategory,
+          notes: combinedNotes,
+          companionNames: submission.companionNames,
+          isCeliac: submission.isCeliac ?? currentInvitados[invitadoExistenteIndex].isCeliac,
+          tag: submission.tag || currentInvitados[invitadoExistenteIndex].tag
+        };
+        currentInvitados[invitadoExistenteIndex] = updatedInvitado;
+     } else {
+        updatedInvitado = {
+          id: `inv_rsvp_${Date.now()}`,
+          nombre: submission.nombreCompleto,
+          rsvp: submission.confirmacion as RsvpStatus,
+          partySize: totalNew,
+          categoria: mainCategory,
+          notes: combinedNotes,
+          companionNames: submission.companionNames,
+          isCeliac: submission.isCeliac,
+          tag: submission.tag
+        };
+        data.invitados = [...currentInvitados, updatedInvitado];
+     }
+     return data;
+   });
+   
+   return {...result, invitado: updatedInvitado};
 }
 
-// ─── Public RSVP (invitation page) ───────────────────────────────────────────
-
-export async function submitPublicRsvp(
-  fiestaId: string,
-  submission: {
-    nombre: string;
-    contacto?: string;
-    asistencia: 'Confirmado' | 'Rechazado' | 'Tal vez';
-    partySize?: number;
-    companionNames?: string[];
-    dietaryRestriction: DietaryRestriction;
-    alergiasEspecificas?: string;
-    cancionesDJ: string[];
-    mensaje?: string;
-    requiereAccesibilidad?: boolean;
-  }
-): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
-  let savedInvitado: Invitado | undefined;
-
-  // Normalise dietary restriction to valid type
-  const dietary: DietaryRestriction = (['Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'] as DietaryRestriction[]).includes(submission.dietaryRestriction as DietaryRestriction)
-    ? (submission.dietaryRestriction as DietaryRestriction)
-    : 'Ninguna';
-
-  const rsvpStatus: RsvpStatus = submission.asistencia === 'Tal vez' ? 'Tal vez' : submission.asistencia;
-
-  const result = await updateFiestaData(fiestaId, data => {
-    const currentInvitados = data.invitados || [];
-    const existingIndex = currentInvitados.findIndex(
-      inv => inv.nombre.trim().toLowerCase() === submission.nombre.trim().toLowerCase()
-    );
-
-    if (existingIndex > -1) {
-      savedInvitado = {
-        ...currentInvitados[existingIndex],
-        // Stamp a token if the existing invitado doesn't have one yet
-        guestAccessToken: currentInvitados[existingIndex].guestAccessToken ?? randomUUID(),
-        rsvp: rsvpStatus,
-        contacto: submission.contacto ?? currentInvitados[existingIndex].contacto,
-        partySize: submission.partySize ?? currentInvitados[existingIndex].partySize,
-        companionNames: submission.companionNames ?? currentInvitados[existingIndex].companionNames,
-        dietaryRestriction: dietary,
-        alergiasEspecificas: submission.alergiasEspecificas ?? currentInvitados[existingIndex].alergiasEspecificas,
-        cancionesDJ: submission.cancionesDJ.length > 0 ? submission.cancionesDJ : currentInvitados[existingIndex].cancionesDJ,
-        mensaje: submission.mensaje ?? currentInvitados[existingIndex].mensaje,
-        requiereAccesibilidad: submission.requiereAccesibilidad ?? currentInvitados[existingIndex].requiereAccesibilidad,
-        isCeliac: dietary === 'Celiaco',
-      };
-      currentInvitados[existingIndex] = savedInvitado;
-      return { ...data, invitados: [...currentInvitados] };
-    } else {
-      savedInvitado = {
-        id: `inv_rsvp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        guestAccessToken: randomUUID(),
-        nombre: submission.nombre.trim(),
-        rsvp: rsvpStatus,
-        categoria: 'Adulto',
-        contacto: submission.contacto,
-        partySize: submission.partySize,
-        companionNames: submission.companionNames,
-        dietaryRestriction: dietary,
-        alergiasEspecificas: submission.alergiasEspecificas,
-        cancionesDJ: submission.cancionesDJ,
-        mensaje: submission.mensaje,
-        requiereAccesibilidad: submission.requiereAccesibilidad,
-        isCeliac: dietary === 'Celiaco',
-      };
-      return { ...data, invitados: [...currentInvitados, savedInvitado] };
-    }
-  });
-
-  return { ...result, invitado: savedInvitado };
-}
-
-// ─── Guest CTA click tracking ──────────────────────────────────────────────
-
-type GuestCtaStat = 'clickedWhatsapp' | 'clickedInstagram' | 'clickedLanding' | 'clickedSimulator';
-
-/**
- * Records a CTA click in the guest's guestExperienceStats.
- * Called fire-and-forget from the client portal — errors are swallowed on the caller side.
- */
-export async function trackGuestCtaClick(
-  fiestaId: string,
-  guestId: string,
-  stat: GuestCtaStat
-): Promise<{ success: boolean }> {
-  const result = await updateFiestaData(fiestaId, data => {
-    const invitados = (data.invitados || []).map(inv => {
-      if (inv.id !== guestId) return inv;
-      return {
-        ...inv,
-        guestExperienceStats: {
-          ...(inv.guestExperienceStats ?? {}),
-          [stat]: true,
-        },
-      };
+export async function checkInGuest(fiestaId: string, guestId: string): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+    let invitadoActualizado: Invitado | undefined;
+    let found = false;
+    const result = await updateFiestaData(fiestaId, data => {
+        const invitados = (data.invitados || []).map(inv => {
+            if (inv.id === guestId) {
+                found = true;
+                if(inv.checkedIn) { 
+                   invitadoActualizado = inv;
+                   return inv;
+                }
+                invitadoActualizado = { ...inv, checkedIn: true, checkInTimestamp: new Date().toISOString() };
+                return invitadoActualizado;
+            }
+            return inv;
+        });
+        if (!found) {
+            return data; 
+        }
+        return { ...data, invitados };
     });
-    return { ...data, invitados };
-  });
-  return { success: result.success };
+
+    if (!found) return { success: false, error: 'Invitado no encontrado.' };
+    return { ...result, invitado: invitadoActualizado };
 }
