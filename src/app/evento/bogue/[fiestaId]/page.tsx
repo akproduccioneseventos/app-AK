@@ -458,11 +458,11 @@ export default function BoguePage() {
       const res = await uploadSocialPost(formData);
       
       if (res.success) {
-        setUploadedPostUrl(res.url || '');
-        setQrCodeUrl(res.url || window.location.href);
+        setUploadedPostUrl(res.post?.imageUrl || '');
+        setQrCodeUrl(res.post?.imageUrl || window.location.href);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'done', {
-          mediaUrl: res.url
+          mediaUrl: res.post?.imageUrl
         });
         speak("¡Listo! Tu Boomerang ya está subido.");
         

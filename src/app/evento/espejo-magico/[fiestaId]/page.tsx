@@ -456,10 +456,10 @@ export default function EspejoMagicoPage() {
       
       const res = await uploadSocialPost(formData);
       if (res.success) {
-        setQrCodeUrl(res.url || window.location.href);
+        setQrCodeUrl(res.post?.imageUrl || window.location.href);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {
-          mediaUrl: res.url
+          mediaUrl: res.post?.imageUrl
         });
         speak("¡Listo! Foto enviada al muro");
         setShowSuccess(true);

@@ -323,10 +323,10 @@ export default function FotocabinaPage() {
       
       const res = await uploadSocialPost(formData);
       if (res.success) {
-        setQrCodeUrl(res.url || window.location.href);
+        setQrCodeUrl(res.post?.imageUrl || window.location.href);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'done', {
-          mediaUrl: res.url
+          mediaUrl: res.post?.imageUrl
         });
         speak("¡Excelente! Tu foto ya está lista.");
         setShowSuccess(true);
