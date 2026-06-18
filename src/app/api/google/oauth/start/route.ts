@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildGoogleAuthUrl } from '@/lib/google-workspace';
+import { buildGoogleAuthUrl, getPublicAppOrigin } from '@/lib/google-workspace';
 
 export const runtime = 'nodejs';
 
@@ -8,10 +8,11 @@ export async function GET(request: NextRequest) {
   const kind = searchParams.get('kind') === 'employee' ? 'employee' : 'company';
   const employeeId = searchParams.get('employeeId') || undefined;
   const returnTo = searchParams.get('returnTo') || undefined;
+  const publicOrigin = getPublicAppOrigin(origin);
 
-  const result = buildGoogleAuthUrl({ kind, employeeId, returnTo }, origin);
+  const result = buildGoogleAuthUrl({ kind, employeeId, returnTo }, publicOrigin);
   if (!result.success) {
-    const errorUrl = new URL('/settings/google-workspace', origin);
+    const errorUrl = new URL('/settings/google-workspace', publicOrigin);
     errorUrl.searchParams.set('error', `Falta configurar: ${result.missingConfig.join(', ')}`);
     return NextResponse.redirect(errorUrl);
   }
