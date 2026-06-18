@@ -14,7 +14,8 @@ export function hasPrivateSessionSecret() {
   return Boolean(
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
-    process.env.SESSION_SECRET
+    process.env.SESSION_SECRET ||
+    process.env.AUTH_SECRET
   );
 }
 
@@ -22,7 +23,8 @@ function getSigningSecret() {
   const secret =
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
-    process.env.SESSION_SECRET;
+    process.env.SESSION_SECRET ||
+    process.env.AUTH_SECRET;
 
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
