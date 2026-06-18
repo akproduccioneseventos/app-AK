@@ -11,7 +11,13 @@ export function ModuleNavigationDock() {
   const pathname = usePathname() || '/';
   const router = useRouter();
 
-  if (pathname === '/' || pathname === '/login') return null;
+  const isIsolatedRoute = 
+    pathname.startsWith('/evento/') || 
+    pathname.startsWith('/presentacion-led') || 
+    pathname.startsWith('/portal-cliente') || 
+    pathname.startsWith('/invitacion');
+
+  if (pathname === '/' || pathname === '/login' || isIsolatedRoute) return null;
 
   const isPublicPath = PUBLIC_EXACT_PATHS.has(pathname) || isPublicPathPrefix(pathname);
   const showDashboardButton = !isPublicPath || BUDGET_VIEW_REGEX.test(pathname);

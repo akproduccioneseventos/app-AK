@@ -3,9 +3,10 @@
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
-import { savePresupuesto } from './presupuestos';
-import type { ItemPresupuestado, Presupuesto, PresupuestoSource } from '@/types/presupuesto';
-import { saveProspectBudget, getProspects } from './crm.actions';
+import type { ItemPresupuestado, PresupuestoSource } from '@/types/presupuesto';
+import type { CommercialAttribution } from '@/lib/commercial/acquisition';
+import { persistPublicSimulatorBudget } from '@/lib/budget/public-simulator-persistence';
+import { createNotification } from './notifications';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const SIMULATOR_DISCOUNT_PERCENTAGE = 15;
@@ -20,17 +21,6 @@ const defaultConfig: ArmadoRapidoConfig = {
   clubUruguayConfig: defaultClubUruguayConfig,
 };
 
-function getSimulatorDiscountPercentage(data: LeadFromQuickBudget): number {
-  const pct = Number(data.descuentoGeneral ?? SIMULATOR_DISCOUNT_PERCENTAGE);
-  if (!Number.isFinite(pct) || pct < 0) return SIMULATOR_DISCOUNT_PERCENTAGE;
-  return Math.min(100, pct);
-}
-
-function calculateSimulatorTotal(data: LeadFromQuickBudget): number {
-  const subtotal = Math.max(0, Math.round(data.subtotal || 0));
-  return Math.round(subtotal * (1 - getSimulatorDiscountPercentage(data) / 100));
-}
-
 export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
   const config = await readData<ArmadoRapidoConfig>(CONFIG_FILE, defaultConfig);
   return {
@@ -41,7 +31,7 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
       ...defaultClubUruguayConfig,
       ...(config?.clubUruguayConfig || {}),
       prestaciones: (config?.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
-        .map((p) => p.trim())
+        .map((item) => item.trim())
         .filter(Boolean),
     },
   };
@@ -54,7 +44,7 @@ export async function saveArmadoRapidoConfig(
     const sanitizedConfig: ArmadoRapidoConfig = {
       ...newConfigData,
       descuentoGeneral: SIMULATOR_DISCOUNT_PERCENTAGE,
-      paquetes: (newConfigData.paquetes || []).map(pkg => ({
+      paquetes: (newConfigData.paquetes || []).map((pkg) => ({
         id: pkg.id,
         nombre: pkg.nombre,
         descripcion: pkg.descripcion,
@@ -62,116 +52,88 @@ export async function saveArmadoRapidoConfig(
         tiposDeEventoAplicables: (pkg.tiposDeEventoAplicables || [])
           .map((tipo) => tipo.trim())
           .filter(Boolean),
-        serviciosIncluidos: pkg.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
+        serviciosIncluidos: pkg.serviciosIncluidos.map((service) => ({
+          id: service.id,
+          esRegalo: service.esRegalo || false,
+        })),
       })),
-      menus: (newConfigData.menus || []).map(menu => ({
+      menus: (newConfigData.menus || []).map((menu) => ({
         id: menu.id,
         nombre: menu.nombre,
         descripcion: menu.descripcion,
-        serviciosIncluidos: menu.serviciosIncluidos.map(serv => ({ id: serv.id, esRegalo: serv.esRegalo || false })),
+        serviciosIncluidos: menu.serviciosIncluidos.map((service) => ({
+          id: service.id,
+          esRegalo: service.esRegalo || false,
+        })),
       })),
-      platosVisibles: (newConfigData.platosVisibles || []).map(p => ({
-        id: p.id,
-        visible: p.visible,
-        recommended: p.recommended || false
+      platosVisibles: (newConfigData.platosVisibles || []).map((dish) => ({
+        id: dish.id,
+        visible: dish.visible,
+        recommended: dish.recommended || false,
       })),
-      serviceDependencies: (newConfigData.serviceDependencies || []).map((dep: ServiceDependency) => ({
-        id: dep.id,
-        triggerServiceId: dep.triggerServiceId,
-        requiredServiceId: dep.requiredServiceId,
+      serviceDependencies: (newConfigData.serviceDependencies || []).map((dependency: ServiceDependency) => ({
+        id: dependency.id,
+        triggerServiceId: dependency.triggerServiceId,
+        requiredServiceId: dependency.requiredServiceId,
       })),
       clubUruguayConfig: {
         activo: newConfigData.clubUruguayConfig?.activo ?? defaultClubUruguayConfig.activo,
         precio: Number(newConfigData.clubUruguayConfig?.precio) || defaultClubUruguayConfig.precio,
         prestaciones: (newConfigData.clubUruguayConfig?.prestaciones || defaultClubUruguayConfig.prestaciones)
-          .map((p) => p.trim())
+          .map((item) => item.trim())
           .filter(Boolean),
       },
     };
     await writeData(CONFIG_FILE, sanitizedConfig);
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Unknown error saving config.' };
+    return { success: false, error: error.message || 'No se pudo guardar la configuracion.' };
   }
 }
 
 export async function generateBudgetAndLeadFromSimulator(
   data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
-  options?: { source?: PresupuestoSource; eventoTipo?: string; salonFiestas?: string; prospectId?: string }
+  options?: {
+    source?: PresupuestoSource;
+    eventoTipo?: string;
+    salonFiestas?: string;
+    acquisition?: CommercialAttribution;
+  }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; error?: string }> {
   try {
-    const source = options?.source || 'simulator_common';
-    const adultos = Math.max(0, Math.round(data.adultos || 0));
-    const adolescentes = Math.max(0, Math.round(data.adolescentes || 0));
-    const ninos = Math.max(0, Math.round(data.ninos || 0));
-    const totalInvitados = adultos + adolescentes + ninos;
-    const totalConDescuento = calculateSimulatorTotal(data);
-    const discountPercentage = getSimulatorDiscountPercentage(data);
-
-    const presupuestoData: Omit<Presupuesto, 'id'> = {
-      clienteNombre: data.clienteNombre,
-      clienteContacto: data.clienteContacto,
+    const requestedSource = options?.source;
+    const source = requestedSource === 'simulator_assistant'
+      ? 'simulator_assistant'
+      : requestedSource === 'simulator'
+        ? 'simulator'
+        : 'simulator_common';
+    const result = await persistPublicSimulatorBudget(data, {
+      source,
       eventoTipo: options?.eventoTipo || 'Evento (desde Simulador)',
-      eventoFecha: data.eventoFecha || new Date().toISOString(),
-      eventoHoraInicio: data.eventoHoraInicio,
-      invitadosCantidad: totalInvitados,
-      invitadosAdultos: adultos,
-      invitadosAdolescentes: adolescentes,
-      invitadosNinos: ninos,
-      salonFiestas: options?.salonFiestas || 'A definir',
-      itemsPresupuestados: data.items as ItemPresupuestado[],
-      timestamp: new Date().toISOString(),
-      notas: `Presupuesto generado desde el Simulador. Paquete: ${data.paqueteNombre || 'N/A'}. Total vigente: ${formatCurrency(totalConDescuento)}. Descuento aplicado: ${discountPercentage}%.`,
-      costoTotalEstimado: Math.max(0, Math.round(data.subtotal || 0)),
-      descuentoTipo: 'porcentaje',
-      descuentoValor: discountPercentage,
-      ajusteAnualActivo: data.ajusteAnualActivo,
-      ajusteAnualPorcentaje: data.ajusteAnualPorcentaje,
-      totalConDescuento,
-      estado: 'Pendiente Verificación',
-      source,
-    };
-
-    const budgetResult = await savePresupuesto(presupuestoData, {
-      source,
-      preserveTotal: true,
+      salonFiestas: options?.salonFiestas,
+      acquisition: options?.acquisition,
     });
+    const { generateBudgetToken } = await import('@/lib/auth/session-token');
+    const token = await generateBudgetToken(result.presupuesto.id);
 
-    if (budgetResult.success && budgetResult.id && budgetResult.leadId) {
-      const { generateBudgetToken } = await import('@/lib/auth/session-token');
-      const token = await generateBudgetToken(budgetResult.id);
-      
-      // Auto-save to Prospect CRM if prospectId is provided, or matching phone
-      try {
-        let pId = options?.prospectId;
-        if (!pId) {
-          const prospects = await getProspects();
-          const existing = prospects.find((p: any) => p.phone === (data.clienteContacto || '').trim());
-          if (existing) pId = existing.id;
-        }
-        
-        if (pId) {
-          await saveProspectBudget(pId, {
-            serviceType: options?.eventoTipo || 'Evento (desde Simulador)',
-            guests: totalInvitados,
-            totalEstimate: totalConDescuento,
-            details: { items: data.items, presupuestoId: budgetResult.id }
-          });
-        }
-      } catch (err) {
-        console.error('Error linking to prospect CRM:', err);
-      }
+    createNotification({
+      titulo: result.reused ? 'Presupuesto de simulador actualizado' : 'Nuevo presupuesto del simulador',
+      mensaje: `${result.presupuesto.clienteNombre} completo el simulador (${result.presupuesto.eventoTipo}).`,
+      href: `/presupuestos/${result.presupuesto.id}/ver`,
+      icono: 'Sparkles',
+      tipo: 'aviso',
+      entidadRelacionadaId: result.presupuesto.id,
+      rolDestino: 'admin',
+    }).catch(() => {});
 
-      return { success: true, presupuestoId: budgetResult.id, leadId: budgetResult.leadId, token };
-    }
-    return { success: false, error: budgetResult.error || 'No se pudo procesar la solicitud.' };
+    return {
+      success: true,
+      presupuestoId: result.presupuesto.id,
+      leadId: result.leadId,
+      token,
+    };
   } catch (error: any) {
     console.error('Error in generateBudgetAndLeadFromSimulator:', error);
     return { success: false, error: error.message || 'Error al generar el prospecto y presupuesto.' };
   }
 }
-
-const formatCurrency = (amount?: number) => {
-  if (amount === undefined) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
-};

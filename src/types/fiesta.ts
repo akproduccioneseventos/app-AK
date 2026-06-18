@@ -433,7 +433,17 @@ export interface InvitacionDigitalCronograma {
   icono?: string;
 }
 
-export type InvitacionPlantillaId = 'EleganteDorado' | 'ModernoMinimalista' | 'RomanticoFloral' | 'FiestaVibrante' | 'Grazia' | 'Allegria';
+export type InvitacionPlantillaId = 
+  | 'EleganteDorado' 
+  | 'ModernoMinimalista' 
+  | 'RomanticoFloral' 
+  | 'FiestaVibrante' 
+  | 'Grazia' 
+  | 'Allegria'
+  | 'XV_NeonParty'
+  | 'XV_PrincesaClasica'
+  | 'XV_GlowInTheDark'
+  | 'XV_MinimalChic';
 
 export type InvitacionSectionId =
   | 'hero'
@@ -447,7 +457,10 @@ export type InvitacionSectionId =
   | 'rsvp'
   | 'muroSocial'
   | 'ctaAk'
-  | 'footer';
+  | 'footer'
+  | 'historia'
+  | 'faq'
+  | 'logistica';
 
 export interface InvitacionTypographyConfig {
   heroTitleMobile?: string;
@@ -532,6 +545,7 @@ export interface InvitacionDigitalConfig {
   ctaAkTexto?: string;
   ctaAkLandingUrl?: string;
   ctaAkWhatsapp?: string;
+  musicaFondoUrl?: string;
 }
 
 export interface InvitacionDigitalData {

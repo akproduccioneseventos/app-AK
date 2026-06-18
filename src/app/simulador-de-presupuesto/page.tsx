@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,7 @@ import {
   calculateSimulatorPricing,
   simulatorDetailsToBudgetItems,
 } from '@/lib/simulator/pricing';
+import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -139,6 +140,12 @@ function esCategoriaGastronomica(categoria: string, calculationMethod?: string):
 }
 function SimuladorContent() {
     const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const acquisition = useMemo(() => ({
+        ...commercialAttributionFromSearchParams(searchParams, 'landing'),
+        entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
+        simulatorMode: 'visual' as const,
+    }), [searchParams]);
     const [step, setStep] = useState(1);
     const currentYear = new Date().getFullYear();
 
@@ -365,6 +372,7 @@ function SimuladorContent() {
                 const result = await generateBudgetAndLeadFromSimulator(data, {
                     source: 'simulator_common',
                     eventoTipo,
+                    acquisition,
                 });
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
@@ -484,6 +492,7 @@ function SimuladorContent() {
             const result = await generateBudgetAndLeadFromSimulator(data, {
                 source: 'simulator_common',
                 eventoTipo,
+                acquisition,
             });
             if (result.success && result.presupuestoId) {
                 setGeneratedPresupuestoId(result.presupuestoId);

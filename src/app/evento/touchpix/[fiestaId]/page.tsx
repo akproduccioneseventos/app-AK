@@ -3,7 +3,24 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, SwitchCamera, Download, Send, ArrowLeft, Loader2, PartyPopper, RefreshCw, Sparkles, Wand2, Users, QrCode, X, Palette } from 'lucide-react';
+import {
+  Camera,
+  SwitchCamera,
+  Download,
+  Send,
+  ArrowLeft,
+  Loader2,
+  PartyPopper,
+  RefreshCw,
+  Sparkles,
+  Wand2,
+  Users,
+  QrCode,
+  X,
+  Palette,
+  ArrowRight,
+  Sparkle,
+} from 'lucide-react';
 import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -17,19 +34,16 @@ const TOUCHPIX_THEMES = [
   { id: 'fantasy_enchanted', label: 'Fantasía', emoji: '🧚', gradient: 'from-emerald-500 to-teal-700', cssFilter: 'brightness(1.05) saturate(0.9) hue-rotate(90deg) contrast(1.05)', description: 'Mundo mágico' },
   { id: 'pop_art', label: 'Pop Art', emoji: '🎨', gradient: 'from-yellow-500 to-red-600', cssFilter: 'saturate(2.5) contrast(1.4) brightness(1.05)', description: 'Estilo Warhol' },
   { id: 'golden_luxury', label: 'Luxury', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', cssFilter: 'sepia(0.5) saturate(1.5) brightness(1.1) contrast(1.1)', description: 'Dorado premium' },
-  { id: 'cosmic_galaxy', label: 'Cósmico', emoji: '🌌', gradient: 'from-indigo-600 to-violet-900', cssFilter: 'hue-rotate(270deg) saturate(1.5) brightness(0.95) contrast(1.2)', description: 'Viaje espacial' },
-  { id: 'carnival_fiesta', label: 'Carnaval', emoji: '🎉', gradient: 'from-orange-500 to-pink-600', cssFilter: 'saturate(1.8) brightness(1.1) contrast(1.05)', description: 'Fiesta total' },
 ];
 
 /* ───────────────────── Face Swap Characters ───────────────────── */
 
 const FACE_SWAP_CHARACTERS = [
-  { id: 'superhero', label: 'Superhéroe', emoji: '🦸', gradient: 'from-red-600 to-blue-700', filter: 'saturate(1.6) contrast(1.3) brightness(1.05)', frameEmojis: ['💥', '⚡', '🌟', '✨'] },
-  { id: 'astronaut', label: 'Astronauta', emoji: '🧑‍🚀', gradient: 'from-slate-600 to-indigo-800', filter: 'hue-rotate(200deg) saturate(0.7) brightness(1.15) contrast(1.1)', frameEmojis: ['🌠', '🚀', '⭐', '🪐'] },
-  { id: 'royalty', label: 'Realeza', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', filter: 'sepia(0.6) saturate(1.4) brightness(1.1)', frameEmojis: ['👑', '💎', '🏰', '✨'] },
-  { id: 'pirate', label: 'Pirata', emoji: '🏴‍☠️', gradient: 'from-stone-700 to-red-900', filter: 'sepia(0.4) contrast(1.3) brightness(0.9)', frameEmojis: ['☠️', '🗡️', '🏴‍☠️', '💰'] },
-  { id: 'rockstar', label: 'Rockstar', emoji: '🎸', gradient: 'from-purple-700 to-pink-600', filter: 'contrast(1.4) saturate(1.5) brightness(1.05)', frameEmojis: ['🎸', '🤘', '🔥', '🎤'] },
-  { id: 'fairy', label: 'Hada', emoji: '🧚', gradient: 'from-pink-400 to-violet-600', filter: 'brightness(1.15) saturate(1.2) hue-rotate(330deg)', frameEmojis: ['🧚', '✨', '🌸', '🦋'] },
+  { id: 'superhero', label: 'Superhéroe', emoji: '🦸', gradient: 'from-red-600 to-blue-700', filter: 'saturate(1.6) contrast(1.3) brightness(1.05)', frameEmojis: ['💥', '⚡', '🌟', '✨'], description: 'Conviértete en héroe' },
+  { id: 'astronaut', label: 'Astronauta', emoji: '🧑‍🚀', gradient: 'from-slate-600 to-indigo-800', filter: 'hue-rotate(200deg) saturate(0.7) brightness(1.15) contrast(1.1)', frameEmojis: ['🌠', '🚀', '⭐', '🪐'], description: 'Viaja al espacio' },
+  { id: 'royalty', label: 'Realeza', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', filter: 'sepia(0.6) saturate(1.4) brightness(1.1)', frameEmojis: ['👑', '💎', '🏰', '✨'], description: 'Corona real' },
+  { id: 'rockstar', label: 'Rockstar', emoji: '🎸', gradient: 'from-purple-700 to-pink-600', filter: 'contrast(1.4) saturate(1.5) brightness(1.05)', frameEmojis: ['🎸', '🤘', '🔥', '🎤'], description: 'Estrella de rock' },
+  { id: 'fairy', label: 'Hada', emoji: '🧚', gradient: 'from-pink-400 to-violet-600', filter: 'brightness(1.15) saturate(1.2) hue-rotate(330deg)', frameEmojis: ['🧚', '✨', '🌸', '🦋'], description: 'Efecto fantasía' },
 ];
 
 type TabMode = 'foto' | 'faceswap' | 'ai_themes';
@@ -40,8 +54,6 @@ async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
   const blob = await response.blob();
   return new File([blob], fileName, { type: blob.type || 'image/jpeg' });
 }
-
-/* ───────────────────── Component ───────────────────── */
 
 export default function TouchpixPage() {
   const params = useParams();
@@ -66,25 +78,49 @@ export default function TouchpixPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [rawCapturedImage, setRawCapturedImage] = useState<string | null>(null);
 
+  // Progressive Wizard State
+  const [wizardStep, setWizardStep] = useState<number>(0); // 0 = Camera, 1 = Category, 2 = Style
+
+  // Interactive Queue Trivia State
+  const [triviaIndex, setTriviaIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingText, setProcessingText] = useState('');
   const [processingResult, setProcessingResult] = useState<ProcessingResult>(null);
+  
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
 
+  const eventName = fiesta?.configuracion?.nombreEvento || 'este gran evento';
+  
+  const triviaList = [
+    `¿Sabías que ${eventName} fue planeado detalladamente para sorprenderte?`,
+    "¡Los anfitriones ensayaron su entrada triunfal más de una docena de veces!",
+    "El DJ tiene estrictas instrucciones de no dejar que nadie se quede sentado.",
+    "¡Dato curioso: Se estima que se sacarán más de 1000 fotos en esta cabina hoy!",
+    "El menú de esta noche fue seleccionado en una cata secreta por los anfitriones.",
+    "¡El brindis de hoy está cargado con los mejores deseos de felicidad!",
+  ];
+
+  useEffect(() => {
+    if (isProcessing) {
+      const interval = setInterval(() => {
+        setTriviaIndex(prev => (prev + 1) % triviaList.length);
+      }, 3500);
+      return () => clearInterval(interval);
+    }
+  }, [isProcessing, triviaList.length]);
+
   /* ── Load fiesta data ── */
   useEffect(() => {
     getFiestaById(fiestaId).then(f => setFiesta(f)).catch(() => {});
     return () => { stopCamera(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fiestaId]);
 
   useEffect(() => {
-    if (!capturedImage) startCamera();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [facingMode]);
+    if (!capturedImage && wizardStep === 0) startCamera();
+  }, [facingMode, wizardStep, capturedImage]);
 
   /* ── Camera ── */
   const startCamera = useCallback(async () => {
@@ -102,7 +138,6 @@ export default function TouchpixPage() {
     } catch {
       setErrorMsg('No se pudo acceder a la cámara. Revisá los permisos del navegador.');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facingMode]);
 
   const stopCamera = useCallback(() => {
@@ -128,7 +163,6 @@ export default function TouchpixPage() {
 
   /* ── Watermark ── */
   const drawWatermark = useCallback((ctx: CanvasRenderingContext2D, w: number, h: number) => {
-    const eventName = fiesta?.configuracion?.nombreEvento || 'Nuestra Fiesta';
     const rawDate = fiesta?.configuracion?.fechaEvento;
     let eventDateStr = '';
     if (rawDate) {
@@ -168,7 +202,7 @@ export default function TouchpixPage() {
     ctx.font = `bold ${Math.max(10, h * 0.012)}px sans-serif`;
     ctx.textAlign = 'right';
     ctx.fillText('TOUCHPIX · AK', w - 16, h - bannerHeight - 10);
-  }, [fiesta]);
+  }, [fiesta, eventName]);
 
   /* ── Apply CSS filter to canvas ── */
   const applyFilterToCanvas = useCallback((
@@ -192,19 +226,17 @@ export default function TouchpixPage() {
       ctx.drawImage(img, 0, 0);
       ctx.filter = 'none';
 
-      // Draw overlay emojis for face swap characters
+      // Draw overlay emojis
       if (overlayEmojis && overlayEmojis.length > 0) {
         const emojiSize = Math.max(40, img.width * 0.06);
         ctx.font = `${emojiSize}px sans-serif`;
         ctx.textBaseline = 'top';
 
-        // Corner emojis
         ctx.fillText(overlayEmojis[0] || '✨', 20, 20);
         ctx.fillText(overlayEmojis[1] || '✨', img.width - emojiSize - 20, 20);
         ctx.fillText(overlayEmojis[2] || '✨', 20, img.height - emojiSize - 80);
         ctx.fillText(overlayEmojis[3] || '✨', img.width - emojiSize - 20, img.height - emojiSize - 80);
 
-        // Decorative border
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
         ctx.lineWidth = 8;
         const r = 20;
@@ -213,7 +245,6 @@ export default function TouchpixPage() {
         ctx.stroke();
       }
 
-      // Main character emoji overlay (large, centered top)
       if (overlayMainEmoji) {
         const mainSize = Math.max(80, img.width * 0.15);
         ctx.font = `${mainSize}px sans-serif`;
@@ -255,27 +286,6 @@ export default function TouchpixPage() {
     return canvas.toDataURL('image/jpeg', 0.95);
   }, [facingMode]);
 
-  const takePhoto = useCallback(() => {
-    if (countdown !== null) return;
-    let currentCount = 3;
-    setCountdown(currentCount);
-    playBeep();
-
-    const interval = setInterval(() => {
-      currentCount -= 1;
-      if (currentCount > 0) {
-        setCountdown(currentCount);
-        playBeep();
-      } else {
-        clearInterval(interval);
-        setCountdown(null);
-        playBeep(1200, 0.3);
-        handleCapture();
-      }
-    }, 1000);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown, playBeep, activeTab, selectedTheme, selectedCharacter]);
-
   const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();
     if (!raw) return;
@@ -290,7 +300,6 @@ export default function TouchpixPage() {
           setCapturedImage(result);
         });
       } else {
-        // Original — just add watermark
         applyFilterToCanvas(raw, 'none', (result) => {
           setCapturedImage(result);
         });
@@ -317,7 +326,7 @@ export default function TouchpixPage() {
           return;
         }
       } catch {
-        // The local effect below keeps the booth usable when the provider is unavailable.
+        // Fallback
       }
 
       setProcessingText('IA no disponible. Aplicando efecto local...');
@@ -333,11 +342,29 @@ export default function TouchpixPage() {
         character.emoji
       );
     } else if (activeTab === 'ai_themes') {
-      // Keep raw for theme selection step
       setCapturedImage(raw);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [captureRawPhoto, stopCamera, activeTab, selectedTheme, selectedCharacter, applyFilterToCanvas, fiestaId]);
+
+  const takePhoto = useCallback(() => {
+    if (countdown !== null) return;
+    let currentCount = 3;
+    setCountdown(currentCount);
+    playBeep();
+
+    const interval = setInterval(() => {
+      currentCount -= 1;
+      if (currentCount > 0) {
+        setCountdown(currentCount);
+        playBeep();
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        playBeep(1200, 0.3);
+        handleCapture();
+      }
+    }, 1000);
+  }, [countdown, playBeep, handleCapture]);
 
   /* ── AI Themes: apply after capture ── */
   const applyAiTheme = useCallback(async (themeId: string) => {
@@ -366,7 +393,7 @@ export default function TouchpixPage() {
         return;
       }
     } catch {
-      // Fall through to the explicit local effect.
+      // Fallback
     }
 
     setProcessingText('IA no disponible. Aplicando efecto local...');
@@ -421,7 +448,6 @@ export default function TouchpixPage() {
     } finally {
       setIsUploading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capturedImage, fiestaId, activeTab, selectedAiTheme, selectedCharacter]);
 
   /* ── Retake ── */
@@ -430,8 +456,8 @@ export default function TouchpixPage() {
     setRawCapturedImage(null);
     setIsProcessing(false);
     setProcessingResult(null);
+    setWizardStep(0);
     startCamera();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startCamera]);
 
   /* ── Get current CSS filter for live preview ── */
@@ -499,24 +525,20 @@ export default function TouchpixPage() {
     );
   };
 
-  /* ── Tab definitions ── */
   const tabs: { id: TabMode; label: string; emoji: string; icon: React.ReactNode }[] = [
     { id: 'foto', label: 'Foto', emoji: '📷', icon: <Camera className="w-5 h-5" /> },
     { id: 'faceswap', label: 'Face Swap', emoji: '🎭', icon: <Users className="w-5 h-5" /> },
     { id: 'ai_themes', label: 'Temas IA', emoji: '🎬', icon: <Wand2 className="w-5 h-5" /> },
   ];
 
-  /* ── Is in review state (showing captured photo, not yet in AI theme selection) ── */
   const isReviewMode = capturedImage !== null && !(activeTab === 'ai_themes' && !isProcessing && rawCapturedImage && capturedImage === rawCapturedImage);
   const isAiThemeSelection = activeTab === 'ai_themes' && capturedImage === rawCapturedImage && !isProcessing && rawCapturedImage !== null;
 
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none">
-      {/* Hidden canvases */}
       <canvas ref={canvasRef} className="hidden" />
       <canvas ref={processingCanvasRef} className="hidden" />
 
-      {/* Background radial glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-radial from-fuchsia-900/20 via-purple-900/10 to-transparent rounded-full blur-3xl" />
       </div>
@@ -529,23 +551,18 @@ export default function TouchpixPage() {
 
         <div className="text-center flex-1 mx-4">
           <div className="flex items-center justify-center gap-1.5">
-            <motion.div animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-              <Sparkles className="w-4 h-4 text-fuchsia-400" />
-            </motion.div>
-            <h1 className="text-lg font-black tracking-[0.2em] bg-gradient-to-r from-fuchsia-400 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(217,70,239,0.5)]">
-              TOUCHPIX
+            <Sparkles className="w-4 h-4 text-fuchsia-400 animate-pulse" />
+            <h1 className="text-lg font-black tracking-[0.2em] bg-gradient-to-r from-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
+              TOUCHPIX IA
             </h1>
-            <motion.div animate={{ rotate: [0, -15, 15, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}>
-              <Sparkles className="w-4 h-4 text-purple-400" />
-            </motion.div>
+            <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
           </div>
-          <p className="text-[10px] text-zinc-500 font-semibold tracking-widest uppercase">Experiencia de Foto Premium</p>
           {fiesta && (
-            <p className="text-xs text-zinc-400 font-medium mt-0.5 truncate">{fiesta.configuracion?.nombreEvento}</p>
+            <p className="text-[10px] text-zinc-500 font-semibold tracking-widest uppercase mt-0.5 truncate">{fiesta.configuracion?.nombreEvento}</p>
           )}
         </div>
 
-        {!capturedImage ? (
+        {!capturedImage && wizardStep === 0 ? (
           <button onClick={toggleCamera} className="p-2.5 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
             <SwitchCamera className="w-5 h-5" />
           </button>
@@ -557,13 +574,7 @@ export default function TouchpixPage() {
       {/* ═══════════ FLASH OVERLAY ═══════════ */}
       <AnimatePresence>
         {flash && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-white z-50"
-          />
+          <motion.div initial={{ opacity: 1 }} animate={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="absolute inset-0 bg-white z-50" />
         )}
       </AnimatePresence>
 
@@ -573,48 +584,173 @@ export default function TouchpixPage() {
           <div className="p-6 text-center text-red-400 font-medium">
             <p className="text-5xl mb-4">📷🚫</p>
             {errorMsg}
-            <button onClick={() => startCamera()} className="mt-4 px-6 py-2 bg-fuchsia-600 rounded-full text-white font-bold text-sm">
-              Reintentar
-            </button>
           </div>
         ) : !capturedImage ? (
-          /* Camera preview */
-          <div className="relative w-full h-full">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
-              style={{ filter: getLiveFilter() }}
-            />
-            {/* Theme label overlay */}
-            {activeTab === 'foto' && selectedTheme !== 'original' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md rounded-full px-4 py-1.5 flex items-center gap-2"
-              >
-                <span className="text-lg">{TOUCHPIX_THEMES.find(t => t.id === selectedTheme)?.emoji}</span>
-                <span className="text-xs font-bold text-white">{TOUCHPIX_THEMES.find(t => t.id === selectedTheme)?.label}</span>
-              </motion.div>
-            )}
-            {/* Face swap character overlay */}
-            {activeTab === 'faceswap' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md rounded-full px-4 py-1.5 flex items-center gap-2"
-              >
-                <span className="text-lg">{FACE_SWAP_CHARACTERS.find(c => c.id === selectedCharacter)?.emoji}</span>
-                <span className="text-xs font-bold text-white">{FACE_SWAP_CHARACTERS.find(c => c.id === selectedCharacter)?.label}</span>
-              </motion.div>
-            )}
-          </div>
+          
+          /* Progressive Wizard Steps or Camera Preview */
+          wizardStep > 0 ? (
+            <div className="absolute inset-0 z-30 bg-zinc-950/95 overflow-y-auto px-6 py-10 flex flex-col justify-start">
+              <div className="w-full max-w-sm mx-auto space-y-6">
+                
+                {/* Step 1: Select Category */}
+                {wizardStep === 1 && (
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                    <div className="text-center space-y-2">
+                      <div className="w-16 h-16 mx-auto bg-fuchsia-500/10 rounded-full flex items-center justify-center text-3xl shadow-xl shadow-fuchsia-500/5 border border-fuchsia-500/30">
+                        🪄
+                      </div>
+                      <h2 className="text-2xl font-black">Asistente de Retrato IA</h2>
+                      <p className="text-xs text-zinc-400">Seleccioná qué tipo de transformación querés realizar hoy.</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => {
+                          setActiveTab('faceswap');
+                          setWizardStep(2);
+                        }}
+                        className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-fuchsia-500/40 text-left transition flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="text-4xl">🎭</div>
+                          <div>
+                            <p className="text-sm font-black text-white">Face Swap (IA)</p>
+                            <p className="text-[11px] text-zinc-400 mt-0.5">Reemplaza tu cara con astronautas, rockstars y más.</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-zinc-500 group-hover:text-fuchsia-400 group-hover:translate-x-1 transition-all" />
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setActiveTab('ai_themes');
+                          setWizardStep(2);
+                        }}
+                        className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/40 text-left transition flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="text-4xl">🎬</div>
+                          <div>
+                            <p className="text-sm font-black text-white">Temas Artísticos IA</p>
+                            <p className="text-[11px] text-zinc-400 mt-0.5">Transforma toda la foto en estilos artísticos increíbles.</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-zinc-500 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 2: Select Character or Style */}
+                {wizardStep === 2 && (
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                    <div className="text-center space-y-1">
+                      <h2 className="text-xl font-black">Elegí tu Estilo Favorito</h2>
+                      <p className="text-xs text-zinc-400">
+                        {activeTab === 'faceswap' ? 'Seleccioná el personaje en el que te querés convertir.' : 'Seleccioná el estilo artístico del fondo y filtros.'}
+                      </p>
+                    </div>
+
+                    {activeTab === 'faceswap' ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        {FACE_SWAP_CHARACTERS.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => setSelectedCharacter(c.id)}
+                            className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative ${
+                              selectedCharacter === c.id
+                                ? 'border-fuchsia-500 bg-fuchsia-500/10'
+                                : 'border-white/5 bg-white/5 hover:bg-white/10'
+                            }`}
+                          >
+                            <span className="text-3xl">{c.emoji}</span>
+                            <div>
+                              <p className="text-xs font-black text-white">{c.label}</p>
+                              <p className="text-[9px] text-zinc-400 mt-0.5 leading-tight">{c.description}</p>
+                            </div>
+                            {selectedCharacter === c.id && <Sparkle className="w-3.5 h-3.5 absolute top-3 right-3 text-fuchsia-400 fill-fuchsia-400" />}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3">
+                        {TOUCHPIX_THEMES.filter(t => t.id !== 'original').map(t => (
+                          <button
+                            key={t.id}
+                            onClick={() => setSelectedAiTheme(t.id)}
+                            className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative ${
+                              selectedAiTheme === t.id
+                                ? 'border-purple-500 bg-purple-500/10'
+                                : 'border-white/5 bg-white/5 hover:bg-white/10'
+                            }`}
+                          >
+                            <span className="text-3xl">{t.emoji}</span>
+                            <div>
+                              <p className="text-xs font-black text-white">{t.label}</p>
+                              <p className="text-[9px] text-zinc-400 mt-0.5 leading-tight">{t.description}</p>
+                            </div>
+                            {selectedAiTheme === t.id && <Sparkle className="w-3.5 h-3.5 absolute top-3 right-3 text-purple-400 fill-purple-400" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 pt-4">
+                      <button
+                        onClick={() => setWizardStep(1)}
+                        className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl text-xs"
+                      >
+                        ← Volver
+                      </button>
+                      <button
+                        onClick={() => setWizardStep(0)}
+                        className="flex-1 py-3 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-1.5"
+                      >
+                        <Camera className="w-4 h-4" /> Abrir Cámara
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+              </div>
+            </div>
+          ) : (
+            /* Standard Live Camera Feed */
+            <div className="relative w-full h-full">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                style={{ filter: getLiveFilter() }}
+              />
+              {activeTab === 'foto' && selectedTheme !== 'original' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md rounded-full px-4 py-1.5 flex items-center gap-2"
+                >
+                  <span className="text-lg">{TOUCHPIX_THEMES.find(t => t.id === selectedTheme)?.emoji}</span>
+                  <span className="text-xs font-bold text-white">{TOUCHPIX_THEMES.find(t => t.id === selectedTheme)?.label}</span>
+                </motion.div>
+              )}
+              {activeTab === 'faceswap' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md rounded-full px-4 py-1.5 flex items-center gap-2"
+                >
+                  <span className="text-lg">{FACE_SWAP_CHARACTERS.find(c => c.id === selectedCharacter)?.emoji}</span>
+                  <span className="text-xs font-bold text-white">{FACE_SWAP_CHARACTERS.find(c => c.id === selectedCharacter)?.label}</span>
+                </motion.div>
+              )}
+            </div>
+          )
+
         ) : (
           /* Captured photo review */
           <div className="relative w-full h-full">
-            {/* Data URLs from the camera and AI result cannot use Next image optimization. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={capturedImage} className="w-full h-full object-contain bg-black" alt="Captura Touchpix" />
             {processingResult && (
@@ -645,17 +781,16 @@ export default function TouchpixPage() {
           )}
         </AnimatePresence>
 
-        {/* ── Processing Overlay ── */}
+        {/* ── Processing Queue Overlay with Host Trivia ── */}
         <AnimatePresence>
           {isProcessing && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-40 flex flex-col items-center justify-center"
+              className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-zinc-950/90 backdrop-blur-md"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-900/80 via-purple-900/80 to-indigo-900/80 backdrop-blur-md" />
-              <div className="relative z-10 flex flex-col items-center text-center px-6">
+              <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-sm">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
@@ -663,22 +798,36 @@ export default function TouchpixPage() {
                 >
                   <Sparkles className="w-16 h-16 text-fuchsia-300" />
                 </motion.div>
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <Wand2 className="w-10 h-10 text-purple-300 mb-4" />
-                </motion.div>
+                
                 <p className="text-xl font-black text-white mb-2">{processingText}</p>
-                <div className="flex gap-1.5 mt-3">
+                <div className="flex gap-1.5 justify-center mb-6">
                   {[0, 1, 2].map(i => (
                     <motion.div
                       key={i}
                       animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
                       transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                      className="w-3 h-3 rounded-full bg-fuchsia-400"
+                      className="w-2.5 h-2.5 rounded-full bg-fuchsia-400"
                     />
                   ))}
+                </div>
+
+                {/* Queue interactive Trivia card */}
+                <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 shadow-xl text-center space-y-2">
+                  <p className="text-[10px] font-black uppercase text-fuchsia-400 tracking-widest flex items-center gap-1.5 justify-center">
+                    <Wand2 className="w-3.5 h-3.5 animate-pulse" /> Trivia de la fiesta
+                  </p>
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={triviaIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-xs text-zinc-300 font-semibold leading-relaxed"
+                    >
+                      {triviaList[triviaIndex]}
+                    </motion.p>
+                  </AnimatePresence>
                 </div>
               </div>
             </motion.div>
@@ -694,9 +843,7 @@ export default function TouchpixPage() {
               exit={{ opacity: 0, scale: 0.9 }}
               className="absolute inset-0 z-50 bg-black/70 backdrop-blur-md flex flex-col items-center justify-center text-center p-6"
             >
-              <motion.div animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.2, 1] }} transition={{ duration: 0.6, repeat: Infinity }}>
-                <PartyPopper className="w-24 h-24 text-fuchsia-400 mb-4" />
-              </motion.div>
+              <PartyPopper className="w-24 h-24 text-fuchsia-400 mb-4 animate-bounce" />
               <h2 className="text-3xl font-black text-white mb-2">¡Foto enviada!</h2>
               <p className="text-lg text-zinc-300">Ya está en el muro de la fiesta 🎉</p>
             </motion.div>
@@ -706,8 +853,8 @@ export default function TouchpixPage() {
 
       {/* ═══════════ BOTTOM CONTROLS ═══════════ */}
       <div className="relative z-20 shrink-0 bg-zinc-950/90 backdrop-blur-xl border-t border-white/5">
-
-        {/* ── CAPTURED: Review Actions ── */}
+        
+        {/* Review Actions */}
         {isReviewMode && !isProcessing && (
           <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="px-4 pt-4 pb-3">
             <div className="flex items-center justify-around">
@@ -725,12 +872,8 @@ export default function TouchpixPage() {
                 <span className="text-[10px] font-bold">Compartir</span>
               </button>
 
-              <button
-                onClick={handleUpload}
-                disabled={isUploading || showSuccess}
-                className="flex flex-col items-center gap-1.5 text-white"
-              >
-                <div className="w-[68px] h-[68px] rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 shadow-[0_0_30px_rgba(217,70,239,0.4)] flex items-center justify-center active:scale-95 transition">
+              <button onClick={handleUpload} disabled={isUploading} className="flex flex-col items-center gap-1.5 text-white">
+                <div className="w-[68px] h-[68px] rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 shadow-[0_0_30px_rgba(217,70,239,0.4)] flex items-center justify-center">
                   {isUploading ? <Loader2 className="w-7 h-7 animate-spin" /> : <Send className="w-7 h-7 ml-0.5" />}
                 </div>
                 <span className="text-xs font-black uppercase tracking-wide">Subir al Muro</span>
@@ -761,37 +904,28 @@ export default function TouchpixPage() {
           </motion.div>
         )}
 
-        {/* ── AI Theme Selection (after raw capture) ── */}
+        {/* AI Themes selection overlay */}
         {isAiThemeSelection && (
           <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="px-4 pt-3 pb-2">
             <div className="flex items-center gap-2 mb-3">
               <Wand2 className="w-4 h-4 text-fuchsia-400" />
               <p className="text-sm font-bold text-white">Elegí un tema para tu foto</p>
             </div>
-            <div className="grid grid-cols-4 gap-2 mb-3">
+            <div className="grid grid-cols-5 gap-2 mb-3">
               {TOUCHPIX_THEMES.filter(t => t.id !== 'original').map(theme => (
                 <button
                   key={theme.id}
                   onClick={() => applyAiTheme(theme.id)}
-                  className={`relative flex flex-col items-center gap-1 p-2.5 rounded-xl border transition-all
-                    ${selectedAiTheme === theme.id
-                      ? 'border-fuchsia-500 bg-fuchsia-500/10 ring-2 ring-fuchsia-500 shadow-[0_0_20px_rgba(217,70,239,0.3)]'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                  className={`relative flex flex-col items-center gap-1 p-2 rounded-xl border transition-all
+                    ${selectedAiTheme === theme.id ? 'border-fuchsia-500 bg-fuchsia-500/10' : 'border-white/10 bg-white/5'}`}
                 >
-                  <div className={`w-full aspect-square rounded-lg bg-gradient-to-br ${theme.gradient} flex items-center justify-center text-2xl`}>
-                    {theme.emoji}
-                  </div>
-                  <span className="text-[10px] font-bold text-zinc-300 leading-tight text-center">{theme.label}</span>
+                  <span className="text-xl">{theme.emoji}</span>
+                  <span className="text-[9px] font-bold text-zinc-300 leading-tight text-center truncate w-full">{theme.label}</span>
                 </button>
               ))}
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={retake}
-                className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-zinc-400 hover:text-white transition"
-              >
-                ← Repetir
-              </button>
+              <button onClick={retake} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-zinc-400 hover:text-white">← Repetir</button>
               <button
                 onClick={() => {
                   applyFilterToCanvas(rawCapturedImage!, 'none', (result) => {
@@ -799,18 +933,15 @@ export default function TouchpixPage() {
                     setProcessingResult(null);
                   });
                 }}
-                className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-zinc-400 hover:text-white transition"
-              >
-                📷 Original
-              </button>
+                className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-zinc-400 hover:text-white"
+              >📷 Original</button>
             </div>
           </motion.div>
         )}
 
-        {/* ── NOT CAPTURED: Camera Controls ── */}
-        {!capturedImage && !errorMsg && (
+        {/* Camera mode selector & triggers */}
+        {!capturedImage && !errorMsg && wizardStep === 0 && (
           <>
-            {/* Mode-specific selector */}
             <div className="px-3 pt-3">
               {activeTab === 'foto' && (
                 <div className="flex overflow-x-auto gap-2 pb-2 hide-scrollbar">
@@ -818,55 +949,24 @@ export default function TouchpixPage() {
                     <button
                       key={theme.id}
                       onClick={() => setSelectedTheme(theme.id)}
-                      className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap border
-                        ${selectedTheme === theme.id
-                          ? 'border-fuchsia-500 bg-fuchsia-500/20 text-fuchsia-300 ring-2 ring-fuchsia-500/50 shadow-[0_0_15px_rgba(217,70,239,0.2)]'
-                          : 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+                      className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all border
+                        ${selectedTheme === theme.id ? 'border-fuchsia-500 bg-fuchsia-500/20 text-fuchsia-300' : 'border-white/10 bg-white/5 text-zinc-400'}`}
                     >
-                      <span className="text-base">{theme.emoji}</span>
-                      {theme.label}
+                      <span className="text-base">{theme.emoji}</span> {theme.label}
                     </button>
                   ))}
-                </div>
-              )}
-
-              {activeTab === 'faceswap' && (
-                <div className="grid grid-cols-3 gap-2 pb-2">
-                  {FACE_SWAP_CHARACTERS.map(char => (
-                    <button
-                      key={char.id}
-                      onClick={() => setSelectedCharacter(char.id)}
-                      className={`flex flex-col items-center gap-1 p-2.5 rounded-xl border transition-all
-                        ${selectedCharacter === char.id
-                          ? 'border-fuchsia-500 bg-fuchsia-500/10 ring-2 ring-fuchsia-500 shadow-[0_0_20px_rgba(217,70,239,0.3)]'
-                          : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
-                    >
-                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${char.gradient} flex items-center justify-center text-xl`}>
-                        {char.emoji}
-                      </div>
-                      <span className="text-[10px] font-bold text-zinc-300">{char.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'ai_themes' && (
-                <div className="flex items-center gap-2 pb-2 px-1">
-                  <Wand2 className="w-4 h-4 text-fuchsia-400 shrink-0" />
-                  <p className="text-xs text-zinc-400">Sacá una foto y después elegí un tema IA</p>
                 </div>
               )}
             </div>
 
-            {/* Capture Button */}
             <div className="flex justify-center pb-3 pt-1">
               <button
                 onClick={takePhoto}
                 disabled={countdown !== null}
-                className="w-[72px] h-[72px] rounded-full p-1.5 transition-transform active:scale-90 disabled:opacity-50"
+                className="w-[72px] h-[72px] rounded-full p-1.5 transition active:scale-90"
                 style={{ background: 'linear-gradient(135deg, rgb(217, 70, 239), rgb(147, 51, 234))' }}
               >
-                <div className="w-full h-full rounded-full bg-white/95 flex items-center justify-center shadow-xl">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center shadow-xl">
                   <Camera className="w-7 h-7 text-purple-700" />
                 </div>
               </button>
@@ -874,7 +974,7 @@ export default function TouchpixPage() {
           </>
         )}
 
-        {/* ═══════════ TAB BAR ═══════════ */}
+        {/* TAB BAR (always visible at bottom) */}
         <div className="flex border-t border-white/5 bg-zinc-950/80">
           {tabs.map(tab => (
             <button
@@ -882,19 +982,19 @@ export default function TouchpixPage() {
               onClick={() => {
                 if (capturedImage) retake();
                 setActiveTab(tab.id);
+                if (tab.id === 'faceswap' || tab.id === 'ai_themes') {
+                  setWizardStep(1);
+                } else {
+                  setWizardStep(0);
+                }
               }}
               className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-all
-                ${activeTab === tab.id
-                  ? 'text-fuchsia-400'
-                  : 'text-zinc-500 hover:text-zinc-300'}`}
+                ${activeTab === tab.id ? 'text-fuchsia-400' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
-              <div className={`relative ${activeTab === tab.id ? 'scale-110' : ''} transition-transform`}>
+              <div className="relative">
                 {tab.icon}
                 {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="tab-indicator"
-                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-fuchsia-400"
-                  />
+                  <motion.div layoutId="tab-indicator" className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-fuchsia-400" />
                 )}
               </div>
               <span className="text-[10px] font-bold">{tab.label}</span>
@@ -903,10 +1003,8 @@ export default function TouchpixPage() {
         </div>
       </div>
 
-      {/* ═══════════ QR MODAL ═══════════ */}
-      <AnimatePresence>
-        <QrModal />
-      </AnimatePresence>
+      <QrModal />
+      <KioskUnlockButton />
     </div>
   );
 }

@@ -105,6 +105,7 @@ export interface Presupuesto {
   archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
   archivedAt?: string; // ISO timestamp of archival
   totalFinal?: number; // Added to resolve build error on approvals / client requests
+  acquisition?: import('@/lib/commercial/acquisition').CommercialAttribution;
 }
 
 // FormData for the new unified builder.

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +39,7 @@ import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE } from '@/lib/budget/formal-budget';
+import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 
 const WHATSAPP_NUMBER = '59898355530';
 const DEFAULT_DISCOUNT = 15;
@@ -97,7 +99,13 @@ function Suspense({ children, fallback }: { children: React.ReactNode, fallback:
 
 function SimuladorAKContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const acquisition = useMemo(() => ({
+    ...commercialAttributionFromSearchParams(searchParams, 'landing'),
+    entryPath: searchParams.get('entry') || '/simulador-ak',
+    simulatorMode: 'assistant' as const,
+  }), [searchParams]);
   
   // App Config States
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
@@ -564,6 +572,7 @@ function SimuladorAKContent() {
         source: 'simulator_assistant',
         eventoTipo: eventoTipo ? EVENT_META[eventoTipo as EventType]?.label : 'Evento',
         salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'Salón propio' : 'A definir'),
+        acquisition,
       });
 
       if (result.success && result.presupuestoId) {

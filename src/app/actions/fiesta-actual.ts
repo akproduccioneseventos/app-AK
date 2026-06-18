@@ -175,3 +175,22 @@ export async function savePlanPagosContrato(
     return { success: false, error: e.message };
   }
 }
+
+export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  try {
+    const fiestas = await FiestaModule.getFiestas(false);
+    const today = new Date();
+    const offset = today.getTimezoneOffset();
+    const localToday = new Date(today.getTime() - (offset * 60 * 1000));
+    const todayStr = localToday.toISOString().split('T')[0];
+
+    const activeFiesta = fiestas.find(f => f.configuracion?.fechaEvento === todayStr);
+
+    if (activeFiesta) {
+      return { success: true, fiestaId: activeFiesta.id };
+    }
+    return { success: false, error: 'No hay fiesta programada para hoy.' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al buscar fiesta de hoy.' };
+  }
+}

@@ -100,7 +100,7 @@ export function SplashScreen({
           exit={{ opacity: 0, y: '-100%' }}
           transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden select-none"
-          style={{ backgroundColor: primaryColor }}
+          style={{ background: `linear-gradient(135deg, ${primaryColor}, rgba(15, 23, 42, 0.95))` }}
           onClick={dismiss}
         >
           {/* Particles */}
@@ -154,9 +154,9 @@ export function SplashScreen({
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.55 }}
-              transition={{ delay: 1.5, duration: 0.5 }}
-              className="text-white text-xs mt-2 uppercase tracking-widest"
+              animate={{ opacity: [0.3, 0.8, 0.3] }}
+              transition={{ delay: 1.2, duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="text-white text-xs mt-2 uppercase tracking-widest font-semibold"
             >
               Toca para continuar
             </motion.p>

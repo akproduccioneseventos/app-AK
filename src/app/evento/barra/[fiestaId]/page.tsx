@@ -28,6 +28,7 @@ import {
   getBarraTecnologicaDashboard,
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
+import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -493,6 +494,7 @@ export default function BarraTecnologicaTouchPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      <KioskUnlockButton />
     </main>
   );
 }
