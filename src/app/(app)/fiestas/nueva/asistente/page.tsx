@@ -148,7 +148,7 @@ function FiestaAgentContent() {
               value={input}
               onChange={event => setInput(event.target.value)}
               placeholder="Ejemplo: decime qué falta antes del evento..."
-              className="min-h-[52px] resize-none rounded-2xl"
+              className="min-h-[52px] resize-none rounded-2xl bg-slate-50 border-none text-slate-900 placeholder-slate-400 focus-visible:ring-red-500 shadow-inner"
               onKeyDown={event => {
                 if (event.key === 'Enter' && !event.shiftKey) {
                   event.preventDefault();
