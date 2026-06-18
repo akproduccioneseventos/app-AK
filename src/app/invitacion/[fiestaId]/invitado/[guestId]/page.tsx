@@ -36,6 +36,7 @@ import type { SocialConnection } from '@/types/settings';
 import { Button } from '@/components/ui/button';
 import QRCodeStylized from 'qrcode.react';
 import { MiniQuiosco } from './MiniQuiosco';
+import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -212,6 +213,19 @@ function GuestPortalContent() {
     return undefined;
   })();
   const landingUrl = guestExp?.landingUrl;
+  const guestAttribution = {
+    source: 'guest_portal' as const,
+    campaign: 'guest-experience',
+    refFiestaId: fiestaId,
+    refGuestId: guest.id,
+    entryPath: `/invitacion/${fiestaId}/invitado/${guest.id}`,
+  };
+  const trackedLandingUrl = landingUrl
+    ? appendCommercialAttribution(landingUrl, guestAttribution)
+    : undefined;
+  const trackedSimulatorUrl = guestExp?.simulatorUrl
+    ? appendCommercialAttribution(guestExp.simulatorUrl, guestAttribution)
+    : undefined;
 
   const showAkCta = guestExp?.enabled !== false && guestExp?.showAkBranding !== false;
 
@@ -774,7 +788,7 @@ function GuestPortalContent() {
             </div>
             {landingUrl && guestExp?.showLandingCta !== false && (
               <a
-                href={landingUrl}
+                href={trackedLandingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="guest-portal-cta-landing"
@@ -787,7 +801,7 @@ function GuestPortalContent() {
             )}
             {guestExp?.simulatorUrl && guestExp?.showBudgetSimulatorCta && (
               <a
-                href={guestExp.simulatorUrl}
+                href={trackedSimulatorUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="guest-portal-cta-simulator"

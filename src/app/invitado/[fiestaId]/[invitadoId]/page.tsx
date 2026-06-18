@@ -24,6 +24,7 @@ import { InvitadoQR } from '@/components/invitados/InvitadoQR';
 import { useToast } from '@/hooks/use-toast';
 import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
+import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
 // ─── Config helpers ───────────────────────────────────────────────────────────
 
@@ -250,6 +251,17 @@ export default function InvitadoPage() {
     accentColor,
     ...(fiesta.guestExperienceSettings ?? {}),
   };
+  const guestAttribution = {
+    source: 'guest_portal' as const,
+    campaign: 'guest-experience',
+    refFiestaId: fiestaId,
+    refGuestId: invitadoId,
+    entryPath: `/invitado/${fiestaId}/${invitadoId}`,
+  };
+  const trackedLandingUrl = ges.landingUrl
+    ? appendCommercialAttribution(ges.landingUrl, guestAttribution)
+    : undefined;
+  const trackedSimulatorUrl = appendCommercialAttribution('/simulador-ak', guestAttribution);
 
   const invitacionUrl = fiesta.invitacionSlug
     ? `${typeof window !== 'undefined' ? window.location.origin : ''}/invitacion/${fiesta.invitacionSlug}`
@@ -734,7 +746,7 @@ export default function InvitadoPage() {
                 <div className="grid grid-cols-1 gap-2">
                   {ges.landingUrl && (
                     <a
-                      href={ges.landingUrl}
+                      href={trackedLandingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => updateGuestExperienceStats(fiestaId, invitadoId, { clickedLanding: true })}
@@ -761,7 +773,7 @@ export default function InvitadoPage() {
                       </a>
                     )}
                     <a
-                      href="/simulador"
+                      href={trackedSimulatorUrl}
                       onClick={() => updateGuestExperienceStats(fiestaId, invitadoId, { clickedSimulator: true })}
                       className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-bold text-xs transition-all active:scale-95 border"
                       style={{

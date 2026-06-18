@@ -84,9 +84,10 @@ function VideoCard({ video, onPlay }: VideoCardProps) {
 interface VideoSectionProps {
   videos?: VideoItem[];
   galeriaVideos?: GaleriaVideo[];
+  channelUrl?: string;
 }
 
-export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
+export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSectionProps) {
   const dynamicVideos: VideoItem[] = galeriaVideos?.map(galeriaVideoToVideoItem) ?? [];
   const allVideos: VideoItem[] = dynamicVideos.length > 0 ? dynamicVideos : videos ?? [];
   const [activeCategory, setActiveCategory] = useState('Todos');
@@ -175,6 +176,19 @@ export function VideoSection({ videos, galeriaVideos }: VideoSectionProps) {
             <VideoCard key={video.id} video={video} onPlay={setActiveVideo} />
           ))}
         </div>
+
+        {channelUrl && (
+          <div className="mt-10 text-center">
+            <a
+              href={channelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-12 items-center justify-center rounded-lg border border-white/30 px-6 text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+            >
+              Ver canal oficial en YouTube
+            </a>
+          </div>
+        )}
 
         {filtered.length === 0 && (
           <div className="text-center py-16 text-slate-500">
