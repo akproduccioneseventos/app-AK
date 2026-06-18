@@ -11,6 +11,7 @@ import { getSocialPosts } from '@/app/actions/social-gallery';
 import type { FiestaEnPlanificacion, TotemScreenSettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { cn } from '@/lib/utils';
+import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 const REFRESH_MS = 2500;
 
@@ -308,6 +309,7 @@ export default function TotemPublicPage() {
           50% { transform: translate(18%, -12%) rotate(35deg); opacity: 0.65; }
         }
       `}</style>
+      <KioskUnlockButton />
     </main>
   );
 }

@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { SplashScreen } from '@/components/invitacion/SplashScreen';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
+import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -63,6 +64,9 @@ const DEFAULT_SECTION_ORDER: Record<InvitacionSectionId, number> = {
   muroSocial: 10,
   ctaAk: 11,
   footer: 12,
+  historia: 13,
+  faq: 14,
+  logistica: 15,
 };
 
 /**
@@ -139,7 +143,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<number>(1);
   const isNoAsiste = asistencia === 'Rechazado';
   const totalSteps = isNoAsiste ? 2 : 3;
 
@@ -297,9 +301,6 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                         type="button"
                         onClick={() => {
                           setAsistencia(opt.value);
-                          if (opt.value === 'Rechazado' && step === 3) {
-                            setStep(2);
-                          }
                         }}
                         className={cn(
                           'rounded-xl py-2 px-1 text-xs font-bold border-2 transition-all duration-300 hover:scale-[1.03] flex flex-col items-center justify-center',
@@ -473,8 +474,6 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         </div>
       </form>
     </div>
-  );
-}
   );
 }
 
@@ -1551,6 +1550,9 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
 
       {/* ============= BACKGROUND MUSIC PLAYER ============= */}
       <BackgroundMusicPlayer src={config.musicaFondoUrl} splashDone={splashDone} />
+
+      {/* ============= XV ULTRA-LUXURY THEME EFFECTS ============= */}
+      <XVThemeEffects plantillaId={config.plantillaId} />
 
       {/* ============= RSVP SUCCESS CONFETTI ============= */}
       {rsvpConfirmed && <Confetti />}

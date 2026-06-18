@@ -8,6 +8,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { uploadSocialPost, getSocialPosts } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 export default function Plataforma360Page() {
   const params = useParams();
@@ -236,6 +237,7 @@ export default function Plataforma360Page() {
         </div>
 
       </div>
+      <KioskUnlockButton />
     </div>
   );
 }

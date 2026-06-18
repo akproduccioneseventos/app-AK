@@ -707,6 +707,9 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
                 muroSocial: 'Portal social (mural)',
                 ctaAk: 'CTA AK Producciones',
                 footer: 'Pie de página',
+                historia: 'Nuestra Historia',
+                faq: 'Preguntas Frecuentes',
+                logistica: 'Hospedaje Recomendado',
               };
 
               const contentCheck: Record<InvitacionSectionId, boolean> = {
@@ -722,6 +725,9 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
                 muroSocial: !!config.portalSocialActivo,
                 ctaAk: true,
                 footer: true,
+                historia: true,
+                faq: true,
+                logistica: true,
               };
 
               return activeSections.map((sec, idx) => {

@@ -457,7 +457,10 @@ export type InvitacionSectionId =
   | 'rsvp'
   | 'muroSocial'
   | 'ctaAk'
-  | 'footer';
+  | 'footer'
+  | 'historia'
+  | 'faq'
+  | 'logistica';
 
 export interface InvitacionTypographyConfig {
   heroTitleMobile?: string;
@@ -542,6 +545,7 @@ export interface InvitacionDigitalConfig {
   ctaAkTexto?: string;
   ctaAkLandingUrl?: string;
   ctaAkWhatsapp?: string;
+  musicaFondoUrl?: string;
 }
 
 export interface InvitacionDigitalData {
