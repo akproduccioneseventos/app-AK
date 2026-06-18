@@ -4,13 +4,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Mic, Video, Play, Pause, Square, Trash2, Send, ArrowLeft, Loader2, CheckCircle2, 
-  Volume2, Sparkles, AlertCircle, RefreshCw, Upload
+  Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2, 
+  Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 export default function GuestBuzonPage() {
   const params = useParams();
@@ -29,7 +30,8 @@ export default function GuestBuzonPage() {
   const [isWelcomePlaying, setIsWelcomePlaying] = useState(false);
   const welcomeAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Audio Recording State
+  // Audio Phone Cabin State
+  const [phoneState, setPhoneState] = useState<'hung_up' | 'off_hook' | 'beeping' | 'recording' | 'review'>('hung_up');
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -38,12 +40,47 @@ export default function GuestBuzonPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Video Recording State
+  
+  // Video VHS State
+  const [videoState, setVideoState] = useState<'idle' | 'recording' | 'processing' | 'review'>('idle');
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const vhsCanvasRef = useRef<HTMLCanvasElement>(null);
+  const vhsRecorderRef = useRef<MediaRecorder | null>(null);
+  
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
+
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const playPhoneTone = (freq1: number, freq2: number, duration: number) => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc1.frequency.value = freq1;
+      osc2.frequency.value = freq2;
+      
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc1.start();
+      osc2.start();
+      osc1.stop(ctx.currentTime + duration);
+      osc2.stop(ctx.currentTime + duration);
+    } catch (e) {}
+  };
 
   // Load Fiesta Data
   useEffect(() => {
@@ -60,12 +97,12 @@ export default function GuestBuzonPage() {
     loadData();
   }, [fiestaId]);
 
-  // Clean up resources on unmount
   useEffect(() => {
     return () => {
       if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
       if (audioUrl) URL.revokeObjectURL(audioUrl);
       if (videoUrl) URL.revokeObjectURL(videoUrl);
+      stopCamera();
     };
   }, [audioUrl, videoUrl]);
 
@@ -82,7 +119,6 @@ export default function GuestBuzonPage() {
       welcomeAudioRef.current.pause();
       setIsWelcomePlaying(false);
     } else {
-      // Pause preview recording playing if any
       if (isPlayingRecording && previewAudioRef.current) {
         previewAudioRef.current.pause();
         setIsPlayingRecording(false);
@@ -92,31 +128,51 @@ export default function GuestBuzonPage() {
     }
   };
 
+  // Rotary Phone Handset Off-Hook & Dial Trigger
+  const handlePickUpHandset = async () => {
+    setPhoneState('off_hook');
+    
+    // Play dial tones (DTMF sounds)
+    playPhoneTone(350, 440, 0.5); // Dial tone
+    setTimeout(() => playPhoneTone(697, 1209, 0.15), 600); // Digit 1
+    setTimeout(() => playPhoneTone(770, 1336, 0.15), 800); // Digit 5
+    setTimeout(() => playPhoneTone(852, 1477, 0.15), 1000); // Digit 9
+    
+    setTimeout(() => {
+      setPhoneState('beeping');
+      playPhoneTone(1000, 1000, 0.45); // Classic voicemail BEEP
+    }, 1300);
+
+    setTimeout(() => {
+      startAudioRecording();
+    }, 1800);
+  };
+
+  const handleHangUpHandset = () => {
+    stopAudioRecording();
+    setPhoneState('review');
+  };
+
   // Start Audio Recording
-  const startRecording = async () => {
+  const startAudioRecording = async () => {
     setAudioBlob(null);
     setAudioUrl(null);
     setRecordingSeconds(0);
+    setPhoneState('recording');
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       let mimeType = 'audio/webm';
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'audio/mp4';
-      }
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = ''; // Let browser choose default
-      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'audio/mp4';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = '';
 
       const options = mimeType ? { mimeType } : undefined;
-      const mediaRecorder = new MediaRecorder(stream, options);
+      const mediaRecorder = new MediaRecorder(audioStream, options);
       const chunks: BlobPart[] = [];
 
       mediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          chunks.push(e.data);
-        }
+        if (e.data && e.data.size > 0) chunks.push(e.data);
       };
 
       mediaRecorder.onstop = () => {
@@ -125,19 +181,17 @@ export default function GuestBuzonPage() {
         setAudioBlob(blob);
         setAudioUrl(url);
         
-        // Stop all tracks to release microphone
-        stream.getTracks().forEach(track => track.stop());
+        audioStream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setIsRecording(true);
 
-      // Start countdown (max 60s)
       recordingIntervalRef.current = setInterval(() => {
         setRecordingSeconds((prev) => {
           if (prev >= 59) {
-            stopRecording();
+            handleHangUpHandset();
             return 60;
           }
           return prev + 1;
@@ -146,6 +200,7 @@ export default function GuestBuzonPage() {
 
     } catch (err) {
       console.error('Error accessing microphone:', err);
+      setPhoneState('hung_up');
       toast({
         title: 'Acceso Denegado',
         description: 'Por favor, permite el acceso al micrófono para grabar tu saludo.',
@@ -154,8 +209,7 @@ export default function GuestBuzonPage() {
     }
   };
 
-  // Stop Audio Recording
-  const stopRecording = () => {
+  const stopAudioRecording = () => {
     if (recordingIntervalRef.current) {
       clearInterval(recordingIntervalRef.current);
       recordingIntervalRef.current = null;
@@ -168,7 +222,6 @@ export default function GuestBuzonPage() {
     setIsRecording(false);
   };
 
-  // Play Recorded Audio Preview
   const togglePlayRecording = () => {
     if (!audioUrl) return;
 
@@ -181,7 +234,6 @@ export default function GuestBuzonPage() {
       previewAudioRef.current.pause();
       setIsPlayingRecording(false);
     } else {
-      // Pause welcome audio if playing
       if (isWelcomePlaying && welcomeAudioRef.current) {
         welcomeAudioRef.current.pause();
         setIsWelcomePlaying(false);
@@ -191,7 +243,6 @@ export default function GuestBuzonPage() {
     }
   };
 
-  // Reset Audio State
   const resetAudioRecording = () => {
     if (isPlayingRecording && previewAudioRef.current) {
       previewAudioRef.current.pause();
@@ -200,10 +251,11 @@ export default function GuestBuzonPage() {
     setAudioBlob(null);
     setAudioUrl(null);
     setRecordingSeconds(0);
+    setPhoneState('hung_up');
     previewAudioRef.current = null;
   };
 
-  // File Input Change (Video)
+  // UPLOAD FROM GALLERY (VIDEO FALLBACK)
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -217,16 +269,15 @@ export default function GuestBuzonPage() {
       return;
     }
 
-    if (file.size > 40 * 1024 * 1024) {
+    if (file.size > 50 * 1024 * 1024) {
       toast({
         title: 'Video demasiado grande',
-        description: 'El video no debe superar los 40MB.',
+        description: 'El video no debe superar los 50MB.',
         variant: 'destructive',
       });
       return;
     }
 
-    // Load video to read metadata (duration)
     const tempUrl = URL.createObjectURL(file);
     const videoElement = document.createElement('video');
     videoElement.src = tempUrl;
@@ -237,10 +288,10 @@ export default function GuestBuzonPage() {
       setVideoDuration(duration);
       URL.revokeObjectURL(tempUrl);
 
-      if (duration > 16) {
+      if (duration > 31) {
         toast({
           title: 'Duración excedida',
-          description: 'El video no debe durar más de 15 segundos para no saturar el servidor.',
+          description: 'El video no debe durar más de 30 segundos.',
           variant: 'destructive',
         });
         setVideoFile(null);
@@ -248,16 +299,179 @@ export default function GuestBuzonPage() {
       } else {
         setVideoFile(file);
         setVideoUrl(URL.createObjectURL(file));
+        setVideoState('review');
       }
     };
   };
 
-  // Reset Video State
+  // LIVE VHS VIDEO CAPTURE
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: true
+      });
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+      setVideoState('recording');
+      
+      // Start VHS filter canvas loop
+      setTimeout(() => startVHSRenderLoop(mediaStream), 300);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Cámara no disponible',
+        description: 'No se pudo acceder a la cámara frontal.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+  };
+
+  const startVHSRenderLoop = (activeStream: MediaStream) => {
+    const video = videoRef.current;
+    const canvas = vhsCanvasRef.current;
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = 640;
+    canvas.height = 480;
+
+    let animationFrameId: number;
+
+    const render = () => {
+      if (video.paused || video.ended || activeStream.getTracks()[0].readyState === 'ended') return;
+
+      // Draw video mirrored
+      ctx.save();
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      // VHS sepia/contrast tint
+      ctx.fillStyle = 'rgba(120, 90, 40, 0.08)'; // vintage tint
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // CRT Scanlines effect
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      for (let y = 0; y < canvas.height; y += 4) {
+        ctx.fillRect(0, y, canvas.width, 2);
+      }
+
+      // flasing record dot
+      const now = Date.now();
+      if (Math.floor(now / 500) % 2 === 0) {
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(40, 40, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px "Courier New", monospace';
+        ctx.fillText('REC', 60, 46);
+      }
+
+      // Video Timer or timestamp
+      const date = new Date();
+      const timeStr = date.toTimeString().split(' ')[0];
+      const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px "Courier New", monospace';
+      ctx.fillText(timeStr, 40, canvas.height - 60);
+      ctx.fillText(dateStr, 40, canvas.height - 35);
+      ctx.fillText('PLAY ▶', canvas.width - 110, 46);
+      ctx.fillText('VHS SP', canvas.width - 110, canvas.height - 35);
+
+      // Random tracking error line (VHSDistortion)
+      if (Math.random() < 0.1) {
+        const errorY = Math.floor(Math.random() * canvas.height);
+        const errorH = Math.floor(Math.random() * 10) + 2;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fillRect(0, errorY, canvas.width, errorH);
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+  };
+
+  const startLiveVideoRecording = async () => {
+    const canvas = vhsCanvasRef.current;
+    if (!canvas || !stream) return;
+
+    setVideoState('recording');
+    setVideoDuration(0);
+
+    const canvasStream = canvas.captureStream(20); // 20 FPS
+    
+    // Add audio track to canvas stream
+    const audioTrack = stream.getAudioTracks()[0];
+    if (audioTrack) {
+      canvasStream.addTrack(audioTrack);
+    }
+
+    let mimeType = 'video/webm';
+    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
+
+    const chunks: Blob[] = [];
+    const recorder = new MediaRecorder(canvasStream, { mimeType });
+    vhsRecorderRef.current = recorder;
+
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) chunks.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: mimeType });
+      const file = new File([blob], `capsulavideo-${Date.now()}.mp4`, { type: mimeType });
+      setVideoFile(file);
+      setVideoUrl(URL.createObjectURL(blob));
+      setVideoState('review');
+      stopCamera();
+    };
+
+    recorder.start();
+
+    // Timer limit 15s
+    let elapsed = 0;
+    recordingIntervalRef.current = setInterval(() => {
+      elapsed += 1;
+      setVideoDuration(elapsed);
+      if (elapsed >= 15) {
+        stopLiveVideoRecording();
+      }
+    }, 1000);
+  };
+
+  const stopLiveVideoRecording = () => {
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+    if (vhsRecorderRef.current && vhsRecorderRef.current.state !== 'inactive') {
+      vhsRecorderRef.current.stop();
+    }
+  };
+
   const resetVideoUpload = () => {
     if (videoUrl) URL.revokeObjectURL(videoUrl);
     setVideoFile(null);
     setVideoUrl(null);
     setVideoDuration(0);
+    setVideoState('idle');
+    stopCamera();
     if (videoInputRef.current) videoInputRef.current.value = '';
   };
 
@@ -267,7 +481,7 @@ export default function GuestBuzonPage() {
     if (!trimmedName) {
       toast({
         title: 'Nombre requerido',
-        description: 'Por favor ingresa tu nombre para que los anfitriones sepan quién grabó el saludo.',
+        description: 'Por favor ingresa tu nombre.',
         variant: 'destructive',
       });
       return;
@@ -304,7 +518,7 @@ export default function GuestBuzonPage() {
         resetVideoUpload();
         toast({
           title: '¡Mensaje guardado!',
-          description: 'Tu saludo se ha guardado en el buzón de los anfitriones.',
+          description: 'Tu saludo se ha guardado en la Cápsula del Tiempo.',
         });
         setTimeout(() => {
           setShowCelebration(false);
@@ -312,7 +526,7 @@ export default function GuestBuzonPage() {
       } else {
         toast({
           title: 'Error al subir',
-          description: result.error || 'Ocurrió un error al procesar la subida.',
+          description: result.error || 'Ocurrió un error al subir.',
           variant: 'destructive',
         });
       }
@@ -330,8 +544,8 @@ export default function GuestBuzonPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3">
-        <Loader2 className="w-10 h-10 animate-spin text-purple-500" />
-        <p className="text-sm text-zinc-400">Cargando buzón de recuerdos...</p>
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
+        <p className="text-sm text-zinc-400">Cargando Cápsula del Tiempo...</p>
       </div>
     );
   }
@@ -341,252 +555,170 @@ export default function GuestBuzonPage() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white p-6 text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
         <h1 className="text-xl font-bold">Evento no encontrado</h1>
-        <p className="text-zinc-500 text-sm mt-2">No pudimos cargar la configuración del buzón.</p>
-        <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-zinc-800 rounded-xl text-xs font-bold">
-          Volver
-        </button>
+        <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-zinc-800 rounded-xl text-xs font-bold">Volver</button>
       </div>
     );
   }
 
   const hasWelcomeAudio = !!fiesta.buzonConfig?.welcomeAudioUrl;
-  const customAccent = fiesta.guestPortalSettings?.customAccentColor || '#9333ea';
+  const customAccent = fiesta.guestPortalSettings?.customAccentColor || '#6366f1';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col justify-between selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_60%)] text-white flex flex-col justify-between select-none">
       
       {/* HEADER */}
       <header className="px-4 py-5 flex items-center justify-between border-b border-white/5 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
-        <button 
-          onClick={() => router.back()} 
-          className="p-2 -ml-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition"
-        >
+        <button onClick={() => router.back()} className="p-2 -ml-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="text-center flex-1 pr-6">
-          <h1 className="text-lg font-black uppercase tracking-wider bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent flex items-center justify-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-            Buzón de Recuerdos
+          <h1 className="text-lg font-black uppercase tracking-wider bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center justify-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-indigo-400" />
+            Cápsula del Tiempo
           </h1>
-          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
             {fiesta.configuracion?.nombreEvento || 'Fiesta'}
           </p>
         </div>
       </header>
 
-      {/* CELEBRATION OVERLAY */}
+      {/* CELEBRATION */}
       <AnimatePresence>
         {showCelebration && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-6 text-center"
           >
-            <motion.div
-              initial={{ scale: 0.8, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, y: 20 }}
-              className="space-y-4 max-w-sm"
-            >
-              <div className="inline-flex p-4 rounded-full bg-emerald-500/10 text-emerald-500 mb-2 border border-emerald-500/20">
-                <CheckCircle2 className="w-16 h-16 animate-bounce" />
-              </div>
-              <h2 className="text-3xl font-black">¡Muchas Gracias!</h2>
-              <p className="text-zinc-400 text-sm">
-                Tu saludo de recuerdos ha sido guardado con éxito. Quedará grabado para siempre en la memoria de los anfitriones.
-              </p>
-              <button 
-                onClick={() => setShowCelebration(false)} 
-                className="mt-6 px-6 py-3 rounded-full text-xs font-bold text-white uppercase tracking-wider border border-white/20 hover:bg-white/10 transition"
-              >
-                Grabar otro saludo
-              </button>
-            </motion.div>
+            <div className="inline-flex p-4 rounded-full bg-indigo-500/10 text-indigo-400 mb-2 border border-indigo-500/20">
+              <CheckCircle2 className="w-16 h-16 animate-bounce" />
+            </div>
+            <h2 className="text-3xl font-black">¡Mensaje a la Cápsula!</h2>
+            <p className="text-zinc-400 text-sm max-w-xs mt-2">Tu recuerdo ha sido guardado exitosamente para el futuro.</p>
+            <button onClick={() => setShowCelebration(false)} className="mt-6 px-6 py-3 rounded-full text-xs font-bold text-white uppercase tracking-wider border border-white/20 hover:bg-white/10 transition">
+              Grabar otro recuerdo
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* MAIN CONTAINER */}
+      {/* MAIN CONTENT */}
       <main className="flex-1 max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-start gap-6">
         
-        {/* WELCOME AUDIO CARD */}
+        {/* Welcome Card */}
         {hasWelcomeAudio && (
-          <div className="p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            <div className="flex items-center gap-4 relative z-10">
-              <button
-                onClick={toggleWelcomeAudio}
-                className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all transform hover:scale-105"
-                style={{ backgroundColor: customAccent }}
-              >
-                {isWelcomePlaying ? (
-                  <Pause className="w-6 h-6 text-white fill-white" />
-                ) : (
-                  <Play className="w-6 h-6 text-white fill-white ml-1" />
-                )}
-              </button>
-              <div>
-                <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Volume2 className="w-3.5 h-3.5 text-purple-400" />
-                  Mensaje de Bienvenida
-                </p>
-                <h3 className="text-sm font-black text-white mt-0.5">
-                  Escuchá el saludo de los novios/quinceañera
-                </h3>
-              </div>
+          <div className="p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center gap-4">
+            <button
+              onClick={toggleWelcomeAudio}
+              className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition transform hover:scale-105"
+              style={{ backgroundColor: customAccent }}
+            >
+              {isWelcomePlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white ml-0.5" />}
+            </button>
+            <div>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1">
+                <Volume2 className="w-3.5 h-3.5 text-indigo-400" /> Mensaje Inicial
+              </p>
+              <h3 className="text-xs font-black text-white mt-0.5">Escucha el mensaje de los anfitriones</h3>
             </div>
-            
-            {/* Visualizer effect when playing */}
-            {isWelcomePlaying && (
-              <div className="flex items-center justify-center gap-1 mt-4 h-6 px-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((i) => (
-                  <span 
-                    key={i} 
-                    className="w-1 bg-purple-500 rounded-full animate-pulse"
-                    style={{ 
-                      height: `${Math.floor(Math.random() * 80) + 20}%`, 
-                      animationDelay: `${i * 0.1}s`,
-                      backgroundColor: customAccent 
-                    }}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         )}
 
         {/* TABS */}
         <div className="flex p-1 rounded-2xl bg-white/5 border border-white/10">
           <button
-            onClick={() => {
-              if (isRecording) stopRecording();
-              setActiveTab('audio');
-            }}
+            onClick={() => { resetVideoUpload(); resetAudioRecording(); setActiveTab('audio'); }}
             className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-              activeTab === 'audio' ? 'bg-white/10 text-white shadow-inner' : 'text-zinc-500 hover:text-zinc-300'
+              activeTab === 'audio' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Mic className="w-4 h-4" />
-            Audio de Voz
+            <Mic className="w-4 h-4" /> Voz Retro
           </button>
           <button
-            onClick={() => {
-              if (isRecording) stopRecording();
-              setActiveTab('video');
-            }}
+            onClick={() => { resetAudioRecording(); resetVideoUpload(); setActiveTab('video'); }}
             className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-              activeTab === 'video' ? 'bg-white/10 text-white shadow-inner' : 'text-zinc-500 hover:text-zinc-300'
+              activeTab === 'video' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Video className="w-4 h-4" />
-            Video Mensaje
+            <Video className="w-4 h-4" /> Video VHS
           </button>
         </div>
 
-        {/* CONTENIDO TABS */}
-        <div className="flex-1 flex flex-col justify-between min-h-[300px]">
+        {/* TAB BODY */}
+        <div className="flex-1 flex flex-col justify-between min-h-[340px]">
           
-          {/* TAB AUDIO */}
+          {/* Voz Retro Tab */}
           {activeTab === 'audio' && (
             <div className="flex-1 flex flex-col items-center justify-center gap-6">
-              
-              {!audioUrl ? (
-                // RECORDING INTERFACE
-                <div className="flex flex-col items-center gap-6 text-center">
-                  <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">
-                    {isRecording ? 'Grabando tu mensaje...' : 'Pulsá el micrófono para comenzar'}
-                  </p>
-
-                  <div className="relative">
-                    {isRecording && (
-                      <span 
-                        className="absolute inset-0 rounded-full animate-ping opacity-25"
-                        style={{ backgroundColor: customAccent }}
-                      />
-                    )}
-                    <button
-                      onClick={isRecording ? stopRecording : startRecording}
-                      className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl relative z-10 transition transform active:scale-95"
-                      style={{ 
-                        background: isRecording 
-                          ? 'linear-gradient(135deg, #ef4444, #b91c1c)' 
-                          : `linear-gradient(135deg, ${customAccent}, #4f46e5)` 
-                      }}
-                    >
-                      {isRecording ? (
-                        <Square className="w-8 h-8 text-white fill-white" />
-                      ) : (
-                        <Mic className="w-8 h-8 text-white" />
-                      )}
-                    </button>
+              {phoneState === 'hung_up' && (
+                <div className="flex flex-col items-center text-center space-y-6">
+                  {/* Antique Phone UI illustration */}
+                  <div className="w-48 h-48 border-2 border-indigo-500/20 rounded-full flex items-center justify-center bg-indigo-500/5 relative">
+                    <Phone className="w-20 h-20 text-indigo-400" />
+                    {/* Rotary dial details */}
+                    <div className="absolute inset-0 border-[6px] border-dashed border-indigo-400/30 rounded-full animate-[spin_40s_linear_infinite]" />
                   </div>
-
-                  {isRecording ? (
-                    <div className="space-y-2">
-                      <p className="text-2xl font-black tracking-widest tabular-nums">
-                        0:{recordingSeconds.toString().padStart(2, '0')}
-                      </p>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                        Límite máximo de 1 minuto
-                      </p>
-                      {/* Animated wave */}
-                      <div className="flex items-center justify-center gap-1.5 mt-4 h-8">
-                        {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                          <span 
-                            key={i} 
-                            className="w-1.5 h-6 rounded-full"
-                            style={{ 
-                              backgroundColor: customAccent,
-                              animation: 'voiceWave 1.2s ease-in-out infinite',
-                              animationDelay: `${i * 0.15}s`
-                            }}
-                          />
-                        ))}
-                      </div>
-                      <style jsx global>{`
-                        @keyframes voiceWave {
-                          0%, 100% { height: 10px; }
-                          50% { height: 32px; }
-                        }
-                      `}</style>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-zinc-500 font-medium">
-                      El audio se guardará directamente y de forma privada en el servidor.
-                    </p>
-                  )}
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-black">Cabina Telefónica Retro</h3>
+                    <p className="text-xs text-zinc-400">Descolgá el auricular del teléfono para escuchar el pitido e iniciar la grabación de voz.</p>
+                  </div>
+                  <button
+                    onClick={handlePickUpHandset}
+                    className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all flex items-center gap-2"
+                  >
+                    <Phone className="w-4 h-4" /> Descolgar Auricular
+                  </button>
                 </div>
-              ) : (
-                // PREVIEW INTERFACE
-                <div className="w-full p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center gap-4 text-center">
-                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                    Escuchá tu mensaje antes de enviar
-                  </p>
+              )}
 
-                  <div className="flex items-center justify-center gap-4 w-full">
+              {phoneState === 'off_hook' && (
+                <div className="text-center space-y-4">
+                  <Loader2 className="w-12 h-12 text-indigo-400 animate-spin mx-auto" />
+                  <p className="text-sm font-bold uppercase tracking-widest text-indigo-300">Descolgando auricular...</p>
+                </div>
+              )}
+
+              {phoneState === 'beeping' && (
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-red-600 rounded-full animate-ping mx-auto" />
+                  <p className="text-sm font-black uppercase tracking-widest text-red-500 animate-pulse">Escucha el beep...</p>
+                </div>
+              )}
+
+              {phoneState === 'recording' && (
+                <div className="flex flex-col items-center text-center space-y-6">
+                  <div className="w-28 h-28 bg-red-600/10 border-2 border-red-500/30 rounded-full flex items-center justify-center animate-pulse">
+                    <Mic className="w-10 h-10 text-red-500" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-3xl font-black tracking-wider text-red-500 tabular-nums">
+                      0:{recordingSeconds.toString().padStart(2, '0')}
+                    </p>
+                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Grabando tu saludo...</p>
+                  </div>
+                  <button
+                    onClick={handleHangUpHandset}
+                    className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all flex items-center gap-2"
+                  >
+                    <PhoneOff className="w-4 h-4" /> Colgar Auricular
+                  </button>
+                </div>
+              )}
+
+              {phoneState === 'review' && audioUrl && (
+                <div className="w-full p-6 bg-white/5 border border-white/10 rounded-3xl flex flex-col items-center gap-4 text-center">
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Escuchá tu saludo grabado</p>
+                  <div className="flex items-center gap-4 w-full">
                     <button
                       onClick={togglePlayRecording}
-                      className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 border border-white/20 hover:bg-white/20 transition-all text-white"
+                      className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition text-white"
                     >
-                      {isPlayingRecording ? (
-                        <Pause className="w-5 h-5 fill-white" />
-                      ) : (
-                        <Play className="w-5 h-5 fill-white ml-0.5" />
-                      )}
+                      {isPlayingRecording ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
                     </button>
-
-                    <div className="flex-1 flex flex-col items-start text-left">
-                      <p className="text-xs font-bold text-white">Grabación de Voz</p>
-                      <p className="text-[10px] text-zinc-500 font-bold">
-                        Duración: {recordingSeconds}s
-                      </p>
+                    <div className="flex-1 text-left">
+                      <p className="text-xs font-bold text-white">Mensaje para la cápsula</p>
+                      <p className="text-[10px] text-zinc-500">Duración: {recordingSeconds}s</p>
                     </div>
-
-                    <button
-                      onClick={resetAudioRecording}
-                      className="p-3 rounded-full text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                    >
+                    <button onClick={resetAudioRecording} className="p-3 text-zinc-500 hover:text-red-400 transition">
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
@@ -595,79 +727,81 @@ export default function GuestBuzonPage() {
             </div>
           )}
 
-          {/* TAB VIDEO */}
+          {/* Video VHS Tab */}
           {activeTab === 'video' && (
             <div className="flex-1 flex flex-col items-center justify-center gap-6">
-              
-              {!videoUrl ? (
-                // UPLOAD VIDEO INTERFACE
-                <div className="flex flex-col items-center gap-6 text-center w-full">
-                  <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">
-                    Seleccioná o grabá un video corto
-                  </p>
-
-                  <input 
-                    type="file" 
-                    accept="video/*" 
-                    capture="user" 
-                    onChange={handleVideoChange}
-                    ref={videoInputRef}
-                    className="hidden"
-                  />
-
+              {videoState === 'idle' && (
+                <div className="flex flex-col items-center text-center space-y-6 w-full">
                   <button
-                    onClick={() => videoInputRef.current?.click()}
-                    className="w-full p-8 rounded-3xl border-2 border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                    onClick={startCamera}
+                    className="w-full p-8 rounded-3xl border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all flex flex-col items-center justify-center gap-3"
                   >
-                    <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-purple-400 border border-white/10 transition-colors">
-                      <Upload className="w-6 h-6" />
-                    </div>
+                    <Camera className="w-10 h-10 text-indigo-400" />
                     <div>
-                      <p className="text-sm font-black text-white">Grabar/Subir Video</p>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
-                        Cámara frontal o galería
-                      </p>
+                      <p className="text-sm font-black text-white">Grabar con Cámara VHS</p>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Efecto analógico retro</p>
                     </div>
                   </button>
 
-                  <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 text-left flex items-start gap-3 w-full">
-                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-bold text-amber-500 uppercase tracking-widest">Restricciones</p>
-                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
-                        Para asegurar una subida rápida, el video tiene un límite de **15 segundos** y máximo **40MB**.
-                      </p>
-                    </div>
+                  <div className="w-full flex items-center justify-center gap-3">
+                    <span className="h-px bg-white/10 flex-1" />
+                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">O</span>
+                    <span className="h-px bg-white/10 flex-1" />
                   </div>
+
+                  <input type="file" accept="video/*" onChange={handleVideoChange} ref={videoInputRef} className="hidden" />
+                  <button
+                    onClick={() => videoInputRef.current?.click()}
+                    className="px-4 py-2 border border-white/10 rounded-xl text-xs font-bold text-zinc-300 hover:text-white"
+                  >
+                    Cargar desde galería
+                  </button>
                 </div>
-              ) : (
-                // PREVIEW VIDEO INTERFACE
-                <div className="w-full flex flex-col items-center gap-4 text-center">
-                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                    Previsualización del video
-                  </p>
+              )}
 
-                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
-                    <video 
-                      src={videoUrl} 
-                      controls 
-                      className="w-full h-full object-contain"
-                    />
+              {videoState === 'recording' && (
+                <div className="relative w-full flex flex-col items-center space-y-4">
+                  {/* Invisible video tag to feed the canvas */}
+                  <video ref={videoRef} autoPlay playsInline muted className="hidden" />
+                  
+                  {/* Canvas that records and shows VHS styles */}
+                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden border-2 border-indigo-500/30 bg-black relative shadow-2xl">
+                    <canvas ref={vhsCanvasRef} className="w-full h-full object-cover" />
+                    {/* Scanning glich line styling */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] pointer-events-none bg-[size:100%_4px,3px_100%]" />
                   </div>
 
+                  {vhsRecorderRef.current?.state === 'recording' ? (
+                    <button
+                      onClick={stopLiveVideoRecording}
+                      className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider flex items-center gap-2"
+                    >
+                      <VideoOff className="w-4 h-4" /> Detener VHS ({videoDuration}s)
+                    </button>
+                  ) : (
+                    <button
+                      onClick={startLiveVideoRecording}
+                      className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider flex items-center gap-2"
+                    >
+                      <Video className="w-4 h-4" /> Iniciar Grabación VHS
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {videoState === 'review' && videoUrl && (
+                <div className="w-full flex flex-col items-center gap-4 text-center">
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Previsualización de tu Recuerdo VHS</p>
+                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
+                    <video src={videoUrl} controls className="w-full h-full object-contain" />
+                  </div>
                   <div className="flex items-center justify-between w-full px-2">
                     <div className="text-left">
-                      <p className="text-xs font-bold text-white">Archivo de Video</p>
-                      <p className="text-[10px] text-zinc-500 font-bold">
-                        Duración: {Math.round(videoDuration)} segundos
-                      </p>
+                      <p className="text-xs font-bold text-white">Video Analógico</p>
+                      <p className="text-[10px] text-zinc-500">Duración: {Math.round(videoDuration)} segundos</p>
                     </div>
-
-                    <button
-                      onClick={resetVideoUpload}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-2xl text-xs font-bold transition-all"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" /> Cambiar video
+                    <button onClick={resetVideoUpload} className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-2xl text-xs font-bold transition">
+                      <RefreshCw className="w-3.5 h-3.5" /> Grabar de nuevo
                     </button>
                   </div>
                 </div>
@@ -675,24 +809,18 @@ export default function GuestBuzonPage() {
             </div>
           )}
 
-          {/* FORMULARIO DE ENVÍO */}
+          {/* SUBMISSION FORM */}
           {((activeTab === 'audio' && audioUrl) || (activeTab === 'video' && videoUrl)) && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-8 space-y-4"
-            >
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest pl-1">
-                  Tu Nombre y Apellido
-                </label>
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest pl-1">Tu Nombre y Apellido</label>
                 <input
                   type="text"
                   placeholder="Ej: Laura Pérez"
                   value={authorName}
                   onChange={(e) => setAuthorName(e.target.value)}
                   maxLength={30}
-                  className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none text-white placeholder:text-zinc-600 transition"
+                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none text-white transition"
                 />
               </div>
 
@@ -705,15 +833,7 @@ export default function GuestBuzonPage() {
                   boxShadow: `0 4px 20px ${customAccent}33` 
                 }}
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Subiendo al buzón...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" /> Enviar Saludo
-                  </>
-                )}
+                {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando en cápsula...</> : <><Send className="w-4 h-4" /> Enviar Recuerdo</>}
               </button>
             </motion.div>
           )}
@@ -721,12 +841,11 @@ export default function GuestBuzonPage() {
         </div>
       </main>
 
-      {/* FOOTER */}
-      <footer className="py-6 border-t border-white/5 bg-zinc-950 text-center">
-        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
-          Experiencia por AK Producciones
-        </p>
+      <footer className="py-6 border-t border-white/5 bg-zinc-950/40 text-center">
+        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Experiencia por AK Producciones</p>
       </footer>
+      
+      <KioskUnlockButton />
     </div>
   );
 }
