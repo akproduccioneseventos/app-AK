@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SocialConnection, SeccionInvitacion, GiftItem, ProgramaEventoItem, TextStyle, Invitado } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, InvitacionDigitalData, ColorPalette, SeccionInvitacion, GiftItem, ProgramaEventoItem, TextStyle, Invitado } from '@/types/fiesta';
+import type { SocialConnection } from '@/types/settings';
+import type { SocialGalleryPost } from '@/types/social-gallery';
 import { EditableText } from '../edit/EditableText';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
@@ -46,6 +48,8 @@ import { claimGift } from '@/app/actions/fiesta/regalos.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AddToCalendarButton } from '@/components/invitacion/AddToCalendarButton';
+import { EventParticles } from '@/components/invitacion/EventParticles';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -92,7 +96,7 @@ const SectionWrapper: React.FC<{
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             id={seccion.tipo}
-            className={cn("relative py-24 md:py-32 px-6 overflow-hidden", className, onClick && "cursor-pointer group/section")}
+            className={cn("relative py-16 sm:py-24 md:py-32 px-4 sm:px-6 overflow-hidden", className, onClick && "cursor-pointer group/section")}
             onClick={onClick}
             style={{ backgroundColor }}
         >
@@ -129,14 +133,21 @@ const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle
     </div>
 );
 
-const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, isPreview: boolean }> = ({ data, fiesta, paleta }) => {
+const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, paleta: ColorPalette, isPreview: boolean }> = ({ data, fiesta, paleta, isPreview }) => {
     const protagonist1 = fiesta.configuracion.protagonista1Nombre || data.protagonista1;
     const protagonist2 = fiesta.configuracion.protagonista2Nombre || data.protagonista2;
     const subtitleText = fiesta.configuracion.tipoCelebracion || data.subtitulo?.text;
     const eventDate = formatDate(fiesta.configuracion.fechaEvento);
 
     return (
-        <section className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
+        <section className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
+            {!isPreview && (
+              <EventParticles
+                tipoCelebracion={fiesta.configuracion.tipoCelebracion}
+                primaryColor={paleta.primary || '#8b5cf6'}
+                count={12}
+              />
+            )}
             <motion.div 
                 initial={{ scale: 1.2, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -154,7 +165,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                 <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-white/90"></div>
             </motion.div>
 
-            <div className="space-y-8 md:space-y-12 px-6">
+            <div className="space-y-8 md:space-y-12 px-4 sm:px-6 w-full max-w-full overflow-hidden">
                 {data.logoUrl && (
                     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                         <NextImage src={data.logoUrl} alt="Logo" width={100} height={100} className="mx-auto drop-shadow-2xl md:w-[120px] md:h-[120px]" />
@@ -165,11 +176,11 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                     <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-[10px] md:text-sm font-black tracking-[0.6em] uppercase text-primary block" style={{ color: paleta.primary }}>
                         {subtitleText}
                     </motion.span>
-                    <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 1 }} className="text-5xl md:text-[9rem] font-headline font-bold text-slate-900 leading-none tracking-tighter">
+                    <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 1 }} className="text-4xl sm:text-5xl md:text-[9rem] font-headline font-bold text-slate-900 leading-tight md:leading-none tracking-tight md:tracking-tighter break-words">
                         {protagonist1}
                         {protagonist2 && (
                             <>
-                                <span className="block text-3xl md:text-6xl my-2 md:my-4 italic font-dancing text-primary" style={{ color: paleta.primary }}>&</span>
+                                <span className="block text-2xl sm:text-3xl md:text-6xl my-2 md:my-4 italic font-dancing text-primary" style={{ color: paleta.primary }}>&</span>
                                 {protagonist2}
                             </>
                         )}
@@ -220,11 +231,20 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpMusicSuggestion, setRsvpMusicSuggestion] = useState('');
 
+  // RSVP count for public display
+  const [rsvpCount, setRsvpCount] = useState<number | null>(null);
+
+  // Post-event social gallery
+  const [socialPhotos, setSocialPhotos] = useState<SocialGalleryPost[]>([]);
+
   // Pre-party Chat states
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newChatMsg, setNewChatMsg] = useState('');
   const [isSendingChat, setIsSendingChat] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
+  const isPostEvent = eventDate ? new Date() > eventDate : false;
 
   useEffect(() => {
     if (!isPreview && fiesta.id) {
@@ -235,6 +255,29 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return () => clearInterval(interval);
     }
   }, [fiesta.id, isPreview]);
+
+  useEffect(() => {
+    if (isPreview || !fiesta?.id) return;
+    // Dynamic import to avoid including this server action in the initial bundle
+    const fetchCount = async () => {
+      try {
+        const { getConfirmedRsvpCount } = await import('@/app/actions/fiesta/invitados.actions');
+        const count = await getConfirmedRsvpCount(fiesta.id);
+        setRsvpCount(count);
+      } catch {}
+    };
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, [fiesta?.id, isPreview]);
+
+  useEffect(() => {
+    if (!isPostEvent || isPreview || !fiesta.id) return;
+    // Dynamic import to avoid including this server action in the initial bundle
+    import('@/app/actions/social-gallery').then(({ getSocialPosts }) => {
+      getSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12)));
+    });
+  }, [isPostEvent, isPreview, fiesta.id]);
 
   useEffect(() => {
     const totalOthers = (numAdults + numKids) - 1;
@@ -261,27 +304,31 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     if (!rsvpName.trim() || !onRsvpSubmit) return;
     setIsSubmittingRsvp(true);
     
-    const success = await onRsvpSubmit({
-      nombreCompleto: rsvpName,
-      confirmacion: 'Confirmado',
-      adultsCount: numAdults,
-      kidsCount: numKids,
-      numeroAsistentes: numAdults + numKids,
-      isCeliac: isCeliac,
-      mensaje: rsvpMusicSuggestion.trim() ? `Sugerencia: ${rsvpMusicSuggestion}` : '',
-      companionNames: companionNames,
-      tag: rsvpTag || undefined
-    });
-    
-    if (success) {
-      setIsRsvpModalOpen(false);
-      setRsvpName('');
-      setNumAdults(1);
-      setNumKids(0);
-      setIsCeliac(false);
-      setRsvpTag('');
+    try {
+      const success = await onRsvpSubmit({
+        nombreCompleto: rsvpName,
+        confirmacion: 'Confirmado',
+        adultsCount: numAdults,
+        kidsCount: numKids,
+        isCeliac: isCeliac,
+        mensaje: rsvpMusicSuggestion.trim() ? `Sugerencia: ${rsvpMusicSuggestion}` : '',
+        companionNames: companionNames,
+        tag: rsvpTag || undefined
+      });
+      
+      if (success) {
+        setIsRsvpModalOpen(false);
+        setRsvpName('');
+        setNumAdults(1);
+        setNumKids(0);
+        setIsCeliac(false);
+        setRsvpTag('');
+      }
+    } catch (error: any) {
+      toast({ title: "Error al confirmar asistencia", description: error.message || "No se pudo enviar tu confirmación. Verifica tu conexión e inténtalo de nuevo.", variant: "destructive" });
+    } finally {
+      setIsSubmittingRsvp(false);
     }
-    setIsSubmittingRsvp(false);
   };
 
   const handleSendChat = async (e: React.FormEvent) => {
@@ -355,7 +402,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         return (
           <SectionWrapper {...wrapperProps} className="bg-white" innerClassName="max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-8">
-              {[seccion.data.ceremoniaReligiosa, seccion.data.ceremoniaCivil, seccion.data.celebracion].filter(d => d.visible).map((detalle, idx) => (
+              {[seccion.data.ceremoniaReligiosa, seccion.data.ceremoniaCivil, seccion.data.celebracion].filter(d => d?.visible).map((detalle, idx) => (
                 <motion.div 
                     key={idx} 
                     initial={{ opacity: 0, y: 30 }}
@@ -381,9 +428,20 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                         <p className="text-primary font-black text-lg md:text-xl tracking-tighter" style={{ color: primaryColor }}>{detalle.hora || (idx === 2 ? fiesta.configuracion.horaInicio : '')} HS</p>
                     </div>
                     <p className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed">{detalle.direccionLugar}</p>
-                    <Button asChild variant="outline" className="mt-2 md:mt-4 rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
-                      <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> VER UBICACIÓN</a>
-                    </Button>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 justify-center mt-2 md:mt-4">
+                      <Button asChild variant="outline" className="rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
+                        <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> VER UBICACIÓN</a>
+                      </Button>
+                      {(detalle.fecha || fiesta.configuracion.fechaEvento) && (
+                        <AddToCalendarButton
+                          eventName={detalle.titulo || fiesta.configuracion.nombreEvento || 'Mi Evento'}
+                          startDate={detalle.fecha || fiesta.configuracion.fechaEvento || new Date().toISOString()}
+                          location={detalle.direccionLugar || detalle.nombreLugar}
+                          description={`${fiesta.configuracion.nombreEvento || ''} — ${detalle.nombreLugar || ''}`}
+                          primaryColor={primaryColor}
+                        />
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -568,18 +626,26 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
       case 'confirmacion':
         return (
-          <SectionWrapper {...wrapperProps} className="bg-slate-900 text-white py-32 md:py-48 text-center relative">
+          <SectionWrapper {...wrapperProps} className="bg-slate-900 text-white py-16 sm:py-32 md:py-48 text-center relative">
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-0 left-0 w-48 h-48 md:w-64 md:h-64 bg-primary/10 rounded-full blur-[80px] md:blur-[100px] -translate-x-1/2 -translate-y-1/2" style={{ backgroundColor: `${primaryColor}1A` }}></div>
                 <div className="absolute bottom-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-primary/5 rounded-full blur-[100px] md:blur-[120px] translate-x-1/2 translate-y-1/2" style={{ backgroundColor: `${primaryColor}0D` }}></div>
             </div>
             <div className="max-w-2xl mx-auto space-y-8 md:space-y-12 relative z-10">
               <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.6em] text-primary/60" style={{ color: `${primaryColor}99` }}>RSVP</span>
-              <h2 className="text-5xl md:text-8xl font-headline font-bold leading-none tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
+              <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold leading-none tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
               <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed px-4">
                 Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
                 <span className="block mt-2 text-white font-bold text-xl md:text-2xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
               </p>
+              {rsvpCount !== null && rsvpCount > 0 && (
+                <div className="text-center">
+                  <span className="inline-flex items-center gap-1.5 bg-green-950/60 text-green-400 px-3 py-1 rounded-full text-xs font-semibold border border-green-800">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    {rsvpCount} persona{rsvpCount !== 1 ? 's' : ''} ya confirmaron
+                  </span>
+                </div>
+              )}
               <Button size="lg" className="h-16 md:h-20 px-10 md:px-16 rounded-full text-lg md:text-xl font-bold shadow-2xl hover:scale-105 transition-all duration-500" style={{ backgroundColor: primaryColor }} onClick={() => setIsRsvpModalOpen(true)}>
                 CONFIRMAR ASISTENCIA
               </Button>
@@ -598,11 +664,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const showKidsSelector = (Number(fiesta.configuracion.invitadosNinos) || 0) > 0;
 
   return (
-    <div className={cn("min-h-screen bg-white font-body selection:bg-primary/20 selection:text-white", isPreview && "h-full overflow-y-auto")}>
+    <div className={cn("min-h-screen w-full max-w-full overflow-x-hidden bg-white font-body selection:bg-primary/20 selection:text-white", isPreview && "h-full overflow-y-auto")}>
       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} isPreview={isPreview} />
       
       <main className="relative">
-        <div className="fixed top-4 right-4 md:top-8 md:right-8 z-50 flex flex-col gap-3 md:gap-4">
+        <div className="fixed top-2 right-2 sm:top-4 sm:right-4 md:top-8 md:right-8 z-50 flex flex-col gap-2 sm:gap-3 md:gap-4">
             {invitacionData.musicaFondoUrl && !isPreview && (
                 <motion.button 
                     whileHover={{ scale: 1.1 }} 
@@ -618,9 +684,37 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         {invitacionData.secciones.map(seccion => renderSectionComponent(seccion))}
       </main>
 
-      <footer className="py-24 md:py-32 text-center bg-slate-50 px-6 border-t border-slate-100">
+      {/* Post-event gallery */}
+      {isPostEvent && socialPhotos.length > 0 && (
+        <section className="py-16 px-4 bg-slate-50">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-serif text-center mb-8" style={{ color: primaryColor, fontFamily: "'Playfair Display', Georgia, serif" }}>
+              Los mejores momentos 📸
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {socialPhotos.map(post => (
+                <div key={post.id} className="aspect-square rounded-2xl overflow-hidden relative group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={post.imageUrl}
+                    alt={`Foto de ${post.authorName}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {post.authorName !== 'Anónimo' && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                      <p className="text-white text-xs font-semibold truncate">{post.authorName}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <footer className="py-16 sm:py-24 md:py-32 text-center bg-slate-50 px-4 sm:px-6 border-t border-slate-100">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="space-y-8 md:space-y-12">
-            <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer.titulo.text}</h4>
+            <h4 className="text-4xl md:text-7xl font-dancing text-slate-800" style={{ color: primaryColor }}>{invitacionData.footer?.titulo?.text ?? ''}</h4>
             <div className="flex justify-center gap-6 md:gap-8">
             {socialConnections.filter(c => c.isConnected).map(c => (
                 <a key={c.platform} href={c.profileUrl} target="_blank" className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-white shadow-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 text-slate-400">
@@ -630,12 +724,29 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             </div>
             <div className="space-y-2">
                 <div className="w-12 md:w-16 h-1 bg-primary/20 mx-auto rounded-full mb-4 md:mb-6"></div>
-                <p className="text-[8px] md:text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">{invitacionData.footer.nombreEmpresa.text}</p>
+                <p className="text-[8px] md:text-[10px] font-black tracking-[0.5em] text-slate-300 uppercase">{invitacionData.footer?.nombreEmpresa?.text ?? ''}</p>
             </div>
         </motion.div>
       </footer>
       
       <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
+
+      {/* WhatsApp share button */}
+      {!isPreview && (
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(`¡Mirá mi invitación para ${fiesta.configuracion.nombreEvento || invitacionData.cabecera.protagonista1}! 🎉 ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed z-50 flex items-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-full shadow-2xl font-bold text-sm hover:bg-[#128C7E] transition-colors"
+          style={{ bottom: invitacionData.musicaFondoUrl ? '5rem' : '1.5rem', right: '1.5rem' }}
+          aria-label="Compartir por WhatsApp"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Compartir
+        </a>
+      )}
 
       <Dialog open={isRsvpModalOpen} onOpenChange={setIsRsvpModalOpen}>
         <DialogContent className="sm:max-w-md rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border-none shadow-3xl">
@@ -669,7 +780,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 )}
             </div>
 
-            {invitacionData.confirmacion.showRelationshipTags && (
+            {invitacionData.confirmacion?.showRelationshipTags && (
                 <div className="space-y-2 md:space-y-3">
                     <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Relación / Grupo</Label>
                     <Select value={rsvpTag} onValueChange={setRsvpTag}>
@@ -702,7 +813,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               </div>
             ))}
             
-            {invitacionData.musica.visible && (
+            {invitacionData.musica?.visible && (
                 <div className="space-y-2 md:space-y-3">
                     <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Sugerencia Musical</Label>
                     <Input value={rsvpMusicSuggestion} onChange={e => setRsvpMusicSuggestion(e.target.value)} placeholder={invitacionData.musica.placeholder} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />

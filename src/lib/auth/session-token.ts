@@ -14,7 +14,8 @@ export function hasPrivateSessionSecret() {
   return Boolean(
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
-    process.env.SESSION_SECRET
+    process.env.SESSION_SECRET ||
+    process.env.AUTH_SECRET
   );
 }
 
@@ -26,7 +27,10 @@ function getSigningSecret() {
     process.env.AUTH_SECRET;
 
   if (!secret) {
-    return 'ak-producciones-default-secure-session-key-fallback-2026';
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('CRITICAL CONFIGURATION ERROR: Session secret environment variable (AK_SESSION_SECRET) is missing in production!');
+    }
+    return 'dev-local-only-insecure-fallback-do-not-use-in-production-1234567890';
   }
 
   return secret;

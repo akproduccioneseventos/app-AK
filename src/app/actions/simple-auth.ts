@@ -308,7 +308,7 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
       return { success: false, error: lockMessage };
     }
 
-    const envPassword = process.env.APP_PASSWORD || 'SOydocenTE2124.';
+    const envPassword = process.env.APP_PASSWORD;
     if (envPassword && password === envPassword) {
       await clearLoginProtection();
       return { success: true };
