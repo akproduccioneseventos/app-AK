@@ -6,10 +6,40 @@ import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 // ─── Core helper ────────────────────────────────────────────────────────────
 
+const fiestaUpdateQueues = new Map<string, Promise<void>>();
+
+async function acquireFiestaUpdateLock(fiestaId: string): Promise<() => void> {
+  const previous = fiestaUpdateQueues.get(fiestaId);
+  let releaseCurrent!: () => void;
+  const current = new Promise<void>((resolve) => {
+    releaseCurrent = resolve;
+  });
+
+  fiestaUpdateQueues.set(fiestaId, current);
+  if (previous) await previous;
+
+  return () => {
+    releaseCurrent();
+    if (fiestaUpdateQueues.get(fiestaId) === current) {
+      fiestaUpdateQueues.delete(fiestaId);
+    }
+  };
+}
+
+function normalizeGuestName(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('es')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
 async function updateFiestaData(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
+  const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) {
@@ -23,6 +53,8 @@ async function updateFiestaData(
     return { success: true, updatedFiesta: result.fiesta };
   } catch (e: any) {
     return { success: false, error: e.message };
+  } finally {
+    releaseLock();
   }
 }
 
@@ -139,12 +171,27 @@ export async function handleRsvpSubmission(
     const totalNew = submission.adultsCount + submission.kidsCount;
 
     const currentInvitados = data.invitados || [];
+    const normalizedSubmittedName = normalizeGuestName(submission.nombreCompleto);
+    const invitadoExistenteIndex = currentInvitados.findIndex(
+      inv => normalizeGuestName(inv.nombre) === normalizedSubmittedName
+    );
+    const existingGuest = invitadoExistenteIndex > -1
+      ? currentInvitados[invitadoExistenteIndex]
+      : undefined;
     const confirmedAdults = currentInvitados.reduce(
-      (sum, inv) => sum + (inv.categoria === 'Adulto' ? (inv.partySize || 1) : 0),
+      (sum, inv) => sum + (
+        inv.id !== existingGuest?.id && inv.categoria === 'Adulto'
+          ? (inv.partySize || 1)
+          : 0
+      ),
       0
     );
     const confirmedKids = currentInvitados.reduce(
-      (sum, inv) => sum + (inv.categoria === 'Niño/Adolescente' ? (inv.partySize || 1) : 0),
+      (sum, inv) => sum + (
+        inv.id !== existingGuest?.id && inv.categoria === 'Niño/Adolescente'
+          ? (inv.partySize || 1)
+          : 0
+      ),
       0
     );
 
@@ -157,10 +204,6 @@ export async function handleRsvpSubmission(
     if (confirmedKids + submission.kidsCount > limitKids) {
       throw new Error(`Cupos de NIÑOS agotados. Límite: ${limitKids}. Contacta al organizador.`);
     }
-
-    const invitadoExistenteIndex = currentInvitados.findIndex(
-      inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
-    );
 
     const combinedNotes = [
       invitadoExistenteIndex > -1 ? currentInvitados[invitadoExistenteIndex].notes : '',
@@ -315,7 +358,7 @@ export async function submitPublicRsvp(
   const result = await updateFiestaData(fiestaId, data => {
     const currentInvitados = data.invitados || [];
     const existingIndex = currentInvitados.findIndex(
-      inv => inv.nombre.trim().toLowerCase() === submission.nombre.trim().toLowerCase()
+      inv => normalizeGuestName(inv.nombre) === normalizeGuestName(submission.nombre)
     );
 
     if (existingIndex > -1) {

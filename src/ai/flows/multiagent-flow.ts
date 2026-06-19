@@ -89,11 +89,35 @@ REGLAS IRROMPIBLES (nunca las violés):
 1. NUNCA inventes datos: pagos, fechas, mails, tareas hechas, contratos firmados, invitados confirmados, saldos. Si no aparece en el CONTEXTO REAL → decí "no lo veo cargado" y decí exactamente dónde cargarlo en la app.
 2. NUNCA digas que guardaste, sincronizaste, enviaste o ejecutaste algo si no hubo acción real confirmada por el backend.
 3. SIEMPRE usá el DIAGNÓSTICO AUTOMÁTICO como punto de partida si existe y tiene items.
-4. Formato de respuesta: primero lo más urgente/importante, después próximos pasos concretos y accionables. Sin preámbulos largos.
-5. Si la pregunta es simple → respondé simple. Si es de análisis → sé más completo pero siempre concreto.
-6. Español rioplatense. Directo. Sin formalidades. Sin "Claro que sí", "¡Por supuesto!", ni frases de chatbot genérico.
-7. Si detectás que la pregunta corresponde a otro agente, respondé lo que puedas y al final sugerí: "Para esto te conviene el agente [X]."
-8. Cuando listés múltiples items, usá bullets (•) con prioridad real, no orden alfabético.`.trim();
+4. Español rioplatense ultra-cercano y amigable. Hablá siempre de "vos", usando modismos como "che", "bo", "mirá", "al toque", etc.
+5. ¡USÁ EMOJIS! Incorporá siempre de 3 a 6 emojis relevantes en la respuesta de texto (ej. 🤵, 🕵️‍♂️, 🥳, 👩‍💼, 🤝, 💰, 📢, 📝, 🔔, ✅, ❌, ⚠️) para que tus contestaciones sean visualmente llamativas y divertidas.
+6. Respuestas CORTAS, con viñetas claras y al grano (máximo 4-5 líneas de texto plano). Evitá explicaciones largas y aburridas. No uses frases de chatbot genérico ("Hola, ¿en qué te puedo ayudar hoy?").
+7. Si detectás que la pregunta corresponde a otro agente, respondé lo que puedas de forma muy corta y al final sugerí: "Para esto te conviene el agente [X]."
+8. Cuando listés múltiples items, usá bullets (•) con prioridad real, no orden alfabético.
+
+FORMATO DE RESPUESTA (OBLIGATORIO):
+Debés responder ÚNICAMENTE con un bloque JSON que cumpla exactamente con este formato (no agregues texto antes ni después del JSON, ni bloques de código markdown, solo el JSON puro):
+{
+  "response": "Tu respuesta corta, re amigable, con viñetas y muchos emojis aquí.",
+  "action": {
+    "type": "none" | "create_task" | "create_reminder" | "navigate",
+    "data": { ... }
+  }
+}
+
+REGLAS DE ACCIÓN:
+- Si el usuario te pide crear una tarea (ej: "creá una tarea para...", "agendá la tarea de...", "anotá que hay que..."):
+  "type": "create_task"
+  "data": { "texto": "título de la tarea", "descripcion": "detalle si aplica", "fechaLimite": "YYYY-MM-DD (si se menciona)" }
+- Si el usuario te pide un recordatorio o aviso (ej: "recordame llamar a...", "avisame de...", "agendá recordatorio..."):
+  "type": "create_reminder"
+  "data": { "titulo": "Recordatorio", "mensaje": "Detalle del recordatorio", "tipo": "aviso" | "urgente" }
+- Si el usuario te pide ir, navegar o ver alguna sección de la app (ej: "llevame al CRM", "llevame a las facturas", "quiero ver las ventas", "mostrame los presupuestos", "ir a la contabilidad"):
+  "type": "navigate"
+  "data": { "path": "/admin/ventas" | "/contabilidad/comercial-360" | "/plan-pagos" | "/empresa/contabilidad" | "/invoices" | "/marketing" | "/empresa/redes-sociales" | "/settings/google-workspace" | "/reuniones" | "/fiestas/nueva" }
+- Para consultas de datos normales, saludos o conversación normal:
+  "type": "none"
+  "data": null`.trim();
 
   const prompts: Record<AkAgentType, string> = {
 
@@ -411,15 +435,33 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       config: generationConfig,
     });
 
+    let finalResponse = '';
+    let action: any = { type: 'none' };
+
+    try {
+      const rawText = text || '';
+      // Intentar limpiar posibles bloques de código markdown si los incluyera
+      const cleanJson = rawText
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
+      const parsed = JSON.parse(cleanJson);
+      finalResponse = parsed.response || '';
+      action = parsed.action || { type: 'none' };
+    } catch (e) {
+      console.warn('[Multiagent Flow] Error al parsear JSON devuelto por Gemini. Usando texto sin estructurar.', e);
+      finalResponse = text || buildFallback(agentType, context);
+    }
+
     // Guardar aprendizaje automático si la respuesta fue útil
-    if (text && text.length > 80) {
+    if (finalResponse && finalResponse.length > 50) {
       saveAgentLearning({
         agentType,
         fiestaId:  input.fiestaId,
         scope:     input.fiestaId ? 'fiesta' : ['secretaria','central'].includes(agentType) ? 'global' : 'modulo',
         module:    input.fiestaId ? undefined : agentType,
         title:     `Respuesta: ${input.message.slice(0, 70)}`,
-        content:   text.slice(0, 800),
+        content:   finalResponse.slice(0, 800),
         tags:      ['auto-learn', agentType, deepMode ? 'analisis-profundo' : 'consulta'],
         source:    'conversation',
         confidence:'low',
@@ -428,10 +470,10 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
     return {
       success:   true,
-      response:  text || buildFallback(agentType, context),
+      response:  finalResponse || buildFallback(agentType, context),
       agentType,
       agentName: name,
-      action:    { type: 'none' },
+      action,
     };
   } catch (error) {
     return {

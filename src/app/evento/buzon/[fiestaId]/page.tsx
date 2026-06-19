@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2, 
+import {
+  Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
   Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -40,14 +40,14 @@ export default function GuestBuzonPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
-  
+
   // Video VHS State
   const [videoState, setVideoState] = useState<'idle' | 'recording' | 'processing' | 'review'>('idle');
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const vhsCanvasRef = useRef<HTMLCanvasElement>(null);
   const vhsRecorderRef = useRef<MediaRecorder | null>(null);
-  
+
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
@@ -64,17 +64,17 @@ export default function GuestBuzonPage() {
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       const gain = ctx.createGain();
-      
+
       osc1.frequency.value = freq1;
       osc2.frequency.value = freq2;
-      
+
       gain.gain.setValueAtTime(0.15, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-      
+
       osc1.connect(gain);
       osc2.connect(gain);
       gain.connect(ctx.destination);
-      
+
       osc1.start();
       osc2.start();
       osc1.stop(ctx.currentTime + duration);
@@ -131,13 +131,13 @@ export default function GuestBuzonPage() {
   // Rotary Phone Handset Off-Hook & Dial Trigger
   const handlePickUpHandset = async () => {
     setPhoneState('off_hook');
-    
+
     // Play dial tones (DTMF sounds)
     playPhoneTone(350, 440, 0.5); // Dial tone
     setTimeout(() => playPhoneTone(697, 1209, 0.15), 600); // Digit 1
     setTimeout(() => playPhoneTone(770, 1336, 0.15), 800); // Digit 5
     setTimeout(() => playPhoneTone(852, 1477, 0.15), 1000); // Digit 9
-    
+
     setTimeout(() => {
       setPhoneState('beeping');
       playPhoneTone(1000, 1000, 0.45); // Classic voicemail BEEP
@@ -162,7 +162,7 @@ export default function GuestBuzonPage() {
 
     try {
       const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+
       let mimeType = 'audio/webm';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'audio/mp4';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = '';
@@ -180,7 +180,7 @@ export default function GuestBuzonPage() {
         const url = URL.createObjectURL(blob);
         setAudioBlob(blob);
         setAudioUrl(url);
-        
+
         audioStream.getTracks().forEach(track => track.stop());
       };
 
@@ -218,7 +218,7 @@ export default function GuestBuzonPage() {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
     }
-    
+
     setIsRecording(false);
   };
 
@@ -316,7 +316,7 @@ export default function GuestBuzonPage() {
         videoRef.current.srcObject = mediaStream;
       }
       setVideoState('recording');
-      
+
       // Start VHS filter canvas loop
       setTimeout(() => startVHSRenderLoop(mediaStream), 300);
     } catch (err) {
@@ -385,7 +385,7 @@ export default function GuestBuzonPage() {
       const date = new Date();
       const timeStr = date.toTimeString().split(' ')[0];
       const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-      
+
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 16px "Courier New", monospace';
       ctx.fillText(timeStr, 40, canvas.height - 60);
@@ -415,7 +415,7 @@ export default function GuestBuzonPage() {
     setVideoDuration(0);
 
     const canvasStream = canvas.captureStream(20); // 20 FPS
-    
+
     // Add audio track to canvas stream
     const audioTrack = stream.getAudioTracks()[0];
     if (audioTrack) {
@@ -565,7 +565,7 @@ export default function GuestBuzonPage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_60%)] text-white flex flex-col justify-between select-none">
-      
+
       {/* HEADER */}
       <header className="px-4 py-5 flex items-center justify-between border-b border-white/5 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
         <button onClick={() => router.back()} className="p-2 -ml-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition">
@@ -585,7 +585,7 @@ export default function GuestBuzonPage() {
       {/* CELEBRATION */}
       <AnimatePresence>
         {showCelebration && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-6 text-center"
           >
@@ -603,7 +603,7 @@ export default function GuestBuzonPage() {
 
       {/* MAIN CONTENT */}
       <main className="flex-1 max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-start gap-6">
-        
+
         {/* Welcome Card */}
         {hasWelcomeAudio && (
           <div className="p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl flex items-center gap-4">
@@ -645,7 +645,7 @@ export default function GuestBuzonPage() {
 
         {/* TAB BODY */}
         <div className="flex-1 flex flex-col justify-between min-h-[340px]">
-          
+
           {/* Voz Retro Tab */}
           {activeTab === 'audio' && (
             <div className="flex-1 flex flex-col items-center justify-center gap-6">
@@ -763,7 +763,7 @@ export default function GuestBuzonPage() {
                 <div className="relative w-full flex flex-col items-center space-y-4">
                   {/* Invisible video tag to feed the canvas */}
                   <video ref={videoRef} autoPlay playsInline muted className="hidden" />
-                  
+
                   {/* Canvas that records and shows VHS styles */}
                   <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden border-2 border-indigo-500/30 bg-black relative shadow-2xl">
                     <canvas ref={vhsCanvasRef} className="w-full h-full object-cover" />
@@ -828,9 +828,9 @@ export default function GuestBuzonPage() {
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 className="w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-white shadow-xl flex items-center justify-center gap-2 transform transition hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-                style={{ 
+                style={{
                   background: `linear-gradient(135deg, ${customAccent}, #4f46e5)`,
-                  boxShadow: `0 4px 20px ${customAccent}33` 
+                  boxShadow: `0 4px 20px ${customAccent}33`
                 }}
               >
                 {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando en cápsula...</> : <><Send className="w-4 h-4" /> Enviar Recuerdo</>}
@@ -844,7 +844,7 @@ export default function GuestBuzonPage() {
       <footer className="py-6 border-t border-white/5 bg-zinc-950/40 text-center">
         <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Experiencia por AK Producciones</p>
       </footer>
-      
+
       <KioskUnlockButton />
     </div>
   );

@@ -2,6 +2,8 @@
 
 import type { PresupuestoSource } from './presupuesto';
 import type { ContractType } from './settings';
+import type { CommercialAttribution } from '@/lib/commercial/acquisition';
+import type { SimulatorLeadTemperature } from '@/lib/commercial/simulator-conversion-engine';
 
 export interface CrmLeadHistoryItem {
   stageId: string;
@@ -61,7 +63,7 @@ export interface CrmLead {
   guestCount?: number;
   followUpDate?: string; // ISO Date string for follow-up or event estimate
   presupuestoId?: string; // ID of the linked budget
-  presupuestoEstado?: 'Borrador' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Denormalized status
+  presupuestoEstado?: 'Borrador' | 'Pendiente Verificación' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Denormalized status
   invoiceId?: string; // If the budget was invoiced
   budgetSource?: PresupuestoSource;
   lastBudgetAt?: string;
@@ -73,25 +75,10 @@ export interface CrmLead {
   contractGeneratedType?: ContractType;
   contractGeneratedAt?: string;
   contractTemplateId?: string;
+  acquisition?: CommercialAttribution;
+  crmTags?: string[];
+  leadTemperature?: SimulatorLeadTemperature;
+  nextAction?: string;
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;
-export interface Prospect {
-  id: string;
-  name: string;
-  phone: string;
-  createdAt: string;
-  updatedAt: string;
-  budgets: ProspectBudget[];
-  notes?: string;
-  status: 'new' | 'contacted' | 'negotiating' | 'won' | 'lost';
-}
-
-export interface ProspectBudget {
-  id: string;
-  createdAt: string;
-  serviceType: string;
-  guests: number;
-  totalEstimate: number;
-  details: any;
-}

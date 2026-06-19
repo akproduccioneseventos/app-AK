@@ -14,6 +14,9 @@ import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta
 import * as logger from '@/lib/logger';
 import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
+import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
+import { sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
+import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -820,25 +823,48 @@ export interface LandingLeadData {
   fechaEstimada?: string;
   invitados?: number;
   mensaje?: string;
-  fuente: 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'promo-widget' | 'landing';
+  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos';
+  acquisition?: CommercialAttribution;
 }
 
 export async function saveLead(data: LandingLeadData): Promise<{ success: boolean; error?: string }> {
   try {
-    const res = await addCrmLead({
+    const phone = data.telefono.replace(/\D/g, '').slice(-9);
+    if (data.nombre.trim().length < 3) {
+      return { success: false, error: 'Ingresa un nombre valido.' };
+    }
+    if (!/^\d{9}$/.test(phone)) {
+      return { success: false, error: 'Ingresa un celular uruguayo de 9 digitos.' };
+    }
+    const source: CommercialSource = data.fuente === 'promo-widget'
+      ? 'campaign'
+      : data.fuente === 'landing-bodas'
+        ? 'landing_bodas'
+        : data.fuente === 'landing-xv'
+          ? 'landing_xv'
+          : data.fuente === 'landing-eventos'
+            ? 'landing_eventos'
+            : data.fuente;
+    const acquisition = sanitizeCommercialAttribution({
+      ...data.acquisition,
+      source,
+      entryPath: data.acquisition?.entryPath || '/landing',
+    }, 'landing');
+    await upsertPublicCommercialLead({
       name: data.nombre,
-      phone: data.telefono,
+      phone,
       email: data.email,
       partyType: data.tipoEvento,
-      followUpDate: data.fechaEstimada,
+      eventDate: data.fechaEstimada,
       guestCount: data.invitados,
       notes: [
         data.mensaje ? `Mensaje: ${data.mensaje}` : '',
-        `Fuente: ${data.fuente}`,
+        `Fuente declarada: ${data.fuente}`,
       ].filter(Boolean).join('\n'),
       budgetSource: 'manual',
+      acquisition,
     });
-    return { success: res.success, error: res.error };
+    return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

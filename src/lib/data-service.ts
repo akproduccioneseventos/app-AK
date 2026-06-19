@@ -59,6 +59,27 @@ async function readLocalJsonFallback<T>(normalizedFilePath: string): Promise<T |
   return null;
 }
 
+async function writeLocalJsonFallback<T>(normalizedFilePath: string, data: T): Promise<void> {
+  try {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const localCandidates = [
+      path.join(process.cwd(), 'data', normalizedFilePath),
+      path.join(process.cwd(), 'src', 'data', normalizedFilePath)
+    ];
+    for (const localPath of localCandidates) {
+      try {
+        await fs.mkdir(path.dirname(localPath), { recursive: true });
+        await fs.writeFile(localPath, JSON.stringify(data, null, 2), 'utf-8');
+      } catch {
+        // ignore write error for this candidate, try others
+      }
+    }
+  } catch (e) {
+    logger.error(`[writeLocalJsonFallback] Error escribiendo copia local de "${normalizedFilePath}":`, e);
+  }
+}
+
 export async function readData<T>(filePath: string, defaultValue: T): Promise<T> {
   if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
   const normalizedFilePath = filePath.replace(/\\/g, '/');
@@ -110,6 +131,8 @@ export async function writeData<T>(
         await syncGenericJsonFile(normalizedFilePath, dataToWrite);
       }
     }
+    // Escribir localmente al disco para mantener los fallbacks sincronizados
+    await writeLocalJsonFallback(normalizedFilePath, dataToWrite);
   } catch (err) {
     logger.error(`[writeData] Error escribiendo ${filePath} en Firestore:`, err);
     throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
@@ -169,6 +192,11 @@ export async function updateDataPartial<T extends Record<string, any>>(
       const existing = await readGenericJsonFile(normalizedFilePath) as Record<string, any> || {};
       const merged = deepMerge(existing, partialData);
       await syncGenericJsonFile(normalizedFilePath, merged);
+      await writeLocalJsonFallback(normalizedFilePath, merged);
+    } else {
+      const existing = await readLocalJsonFallback<T>(normalizedFilePath) || {} as T;
+      const merged = deepMerge(existing, partialData);
+      await writeLocalJsonFallback(normalizedFilePath, merged);
     }
   } catch (err) {
     logger.error(`[updateDataPartial] Error actualizando ${filePath} en Firestore:`, err);

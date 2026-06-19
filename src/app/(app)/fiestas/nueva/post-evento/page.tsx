@@ -11,10 +11,10 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import {
   ArrowLeft, Star, TrendingUp, Users, Gift, Camera, CheckCircle2,
-  Send, Loader2, BarChart3, Heart, MessageSquare, Share2,
+  Send, Loader2, BarChart3, Heart, MessageSquare, Share2, FolderDown,
 } from 'lucide-react';
 import { getFiestaById, updateFiestaPostEvento } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
 
 const formatCurrency = (n: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(n);
@@ -36,7 +36,7 @@ function isSafeUrl(url: string): boolean {
 }
 
 /** Returns true if the invitado has any documented dietary/allergy concern. */
-function hasAlergiaOrDietaryRestriction(inv: import('@/types/fiesta').Invitado): boolean {
+function hasAlergiaOrDietaryRestriction(inv: Invitado): boolean {
   return !!(inv.alergiasEspecificas || (inv.dietaryRestriction && inv.dietaryRestriction !== 'Ninguna') || inv.isCeliac);
 }
 
@@ -55,6 +55,30 @@ function PostEventoContent() {
   const [npsScore, setNpsScore] = useState<number | null>(null);
   const [referidoPor, setReferidoPor] = useState('');
   const [nuevoReferido, setNuevoReferido] = useState('');
+
+  const [downloadingZip, setDownloadingZip] = useState(false);
+
+  const handleDownloadZip = async () => {
+    if (!fiestaId) return;
+    setDownloadingZip(true);
+    try {
+      window.location.href = `/api/fiestas/${fiestaId}/download-recuerdos`;
+      toast({
+        title: '📦 Generando descarga',
+        description: 'La compilación del ZIP ha comenzado. Se descargará automáticamente en tu navegador.',
+      });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'No se pudo iniciar la generación del ZIP.',
+        variant: 'destructive',
+      });
+    } finally {
+      setTimeout(() => {
+        setDownloadingZip(false);
+      }, 3000);
+    }
+  };
 
   const load = useCallback(async () => {
     if (!fiestaId) { setLoading(false); return; }
@@ -282,6 +306,30 @@ function PostEventoContent() {
                   className="text-blue-600 underline text-sm break-all">{fiesta.galeriaUrl}</a>
               </div>
             )}
+
+            <div className="border-t border-slate-100 pt-4 mt-2">
+              <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+                Descarga todo el material de los invitados (fotos, videos de plataforma 360 y audios del buzón de voz) recopilados durante la fiesta en un solo archivo ZIP:
+              </p>
+              <Button
+                type="button"
+                onClick={handleDownloadZip}
+                disabled={downloadingZip}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold h-10 shadow-sm flex items-center justify-center gap-2"
+              >
+                {downloadingZip ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generando ZIP de Recuerdos...
+                  </>
+                ) : (
+                  <>
+                    <FolderDown className="w-4 h-4" />
+                    Descargar Recuerdos del Evento (ZIP)
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

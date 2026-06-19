@@ -688,7 +688,7 @@ function SalonLayoutContent() {
           <div className="py-4 space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="new-template-name" className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre de la Plantilla</Label>
-                <Input id="new-template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay, Salón Chico" className="rounded-xl h-12 bg-slate-50 border-none"/>
+                <Input id="new-template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Club Uruguay, Salón Chico" className="rounded-xl h-12 bg-slate-50 border-none text-slate-900"/>
             </div>
           </div>
           <DialogFooter className="gap-2">
@@ -799,7 +799,7 @@ function SalonLayoutContent() {
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase text-slate-400">Escala (píxeles por metro)</Label>
-                            <Input type="number" value={decoracion.pixelsPerMeter || ''} onChange={e => setDecoracion({...decoracion, pixelsPerMeter: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold"/>
+                            <Input type="number" value={decoracion.pixelsPerMeter || ''} onChange={e => setDecoracion({...decoracion, pixelsPerMeter: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900"/>
                         </div>
                     </div>
                 </CardContent>

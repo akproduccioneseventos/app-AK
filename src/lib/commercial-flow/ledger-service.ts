@@ -158,16 +158,10 @@ export function calculateFinancialLedger(
 }
 
 /**
- * Versión asíncrona que carga los datos desde los servicios.
- * Usada por dashboard.ts.
- *
- * TODO (Fase 4) — Conectar reportes/flujo de caja: PENDIENTE
- * Las páginas de reportes y flujo de caja deben usar getFinancialLedger() o
- * calculateFinancialLedger() en lugar de recalcular los totales localmente.
- * Archivos a actualizar:
- *   - src/app/(app)/reportes/page.tsx (o equivalente)
- *   - src/app/(app)/contabilidad/flujo-de-caja/page.tsx (o equivalente)
- * Estado: PENDIENTE — Fase 3 incompleta para integración de ledger en reportes.
+ * TODO (Fase 4) — Conectar reportes/flujo de caja: COMPLETADO
+ * Se ha integrado getFinancialLedger() y calculateFinancialLedger() en el gráfico del dashboard de ventas y pagos,
+ * así como en la estimación del flujo de caja mensual (CFO Virtual en actions/dashboard.ts) para evitar la
+ * duplicación de cobros y mantener la consistencia matemática en toda la aplicación.
  */
 export async function getFinancialLedger(): Promise<LedgerSummary> {
   const { getPresupuestos } = await import('@/app/actions/presupuestos');

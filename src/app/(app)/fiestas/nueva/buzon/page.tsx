@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { 
   ArrowLeft, Mic, Video, Play, Pause, Trash2, Download, Upload, Loader2, 
-  Volume2, ShieldCheck, Info, FileAudio, ExternalLink, Calendar, Users, Square
+  Volume2, ShieldCheck, Info, FileAudio, ExternalLink, Calendar, Users, Square,
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 function BuzonAdminContent() {
   const searchParams = useSearchParams();
@@ -25,6 +27,7 @@ function BuzonAdminContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [messages, setMessages] = useState<BuzonMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isWelcomeSaving, setIsWelcomeSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
@@ -44,8 +47,9 @@ function BuzonAdminContent() {
   const msgAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load Data
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     if (!fiestaId) return;
+    if (!silent) setIsLoading(true);
     try {
       const [fData, mData] = await Promise.all([
         getFiestaById(fiestaId),
@@ -56,12 +60,45 @@ function BuzonAdminContent() {
     } catch (err) {
       console.error(err);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (!fiestaId) return;
+    setIsRefreshing(true);
+    try {
+      const mData = await getBuzonMessages(fiestaId);
+      setMessages(mData);
+      toast({
+        title: "Sincronizado",
+        description: "Se actualizaron los mensajes del buzón.",
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Error al actualizar",
+        description: "No se pudieron traer los últimos saludos.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
     loadData();
+    
+    // Polling automático cada 15 segundos para mantenerlo sincronizado sin recargar
+    const interval = setInterval(() => {
+      if (fiestaId) {
+        getBuzonMessages(fiestaId)
+          .then(mData => setMessages(mData))
+          .catch(err => console.error('Error in buzon polling:', err));
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
   }, [fiestaId]);
 
   // Clean up recording preview URL on unmount
@@ -299,7 +336,19 @@ function BuzonAdminContent() {
           <Card className="border-none shadow-xl flex flex-col min-h-[500px]">
             <CardHeader className="border-b bg-slate-50/50">
               <CardTitle className="flex items-center justify-between text-xl font-bold">
-                <span>Saludos Recibidos ({messages.length})</span>
+                <div className="flex items-center gap-2">
+                  <span>Saludos Recibidos ({messages.length})</span>
+                  <Button
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full text-slate-400 hover:text-purple-600 hover:bg-purple-50"
+                    title="Actualizar buzón"
+                  >
+                    <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+                  </Button>
+                </div>
                 <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
                   Total: {messages.length}
                 </Badge>
@@ -505,7 +554,7 @@ function BuzonAdminContent() {
                 <p className="text-sm text-slate-400 leading-relaxed">
                   Para probar la experiencia del invitado, asegúrate de activar el toggle de "Buzón de Mensajes" en la sección de **Portal Invitado**. Esto mostrará el acceso directo a sus celulares.
                 </p>
-                <Button asChild variant="outline" className="border-white/10 text-white hover:bg-white/5 rounded-full w-full justify-between">
+                <Button asChild variant="ghost" className="border border-white/20 bg-transparent text-white hover:bg-white/10 rounded-full w-full justify-between">
                   <Link href={`/evento/buzon/${fiestaId}`} target="_blank">
                     <span>Probar como Invitado</span>
                     <ExternalLink className="w-4 h-4" />

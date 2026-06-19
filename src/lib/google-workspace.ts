@@ -64,10 +64,22 @@ export function decodeGoogleState(rawState: string | null): GoogleOAuthState {
   }
 }
 
-export function getGoogleRedirectUri(origin?: string) {
+export function getPublicAppOrigin(origin?: string) {
   const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL || origin || '';
+  return configuredOrigin.replace(/\/$/g, '');
+}
+
+export function getSafeGoogleReturnPath(returnTo: string | undefined, fallbackPath: string) {
+  if (!returnTo || !returnTo.startsWith('/') || returnTo.startsWith('//')) {
+    return fallbackPath;
+  }
+  return returnTo;
+}
+
+export function getGoogleRedirectUri(origin?: string) {
+  const configuredOrigin = getPublicAppOrigin(origin);
   const path = process.env.GOOGLE_OAUTH_REDIRECT_PATH || '/api/google/oauth/callback';
-  return `${configuredOrigin.replace(/\/$/g, '')}${path.startsWith('/') ? path : `/${path}`}`;
+  return `${configuredOrigin}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
 export function getMissingGoogleConfig(origin?: string) {

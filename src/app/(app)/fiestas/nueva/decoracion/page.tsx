@@ -737,12 +737,12 @@ function DecoracionYDisenoEventoContent() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Nombre</Label>
-              <Input value={newDecoItemName} onChange={e => setNewDecoItemName(e.target.value)} className="rounded-xl h-12 bg-slate-50 border-none" />
+              <Input value={newDecoItemName} onChange={e => setNewDecoItemName(e.target.value)} className="rounded-xl h-12 bg-slate-50 border-none text-slate-900" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Cantidad</Label>
-                <Input type="number" min={1} value={newDecoItemQty} onChange={e => setNewDecoItemQty(Number(e.target.value))} className="rounded-xl h-12 bg-slate-50 border-none" />
+                <Input type="number" min={1} value={newDecoItemQty} onChange={e => setNewDecoItemQty(Number(e.target.value))} className="rounded-xl h-12 bg-slate-50 border-none text-slate-900" />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs uppercase font-black tracking-widest text-slate-400">Costo Interno ($)</Label>
@@ -751,7 +751,7 @@ function DecoracionYDisenoEventoContent() {
                   value={newDecoItemCosto ?? ''}
                   onChange={e => setNewDecoItemCosto(e.target.value ? Number(e.target.value) : undefined)}
                   placeholder="Opcional"
-                  className="rounded-xl h-12 bg-slate-50 border-none"
+                  className="rounded-xl h-12 bg-slate-50 border-none text-slate-900"
                 />
               </div>
             </div>
@@ -918,11 +918,11 @@ function DecoracionYDisenoEventoContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tema del Evento</Label>
-                  <Input value={decoracionData.tema || ''} onChange={e => handleInputChange('tema', e.target.value)} placeholder="Ej: Rústico Chic, Tropical, Años 80" className="rounded-xl h-12 bg-slate-50 border-none" />
+                  <Input value={decoracionData.tema || ''} onChange={e => handleInputChange('tema', e.target.value)} placeholder="Ej: Rústico Chic, Tropical, Años 80" className="rounded-xl h-12 bg-slate-50 border-none text-slate-900" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Color Cubremantel</Label>
-                  <Input value={decoracionData.colorCubremantel || ''} onChange={e => handleInputChange('colorCubremantel', e.target.value)} placeholder="Ej: Blanco, Azul Marino" className="rounded-xl h-12 bg-slate-50 border-none" />
+                  <Input value={decoracionData.colorCubremantel || ''} onChange={e => handleInputChange('colorCubremantel', e.target.value)} placeholder="Ej: Blanco, Azul Marino" className="rounded-xl h-12 bg-slate-50 border-none text-slate-900" />
                 </div>
               </div>
             </CardContent>
@@ -1188,7 +1188,7 @@ function DecoracionYDisenoEventoContent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-              <Textarea value={decoracionData.generalNotesDecoracion || ''} onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)} rows={4} placeholder="Ideas, conceptos, elementos clave, notas para el equipo..." className="rounded-xl bg-slate-50 border-none resize-none" />
+              <Textarea value={decoracionData.generalNotesDecoracion || ''} onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)} rows={4} placeholder="Ideas, conceptos, elementos clave, notas para el equipo..." className="rounded-xl bg-slate-50 border-none resize-none text-slate-900" />
             </CardContent>
             <CardFooter className="border-t p-6">
               <Button onClick={handleSaveClick} size="lg" className="w-full sm:w-auto rounded-2xl shadow-lg shadow-primary/20" disabled={isSaving}>
@@ -2110,10 +2110,10 @@ function ChecklistAddForm({ onAdd, zonas }: { onAdd: (item: string, zona: string
   }, [validZonas, zona]);
   return (
     <div className="flex flex-col sm:flex-row gap-3">
-      <Input value={item} onChange={e => setItem(e.target.value)} placeholder="Nuevo item del checklist..." className="rounded-xl h-11 bg-slate-50 border-none flex-1"
+      <Input value={item} onChange={e => setItem(e.target.value)} placeholder="Nuevo item del checklist..." className="rounded-xl h-11 bg-slate-50 border-none flex-1 text-slate-900"
         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); if (item.trim()) { onAdd(item, zona); setItem(''); } } }} />
       <Select value={zona} onValueChange={setZona}>
-        <SelectTrigger className="rounded-xl h-11 bg-slate-50 border-none w-full sm:w-44"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="rounded-xl h-11 bg-slate-50 border-none w-full sm:w-44 text-slate-900"><SelectValue /></SelectTrigger>
         <SelectContent className="rounded-2xl border-none shadow-2xl">
           {validZonas.map(z => <SelectItem key={z.id} value={z.id}>{z.nombre}</SelectItem>)}
         </SelectContent>
