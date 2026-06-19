@@ -1,14 +1,11 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-Resolving Imports Conflict...
 import {
-  Mic, Video, Play, Pause, Square, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
-  Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff, X
-} from 'lucide-react';
+  Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
+  Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -43,24 +40,46 @@ export default function GuestBuzonPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
-  
+
   // Video VHS State
   const [videoState, setVideoState] = useState<'idle' | 'recording' | 'processing' | 'review'>('idle');
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const vhsCanvasRef = useRef<HTMLCanvasElement>(null);
   const vhsRecorderRef = useRef<MediaRecorder | null>(null);
-  
+
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
 
-Resolving Imports Conflict...
-import {
-  Mic, Video, Play, Pause, Square, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
-  Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff, X
-} from 'lucide-react';
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const playPhoneTone = (freq1: number, freq2: number, duration: number) => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.frequency.value = freq1;
+      osc2.frequency.value = freq2;
+
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(ctx.currentTime + duration);
+      osc2.stop(ctx.currentTime + duration);
+    } catch (e) {}
   };
 
   // Load Fiesta Data
@@ -112,13 +131,13 @@ import {
   // Rotary Phone Handset Off-Hook & Dial Trigger
   const handlePickUpHandset = async () => {
     setPhoneState('off_hook');
-    
+
     // Play dial tones (DTMF sounds)
     playPhoneTone(350, 440, 0.5); // Dial tone
     setTimeout(() => playPhoneTone(697, 1209, 0.15), 600); // Digit 1
     setTimeout(() => playPhoneTone(770, 1336, 0.15), 800); // Digit 5
     setTimeout(() => playPhoneTone(852, 1477, 0.15), 1000); // Digit 9
-    
+
     setTimeout(() => {
       setPhoneState('beeping');
       playPhoneTone(1000, 1000, 0.45); // Classic voicemail BEEP
@@ -143,7 +162,7 @@ import {
 
     try {
       const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+
       let mimeType = 'audio/webm';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'audio/mp4';
       if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = '';
@@ -161,7 +180,7 @@ import {
         const url = URL.createObjectURL(blob);
         setAudioBlob(blob);
         setAudioUrl(url);
-        
+
         audioStream.getTracks().forEach(track => track.stop());
       };
 
@@ -183,8 +202,8 @@ import {
       console.error('Error accessing microphone:', err);
       setPhoneState('hung_up');
       toast({
-        title: '¡Micrófono apagado! 🎙️',
-        description: 'Che, por favor permití el acceso al micrófono para poder grabarte el audio.',
+        title: 'Acceso Denegado',
+        description: 'Por favor, permite el acceso al micrófono para grabar tu saludo.',
         variant: 'destructive',
       });
     }
@@ -199,7 +218,7 @@ import {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
     }
-    
+
     setIsRecording(false);
   };
 
@@ -243,8 +262,8 @@ import {
 
     if (!file.type.startsWith('video/')) {
       toast({
-        title: '¡Formato incorrecto! ❌',
-        description: 'Che, seleccioná un archivo de video válido.',
+        title: 'Archivo Inválido',
+        description: 'Por favor selecciona un archivo de video.',
         variant: 'destructive',
       });
       return;
@@ -252,9 +271,8 @@ import {
 
     if (file.size > 50 * 1024 * 1024) {
       toast({
-Resolving File Size Check...
-        title: 'Â¡Pesa demasiado! âš–ï¸',
-        description: 'El video no puede superar los 50MB. Â¡Buscate uno mÃ¡s liviano, bo!',
+        title: 'Video demasiado grande',
+        description: 'El video no debe superar los 50MB.',
         variant: 'destructive',
       });
       return;
@@ -272,9 +290,8 @@ Resolving File Size Check...
 
       if (duration > 31) {
         toast({
-Resolving Duration Limit...
-          title: 'Â¡Video muy largo! â³',
-          description: 'El video tiene que ser de 15 segundos como mÃ¡ximo, bo. Recortalo o grabÃ¡ uno nuevo.',
+          title: 'Duración excedida',
+          description: 'El video no debe durar más de 30 segundos.',
           variant: 'destructive',
         });
         setVideoFile(null);
@@ -282,8 +299,7 @@ Resolving Duration Limit...
       } else {
         setVideoFile(file);
         setVideoUrl(URL.createObjectURL(file));
-Resolving setVideoMode...
-        setVideoMode('preview');
+        setVideoState('review');
       }
     };
   };
@@ -300,7 +316,7 @@ Resolving setVideoMode...
         videoRef.current.srcObject = mediaStream;
       }
       setVideoState('recording');
-      
+
       // Start VHS filter canvas loop
       setTimeout(() => startVHSRenderLoop(mediaStream), 300);
     } catch (err) {
@@ -369,7 +385,7 @@ Resolving setVideoMode...
       const date = new Date();
       const timeStr = date.toTimeString().split(' ')[0];
       const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-      
+
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 16px "Courier New", monospace';
       ctx.fillText(timeStr, 40, canvas.height - 60);
@@ -399,7 +415,7 @@ Resolving setVideoMode...
     setVideoDuration(0);
 
     const canvasStream = canvas.captureStream(20); // 20 FPS
-    
+
     // Add audio track to canvas stream
     const audioTrack = stream.getAudioTracks()[0];
     if (audioTrack) {
@@ -457,7 +473,6 @@ Resolving setVideoMode...
     setVideoState('idle');
     stopCamera();
     if (videoInputRef.current) videoInputRef.current.value = '';
-    setVideoMode('choice');
   };
 
   // Submit Handler
@@ -465,9 +480,8 @@ Resolving setVideoMode...
     const trimmedName = authorName.trim();
     if (!trimmedName) {
       toast({
-Resolving Toast Name Validation...
-        title: 'Â¿QuiÃ©n sos? ðŸ¤”',
-        description: 'Che, ponÃ© tu nombre y apellido para que sepan de quiÃ©n es el saludo. âœï¸',
+        title: 'Nombre requerido',
+        description: 'Por favor ingresa tu nombre.',
         variant: 'destructive',
       });
       return;
@@ -488,8 +502,8 @@ Resolving Toast Name Validation...
       formData.append('durationSeconds', Math.round(videoDuration).toString());
     } else {
       toast({
-        title: 'Falta tu saludo 📢',
-        description: 'Che, acordate de grabar o subir tu saludo antes de presionar enviar.',
+        title: 'Error de envío',
+        description: 'Graba o selecciona un saludo antes de enviar.',
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -503,25 +517,23 @@ Resolving Toast Name Validation...
         resetAudioRecording();
         resetVideoUpload();
         toast({
-Resolving Toast Success Message...
-          title: 'Â¡Mensaje guardado! ðŸŽ‰',
-          description: 'Â¡BuenÃ­simo! Tu saludo ya estÃ¡ a salvo en el buzÃ³n de los anfitriones. ðŸ’Œ',
+          title: '¡Mensaje guardado!',
+          description: 'Tu saludo se ha guardado en la Cápsula del Tiempo.',
         });
         setTimeout(() => {
           setShowCelebration(false);
         }, 5000);
       } else {
         toast({
-Resolving Toast Error Message...
-          title: 'FallÃ³ la subida ðŸ˜¢',
-          description: result.error || 'Hubo un problema al subir tu saludo. ProbÃ¡ de nuevo, che.',
+          title: 'Error al subir',
+          description: result.error || 'Ocurrió un error al subir.',
           variant: 'destructive',
         });
       }
     } catch (err: any) {
       toast({
-        title: 'Problema de red 🔌',
-        description: 'Che, no nos pudimos conectar. Revisá tu conexión e intentalo de nuevo.',
+        title: 'Error de Red',
+        description: 'No se pudo conectar con el servidor.',
         variant: 'destructive',
       });
     } finally {
@@ -553,7 +565,7 @@ Resolving Toast Error Message...
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_60%)] text-white flex flex-col justify-between select-none">
-      
+
       {/* HEADER */}
       <header className="px-4 py-5 flex items-center justify-between border-b border-white/5 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
         <button onClick={() => router.back()} className="p-2 -ml-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition">
@@ -573,7 +585,7 @@ Resolving Toast Error Message...
       {/* CELEBRATION */}
       <AnimatePresence>
         {showCelebration && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-6 text-center"
           >
@@ -591,22 +603,6 @@ Resolving Toast Error Message...
 
       {/* MAIN CONTENT */}
       <main className="flex-1 max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-start gap-6">
-        
-Resolving Premium Banner...
-        {/* PREMIUM BANNER WITH FADE */}
-        <div className="relative w-full h-44 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group">
-          <img 
-            src="/media/mailbox_banner.png" 
-            alt="BuzÃ³n de Recuerdos" 
-            className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4 flex flex-col items-center">
-            <span className="text-[9px] font-black uppercase tracking-widest text-white bg-purple-600/90 border border-purple-400/30 px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm animate-pulse">
-              ðŸ“¸ Â¡DejÃ¡ tu video o audio de regalo! ðŸŽ
-            </span>
-          </div>
-        </div>
 
         {/* Welcome Card */}
         {hasWelcomeAudio && (
@@ -630,7 +626,6 @@ Resolving Premium Banner...
         {/* TABS */}
         <div className="flex p-1 rounded-2xl bg-white/5 border border-white/10">
           <button
-Resolving Tab Click...
             onClick={() => { resetVideoUpload(); resetAudioRecording(); setActiveTab('audio'); }}
             className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
               activeTab === 'audio' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
@@ -650,7 +645,7 @@ Resolving Tab Click...
 
         {/* TAB BODY */}
         <div className="flex-1 flex flex-col justify-between min-h-[340px]">
-          
+
           {/* Voz Retro Tab */}
           {activeTab === 'audio' && (
             <div className="flex-1 flex flex-col items-center justify-center gap-6">
@@ -734,18 +729,24 @@ Resolving Tab Click...
 
           {/* Video VHS Tab */}
           {activeTab === 'video' && (
-Resolving Recorded Video Details...
-                      <p className="text-xs font-bold text-white">Tu video-saludo ðŸŽ¥</p>
-                      <p className="text-[10px] text-zinc-500 font-bold">
-                        DuraciÃ³n: {Math.round(videoDuration)} segundos
-                      </p>
+            <div className="flex-1 flex flex-col items-center justify-center gap-6">
+              {videoState === 'idle' && (
+                <div className="flex flex-col items-center text-center space-y-6 w-full">
+                  <button
+                    onClick={startCamera}
+                    className="w-full p-8 rounded-3xl border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all flex flex-col items-center justify-center gap-3"
+                  >
+                    <Camera className="w-10 h-10 text-indigo-400" />
+                    <div>
+                      <p className="text-sm font-black text-white">Grabar con Cámara VHS</p>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Efecto analógico retro</p>
                     </div>
+                  </button>
 
-                    <button
-                      onClick={resetVideoUpload}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-2xl text-xs font-bold transition-all"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" /> Volver a grabar
+                  <div className="w-full flex items-center justify-center gap-3">
+                    <span className="h-px bg-white/10 flex-1" />
+                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">O</span>
+                    <span className="h-px bg-white/10 flex-1" />
                   </div>
 
                   <input type="file" accept="video/*" onChange={handleVideoChange} ref={videoInputRef} className="hidden" />
@@ -757,116 +758,17 @@ Resolving Recorded Video Details...
                   </button>
                 </div>
               )}
-Resolving Layout Choice / Recording...
-              {videoMode === 'recording' && (
-                // RECORDING CAMERA INTERFACE WITH VHS EFFECT
-                <div className="flex flex-col items-center gap-5 text-center w-full">
-                  <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                    {videoCountdown !== null ? (
-                      <>â³ Preparate...</>
-                    ) : (
-                      <>
-                        <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse inline-block" />
-                        Grabando saludo VHS en vivo
-                      </>
-                    )}
-                  </p>
 
-                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
-                    {/* Hidden video element to feed the canvas */}
-                    <video 
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="hidden"
-                    />
+              {videoState === 'recording' && (
+                <div className="relative w-full flex flex-col items-center space-y-4">
+                  {/* Invisible video tag to feed the canvas */}
+                  <video ref={videoRef} autoPlay playsInline muted className="hidden" />
 
-                    {/* Canvas displaying mirrored webcam image with VHS filters */}
-                    <canvas 
-                      ref={vhsCanvasRef} 
-                      className="w-full h-full object-cover" 
-                    />
-
-                    {/* Glitch overlay scanlines */}
+                  {/* Canvas that records and shows VHS styles */}
+                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden border-2 border-indigo-500/30 bg-black relative shadow-2xl">
+                    <canvas ref={vhsCanvasRef} className="w-full h-full object-cover" />
+                    {/* Scanning glich line styling */}
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] pointer-events-none bg-[size:100%_4px,3px_100%]" />
-
-                    {/* COUNTDOWN OVERLAY */}
-                    {videoCountdown !== null && (
-                      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10 bg-purple-950/80 shadow-2xl">
-                        <motion.div
-                          key={videoCountdown}
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1.2, opacity: 1 }}
-                          exit={{ scale: 1.5, opacity: 0 }}
-                          transition={{ duration: 0.8 }}
-                          className="w-28 h-28 rounded-full border-4 border-purple-500 flex items-center justify-center z-10 bg-purple-950/80 shadow-2xl"
-                        >
-                          <span className="text-5xl font-black text-white">{videoCountdown}</span>
-                        </motion.div>
-                      </div>
-                    )}
-
-                    {/* RECORDING STATUS OVERLAYS */}
-                    {videoCountdown === null && (
-                      <>
-                        {/* Flashing RED REC tag */}
-                        <div className="absolute top-4 left-4 bg-red-600/90 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-lg z-10">
-                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                          REC
-                        </div>
-
-                        {/* Remaining seconds indicator */}
-                        <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-[10px] font-black tracking-wider px-3 py-1 rounded-full shadow-lg tabular-nums z-10">
-                          0:{videoSeconds.toString().padStart(2, '0')} / 0:15
-                        </div>
-
-                        {/* Bottom progress bar */}
-                        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20 z-10">
-                          <div 
-                            className="h-full bg-gradient-to-r from-red-500 to-purple-600 transition-all duration-1000 ease-linear"
-                            style={{ width: \% }}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-4 justify-center w-full">
-                    {videoCountdown === null && (
-                      <button
-                        onClick={stopLiveVideoRecording}
-                        className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg transition transform active:scale-95"
-                      >
-                        <Square className="w-4 h-4 fill-white" /> Terminar
-                      </button>
-                    )}
-                    <button
-                      onClick={resetVideoUpload}
-                      className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg transition transform active:scale-95"
-                    >
-                      <X className="w-4 h-4" /> Cancelar
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {videoMode === 'preview' && (
-                // PREVIEW VIDEO INTERFACE
-                <div className="w-full flex flex-col items-center gap-4 text-center">
-                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                    PrevisualizaciÃ³n del video
-                  </p>
-
-                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
-                    <video 
-                      src={videoUrl || undefined} 
-                      controls 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-full px-2">
-                    <div className="text-left font-bold">
                   </div>
 
                   {vhsRecorderRef.current?.state === 'recording' ? (
@@ -895,18 +797,11 @@ Resolving Layout Choice / Recording...
                   </div>
                   <div className="flex items-center justify-between w-full px-2">
                     <div className="text-left">
-Resolving Recorded Video Details...
-                      <p className="text-xs font-bold text-white">Tu video-saludo ðŸŽ¥</p>
-                      <p className="text-[10px] text-zinc-500 font-bold">
-                        DuraciÃ³n: {Math.round(videoDuration)} segundos
-                      </p>
+                      <p className="text-xs font-bold text-white">Video Analógico</p>
+                      <p className="text-[10px] text-zinc-500">Duración: {Math.round(videoDuration)} segundos</p>
                     </div>
-
-                    <button
-                      onClick={resetVideoUpload}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-2xl text-xs font-bold transition-all"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" /> Volver a grabar
+                    <button onClick={resetVideoUpload} className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-2xl text-xs font-bold transition">
+                      <RefreshCw className="w-3.5 h-3.5" /> Grabar de nuevo
                     </button>
                   </div>
                 </div>
@@ -933,9 +828,9 @@ Resolving Recorded Video Details...
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 className="w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-white shadow-xl flex items-center justify-center gap-2 transform transition hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-                style={{ 
+                style={{
                   background: `linear-gradient(135deg, ${customAccent}, #4f46e5)`,
-                  boxShadow: `0 4px 20px ${customAccent}33` 
+                  boxShadow: `0 4px 20px ${customAccent}33`
                 }}
               >
                 {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando en cápsula...</> : <><Send className="w-4 h-4" /> Enviar Recuerdo</>}
@@ -949,7 +844,7 @@ Resolving Recorded Video Details...
       <footer className="py-6 border-t border-white/5 bg-zinc-950/40 text-center">
         <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Experiencia por AK Producciones</p>
       </footer>
-      
+
       <KioskUnlockButton />
     </div>
   );
