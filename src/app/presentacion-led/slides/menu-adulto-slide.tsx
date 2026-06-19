@@ -7,6 +7,7 @@ import { Check, ChevronRight, Utensils, Info, ImageIcon, ExternalLink } from 'lu
 import { SlideLayout } from '../components/slide-layout';
 import { cn } from '@/lib/utils';
 import type { FullMenu, MenuItem } from '@/types/catering';
+import { getCateringMenuImage } from '@/lib/catering/menu-images';
 
 interface MenuAdultoSlideProps {
   menus: FullMenu[];
@@ -17,7 +18,9 @@ interface MenuAdultoSlideProps {
   onNext: () => void;
 }
 
-function isSafeUrl(url: string): boolean {
+function isSafeUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  if (url.startsWith('/')) return true;
   try {
     const { protocol } = new URL(url);
     return protocol === 'https:' || protocol === 'http:';
@@ -209,7 +212,7 @@ export function MenuAdultoSlide({
                   isSelected={selectedMenuId === menu.id}
                   onSelect={() => onSelect(menu.id)}
                   mostrarPrecios={mostrarPrecios}
-                  photoUrl={ledFotoMap[menu.id] || menu.imageUrl || null}
+                  photoUrl={ledFotoMap[menu.id] || getCateringMenuImage(menu) || null}
                 />
               </motion.div>
             ))}

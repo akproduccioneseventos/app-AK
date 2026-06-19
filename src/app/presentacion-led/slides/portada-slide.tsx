@@ -30,10 +30,10 @@ export function PortadaSlide({
   onNext,
 }: PortadaSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
-  const safeLogoUrl = (logoUrl && /^https?:\/\//i.test(logoUrl)) || (logoUrl && /^data:image\/(png|jpeg|jpg|gif|svg\+xml|webp);base64,/i.test(logoUrl))
+  const safeLogoUrl = logoUrl && (/^https?:\/\//i.test(logoUrl) || logoUrl.startsWith('/') || /^data:image\/(png|jpeg|jpg|gif|svg\+xml|webp);base64,/i.test(logoUrl))
     ? logoUrl
     : null;
-  const safeBackgroundUrl = (imagenFondoUrl && /^https?:\/\//i.test(imagenFondoUrl))
+  const safeBackgroundUrl = imagenFondoUrl && (/^https?:\/\//i.test(imagenFondoUrl) || imagenFondoUrl.startsWith('/'))
     ? imagenFondoUrl
     : null;
   const accent = colorAcento || contenido.colorAcento;

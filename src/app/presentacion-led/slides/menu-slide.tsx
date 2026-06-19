@@ -21,7 +21,9 @@ interface MenuSlideProps {
   onNext: () => void;
 }
 
-function isSafeHttpsUrl(url: string): boolean {
+function isSafeHttpsUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  if (url.startsWith('/')) return true;
   try {
     const { protocol } = new URL(url);
     return protocol === 'https:' || protocol === 'http:';

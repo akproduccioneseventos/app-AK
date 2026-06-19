@@ -82,7 +82,7 @@ const DYNAMIC_START = 4; // = FIXED_SLIDES_START
 
 function isSafeImageUrl(url: string | null | undefined): url is string {
   if (!url) return false;
-  return /^https?:\/\//i.test(url) || /^data:image\//i.test(url);
+  return /^https?:\/\//i.test(url) || url.startsWith('/') || /^data:image\//i.test(url);
 }
 
 function groupServicesByCategory(servicios: PageData['servicios']): CategoriaServicio[] {
