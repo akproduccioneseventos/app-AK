@@ -160,6 +160,10 @@ export default function Plataforma360Page() {
     }
   };
 
+  const toggleCamera = () => {
+    setFacingMode(current => current === 'environment' ? 'user' : 'environment');
+  };
+
   const loadRecentVideos = async () => {
     try {
       const posts = await getSocialPosts(fiestaId);
@@ -290,12 +294,13 @@ export default function Plataforma360Page() {
       const res = await uploadSocialPost(formData);
       
       if (res.success) {
+        const mediaUrl = res.post?.imageUrl || '';
         setProgress(100);
-        setUploadedPostUrl(res.url || '');
-        setQrCodeUrl(res.url || window.location.href);
+        setUploadedPostUrl(mediaUrl);
+        setQrCodeUrl(mediaUrl || window.location.href);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'done', {
-          mediaUrl: res.url,
+          mediaUrl,
         });
         speak("¡Buenísimo! Tu video ya está subido.");
         loadRecentVideos();
