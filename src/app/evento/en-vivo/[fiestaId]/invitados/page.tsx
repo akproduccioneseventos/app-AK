@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Camera, Music, MessageSquare, Vote, Loader2, Upload, Send, Star, Gift, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +20,7 @@ import {
   addSolicitudCancion,
   addMensajeEnVivo,
   votarEnVivo,
+  registerGuestLiveInterest,
 } from '@/app/actions/evento-en-vivo';
 import type { EventoEnVivoData, VotacionEnVivo } from '@/types/fiesta';
 
@@ -60,8 +62,9 @@ export default function InvitadosPage() {
 
   // CRM Sorteo Form
   const [crmNombre, setCrmNombre] = useState('');
-  const [crmEmail, setCrmEmail] = useState('');
+  const [crmPhone, setCrmPhone] = useState('');
   const [crmFecha, setCrmFecha] = useState('');
+  const [crmConsent, setCrmConsent] = useState(false);
   const [sendingCrm, setSendingCrm] = useState(false);
   const [crmSuccess, setCrmSuccess] = useState(false);
 
@@ -177,16 +180,29 @@ export default function InvitadosPage() {
 
   const handleCrmSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!crmNombre.trim() || !crmEmail.trim() || !crmFecha.trim()) {
-      toast({ title: 'Completá los campos', description: 'Todos los campos son obligatorios.', variant: 'destructive' });
+    if (!crmNombre.trim() || !crmPhone.trim()) {
+      toast({ title: 'Completa los campos', description: 'Nombre y celular son obligatorios.', variant: 'destructive' });
       return;
     }
     setSendingCrm(true);
-    // Simulate server action
-    await new Promise(r => setTimeout(r, 800));
+    const result = await registerGuestLiveInterest(fiestaId, {
+      nombre: crmNombre,
+      telefono: crmPhone,
+      birthdayMonthDay: crmFecha || undefined,
+      marketingConsent: crmConsent,
+    });
     setSendingCrm(false);
+    if (!result.success) {
+      toast({ title: 'No se pudo registrar', description: result.error, variant: 'destructive' });
+      return;
+    }
     setCrmSuccess(true);
-    toast({ title: '¡Participando!', description: 'Ya estás participando en el sorteo.' });
+    toast({
+      title: '¡Participando!',
+      description: result.leadSaved
+        ? 'Ya participas y guardamos tu permiso para enviarte ideas de AK.'
+        : 'Ya participas. Tus datos se usan solo para esta actividad.',
+    });
   };
 
   const handleVotar = async (votacion: VotacionEnVivo, opcionId: string) => {
@@ -230,7 +246,7 @@ export default function InvitadosPage() {
 
       <div className="max-w-lg mx-auto px-4 py-4">
         <Tabs defaultValue="fotos">
-          <TabsList className="grid grid-cols-4 w-full bg-purple-900/50 mb-4">
+          <TabsList className="grid grid-cols-5 w-full bg-purple-900/50 mb-4">
             <TabsTrigger value="fotos" className="text-xs data-[state=active]:bg-purple-600">
               <Camera className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Fotos</span>
@@ -537,16 +553,17 @@ export default function InvitadosPage() {
                       />
                     </div>
                     <div>
-                      <Label className="text-purple-200 text-sm">Email o Celular *</Label>
+                      <Label className="text-purple-200 text-sm">Celular para avisarte si ganas *</Label>
                       <Input
-                        value={crmEmail}
-                        onChange={e => setCrmEmail(e.target.value)}
-                        placeholder="Para contactarte si ganás"
+                        value={crmPhone}
+                        onChange={e => setCrmPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                        inputMode="numeric"
+                        placeholder="099123456"
                         className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl"
                       />
                     </div>
                     <div>
-                      <Label className="text-purple-200 text-sm">Fecha de Nacimiento *</Label>
+                      <Label className="text-purple-200 text-sm">Fecha de cumpleanos (opcional)</Label>
                       <Input
                         type="date"
                         value={crmFecha}
@@ -554,6 +571,16 @@ export default function InvitadosPage() {
                         className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl block [color-scheme:dark]"
                       />
                     </div>
+                    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-purple-500/40 bg-purple-950/40 p-3">
+                      <Checkbox
+                        checked={crmConsent}
+                        onCheckedChange={value => setCrmConsent(Boolean(value))}
+                        className="mt-0.5"
+                      />
+                      <span className="text-xs leading-5 text-purple-100">
+                        Quiero recibir por WhatsApp ideas, beneficios y simulaciones para mi proximo evento. Participar no depende de aceptar esta opcion.
+                      </span>
+                    </label>
                     <Button type="submit" disabled={sendingCrm} className="w-full h-12 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 font-bold text-lg shadow-lg shadow-pink-900/20">
                       {sendingCrm ? <Loader2 className="w-5 h-5 animate-spin" /> : '¡Quiero Participar!'}
                     </Button>

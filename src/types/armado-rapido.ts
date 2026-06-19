@@ -61,6 +61,7 @@ export interface ArmadoRapidoConfig {
 }
 
 export interface LeadFromQuickBudget {
+  submissionId?: string;
   clienteNombre: string;
   clienteContacto?: string;
   eventoFecha?: string;
@@ -74,7 +75,10 @@ export interface LeadFromQuickBudget {
   ajusteAnualActivo?: boolean;
   ajusteAnualPorcentaje?: number;
   serviciosIncluidos: string[];
+  selectedServiceIds?: string[];
+  paqueteId?: string;
   paqueteNombre?: string;
+  includeClubUruguay?: boolean;
 }
 
 function normalizeEventType(value: string): string {

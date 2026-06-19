@@ -92,7 +92,7 @@ export async function saveArmadoRapidoConfig(
 }
 
 export async function generateBudgetAndLeadFromSimulator(
-  data: LeadFromQuickBudget & { items: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
+  data: LeadFromQuickBudget & { items?: Omit<ItemPresupuestado, 'id' | 'costoTotalItem'>[] },
   options?: {
     source?: PresupuestoSource;
     eventoTipo?: string;

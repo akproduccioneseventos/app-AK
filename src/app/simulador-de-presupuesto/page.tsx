@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, type FormEvent, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -49,6 +49,7 @@ import { CompanyLogo } from '@/components/company-logo';
 import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 import {
   calculateSimulatorPricing,
+  getSimulatorServiceCalculatedData,
   simulatorDetailsToBudgetItems,
 } from '@/lib/simulator/pricing';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
@@ -138,9 +139,22 @@ function esCategoriaGastronomica(categoria: string, calculationMethod?: string):
     calculationMethod === 'porPersona'
   );
 }
+
+function normalizePrefillEventType(type?: string | null): string {
+    const normalizedType = (type || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (normalizedType.includes('15') || normalizedType.includes('xv') || normalizedType.includes('quince')) return '15 años';
+    if (normalizedType.includes('boda') || normalizedType.includes('casamiento')) return 'Boda';
+    if (normalizedType.includes('infantil')) return 'Cumpleaños infantil';
+    if (normalizedType.includes('empresa') || normalizedType.includes('corporativo')) return 'Evento empresarial';
+    return 'Cumpleaños';
+}
+
 function SimuladorContent() {
     const { toast } = useToast();
     const searchParams = useSearchParams();
+    const prefillName = searchParams.get('name')?.slice(0, 120) || '';
+    const prefillGuests = Math.max(1, Math.min(1000, Math.round(Number(searchParams.get('guests')) || 50)));
+    const prefillEventType = normalizePrefillEventType(searchParams.get('eventType'));
     const acquisition = useMemo(() => ({
         ...commercialAttributionFromSearchParams(searchParams, 'landing'),
         entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
@@ -156,10 +170,10 @@ function SimuladorContent() {
     const [whatsappNumber, setWhatsappNumber] = useState<string>('');
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
     
-    const [clienteNombre, setClienteNombre] = useState('');
+    const [clienteNombre, setClienteNombre] = useState(prefillName);
     const [clienteContacto, setClienteContacto] = useState('');
-    const [eventoTipo, setEventoTipo] = useState('Cumpleaños');
-    const [adultos, setAdultos] = useState<number>(50);
+    const [eventoTipo, setEventoTipo] = useState(prefillEventType);
+    const [adultos, setAdultos] = useState<number>(prefillGuests);
     const [ninosYAdolescentes, setNinosYAdolescentes] = useState<number>(0);
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
     const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
@@ -178,6 +192,11 @@ function SimuladorContent() {
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
+    const submissionIdRef = useRef(
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+            ? crypto.randomUUID()
+            : `visual_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+    );
     
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
 
@@ -308,6 +327,42 @@ function SimuladorContent() {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
+    const technologyServices = useMemo(() => {
+        const technologyPattern = /\b(led|pantalla|totem|t[oó]tem|360|fotocabina|foto cabina|espejo|muro social|plataforma)\b/i;
+        return serviciosCatalogo
+            .filter(service =>
+                technologyPattern.test(`${service.nombre} ${service.categoria || ''} ${service.subcategoria || ''} ${service.notas || ''}`)
+            )
+            .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) || a.nombre.localeCompare(b.nombre));
+    }, [serviciosCatalogo]);
+
+    const toggleTechnologyService = useCallback((service: ServicioEmpresa, selected: boolean) => {
+        setFormData(previous => {
+            const next = new Map(previous.serviciosSeleccionados);
+            if (!selected) {
+                next.delete(service.id);
+                return { ...previous, serviciosSeleccionados: next };
+            }
+            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+            next.set(service.id, {
+                cantidad: calculated.qty,
+                precioUnitarioOriginal: calculated.unitPrice,
+                precioUnitarioPresupuesto: calculated.unitPrice,
+                nombreServicio: service.nombre,
+                unidad: service.unidad,
+                categoriaServicio: service.categoria,
+                subcategoria: service.subcategoria,
+                esRegalo: false,
+                calculationMethod: service.calculationMethod,
+                precioPorPersona: service.precioPorPersona,
+                precioBase: service.precioBase,
+                invitadosPorUnidad: service.invitadosPorUnidad,
+                tramosDePrecio: service.tramosDePrecio,
+            });
+            return { ...previous, serviciosSeleccionados: next };
+        });
+    }, [adultos, ninosYAdolescentes]);
+
     const stats = useMemo(() => {
         const pricingConfig = config || { menus: [], paquetes: [], descuentoGeneral: 15 };
         return calculateSimulatorPricing({
@@ -354,6 +409,7 @@ function SimuladorContent() {
             setIsGenerating(true);
             const selectedPackageName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
+                submissionId: submissionIdRef.current,
                 clienteNombre,
                 clienteContacto,
                 eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
@@ -365,6 +421,8 @@ function SimuladorContent() {
                 ajusteAnualActivo: stats.annualProjection.applies,
                 ajusteAnualPorcentaje: stats.annualProjection.adjustmentPct,
                 serviciosIncluidos: stats.detallados.map(s => s.id),
+                selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+                paqueteId: selectedPaqueteId,
                 paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 items: simulatorDetailsToBudgetItems(stats.detallados)
             };
@@ -473,6 +531,7 @@ function SimuladorContent() {
         });
 
         const data = {
+            submissionId: submissionIdRef.current,
             clienteNombre,
             clienteContacto,
             eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
@@ -484,6 +543,8 @@ function SimuladorContent() {
             ajusteAnualActivo: newStats.annualProjection.applies,
             ajusteAnualPorcentaje: newStats.annualProjection.adjustmentPct,
             serviciosIncluidos: newStats.detallados.map(s => s.id),
+            selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+            paqueteId,
             paqueteNombre: newPackageName ? `${newPackageName} — ${eventoTipo}` : undefined,
             items: simulatorDetailsToBudgetItems(newStats.detallados)
         };
@@ -967,6 +1028,49 @@ function SimuladorContent() {
                     )}
                     {step === 3 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
+                            {technologyServices.length > 0 && (
+                                <section className="space-y-5 border-b border-slate-200 pb-8">
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-700">Tecnologia AK configurable</p>
+                                        <h3 className="text-2xl font-black text-slate-900">Hace visible el impacto de tu fiesta</h3>
+                                        <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                                            Estas opciones salen del catalogo real de AK. Al activarlas se agregan al calculo y al presupuesto para que el equipo pueda validarlas.
+                                        </p>
+                                    </div>
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        {technologyServices.map(service => {
+                                            const selected = formData.serviciosSeleccionados.has(service.id);
+                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                            return (
+                                                <label
+                                                    key={service.id}
+                                                    className={cn(
+                                                        'flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition',
+                                                        selected
+                                                            ? 'border-fuchsia-500 bg-fuchsia-50 shadow-lg shadow-fuchsia-100'
+                                                            : 'border-slate-200 bg-white hover:border-fuchsia-200'
+                                                    )}
+                                                >
+                                                    <Checkbox
+                                                        checked={selected}
+                                                        onCheckedChange={value => toggleTechnologyService(service, Boolean(value))}
+                                                        className="mt-1 h-6 w-6"
+                                                    />
+                                                    <span className="min-w-0 flex-1">
+                                                        <span className="block font-black text-slate-900">{service.nombre}</span>
+                                                        <span className="mt-1 block text-xs font-semibold text-slate-500">
+                                                            {service.notas || service.subcategoria || service.categoria || 'Experiencia tecnologica AK'}
+                                                        </span>
+                                                        <span className="mt-3 block text-sm font-black text-fuchsia-700">
+                                                            {formatCurrency(calculated.total)}
+                                                        </span>
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            )}
                             <h3 className="font-black text-xl text-slate-800 uppercase tracking-tighter text-center">Selecciona tu Paquete de Servicios</h3>
                             <RadioGroup value={selectedPaqueteId} onValueChange={setSelectedPaqueteId} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {sortedPaquetes.map(p => {

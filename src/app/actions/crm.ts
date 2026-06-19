@@ -17,6 +17,8 @@ import { verifySession } from '@/lib/auth/session-token';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
 import { sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -829,13 +831,19 @@ export interface LandingLeadData {
 
 export async function saveLead(data: LandingLeadData): Promise<{ success: boolean; error?: string }> {
   try {
-    const phone = data.telefono.replace(/\D/g, '').slice(-9);
+    const phone = normalizeUruguayPhone(data.telefono);
     if (data.nombre.trim().length < 3) {
       return { success: false, error: 'Ingresa un nombre valido.' };
     }
-    if (!/^\d{9}$/.test(phone)) {
-      return { success: false, error: 'Ingresa un celular uruguayo de 9 digitos.' };
+    if (!/^09\d{7}$/.test(phone)) {
+      return { success: false, error: 'Ingresa un celular uruguayo valido.' };
     }
+    await enforcePublicRateLimit({
+      scope: 'landing-lead',
+      identity: phone,
+      limit: 4,
+      windowMs: 60 * 60 * 1000,
+    });
     const source: CommercialSource = data.fuente === 'promo-widget'
       ? 'campaign'
       : data.fuente === 'landing-bodas'
@@ -863,6 +871,8 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       ].filter(Boolean).join('\n'),
       budgetSource: 'manual',
       acquisition,
+      marketingConsent: true,
+      marketingConsentSource: 'formulario-landing',
     });
     return { success: true };
   } catch (error: any) {
