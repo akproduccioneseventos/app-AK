@@ -92,13 +92,13 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8" /></div>}>
+    <HydrationGuard fallback={<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8" /></div>}>
       <SimuladorAKContent />
-    </Suspense>
+    </HydrationGuard>
   );
 }
 
-function Suspense({ children, fallback }: { children: React.ReactNode, fallback: React.ReactNode }) {
+function HydrationGuard({ children, fallback }: { children: React.ReactNode, fallback: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   return mounted ? <>{children}</> : <>{fallback}</>;
@@ -397,7 +397,7 @@ function SimuladorAKContent() {
     } else if (currentChatStep === 'date') {
       let finalDate = eventoFecha;
       if (!finalDate) {
-        const parsedDate = new Date(text);
+        const parsedDate = new Date(text.includes('T') ? text : `${text}T12:00:00`);
         if (isNaN(parsedDate.getTime())) {
           setIsAiLoading(false);
           const botMsgKey = `bot_err_${Date.now()}`;
@@ -553,7 +553,7 @@ function SimuladorAKContent() {
         }
         if (changes.adultos !== undefined) setAdultos(changes.adultos);
         if (changes.ninosYAdolescentes !== undefined) setNinosYAdolescentes(changes.ninosYAdolescentes);
-        if (changes.eventoFecha !== undefined) setEventoFecha(new Date(changes.eventoFecha));
+        if (changes.eventoFecha !== undefined) setEventoFecha(new Date(`${changes.eventoFecha}T12:00:00`));
         if (changes.selectedPaqueteId !== undefined) {
           setSelectedPaqueteId(changes.selectedPaqueteId);
           setGeneratedId(null); // Force regenerate budget code
@@ -804,14 +804,14 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                         <button
                           key={suggestion}
                           onClick={() => {
-                            const d = new Date(suggestion);
+                            const d = new Date(`${suggestion}T12:00:00`);
                             setEventoFecha(d);
                             setDateWarning('');
                             setDateSuggestions([]);
                           }}
                           className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg px-2 py-1 text-[10px] font-bold transition-all"
                         >
-                          {new Date(suggestion).toLocaleDateString('es-UY', { day: 'numeric', month: 'short' })}
+                          {new Date(`${suggestion}T12:00:00`).toLocaleDateString('es-UY', { day: 'numeric', month: 'short' })}
                         </button>
                       ))}
                     </div>

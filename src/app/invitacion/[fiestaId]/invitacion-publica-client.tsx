@@ -111,7 +111,7 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
         segundos: Math.floor((diff % (1000 * 60)) / 1000),
       });
       if (diff > 0) {
-        timeoutId = setTimeout(update, diff > 86400000 ? 60000 : 1000);
+        timeoutId = setTimeout(update, 1000);
       }
     };
 

@@ -255,12 +255,12 @@ function SimuladorContent() {
             setIsLoading(true);
             try {
                 const [armadoConfig, bSettings, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
-                    getArmadoRapidoConfig(),
-                    getBudgetDisplaySettings(),
-                    getServiciosEmpresa(),
-                    getSocialConnections(),
-                    getInvoiceTemplateSettings(),
-                    getMenus(),
+                    getArmadoRapidoConfig().catch(() => null),
+                    getBudgetDisplaySettings().catch(() => defaultBudgetDisplaySettings),
+                    getServiciosEmpresa().catch(() => []),
+                    getSocialConnections().catch(() => []),
+                    getInvoiceTemplateSettings().catch(() => ({ logoUrl: null } as any)),
+                    getMenus().catch(() => []),
                 ]);
                 setConfig(armadoConfig);
                 setBudgetSettings(bSettings);
