@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays } from 'lucide-react';
+import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -26,8 +26,9 @@ import { CrmLeadCard } from '@/components/crm/CrmLeadCard';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCrmBoard } from '@/hooks/useCrmBoard';
+import { daysUntilBirthday } from '@/lib/commercial/birthday';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,7 +50,19 @@ const formatCurrency = (value?: number) => {
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 };
 
-type QuickFilter = 'all' | 'no_followup' | 'today' | 'this_week' | 'inactive' | 'my_leads';
+type QuickFilter =
+  | 'all'
+  | 'no_followup'
+  | 'today'
+  | 'this_week'
+  | 'inactive'
+  | 'my_leads'
+  | 'guest'
+  | 'simulator'
+  | 'portal_led'
+  | 'birthday_30'
+  | 'birthday_60'
+  | 'birthday_90';
 
 export default function CrmPage() {
   const {
@@ -66,6 +79,7 @@ export default function CrmPage() {
 
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
   const [leadForMeeting, setLeadForMeeting] = useState<CrmLead | null>(null);
@@ -82,7 +96,15 @@ export default function CrmPage() {
   // Search + Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStageFilter, setActiveStageFilter] = useState<string | null>(null);
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
+  const requestedView = searchParams.get('view');
+  const initialQuickFilter: QuickFilter = requestedView === 'guest'
+    ? 'guest'
+    : requestedView === 'simulator'
+      ? 'simulator'
+      : requestedView === 'portal_led'
+        ? 'portal_led'
+        : 'all';
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(initialQuickFilter);
   
   const isMobile = useIsMobile();
   const sensors = useSensors(useSensor(PointerSensor));
@@ -128,6 +150,16 @@ export default function CrmPage() {
         // Filter by assignedTo matching current user — we don't have auth context so we use a simple "has assignedTo" filter
         // In a real app this would compare to the logged-in user's name
         if (!lead.assignedTo) return false;
+      } else if (quickFilter === 'guest') {
+        if (lead.acquisition?.source !== 'guest_portal' || !lead.marketingConsent) return false;
+      } else if (quickFilter === 'simulator') {
+        if (!['simulator', 'simulator_common', 'simulator_assistant'].includes(lead.budgetSource || '')) return false;
+      } else if (quickFilter === 'portal_led') {
+        if (lead.acquisition?.source !== 'portal_led' && lead.budgetSource !== 'portal_led') return false;
+      } else if (quickFilter.startsWith('birthday_')) {
+        const days = daysUntilBirthday(lead.birthdayMonthDay, now);
+        const limit = Number(quickFilter.split('_')[1]);
+        if (days == null || days > limit) return false;
       }
 
       return true;
@@ -233,6 +265,12 @@ export default function CrmPage() {
 
   const quickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
     { key: 'all', label: 'Todos' },
+    { key: 'guest', label: 'Invitados interesados', icon: <Gift className="w-3 h-3" /> },
+    { key: 'simulator', label: 'Simuladores', icon: <Sparkles className="w-3 h-3" /> },
+    { key: 'portal_led', label: 'Portal LED', icon: <Monitor className="w-3 h-3" /> },
+    { key: 'birthday_30', label: 'Cumple 30 dias', icon: <CalendarDays className="w-3 h-3" /> },
+    { key: 'birthday_60', label: 'Cumple 60 dias', icon: <CalendarDays className="w-3 h-3" /> },
+    { key: 'birthday_90', label: 'Cumple 90 dias', icon: <CalendarDays className="w-3 h-3" /> },
     { key: 'today', label: 'Hoy', icon: <Clock className="w-3 h-3" /> },
     { key: 'this_week', label: 'Esta semana', icon: <Clock className="w-3 h-3" /> },
     { key: 'no_followup', label: 'Sin cita', icon: <X className="w-3 h-3" /> },

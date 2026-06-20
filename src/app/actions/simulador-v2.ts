@@ -2,15 +2,10 @@
 
 import { readData } from '@/lib/data-service';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
-import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
+import { generateBudgetAndLeadFromSimulator, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import type { SimV2DuplicateCheck, SimV2DateCheck, SimV2State } from '@/types/simulador-v2';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CrmLead } from '@/types/crm';
-import {
-  SIM_V2_BASE_RATES,
-  SIM_V2_PACKAGE_MULTIPLIERS,
-  SIM_V2_DISCOUNT_PERCENTAGE,
-} from '@/lib/simulador-v2-constants';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 const CRM_LEADS_FILE = 'crm-leads.json';
@@ -125,36 +120,15 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
   try {
     const tipoEvento = state.tipoEvento || 'Cumpleaños';
     const paquete = state.paquete || 'Intermedio';
-    const totalGuests = (state.adultos || 0) + (state.adolescentes || 0);
-    const rates = SIM_V2_BASE_RATES[tipoEvento] || SIM_V2_BASE_RATES['Cumpleaños'];
-    const multiplier = SIM_V2_PACKAGE_MULTIPLIERS[paquete] || 1.0;
-    const subtotal = Math.round((rates.perPerson * totalGuests + rates.base) * multiplier);
-    const costoEstimado = Math.round(subtotal * (1 - SIM_V2_DISCOUNT_PERCENTAGE / 100));
-
+    const config = await getArmadoRapidoConfig();
+    const normalizedPackageName = paquete.trim().toLowerCase();
+    const selectedPackage = config.paquetes.find((item) =>
+      item.id === paquete || item.nombre.trim().toLowerCase().includes(normalizedPackageName)
+    );
+    if (!selectedPackage) {
+      return { success: false, error: 'El paquete elegido no existe en la configuracion actual.' };
+    }
     const serviciosActivados = state.serviciosActivados || [];
-
-    const items: Omit<import('@/types/presupuesto').ItemPresupuestado, 'costoTotalItem'>[] = [
-      {
-        idServicioCatalogo: `sim_v2_paquete_${paquete.toLowerCase()}`,
-        nombreServicio: `Paquete ${paquete} — ${tipoEvento}`,
-        calculationMethod: 'fijo' as const,
-        cantidad: 1,
-        precioUnitario: subtotal,
-        precioUnitarioPresupuesto: subtotal,
-        esRegalo: false,
-        descripcionServicio: `Paquete ${paquete} para ${tipoEvento}. ${totalGuests} invitados.`,
-      },
-      ...serviciosActivados.map(sId => ({
-        idServicioCatalogo: sId,
-        nombreServicio: sId,
-        calculationMethod: 'fijo' as const,
-        cantidad: 1,
-        precioUnitario: 0,
-        precioUnitarioPresupuesto: 0,
-        esRegalo: true,
-        descripcionServicio: 'Servicio seleccionado en simulador. Requiere revisión interna antes de confirmar precio.',
-      })),
-    ];
 
     const salonInfo = state.tieneSalon
       ? state.salonNombre || 'Salón propio'
@@ -165,18 +139,24 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
     const duracionLabel = state.duracion === 'mas4' ? 'Más de 4 horas' : 'Hasta 4 horas';
 
     const result = await generateBudgetAndLeadFromSimulator({
+      submissionId: `simv2_${normalizePhone(state.telefono)}_${state.fechaEvento || tipoEvento}`,
       clienteNombre: `${state.nombre} ${state.apellido}`.trim(),
       clienteContacto: state.telefono,
       eventoFecha: state.fechaEvento,
       adultos: state.adultos || 0,
       adolescentes: state.adolescentes || 0,
       ninos: 0,
-      subtotal,
-      costoEstimado,
-      descuentoGeneral: SIM_V2_DISCOUNT_PERCENTAGE,
+      subtotal: 0,
+      costoEstimado: 0,
       serviciosIncluidos: serviciosActivados,
-      paqueteNombre: `${paquete} — ${tipoEvento} — ${salonInfo} — ${duracionLabel}`,
-      items,
+      selectedServiceIds: serviciosActivados,
+      paqueteId: selectedPackage.id,
+      paqueteNombre: `${selectedPackage.nombre} — ${tipoEvento} — ${salonInfo} — ${duracionLabel}`,
+      includeClubUruguay: Boolean(state.incluirClubUruguay),
+    }, {
+      source: 'simulator_common',
+      eventoTipo: tipoEvento,
+      salonFiestas: salonInfo,
     });
 
     return result;

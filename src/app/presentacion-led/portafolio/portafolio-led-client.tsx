@@ -9,6 +9,7 @@ import {
   ArrowRight,
   CalendarDays,
   Camera,
+  Calculator,
   CheckCircle2,
   Clock,
   Gift,
@@ -33,6 +34,7 @@ import {
   Utensils,
   Wand2,
   Wine,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -49,12 +51,15 @@ import {
   type PortfolioIcon,
   type PortfolioPhase,
 } from '@/lib/portfolio-experience/portfolio-experience-data';
+import { saveLead } from '@/app/actions/crm';
+import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
 type DemoEvent = {
   tipo: string;
   protagonista: string;
   fecha: string;
   invitados: string;
+  telefono: string;
 };
 
 const iconComponents: Record<PortfolioIcon, LucideIcon> = {
@@ -129,7 +134,10 @@ export function PortafolioLedClient() {
     protagonista: 'Valentina',
     fecha: '15 de noviembre',
     invitados: '150',
+    telefono: '',
   });
+  const [isSavingLead, setIsSavingLead] = useState(false);
+  const [leadError, setLeadError] = useState('');
 
   const activeDevice = useMemo(
     () => DEVICE_PRESETS.find((preset) => preset.id === deviceMode) ?? DEVICE_PRESETS[0],
@@ -162,6 +170,45 @@ export function PortafolioLedClient() {
   const eventType = demo.tipo.trim() || 'XV anos';
   const eventDate = demo.fecha.trim() || '15 de noviembre';
   const guestCount = demo.invitados.trim() || '150';
+  const simulatorHref = appendCommercialAttribution(
+    `/simulador-de-presupuesto?name=${encodeURIComponent(protagonist)}&eventType=${encodeURIComponent(eventType)}&guests=${encodeURIComponent(guestCount)}`,
+    {
+      source: 'portal_led',
+      campaign: 'portfolio-led',
+      entryPath: '/presentacion-led/portafolio',
+      simulatorMode: 'visual',
+    },
+  );
+
+  const handleSaveLeadAndContinue = async () => {
+    setLeadError('');
+    const phone = demo.telefono.replace(/\D/g, '').slice(-9);
+    if (protagonist.length < 3 || !/^09\d{7}$/.test(phone)) {
+      setLeadError('Ingresa nombre y celular uruguayo para guardar el prospecto.');
+      return;
+    }
+    setIsSavingLead(true);
+    const result = await saveLead({
+      nombre: protagonist,
+      telefono: phone,
+      tipoEvento: eventType,
+      invitados: Math.max(1, Math.min(1000, Number(guestCount) || 1)),
+      mensaje: `Interes iniciado desde la presentacion LED. Escena consultada: ${activeScene.title}.`,
+      fuente: 'portal_led',
+      acquisition: {
+        source: 'portal_led',
+        campaign: 'portfolio-led',
+        entryPath: '/presentacion-led/portafolio',
+        simulatorMode: 'visual',
+      },
+    });
+    setIsSavingLead(false);
+    if (!result.success) {
+      setLeadError(result.error || 'No se pudo guardar el prospecto.');
+      return;
+    }
+    window.location.assign(simulatorHref);
+  };
 
   const selectedStyle: CSSProperties = {
     borderColor: selectedService.accent,
@@ -646,6 +693,29 @@ export function PortafolioLedClient() {
                     />
                   </label>
                 </div>
+                <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                  Celular del prospecto
+                  <input
+                    value={demo.telefono}
+                    onChange={(event) => setDemo((current) => ({
+                      ...current,
+                      telefono: event.target.value.replace(/\D/g, '').slice(0, 9),
+                    }))}
+                    inputMode="numeric"
+                    placeholder="099123456"
+                    className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold normal-case tracking-normal text-slate-950 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={handleSaveLeadAndContinue}
+                  disabled={isSavingLead}
+                  className="inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-red-600 px-5 text-sm font-black uppercase tracking-widest text-white transition hover:bg-red-700 disabled:opacity-60"
+                >
+                  {isSavingLead ? <Loader2 className="h-5 w-5 animate-spin" /> : <Calculator className="h-5 w-5" />}
+                  Guardar y presupuestar
+                </button>
+                {leadError && <p className="text-sm font-bold text-red-700">{leadError}</p>}
               </div>
             </div>
 

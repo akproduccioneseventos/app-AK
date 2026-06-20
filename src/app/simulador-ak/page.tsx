@@ -101,6 +101,11 @@ function SimuladorAKContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const submissionIdRef = useRef(
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `assistant_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+  );
   const acquisition = useMemo(() => ({
     ...commercialAttributionFromSearchParams(searchParams, 'landing'),
     entryPath: searchParams.get('entry') || '/simulador-ak',
@@ -555,6 +560,7 @@ function SimuladorAKContent() {
     try {
       const items = simulatorDetailsToBudgetItems(priceStats?.detallados || []);
       const result = await generateBudgetAndLeadFromSimulator({
+        submissionId: submissionIdRef.current,
         clienteNombre: clienteNombre.trim() || 'Cliente Chat',
         clienteContacto: clienteContacto || '099000000',
         eventoFecha: eventoFecha?.toISOString() || new Date().toISOString(),
@@ -567,6 +573,14 @@ function SimuladorAKContent() {
         ajusteAnualPorcentaje: priceStats?.annualProjection.adjustmentPct ?? annualAdjustmentPercentage,
         paqueteNombre: config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre || 'A medida',
         serviciosIncluidos: items.map(i => i.idServicioCatalogo),
+        selectedServiceIds: [
+          ...selectedServices,
+          ...selectedEntradas,
+          ...(selectedPrincipal ? [selectedPrincipal] : []),
+          ...(selectedInfantil ? [selectedInfantil] : []),
+        ],
+        paqueteId: selectedPaqueteId || undefined,
+        includeClubUruguay: tieneSalon === false && incluirClubUruguay,
         items,
       }, {
         source: 'simulator_assistant',

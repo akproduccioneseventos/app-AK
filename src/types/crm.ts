@@ -76,9 +76,17 @@ export interface CrmLead {
   contractGeneratedAt?: string;
   contractTemplateId?: string;
   acquisition?: CommercialAttribution;
+  acquisitionHistory?: Array<CommercialAttribution & { capturedAt: string }>;
   crmTags?: string[];
   leadTemperature?: SimulatorLeadTemperature;
   nextAction?: string;
+  publicIdentityKey?: string;
+  birthdayMonthDay?: string;
+  marketingConsent?: boolean;
+  marketingConsentAt?: string;
+  marketingConsentSource?: string;
+  referrerEventName?: string;
+  lastInboundAt?: string;
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;

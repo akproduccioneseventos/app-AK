@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X, Gift, MapPin } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +25,9 @@ import { recordWhatsAppContact, updateCrmLeadField } from '@/app/actions/crm';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { CrmLeadTimeline } from './CrmLeadTimeline';
+import { describeCommercialSource } from '@/lib/commercial/acquisition';
+import { daysUntilBirthday } from '@/lib/commercial/birthday';
+import { toWhatsAppNumber } from '@/lib/commercial/contact';
 
 const INACTIVITY_DAYS = 7;
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
@@ -90,6 +93,14 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   const hasBudget = !!lead.presupuestoId;
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado';
   const isBudgetAceptado = lead.presupuestoEstado === 'Aceptado';
+  const sourceLabel = useMemo(
+    () => describeCommercialSource(lead.acquisition),
+    [lead.acquisition]
+  );
+  const birthdayDays = useMemo(
+    () => daysUntilBirthday(lead.birthdayMonthDay),
+    [lead.birthdayMonthDay]
+  );
 
   // Reminder badges
   const { isInactive, isMeetingTomorrow, isMeetingToday } = useMemo(() => {
@@ -117,10 +128,17 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   // WhatsApp handler: open wa.me link and record contact
   const handleWhatsApp = useCallback(async () => {
     if (!lead.phone) return;
-    const cleanPhone = lead.phone.replace(/\D/g, '');
+    const cleanPhone = toWhatsAppNumber(lead.phone);
+    if (!cleanPhone) {
+      toast({ title: 'Celular invalido', description: 'Revisa el numero antes de abrir WhatsApp.', variant: 'destructive' });
+      return;
+    }
+    const firstName = lead.name.split(' ')[0];
     const message = isMeetingTomorrow
-      ? `Hola ${lead.name.split(' ')[0]}, te recuerdo que mañana tenemos nuestra reunión agendada. ¡Nos vemos pronto!`
-      : `Hola ${lead.name.split(' ')[0]}, te escribo desde AK Producciones para hacer un seguimiento. ¿Cómo podemos ayudarte?`;
+      ? `Hola ${firstName}, te recuerdo que manana tenemos nuestra reunion agendada. Nos vemos pronto.`
+      : lead.acquisition?.source === 'guest_portal'
+        ? `Hola ${firstName}, que bueno que compartiste ${lead.referrerEventName ? `la experiencia de ${lead.referrerEventName}` : 'una fiesta AK'}. Como nos autorizaste a contactarte, queremos ayudarte a imaginar tu proximo evento. Podes empezar aca: https://akproducciones.uy/simulador?source=guest_portal`
+        : `Hola ${firstName}, te escribo desde AK Producciones para continuar con tu evento. Como podemos ayudarte?`;
     
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
@@ -132,7 +150,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
       // non-blocking
     }
     toast({ description: `WhatsApp abierto para ${lead.name}. Contacto registrado.` });
-  }, [lead.phone, lead.name, lead.id, isMeetingTomorrow, toast]);
+  }, [lead.phone, lead.name, lead.id, lead.acquisition?.source, lead.referrerEventName, isMeetingTomorrow, toast]);
 
   const handleSaveNotes = useCallback(async () => {
     setIsSavingNotes(true);
@@ -182,6 +200,16 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                       <Badge variant="outline" className={cn("text-[10px] h-4 px-1 font-bold", budgetSource.className)}>
                           {budgetSource.text}
                       </Badge>
+                      {lead.acquisition && (
+                        <Badge variant="outline" className="h-4 bg-violet-50 px-1 text-[9px] font-bold text-violet-700">
+                          {sourceLabel}
+                        </Badge>
+                      )}
+                      {lead.marketingConsent && (
+                        <Badge variant="outline" className="h-4 bg-emerald-50 px-1 text-[9px] font-bold text-emerald-700">
+                          Contacto autorizado
+                        </Badge>
+                      )}
                       {lead.contractGeneratedType && (
                         <Badge variant="outline" className="text-[9px] h-4 px-1 bg-emerald-50 text-emerald-700 border-emerald-300" title="Contrato generado">
                           {CONTRACT_TYPE_LABELS[lead.contractGeneratedType] || 'Contrato'}
@@ -219,6 +247,18 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                <span className="truncate">{lead.partyType}{!isMobile && lead.venueName && ` en ${lead.venueName}`}</span>
              </div>
            )}
+          {lead.referrerEventName && (
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3.5 h-3.5 text-violet-600" />
+              <span className="truncate">Origen: {lead.referrerEventName}</span>
+            </div>
+          )}
+          {birthdayDays != null && (
+            <div className="flex items-center gap-2 rounded bg-pink-50 p-1 font-bold text-pink-700">
+              <Gift className="w-3.5 h-3.5" />
+              <span>{birthdayDays === 0 ? 'Cumple hoy' : `Cumple en ${birthdayDays} dias`}</span>
+            </div>
+          )}
           {!isMobile && lead.guestCount && (
              <div className="flex items-center gap-2">
               <Users className="w-3.5 h-3.5"/>
