@@ -186,12 +186,12 @@ function getDefaultPosition(side: DockSide): DockPosition {
   );
 }
 
-export function MultiAgentWidget() {
+export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isOpen, setIsOpen]         = useState(false);
+  const [isOpen, setIsOpen]         = useState(defaultOpen);
   const [input, setInput]           = useState('');
   const [isSending, setIsSending]   = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -619,10 +619,6 @@ export function MultiAgentWidget() {
       >
         <AgentPortrait style={style} size="lg" />
 
-        {/* Pulse ring when closed */}
-        {!isOpen && !isDragging && (
-          <span className="absolute inset-0 animate-ping rounded-full bg-indigo-400/30" />
-        )}
       </button>
     </div>
   );

@@ -91,6 +91,7 @@ function useCountdown(targetDate: string | undefined) {
 
   useEffect(() => {
     if (!targetDate) return;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const calculate = () => {
       const now = new Date().getTime();
@@ -111,11 +112,11 @@ function useCountdown(targetDate: string | undefined) {
         seconds: Math.floor((diff % (1000 * 60)) / 1000),
         isPast: false,
       });
+      timeoutId = setTimeout(calculate, diff > 86400000 ? 60000 : 1000);
     };
 
     calculate();
-    const interval = setInterval(calculate, 1000);
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeoutId);
   }, [targetDate]);
 
   return timeLeft;

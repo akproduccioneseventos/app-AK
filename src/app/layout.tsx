@@ -82,7 +82,7 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning className={`${inter.variable} ${belleza.variable} ${playfairDisplay.variable} ${dancingScript.variable}`}>
       <head>
       </head>
-      <body className={`font-body antialiased`}>
+      <body className="ak-motion-system font-body antialiased">
         <DeploymentRecovery />
         {children}
         <Toaster />

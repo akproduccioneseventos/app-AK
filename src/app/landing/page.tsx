@@ -25,6 +25,8 @@ import type { ServiceItem } from '@/components/landing/ServicesSection';
 import { getAkYoutubeVideos, AK_YOUTUBE_CHANNEL_URL } from '@/lib/youtube/ak-channel';
 import { commercialAttributionFromRecord } from '@/lib/commercial/acquisition';
 
+export const revalidate = 300;
+
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = 'Servicio AK';
 const DEFAULT_DYNAMIC_SERVICE_FEATURES = [
   'Atención personalizada',
@@ -125,7 +127,7 @@ export default async function LandingPage({ searchParams }: LandingPageProps) {
     }))
     : undefined;
   return (
-    <div className="min-h-screen bg-white">
+    <div className="ak-landing-experience min-h-screen bg-white">
       {promo && <PromoWidget promo={promo} />}
       <LandingNav whatsappNumber={whatsapp} />
       <HeroSection
