@@ -27,6 +27,7 @@ import {
   MessageCircle,
   Monitor,
   Package,
+  RefreshCw,
   Send,
   Settings as SettingsIcon,
   Sparkles,
@@ -35,6 +36,7 @@ import {
   Wallet,
   Wand2,
   X,
+  AlertTriangle,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -52,6 +54,7 @@ import { descartarPrioridad } from '@/app/actions/alertas.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { recoverFromDeploymentMismatch } from '@/lib/deployment-recovery';
+import { triggerAppLogout } from '@/app/auth-guard';
 
 const mainHubItems = [
   { title: 'Nuevo Lead / Contacto', description: 'Registrar un nuevo prospecto en el CRM.', href: '/contabilidad/crm', icon: UserPlus, lightColor: 'bg-violet-50 text-violet-600', featured: false },
@@ -87,6 +90,7 @@ export default function MainDashboardPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [greetingEmoji, setGreetingEmoji] = useState('');
+  const [loadError, setLoadError] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -105,15 +109,22 @@ export default function MainDashboardPage() {
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
+    setLoadError('');
     try {
       const dashboardResult = await getDashboardKpiData();
       if (dashboardResult.success) {
         setKpiData(dashboardResult.data);
+      } else if (dashboardResult.error === 'SESSION_EXPIRED') {
+        await triggerAppLogout();
       } else {
+        setKpiData(null);
+        setLoadError('No fue posible consultar las fuentes principales del panel.');
         toast({ title: 'Error', description: 'No se pudieron cargar los datos del panel.', variant: 'destructive' });
       }
     } catch (error) {
       if (await recoverFromDeploymentMismatch(error)) return;
+      setKpiData(null);
+      setLoadError('No fue posible conectar con el panel. Reintenta en unos segundos.');
       toast({ title: 'Error', description: 'No se pudieron cargar los datos del panel.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
@@ -124,9 +135,15 @@ export default function MainDashboardPage() {
 
   const alerts: GlobalAlert[] = useMemo(() => kpiData?.alerts || [], [kpiData]);
   const alertasUrgentes = useMemo(() => alerts.filter(alert => alert.severity === 'high').slice(0, 4), [alerts]);
+  const unavailableSources: string[] = useMemo(() => kpiData?.unavailableSources || [], [kpiData]);
+  const sourceAvailable = useCallback(
+    (source: 'presupuestos' | 'facturas' | 'fiestas' | 'prospectos') => kpiData?.sourceStatus?.[source] !== false,
+    [kpiData],
+  );
 
-  const formatCurrency = (value?: number) => {
+  const formatCurrency = (value?: number, available = true) => {
     if (isLoading) return '...';
+    if (!available) return 'No disponible';
     if (value === undefined || value === null) return '$ 0';
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
   };
@@ -181,11 +198,31 @@ export default function MainDashboardPage() {
         </motion.div>
       </header>
 
+      {(loadError || unavailableSources.length > 0) && (
+        <Card className="border-amber-200 bg-amber-50 shadow-sm">
+          <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-700" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-black text-amber-950">
+                {loadError ? 'El panel no pudo cargar sus datos' : 'El panel se cargó parcialmente'}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-amber-800">
+                {loadError || `No respondieron: ${unavailableSources.join(', ')}. Los valores afectados no se muestran como cero.`}
+              </p>
+            </div>
+            <Button type="button" variant="outline" size="sm" onClick={fetchData} disabled={isLoading} className="border-amber-300 bg-white text-amber-900 hover:bg-amber-100">
+              <RefreshCw className={cn('mr-2 h-4 w-4', isLoading && 'animate-spin')} />
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales)} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados" />
-        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado)} icon={CreditCard} isLoading={isLoading} description="Cobrado hasta hoy" />
-        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente)} icon={Banknote} isLoading={isLoading} description="Por cobrar" />
-        <KpiCard title="Prospectos Activos" value={isLoading ? '...' : (kpiData?.prospectosActivos ?? 0)} icon={Users} isLoading={isLoading} description="En pipeline CRM" />
+        <KpiCard title="Ventas Totales" value={formatCurrency(kpiData?.ventasTotales, sourceAvailable('presupuestos') && sourceAvailable('facturas'))} icon={DollarSign} isLoading={isLoading} description="Facturas + presupuestos aceptados" />
+        <KpiCard title="Total Pagado" value={formatCurrency(kpiData?.montoPagado, sourceAvailable('presupuestos') && sourceAvailable('facturas'))} icon={CreditCard} isLoading={isLoading} description="Cobrado hasta hoy" />
+        <KpiCard title="Saldo Pendiente" value={formatCurrency(kpiData?.totalPendiente, sourceAvailable('presupuestos') && sourceAvailable('facturas'))} icon={Banknote} isLoading={isLoading} description="Por cobrar" />
+        <KpiCard title="Prospectos Activos" value={isLoading ? '...' : sourceAvailable('prospectos') ? (kpiData?.prospectosActivos ?? 0) : 'No disponible'} icon={Users} isLoading={isLoading} description="En pipeline CRM" />
       </div>
 
       {!isLoading && kpiData?.proximoEvento && (
@@ -229,7 +266,9 @@ export default function MainDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         <div className="lg:col-span-8 space-y-6 sm:space-y-8">
-          <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
+          {sourceAvailable('presupuestos') && sourceAvailable('facturas')
+            ? <MonthlySalesChart data={kpiData?.monthlyChartData || []} />
+            : <UnavailablePanel title="Evolución mensual no disponible" onRetry={fetchData} />}
           <Card className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <CardHeader className="border-b border-slate-200 bg-slate-50 p-5 sm:p-6">
               <CardTitle className="text-xl font-black tracking-tight text-slate-900">Herramientas rápidas</CardTitle>
@@ -285,9 +324,11 @@ export default function MainDashboardPage() {
       </div>
 
       <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <KpiCard title="Archivos Históricos" value={isLoading ? '...' : (kpiData?.fiestasPasadas ?? 0)} icon={Archive} isLoading={isLoading} />
-        <KpiCard title="Eventos Activos" value={isLoading ? '...' : (kpiData?.fiestasFuturas ?? 0)} icon={CalendarClock} isLoading={isLoading} />
-        <PaymentStatusPieChart data={pieChartData} />
+        <KpiCard title="Archivos Históricos" value={isLoading ? '...' : sourceAvailable('fiestas') ? (kpiData?.fiestasPasadas ?? 0) : 'No disponible'} icon={Archive} isLoading={isLoading} />
+        <KpiCard title="Eventos Activos" value={isLoading ? '...' : sourceAvailable('fiestas') ? (kpiData?.fiestasFuturas ?? 0) : 'No disponible'} icon={CalendarClock} isLoading={isLoading} />
+        {sourceAvailable('presupuestos') && sourceAvailable('facturas')
+          ? <PaymentStatusPieChart data={pieChartData} />
+          : <UnavailablePanel title="Distribución de pagos no disponible" onRetry={fetchData} />}
       </div>
 
       <Separator className="opacity-30" />
@@ -310,6 +351,21 @@ export default function MainDashboardPage() {
       <PwaInstallPrompt />
       <PushNotificationPrompt />
     </div>
+  );
+}
+
+function UnavailablePanel({ title, onRetry }: { title: string; onRetry: () => void }) {
+  return (
+    <Card className="flex min-h-[300px] items-center justify-center border-amber-200 bg-amber-50/60">
+      <CardContent className="space-y-4 text-center">
+        <AlertTriangle className="mx-auto h-8 w-8 text-amber-700" />
+        <p className="text-sm font-black text-amber-950">{title}</p>
+        <Button type="button" variant="outline" size="sm" onClick={onRetry} className="border-amber-300 bg-white text-amber-900">
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Reintentar
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

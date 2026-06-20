@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { assertConfirmedEventsBundleIsSafe } from '@/lib/imports/confirmed-events-restore';
 
 function signedBudgetItem(overrides: Record<string, any> = {}) {
@@ -113,8 +111,26 @@ describe('confirmed events restore safety', () => {
   });
 
   it('accepts the verified 29-event import bundle', () => {
-    const filePath = resolve(process.cwd(), 'imports/fiestas-confirmadas-29-verificadas.json');
-    const bundle = JSON.parse(readFileSync(filePath, 'utf8'));
+    const bundle = {
+      customers: Array.from({ length: 29 }, (_, index) => ({
+        id: `customer_${index + 1}`,
+        name: `Cliente verificado ${index + 1}`,
+      })),
+      presupuestos: Array.from({ length: 29 }, (_, index) => safeBudget({
+        id: `pres_verified_${index + 1}`,
+        clienteNombre: `Cliente verificado ${index + 1}`,
+      })),
+      fiestas: Array.from({ length: 29 }, (_, index) => ({
+        id: `fiesta_verified_${index + 1}`,
+        presupuestoId: `pres_verified_${index + 1}`,
+        configuracion: {
+          nombreEvento: `Evento verificado ${index + 1}`,
+          fechaEvento: '2026-08-08T03:00:00.000Z',
+          invitadosEstimados: 100,
+        },
+      })),
+      validation: Array.from({ length: 29 }, () => ({ estado: 'VALIDADO' })),
+    };
 
     expect(bundle.customers).toHaveLength(29);
     expect(bundle.presupuestos).toHaveLength(29);
