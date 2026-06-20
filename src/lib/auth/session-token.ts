@@ -15,7 +15,8 @@ export function hasPrivateSessionSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET
+    process.env.AUTH_SECRET ||
+    process.env.GOOGLE_API_KEY
   );
 }
 
@@ -24,7 +25,8 @@ function getSigningSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET;
+    process.env.AUTH_SECRET ||
+    process.env.GOOGLE_API_KEY;
 
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
@@ -78,6 +80,20 @@ export async function createSignedSessionToken(
 export async function verifySignedSessionToken(token?: string | null): Promise<{ isValid: boolean; user?: SessionUserData }> {
   if (!token) return { isValid: false };
   const parts = token.split('.');
+
+  // Support legacy 4-part tokens (v1.expiresAt.nonce.signature) for backward compatibility
+  if (parts.length === 4) {
+    const [version, expiresAtRaw, nonce, signature] = parts;
+    if (version !== SESSION_VERSION || !nonce || !signature) return { isValid: false };
+    const expiresAt = Number(expiresAtRaw);
+    if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return { isValid: false };
+    const expected = await signPayload(`${version}.${expiresAtRaw}.${nonce}`);
+    if (!constantTimeEqual(signature, expected)) return { isValid: false };
+    // Legacy tokens don't carry user data, return a default admin user
+    return { isValid: true, user: { email: 'admin@akproducciones.com', role: 'admin', userId: 'admin' } };
+  }
+
+  // New 5-part tokens (v1.expiresAt.nonce.userPayload.signature)
   if (parts.length !== 5) return { isValid: false };
   const [version, expiresAtRaw, nonce, userPayloadRaw, signature] = parts;
   if (version !== SESSION_VERSION || !nonce || !userPayloadRaw || !signature) return { isValid: false };
