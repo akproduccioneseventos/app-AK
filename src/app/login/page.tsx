@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -51,6 +50,11 @@ function getRedirectPath() {
   return sanitizeAppRedirect(new URLSearchParams(window.location.search).get('redirect'));
 }
 
+function enterAuthenticatedApp() {
+  setSession();
+  window.location.replace(getRedirectPath());
+}
+
 function GoogleMark() {
   return (
     <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
@@ -63,7 +67,6 @@ function GoogleMark() {
 }
 
 export default function LoginPage() {
-  const router = useRouter();
   const [mode, setMode] = useState<'login' | 'recovery'>('login');
   const [recoveryStep, setRecoveryStep] = useState<'method' | 'verify' | 'new-password'>('method');
   const [selectedMethod, setSelectedMethod] = useState<'email' | 'google' | 'backup' | 'questions' | null>(null);
@@ -88,8 +91,7 @@ export default function LoginPage() {
       const hasServerSession = await withTimeout(getSessionStatus(), false);
       if (!active) return;
       if (hasServerSession) {
-        setSession();
-        router.replace(getRedirectPath());
+        enterAuthenticatedApp();
         return;
       }
 
@@ -109,9 +111,7 @@ export default function LoginPage() {
               setError('Google verifico tu identidad, pero no se pudo crear la sesion segura. Intenta nuevamente.');
               return;
             }
-            setSession();
-            router.replace(getRedirectPath());
-            router.refresh();
+            enterAuthenticatedApp();
             return;
           }
           setError(response.error || 'Acceso denegado.');
@@ -135,7 +135,7 @@ export default function LoginPage() {
     return () => {
       active = false;
     };
-  }, [router]);
+  }, []);
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -158,9 +158,7 @@ export default function LoginPage() {
         return;
       }
 
-      setSession();
-      router.replace(getRedirectPath());
-      router.refresh();
+      enterAuthenticatedApp();
     } catch {
       setError('Error al verificar la contraseña.');
       setIsSubmitting(false);
@@ -193,9 +191,7 @@ export default function LoginPage() {
         return;
       }
 
-      setSession();
-      router.replace(getRedirectPath());
-      router.refresh();
+      enterAuthenticatedApp();
     } catch (googleError) {
       const googleAuth = await import('@/lib/firebase/google-auth-client');
       if (googleAuth.shouldFallbackToGoogleRedirect(googleError)) {
@@ -335,17 +331,16 @@ export default function LoginPage() {
       }
 
       if (result.success) {
-        setNotice('Contraseña actualizada con exito. Ya podes ingresar.');
-        setMode('login');
-        setRecoveryStep('method');
-        setSelectedMethod(null);
-        setCodeSent(false);
-        setGoogleIdToken('');
-        setResetCode('');
-        setBackupCode('');
-        setResetPassword('');
-        setResetConfirmPassword('');
-        setAnswers({ q1: '', q2: '', q3: '' });
+        if (!await confirmServerSession()) {
+          clearSession();
+          setError('La contraseña se actualizó, pero no se pudo crear la sesión segura. Ingresa con la nueva contraseña.');
+          setMode('login');
+          setRecoveryStep('method');
+          return;
+        }
+        setNotice('Contraseña actualizada. Ingresando al panel...');
+        enterAuthenticatedApp();
+        return;
       } else {
         setError(result.error || 'No se pudo actualizar la contraseña.');
       }

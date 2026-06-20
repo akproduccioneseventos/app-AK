@@ -64,9 +64,12 @@ describe('Google identity authentication', () => {
     const loginSource = fs.readFileSync(path.resolve(__dirname, '..', 'app', 'login', 'page.tsx'), 'utf8');
     const guardSource = fs.readFileSync(path.resolve(__dirname, '..', 'app', 'auth-guard.tsx'), 'utf8');
     const middlewareSource = fs.readFileSync(path.resolve(__dirname, '..', 'middleware.ts'), 'utf8');
+    const simpleAuthSource = fs.readFileSync(path.resolve(__dirname, '..', 'app', 'actions', 'simple-auth.ts'), 'utf8');
 
     expect(loginSource).toContain('await withTimeout(getSessionStatus(), false)');
     expect(loginSource).toContain('if (!await confirmServerSession())');
+    expect(loginSource).toContain('window.location.replace(getRedirectPath())');
+    expect(loginSource).toContain("setNotice('Contraseña actualizada. Ingresando al panel...')");
     expect(loginSource).toContain('clearSession();');
     expect(loginSource).not.toContain('if (getSession())');
 
@@ -80,5 +83,9 @@ describe('Google identity authentication', () => {
     expect(middlewareSource).not.toContain(
       'const hasValidSession = await verifySignedSessionToken(sessionCookie?.value);'
     );
+
+    expect(simpleAuthSource).toContain("writeRecoveredAdminSession('recovery-email-code')");
+    expect(simpleAuthSource).toContain("writeRecoveredAdminSession('recovery-security-questions')");
+    expect(simpleAuthSource).toContain("writeRecoveredAdminSession('recovery-backup-code')");
   });
 });
