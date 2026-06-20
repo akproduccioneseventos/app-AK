@@ -71,6 +71,10 @@ jest.mock('@/lib/firebase-sync', () => ({
   syncToFirestore: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn().mockResolvedValue({ success: true, user: { role: 'admin' } }),
+}));
+
 import JSZip from 'jszip';
 import { readData } from '@/lib/data-service';
 

@@ -1541,11 +1541,21 @@ export interface VotacionEnVivo {
   timestamp: string;
 }
 
+export interface CaptacionInvitadoEnVivo {
+  id: string;
+  nombre: string;
+  telefono: string;
+  birthdayMonthDay?: string;
+  marketingConsent: boolean;
+  timestamp: string;
+}
+
 export interface EventoEnVivoData {
   fotos: FotoEnVivo[];
   solicitudesCanciones: SolicitudCancion[];
   mensajes: MensajeEnVivo[];
   votaciones: VotacionEnVivo[];
+  captaciones?: CaptacionInvitadoEnVivo[];
 }
 
 // --- FOTOGRAFÍA Y FILMACIÓN ---

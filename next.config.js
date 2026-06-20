@@ -3,7 +3,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   cacheOnFrontEndNav: false,
   aggressiveFrontEndNavCaching: false,
   reloadOnOnline: true,
-  disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === 'development' || process.env.AK_DISABLE_PWA_BUILD === 'true',
   workboxOptions: {
     disableDevLogs: true,
     skipWaiting: true,
