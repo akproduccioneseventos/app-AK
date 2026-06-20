@@ -29,7 +29,8 @@ const iconMap: { [key: string]: React.ElementType } = {
 export function NotificationsHub() {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notificacion[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -43,6 +44,8 @@ export function NotificationsHub() {
   }, []);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     setIsLoading(true);
     const lastGenerated = Number(sessionStorage.getItem('ak-last-smart-notification-check') || '0');
     const shouldGenerate = Date.now() - lastGenerated > 20 * 60 * 1000;
@@ -59,10 +62,10 @@ export function NotificationsHub() {
         fetchNotifications().finally(() => setIsLoading(false));
       });
     
-    // Polling moderado: evita que el hub se sienta ruidoso mientras igual mantiene datos frescos.
+    // Solo actualizamos mientras el panel esta abierto para evitar trabajo de red en cada pantalla.
     const interval = setInterval(fetchNotifications, 120000);
     return () => clearInterval(interval);
-  }, [fetchNotifications]);
+  }, [fetchNotifications, isOpen]);
 
   // Memorizamos la lista segura para evitar re-renderizados innecesarios y errores de nulos
   const safeNotifications = useMemo(() => Array.isArray(notifications) ? notifications : [], [notifications]);
@@ -89,7 +92,7 @@ export function NotificationsHub() {
   }
 
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button type="button" variant="ghost" size="icon" className="relative" aria-label="Abrir notificaciones">
           <BellRing className="h-5 w-5" />

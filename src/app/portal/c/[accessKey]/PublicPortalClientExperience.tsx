@@ -305,6 +305,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     if (!config.fechaEvento) return;
     const targetDate = new Date(config.fechaEvento);
     if (Number.isNaN(targetDate.getTime())) return;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const updateCountdown = () => {
       const now = new Date();
@@ -318,11 +319,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       const m = Math.floor((diff / (1000 * 60)) % 60);
       const s = Math.floor((diff / 1000) % 60);
       setTimeLeft({ days: d, hours: h, minutes: m, seconds: s, isOver: false });
+      timeoutId = setTimeout(updateCountdown, diff > 86400000 ? 60000 : 1000);
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeoutId);
   }, [config.fechaEvento]);
 
   const [coverModalOpen, setCoverModalOpen] = useState(false);

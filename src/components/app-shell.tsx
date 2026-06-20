@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NotificationsHub } from '@/components/notifications-hub';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { MainNav } from './main-nav';
-import { MultiAgentWidget } from '@/components/multiagent/multiagent-widget';
+import { LazyMultiAgentWidget } from '@/components/multiagent/lazy-multiagent-widget';
 import { ModuleNavigationDock } from '@/components/module-navigation-dock';
 
 
@@ -309,7 +309,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (isSpecialRender) {
     if (isMuroSocialIsolatedView) {
       return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 p-4 sm:p-6 lg:p-8">
+        <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
           <ModuleNavigationDock />
           {children}
         </main>
@@ -332,7 +332,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MainNav />
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col">
-          <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 px-4 py-2 md:px-6 print:hidden bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm shadow-indigo-500/5">
+          <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/92 px-4 py-2 shadow-sm backdrop-blur-xl md:px-6 print:hidden">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <SidebarTrigger className="md:hidden text-slate-500 hover:text-primary transition-colors" />
               {PageIcon && (
@@ -352,20 +352,20 @@ export function AppShell({ children }: { children: ReactNode }) {
                     variant="ghost"
                     className="relative h-10 w-10 rounded-full p-0 hover:ring-2 hover:ring-primary/30 transition-all duration-300"
                   >
-                    <Avatar className="h-9 w-9 ring-2 ring-indigo-100">
+                    <Avatar className="h-9 w-9 ring-2 ring-red-100">
                       {logoUrl === undefined ? (
                         <Skeleton className="h-9 w-9 rounded-full" />
                       ) : logoUrl ? (
                         <AvatarImage src={logoUrl} alt="Logo de la Empresa" />
                       ) : (
-                        <AvatarFallback className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-black text-xs">
+                        <AvatarFallback className="bg-slate-950 text-white font-black text-xs">
                           AK
                         </AvatarFallback>
                       )}
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 rounded-2xl border-white/60 shadow-xl shadow-indigo-500/10">
+                <DropdownMenuContent align="end" className="w-56 rounded-xl border-slate-200 shadow-xl">
                   <DropdownMenuLabel className="font-black text-xs uppercase tracking-widest text-slate-400">Mi Cuenta</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <Link href="/perfil">
@@ -395,13 +395,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 via-white to-indigo-50/20">
+          <main className="flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8">
             {children}
           </main>
         </div>
       </SidebarInset>
       <ModuleNavigationDock />
-      <MultiAgentWidget />
+      <LazyMultiAgentWidget />
     </SidebarProvider>
   );
 }

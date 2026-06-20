@@ -143,6 +143,8 @@ function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     const update = () => {
       const target = parseEventDate(fechaEvento).getTime();
       const diff = Math.max(0, target - Date.now());
@@ -152,11 +154,13 @@ function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
         minutos: Math.floor((diff % 3600000) / 60000),
         segundos: Math.floor((diff % 60000) / 1000),
       });
+      if (diff > 0) {
+        timeoutId = setTimeout(update, diff > 86400000 ? 60000 : 1000);
+      }
     };
 
     update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
+    return () => clearTimeout(timeoutId);
   }, [fechaEvento]);
 
   return (
