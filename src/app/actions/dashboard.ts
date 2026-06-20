@@ -35,6 +35,30 @@ export interface GlobalAlert {
   href: string;
 }
 
+export type DashboardSourceStatus = {
+  presupuestos: boolean;
+  facturas: boolean;
+  fiestas: boolean;
+  prospectos: boolean;
+};
+
+type DashboardSourceName = keyof DashboardSourceStatus;
+
+async function loadDashboardSource<T>(
+  source: DashboardSourceName,
+  loader: () => Promise<T>,
+  fallback: T,
+  status: DashboardSourceStatus,
+): Promise<T> {
+  try {
+    return await loader();
+  } catch (error) {
+    status[source] = false;
+    console.error(`Dashboard ${source} failed:`, error);
+    return fallback;
+  }
+}
+
 function isFirmBudgetStatus(estado?: string) {
   return estado === 'Aceptado' || estado === 'Facturado';
 }
@@ -64,6 +88,12 @@ export async function getDashboardKpiData() {
     checkAndCreateTaskReminders().catch(err => console.warn('Background task reminder check failed:', err));
     checkAndCreateReunionReminders().catch(err => console.warn('Background meeting reminder check failed:', err));
 
+    const sourceStatus: DashboardSourceStatus = {
+      presupuestos: true,
+      facturas: true,
+      fiestas: true,
+      prospectos: true,
+    };
     const [
       presupuestosData,
       invoicesData,
@@ -72,13 +102,17 @@ export async function getDashboardKpiData() {
       notificationsData,
       prioridadesDescartadas,
     ] = await Promise.all([
-      getPresupuestos().catch(err => { console.error('Dashboard getPresupuestos failed:', err); return []; }),
-      getInvoices().catch(err => { console.error('Dashboard getInvoices failed:', err); return []; }),
-      getAllFiestas().catch(err => { console.error('Dashboard getAllFiestas failed:', err); return []; }),
-      getCrmLeadsForDashboard().catch(err => { console.error('Dashboard getCrmLeadsForDashboard failed:', err); return []; }),
+      loadDashboardSource('presupuestos', getPresupuestos, [], sourceStatus),
+      loadDashboardSource('facturas', getInvoices, [], sourceStatus),
+      loadDashboardSource('fiestas', getAllFiestas, [], sourceStatus),
+      loadDashboardSource('prospectos', getCrmLeadsForDashboard, [], sourceStatus),
       getNotifications().catch(() => []),
       getPrioridadesDescartadas().catch(() => new Set<string>()),
     ]);
+
+    if (Object.values(sourceStatus).every((available) => !available)) {
+      return { success: false, error: 'DASHBOARD_DATA_UNAVAILABLE' };
+    }
 
     const now = new Date();
     const today = startOfToday();
@@ -229,6 +263,10 @@ export async function getDashboardKpiData() {
             return due >= today && due <= in7days;
           }).length;
         })(),
+        sourceStatus,
+        unavailableSources: Object.entries(sourceStatus)
+          .filter(([, available]) => !available)
+          .map(([source]) => source),
       },
     };
   } catch (error: any) {

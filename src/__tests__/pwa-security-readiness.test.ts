@@ -39,11 +39,11 @@ describe('PWA and practical security readiness', () => {
     expect(getSessionMaxAgeSeconds()).toBe(60 * 60 * 24 * 7);
   });
 
-  it('uses the private App Hosting Google key when a dedicated session secret is absent', () => {
+  it('does not reuse the Google API key as a session signing secret', () => {
     process.env.GOOGLE_API_KEY = 'private-app-hosting-secret';
 
-    expect(hasPrivateSessionSecret()).toBe(true);
-    expect(getSessionMaxAgeSeconds()).toBe(60 * 60 * 24 * 7);
+    expect(hasPrivateSessionSecret()).toBe(false);
+    expect(getSessionMaxAgeSeconds()).toBe(60 * 60 * 24);
   });
 
   it('publishes an installable manifest for Android and PC browsers', () => {

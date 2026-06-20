@@ -39,10 +39,18 @@ jest.mock('@/app/actions/presupuestos', () => ({
 
 // ─── Mock fiesta actions ──────────────────────────────────────────────────────
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
-  getFiestaById: jest.fn(),
+  getFiestaById: jest.fn().mockResolvedValue({
+    id: 'fiesta_1',
+    socialGallerySettings: { showDedications: true },
+  }),
   saveFiesta: jest.fn().mockResolvedValue({ success: true }),
   syncFiestaFromBudget: jest.fn().mockResolvedValue({ success: true }),
   getFiestas: jest.fn().mockResolvedValue([]),
+}));
+
+jest.mock('@/lib/auth/require-session', () => ({
+  hasAppSession: jest.fn().mockResolvedValue(true),
+  requireAppSession: jest.fn().mockResolvedValue(undefined),
 }));
 
 // ─── Mock customers ───────────────────────────────────────────────────────────
