@@ -50,35 +50,50 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    let active = true;
 
     if (isPublic) {
       setIsVerified(true);
-      return;
+      return () => {
+        active = false;
+      };
     }
 
     if (process.env.NEXT_PUBLIC_E2E === 'true') {
       console.warn('[AuthGuard] E2E mode active - skipping auth check');
       setIsVerified(true);
-      return;
+      return () => {
+        active = false;
+      };
     }
 
-    const session = getSession();
-    if (!session) {
-      router.push('/login');
-      return;
-    }
+    setIsVerified(false);
 
-    setIsVerified(true);
-
-    let active = true;
-    getSessionStatus().then((isValid) => {
-      if (!active) return;
-      if (!isValid) {
-        triggerAppLogout();
+    async function verifyAccess() {
+      if (!getSession()) {
+        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+        return;
       }
-    }).catch((err) => {
-      console.error('[AuthGuard] Failed to verify session on server:', err);
-    });
+
+      try {
+        const isValid = await getSessionStatus();
+        if (!active) return;
+        if (!isValid) {
+          clearSession();
+          await clearSessionCookie().catch(() => undefined);
+          router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+          return;
+        }
+        setIsVerified(true);
+      } catch (err) {
+        if (!active) return;
+        console.error('[AuthGuard] Failed to verify session on server:', err);
+        clearSession();
+        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      }
+    }
+
+    void verifyAccess();
 
     return () => {
       active = false;

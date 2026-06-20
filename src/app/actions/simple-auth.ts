@@ -214,6 +214,15 @@ async function clearRecoveryProtection(extra?: Partial<SimpleAuthConfig>) {
   }).catch(() => ({ success: false, error: 'No se pudo guardar la recuperacion.' }));
 }
 
+async function writeRecoveredAdminSession(userId: string) {
+  const { writeSessionCookie } = await import('@/lib/auth/session-token');
+  await writeSessionCookie({
+    email: process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim() || DEFAULT_RECOVERY_EMAIL,
+    role: 'admin',
+    userId,
+  });
+}
+
 function getResetRequestPatch(config: SimpleAuthConfig | null): { patch?: Partial<SimpleAuthConfig>; error?: string } {
   const now = Date.now();
   const lastRequest = config?.resetCodeRequestedAt ? new Date(config.resetCodeRequestedAt).getTime() : 0;
@@ -564,7 +573,9 @@ export async function resetPasswordWithCode(code: string, newPassword: string): 
     passwordChangedAt: new Date().toISOString(),
   });
 
-  return result.success ? { success: true } : { success: false, error: result.error };
+  if (!result.success) return { success: false, error: result.error };
+  await writeRecoveredAdminSession('recovery-email-code');
+  return { success: true };
 }
 
 export async function resetPasswordWithSecurityAnswers(input: {
@@ -599,7 +610,9 @@ export async function resetPasswordWithSecurityAnswers(input: {
     passwordChangedAt: new Date().toISOString(),
   });
 
-  return result.success ? { success: true } : { success: false, error: result.error };
+  if (!result.success) return { success: false, error: result.error };
+  await writeRecoveredAdminSession('recovery-security-questions');
+  return { success: true };
 }
 
 export async function resetPasswordWithRecoveryCode(
@@ -640,7 +653,9 @@ export async function resetPasswordWithRecoveryCode(
     passwordChangedAt: now,
   });
 
-  return result.success ? { success: true } : { success: false, error: result.error };
+  if (!result.success) return { success: false, error: result.error };
+  await writeRecoveredAdminSession('recovery-backup-code');
+  return { success: true };
 }
 
 export async function loginWithGoogleIdToken(idToken: string): Promise<{ success: boolean; error?: string }> {

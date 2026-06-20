@@ -29,10 +29,33 @@ jest.mock('@/lib/logger', () => ({
   error: jest.fn(),
 }));
 
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn().mockResolvedValue({ success: true, user: { role: 'admin' } }),
+}));
+
 import { readData, writeData } from '@/lib/data-service';
 
 const mockReadData = readData as jest.MockedFunction<typeof readData>;
 const mockWriteData = writeData as jest.MockedFunction<typeof writeData>;
+
+function makeSafeBudget(id: string) {
+  return {
+    id,
+    clienteNombre: 'Cliente',
+    eventoTipo: 'Cumpleanos',
+    eventoFecha: '2026-08-08T03:00:00.000Z',
+    salonFiestas: 'Salon confirmado',
+    invitadosCantidad: 50,
+    itemsPresupuestados: [{
+      idServicioCatalogo: 'serv_discoteca',
+      nombreServicio: 'Discoteca',
+      cantidad: 1,
+      costoTotalItem: 10000,
+    }],
+    costoTotalEstimado: 10000,
+    totalConDescuento: 10000,
+  };
+}
 
 function makeFile(name: string, type: string, content: Buffer | string) {
   const buffer = Buffer.isBuffer(content) ? content : Buffer.from(content);
@@ -55,12 +78,13 @@ describe('backup upload route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockReadData.mockResolvedValue([]);
+    mockWriteData.mockResolvedValue(undefined);
   });
 
   it('imports confirmed events JSON without replacing the services catalog', async () => {
     const bundle = {
       customers: [{ id: 'cust_1', name: 'Cliente' }],
-      presupuestos: [{ id: 'pres_1', clienteNombre: 'Cliente', itemsPresupuestados: [] }],
+      presupuestos: [makeSafeBudget('pres_1')],
       fiestas: [{ id: 'fiesta_1', presupuestoId: 'pres_1', configuracion: { clienteNombre: 'Cliente' } }],
       serviciosEmpresa: [{ id: 'bad_service', nombre: 'No deberia importarse', categoria: 'Historico' }],
       serviciosCreados: [{ id: 'bad_created', nombre: 'Tampoco' }],
@@ -83,7 +107,7 @@ describe('backup upload route', () => {
     mockReadData.mockResolvedValue([{ id: 'serv_existente', nombre: 'Discoteca basica', categoria: 'Servicio de discoteca' }]);
     const bundle = {
       customers: [],
-      presupuestos: [{ id: 'pres_1', clienteNombre: 'Cliente', itemsPresupuestados: [] }],
+      presupuestos: [makeSafeBudget('pres_1')],
       serviciosEmpresaUpsert: [
         { id: 'serv_existente', nombre: 'Discoteca basica', categoria: 'Servicio de discoteca' },
         { id: 'serv_discoteca_intermedia', nombre: 'Discoteca intermedia', categoria: 'Servicio de discoteca' },
