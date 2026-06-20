@@ -164,7 +164,7 @@ export function buildAkTechnologySuite(fiestaInput: unknown): AkTechnologySuite 
         'Mostrar antes, durante y después de la fiesta en una secuencia corta para vender.',
         'Agregar acceso rápido desde el comando total de cada fiesta.',
       ],
-      href: fiestaId ? eventHref(fiestaId, 'experiencia-tecnologica-ak') : '/tecnologia-ak',
+      href: fiestaId ? eventHref(fiestaId, 'experiencia-tecnologica-ak') : '/marketing/demo-tecnologia',
     },
     {
       id: 'pase_invitado',
@@ -285,7 +285,7 @@ export function buildAkTechnologySuite(fiestaInput: unknown): AkTechnologySuite 
         'Agregar botones: crear tarea, preparar WhatsApp, marcar resuelto y abrir módulo.',
         'Guardar aprendizaje de cada fiesta para mejorar futuras fiestas.',
       ],
-      href: fiestaId ? eventHref(fiestaId, 'ia-operativa-ak') : '/multiagente',
+      href: fiestaId ? eventHref(fiestaId, 'comando-total') : '/multiagente',
     },
   ];
 

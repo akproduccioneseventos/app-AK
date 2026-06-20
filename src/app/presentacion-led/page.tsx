@@ -36,6 +36,8 @@ import { EntradaSlide } from './slides/entradas-slide';
 import { MenuAdolescenteSlide } from './slides/menu-adolescente-slide';
 import { MenuAdultoSlide } from './slides/menu-adulto-slide';
 import { RegalosSlide } from './slides/regalos-slide';
+import { TestimoniosSlide } from './slides/testimonios-slide';
+import { EmpresasSlide } from './slides/empresas-slide';
 import { CierreSlide } from './slides/cierre-slide';
 import { PlanPagosSlide } from './slides/plan-pagos-slide';
 import { ContratarnosSlide } from './slides/contratarnos-slide';
@@ -80,7 +82,7 @@ const DYNAMIC_START = 4; // = FIXED_SLIDES_START
 
 function isSafeImageUrl(url: string | null | undefined): url is string {
   if (!url) return false;
-  return /^https?:\/\//i.test(url) || /^data:image\//i.test(url);
+  return /^https?:\/\//i.test(url) || url.startsWith('/') || /^data:image\//i.test(url);
 }
 
 function groupServicesByCategory(servicios: PageData['servicios']): CategoriaServicio[] {
@@ -208,14 +210,14 @@ export default function PresentacionLedPage() {
     [data?.menus, selectedMenuId],
   );
   const adolescentMenuOptions = useMemo(() => {
-    if (!data) return [] as { id: string; name: string }[];
+    if (!data) return [] as MenuItem[];
     const seen = new Set<string>();
-    const result: { id: string; name: string }[] = [];
+    const result: MenuItem[] = [];
     for (const menu of data.menus) {
       for (const item of menu.items) {
         if ((item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil') && !seen.has(item.id)) {
           seen.add(item.id);
-          result.push({ id: item.id, name: item.name });
+          result.push(item);
         }
       }
     }
@@ -241,8 +243,8 @@ export default function PresentacionLedPage() {
     });
     return [
       { type: 'entradas' },
-      { type: 'menu-adolescente' },
       { type: 'menu-adulto' },
+      { type: 'menu-adolescente' },
       ...categorySlides.map((categoria) => ({ type: 'categoria' as const, categoria })),
     ];
   }, [categorias]);
@@ -275,14 +277,16 @@ export default function PresentacionLedPage() {
     };
   }, [clientData.invitadosAdultos, clientData.invitadosAdolescentes, requiredEntradasCount, selectedServices, data?.servicios, selectedMenu]);
 
-  const totalSlides = data ? FIXED_SLIDES_START + dynamicSlides.length + FIXED_SLIDES_END : 0;
-
   const dynamicStartIndex = FIXED_SLIDES_START;
   const dynamicEndIndex = dynamicStartIndex + dynamicSlides.length;
   const regalosSlideIndex = dynamicEndIndex;
-  const cierreSlideIndex = regalosSlideIndex + 1;
+  const testimoniosSlideIndex = regalosSlideIndex + 1;
+  const empresasSlideIndex = testimoniosSlideIndex + 1;
+  const cierreSlideIndex = empresasSlideIndex + 1;
   const planPagosSlideIndex = cierreSlideIndex + 1;
   const contratarnosSlideIndex = planPagosSlideIndex + 1;
+
+  const totalSlides = data ? contratarnosSlideIndex + 1 : 0;
 
   const isPortadaSlide = currentSlide === 0;
   const isBeneficiosSlide = currentSlide === 1;
@@ -297,6 +301,8 @@ export default function PresentacionLedPage() {
     : 0;
   const currentCategoria = currentDynamicSlide?.type === 'categoria' ? currentDynamicSlide.categoria || null : null;
   const isRegalosSlide = currentSlide === regalosSlideIndex;
+  const isTestimoniosSlide = currentSlide === testimoniosSlideIndex;
+  const isEmpresasSlide = currentSlide === empresasSlideIndex;
   const isCierreSlide = currentSlide === cierreSlideIndex;
   const isPlanPagosSlide = currentSlide === planPagosSlideIndex;
   const isContratarnosSlide = currentSlide === contratarnosSlideIndex;
@@ -370,6 +376,8 @@ export default function PresentacionLedPage() {
     if (currentDynamicSlide?.type === 'menu-adulto') return 'Menú adultos';
     if (currentDynamicSlide?.type === 'categoria') return currentCategoria?.nombre ?? 'Servicios';
     if (isRegalosSlide) return 'Regalos';
+    if (isTestimoniosSlide) return 'Testimonios';
+    if (isEmpresasSlide) return 'Empresas Colaboradoras';
     if (isCierreSlide) return 'Presupuesto';
     if (isPlanPagosSlide) return 'Plan de Pagos';
     if (isContratarnosSlide) return 'Contratarnos';
@@ -387,33 +395,42 @@ export default function PresentacionLedPage() {
     }
   }, [data, currentSlide, totalSlides]);
 
+  const isSlideVisible = useCallback((index: number) => {
+    if (index === SALON_SLIDE_INDEX && clientData.tieneSalon === true) {
+      return false;
+    }
+    
+    // Check if it's a dynamic slide
+    if (index >= DYNAMIC_START && index < dynamicEndIndex) {
+      const dynIndex = index - DYNAMIC_START;
+      const slide = dynamicSlides[dynIndex];
+      if (slide.type === 'menu-adolescente' && !requireTeenMenu) {
+        return false;
+      }
+    }
+    
+    return true;
+  }, [clientData.tieneSalon, requireTeenMenu, dynamicSlides, dynamicEndIndex]);
+
   const goNext = useCallback(() => {
-    // Skip salon if client already has a venue
-    if (isDatosEventoSlide && clientData.tieneSalon === true) {
-      goToSlide(SALON_SLIDE_INDEX + NEXT_SLIDE_OFFSET); // skip salon (index 3), go to first dynamic slide
-      return;
+    let next = currentSlide + 1;
+    while (next < totalSlides && !isSlideVisible(next)) {
+      next++;
     }
-    // Skip teen menu when going from entradas if no teens
-    if (currentDynamicSlide?.type === 'entradas' && !requireTeenMenu) {
-      goToSlide(currentSlide + SKIP_TEEN_MENU_OFFSET);
-      return;
+    if (next < totalSlides) {
+      goToSlide(next);
     }
-    goToSlide(currentSlide + 1);
-  }, [goToSlide, currentSlide, isDatosEventoSlide, clientData.tieneSalon, currentDynamicSlide, requireTeenMenu]);
+  }, [currentSlide, totalSlides, isSlideVisible, goToSlide]);
 
   const goPrev = useCallback(() => {
-    // Skip salon when going back from first dynamic slide if client has venue
-    if (currentSlide === DYNAMIC_START && clientData.tieneSalon === true) {
-      goToSlide(SALON_SLIDE_INDEX - NEXT_SLIDE_OFFSET); // go back to datos-evento (index 2), skipping salon (index 3)
-      return;
+    let prev = currentSlide - 1;
+    while (prev >= 0 && !isSlideVisible(prev)) {
+      prev--;
     }
-    // Skip teen menu when going back from menu-adulto if no teens
-    if (currentDynamicSlide?.type === 'menu-adulto' && !requireTeenMenu) {
-      goToSlide(currentSlide - SKIP_TEEN_MENU_OFFSET);
-      return;
+    if (prev >= 0) {
+      goToSlide(prev);
     }
-    goToSlide(currentSlide - 1);
-  }, [goToSlide, currentSlide, clientData.tieneSalon, currentDynamicSlide, requireTeenMenu]);
+  }, [currentSlide, isSlideVisible, goToSlide]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedServices(prev =>
@@ -658,7 +675,7 @@ export default function PresentacionLedPage() {
               ledFotoMap={presentacionSettings?.ledFotosMenuItems || {}}
               mostrarPrecios={data.mostrarPrecios}
               onToggle={toggleEntrada}
-              onNext={() => goToSlide(currentSlide + (requireTeenMenu ? NEXT_SLIDE_OFFSET : SKIP_TEEN_MENU_OFFSET))}
+              onNext={goNext}
             />
           )}
           {currentDynamicSlide?.type === 'menu-adolescente' && (
@@ -666,6 +683,8 @@ export default function PresentacionLedPage() {
               adolescentesCount={adolescentCount}
               options={adolescentMenuOptions}
               selectedOptionId={selectedTeenMenuId}
+              ledFotoMap={presentacionSettings?.ledFotosMenuItems || {}}
+              mostrarPrecios={data.mostrarPrecios}
               onSelect={setSelectedTeenMenuId}
               onNext={goNext}
             />
@@ -702,6 +721,12 @@ export default function PresentacionLedPage() {
               catalogoFotos={catalogoFotos}
               ledFotoMap={presentacionSettings?.ledFotosServicios || {}}
             />
+          )}
+          {isTestimoniosSlide && (
+            <TestimoniosSlide tipoFiesta={clientData.tipoFiesta} />
+          )}
+          {isEmpresasSlide && (
+            <EmpresasSlide />
           )}
           {isCierreSlide && (
             <CierreSlide

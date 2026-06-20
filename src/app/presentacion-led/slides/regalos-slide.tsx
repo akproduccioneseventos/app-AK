@@ -26,7 +26,9 @@ const DEFAULT_REGALOS = [
   { titulo: 'Sorpresa para el festejado/a', descripcion: 'Un detalle especial que preparamos con mucho cariño.' },
 ];
 
-function isSafeHttpsUrl(url: string): boolean {
+function isSafeHttpsUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  if (url.startsWith('/')) return true;
   try {
     const { protocol } = new URL(url);
     return protocol === 'https:' || protocol === 'http:';
@@ -85,7 +87,11 @@ export function RegalosSlide({ servicios, tipoFiesta, catalogoFotos = [], ledFot
         map[item.id] = ledFotoMap[item.id];
       } else {
         const foto = regaloFotos[i];
-        if (foto) map[item.id] = foto.url;
+        if (foto) {
+          map[item.id] = foto.url;
+        } else {
+          map[item.id] = '/media/catalogo-servicios/souvenirs-cotillon-01.jpeg';
+        }
       }
     });
     return map;

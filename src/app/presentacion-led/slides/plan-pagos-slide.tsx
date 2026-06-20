@@ -39,7 +39,9 @@ function calcularCuotas(total: number): Array<{ label: string; monto: number; de
   ];
 }
 
-function isSafeUrl(url: string): boolean {
+function isSafeUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  if (url.startsWith('/')) return true;
   try {
     const { protocol } = new URL(url);
     return protocol === 'https:' || protocol === 'http:';

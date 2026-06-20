@@ -7,6 +7,7 @@ import { Check, ChevronRight, Utensils, Info, ImageIcon, Star, ExternalLink } fr
 import { SlideLayout } from '../components/slide-layout';
 import { cn } from '@/lib/utils';
 import type { MenuItem } from '@/types/catering';
+import { getCateringDishImage } from '@/lib/catering/menu-images';
 
 interface EntradaSlideProps {
   entradas: MenuItem[];
@@ -18,7 +19,9 @@ interface EntradaSlideProps {
   onNext: () => void;
 }
 
-function isSafeUrl(url: string): boolean {
+function isSafeUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  if (url.startsWith('/')) return true;
   try {
     const { protocol } = new URL(url);
     return protocol === 'https:' || protocol === 'http:';
@@ -220,7 +223,7 @@ export function EntradaSlide({
                   isSelected={selectedIds.includes(entrada.id)}
                   onToggle={() => onToggle(entrada.id)}
                   mostrarPrecios={mostrarPrecios}
-                  photoUrl={ledFotoMap[entrada.id] || entrada.imageUrl || null}
+                  photoUrl={ledFotoMap[entrada.id] || getCateringDishImage(entrada) || null}
                   isRecomendada={i < requiredCount}
                 />
               </motion.div>

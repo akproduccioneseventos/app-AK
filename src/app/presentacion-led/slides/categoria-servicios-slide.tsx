@@ -13,13 +13,99 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { CatalogoFoto } from '@/types/catalogo';
 import { SERVICES } from '@/data/presentacion';
 
-function isSafeHttpsUrl(url: string): boolean {
+function isSafeHttpsUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  if (url.startsWith('/')) return true;
   try {
     const { protocol } = new URL(url);
     return protocol === 'https:' || protocol === 'http:';
   } catch {
     return false;
   }
+}
+
+function getFallbackServicePhoto(servicio: { id?: string; nombre?: string | null; categoria?: string | null }): string | null {
+  const nombre = (servicio.nombre ?? '').toLowerCase();
+  const categoria = (servicio.categoria ?? '').toLowerCase();
+  const fullText = `${nombre} ${categoria}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  if (fullText.includes('barra') || fullText.includes('trago') || fullText.includes('bebida') || fullText.includes('coctel') || fullText.includes('barman')) {
+    if (fullText.includes('glitter')) return '/media/catalogo-servicios/glitter-bar-01.jpeg';
+    return '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
+  }
+  if (fullText.includes('glitter') || fullText.includes('maquillaje') || fullText.includes('make up') || fullText.includes('makeup')) {
+    return '/media/catalogo-servicios/glitter-bar-01.jpeg';
+  }
+  if (fullText.includes('candy') || fullText.includes('candybar') || fullText.includes('mesa dulce') || fullText.includes('mesadulce') || fullText.includes('golosina')) {
+    if (fullText.includes('xv') || fullText.includes('15')) {
+      return '/media/catalogo-servicios/candy-bar-xv-01.jpeg';
+    }
+    return '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg';
+  }
+  if (fullText.includes('torta') || fullText.includes('pastel') || fullText.includes('reposteria')) {
+    if (fullText.includes('xv') || fullText.includes('15')) {
+      return '/media/catalogo-servicios/reposteria-torta-xv-01.jpeg';
+    }
+    return '/media/catalogo-servicios/reposteria-torta-servicio-02.jpeg';
+  }
+  if (fullText.includes('postre') || fullText.includes('cascada') || fullText.includes('helado') || fullText.includes('dulce')) {
+    return '/media/catalogo-servicios/postres-mesa-ak-01.jpeg';
+  }
+  if (fullText.includes('photobooth') || fullText.includes('cabina') || fullText.includes('plataforma') || fullText.includes('360') || fullText.includes('vogue') || fullText.includes('espejo') || fullText.includes('totem')) {
+    return '/media/catalogo-servicios/photobooth-vogue-01.jpeg';
+  }
+  if (fullText.includes('pista') || fullText.includes('led') || fullText.includes('pantalla')) {
+    return '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg';
+  }
+  if (fullText.includes('discoteca') || fullText.includes('dj') || fullText.includes('audio') || fullText.includes('sonido') || fullText.includes('iluminacion') || fullText.includes('luces')) {
+    if (fullText.includes('bola') || fullText.includes('esfera')) {
+      return '/media/catalogo-servicios/discoteca-iluminacion-bolas-01.jpeg';
+    }
+    return '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+  }
+  if (fullText.includes('catering') || fullText.includes('comida') || fullText.includes('pizza') || fullText.includes('asado') || fullText.includes('menu') || fullText.includes('almuerzo') || fullText.includes('cena')) {
+    return '/media/catalogo-servicios/catering-mesa-ak-01.jpeg';
+  }
+  if (fullText.includes('recepcion') || fullText.includes('bienvenida') || fullText.includes('display')) {
+    return '/media/catalogo-servicios/recepcion-display-evento-01.jpeg';
+  }
+  if (fullText.includes('cotillon') || fullText.includes('souvenir') || fullText.includes('regalo') || fullText.includes('pulsera')) {
+    return '/media/catalogo-servicios/souvenirs-cotillon-01.jpeg';
+  }
+  if (fullText.includes('decoracion') || fullText.includes('deco') || fullText.includes('ambientacion') || fullText.includes('flores') || fullText.includes('centro') || fullText.includes('mantel')) {
+    if (fullText.includes('boda') || fullText.includes('casamiento')) {
+      return '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg';
+    }
+    if (fullText.includes('centro')) {
+      return '/media/catalogo-servicios/decoracion-centro-mesa-01.jpeg';
+    }
+    if (fullText.includes('lila') || fullText.includes('violeta')) {
+      return '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg';
+    }
+    if (fullText.includes('luces') || fullText.includes('led')) {
+      return '/media/catalogo-servicios/decoracion-xv-luces-01.jpeg';
+    }
+    if (fullText.includes('rosa')) {
+      return '/media/catalogo-servicios/xv-decoracion-rosa-01.jpeg';
+    }
+    return '/media/catalogo-servicios/xv-decoracion-equipo-ak-01.jpeg';
+  }
+  if (categoria.includes('decoracion') || categoria.includes('deco')) {
+    return '/media/catalogo-servicios/xv-decoracion-equipo-ak-01.jpeg';
+  }
+  if (categoria.includes('discoteca') || categoria.includes('dj') || categoria.includes('sonido') || categoria.includes('iluminac')) {
+    return '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+  }
+  if (categoria.includes('foto') || categoria.includes('video') || categoria.includes('filmac')) {
+    return '/media/catalogo-servicios/photobooth-vogue-01.jpeg';
+  }
+  if (categoria.includes('reposteria') || categoria.includes('torta') || categoria.includes('mesa dulce')) {
+    return '/media/catalogo-servicios/reposteria-tortas-ak-03.jpeg';
+  }
+  if (categoria.includes('barra') || categoria.includes('bebida') || categoria.includes('trago')) {
+    return '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
+  }
+  return '/media/catalogo-servicios/catering-mesa-ak-01.jpeg';
 }
 
 interface CategoriaServiciosSlideProps {
@@ -306,6 +392,10 @@ export function CategoriaServiciosSlide({
     [fotosCategoria, failedIds],
   );
 
+  const categoryHeroFallback = useMemo(() => {
+    return getFallbackServicePhoto({ id: '', nombre: '', categoria });
+  }, [categoria]);
+
   return (
     <SlideLayout overflowScroll>
       <div className="mx-auto w-full max-w-7xl 2xl:max-w-[1680px]">
@@ -367,6 +457,19 @@ export function CategoriaServiciosSlide({
                      />
                    </div>
                 ))}
+              </div>
+            ) : categoryHeroFallback ? (
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
+                  <Image
+                    src={categoryHeroFallback}
+                    alt={categoria}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    unoptimized
+                    className="object-cover"
+                  />
+                </div>
               </div>
             ) : (
               <ImagePlaceholder
@@ -430,7 +533,7 @@ export function CategoriaServiciosSlide({
                     isSelected={selectedServices.includes(servicio.id)}
                     onToggle={() => onToggleSelect(servicio.id)}
                     mostrarPrecios={mostrarPrecios}
-                    fotoUrl={ledFotoMap[servicio.id] || findPhotoForService(servicio, catalogoFotos, tipoFiesta)}
+                    fotoUrl={ledFotoMap[servicio.id] || findPhotoForService(servicio, catalogoFotos, tipoFiesta) || getFallbackServicePhoto(servicio)}
                     onOpenGallery={onOpenGallery}
                   />
                 </motion.div>

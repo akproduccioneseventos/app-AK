@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { clearSessionCookie } from '@/app/actions/session';
+import { clearSessionCookie, getSessionStatus } from '@/app/actions/session';
 import { getSession, clearSession } from '@/lib/auth';
 import { BUDGET_VIEW_REGEX, PUBLIC_EXACT_PATHS, isPublicPathPrefix } from '@/lib/auth/public-paths';
 
@@ -69,6 +69,20 @@ export function AuthGuard({ children }: AuthGuardProps) {
     }
 
     setIsVerified(true);
+
+    let active = true;
+    getSessionStatus().then((isValid) => {
+      if (!active) return;
+      if (!isValid) {
+        triggerAppLogout();
+      }
+    }).catch((err) => {
+      console.error('[AuthGuard] Failed to verify session on server:', err);
+    });
+
+    return () => {
+      active = false;
+    };
   }, [isPublic, pathname, router]);
 
   if (!isPublic && !isVerified) {

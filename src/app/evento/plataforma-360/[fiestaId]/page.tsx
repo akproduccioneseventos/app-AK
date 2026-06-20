@@ -161,7 +161,7 @@ export default function Plataforma360Page() {
   };
 
   const toggleCamera = () => {
-    setFacingMode(current => current === 'environment' ? 'user' : 'environment');
+    setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
   };
 
   const loadRecentVideos = async () => {

@@ -15,7 +15,9 @@ export function SlideLayout({ children, className, centered = true, overflowScro
       className={cn(
         'absolute inset-0 min-h-[100svh] px-5 pb-28 pt-24 sm:px-8 md:px-12 lg:px-16 2xl:px-24',
         'selection:bg-red-500/30 selection:text-white',
-        centered && 'flex flex-col items-center justify-center',
+        centered && 'flex flex-col items-center',
+        centered && !overflowScroll && 'justify-center',
+        centered && overflowScroll && 'justify-start pt-28',
         overflowScroll ? 'overflow-y-auto overscroll-contain' : 'overflow-hidden',
         className,
       )}
