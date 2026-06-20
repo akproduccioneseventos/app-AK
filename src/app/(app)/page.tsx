@@ -52,6 +52,7 @@ import { descartarPrioridad } from '@/app/actions/alertas.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { recoverFromDeploymentMismatch } from '@/lib/deployment-recovery';
+import { triggerAppLogout } from '@/app/auth-guard';
 
 const mainHubItems = [
   { title: 'Nuevo Lead / Contacto', description: 'Registrar un nuevo prospecto en el CRM.', href: '/contabilidad/crm', icon: UserPlus, lightColor: 'bg-violet-50 text-violet-600', featured: false },
@@ -109,6 +110,8 @@ export default function MainDashboardPage() {
       const dashboardResult = await getDashboardKpiData();
       if (dashboardResult.success) {
         setKpiData(dashboardResult.data);
+      } else if (dashboardResult.error === 'SESSION_EXPIRED') {
+        await triggerAppLogout();
       } else {
         toast({ title: 'Error', description: 'No se pudieron cargar los datos del panel.', variant: 'destructive' });
       }

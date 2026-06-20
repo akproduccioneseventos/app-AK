@@ -61,9 +61,24 @@ describe('Google identity authentication', () => {
   });
 
   it('uses the signed server session instead of trusting stale browser state', () => {
-    const source = fs.readFileSync(path.resolve(__dirname, '..', 'app', 'login', 'page.tsx'), 'utf8');
-    expect(source).toContain('await withTimeout(getSessionStatus(), false)');
-    expect(source).toContain('clearSession();');
-    expect(source).not.toContain('if (getSession())');
+    const loginSource = fs.readFileSync(path.resolve(__dirname, '..', 'app', 'login', 'page.tsx'), 'utf8');
+    const guardSource = fs.readFileSync(path.resolve(__dirname, '..', 'app', 'auth-guard.tsx'), 'utf8');
+    const middlewareSource = fs.readFileSync(path.resolve(__dirname, '..', 'middleware.ts'), 'utf8');
+
+    expect(loginSource).toContain('await withTimeout(getSessionStatus(), false)');
+    expect(loginSource).toContain('if (!await confirmServerSession())');
+    expect(loginSource).toContain('clearSession();');
+    expect(loginSource).not.toContain('if (getSession())');
+
+    expect(guardSource).toContain('const isValid = await getSessionStatus()');
+    expect(guardSource.indexOf('const isValid = await getSessionStatus()'))
+      .toBeLessThan(guardSource.indexOf('setIsVerified(true);', guardSource.indexOf('async function verifyAccess')));
+
+    expect(middlewareSource).toContain(
+      'const { isValid: hasValidSession } = await verifySignedSessionToken(sessionCookie?.value);'
+    );
+    expect(middlewareSource).not.toContain(
+      'const hasValidSession = await verifySignedSessionToken(sessionCookie?.value);'
+    );
   });
 });

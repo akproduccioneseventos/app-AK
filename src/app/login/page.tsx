@@ -43,6 +43,10 @@ function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = 3500): Pro
   ]);
 }
 
+async function confirmServerSession() {
+  return withTimeout(getSessionStatus(), false, 5000);
+}
+
 function getRedirectPath() {
   return sanitizeAppRedirect(new URLSearchParams(window.location.search).get('redirect'));
 }
@@ -100,6 +104,11 @@ export default function LoginPage() {
           const response = await loginWithGoogleIdToken(redirectToken);
           await googleAuth.clearGoogleAuthSession();
           if (response.success) {
+            if (!await confirmServerSession()) {
+              clearSession();
+              setError('Google verifico tu identidad, pero no se pudo crear la sesion segura. Intenta nuevamente.');
+              return;
+            }
             setSession();
             router.replace(getRedirectPath());
             router.refresh();
@@ -142,6 +151,13 @@ export default function LoginPage() {
         return;
       }
 
+      if (!await confirmServerSession()) {
+        clearSession();
+        setError('La contrasena fue aceptada, pero no se pudo crear la sesion segura. Intenta nuevamente.');
+        setIsSubmitting(false);
+        return;
+      }
+
       setSession();
       router.replace(getRedirectPath());
       router.refresh();
@@ -168,6 +184,12 @@ export default function LoginPage() {
       await googleAuth.clearGoogleAuthSession();
       if (!response.success) {
         setError(response.error || 'Acceso denegado.');
+        return;
+      }
+
+      if (!await confirmServerSession()) {
+        clearSession();
+        setError('Google verifico tu identidad, pero no se pudo crear la sesion segura. Intenta nuevamente.');
         return;
       }
 

@@ -11,6 +11,7 @@ import { getRoles } from './roles';
 import { calculateFinancialLedger, getReconciledSalePayments } from '@/lib/commercial-flow/ledger-service';
 import { getPrioridadesDescartadas } from './alertas.actions';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { verifySession } from '@/lib/auth/session-token';
 
 export interface MonthlyChartData {
   month: string;
@@ -55,6 +56,11 @@ function getInvoicePaidAmount(invoice: { payments?: { amount?: number }[] }) {
 
 export async function getDashboardKpiData() {
   try {
+    const auth = await verifySession();
+    if (!auth.success) {
+      return { success: false, error: 'SESSION_EXPIRED' };
+    }
+
     checkAndCreateTaskReminders().catch(err => console.warn('Background task reminder check failed:', err));
     checkAndCreateReunionReminders().catch(err => console.warn('Background meeting reminder check failed:', err));
 
