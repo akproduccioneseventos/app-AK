@@ -16,6 +16,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { saveArmadoRapidoConfig, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getBudgetDisplaySettings, saveBudgetDisplaySettings } from '@/app/actions/settings';
+import { getCopilotConfig, saveCopilotConfig } from '@/app/actions/simulador-copilot';
+import type { CopilotConfig, CopilotFAQ } from '@/types/copilot';
+import { DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
@@ -83,8 +86,10 @@ export default function BudgetDisplaySettingsPage() {
   // Data States
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings | null>(null);
+  const [copilotConfig, setCopilotConfig] = useState<CopilotConfig | null>(null);
   const [initialConfig, setInitialConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [initialBudgetSettings, setInitialBudgetSettings] = useState<BudgetDisplaySettings | null>(null);
+  const [initialCopilotConfig, setInitialCopilotConfig] = useState<CopilotConfig | null>(null);
   const [servicios, setServicios] = useState<ServicioEmpresa[]>([]);
   const [allDishes, setAllDishes] = useState<MenuItem[]>([]);
   
@@ -105,11 +110,12 @@ export default function BudgetDisplaySettingsPage() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [armadoData, settingsData, servicesData, menusData] = await Promise.all([
+      const [armadoData, settingsData, servicesData, menusData, copilotData] = await Promise.all([
         getArmadoRapidoConfig(),
         getBudgetDisplaySettings(),
         getServiciosEmpresa(),
-        getMenus()
+        getMenus(),
+        getCopilotConfig()
       ]);
       const normalizedConfig: ArmadoRapidoConfig = {
         ...armadoData,
@@ -123,8 +129,10 @@ export default function BudgetDisplaySettingsPage() {
       };
       setConfig(normalizedConfig);
       setBudgetSettings({ ...defaultBudgetDisplaySettings, ...(settingsData || {}) });
+      setCopilotConfig(copilotData || DEFAULT_COPILOT_CONFIG);
       setInitialConfig(deepClone(normalizedConfig));
       setInitialBudgetSettings(deepClone({ ...defaultBudgetDisplaySettings, ...(settingsData || {}) }));
+      setInitialCopilotConfig(deepClone(copilotData || DEFAULT_COPILOT_CONFIG));
       setServicios(servicesData.filter(s => s.tipoItem === 'Servicio'));
       setAllDishes(menusData.flatMap(m => m.items));
     } catch (e) {
@@ -147,18 +155,20 @@ export default function BudgetDisplaySettingsPage() {
     setIsSaving(true);
     try {
       const safeBudgetSettings: BudgetDisplaySettings = { ...defaultBudgetDisplaySettings, ...(budgetSettings || {}) };
-      const [res1, res2] = await Promise.all([
+      const [res1, res2, res3] = await Promise.all([
         saveArmadoRapidoConfig(config),
-        saveBudgetDisplaySettings(safeBudgetSettings)
+        saveBudgetDisplaySettings(safeBudgetSettings),
+        copilotConfig ? saveCopilotConfig(copilotConfig) : Promise.resolve({ success: true })
       ]);
-      if (res1.success && res2.success) {
-        toast({ title: "Configuración Guardada", description: "Todos los cambios se han aplicado al simulador." });
+      if (res1.success && res2.success && res3.success) {
+        toast({ title: "Configuración Guardada", description: "Todos los cambios se han aplicado al simulador y al Asistente IA." });
         setInitialConfig(deepClone(config));
         setBudgetSettings(deepClone(safeBudgetSettings));
         setInitialBudgetSettings(deepClone(safeBudgetSettings));
+        if (copilotConfig) setInitialCopilotConfig(deepClone(copilotConfig));
         onSuccess?.();
       } else {
-        const saveError = [res1.error, res2.error].filter(Boolean).join(' | ');
+        const saveError = [res1.error, res2.error, res3.error].filter(Boolean).join(' | ');
         throw new Error(saveError || "Error al guardar una de las secciones.");
       }
     } catch (e: any) {
@@ -323,8 +333,11 @@ export default function BudgetDisplaySettingsPage() {
   // --- FILTERS ---
   const hasUnsavedChanges = useMemo(() => {
     if (!config || !budgetSettings || !initialConfig || !initialBudgetSettings) return false;
-    return JSON.stringify(config) !== JSON.stringify(initialConfig) || JSON.stringify(budgetSettings) !== JSON.stringify(initialBudgetSettings);
-  }, [config, budgetSettings, initialConfig, initialBudgetSettings]);
+    const configChanged = JSON.stringify(config) !== JSON.stringify(initialConfig);
+    const settingsChanged = JSON.stringify(budgetSettings) !== JSON.stringify(initialBudgetSettings);
+    const copilotChanged = JSON.stringify(copilotConfig) !== JSON.stringify(initialCopilotConfig);
+    return configChanged || settingsChanged || copilotChanged;
+  }, [config, budgetSettings, copilotConfig, initialConfig, initialBudgetSettings, initialCopilotConfig]);
 
   const selectedSection = PACKAGE_EVENT_SECTIONS.find((s) => s.value === activePackageSection) || PACKAGE_EVENT_SECTIONS[0];
 
@@ -401,11 +414,12 @@ export default function BudgetDisplaySettingsPage() {
       </header>
 
       <Tabs defaultValue="estrategia" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-100 p-1 rounded-2xl h-auto md:h-14 border border-slate-200">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-slate-100 p-1 rounded-2xl h-auto md:h-14 border border-slate-200">
             <TabsTrigger value="estrategia" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Venta PRO</TabsTrigger>
             <TabsTrigger value="paquetes" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Paquetes</TabsTrigger>
             <TabsTrigger value="platos" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Platos</TabsTrigger>
             <TabsTrigger value="dependencias" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Reglas</TabsTrigger>
+            <TabsTrigger value="copilot" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Asistente IA</TabsTrigger>
         </TabsList>
 
         {/* 1. ESTRATEGIA DE VENTA */}
@@ -827,6 +841,110 @@ export default function BudgetDisplaySettingsPage() {
                         <div className="flex justify-end mt-4">
                             <Button onClick={addDependency} disabled={!newDepTrigger || !newDepRequired} className="rounded-xl font-bold">
                                 Agregar Regla
+                            </Button>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        {/* 5. ASISTENTE IA */}
+        <TabsContent value="copilot" className="space-y-6 pt-4 animate-in fade-in duration-500">
+            <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden bg-white">
+                <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 md:p-8">
+                    <CardTitle className="font-headline text-lg md:text-xl text-slate-800 flex items-center gap-2">
+                        <Wand2 className="w-5 h-5 text-primary" />
+                        Personalidad del Asistente Virtual (Sofía)
+                    </CardTitle>
+                    <CardDescription>
+                        Configurá el prompt del sistema que define el comportamiento, tono y flujo conversacional de la IA.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6 md:p-8 space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="promptPersonalidad" className="font-bold text-xs uppercase tracking-wider text-slate-500">Prompt del Sistema</Label>
+                        <Textarea
+                            id="promptPersonalidad"
+                            rows={15}
+                            value={copilotConfig?.promptPersonalidad || ''}
+                            onChange={(e) => setCopilotConfig(prev => prev ? ({ ...prev, promptPersonalidad: e.target.value }) : null)}
+                            placeholder="Escribí las instrucciones de comportamiento de Sofía..."
+                            className="rounded-2xl border-slate-200 focus:border-primary focus:ring-primary text-slate-700 font-sans text-sm leading-relaxed"
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-xl border-none rounded-[2rem] overflow-hidden bg-white">
+                <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 md:p-8">
+                    <CardTitle className="font-headline text-lg md:text-xl text-slate-800 flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5 text-primary" />
+                        Preguntas Frecuentes (FAQs) de la IA
+                    </CardTitle>
+                    <CardDescription>
+                        Añadí información oficial del negocio para que Sofía pueda contestar dudas del cliente sobre reservas, tecnología, menú, etc.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6 md:p-8 space-y-6">
+                    <div className="space-y-4">
+                        {(copilotConfig?.faqs || []).map((faq, index) => (
+                            <div key={index} className="p-4 md:p-6 rounded-2xl border border-slate-100 bg-slate-50/50 space-y-3 relative group">
+                                <div className="flex justify-between items-start gap-4">
+                                    <div className="flex-1 space-y-1">
+                                        <Input
+                                            value={faq.pregunta}
+                                            onChange={(e) => {
+                                                const updatedFaqs = [...(copilotConfig?.faqs || [])];
+                                                updatedFaqs[index] = { ...faq, pregunta: e.target.value };
+                                                setCopilotConfig(prev => prev ? ({ ...prev, faqs: updatedFaqs }) : null);
+                                            }}
+                                            placeholder="Tema / Pregunta (ej: Costo de reserva)"
+                                            className="font-bold text-slate-800 border-none bg-transparent p-0 h-auto focus-visible:ring-0 placeholder-slate-400 text-sm md:text-base"
+                                        />
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => {
+                                            const updatedFaqs = (copilotConfig?.faqs || []).filter((_, i) => i !== index);
+                                            setCopilotConfig(prev => prev ? ({ ...prev, faqs: updatedFaqs }) : null);
+                                        }}
+                                        className="h-8 w-8 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 shrink-0"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                                <Textarea
+                                    value={faq.respuesta}
+                                    onChange={(e) => {
+                                        const updatedFaqs = [...(copilotConfig?.faqs || [])];
+                                        updatedFaqs[index] = { ...faq, respuesta: e.target.value };
+                                        setCopilotConfig(prev => prev ? ({ ...prev, faqs: updatedFaqs }) : null);
+                                    }}
+                                    placeholder="Escribí la respuesta o detalles que la IA debe conocer..."
+                                    rows={3}
+                                    className="rounded-xl border-slate-200 focus:border-primary focus:ring-primary text-slate-600 font-sans text-xs leading-relaxed"
+                                />
+                            </div>
+                        ))}
+
+                        {(!copilotConfig?.faqs || copilotConfig.faqs.length === 0) && (
+                            <div className="text-center py-12 text-slate-400 text-xs">
+                                No hay preguntas frecuentes configuradas. Sofía usará únicamente el prompt del sistema.
+                            </div>
+                        )}
+
+                        <div className="flex justify-center pt-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    const newFaq: CopilotFAQ = { pregunta: '', respuesta: '' };
+                                    setCopilotConfig(prev => prev ? ({ ...prev, faqs: [...prev.faqs, newFaq] }) : null);
+                                }}
+                                className="rounded-xl border-dashed border-slate-300 hover:border-primary text-slate-600 hover:text-primary px-6"
+                            >
+                                <PlusCircle className="w-4 h-4 mr-2" />
+                                Agregar FAQ
                             </Button>
                         </div>
                     </div>

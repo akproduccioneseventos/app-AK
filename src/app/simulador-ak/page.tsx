@@ -722,8 +722,8 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
       </header>
 
       {/* BODY CHAT CONTAINER */}
-      <div className="flex-1 flex justify-center items-center p-2 sm:p-4 md:p-6 z-10 overflow-hidden max-h-[calc(100vh-80px)]">
-        <div className="flex h-[82vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/70 shadow-2xl backdrop-blur-xl">
+      <div className="flex-1 flex justify-center items-center p-0 sm:p-4 md:p-6 z-10 overflow-hidden">
+        <div className="flex h-[calc(100dvh-80px)] sm:h-[80vh] w-full max-w-4xl flex-col overflow-hidden rounded-none sm:rounded-2xl border-0 sm:border border-white/10 bg-zinc-900/70 shadow-2xl backdrop-blur-xl">
           <ChatWindow />
         </div>
       </div>
