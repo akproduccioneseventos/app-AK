@@ -77,9 +77,26 @@ export async function createSignedSessionToken(
 
 export async function verifySignedSessionToken(token?: string | null): Promise<{ isValid: boolean; user?: SessionUserData }> {
   if (!token) return { isValid: false };
-  const parts = token.split('.');
-  if (parts.length !== 5) return { isValid: false };
-  const [version, expiresAtRaw, nonce, userPayloadRaw, signature] = parts;
+
+  const firstSeparator = token.indexOf('.');
+  const secondSeparator = token.indexOf('.', firstSeparator + 1);
+  const thirdSeparator = token.indexOf('.', secondSeparator + 1);
+  const lastSeparator = token.lastIndexOf('.');
+  if (
+    firstSeparator <= 0 ||
+    secondSeparator <= firstSeparator + 1 ||
+    thirdSeparator <= secondSeparator + 1 ||
+    lastSeparator <= thirdSeparator + 1 ||
+    lastSeparator >= token.length - 1
+  ) {
+    return { isValid: false };
+  }
+
+  const version = token.slice(0, firstSeparator);
+  const expiresAtRaw = token.slice(firstSeparator + 1, secondSeparator);
+  const nonce = token.slice(secondSeparator + 1, thirdSeparator);
+  const userPayloadRaw = token.slice(thirdSeparator + 1, lastSeparator);
+  const signature = token.slice(lastSeparator + 1);
   if (version !== SESSION_VERSION || !nonce || !userPayloadRaw || !signature) return { isValid: false };
   const expiresAt = Number(expiresAtRaw);
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return { isValid: false };
