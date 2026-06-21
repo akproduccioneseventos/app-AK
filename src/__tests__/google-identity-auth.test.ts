@@ -77,12 +77,9 @@ describe('Google identity authentication', () => {
     expect(guardSource.indexOf('const isValid = await getSessionStatus()'))
       .toBeLessThan(guardSource.indexOf('setIsVerified(true);', guardSource.indexOf('async function verifyAccess')));
 
-    expect(middlewareSource).toContain(
-      'const { isValid: hasValidSession } = await verifySignedSessionToken(sessionCookie?.value);'
-    );
-    expect(middlewareSource).not.toContain(
-      'const hasValidSession = await verifySignedSessionToken(sessionCookie?.value);'
-    );
+    expect(middlewareSource).toContain('if (!sessionCookie?.value)');
+    expect(middlewareSource).not.toContain('verifySignedSessionToken');
+    expect(guardSource).toContain('const isValid = await getSessionStatus()');
 
     expect(simpleAuthSource).toContain("writeRecoveredAdminSession('recovery-email-code')");
     expect(simpleAuthSource).toContain("writeRecoveredAdminSession('recovery-security-questions')");
