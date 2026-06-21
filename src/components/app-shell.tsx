@@ -80,6 +80,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/empleados/roles') return 'Configuración de Roles';
   if (pathname === '/empleados/reporte') return 'Reporte de Personal';
 
+  if (pathname === '/eventos') return 'Gestión de Eventos';
   if (pathname === '/fiestas/nueva') return 'Planificador de Fiestas General';
   if (pathname === '/fiestas/nueva/tareas') return 'Tareas del Evento';
   if (pathname === '/fiestas/nueva/invitados') return 'Gestión de Invitados';
