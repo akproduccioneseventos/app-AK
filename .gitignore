@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# graphify
+graphify-out/
+
 # next.js
 /.next/
 /out/
@@ -68,3 +71,7 @@ src/data/last-auto-backup.txt
 /test-results/
 /playwright/.auth/
 functions/package-lock.json
+
+# graphify
+/graphify-out/
+

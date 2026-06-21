@@ -31,6 +31,10 @@ export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];
 // Helper: Check if Firestore is available
 // ============================================================
 function getDb() {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    return null;
+  }
+
   if (!dbAdmin) {
     const isBuildTime = process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
     if (!isBuildTime) {

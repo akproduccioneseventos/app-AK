@@ -44,6 +44,15 @@ describe('data-service — writeData validation', () => {
     await expect(writeData('/etc/passwd', 'malicious')).rejects.toThrow('Invalid data file path');
   });
 
+  it('blocks writes while browser tests use local JSON data', async () => {
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
+
+    const { writeData } = await import('@/lib/data-service');
+    await expect(writeData('test.json', [{ id: '1' }])).rejects.toThrow(
+      'La escritura esta deshabilitada en el modo local de pruebas.'
+    );
+  });
+
   it('throws when Firestore write fails in production', async () => {
     process.env.VERCEL = '1';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

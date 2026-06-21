@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "next": true,
+  "jest": true,
+  "playwright": true,
+  "ignore": [
+    ".next/**",
+    "graphify-out/**",
+    "playwright-report/**",
+    "public/sw.js",
+    "public/workbox-*.js",
+    "test-results/**"
+  ],
+  "ignoreBinaries": [
+    "cp"
+  ]
+}

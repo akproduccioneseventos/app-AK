@@ -15,6 +15,10 @@ export interface WriteDataOptions {
   skipAutoBackup?: boolean;
 }
 
+function shouldUseLocalJsonOnly(): boolean {
+  return process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+}
+
 async function scheduleAutoBackupAfterWrite(normalizedFilePath: string, options?: WriteDataOptions): Promise<void> {
   if (options?.skipAutoBackup || BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) return;
 
@@ -83,6 +87,12 @@ async function writeLocalJsonFallback<T>(normalizedFilePath: string, data: T): P
 export async function readData<T>(filePath: string, defaultValue: T): Promise<T> {
   if (filePath.includes('..') || filePath.startsWith('/')) throw new Error('Invalid data file path');
   const normalizedFilePath = filePath.replace(/\\/g, '/');
+
+  if (shouldUseLocalJsonOnly()) {
+    const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
+    return fallbackData ?? defaultValue;
+  }
+
   try {
     const data = await readFromFirestore(normalizedFilePath);
     if (data !== null && data !== undefined) {
@@ -122,6 +132,10 @@ export async function writeData<T>(
   const normalizedFilePath = filePath.replace(/\\/g, '/');
   let dataToWrite: T = data;
   if (Array.isArray(data) && sortFn) dataToWrite = [...data].sort(sortFn) as unknown as T;
+
+  if (shouldUseLocalJsonOnly()) {
+    throw new Error('La escritura esta deshabilitada en el modo local de pruebas.');
+  }
 
   try {
     await syncToFirestore(normalizedFilePath, dataToWrite);
