@@ -27,3 +27,7 @@ Rules:
 - Add or update Firebase Rules tests when changing `firestore.rules`.
 - Do not make Knip findings a blocking CI check until the existing baseline has been reviewed.
 - Keep test tools in devDependencies; they must not be imported by production application code.
+
+## Pull Requests y Despliegues
+
+- **Prohibido Fusionar PRs**: Las IA tienen estrictamente prohibido fusionar (mergear) Pull Requests por sí solas. Deben limitarse a crear la Pull Request en GitHub y dejarla abierta para que sea el usuario o el flujo de despliegue quien la revise, la fusione y la despliegue.
