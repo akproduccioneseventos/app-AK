@@ -75,7 +75,10 @@ export async function verifySignedSessionToken(token?: string | null): Promise<{
     const expiresAt = Number(expiresAtRaw);
     if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return { isValid: false };
     const expected = await signPayload(`${version}.${expiresAtRaw}.${nonce}`);
-    if (!constantTimeEqual(signature, expected)) return { isValid: false };
+    if (!constantTimeEqual(signature, expected)) {
+      console.error('[verifySignedSessionToken] Legacy signature mismatch.');
+      return { isValid: false };
+    }
     // Legacy tokens don't carry user data, return a default admin user
     return { isValid: true, user: { email: 'admin@akproducciones.com', role: 'admin', userId: 'admin' } };
   }
@@ -106,7 +109,10 @@ export async function verifySignedSessionToken(token?: string | null): Promise<{
   
   const expected = await signPayload(`${version}.${expiresAtRaw}.${nonce}.${userPayloadRaw}`);
   const isSignatureValid = constantTimeEqual(signature, expected);
-  if (!isSignatureValid) return { isValid: false };
+  if (!isSignatureValid) {
+    console.error('[verifySignedSessionToken] Signature mismatch. Expected length:', expected.length, 'Received signature length:', signature.length);
+    return { isValid: false };
+  }
 
   try {
     const user = JSON.parse(decodeURIComponent(userPayloadRaw)) as SessionUserData;

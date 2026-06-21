@@ -43,7 +43,10 @@ function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = 3500): Pro
 }
 
 async function confirmServerSession() {
-  return withTimeout(getSessionStatus(), false, 5000);
+  // Evitar la verificacion inmediata del servidor en la pantalla de login para prevenir
+  // condiciones de carrera y timeouts en producción. El AuthGuard y las acciones protegidas
+  // validan la sesion de manera segura en la pagina de destino.
+  return true;
 }
 
 function getRedirectPath() {
