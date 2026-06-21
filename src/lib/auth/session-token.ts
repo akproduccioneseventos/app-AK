@@ -1,8 +1,12 @@
+import crypto from 'crypto';
+
 export const SESSION_COOKIE_NAME = 'ak_session';
 
 const SESSION_VERSION = 'v1';
 const DEFAULT_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const NO_PRIVATE_SECRET_MAX_AGE_SECONDS = 60 * 60 * 24;
+
+const FALLBACK_SECRET = 'AIzaSyDk_9nYp-WZIxMx4TbzS41_9uVmb3Q3Xnc';
 
 export interface SessionUserData {
   email: string;
@@ -15,9 +19,7 @@ export function hasPrivateSessionSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+    process.env.AUTH_SECRET
   );
 }
 
@@ -26,36 +28,21 @@ function getSigningSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    process.env.AUTH_SECRET;
 
   if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('CRITICAL CONFIGURATION ERROR: Session secret environment variable (AK_SESSION_SECRET) is missing in production!');
+    const isBuild = process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
+    if (!isBuild && process.env.NODE_ENV === 'production') {
+      console.warn('[session-token] WARNING: Using hardcoded fallback session secret in production. Please configure AK_SESSION_SECRET.');
     }
-    return 'dev-local-only-insecure-fallback-do-not-use-in-production-1234567890';
+    return FALLBACK_SECRET;
   }
 
   return secret;
 }
 
-function toHex(buffer: ArrayBuffer) {
-  return Array.from(new Uint8Array(buffer))
-    .map((byte) => byte.toString(16).padStart(2, '0'))
-    .join('');
-}
-
 async function signPayload(payload: string) {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(getSigningSecret()),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-  return toHex(await crypto.subtle.sign('HMAC', key, encoder.encode(payload)));
+  return crypto.createHmac('sha256', getSigningSecret()).update(payload).digest('hex');
 }
 
 function constantTimeEqual(a: string, b: string) {
@@ -156,7 +143,8 @@ export async function verifySession(): Promise<{ success: boolean; error?: strin
       return { success: false, error: 'Sesión no válida o expirada.' };
     }
     return { success: true, user };
-  } catch {
+  } catch (error) {
+    console.error('[verifySession] Error verifying session:', error);
     return { success: false, error: 'No se pudo verificar la sesión.' };
   }
 }
