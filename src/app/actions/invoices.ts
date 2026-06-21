@@ -8,9 +8,18 @@ import { addInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
+import { parseCleanMoney } from '@/lib/budget/financial-guardrails';
 
 const INVOICES_FILE = 'invoices.json';
 const MONEY_TOLERANCE = 1;
+
+function mapDepositMethodToInvoiceMethod(method: string): 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro' {
+  const m = (method || '').trim().toLowerCase();
+  if (m === 'efectivo') return 'Efectivo';
+  if (m === 'tarjeta') return 'Tarjeta';
+  if (m === 'transferencia' || m === 'transferencia bancaria' || m === 'transferencia_bancaria') return 'Transferencia';
+  return 'Otro';
+}
 
 function roundMoney(value: unknown): number {
   const parsed = Number(value ?? 0);
@@ -177,7 +186,7 @@ export async function registerBookingDeposit(data: {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const amount = roundMoney(data.amount);
+    const amount = parseCleanMoney(data.amount);
     if (amount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
     if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
 
@@ -227,7 +236,7 @@ export async function registerBookingDeposit(data: {
         id: `pay_dep_${Date.now()}`,
         paymentDate: data.date,
         amount,
-        method: data.method as any,
+        method: mapDepositMethodToInvoiceMethod(data.method),
         notes: 'Seña inicial de contratación'
       }];
       await writeData(INVOICES_FILE, freshInvoices);
@@ -307,7 +316,8 @@ export async function addPaymentToInvoice(
   if (!auth.success) return { success: false, error: auth.error };
   const paymentDate = formData.get('paymentDate') as string || new Date().toISOString();
   const amountStr = formData.get('amount') as string;
-  const method = formData.get('method') as Payment['method'] || 'Transferencia';
+  const rawMethod = formData.get('method') as string || 'Transferencia';
+  const method = mapDepositMethodToInvoiceMethod(rawMethod);
   const notes = formData.get('notes') as string | undefined;
   const transactionProofFile = formData.get('transactionProof') as File | null;
 
@@ -316,7 +326,7 @@ export async function addPaymentToInvoice(
   if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
 
   const invoice = invoices[invoiceIndex];
-  const amount = roundMoney(amountStr);
+  const amount = parseCleanMoney(amountStr);
   const balance = getInvoiceBalance(invoice);
 
   if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };

@@ -12,7 +12,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import * as logger from '@/lib/logger';
-import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
+import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
 import { sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
@@ -385,7 +385,7 @@ export async function registerContractDeposit(params: {
       if (invoice) {
         // Map MetodoPago to the narrower set accepted by Invoice.Payment.method
         const invoiceMethod: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro' =
-          newPago.metodoPago === 'Transferencia Bancaria' ? 'Transferencia'
+          (newPago.metodoPago === 'Transferencia Bancaria' || newPago.metodoPago === 'Transferencia') ? 'Transferencia'
           : newPago.metodoPago === 'Tarjeta' ? 'Tarjeta'
           : newPago.metodoPago === 'Efectivo' ? 'Efectivo'
           : 'Otro';
@@ -426,7 +426,8 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     const address = (formData.get('address') as string)?.trim() || undefined;
     const formSalon = (formData.get('salon') as string)?.trim() || undefined;
     const formFechaEvento = (formData.get('eventoFecha') as string)?.trim() || undefined;
-    const formMontoSenia = formData.get('montoSenia') ? parseFloat(formData.get('montoSenia') as string) : undefined;
+    const rawMontoSenia = formData.get('montoSenia') as string | undefined;
+    const formMontoSenia = rawMontoSenia ? parseCleanMoney(rawMontoSenia) : undefined;
     const formMetodoPago = (formData.get('metodoPago') as MetodoPago | null) ?? undefined;
     const formCompanyName = (formData.get('companyName') as string)?.trim() || undefined;
     const formTaxId = (formData.get('taxId') as string)?.trim() || undefined;
