@@ -158,7 +158,7 @@ export default function BudgetDisplaySettingsPage() {
       const [res1, res2, res3] = await Promise.all([
         saveArmadoRapidoConfig(config),
         saveBudgetDisplaySettings(safeBudgetSettings),
-        copilotConfig ? saveCopilotConfig(copilotConfig) : Promise.resolve({ success: true })
+        copilotConfig ? saveCopilotConfig(copilotConfig) : Promise.resolve<{ success: boolean; error?: string }>({ success: true })
       ]);
       if (res1.success && res2.success && res3.success) {
         toast({ title: "Configuración Guardada", description: "Todos los cambios se han aplicado al simulador y al Asistente IA." });
