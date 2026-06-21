@@ -1044,7 +1044,7 @@ function EntretenimientoContent() {
                   AK Suite v2
                 </Badge>
               </div>
-              <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent sm:text-5xl">
+              <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
                 Entretenimiento en Vivo
               </h1>
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
