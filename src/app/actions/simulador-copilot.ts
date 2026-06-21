@@ -10,6 +10,37 @@ import * as logger from '@/lib/logger';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu } from '@/types/catering';
+import { readData, writeData } from '@/lib/data-service';
+import { CopilotConfig, DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
+
+const COPILOT_CONFIG_FILE = 'copilot-config.json';
+
+export async function getCopilotConfig(): Promise<CopilotConfig> {
+  const config = await readData<CopilotConfig>(COPILOT_CONFIG_FILE, DEFAULT_COPILOT_CONFIG);
+  return {
+    promptPersonalidad: config?.promptPersonalidad || DEFAULT_COPILOT_CONFIG.promptPersonalidad,
+    faqs: config?.faqs || DEFAULT_COPILOT_CONFIG.faqs,
+  };
+}
+
+export async function saveCopilotConfig(
+  newConfig: CopilotConfig
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const sanitizedConfig: CopilotConfig = {
+      promptPersonalidad: (newConfig.promptPersonalidad || '').trim(),
+      faqs: (newConfig.faqs || []).map(faq => ({
+        pregunta: (faq.pregunta || '').trim(),
+        respuesta: (faq.respuesta || '').trim(),
+      })).filter(faq => faq.pregunta && faq.respuesta)
+    };
+    await writeData(COPILOT_CONFIG_FILE, sanitizedConfig);
+    return { success: true };
+  } catch (error: any) {
+    logger.error('[copilot] Error saving copilot config:', error);
+    return { success: false, error: error.message || 'No se pudo guardar la configuración de la IA.' };
+  }
+}
 
 // Schema for chat history
 const ChatHistoryItemSchema = z.object({
@@ -41,6 +72,16 @@ const CopilotInputSchema = z.object({
   message: z.string(),
   history: z.array(ChatHistoryItemSchema),
   currentState: SimulatorStateSchema,
+});
+
+const GenkitCopilotInputSchema = z.object({
+  message: z.string(),
+  history: z.array(ChatHistoryItemSchema),
+  currentState: SimulatorStateSchema,
+  businessContext: z.string(),
+  currentStateJson: z.string(),
+  copilotSystemPrompt: z.string(),
+  faqsJson: z.string(),
 });
 
 const CopilotOutputSchema = z.object({
@@ -134,49 +175,18 @@ function sanitizeCopilotOutput(
     },
   };
 }
-const SYSTEM_PROMPT = `Sos Sofía, la Asistente Inteligente de AK Producciones en Salto, Uruguay.
-Guías al usuario para armar el presupuesto de su fiesta exclusivamente mediante un chat de preguntas y respuestas en tiempo real (estilo WhatsApp).
 
-## TU TONO Y PERSONALIDAD
-* Hablás en español uruguayo natural (usás "vos", "ta", "dale", "bárbaro"). Sos cálida, atenta, servicial y muy ágil.
-* Mantené tus respuestas cortas y claras. Evitá discursos o textos largos.
+const SYSTEM_PROMPT = `{{{copilotSystemPrompt}}}
 
-## FLUJO SECUENCIAL DE PREGUNTAS (ESTRICTO)
-Acompañás al cliente en el siguiente orden secuencial de pasos, guiado por \`currentState.currentChatStep\`:
-1. **name:** Preguntás el nombre completo de forma amigable.
-2. **phone:** Pedís un número de teléfono móvil de contacto (9 dígitos uruguayos).
-3. **date:** Preguntás en qué fecha quieren realizar la fiesta.
-4. **type:** Preguntás el tipo de fiesta (boda, 15 años, cumpleaños, empresarial, etc.).
-5. **hours:** Preguntás si la fiesta va a durar más de 4 horas o menos de 4 horas.
-6. **menu:** Ofrecés elegir el menú de catering (menú clásico, buffet, premium, infantil, etc.).
-7. **package_choice:** Preguntás si prefieren armar el presupuesto "por paquetes cerrados" o "servicio a servicio".
-8. **package_select / service_select:**
-   - Si eligieron paquetes: Ofrecés los 3 paquetes (Básico, Intermedio, Premium) y resumís qué incluye cada uno.
-   - Si eligieron servicio a servicio: Les presentás los servicios disponibles para que elijan.
-9. **budget_ready:** Se presenta el presupuesto final con los detalles y costos.
-
-## BASE DE CONOCIMIENTO Y FAQs (RESPUESTAS A PREGUNTAS DEL USUARIO)
-Respondés cualquier duda libre del usuario usando esta información oficial:
-- **Reserva / Seña:** Para asegurar y congelar la fecha del evento, se requiere abonar una seña del 30% del costo total estimado del presupuesto. El saldo restante se liquida en cuotas mensuales hasta la fecha del evento.
-- **Ajuste Anual:** Los presupuestos se calculan a precio vigente. Si la fecha corresponde a un año posterior, se aplica una proyección de ajuste por inflación del 15% anual en el contrato final.
-- **DJ y Tecnología:** AK Producciones incluye equipamiento tecnológico de primer nivel: sonido line-array, iluminación robótica móvil, pantallas LED gigantes de alta resolución, cabinas de DJ premium y efectos especiales de pista.
-- **Coordinación de Reunión:** Ofrecemos coordinar una reunión presencial o videollamada con nuestro organizador jefe en Salto sin ningún tipo de compromiso para definir los detalles finos.
-- **Portal VIP:** Una vez contratado el evento, el cliente recibe acceso exclusivo a su "Portal VIP" donde puede coordinar el itinerario de la fiesta, hacer sugerencias de música al DJ, subir las fotos para el video de vida y gestionar invitados y mesas.
-
-## ACCIONES CONVERSACIONALES
-Cuando el usuario responde conversacionalmente a uno de los pasos o pide un cambio, debés retornar los cambios en \`action.changes\` con \`action.type = "apply_changes"\`:
-- **Cambiar Paquete:** Si seleccionan un paquete o piden abaratar/modificar, actualizá \`selectedPaqueteId\`.
-- **Ajustar Invitados:** Si cambian cantidad de adultos o niños, actualizá \`adultos\` y \`ninosYAdolescentes\`.
-- **Modificar Servicios:** Si agregan o quitan un servicio en el chat, actualizá \`selectedServices\`.
-- **Paso Conversacional:** Si el usuario avanza de paso o realiza una elección, actualizá \`currentChatStep\` al valor correspondiente.
-
-Siempre que sugieras una opción o acción rápida, completá el objeto \`suggestionPill\` (label: texto de máximo 4 palabras, messageToSubmit: mensaje que simula el envío del usuario).`;
+## BASE DE CONOCIMIENTO Y FAQs (PREGUNTAS FRECUENTES):
+Utilizá las siguientes FAQs para responder cualquier duda del usuario:
+{{{faqsJson}}}`;
 
 // Define prompt with Genkit
 const copilotPrompt = ai.definePrompt({
   name: 'copilotPrompt',
   model: geminiModel,
-  input: { schema: CopilotInputSchema },
+  input: { schema: GenkitCopilotInputSchema },
   output: { schema: CopilotOutputSchema },
   system: SYSTEM_PROMPT,
   prompt: `## INFORMACIÓN DE LA EMPRESA (PAQUETES Y SERVICIOS DISPONIBLES):
@@ -211,10 +221,11 @@ export async function chatWithBudgetCopilot(
     };
   }
 
-  const [config, services, menus] = await Promise.all([
+  const [config, services, menus, copilotConfig] = await Promise.all([
     getArmadoRapidoConfig().catch(() => null),
     getServiciosEmpresa().catch(() => []),
     getMenus().catch(() => []),
+    getCopilotConfig().catch(() => DEFAULT_COPILOT_CONFIG),
   ]);
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
@@ -265,9 +276,10 @@ export async function chatWithBudgetCopilot(
       message: normalizedInput.message,
       history: normalizedInput.history,
       currentState: normalizedInput.currentState,
-      // Pass serialized data into the prompt template
       businessContext,
-      currentStateJson
+      currentStateJson,
+      copilotSystemPrompt: copilotConfig.promptPersonalidad,
+      faqsJson: JSON.stringify(copilotConfig.faqs)
     } as any);
 
     if (!output) {
