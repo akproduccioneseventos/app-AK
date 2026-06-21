@@ -15,7 +15,9 @@ export function hasPrivateSessionSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET
+    process.env.AUTH_SECRET ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY
   );
 }
 
@@ -24,7 +26,9 @@ function getSigningSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET;
+    process.env.AUTH_SECRET ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
