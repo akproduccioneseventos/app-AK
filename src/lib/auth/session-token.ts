@@ -15,7 +15,9 @@ export function hasPrivateSessionSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET
+    process.env.AUTH_SECRET ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY
   );
 }
 
@@ -24,7 +26,9 @@ function getSigningSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET;
+    process.env.AUTH_SECRET ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
@@ -78,8 +82,6 @@ export async function createSignedSessionToken(
 export async function verifySignedSessionToken(token?: string | null): Promise<{ isValid: boolean; user?: SessionUserData }> {
   if (!token) return { isValid: false };
   const parts = token.split('.');
-
-  // Support legacy 4-part tokens (v1.expiresAt.nonce.signature) for backward compatibility
   if (parts.length === 4) {
     const [version, expiresAtRaw, nonce, signature] = parts;
     if (version !== SESSION_VERSION || !nonce || !signature) return { isValid: false };
@@ -91,9 +93,26 @@ export async function verifySignedSessionToken(token?: string | null): Promise<{
     return { isValid: true, user: { email: 'admin@akproducciones.com', role: 'admin', userId: 'admin' } };
   }
 
-  // New 5-part tokens (v1.expiresAt.nonce.userPayload.signature)
-  if (parts.length !== 5) return { isValid: false };
-  const [version, expiresAtRaw, nonce, userPayloadRaw, signature] = parts;
+  // User data can contain dots, so parse the fixed fields from both ends.
+  const firstSeparator = token.indexOf('.');
+  const secondSeparator = token.indexOf('.', firstSeparator + 1);
+  const thirdSeparator = token.indexOf('.', secondSeparator + 1);
+  const lastSeparator = token.lastIndexOf('.');
+  if (
+    firstSeparator <= 0 ||
+    secondSeparator <= firstSeparator + 1 ||
+    thirdSeparator <= secondSeparator + 1 ||
+    lastSeparator <= thirdSeparator + 1 ||
+    lastSeparator >= token.length - 1
+  ) {
+    return { isValid: false };
+  }
+
+  const version = token.slice(0, firstSeparator);
+  const expiresAtRaw = token.slice(firstSeparator + 1, secondSeparator);
+  const nonce = token.slice(secondSeparator + 1, thirdSeparator);
+  const userPayloadRaw = token.slice(thirdSeparator + 1, lastSeparator);
+  const signature = token.slice(lastSeparator + 1);
   if (version !== SESSION_VERSION || !nonce || !userPayloadRaw || !signature) return { isValid: false };
   const expiresAt = Number(expiresAtRaw);
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return { isValid: false };

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, BookOpen, MessageSquare, Phone, MapPin, Building2, User, CheckCircle, XCircle } from 'lucide-react';
 import { catalogList } from '@/data/event-catalogs';
 import { blogPosts } from '@/data/blog-posts';
@@ -31,10 +32,10 @@ export default function PublicCatalogPage() {
             </span>
           </div>
           <nav className="hidden items-center gap-5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 md:flex">
-            <Link href="/public/blog" className="transition hover:text-purple-700">
+            <Link href="/public/blog" className="transition hover:text-red-700">
               Blog
             </Link>
-            <Link href="/simulador-de-presupuesto" className="transition hover:text-purple-700">
+            <Link href="/simulador-de-presupuesto" className="transition hover:text-red-700">
               Simulador
             </Link>
           </nav>
@@ -49,40 +50,47 @@ export default function PublicCatalogPage() {
       </header>
 
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-purple-700 via-purple-800 to-slate-900 text-white overflow-hidden">
+      <section className="relative min-h-[78svh] overflow-hidden bg-zinc-950 text-white">
         <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-pink-500/10 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-purple-300/10 blur-3xl" />
+          <Image
+            src="/media/catalogo-servicios/discoteca-salon-ak-02.jpeg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-20 sm:py-28 text-center flex flex-col items-center gap-8">
           <CompanyLogo size="lg" className="drop-shadow-2xl" />
           <div className="space-y-5">
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-300">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-red-300">
               Salto · Uruguay
             </p>
             <h1 className="text-3xl sm:text-5xl font-black leading-tight">
               👉 ¿Estás organizando una fiesta y no sabés por dónde empezar…
-              <span className="text-purple-200"> o ya te diste cuenta que hacerlo solo es un caos?</span>
+              <span className="text-zinc-200"> o ya te diste cuenta que hacerlo solo es un caos?</span>
             </h1>
-            <p className="text-lg sm:text-xl text-purple-100 leading-relaxed max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-lg leading-relaxed text-zinc-200 sm:text-xl">
               Organizamos tu evento <strong>completo</strong> para que vos solo disfrutes 🥂 como un invitado más.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
             <a href={waHref} target="_blank" rel="noopener noreferrer" className="flex-1">
-              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-[#25D366] hover:bg-[#1eb356] text-white font-black text-sm uppercase tracking-widest shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 animate-pulse hover:animate-none motion-reduce:animate-none">
+              <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-6 py-4 text-sm font-black uppercase tracking-widest text-white shadow-2xl transition-all duration-200 hover:bg-[#1eb356]">
                 <MessageSquare className="w-5 h-5 shrink-0" />
                 📲 Coordiná tu entrevista sin costo
               </button>
             </a>
             <a href={CTA_PHONE_HREF} className="flex-1">
-              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/30 text-white font-black text-sm uppercase tracking-widest transition-all duration-200 hover:scale-105 active:scale-95">
+              <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-6 py-4 text-sm font-black uppercase tracking-widest text-white transition-all duration-200 hover:bg-white/20">
                 <Phone className="w-5 h-5 shrink-0" />
                 {CTA_PHONE}
               </button>
             </a>
           </div>
-          <p className="text-xs text-purple-300 font-medium">Sin compromiso. Primera consulta 100% gratis.</p>
+          <p className="text-xs font-medium text-zinc-300">Sin compromiso. Primera consulta 100% gratis.</p>
         </div>
       </section>
 
@@ -113,7 +121,7 @@ export default function PublicCatalogPage() {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-3xl mx-auto text-center space-y-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-500 mb-3">La solución</p>
+            <p className="mb-3 text-xs font-black uppercase tracking-[0.3em] text-red-600">La solución</p>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
               🏛️ Un solo equipo. Todo resuelto.
             </h2>
@@ -128,7 +136,7 @@ export default function PublicCatalogPage() {
               { emoji: '📸', title: 'Fotografía y Video', desc: 'Recuerdos que duran toda la vida. Cobertura completa del evento.' },
               { emoji: '🎀', title: 'Decoración Completa', desc: 'Diseño personalizado según tu tema: flores, globos, ambientación y más.' },
             ].map(({ emoji, title, desc }) => (
-              <div key={title} className="flex gap-3 p-5 bg-purple-50 rounded-2xl border border-purple-100">
+              <div key={title} className="flex gap-3 rounded-lg border border-slate-200 bg-slate-50 p-5">
                 <span className="text-3xl shrink-0">{emoji}</span>
                 <div>
                   <h3 className="font-black text-slate-900">{title}</h3>
@@ -138,7 +146,7 @@ export default function PublicCatalogPage() {
             ))}
           </div>
           <a href={waHref} target="_blank" rel="noopener noreferrer">
-            <button className="mt-4 flex items-center gap-2 mx-auto px-8 py-4 rounded-2xl bg-purple-700 hover:bg-purple-800 text-white font-black text-sm uppercase tracking-widest shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
+            <button className="mx-auto mt-4 flex items-center gap-2 rounded-lg bg-red-700 px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl transition-all duration-200 hover:bg-red-600">
               <MessageSquare className="w-5 h-5 shrink-0" />
               Quiero saber más · {CTA_PHONE}
             </button>
@@ -179,7 +187,7 @@ export default function PublicCatalogPage() {
       </section>
 
       {/* ── TRUST SIGNALS ────────────────────────────────────── */}
-      <section className="py-12 px-4 bg-gradient-to-br from-slate-900 to-purple-950 text-white">
+      <section className="bg-zinc-950 px-4 py-12 text-white">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-wrap justify-center gap-8 text-center mb-10">
             {[
@@ -196,7 +204,7 @@ export default function PublicCatalogPage() {
           </div>
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-black">¿Listo para empezar?</h2>
-            <p className="text-purple-200">Primera consulta sin costo. Te orientamos aunque todavía no tengas fecha ni presupuesto definido.</p>
+            <p className="text-zinc-300">Primera consulta sin costo. Te orientamos aunque todavía no tengas fecha ni presupuesto definido.</p>
             <a href={waHref} target="_blank" rel="noopener noreferrer">
               <button className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#25D366] hover:bg-[#1eb356] text-white font-black text-sm uppercase tracking-widest shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95">
                 <MessageSquare className="w-5 h-5 shrink-0" />
@@ -211,7 +219,7 @@ export default function PublicCatalogPage() {
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-600 mb-3 flex items-center gap-2">
+              <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.3em] text-red-600">
                 <BookOpen className="h-4 w-4" />
                 Consejos AK
               </p>
@@ -224,7 +232,7 @@ export default function PublicCatalogPage() {
             </div>
             <Link
               href="/public/blog"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-purple-200 bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-purple-700 shadow-sm transition hover:border-purple-300 hover:bg-purple-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-red-700 shadow-sm transition hover:border-red-300 hover:bg-red-50"
             >
               Ver blog
               <ArrowRight className="h-4 w-4" />
@@ -238,7 +246,7 @@ export default function PublicCatalogPage() {
                 <Link
                   key={post.slug}
                   href={`/public/blog/${post.slug}`}
-                  className="group flex min-h-[260px] flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-purple-200 hover:shadow-xl"
+                  className="group flex min-h-[260px] flex-col justify-between rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-xl"
                 >
                   <div className="space-y-4">
                     <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${post.accent} text-white shadow-md`}>
@@ -248,13 +256,13 @@ export default function PublicCatalogPage() {
                       <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
                         {post.category} - {post.readTime}
                       </p>
-                      <h3 className="mt-2 text-lg font-black leading-tight text-slate-950 group-hover:text-purple-700">
+                      <h3 className="mt-2 text-lg font-black leading-tight text-slate-950 group-hover:text-red-700">
                         {post.title}
                       </h3>
                       <p className="mt-3 text-sm leading-7 text-slate-600 line-clamp-3">{post.excerpt}</p>
                     </div>
                   </div>
-                  <span className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-purple-700">
+                  <span className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-red-700">
                     Leer consejo
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                   </span>
@@ -269,7 +277,7 @@ export default function PublicCatalogPage() {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-500 mb-3">Catálogo de Servicios</p>
+            <p className="mb-3 text-xs font-black uppercase tracking-[0.3em] text-red-600">Catálogo de Servicios</p>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
               ¿Qué tipo de evento estás planeando?
             </h2>
@@ -282,7 +290,7 @@ export default function PublicCatalogPage() {
               <Link
                 key={catalog.slug}
                 href={`/public/${catalog.slug}`}
-                className="group flex flex-col items-center text-center p-8 rounded-3xl bg-white border border-slate-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="group flex flex-col items-center rounded-lg border border-slate-200 bg-white p-8 text-center shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-red-200 hover:shadow-xl"
               >
                 <span
                   className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300 drop-shadow"
@@ -291,13 +299,13 @@ export default function PublicCatalogPage() {
                 >
                   {catalog.hero.emoji}
                 </span>
-                <h3 className="text-xl font-black text-slate-900 group-hover:text-purple-600 transition-colors duration-200">
+                <h3 className="text-xl font-black text-slate-900 transition-colors duration-200 group-hover:text-red-700">
                   {catalog.name}
                 </h3>
                 <p className="mt-2 text-sm text-slate-500 leading-relaxed line-clamp-2">
                   {catalog.hero.subheadline}
                 </p>
-                <span className="mt-4 text-xs font-black uppercase tracking-wider text-purple-500 group-hover:underline">
+                <span className="mt-4 text-xs font-black uppercase tracking-wider text-red-600 group-hover:underline">
                   Ver paquetes →
                 </span>
               </Link>

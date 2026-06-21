@@ -44,27 +44,23 @@ export function CTASection({
   return (
     <section
       id="contacto"
-      className="relative py-28 overflow-hidden bg-gradient-to-br from-purple-700 via-purple-800 to-fuchsia-900"
+      className="ak-deferred-section relative overflow-hidden bg-zinc-950 py-24"
     >
-      {/* Decorative blobs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-pink-500/20 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-purple-400/20 blur-3xl pointer-events-none" />
-
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-black uppercase tracking-widest mb-8">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+        <div className="mb-8 inline-flex items-center gap-2 border-l-2 border-red-500 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
+          <span className="h-2 w-2 rounded-full bg-green-400" />
           Disponible ahora
         </div>
 
         {/* Headline */}
-        <h2 className="font-headline text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[0.95] mb-6">
+        <h2 className="mb-6 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl font-headline">
           {headline.split('\n').map((line, i) => (
             <span
               key={i}
               className={cn(
                 'block',
-                i === 1 && 'text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-yellow-200'
+                i === 1 && 'text-red-300'
               )}
             >
               {line}
@@ -84,13 +80,12 @@ export function CTASection({
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-              'flex items-center gap-3 px-8 py-5 rounded-2xl',
+              'flex items-center gap-3 px-8 py-5 rounded-lg',
               'bg-[#25D366] hover:bg-[#1eb356]',
               'text-white font-black text-base uppercase tracking-widest',
               'shadow-2xl shadow-green-900/40',
-              'transition-all duration-300 hover:scale-105 active:scale-95',
-              'min-w-[250px] justify-center text-lg',
-              'animate-pulse hover:animate-none'
+              'transition-all duration-200',
+              'min-w-[250px] justify-center text-lg'
             )}
           >
             <MessageSquare className="w-6 h-6 shrink-0" />
@@ -99,11 +94,11 @@ export function CTASection({
           <a
             href={`tel:+${whatsappNumber}`}
             className={cn(
-              'flex items-center gap-3 px-8 py-5 rounded-2xl',
+              'flex items-center gap-3 px-8 py-5 rounded-lg',
               'bg-white/10 backdrop-blur-sm hover:bg-white/20',
               'text-white font-black text-base uppercase tracking-widest',
               'border border-white/30',
-              'transition-all duration-300 hover:scale-105 active:scale-95',
+              'transition-all duration-200',
               'min-w-[200px] justify-center'
             )}
           >

@@ -1,5 +1,14 @@
 import Link from 'next/link';
-import { Bot, CalendarDays, Calculator, Smartphone, ArrowRight, LayoutDashboard, Ticket } from 'lucide-react';
+import {
+  ArrowRight,
+  Bot,
+  CalendarDays,
+  Calculator,
+  LayoutDashboard,
+  Smartphone,
+  Ticket,
+} from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 
 interface TechnologyExperienceSectionProps {
@@ -8,109 +17,126 @@ interface TechnologyExperienceSectionProps {
 
 const techFeatures = [
   {
-    icon: <Smartphone className="w-8 h-8 text-emerald-400" />,
+    icon: Smartphone,
     title: 'Portal de Cliente PRO',
-    description: 'Firmá contratos digitalmente, pagá en cuotas, y armá el plano de mesas arrastrando invitados desde tu teléfono o tablet.',
-    cta: 'Demo del Portal',
+    description: 'Contratos, pagos, reuniones y plano de mesas en una vista clara para la familia.',
+    cta: 'Demo del portal',
     href: '/portal-cliente/demo',
   },
   {
-    icon: <Calculator className="w-8 h-8 text-amber-400" />,
-    title: 'Simulador Instantáneo',
-    description: 'Armá tu fiesta ideal y conocé el presupuesto en el momento. Jugá con opciones sin pedir cotizaciones lentas.',
-    cta: 'Probar Simulador',
+    icon: Calculator,
+    title: 'Simulador instantáneo',
+    description: 'Armá tu fiesta ideal y conocé una estimación profesional sin esperar una cotización.',
+    cta: 'Probar simulador',
     href: '/simulador-ak',
   },
   {
-    icon: <Bot className="w-8 h-8 text-indigo-400" />,
-    title: 'Bot IA por WhatsApp',
-    description: 'Nuestro asistente inteligente responde tus dudas 24/7 y se encarga de confirmar la asistencia de todos tus invitados.',
+    icon: Bot,
+    title: 'Asistencia inteligente',
+    description: 'Respuestas rápidas y seguimiento para resolver dudas durante la organización.',
   },
   {
-    icon: <CalendarDays className="w-8 h-8 text-blue-400" />,
-    title: 'Google Calendar Sync',
-    description: 'Las reuniones de planificación, degustaciones y el día del evento se sincronizan automáticamente en tu agenda.',
+    icon: CalendarDays,
+    title: 'Agenda sincronizada',
+    description: 'Reuniones, degustaciones y fechas importantes ordenadas en un mismo calendario.',
   },
   {
-    icon: <Ticket className="w-8 h-8 text-pink-400" />,
-    title: 'Invitaciones Digitales Inteligentes',
-    description: 'Enviá invitaciones con código QR, cronograma interactivo, dress code y cuenta regresiva integrados.',
+    icon: Ticket,
+    title: 'Invitaciones digitales',
+    description: 'Invitaciones con QR, confirmación, cronograma, dress code y cuenta regresiva.',
   },
   {
-    icon: <LayoutDashboard className="w-8 h-8 text-slate-400" />,
-    title: 'Panel del Organizador (Live)',
-    description: 'Nuestros coordinadores controlan tu fiesta con una tablet, monitoreando tiempos, mesas y personal en vivo.',
-  }
+    icon: LayoutDashboard,
+    title: 'Control del evento',
+    description: 'El equipo AK coordina tiempos, mesas, personal e incidencias desde una vista operativa.',
+  },
 ];
 
 export default function TechnologyExperienceSection({
   whatsappNumber = '59898355530',
 }: TechnologyExperienceSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    'Hola! Me interesa saber más sobre la tecnología incluida en las fiestas.'
+    '¡Hola! Me interesa saber más sobre la tecnología incluida en las fiestas.',
   )}`;
 
   return (
-    <section id="tecnologia" className="bg-slate-950 text-white py-24 relative overflow-hidden">
-      {/* Elementos decorativos */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        <div className="text-center mb-16">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-sm font-medium text-emerald-400 mb-6">
-            <Bot className="w-4 h-4" /> La revolución del evento inteligente
+    <section
+      id="tecnologia"
+      className="ak-deferred-section relative overflow-hidden border-y border-white/10 bg-zinc-950 py-20 text-white"
+    >
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 max-w-3xl">
+          <span className="mb-5 inline-flex items-center gap-2 border-l-2 border-red-500 pl-3 text-xs font-bold uppercase text-red-300">
+            <Bot className="h-4 w-4" />
+            Tecnología al servicio del evento
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-6 font-headline">
-            AK no es solo fiesta, <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-indigo-400">es tecnología para vos.</span>
+          <h2 className="mb-5 text-3xl font-black text-white sm:text-5xl font-headline">
+            Una organización más clara antes, durante y después.
           </h2>
-          <p className="max-w-2xl mx-auto text-slate-400 text-lg leading-relaxed">
-            Eliminamos el estrés de organizar. Tu evento incluye un ecosistema de software premium que conecta a tus invitados, organizadores y a vos en un solo lugar.
+          <p className="max-w-2xl text-lg leading-relaxed text-zinc-400">
+            Herramientas concretas para conectar a la familia, los invitados y el equipo AK sin agregar complejidad.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {techFeatures.map((feature, i) => (
-            <div key={i} className="group rounded-3xl border border-slate-800 bg-slate-900/50 p-8 hover:bg-slate-800/80 transition-all duration-300">
-              <div className="mb-6 p-4 rounded-2xl bg-slate-950 inline-block border border-slate-800 shadow-inner group-hover:scale-110 transition-transform">
-                {feature.icon}
+        <div className="mb-12 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-zinc-800 bg-zinc-800 md:grid-cols-2 lg:grid-cols-3">
+          {techFeatures.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.title}
+                className="group bg-zinc-950 p-7 transition-colors duration-200 hover:bg-zinc-900"
+              >
+                <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900">
+                  <Icon className="h-6 w-6 text-red-400" />
+                </div>
+                <h3 className="mb-3 text-lg font-bold text-white">{feature.title}</h3>
+                <p className="mb-5 text-sm leading-relaxed text-zinc-400">{feature.description}</p>
+
+                {feature.href && (
+                  <Link
+                    href={feature.href}
+                    className="inline-flex items-center text-sm font-bold text-red-300 transition-colors hover:text-white"
+                  >
+                    {feature.cta}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                )}
               </div>
-              <h3 className="text-xl font-bold text-white mb-3 tracking-tight">{feature.title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">{feature.description}</p>
-              
-              {feature.href && (
-                <Link href={feature.href} className="inline-flex items-center text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors">
-                  {feature.cta} <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="rounded-[2.5rem] bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&q=80')] opacity-5 bg-cover bg-center mix-blend-overlay"></div>
-          
-          <div className="max-w-xl relative z-10 text-center md:text-left">
-            <h3 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-tighter">Todo esto, incluido en tu contrato.</h3>
-            <p className="text-slate-400 text-lg">
-              No pagás licencias extra ni descargás apps raras. Te entregamos tu evento 100% digitalizado desde el día 1.
+        <div className="relative flex flex-col items-start justify-between gap-8 border-t border-zinc-800 py-8 md:flex-row md:items-center">
+          <div className="relative z-10 max-w-xl">
+            <h3 className="mb-3 text-2xl font-black text-white sm:text-3xl">
+              Tecnología incluida, sin costos escondidos.
+            </h3>
+            <p className="text-lg text-zinc-400">
+              No pagás licencias extra ni necesitás aplicaciones complicadas. Tu evento queda conectado desde el primer día.
             </p>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto relative z-10 shrink-0">
-            <Button asChild size="lg" className="w-full h-14 px-8 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-base shadow-[0_0_20px_rgba(16,185,129,0.3)]"><Link href="/simulador-ak" className="w-full sm:w-auto">
-                Probar Simulador
-              </Link></Button>
+
+          <div className="relative z-10 flex w-full shrink-0 flex-col gap-3 sm:flex-row md:w-auto">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 w-full rounded-lg bg-red-700 px-7 text-base font-black text-white hover:bg-red-600"
+            >
+              <Link href="/simulador-ak" className="w-full sm:w-auto">
+                Probar simulador
+              </Link>
+            </Button>
             <a href={waHref} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full h-14 px-8 rounded-2xl border-slate-700 bg-slate-800/50 hover:bg-slate-700 text-white font-bold text-base backdrop-blur-md">
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 w-full rounded-lg border-zinc-700 bg-transparent px-7 text-base font-bold text-white hover:bg-zinc-900 hover:text-white"
+              >
                 Consultar ahora
               </Button>
             </a>
           </div>
         </div>
-
       </div>
     </section>
   );
