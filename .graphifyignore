@@ -1,0 +1,28 @@
+# Ignore all documents, papers, images, and config formats in any subfolder
+*.md
+*.txt
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.ico
+*.json
+*.yaml
+*.yml
+*.gdoc
+*.gsheet
+*.gslides
+
+# Ignore next/node build artifacts and media directories
+.next/
+node_modules/
+public/media/
+out/
+dist/
+build/
+.git/
+.agents/
+graphify-out/

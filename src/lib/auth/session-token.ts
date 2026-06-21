@@ -81,8 +81,6 @@ export async function createSignedSessionToken(
 
 export async function verifySignedSessionToken(token?: string | null): Promise<{ isValid: boolean; user?: SessionUserData }> {
   if (!token) return { isValid: false };
-
-  // Support legacy 4-part tokens (v1.expiresAt.nonce.signature) for backward compatibility
   const parts = token.split('.');
   if (parts.length === 4) {
     const [version, expiresAtRaw, nonce, signature] = parts;

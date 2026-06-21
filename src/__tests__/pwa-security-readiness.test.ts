@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { getSessionMaxAgeSeconds, hasPrivateSessionSecret } from '@/lib/auth/session-token';
-import { isPublicPathPrefix } from '@/lib/auth/public-paths';
+import { isPublicPathPrefix, PUBLIC_EXACT_PATHS } from '@/lib/auth/public-paths';
 
 const ORIGINAL_ENV = process.env;
 
@@ -11,6 +11,7 @@ describe('PWA and practical security readiness', () => {
     delete process.env.AK_SESSION_SECRET;
     delete process.env.AUTH_SESSION_SECRET;
     delete process.env.SESSION_SECRET;
+    delete process.env.AUTH_SECRET;
     delete process.env.GOOGLE_API_KEY;
   });
 
@@ -23,6 +24,7 @@ describe('PWA and practical security readiness', () => {
     expect(isPublicPathPrefix('/evento/barra/fiesta-demo')).toBe(true);
     expect(isPublicPathPrefix('/evento/video-vida/fiesta-demo')).toBe(true);
     expect(isPublicPathPrefix('/eventos')).toBe(false);
+    expect(PUBLIC_EXACT_PATHS.has('/api/health')).toBe(true);
   });
 
   it('uses shorter sessions when no private secret is configured', () => {
