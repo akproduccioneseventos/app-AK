@@ -309,3 +309,33 @@ export function auditPresupuestoFinancialGuardrails(presupuesto: Presupuesto): F
 
   return issues;
 }
+
+export function parseCleanMoney(value: unknown): number {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === 'number') return Math.max(0, Math.round(value));
+  let str = String(value).trim();
+  // Strip currency symbols ($ or UYU or USD) and spaces
+  str = str.replace(/[$\s]|UYU|USD/gi, '');
+  if (!str) return 0;
+
+  // Now parse using rules similar to parseSafeNumber
+  if (str.includes(',')) {
+    // If it has commas, it might use dot as thousands and comma as decimal separator, e.g. 10.500,50 -> 10500.50
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else {
+    // If it has dots, it could be thousands separators (e.g. 10.000) or a decimal point (e.g. 10000.50)
+    const parts = str.split('.');
+    if (parts.length > 2) {
+      // Multiple dots must be thousands separators, e.g. 1.000.000
+      str = str.replace(/\./g, '');
+    } else if (parts.length === 2) {
+      if (parts[1].length === 3) {
+        str = str.replace(/\./g, '');
+      }
+    }
+  }
+
+  const parsed = parseFloat(str);
+  return isNaN(parsed) ? 0 : Math.max(0, Math.round(parsed));
+}
+
