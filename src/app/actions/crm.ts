@@ -383,11 +383,11 @@ export async function registerContractDeposit(params: {
     try {
       const invoice = await getInvoiceById(presupuesto.invoiceId);
       if (invoice) {
-        // Map MetodoPago to the narrower set accepted by Invoice.Payment.method
+        const metodoStr = newPago.metodoPago as string;
         const invoiceMethod: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro' =
-          (newPago.metodoPago === 'Transferencia Bancaria' || newPago.metodoPago === 'Transferencia') ? 'Transferencia'
-          : newPago.metodoPago === 'Tarjeta' ? 'Tarjeta'
-          : newPago.metodoPago === 'Efectivo' ? 'Efectivo'
+          (metodoStr === 'Transferencia Bancaria' || metodoStr === 'Transferencia') ? 'Transferencia'
+          : metodoStr === 'Tarjeta' ? 'Tarjeta'
+          : metodoStr === 'Efectivo' ? 'Efectivo'
           : 'Otro';
         const invoicePayment = {
           id: pagoId,
