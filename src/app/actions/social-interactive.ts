@@ -277,6 +277,17 @@ export async function getDedications(fiestaId: string): Promise<Dedication[]> {
   }
 }
 
+/**
+ * Guest-safe dedication reader. Private mailbox content must never be returned
+ * from a public event route, including when an organizer is signed in nearby.
+ */
+export async function getPublicDedications(fiestaId: string): Promise<Dedication[]> {
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta || fiesta.socialGallerySettings?.privateDedicationsMode === true) return [];
+  const dedications = await getDedications(fiestaId);
+  return dedications.filter((dedication) => dedication.visibility !== 'private');
+}
+
 export async function addDedication(
   fiestaId: string,
   message: string,

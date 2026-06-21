@@ -4,7 +4,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Download, Gamepad2, GripVertical, Loader2, MinusCircle, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -281,6 +281,7 @@ function MuroSocialContent() {
   // Download + clear state
   const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
   const [isClearingOnly, setIsClearingOnly] = useState(false);
+  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -983,6 +984,61 @@ function MuroSocialContent() {
         </div>
       </div>
 
+      <section className="rounded-lg border bg-background p-4 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-bold">Control rápido</p>
+            <p className="text-xs text-muted-foreground">
+              Administrá lo esencial del evento sin abrir todos los paneles.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link href={`/evento/social/${fiestaId}`} target="_blank">
+                <Eye className="mr-2 h-4 w-4" />
+                Vista de invitados
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank">
+                <MonitorPlay className="mr-2 h-4 w-4" />
+                Pantalla en vivo
+              </Link>
+            </Button>
+            <Button
+              variant={settings.enabled ? 'outline' : 'default'}
+              onClick={() => handleToggleSetting('enabled', !settings.enabled)}
+            >
+              <span className={`mr-2 h-2 w-2 rounded-full ${settings.enabled ? 'bg-emerald-500' : 'bg-white'}`} />
+              {settings.enabled ? 'Muro activo' : 'Activar muro'}
+            </Button>
+            <Button variant="secondary" onClick={() => setShowAdvancedPanel((current) => !current)}>
+              <Settings2 className="mr-2 h-4 w-4" />
+              {showAdvancedPanel ? 'Cerrar configuración' : 'Configuración avanzada'}
+            </Button>
+          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-4 text-sm md:grid-cols-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Publicaciones</p>
+            <p className="font-bold">{postCount ?? '...'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Invitados pueden subir</p>
+            <p className="font-bold">{settings.uploadsActive ? 'Sí' : 'No'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Pantalla</p>
+            <p className="font-bold">{settings.screenMode?.isPlaying ? 'Reproduciendo' : 'Pausada'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Juego activo</p>
+            <p className="truncate font-bold">{activeGame?.title || 'Ninguno'}</p>
+          </div>
+        </div>
+      </section>
+
+      {showAdvancedPanel && (
       <div className="grid lg:grid-cols-2 gap-4">
         {/* Admin status panel */}
         <Card className="lg:col-span-2 bg-muted/40">
@@ -2299,6 +2355,7 @@ function MuroSocialContent() {
           </CardContent>
         </Card>
       </div>
+      )}
     </div>
   );
 }
