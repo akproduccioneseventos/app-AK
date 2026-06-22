@@ -4,30 +4,23 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, Instagram, Facebook } from 'lucide-react';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import { getSocialPosts } from '@/app/actions/social-gallery';
-import { getSocialConnections } from '@/app/actions/social-connections';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import type { SocialConnection } from '@/types/settings';
+import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 
 export default function EventoHubPage() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
   
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [connections, setConnections] = useState<SocialConnection[]>([]);
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [stats, setStats] = useState({ photos: 0, likes: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [fData, cData] = await Promise.all([
-          getFiestaById(fiestaId),
-          getSocialConnections().catch(() => [])
-        ]);
-        setFiesta(fData);
-        setConnections(cData);
+        const result = await getPublicEntertainmentEvent(fiestaId, 'fotocabina');
+        setFiesta(result.success ? result.event || null : null);
       } catch (err) {
         console.error(err);
       } finally {
@@ -66,11 +59,11 @@ export default function EventoHubPage() {
     );
   }
 
-  const coverImage = fiesta.invitacionConfig?.fotoPortada || fiesta.guestPortalSettings?.coverImageUrl;
-  const eventName = fiesta.configuracion?.nombreEvento || 'Fiesta Privada';
+  const coverImage = fiesta.coverImageUrl;
+  const eventName = fiesta.eventName || 'Fiesta Privada';
   
-  const instagramUrl = connections.find(c => c.platform === 'Instagram')?.profileUrl || fiesta.guestExperienceSettings?.instagramUrl;
-  const facebookUrl = connections.find(c => c.platform === 'Facebook')?.profileUrl || fiesta.guestExperienceSettings?.facebookUrl;
+  const instagramUrl = fiesta.socialLinks.instagram;
+  const facebookUrl = fiesta.socialLinks.facebook;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-purple-500/30">
@@ -169,7 +162,7 @@ export default function EventoHubPage() {
             </div>
           </Link>
 
-          {fiesta.guestPortalSettings?.showBuzon !== false && (
+          {fiesta.showBuzon && (
             <Link href={`/evento/buzon/${fiestaId}`} className="group relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between aspect-square bg-gradient-to-br from-violet-600 to-fuchsia-600 shadow-xl hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(139,92,246,0.3)] transition-all duration-300">
               <div className="relative z-10">
                 <span className="text-5xl drop-shadow-md group-hover:scale-110 transition-transform duration-300">🎙️</span>

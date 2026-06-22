@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera,
@@ -20,10 +20,19 @@ import {
   Palette,
   ArrowRight,
   Sparkle,
+  Radio,
+  Zap,
 } from 'lucide-react';
 import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getEntertainmentSession,
+  resetEntertainmentSession,
+  startEntertainmentSession,
+  updateEntertainmentSessionStatus,
+  type EntertainmentSession,
+} from '@/app/actions/fiesta/sesion-entretenimiento';
+import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
@@ -59,13 +68,16 @@ async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
 export default function TouchpixPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
+  const role = searchParams.get('role') || 'display';
+  const accessToken = searchParams.get('access') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processingCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
 
@@ -92,8 +104,10 @@ export default function TouchpixPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [session, setSession] = useState<EntertainmentSession | null>(null);
+  const [consentAccepted, setConsentAccepted] = useState(false);
 
-  const eventName = fiesta?.configuracion?.nombreEvento || 'este gran evento';
+  const eventName = fiesta?.eventName || 'este gran evento';
   
   const triviaList = [
     `¿Sabías que ${eventName} fue planeado detalladamente para sorprenderte?`,
@@ -115,7 +129,9 @@ export default function TouchpixPage() {
 
   /* ── Load fiesta data ── */
   useEffect(() => {
-    getFiestaById(fiestaId).then(f => setFiesta(f)).catch(() => {});
+    getPublicEntertainmentEvent(fiestaId, 'espejoMagicoIA')
+      .then((result) => setFiesta(result.success ? result.event || null : null))
+      .catch(() => {});
     return () => { stopCamera(); };
   }, [fiestaId]);
 
@@ -164,7 +180,7 @@ export default function TouchpixPage() {
 
   /* ── Watermark ── */
   const drawWatermark = useCallback((ctx: CanvasRenderingContext2D, w: number, h: number) => {
-    const rawDate = fiesta?.configuracion?.fechaEvento;
+    const rawDate = fiesta?.eventDate;
     let eventDateStr = '';
     if (rawDate) {
       try {
@@ -290,6 +306,13 @@ export default function TouchpixPage() {
   const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();
     if (!raw) return;
+    await updateEntertainmentSessionStatus(
+      fiestaId,
+      'espejoMagicoIA',
+      'recording',
+      {},
+      accessToken
+    );
     setRawCapturedImage(raw);
     setProcessingResult(null);
     stopCamera();
@@ -310,10 +333,18 @@ export default function TouchpixPage() {
       if (!character) return;
       setIsProcessing(true);
       setProcessingText('Generando transformación con IA...');
+      await updateEntertainmentSessionStatus(
+        fiestaId,
+        'espejoMagicoIA',
+        'processing',
+        {},
+        accessToken
+      );
 
       try {
         const formData = new FormData();
         formData.set('fiestaId', fiestaId);
+        if (accessToken) formData.set('accessToken', accessToken);
         formData.set('characterId', character.id);
         formData.set('sourceFile', await dataUrlToFile(raw, `touchpix-source-${Date.now()}.jpg`));
         const result = await applyFaceSwap(formData);
@@ -345,11 +376,18 @@ export default function TouchpixPage() {
     } else if (activeTab === 'ai_themes') {
       setCapturedImage(raw);
     }
-  }, [captureRawPhoto, stopCamera, activeTab, selectedTheme, selectedCharacter, applyFilterToCanvas, fiestaId]);
+  }, [captureRawPhoto, stopCamera, activeTab, selectedTheme, selectedCharacter, applyFilterToCanvas, fiestaId, accessToken]);
 
   const takePhoto = useCallback(() => {
     if (countdown !== null) return;
-    let currentCount = 3;
+    updateEntertainmentSessionStatus(
+      fiestaId,
+      'espejoMagicoIA',
+      'countdown',
+      {},
+      accessToken
+    );
+    let currentCount = fiesta?.station.countdownSeconds || 4;
     setCountdown(currentCount);
     playBeep();
 
@@ -365,7 +403,78 @@ export default function TouchpixPage() {
         handleCapture();
       }
     }, 1000);
-  }, [countdown, playBeep, handleCapture]);
+  }, [countdown, playBeep, handleCapture, fiestaId, accessToken, fiesta]);
+
+  useEffect(() => {
+    let pollInFlight = false;
+    const interval = setInterval(async () => {
+      if (pollInFlight) return;
+      pollInFlight = true;
+      try {
+        const nextSession = await getEntertainmentSession(fiestaId, 'espejoMagicoIA');
+        setSession(nextSession);
+
+        if (
+          role === 'display' &&
+          nextSession?.status === 'countdown' &&
+          countdown === null &&
+          !capturedImage &&
+          !isProcessing
+        ) {
+          const requestedMode = nextSession.settings?.mode as TabMode | undefined;
+          if (requestedMode && requestedMode !== activeTab) {
+            setActiveTab(requestedMode);
+            return;
+          }
+          if (nextSession.settings?.characterId) {
+            if (nextSession.settings.characterId !== selectedCharacter) {
+              setSelectedCharacter(nextSession.settings.characterId);
+              return;
+            }
+          }
+          if (nextSession.settings?.themeId) {
+            if (nextSession.settings.themeId !== selectedAiTheme) {
+              setSelectedAiTheme(nextSession.settings.themeId);
+              return;
+            }
+          }
+          setWizardStep(0);
+          takePhoto();
+        }
+
+        if (role === 'display' && nextSession?.status === 'idle' && capturedImage) {
+          setCapturedImage(null);
+          setRawCapturedImage(null);
+          setProcessingResult(null);
+          setWizardStep(0);
+        }
+      } finally {
+        pollInFlight = false;
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [
+    activeTab,
+    capturedImage,
+    countdown,
+    fiestaId,
+    isProcessing,
+    role,
+    selectedAiTheme,
+    selectedCharacter,
+    takePhoto,
+  ]);
+
+  useEffect(() => {
+    if (!capturedImage || isProcessing) return;
+    updateEntertainmentSessionStatus(
+      fiestaId,
+      'espejoMagicoIA',
+      'done',
+      { reviewPending: true },
+      accessToken
+    );
+  }, [accessToken, capturedImage, fiestaId, isProcessing]);
 
   /* ── AI Themes: apply after capture ── */
   const applyAiTheme = useCallback(async (themeId: string) => {
@@ -381,6 +490,7 @@ export default function TouchpixPage() {
     try {
       const formData = new FormData();
       formData.set('fiestaId', fiestaId);
+      if (accessToken) formData.set('accessToken', accessToken);
       formData.set('themeId', themeId);
       formData.set('file', await dataUrlToFile(rawCapturedImage, `touchpix-theme-${Date.now()}.jpg`));
       const result = await applyTouchpixTheme(formData);
@@ -404,7 +514,7 @@ export default function TouchpixPage() {
       setProcessingResult('fallback');
       setIsProcessing(false);
     });
-  }, [rawCapturedImage, applyFilterToCanvas, fiestaId]);
+  }, [rawCapturedImage, applyFilterToCanvas, fiestaId, accessToken]);
 
   /* ── Download ── */
   const handleDownload = useCallback(() => {
@@ -425,6 +535,7 @@ export default function TouchpixPage() {
       const file = await dataUrlToFile(capturedImage, `touchpix-${Date.now()}.jpg`);
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
+      if (accessToken) formData.append('accessToken', accessToken);
       formData.append('file', file);
       formData.append('authorName', 'Cabina Touchpix');
       if (activeTab === 'ai_themes') {
@@ -436,6 +547,13 @@ export default function TouchpixPage() {
 
       const res = await uploadTouchpixPhoto(formData);
       if (res.success) {
+        await updateEntertainmentSessionStatus(
+          fiestaId,
+          'espejoMagicoIA',
+          'done',
+          { mediaUrl: res.post?.imageUrl, reviewPending: false },
+          accessToken
+        );
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
@@ -449,7 +567,7 @@ export default function TouchpixPage() {
     } finally {
       setIsUploading(false);
     }
-  }, [capturedImage, fiestaId, activeTab, selectedAiTheme, selectedCharacter]);
+  }, [capturedImage, fiestaId, activeTab, selectedAiTheme, selectedCharacter, accessToken]);
 
   /* ── Retake ── */
   const retake = useCallback(() => {
@@ -458,8 +576,10 @@ export default function TouchpixPage() {
     setIsProcessing(false);
     setProcessingResult(null);
     setWizardStep(0);
+    setConsentAccepted(false);
+    resetEntertainmentSession(fiestaId, 'espejoMagicoIA', accessToken);
     startCamera();
-  }, [startCamera]);
+  }, [accessToken, fiestaId, startCamera]);
 
   /* ── Get current CSS filter for live preview ── */
   const getLiveFilter = (): string => {
@@ -535,6 +655,146 @@ export default function TouchpixPage() {
   const isReviewMode = capturedImage !== null && !(activeTab === 'ai_themes' && !isProcessing && rawCapturedImage && capturedImage === rawCapturedImage);
   const isAiThemeSelection = activeTab === 'ai_themes' && capturedImage === rawCapturedImage && !isProcessing && rawCapturedImage !== null;
 
+  if (role === 'operator') {
+    const displayHref = `/evento/touchpix/${fiestaId}${accessToken ? `?access=${encodeURIComponent(accessToken)}` : ''}`;
+    return (
+      <div className="min-h-screen bg-zinc-950 px-4 py-6 text-white">
+        <div className="mx-auto max-w-2xl space-y-6">
+          <header className="flex items-center justify-between border-b border-zinc-800 pb-4">
+            <button
+              onClick={() => router.push(`/fiestas/nueva/entretenimiento?fiestaId=${fiestaId}`)}
+              className="p-2 text-zinc-400 hover:text-white"
+              title="Volver"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="text-center">
+              <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-400">Operador IA</p>
+              <h1 className="text-lg font-black">{fiesta?.eventName || 'Fotocabina IA'}</h1>
+            </div>
+            <a
+              href={displayHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-zinc-400 hover:text-white"
+              title="Abrir pantalla de invitado"
+            >
+              <QrCode className="h-5 w-5" />
+            </a>
+          </header>
+
+          <section className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Estado</p>
+              <p className="mt-2 flex items-center gap-2 text-sm font-black capitalize">
+                <Radio className={`h-4 w-4 ${session?.status && session.status !== 'idle' ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                {session?.status || 'sin conectar'}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Responsable</p>
+              <p className="mt-2 text-sm font-black">{fiesta?.station.operatorName || 'Sin asignar'}</p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Ubicacion</p>
+              <p className="mt-2 text-sm font-black">{fiesta?.station.location || 'Salon'}</p>
+            </div>
+          </section>
+
+          <section className="space-y-4 border-t border-zinc-800 pt-5">
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">Experiencia</p>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  ['faceswap', 'Face Swap'],
+                  ['ai_themes', 'Tema artistico'],
+                ] as const).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    onClick={() => setActiveTab(mode)}
+                    className={`h-11 rounded-lg border text-xs font-black ${
+                      activeTab === mode
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-300'
+                        : 'border-zinc-800 bg-zinc-900 text-zinc-400'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {activeTab === 'faceswap' ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {FACE_SWAP_CHARACTERS.map((character) => (
+                  <button
+                    key={character.id}
+                    onClick={() => setSelectedCharacter(character.id)}
+                    className={`rounded-lg border p-3 text-left ${
+                      selectedCharacter === character.id
+                        ? 'border-fuchsia-500 bg-fuchsia-500/10'
+                        : 'border-zinc-800 bg-zinc-900'
+                    }`}
+                  >
+                    <span className="text-xl">{character.emoji}</span>
+                    <p className="mt-1 text-xs font-black">{character.label}</p>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {TOUCHPIX_THEMES.filter((theme) => theme.id !== 'original').map((theme) => (
+                  <button
+                    key={theme.id}
+                    onClick={() => setSelectedAiTheme(theme.id)}
+                    className={`rounded-lg border p-3 text-left ${
+                      selectedAiTheme === theme.id
+                        ? 'border-purple-500 bg-purple-500/10'
+                        : 'border-zinc-800 bg-zinc-900'
+                    }`}
+                  >
+                    <span className="text-xl">{theme.emoji}</span>
+                    <p className="mt-1 text-xs font-black">{theme.label}</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <button
+              onClick={() =>
+                startEntertainmentSession(
+                  fiestaId,
+                  'espejoMagicoIA',
+                  {
+                    mode: activeTab,
+                    characterId: selectedCharacter,
+                    themeId: selectedAiTheme,
+                    operatorName: fiesta?.station.operatorName,
+                  },
+                  accessToken
+                )
+              }
+              disabled={Boolean(session?.status && !['idle', 'done'].includes(session.status))}
+              className="flex h-16 items-center justify-center gap-2 rounded-lg bg-fuchsia-600 text-base font-black hover:bg-fuchsia-500 disabled:opacity-50"
+            >
+              <Zap className="h-5 w-5" />
+              Iniciar captura
+            </button>
+            <button
+              onClick={() => resetEntertainmentSession(fiestaId, 'espejoMagicoIA', accessToken)}
+              className="flex h-16 items-center justify-center gap-2 rounded-lg border border-zinc-700 px-6 font-bold text-zinc-300 hover:bg-zinc-900"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Reiniciar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none">
       <canvas ref={canvasRef} className="hidden" />
@@ -559,7 +819,7 @@ export default function TouchpixPage() {
             <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
           </div>
           {fiesta && (
-            <p className="text-[10px] text-zinc-500 font-semibold tracking-widest uppercase mt-0.5 truncate">{fiesta.configuracion?.nombreEvento}</p>
+            <p className="text-[10px] text-zinc-500 font-semibold tracking-widest uppercase mt-0.5 truncate">{fiesta.eventName}</p>
           )}
         </div>
 
@@ -696,6 +956,20 @@ export default function TouchpixPage() {
                       </div>
                     )}
 
+                    {activeTab === 'faceswap' && fiesta?.station.consentRequired && (
+                      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4 text-left">
+                        <input
+                          type="checkbox"
+                          checked={consentAccepted}
+                          onChange={(event) => setConsentAccepted(event.target.checked)}
+                          className="mt-0.5 h-4 w-4 accent-fuchsia-500"
+                        />
+                        <span className="text-xs leading-relaxed text-zinc-300">
+                          Acepto que mi foto se procese temporalmente con IA para crear este recuerdo.
+                        </span>
+                      </label>
+                    )}
+
                     <div className="flex gap-3 pt-4">
                       <button
                         onClick={() => setWizardStep(1)}
@@ -705,7 +979,8 @@ export default function TouchpixPage() {
                       </button>
                       <button
                         onClick={() => setWizardStep(0)}
-                        className="flex-1 py-3 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-1.5"
+                        disabled={activeTab === 'faceswap' && fiesta?.station.consentRequired && !consentAccepted}
+                        className="flex-1 py-3 bg-fuchsia-600 hover:bg-fuchsia-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-1.5"
                       >
                         <Camera className="w-4 h-4" /> Abrir Cámara
                       </button>

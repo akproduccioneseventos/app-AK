@@ -1,6 +1,8 @@
 'use server';
 
 import { Firestore } from 'firebase-admin/firestore';
+import { hasEntertainmentControlAccess } from '@/lib/auth/entertainment-token';
+import { isEntertainmentModuleId } from '@/lib/entertainment/station-config';
 
 const SESIONES_COLLECTION = 'entretenimiento_sesiones';
 
@@ -30,6 +32,7 @@ export async function getEntertainmentSession(
   moduleId: string
 ): Promise<EntertainmentSession | null> {
   try {
+    if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) return null;
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     const snap = await db.collection(SESIONES_COLLECTION).doc(docId).get();
@@ -44,9 +47,16 @@ export async function getEntertainmentSession(
 export async function startEntertainmentSession(
   fiestaId: string,
   moduleId: string,
-  settings: any = {}
+  settings: any = {},
+  accessToken?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
+      return { success: false, error: 'Modulo de entretenimiento no valido.' };
+    }
+    if (!(await hasEntertainmentControlAccess(fiestaId, moduleId, accessToken))) {
+      return { success: false, error: 'Acceso de operador no autorizado.' };
+    }
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     const sessionData: EntertainmentSession = {
@@ -69,9 +79,16 @@ export async function updateEntertainmentSessionStatus(
   fiestaId: string,
   moduleId: string,
   status: EntertainmentSession['status'],
-  extraData: any = {}
+  extraData: any = {},
+  accessToken?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
+      return { success: false, error: 'Modulo de entretenimiento no valido.' };
+    }
+    if (!(await hasEntertainmentControlAccess(fiestaId, moduleId, accessToken))) {
+      return { success: false, error: 'Acceso de operador no autorizado.' };
+    }
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     const updates: Partial<EntertainmentSession> = {
@@ -79,7 +96,15 @@ export async function updateEntertainmentSessionStatus(
       lastUpdated: new Date().toISOString(),
       ...extraData,
     };
-    await db.collection(SESIONES_COLLECTION).doc(docId).update(updates);
+    await db.collection(SESIONES_COLLECTION).doc(docId).set(
+      {
+        fiestaId,
+        moduleId,
+        timestamp: new Date().toISOString(),
+        ...updates,
+      },
+      { merge: true }
+    );
     return { success: true };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en updateEntertainmentSessionStatus:`, e);
@@ -89,9 +114,16 @@ export async function updateEntertainmentSessionStatus(
 
 export async function resetEntertainmentSession(
   fiestaId: string,
-  moduleId: string
+  moduleId: string,
+  accessToken?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
+      return { success: false, error: 'Modulo de entretenimiento no valido.' };
+    }
+    if (!(await hasEntertainmentControlAccess(fiestaId, moduleId, accessToken))) {
+      return { success: false, error: 'Acceso de operador no autorizado.' };
+    }
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     await db.collection(SESIONES_COLLECTION).doc(docId).set({

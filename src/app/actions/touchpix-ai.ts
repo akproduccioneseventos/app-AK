@@ -16,7 +16,7 @@
 import { ai } from '@/ai/genkit';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { hasEntertainmentControlAccess } from '@/lib/auth/entertainment-token';
 import * as logger from '@/lib/logger';
 
 // ──────────────────── Theme Definitions ────────────────────
@@ -137,8 +137,13 @@ const TOUCHPIX_AI_TIMEOUT_MS = 60_000;
 export const TOUCHPIX_IMAGE_MODEL =
   process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
 
-async function ensureTouchpixAccess(fiestaId: string): Promise<void> {
-  await requireAppSession();
+async function ensureTouchpixAccess(fiestaId: string, accessToken?: string): Promise<void> {
+  const authorized = await hasEntertainmentControlAccess(
+    fiestaId,
+    'espejoMagicoIA',
+    accessToken
+  );
+  if (!authorized) throw new Error('Acceso de cabina IA no autorizado.');
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) throw new Error('Evento no encontrado.');
 }
@@ -299,6 +304,7 @@ export async function applyTouchpixTheme(
 ): Promise<ApplyThemeResult> {
   const themeId = formData.get('themeId') as string;
   const fiestaId = formData.get('fiestaId') as string;
+  const accessToken = formData.get('accessToken') as string | null;
   const file = formData.get('file') as File | null;
 
   // ── Validate inputs ──
@@ -307,7 +313,7 @@ export async function applyTouchpixTheme(
   }
 
   try {
-    await ensureTouchpixAccess(fiestaId);
+    await ensureTouchpixAccess(fiestaId, accessToken || undefined);
   } catch (error: any) {
     return { success: false, error: error.message || 'Sesion no autorizada.' };
   }
@@ -413,6 +419,7 @@ export async function applyFaceSwap(
   formData: FormData
 ): Promise<FaceSwapResult> {
   const fiestaId = formData.get('fiestaId') as string;
+  const accessToken = formData.get('accessToken') as string | null;
   const characterId = formData.get('characterId') as string | null;
   const sourceFile = formData.get('sourceFile') as File | null;
   const targetFile = formData.get('targetFile') as File | null;
@@ -423,7 +430,7 @@ export async function applyFaceSwap(
   }
 
   try {
-    await ensureTouchpixAccess(fiestaId);
+    await ensureTouchpixAccess(fiestaId, accessToken || undefined);
   } catch (error: any) {
     return { success: false, error: error.message || 'Sesion no autorizada.' };
   }
@@ -577,6 +584,7 @@ export async function uploadTouchpixPhoto(
   formData: FormData
 ): Promise<UploadTouchpixResult> {
   const fiestaId = formData.get('fiestaId') as string;
+  const accessToken = formData.get('accessToken') as string | null;
   const authorName = (formData.get('authorName') as string) || 'Cabina Touchpix';
   const file = formData.get('file') as File | null;
   const themeLabel = (formData.get('themeLabel') as string) || undefined;
@@ -587,7 +595,7 @@ export async function uploadTouchpixPhoto(
   }
 
   try {
-    await ensureTouchpixAccess(fiestaId);
+    await ensureTouchpixAccess(fiestaId, accessToken || undefined);
   } catch (error: any) {
     return { success: false, error: error.message || 'Sesion no autorizada.' };
   }
@@ -603,7 +611,7 @@ export async function uploadTouchpixPhoto(
     socialFormData.set('authorName', authorName);
     socialFormData.set('momentTag', 'touchpix');
     socialFormData.set('source', 'entertainment');
-    socialFormData.set('sourceModule', 'touchpix');
+    socialFormData.set('sourceModule', 'espejoMagicoIA');
 
     // Compose a dedication describing the transformation.
     const parts: string[] = ['📸 Touchpix AI'];
