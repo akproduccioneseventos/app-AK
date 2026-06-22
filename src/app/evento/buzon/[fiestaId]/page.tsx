@@ -612,7 +612,8 @@ export default function GuestBuzonPage() {
     formData.append('authorName', trimmedName);
 
     if (activeTab === 'audio' && audioBlob) {
-      formData.append('file', audioBlob, 'saludo_voz.webm');
+      const audioFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
+      formData.append('file', audioBlob, audioFileName);
       formData.append('mediaType', 'audio');
       formData.append('durationSeconds', recordingSeconds.toString());
     } else if (activeTab === 'video' && videoFile) {
@@ -637,7 +638,7 @@ export default function GuestBuzonPage() {
         resetVideoUpload();
         toast({
           title: '¡Mensaje guardado!',
-          description: 'Tu saludo se ha guardado en la Cápsula del Tiempo.',
+          description: 'Tu saludo se ha guardado en el Buzón de Recuerdos.',
         });
         setTimeout(() => {
           setShowCelebration(false);
@@ -664,7 +665,7 @@ export default function GuestBuzonPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3">
         <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
-        <p className="text-sm text-zinc-400">Cargando Cápsula del Tiempo...</p>
+        <p className="text-sm text-zinc-400">Cargando Buzón de Recuerdos...</p>
       </div>
     );
   }
@@ -750,7 +751,7 @@ export default function GuestBuzonPage() {
               activeTab === 'audio' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Mic className="w-4 h-4" /> Voz Retro
+            <Mic className="w-4 h-4" /> Audio
           </button>
           <button
             onClick={() => { resetAudioRecording(); resetVideoUpload(); setActiveTab('video'); }}
@@ -758,7 +759,7 @@ export default function GuestBuzonPage() {
               activeTab === 'video' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Video className="w-4 h-4" /> Video VHS
+            <Video className="w-4 h-4" /> Video
           </button>
         </div>
 
