@@ -355,14 +355,76 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     await selectPresetCover(customCoverUrl.trim());
   };
 
+  const [isSavingColor, setIsSavingColor] = useState(false);
+  const selectColorTheme = async (color: string) => {
+    setCoverNotice(null);
+    setIsSavingColor(true);
+    try {
+      const result = await updateClientePortalExperience(fiesta.id, { primaryColor: color });
+      if (result.success) {
+        setCoverNotice({ type: 'success', text: 'Color de tema actualizado.' });
+        window.location.reload();
+      } else {
+        setCoverNotice({ type: 'error', text: result.error || 'No se pudo guardar el color.' });
+      }
+    } catch {
+      setCoverNotice({ type: 'error', text: 'Error de conexión.' });
+    } finally {
+      setIsSavingColor(false);
+    }
+  };
+
+  const compressImageToDataUrl = (file: File, maxDimension: number, quality: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(img.src);
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context could not be created'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = (err) => reject(err);
+    });
+  };
+
   const handleCoverUpload = async (file?: File) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result as string;
+    if (file.size > 4 * 1024 * 1024) {
+      setCoverNotice({ type: 'error', text: 'La imagen debe pesar menos de 4 MB.' });
+      return;
+    }
+    setCoverNotice(null);
+    setIsSavingCover(true);
+    try {
+      const base64 = await compressImageToDataUrl(file, 1600, 0.75);
       await selectPresetCover(base64);
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Failed to compress cover image:', err);
+      setCoverNotice({ type: 'error', text: 'Error al procesar la imagen.' });
+      setIsSavingCover(false);
+    }
   };
 
   useEffect(() => {
@@ -428,7 +490,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       const diffTime = dueDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       const formattedDue = formatShortDate(nextPending.fechaVencimiento);
-      const amount = nextPending.montoMinimo - (nextPending.montoAcumulado ?? 0);
+      const amount = nextPending.esCuotaClave
+        ? Math.max(0, (nextPending.montoObjetivo ?? (fiesta?.contratoDatos?.planPagos?.montoObjetivo30Porciento ?? 0)) - paymentSummary.paid)
+        : Math.max(0, nextPending.montoMinimo - (nextPending.montoAcumulado ?? 0));
 
       return {
         text: `Próximo pago: cuota de ${formatPortalMoney(amount)} vence el ${formattedDue}`,
@@ -559,6 +623,12 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     : (fiesta?.contratoServicioTexto || contractDocuments.length > 0 ? 'cargado' : 'pendiente');
 
   const lineItems = presupuesto?.itemsPresupuestados ?? [];
+  const itemsPorCategoria = lineItems.reduce((acc: Record<string, any[]>, item: any) => {
+    const cat = item.categoriaServicio || 'Otros servicios';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(item);
+    return acc;
+  }, {});
   const cuentasBancarias = settings?.cuentasBancarias ?? [];
   const listaMusica = fiesta?.listaMusicaPortal ?? {};
   const [localMusicSuggestions, setLocalMusicSuggestions] = useState<string[]>([]);
@@ -764,7 +834,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         className="ak-public-hero text-white relative"
         style={{
           background: heroImage
-            ? `linear-gradient(90deg, rgba(15, 23, 42, .86), rgba(15, 23, 42, .34)), url(${heroImage}) center/cover`
+            ? `linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, ${eventColor}55 100%), url(${heroImage}) center/cover`
             : `linear-gradient(135deg, ${eventColor}, #111827)`,
         }}
       >
@@ -1140,11 +1210,45 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="mb-3 flex items-center gap-3"><IconBlock icon={Receipt} color={eventColor} /><div><p className="font-black">Lo contratado</p><InfoBadge>Solo información</InfoBadge></div></div>
-                {lineItems.length === 0 ? <EmptyLine text="No hay servicios cargados en el presupuesto." /> : (
-                  <div className="grid gap-2 lg:grid-cols-2">
-                    {lineItems.slice(0, 12).map((item: any, index: number) => <div key={`${item.idServicioCatalogo}-${index}`} className="rounded-lg bg-slate-50 p-3 text-sm"><p className="font-semibold text-slate-900">{item.nombreServicio}</p><p className="text-slate-500">Cantidad: {item.cantidad ?? 1}{item.unidad ? ` ${item.unidad}` : ''}</p></div>)}
+                <div className="mb-3 flex items-center gap-3">
+                  <IconBlock icon={Receipt} color={eventColor} />
+                  <div>
+                    <p className="font-black">Lo contratado</p>
+                    <InfoBadge>Solo información</InfoBadge>
                   </div>
+                </div>
+                {lineItems.length === 0 ? (
+                  <EmptyLine text="No hay servicios cargados en el presupuesto." />
+                ) : (
+                  <Accordion type="single" collapsible className="w-full space-y-2">
+                    {Object.entries(itemsPorCategoria).map(([categoria, items]: [string, any], catIdx) => (
+                      <AccordionItem
+                        key={categoria}
+                        value={`cat-${catIdx}`}
+                        className="border rounded-xl bg-slate-50/50 overflow-hidden"
+                      >
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-100/50 text-slate-800 text-sm font-bold">
+                          <span>{categoria} ({items.length})</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-3 pt-1 bg-white border-t space-y-2">
+                          <div className="grid gap-2 sm:grid-cols-2 pt-2">
+                            {items.map((item: any, idx: number) => (
+                              <div
+                                key={`${item.idServicioCatalogo}-${idx}`}
+                                className="rounded-lg bg-slate-50 p-2.5 text-xs border border-slate-100"
+                              >
+                                <p className="font-semibold text-slate-800">{item.nombreServicio}</p>
+                                <p className="text-slate-500 mt-0.5 animate-none">
+                                  Cantidad: {item.cantidad ?? 1}
+                                  {item.unidad ? ` ${item.unidad}` : ''}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
                 )}
               </div>
 
@@ -1268,7 +1372,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                         className="absolute inset-0 bg-cover bg-center transition-transform group-hover:scale-105"
                         style={{
                           background: preset.url
-                            ? `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.6)), url(${preset.url}) center/cover`
+                            ? `linear-gradient(rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.5)), url(${preset.url}) center/cover`
                             : `linear-gradient(135deg, ${eventColor}, #111827)`,
                         }}
                       />
@@ -1324,6 +1428,41 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   >
                     Guardar URL
                   </Button>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Color de Acento del Portal</p>
+                <div className="flex flex-wrap gap-2.5 items-center">
+                  {[
+                    { name: 'Dorado / Oro', color: '#d97706' },
+                    { name: 'Esmeralda', color: '#0d9488' },
+                    { name: 'Violeta / Lavanda', color: '#7c3aed' },
+                    { name: 'Rosa / Fucsia', color: '#db2777' },
+                    { name: 'Azul Marino', color: '#2563eb' },
+                    { name: 'Pizarra / Gris', color: '#475569' },
+                  ].map(preset => (
+                    <button
+                      key={preset.color}
+                      type="button"
+                      disabled={isSavingColor}
+                      onClick={() => selectColorTheme(preset.color)}
+                      className={`w-7 h-7 rounded-full border-2 transition-all hover:scale-110 ${eventColor.toLowerCase() === preset.color.toLowerCase() ? 'border-slate-800 scale-105 shadow-md' : 'border-white shadow-sm'}`}
+                      style={{ backgroundColor: preset.color }}
+                      title={preset.name}
+                    />
+                  ))}
+                  <div className="h-6 w-[1px] bg-slate-200 mx-1" />
+                  <label className="relative cursor-pointer flex items-center justify-center w-7 h-7 rounded-full border-2 border-white shadow-sm hover:scale-110 overflow-hidden" title="Elegir otro color">
+                    <input
+                      type="color"
+                      disabled={isSavingColor}
+                      value={eventColor}
+                      onChange={e => selectColorTheme(e.target.value)}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                    />
+                    <Palette className="w-4 h-4 text-slate-500" />
+                  </label>
                 </div>
               </div>
 

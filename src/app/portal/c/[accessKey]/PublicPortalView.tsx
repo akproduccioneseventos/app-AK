@@ -1089,8 +1089,8 @@ export default function PublicPortalView({
                         <p className="text-[10px] font-black uppercase text-blue-500 tracking-wider">Próximo pago</p>
                         <p className="text-sm font-bold text-blue-800 mt-0.5">
                           {proximaCuota.esCuotaClave
-                            ? formatMoney(proximaCuota.montoObjetivo ?? plan.montoObjetivo30Porciento)
-                            : `mín. ${formatMoney(proximaCuota.montoMinimo)}`
+                            ? `mín. ${formatMoney(Math.max(0, (proximaCuota.montoObjetivo ?? plan.montoObjetivo30Porciento) - totalPagado))}`
+                            : `mín. ${formatMoney(proximaCuota.montoMinimo - (proximaCuota.montoAcumulado ?? 0))}`
                           } — antes del {formatFecha(proximaCuota.fechaVencimiento)}
                         </p>
                       </div>

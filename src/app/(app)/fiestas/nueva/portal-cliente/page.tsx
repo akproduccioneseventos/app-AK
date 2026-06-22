@@ -304,7 +304,42 @@ function ClientPortalConfigContent() {
     }
   };
 
-  const MAX_HERO_IMAGE_SIZE_MB = 1;
+  const MAX_HERO_IMAGE_SIZE_MB = 4;
+
+  const compressImageToDataUrl = (file: File, maxDimension: number, quality: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(img.src);
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context could not be created'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = (err) => reject(err);
+    });
+  };
 
   const handleHeroImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -314,17 +349,17 @@ function ClientPortalConfigContent() {
       return;
     }
     setIsUploadingHeroImage(true);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPortalExperience(p => ({ ...p, heroImageUrl: reader.result as string }));
-      setIsUploadingHeroImage(false);
-      toast({ title: "Imagen cargada", description: "Guardá la personalización para aplicar los cambios." });
-    };
-    reader.onerror = () => {
-      setIsUploadingHeroImage(false);
-      toast({ title: "Error al cargar imagen", variant: "destructive" });
-    };
-    reader.readAsDataURL(file);
+    compressImageToDataUrl(file, 1600, 0.75)
+      .then(base64 => {
+        setPortalExperience(p => ({ ...p, heroImageUrl: base64 }));
+        setIsUploadingHeroImage(false);
+        toast({ title: "Imagen cargada", description: "Guardá la personalización para aplicar los cambios." });
+      })
+      .catch((err) => {
+        console.error('Failed to compress image:', err);
+        setIsUploadingHeroImage(false);
+        toast({ title: "Error al procesar imagen", variant: "destructive" });
+      });
   };
 
   const handleSaveCuentas = async () => {
@@ -946,7 +981,7 @@ function ClientPortalConfigContent() {
                     <Upload className="w-7 h-7 text-muted-foreground" />
                   )}
                   <span className="text-sm font-medium">Subir imagen desde PC</span>
-                  <span className="text-xs">JPG, PNG, WEBP · máximo 1 MB · se usará como fondo de la portada</span>
+                  <span className="text-xs">JPG, PNG, WEBP · máximo 4 MB · se usará como fondo de la portada</span>
                 </button>
               )}
               <p className="text-xs text-muted-foreground">Si no hay imagen, se usa un degradado con el color principal del evento.</p>
