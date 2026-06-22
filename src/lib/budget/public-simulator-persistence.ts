@@ -213,7 +213,7 @@ export async function persistPublicSimulatorBudget(
   await enforcePublicRateLimit({
     scope: 'public-simulator-budget',
     identity: phone,
-    limit: 10,
+    limit: 30,
     windowMs: 30 * 60 * 1000,
   });
 
