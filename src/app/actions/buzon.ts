@@ -4,6 +4,7 @@ import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { addChatMessage } from '@/app/actions/social-gallery';
+import { requireAppSession } from '@/lib/auth/require-session';
 import * as logger from '@/lib/logger';
 import path from 'path';
 
@@ -136,6 +137,7 @@ export async function deleteBuzonMessage(
 ): Promise<{ success: boolean; error?: string }> {
   if (!messageId) return { success: false, error: 'ID de mensaje es requerido.' };
   try {
+    await requireAppSession();
     const db = await getDb();
     const ref = db.collection(BUZON_COLLECTION).doc(messageId);
     const snap = await ref.get();
@@ -176,6 +178,7 @@ export async function uploadWelcomeAudio(
   }
 
   try {
+    await requireAppSession();
     const fileExtension = path.extname(file.name) || '.webm';
     const storagePath = `fiestas/${fiestaId}/buzon/bienvenida${fileExtension}`;
 
@@ -226,6 +229,7 @@ export async function deleteWelcomeAudio(
 ): Promise<{ success: boolean; error?: string }> {
   if (!fiestaId) return { success: false, error: 'ID de fiesta es requerido.' };
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 

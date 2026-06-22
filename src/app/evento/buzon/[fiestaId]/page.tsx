@@ -8,9 +8,9 @@ import {
   Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 export default function GuestBuzonPage() {
@@ -19,7 +19,7 @@ export default function GuestBuzonPage() {
   const { toast } = useToast();
   const fiestaId = params.fiestaId as string;
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [activeTab, setActiveTab] = useState<'audio' | 'video'>('audio');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -205,8 +205,10 @@ export default function GuestBuzonPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await getFiestaById(fiestaId);
-        setFiesta(data);
+        const res = await getPublicEntertainmentEvent(fiestaId, 'capsulaTiempo');
+        if (res.success && res.event) {
+          setFiesta(res.event);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -227,20 +229,18 @@ export default function GuestBuzonPage() {
 
   // Welcome Audio Control
   const toggleWelcomeAudio = () => {
-    if (!fiesta?.buzonConfig?.welcomeAudioUrl) return;
-
-    if (!welcomeAudioRef.current) {
-      welcomeAudioRef.current = new Audio(fiesta.buzonConfig.welcomeAudioUrl);
-      welcomeAudioRef.current.onended = () => setIsWelcomePlaying(false);
-    }
-
+    if (!fiesta?.welcomeAudioUrl) return;
     if (isWelcomePlaying) {
-      welcomeAudioRef.current.pause();
+      welcomeAudioRef.current?.pause();
       setIsWelcomePlaying(false);
     } else {
       if (isPlayingRecording && previewAudioRef.current) {
         previewAudioRef.current.pause();
         setIsPlayingRecording(false);
+      }
+      if (!welcomeAudioRef.current) {
+        welcomeAudioRef.current = new Audio(fiesta.welcomeAudioUrl);
+        welcomeAudioRef.current.onended = () => setIsWelcomePlaying(false);
       }
       welcomeAudioRef.current.play();
       setIsWelcomePlaying(true);
@@ -680,8 +680,8 @@ export default function GuestBuzonPage() {
     );
   }
 
-  const hasWelcomeAudio = !!fiesta.buzonConfig?.welcomeAudioUrl;
-  const customAccent = fiesta.guestPortalSettings?.customAccentColor || '#6366f1';
+  const hasWelcomeAudio = !!fiesta.welcomeAudioUrl;
+  const customAccent = fiesta.station.accentColor || '#6366f1';
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_60%)] text-white flex flex-col justify-between select-none">
@@ -697,7 +697,7 @@ export default function GuestBuzonPage() {
             Buzón de Recuerdos
           </h1>
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
-            {fiesta.configuracion?.nombreEvento || 'Fiesta'}
+            {fiesta.eventName || 'Fiesta'}
           </p>
         </div>
       </header>

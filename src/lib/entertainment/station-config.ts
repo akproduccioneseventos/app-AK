@@ -42,6 +42,7 @@ export interface PublicEntertainmentEvent {
   eventDate: string;
   coverImageUrl: string;
   showBuzon: boolean;
+  welcomeAudioUrl?: string;
   socialLinks: {
     instagram?: string;
     facebook?: string;
@@ -139,6 +140,7 @@ export function getPublicEntertainmentEvent(
       fiesta.guestPortalSettings?.coverImageUrl ||
       '',
     showBuzon: fiesta.guestPortalSettings?.showBuzon !== false,
+    welcomeAudioUrl: fiesta.buzonConfig?.welcomeAudioUrl || '',
     socialLinks: {
       instagram: fiesta.guestExperienceSettings?.instagramUrl,
       facebook: fiesta.guestExperienceSettings?.facebookUrl,
