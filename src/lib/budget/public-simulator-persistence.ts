@@ -24,6 +24,7 @@ import {
   simulatorDetailsToBudgetItems,
 } from '@/lib/simulator/pricing';
 import { buildAuthoritativeSimulatorServices } from '@/lib/simulator/catalog';
+import { getRemovablePackageServices } from '@/lib/simulator/package-customization';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 const CONFIG_FILE = 'armado-rapido-config.json';
@@ -244,6 +245,10 @@ export async function persistPublicSimulatorBudget(
   if (data.paqueteId && !selectedPackage) {
     throw new Error('El paquete seleccionado ya no esta disponible.');
   }
+  const removableServices = getRemovablePackageServices(selectedPackage, services, config);
+  const removableIds = new Set(removableServices.map(service => service.id));
+  const excludedPackageServiceIds = Array.from(new Set(data.excludedPackageServiceIds || []))
+    .filter(id => removableIds.has(id));
   const clubConfig = config.clubUruguayConfig || defaultClubUruguayConfig;
   const syntheticServices = data.includeClubUruguay && clubConfig.activo
     ? [{
@@ -265,6 +270,7 @@ export async function persistPublicSimulatorBudget(
     ninosYAdolescentes: adolescentes + ninos,
     selectedPaqueteId: selectedPackage?.id,
     selectedServices,
+    excludedPackageServiceIds,
     syntheticServices,
     eventoFecha: eventDate,
     annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage || 0,
@@ -296,7 +302,12 @@ export async function persistPublicSimulatorBudget(
     salonFiestas: data.includeClubUruguay ? 'Club Uruguay' : (options.salonFiestas || 'A definir'),
     itemsPresupuestados: items,
     timestamp,
-    notas: `Referencia calculada por el servidor desde el simulador. Paquete: ${packageLabel}.`,
+    notas: [
+      `Referencia calculada por el servidor desde el simulador. Paquete: ${packageLabel}.`,
+      excludedPackageServiceIds.length > 0
+        ? `Servicios retirados por el cliente: ${removableServices.filter(service => excludedPackageServiceIds.includes(service.id)).map(service => service.nombre).join(', ')}.`
+        : '',
+    ].filter(Boolean).join(' '),
     costoTotalEstimado: pricing.subtotalVenta,
     descuentoTipo: 'porcentaje',
     descuentoValor: pricing.discountPercentage,
