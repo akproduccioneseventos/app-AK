@@ -125,4 +125,20 @@ describe('simulator pricing', () => {
       }),
     ]);
   });
+
+  it('deducts only the package services explicitly excluded by the simulator', () => {
+    const result = calculateSimulatorPricing({
+      config,
+      services,
+      adultos: 50,
+      ninosYAdolescentes: 0,
+      selectedPaqueteId: 'base',
+      excludedPackageServiceIds: ['dj'],
+      annualAdjustmentPercentage: 15,
+    });
+
+    expect(result.detallados.find((item) => item.id === 'dj')).toBeUndefined();
+    expect(result.detallados.find((item) => item.id === 'foto')?.esRegalo).toBe(true);
+    expect(result.totalFinal).toBe(0);
+  });
 });

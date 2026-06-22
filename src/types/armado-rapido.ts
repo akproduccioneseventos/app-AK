@@ -76,6 +76,7 @@ export interface LeadFromQuickBudget {
   ajusteAnualPorcentaje?: number;
   serviciosIncluidos: string[];
   selectedServiceIds?: string[];
+  excludedPackageServiceIds?: string[];
   paqueteId?: string;
   paqueteNombre?: string;
   includeClubUruguay?: boolean;

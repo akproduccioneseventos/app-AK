@@ -7,6 +7,9 @@ import type { ItemPresupuestado, PresupuestoSource } from '@/types/presupuesto';
 import type { CommercialAttribution } from '@/lib/commercial/acquisition';
 import { persistPublicSimulatorBudget } from '@/lib/budget/public-simulator-persistence';
 import { createNotification } from './notifications';
+import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const SIMULATOR_DISCOUNT_PERCENTAGE = 15;
@@ -135,5 +138,42 @@ export async function generateBudgetAndLeadFromSimulator(
   } catch (error: any) {
     console.error('Error in generateBudgetAndLeadFromSimulator:', error);
     return { success: false, error: error.message || 'Error al generar el prospecto y presupuesto.' };
+  }
+}
+
+export async function captureSimulatorLeadProgress(input: {
+  clienteNombre: string;
+  clienteContacto: string;
+  eventoTipo?: string;
+  eventoFecha?: string;
+  invitados?: number;
+  salonFiestas?: string;
+  acquisition?: CommercialAttribution;
+  marketingConsent?: boolean;
+}): Promise<{ success: boolean; leadId?: string; error?: string }> {
+  try {
+    const phone = normalizeUruguayPhone(input.clienteContacto);
+    await enforcePublicRateLimit({
+      scope: 'public-simulator-progress',
+      identity: phone,
+      limit: 8,
+      windowMs: 60 * 60 * 1000,
+    });
+    const result = await upsertPublicCommercialLead({
+      name: input.clienteNombre,
+      phone,
+      partyType: input.eventoTipo,
+      eventDate: input.eventoFecha,
+      guestCount: input.invitados,
+      venueName: input.salonFiestas,
+      notes: 'El prospecto comenzo el simulador visual y todavia no genero el presupuesto final.',
+      budgetSource: 'simulator_common',
+      acquisition: input.acquisition,
+      marketingConsent: input.marketingConsent === true,
+      marketingConsentSource: 'simulador-publico-paso-contacto',
+    });
+    return { success: true, leadId: result.lead.id };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudo guardar el avance del simulador.' };
   }
 }

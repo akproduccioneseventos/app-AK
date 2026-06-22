@@ -56,6 +56,7 @@ type CalculateSimulatorPricingInput = {
   ninosYAdolescentes: number;
   selectedPaqueteId?: string;
   selectedServices?: SimulatorSelectedService[];
+  excludedPackageServiceIds?: string[];
   syntheticServices?: Array<{ servicio: ServicioEmpresa; esRegalo?: boolean }>;
   eventoFecha?: string | Date | null;
   annualAdjustmentPercentage: number;
@@ -103,6 +104,7 @@ export function getSimulatorServiceCalculatedData(
 export function calculateSimulatorPricing(input: CalculateSimulatorPricingInput): SimulatorPriceStats {
   const selected = new Map<string, { servicio: ServicioEmpresa; esRegalo: boolean }>();
   const serviceById = new Map(input.services.map((service) => [service.id, service]));
+  const excludedPackageServiceIds = new Set(input.excludedPackageServiceIds || []);
 
   const includeService = (servicio: ServicioEmpresa | undefined, esRegalo = false) => {
     if (!servicio) return;
@@ -116,7 +118,11 @@ export function calculateSimulatorPricing(input: CalculateSimulatorPricingInput)
   };
 
   const paquete = input.config.paquetes.find((item) => item.id === input.selectedPaqueteId);
-  paquete?.serviciosIncluidos.forEach((item) => includeService(serviceById.get(item.id), item.esRegalo));
+  paquete?.serviciosIncluidos.forEach((item) => {
+    if (!excludedPackageServiceIds.has(item.id)) {
+      includeService(serviceById.get(item.id), item.esRegalo);
+    }
+  });
   input.selectedServices?.forEach((item) => includeService(serviceById.get(item.id), item.esRegalo));
   input.syntheticServices?.forEach((item) => includeService(item.servicio, item.esRegalo));
 
