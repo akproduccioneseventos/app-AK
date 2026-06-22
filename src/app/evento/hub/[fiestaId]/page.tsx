@@ -175,8 +175,8 @@ export default function EventoHubPage() {
                 <span className="text-5xl drop-shadow-md group-hover:scale-110 transition-transform duration-300">🎙️</span>
               </div>
               <div className="relative z-10 mt-auto pt-4">
-                <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-1">Buzón de Voz</h2>
-                <p className="text-violet-100 font-medium text-sm leading-tight">Dejá tu saludo de audio o video</p>
+                <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-1">Buzón de Recuerdos</h2>
+                <p className="text-violet-100 font-medium text-sm leading-tight">Dejá tu saludo de voz, audio o video</p>
               </div>
             </Link>
           )}
