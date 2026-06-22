@@ -22,14 +22,13 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navLinks = [
+  }, []);  const navLinks = [
     { label: 'Servicios', href: '#servicios', isExternal: false },
     { label: 'Galería', href: '#galeria', isExternal: false },
     { label: 'Videos', href: '#videos', isExternal: false },
     { label: 'Testimonios', href: '#testimonios', isExternal: false },
-    { label: 'Blog', href: '/blog', isExternal: true },
+    { label: 'Blog', href: '/public/blog', isExternal: true },
+    { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
   ];
 
   return (
@@ -77,7 +76,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
                   className={cn(
                     'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
                     isScrolled
-                      ? 'text-zinc-600 hover:bg-slate-100 hover:text-zinc-950'
+                      ? 'text-zinc-600 hover:bg-slate-100 hover:text-slate-950'
                       : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
                   )}
                 >
@@ -88,19 +87,16 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
           </nav>
 
           <div className="flex items-center gap-3">
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/simulador-de-presupuesto"
               className={cn(
                 'hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest',
-                'bg-slate-950 text-white shadow-lg shadow-slate-950/20 hover:bg-slate-800',
+                'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20',
                 'transition-all duration-200 hover:scale-[1.03] active:scale-95'
               )}
             >
-              <MessageSquare className="w-4 h-4" />
-              Cotizá
-            </a>
+              Cotizá tu Fiesta
+            </Link>
             <button
               onClick={() => setIsMenuOpen((o) => !o)}
               className={cn(
@@ -139,15 +135,13 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
                 </a>
               )
             )}
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-xl font-black text-sm uppercase tracking-widest bg-slate-950 hover:bg-slate-800 text-white"
+            <Link
+              href="/simulador-de-presupuesto"
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-xl font-black text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
             >
-              <MessageSquare className="w-5 h-5" />
-              Cotizá tu evento
-            </a>
+              Cotizá tu Fiesta
+            </Link>
           </div>
         </div>
       )}

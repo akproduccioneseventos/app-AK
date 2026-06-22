@@ -14,6 +14,8 @@ import { StatsSection } from '@/components/landing/StatsSection';
 import { ProcessSection } from '@/components/landing/ProcessSection';
 import { CommercialJourneySection } from '@/components/landing/CommercialJourneySection';
 import { PublicFooter } from '@/components/public-footer';
+import { BlogSection } from '@/components/landing/BlogSection';
+import { FloatingActions } from '@/components/public/FloatingActions';
 import { getPromoActiva } from '@/app/actions/promos';
 import { PromoWidget } from '@/components/promo/PromoWidget';
 import { getGaleriaItems } from '@/app/actions/galeria';
@@ -136,8 +138,8 @@ export default async function LandingPage({ searchParams }: LandingPageProps) {
         headline={landingSettings.hero.headline}
         subheadline={landingSettings.hero.subheadline}
         backgroundImageUrl={landingSettings.hero.backgroundImageUrl}
-        simulatorHref="#simuladores"
-        simulatorLabel="Elegir simulador"
+        simulatorHref="/simulador-de-presupuesto"
+        simulatorLabel="Cotizá tu Fiesta"
       />
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
       <AkDifferenceSection />
@@ -147,6 +149,7 @@ export default async function LandingPage({ searchParams }: LandingPageProps) {
       <AkTeamStorySection />
       <ProcessSection />
       <GallerySection galeriaFotos={fotosCombinadas} />
+      <BlogSection />
       <VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />
       <TestimonialsSection testimonials={approvedTestimonials} />
       <FAQSection faqs={landingSettings.faqs} />
@@ -157,6 +160,7 @@ export default async function LandingPage({ searchParams }: LandingPageProps) {
         ctaLabel={landingSettings.cta.ctaLabel}
       />
       <PublicFooter variant="dark" />
+      <FloatingActions whatsappNumber={whatsapp} />
     </div>
   );
 }

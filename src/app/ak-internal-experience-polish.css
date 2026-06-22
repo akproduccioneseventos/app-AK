@@ -41,13 +41,7 @@ main.flex-1 > main.min-h-screen :where([class*="bg-violet-"], [class*="bg-purple
   box-shadow: none;
 }
 
-main.flex-1 > main.min-h-screen :where([class*="text-violet-700"], [class*="text-purple-700"], [class*="text-indigo-700"]) {
-  color: #b91c1c !important;
-}
 
-main.flex-1 > main.min-h-screen :where([class*="bg-violet-100"], [class*="bg-purple-100"], [class*="bg-indigo-100"]) {
-  background-color: #fff1f2 !important;
-}
 
 main.flex-1 > main.min-h-screen :where(img, video),
 main.flex-1 > div:first-child :where(img, video) {

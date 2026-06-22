@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -8,7 +10,7 @@ import {
   Smartphone,
   Ticket,
 } from 'lucide-react';
-
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 interface TechnologyExperienceSectionProps {
@@ -59,18 +61,39 @@ export default function TechnologyExperienceSection({
     '¡Hola! Me interesa saber más sobre la tecnología incluida en las fiestas.',
   )}`;
 
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: 'easeOut' },
+    },
+  };
+
   return (
     <section
       id="tecnologia"
-      className="ak-deferred-section relative overflow-hidden border-y border-white/10 bg-zinc-950 py-20 text-white"
+      className="ak-deferred-section relative overflow-hidden border-y border-white/5 bg-zinc-950 py-24 text-white"
     >
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 max-w-3xl">
-          <span className="mb-5 inline-flex items-center gap-2 border-l-2 border-red-500 pl-3 text-xs font-bold uppercase text-red-300">
-            <Bot className="h-4 w-4" />
+      {/* Background soft glow effects */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 max-w-3xl">
+          <span className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-indigo-400">
+            <Bot className="h-3.5 w-3.5" />
             Tecnología al servicio del evento
           </span>
-          <h2 className="mb-5 text-3xl font-black text-white sm:text-5xl font-headline">
+          <h2 className="mb-5 text-4xl sm:text-5xl font-black text-white font-headline leading-tight">
             Una organización más clara antes, durante y después.
           </h2>
           <p className="max-w-2xl text-lg leading-relaxed text-zinc-400">
@@ -78,51 +101,63 @@ export default function TechnologyExperienceSection({
           </p>
         </div>
 
-        <div className="mb-12 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-zinc-800 bg-zinc-800 md:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          className="mb-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {techFeatures.map((feature) => {
             const Icon = feature.icon;
             return (
-              <div
+              <motion.div
                 key={feature.title}
-                className="group bg-zinc-950 p-7 transition-colors duration-200 hover:bg-zinc-900"
+                variants={cardVariants}
+                className="group flex flex-col justify-between rounded-3xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] p-8 shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden"
               >
-                <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900">
-                  <Icon className="h-6 w-6 text-red-400" />
+                {/* Subtle hover card light */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div>
+                  <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-indigo-400 group-hover:text-white group-hover:bg-indigo-600 transition-all duration-300">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mb-3 text-lg font-black text-white">{feature.title}</h3>
+                  <p className="mb-6 text-sm leading-relaxed text-zinc-400">{feature.description}</p>
                 </div>
-                <h3 className="mb-3 text-lg font-bold text-white">{feature.title}</h3>
-                <p className="mb-5 text-sm leading-relaxed text-zinc-400">{feature.description}</p>
 
                 {feature.href && (
                   <Link
                     href={feature.href}
-                    className="inline-flex items-center text-sm font-bold text-red-300 transition-colors hover:text-white"
+                    className="inline-flex items-center text-xs font-black uppercase tracking-wider text-indigo-400 group-hover:text-white transition-colors duration-200"
                   >
                     {feature.cta}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                   </Link>
                 )}
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
-        <div className="relative flex flex-col items-start justify-between gap-8 border-t border-zinc-800 py-8 md:flex-row md:items-center">
+        <div className="relative flex flex-col items-start justify-between gap-8 border-t border-white/10 py-10 md:flex-row md:items-center">
           <div className="relative z-10 max-w-xl">
             <h3 className="mb-3 text-2xl font-black text-white sm:text-3xl">
               Tecnología incluida, sin costos escondidos.
             </h3>
-            <p className="text-lg text-zinc-400">
+            <p className="text-zinc-400 text-base leading-relaxed">
               No pagás licencias extra ni necesitás aplicaciones complicadas. Tu evento queda conectado desde el primer día.
             </p>
           </div>
 
-          <div className="relative z-10 flex w-full shrink-0 flex-col gap-3 sm:flex-row md:w-auto">
+          <div className="relative z-10 flex w-full shrink-0 flex-col gap-4 sm:flex-row md:w-auto">
             <Button
               asChild
               size="lg"
-              className="h-12 w-full rounded-lg bg-red-700 px-7 text-base font-black text-white hover:bg-red-600"
+              className="h-13 w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black text-sm uppercase tracking-wider shadow-lg px-8 transition-transform duration-200 hover:scale-[1.02]"
             >
-              <Link href="/simulador-ak" className="w-full sm:w-auto">
+              <Link href="/simulador-de-presupuesto" className="w-full sm:w-auto">
                 Probar simulador
               </Link>
             </Button>
@@ -130,7 +165,7 @@ export default function TechnologyExperienceSection({
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 w-full rounded-lg border-zinc-700 bg-transparent px-7 text-base font-bold text-white hover:bg-zinc-900 hover:text-white"
+                className="h-13 w-full rounded-2xl border-white/10 bg-transparent text-white font-bold text-sm uppercase tracking-wider px-8 hover:bg-white/5 hover:text-white transition-all duration-200"
               >
                 Consultar ahora
               </Button>
