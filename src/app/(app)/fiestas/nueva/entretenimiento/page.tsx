@@ -58,9 +58,14 @@ import { cn } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import {
   getEntretenimientoFiesta,
+  getEntertainmentLaunchToken,
   saveEntretenimientoFiesta,
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getEntertainmentGuestPath,
+  getEntertainmentOperatorPath,
+} from '@/lib/entertainment/station-config';
 import {
   getBuzonMessages,
   deleteBuzonMessage,
@@ -131,6 +136,11 @@ interface EntertainmentStation {
   printCopies: number;
   maxRetakes: number;
   estimatedDurationSeconds: number;
+  countdownSeconds: number;
+  recordingDurationSeconds: number;
+  reviewSeconds: number;
+  allowGuestRetake: boolean;
+  consentRequired: boolean;
   moderationMode: ModerationMode;
   offlineQueueEnabled: boolean;
   autoPublish: boolean;
@@ -482,6 +492,11 @@ function makeProDefaults(type: StationId, eventName: string): Omit<Entertainment
     printCopies: type.startsWith('espejoMagico') || type === 'fotocabina' ? 1 : 0,
     maxRetakes: 2,
     estimatedDurationSeconds: 15,
+    countdownSeconds: type === 'plataforma360' ? 5 : 4,
+    recordingDurationSeconds: type === 'plataforma360' ? 15 : type === 'bogue' ? 4 : 3,
+    reviewSeconds: 20,
+    allowGuestRetake: true,
+    consentRequired: type === 'espejoMagicoIA',
     moderationMode: 'auto',
     offlineQueueEnabled: true,
     autoPublish: true,
@@ -604,6 +619,13 @@ function mergeEntertainmentData(
       animationStyle: storedStation?.animationStyle || defaultStation.animationStyle,
       outputFormat: storedStation?.outputFormat || defaultStation.outputFormat,
       qualityPreset: storedStation?.qualityPreset || defaultStation.qualityPreset,
+      countdownSeconds: storedStation?.countdownSeconds || defaultStation.countdownSeconds,
+      recordingDurationSeconds:
+        storedStation?.recordingDurationSeconds || defaultStation.recordingDurationSeconds,
+      reviewSeconds: storedStation?.reviewSeconds || defaultStation.reviewSeconds,
+      allowGuestRetake:
+        storedStation?.allowGuestRetake ?? defaultStation.allowGuestRetake,
+      consentRequired: storedStation?.consentRequired ?? defaultStation.consentRequired,
       shareMessage: storedStation?.shareMessage || defaultStation.shareMessage,
       backupPlan: storedStation?.backupPlan || defaultStation.backupPlan,
     };
@@ -680,6 +702,7 @@ function EntretenimientoContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingStation, setUploadingStation] = useState<StationId | null>(null);
+  const [launchTokens, setLaunchTokens] = useState<Partial<Record<StationId, string>>>({});
 
   // Active sub-section / Wizard state
   const [activeStationId, setActiveStationId] = useState<StationId | null>(null);
@@ -737,6 +760,19 @@ function EntretenimientoContent() {
     };
     load();
   }, [fiestaId, toast, loadBuzonData]);
+
+  useEffect(() => {
+    if (!fiestaId || !activeStationId || launchTokens[activeStationId]) return;
+    let cancelled = false;
+    getEntertainmentLaunchToken(fiestaId, activeStationId).then((result) => {
+      if (!cancelled && result.success && result.token) {
+        setLaunchTokens((current) => ({ ...current, [activeStationId]: result.token }));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeStationId, fiestaId, launchTokens]);
 
   const overallScore = useMemo(() => {
     if (!data) return 0;
@@ -981,22 +1017,11 @@ function EntretenimientoContent() {
     }
   };
 
-  // Helpers to get execution links for station
-  const getLaunchLink = (stationId: StationId) => {
-    if (stationId === 'espejoMagicoFoto') {
-      return `/evento/espejo-magico/${fiestaId}?mode=foto`;
-    }
-    if (stationId === 'espejoMagicoFirma') {
-      return `/evento/espejo-magico/${fiestaId}?mode=firma`;
-    }
-    if (stationId === 'espejoMagicoIA') {
-      return `/evento/touchpix/${fiestaId}`;
-    }
-    if (stationId === 'capsulaTiempo') {
-      return `/evento/buzon/${fiestaId}`;
-    }
-    return `/evento/social/${fiestaId}?module=${stationId}`;
-  };
+  const getGuestLaunchLink = (stationId: StationId) =>
+    getEntertainmentGuestPath(fiestaId || '', stationId, launchTokens[stationId]);
+
+  const getOperatorLaunchLink = (stationId: StationId) =>
+    getEntertainmentOperatorPath(fiestaId || '', stationId, launchTokens[stationId]);
 
   if (isLoading) {
     return (
@@ -1525,6 +1550,77 @@ function EntretenimientoContent() {
                           </div>
                         </div>
                       </div>
+
+                      <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Cuenta regresiva</Label>
+                          <Input
+                            type="number"
+                            min={2}
+                            max={10}
+                            value={activeStation.countdownSeconds}
+                            onChange={(e) =>
+                              updateStation(activeStationId, {
+                                countdownSeconds: Math.max(2, Number(e.target.value) || 4),
+                              })
+                            }
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Duracion de captura</Label>
+                          <Input
+                            type="number"
+                            min={2}
+                            max={60}
+                            value={activeStation.recordingDurationSeconds}
+                            onChange={(e) =>
+                              updateStation(activeStationId, {
+                                recordingDurationSeconds: Math.max(2, Number(e.target.value) || 3),
+                              })
+                            }
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Tiempo de revision</Label>
+                          <Input
+                            type="number"
+                            min={5}
+                            max={120}
+                            value={activeStation.reviewSeconds}
+                            onChange={(e) =>
+                              updateStation(activeStationId, {
+                                reviewSeconds: Math.max(5, Number(e.target.value) || 20),
+                              })
+                            }
+                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                          <span className="text-xs font-bold text-zinc-300">Permitir repetir captura</span>
+                          <Switch
+                            checked={activeStation.allowGuestRetake}
+                            onCheckedChange={(allowGuestRetake) =>
+                              updateStation(activeStationId, { allowGuestRetake })
+                            }
+                          />
+                        </label>
+                        {activeStationId === 'espejoMagicoIA' && (
+                          <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                            <span className="text-xs font-bold text-zinc-300">Consentimiento para IA</span>
+                            <Switch
+                              checked={activeStation.consentRequired}
+                              onCheckedChange={(consentRequired) =>
+                                updateStation(activeStationId, { consentRequired })
+                              }
+                            />
+                          </label>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -1918,7 +2014,7 @@ function EntretenimientoContent() {
 
                         <div className="rounded-3xl bg-white p-5 shadow-2xl shadow-rose-500/5 my-3">
                           <QRCodeSVG 
-                            value={activeStationId === 'capsulaTiempo' ? `${origin}/evento/buzon/${fiestaId}` : (data.galleryUrl || `${origin}/evento/social/${fiestaId}`)} 
+                            value={`${origin}${getGuestLaunchLink(activeStationId)}`}
                             size={180} 
                           />
                         </div>
@@ -1943,30 +2039,54 @@ function EntretenimientoContent() {
                             Copiá o abrí estos enlaces en el dispositivo operativo (tablet, celular o notebook del operador) para iniciar el funcionamiento interactivo.
                           </p>
                           
-                          <div className="grid gap-2">
+                          <div className="grid gap-2 sm:grid-cols-2">
                             <Button 
                               asChild 
                               className="w-full rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(225,29,72,0.15)]"
                             >
                               <a 
-                                href={getLaunchLink(activeStationId)} 
+                                href={getGuestLaunchLink(activeStationId)}
                                 target="_blank" 
                                 rel="noopener noreferrer"
                               >
                                 <ExternalLink className="mr-2 h-4 w-4" />
-                                Abrir Pantalla Operativa
+                                Pantalla Invitado
                               </a>
                             </Button>
+                            {getOperatorLaunchLink(activeStationId) && (
+                              <Button asChild variant="outline" className="w-full rounded-xl border-zinc-700 bg-zinc-900 text-white font-black text-xs uppercase tracking-wider">
+                                <a
+                                  href={getOperatorLaunchLink(activeStationId) || '#'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Settings className="mr-2 h-4 w-4" />
+                                  Consola Operador
+                                </a>
+                              </Button>
+                            )}
                             <Button 
                               onClick={() => {
-                                navigator.clipboard.writeText(`${origin}${getLaunchLink(activeStationId)}`);
-                                toast({ title: 'Enlace copiado al portapapeles.' });
+                                navigator.clipboard.writeText(`${origin}${getGuestLaunchLink(activeStationId)}`);
+                                toast({ title: 'Enlace de invitado copiado.' });
                               }}
                               variant="outline" 
                               className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
                             >
-                              Copiar Link de Operación
+                              Copiar Invitado
                             </Button>
+                            {getOperatorLaunchLink(activeStationId) && (
+                              <Button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`${origin}${getOperatorLaunchLink(activeStationId)}`);
+                                  toast({ title: 'Enlace de operador copiado.' });
+                                }}
+                                variant="outline"
+                                className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
+                              >
+                                Copiar Operador
+                              </Button>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
