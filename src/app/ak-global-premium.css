@@ -126,48 +126,7 @@ header.sticky h1 {
   background-color: transparent !important;
 }
 
-.ak-red-premium-public [class*="bg-gradient-to"] {
-  --tw-gradient-from: #b91c1c var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: #7f1d1d var(--tw-gradient-to-position) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
-}
-
-.ak-red-premium-public .bg-indigo-50,
-.ak-red-premium-public .bg-violet-50,
-.ak-red-premium-public .bg-purple-50,
-.ak-red-premium-public .bg-pink-50,
-.ak-red-premium-public .bg-amber-50,
-.ak-red-premium-public .bg-blue-50 {
-  background-color: #fef2f2 !important;
-}
-
-.ak-red-premium-public .text-indigo-600,
-.ak-red-premium-public .text-indigo-700,
-.ak-red-premium-public .text-violet-600,
-.ak-red-premium-public .text-violet-700,
-.ak-red-premium-public .text-purple-600,
-.ak-red-premium-public .text-purple-700,
-.ak-red-premium-public .text-pink-600,
-.ak-red-premium-public .text-amber-600,
-.ak-red-premium-public .text-blue-600 {
-  color: #b91c1c !important;
-}
-
-.ak-red-premium-public .border-indigo-100,
-.ak-red-premium-public .border-indigo-200,
-.ak-red-premium-public .border-purple-100,
-.ak-red-premium-public .border-violet-100,
-.ak-red-premium-public .border-amber-100,
-.ak-red-premium-public .border-blue-100 {
-  border-color: rgba(185, 28, 28, 0.22) !important;
-}
-
-.ak-red-premium-public .shadow-indigo-500\/10,
-.ak-red-premium-public .shadow-indigo-500\/20,
-.ak-red-premium-public .shadow-indigo-500\/25,
-.ak-red-premium-public .shadow-purple-500\/20 {
-  --tw-shadow-color: rgba(185, 28, 28, 0.16) !important;
-}
+/* Removed heavy-handed red overrides to restore standard Tailwind theme colors and let custom section color systems render correctly */
 
 .ak-red-premium-surface .rounded-\[1\.5rem\],
 .ak-red-premium-surface .rounded-\[2rem\],

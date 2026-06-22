@@ -159,10 +159,10 @@
 
 .ak-red-premium-public [data-testid="gallery-section"] {
   background:
-    radial-gradient(circle at 15% 12%, rgba(215, 25, 32, 0.32), transparent 22rem),
-    radial-gradient(circle at 84% 18%, rgba(37, 99, 235, 0.20), transparent 20rem),
-    radial-gradient(circle at 64% 100%, rgba(245, 158, 11, 0.16), transparent 22rem),
-    linear-gradient(180deg, #111111 0%, #2a0506 54%, #111111 100%) !important;
+    radial-gradient(circle at 15% 12%, rgba(99, 102, 241, 0.15), transparent 22rem),
+    radial-gradient(circle at 84% 18%, rgba(37, 99, 235, 0.10), transparent 20rem),
+    radial-gradient(circle at 64% 100%, rgba(245, 158, 11, 0.08), transparent 22rem),
+    linear-gradient(180deg, #09090b 0%, #030712 50%, #09090b 100%) !important;
   border-top: 1px solid rgba(255,255,255,0.08);
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
@@ -184,7 +184,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   width: 4px;
-  background: linear-gradient(180deg, transparent, rgba(215,25,32,0.86), transparent);
+  background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.5), transparent);
   pointer-events: none;
 }
 
