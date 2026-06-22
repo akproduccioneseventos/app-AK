@@ -61,6 +61,11 @@ const PACKAGE_EVENT_SECTIONS = [
   { value: 'empresarial', label: 'Empresarial', eventType: 'Evento empresarial' },
 ] as const;
 
+type SaveResult = {
+  success: boolean;
+  error?: string;
+};
+
 const deepClone = <T,>(value: T): T => {
   if (typeof structuredClone === 'function') return structuredClone(value);
   return JSON.parse(JSON.stringify(value));
@@ -155,10 +160,12 @@ export default function BudgetDisplaySettingsPage() {
     setIsSaving(true);
     try {
       const safeBudgetSettings: BudgetDisplaySettings = { ...defaultBudgetDisplaySettings, ...(budgetSettings || {}) };
-      const [res1, res2, res3] = await Promise.all([
+      const [res1, res2, res3]: SaveResult[] = await Promise.all([
         saveArmadoRapidoConfig(config),
         saveBudgetDisplaySettings(safeBudgetSettings),
-        copilotConfig ? saveCopilotConfig(copilotConfig) : Promise.resolve({ success: true })
+        copilotConfig
+          ? saveCopilotConfig(copilotConfig)
+          : Promise.resolve<SaveResult>({ success: true })
       ]);
       if (res1.success && res2.success && res3.success) {
         toast({ title: "Configuración Guardada", description: "Todos los cambios se han aplicado al simulador y al Asistente IA." });
