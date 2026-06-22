@@ -75,6 +75,15 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
   }
 }
 
+/**
+ * Public feed reader. Unlike the administrator reader, this never returns
+ * pending or hidden content, even when the browser also has an app session.
+ */
+export async function getPublicSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
+  const posts = await getSocialPosts(fiestaId);
+  return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+}
+
 export async function getSocialAdminAccess(): Promise<boolean> {
   return hasAppSession();
 }

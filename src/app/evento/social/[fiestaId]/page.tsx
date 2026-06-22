@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, useRef, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, getSocialAdminAccess, saveSocialGallerySettings } from '@/app/actions/social-gallery';
-import { addDedication, addSongRequest, getDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
+import { getPublicSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, saveSocialGallerySettings } from '@/app/actions/social-gallery';
+import { addDedication, addSongRequest, getPublicDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
 import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -95,7 +95,7 @@ function isPostVisibleForAudience(post: SocialGalleryPost) {
   return getPostModerationStatus(post) === 'approved';
 }
 
-/** Large touchable feature card shown on the guest home screen. */
+/** Familiar, touchable shortcut used on the guest home screen. */
 const GuestFeatureButton: React.FC<{
   icon: React.ReactNode;
   label: string;
@@ -110,13 +110,13 @@ const GuestFeatureButton: React.FC<{
     whileTap={{ scale: 0.96 }}
     onClick={onClick}
     className={cn(
-      'ak-public-action relative flex flex-col items-center justify-center gap-2 p-5 text-center focus:outline-none select-none',
+      'relative flex min-h-24 flex-col items-center justify-center gap-2 rounded-lg border border-slate-200 p-4 text-center shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 select-none',
       wide ? 'col-span-2' : '',
       primary
-        ? 'text-white shadow-xl'
+        ? 'border-transparent text-white'
         : 'bg-white text-slate-700 hover:bg-slate-50',
     )}
-    style={primary ? { backgroundColor: color, boxShadow: `0 8px 24px ${color}40` } : {}}
+    style={primary ? { backgroundColor: color } : { '--tw-ring-color': color } as React.CSSProperties}
   >
     {pulse && (
       <span className="absolute top-3 right-3 flex h-2.5 w-2.5">
@@ -198,7 +198,7 @@ const PostCard: React.FC<{
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
     >
-        <Card className="ak-public-card overflow-hidden flex flex-col group transition-all hover:translate-y-[-3px]">
+        <Card className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
             <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-inner" style={{ backgroundColor: accentColor }}>
@@ -206,7 +206,7 @@ const PostCard: React.FC<{
             </div>
             <div>
                 <p className="font-bold text-sm text-slate-800">{post.authorName}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{formattedTimestamp}</p>
+                <p className="text-xs text-muted-foreground">{formattedTimestamp}</p>
             </div>
             </div>
             {isAdminView && (
@@ -271,18 +271,18 @@ const PostCard: React.FC<{
             {postText}
           </div>
         )}
-        <CardFooter className="p-4 flex flex-col items-start gap-3">
-            <div className="w-full flex justify-between items-center">
-                <div className="flex items-center gap-4">
+        <CardFooter className="flex flex-col items-start gap-3 p-4">
+            <div className="w-full border-b border-slate-100 pb-3">
+                <div className="grid grid-cols-2 gap-2">
                     <div className="relative">
                       <button
                         onClick={handleLikeClick}
                         disabled={!allowLikes || hasLiked}
-                        className="flex items-center gap-1.5 group/like outline-none disabled:cursor-not-allowed"
+                        className="group/like flex h-10 w-full items-center justify-center gap-2 rounded-md text-sm font-semibold text-slate-600 outline-none transition hover:bg-slate-100 disabled:cursor-not-allowed"
                         title={hasLiked ? 'Ya le diste Me Gusta' : 'Me Gusta'}
                       >
-                          <Heart className={`w-6 h-6 transition-all ${(post.likes > 0 || hasLiked) ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover/like:text-red-400'}`} />
-                          <span className="text-sm font-bold text-slate-600">{post.likes}</span>
+                          <Heart className={`h-5 w-5 transition-all ${(post.likes > 0 || hasLiked) ? 'fill-current text-red-500' : 'text-slate-500 group-hover/like:text-red-400'}`} />
+                          <span>Me gusta{post.likes > 0 ? ` · ${post.likes}` : ''}</span>
                       </button>
                       {/* Floating hearts */}
                       <AnimatePresence>
@@ -301,9 +301,9 @@ const PostCard: React.FC<{
                         ))}
                       </AnimatePresence>
                     </div>
-                    <div className="flex items-center gap-1.5 text-slate-400">
-                        <MessageCircle className="w-6 h-6" />
-                        <span className="text-sm font-bold text-slate-600">{post.comments.length}</span>
+                    <div className="flex h-10 items-center justify-center gap-2 rounded-md text-sm font-semibold text-slate-600">
+                        <MessageCircle className="h-5 w-5" />
+                        <span>Comentar{post.comments.length > 0 ? ` · ${post.comments.length}` : ''}</span>
                     </div>
                 </div>
             </div>
@@ -395,7 +395,9 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [isSendingSong, setIsSendingSong] = useState(false);
   const [isSendingDedication, setIsSendingDedication] = useState(false);
 
-  const [isAdminView, setIsAdminView] = useState(false);
+  // This public route must remain a guest experience even when the browser has
+  // an authenticated organizer session. Admin tools live in the internal panel.
+  const isAdminView = false;
   const [isClearing, setIsClearing] = useState(false);
   const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
@@ -436,8 +438,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [projectionMode, setProjectionMode] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  // Guests land directly in the feed; the home grid stays available from the header.
-  const [guestSection, setGuestSection] = useState<'photos' | 'song' | 'dedication' | 'chat' | 'poll' | 'game' | null>('photos');
+  const [guestSection, setGuestSection] = useState<'photos' | 'song' | 'dedication' | 'chat' | 'poll' | 'game' | null>(null);
 
   // Audio recording state
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -464,17 +465,17 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   }, []);
 
 
-  const fetchData = useCallback(async (showLoadingIndicator = true) => {
+  const fetchData = useCallback(async (showLoadingIndicator = true, includeBrandData = showLoadingIndicator) => {
     if(showLoadingIndicator) setIsLoading(true);
     try {
       const results = await Promise.allSettled([
-          getSocialPosts(params.fiestaId),
+          getPublicSocialPosts(params.fiestaId),
           getFiestaById(params.fiestaId),
           getChatMessages(params.fiestaId),
-          getInvoiceTemplateSettings(),
-          getSocialConnections(),
+          includeBrandData ? getInvoiceTemplateSettings() : Promise.resolve(null),
+          includeBrandData ? getSocialConnections() : Promise.resolve([]),
           getSongRequests(params.fiestaId),
-          getDedications(params.fiestaId),
+          getPublicDedications(params.fiestaId),
           getActivePoll(params.fiestaId),
       ]);
 
@@ -496,25 +497,27 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setSongRequests(fetchedSongRequests);
       setDedications(fetchedDedications);
       setActivePoll(poll);
-      setCompanyLogoUrl(settingsData?.logoUrl ?? null);
+      if (includeBrandData) {
+        setCompanyLogoUrl(settingsData?.logoUrl ?? null);
 
-      const socialList = Array.isArray(socialConnections) ? socialConnections : [];
-      setWhatsappNumber(socialList.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
-      const igConn = socialList.find(c => c.platform === 'Instagram');
-      const fbConn = socialList.find(c => c.platform === 'Facebook');
-      // Use brand handle if set, otherwise fall back to company social connections
-      const brandIg = fiestaData?.socialGallerySettings?.brand?.instagramHandle;
-      const brandFb = fiestaData?.socialGallerySettings?.brand?.facebookHandle;
-      setInstagramUrl(
-        brandIg
-          ? `https://instagram.com/${brandIg.replace(/^@/, '')}`
-          : igConn?.profileUrl || null
-      );
-      setFacebookUrl(
-        brandFb
-          ? `https://facebook.com/${brandFb.replace(/^@/, '')}`
-          : fbConn?.profileUrl || null
-      );
+        const socialList = Array.isArray(socialConnections) ? socialConnections : [];
+        setWhatsappNumber(socialList.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
+        const igConn = socialList.find(c => c.platform === 'Instagram');
+        const fbConn = socialList.find(c => c.platform === 'Facebook');
+        // Use brand handle if set, otherwise fall back to company social connections
+        const brandIg = fiestaData?.socialGallerySettings?.brand?.instagramHandle;
+        const brandFb = fiestaData?.socialGallerySettings?.brand?.facebookHandle;
+        setInstagramUrl(
+          brandIg
+            ? `https://instagram.com/${brandIg.replace(/^@/, '')}`
+            : igConn?.profileUrl || null
+        );
+        setFacebookUrl(
+          brandFb
+            ? `https://facebook.com/${brandFb.replace(/^@/, '')}`
+            : fbConn?.profileUrl || null
+        );
+      }
 
     } catch (e) {
       console.error("Error al cargar galería:", e);
@@ -524,33 +527,18 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   }, [params.fiestaId]);
   
   useEffect(() => {
-    let active = true;
-    getSocialAdminAccess().then((sessionAuth) => {
-      if (!active || typeof window === 'undefined') return;
-      setIsAdminView(sessionAuth);
+    if (typeof window === 'undefined') return;
+    const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
+    if (savedName) {
+      setAuthorName(savedName);
+    } else {
+      setIsNameModalOpen(true);
+    }
 
-      if (sessionAuth) {
-        setAuthorName("Organización");
-      } else {
-        const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
-        if (savedName) {
-          setAuthorName(savedName);
-        } else {
-          setIsNameModalOpen(true);
-        }
-      }
-
-      const followedRaw = sessionStorage.getItem(`socialFollowed_${params.fiestaId}`);
-      if (followedRaw) {
-        try { setFollowedPlatforms(new Set(JSON.parse(followedRaw))); } catch {}
-      }
-    }).catch(() => {
-      if (active) setIsAdminView(false);
-    });
-
-    return () => {
-      active = false;
-    };
+    const followedRaw = sessionStorage.getItem(`socialFollowed_${params.fiestaId}`);
+    if (followedRaw) {
+      try { setFollowedPlatforms(new Set(JSON.parse(followedRaw))); } catch {}
+    }
   }, [params.fiestaId]);
 
 
@@ -562,8 +550,8 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
     fetchData();
     if (isEventPast30Days) return;
     const interval = setInterval(() => {
-        fetchData(false);
-    }, 4000); 
+        fetchData(false, false);
+    }, 3000);
     return () => clearInterval(interval);
   }, [fetchData, isEventPast30Days]);
 
