@@ -85,7 +85,10 @@ function ConfiguracionEventoContent() {
       if (fiesta.presupuestoId) {
           const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
           if (presupuesto) {
-              tempConfig.nombreEvento = tempConfig.nombreEvento || `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`;
+              const protagonista = presupuesto.protagonista1Nombre
+                  ? (presupuesto.protagonista2Nombre ? `${presupuesto.protagonista1Nombre} y ${presupuesto.protagonista2Nombre}` : presupuesto.protagonista1Nombre)
+                  : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : 'el Agasajado'));
+              tempConfig.nombreEvento = tempConfig.nombreEvento || `${presupuesto.eventoTipo} de ${protagonista}`;
               tempConfig.tipoCelebracion = tempConfig.tipoCelebracion || presupuesto.eventoTipo;
               tempConfig.fechaEvento = tempConfig.fechaEvento || new Date(presupuesto.eventoFecha);
               tempConfig.invitadosEstimados = tempConfig.invitadosEstimados || presupuesto.invitadosCantidad;
