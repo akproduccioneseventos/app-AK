@@ -156,7 +156,7 @@ export async function captureSimulatorLeadProgress(input: {
     await enforcePublicRateLimit({
       scope: 'public-simulator-progress',
       identity: phone,
-      limit: 8,
+      limit: 100,
       windowMs: 60 * 60 * 1000,
     });
     const result = await upsertPublicCommercialLead({
@@ -177,3 +177,80 @@ export async function captureSimulatorLeadProgress(input: {
     return { success: false, error: error.message || 'No se pudo guardar el avance del simulador.' };
   }
 }
+
+export async function getPublicBudgetsByPhone(rawPhone: string): Promise<{
+  success: boolean;
+  budgets?: {
+    id: string;
+    numero: number;
+    clienteNombre: string;
+    eventoTipo: string;
+    eventoFecha: string;
+    totalConDescuento: number;
+    token: string;
+  }[];
+  error?: string;
+}> {
+  try {
+    const phone = normalizeUruguayPhone(rawPhone);
+    if (!phone || !/^09\d{7}$/.test(phone)) {
+      return { success: false, error: 'Ingresa un celular uruguayo valido.' };
+    }
+
+    let matchingBudgets: any[] = [];
+
+    // 1. Try querying Firestore if available
+    try {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const snapshot = await dbAdmin
+          .collection('presupuestos')
+          .where('clienteContacto', '==', phone)
+          .orderBy('timestamp', 'desc')
+          .limit(20)
+          .get();
+        
+        snapshot.forEach((doc) => {
+          matchingBudgets.push(doc.data());
+        });
+      }
+    } catch (firebaseError) {
+      console.warn('[getPublicBudgetsByPhone] Firestore query failed, falling back to JSON file:', firebaseError);
+    }
+
+    // 2. If no budgets fetched from Firestore (or failed), fallback to reading local JSON
+    if (matchingBudgets.length === 0) {
+      const allBudgets = await readData<any[]>('presupuestos.json', []);
+      matchingBudgets = allBudgets
+        .filter((b) => b.clienteContacto === phone)
+        .sort((a, b) => new Date(b.timestamp || b.eventoFecha || 0).getTime() - new Date(a.timestamp || a.eventoFecha || 0).getTime())
+        .slice(0, 20);
+    }
+
+    // 3. Map budgets and generate access tokens
+    const { generateBudgetToken } = await import('@/lib/auth/session-token');
+    const budgetsWithTokens = await Promise.all(
+      matchingBudgets.map(async (b) => {
+        const token = await generateBudgetToken(b.id);
+        return {
+          id: b.id,
+          numero: b.numero || 0,
+          clienteNombre: b.clienteNombre,
+          eventoTipo: b.eventoTipo || 'Evento',
+          eventoFecha: b.eventoFecha,
+          totalConDescuento: b.totalConDescuento || b.costoTotalEstimado || 0,
+          token,
+        };
+      })
+    );
+
+    return {
+      success: true,
+      budgets: budgetsWithTokens,
+    };
+  } catch (error: any) {
+    console.error('Error in getPublicBudgetsByPhone:', error);
+    return { success: false, error: error.message || 'Error al obtener presupuestos.' };
+  }
+}
+

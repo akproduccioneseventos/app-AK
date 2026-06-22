@@ -26,7 +26,7 @@ import {
     MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { captureSimulatorLeadProgress, getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
+import { captureSimulatorLeadProgress, getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getSocialConnections } from '@/app/actions/social-connections';
@@ -184,7 +184,7 @@ function SimuladorContent() {
     
     const [clienteNombre, setClienteNombre] = useState(prefillName);
     const [clienteContacto, setClienteContacto] = useState('');
-    const [marketingConsent, setMarketingConsent] = useState(false);
+    const [marketingConsent, setMarketingConsent] = useState(true);
     const [eventoTipo, setEventoTipo] = useState(prefillEventType);
     const [adultos, setAdultos] = useState<number>(prefillGuests);
     const [ninosYAdolescentes, setNinosYAdolescentes] = useState<number>(0);
@@ -208,6 +208,10 @@ function SimuladorContent() {
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
     const budgetDocumentRef = useRef<HTMLDivElement>(null);
+
+    const [existingBudgets, setExistingBudgets] = useState<any[]>([]);
+    const [isSearchingBudgets, setIsSearchingBudgets] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(900); // 15 minutes countdown
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     const submissionIdRef = useRef(
@@ -297,6 +301,66 @@ function SimuladorContent() {
         };
         loadInitialData();
     }, []);
+
+    useEffect(() => {
+        if (isValidUruguayMobile(clienteContacto)) {
+            const fetchBudgets = async () => {
+                setIsSearchingBudgets(true);
+                try {
+                    const res = await getPublicBudgetsByPhone(clienteContacto);
+                    if (res.success && res.budgets) {
+                        setExistingBudgets(res.budgets);
+                    } else {
+                        setExistingBudgets([]);
+                    }
+                } catch (error) {
+                    console.error("Error searching budgets:", error);
+                    setExistingBudgets([]);
+                } finally {
+                    setIsSearchingBudgets(false);
+                }
+            };
+            fetchBudgets();
+        } else {
+            setExistingBudgets([]);
+        }
+    }, [clienteContacto]);
+
+    useEffect(() => {
+        setSelectedEntradas(prev => {
+            if (prev.length > maxEntradas) {
+                const truncated = prev.slice(0, maxEntradas);
+                setFormData(formDataPrev => {
+                    const newSelected = new Map(formDataPrev.serviciosSeleccionados);
+                    const removed = prev.filter(id => !truncated.includes(id));
+                    removed.forEach(id => newSelected.delete(id));
+                    return { ...formDataPrev, serviciosSeleccionados: newSelected };
+                });
+                return truncated;
+            }
+            return prev;
+        });
+    }, [maxEntradas]);
+
+    useEffect(() => {
+        if (step !== 5) return;
+        const interval = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [step]);
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
     
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         if (checked) {
@@ -440,10 +504,10 @@ function SimuladorContent() {
 
     const handleNext = async () => {
         if (step === 1) {
-            if (clienteNombre.trim().length < 3 || !isValidUruguayMobile(clienteContacto) || !marketingConsent) {
+            if (clienteNombre.trim().length < 3 || !isValidUruguayMobile(clienteContacto)) {
                 toast({
                     title: "Revisá tus datos",
-                    description: "Ingresá tu nombre, un celular uruguayo válido y autorizá el contacto para continuar.",
+                    description: "Ingresá tu nombre y un celular uruguayo válido para continuar.",
                     variant: "destructive",
                 });
                 return;
@@ -707,6 +771,79 @@ function SimuladorContent() {
         }
     };
 
+    const handleToggleExcludedService = async (serviceId: string, remove: boolean) => {
+        if (!config || !selectedPaqueteId) return;
+        setIsGenerating(true);
+        
+        let newExcluded = [...excludedPackageServiceIds];
+        if (remove) {
+            if (!newExcluded.includes(serviceId)) {
+                newExcluded.push(serviceId);
+            }
+        } else {
+            newExcluded = newExcluded.filter(id => id !== serviceId);
+        }
+        
+        setExcludedPackageServiceIds(newExcluded);
+
+        // Compute updated stats
+        const newStats = calculateSimulatorPricing({
+            config,
+            services: allSimuladorServices,
+            adultos,
+            ninosYAdolescentes,
+            selectedPaqueteId,
+            selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
+                id,
+                esRegalo: data.esRegalo,
+            })),
+            excludedPackageServiceIds: newExcluded,
+            syntheticServices: clubUruguaySyntheticService,
+            eventoFecha,
+            annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+            currentYear,
+        });
+
+        const selectedPackageName = config.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
+        const data = {
+            submissionId: submissionIdRef.current,
+            clienteNombre,
+            clienteContacto: normalizeUruguayPhone(clienteContacto),
+            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+            adultos,
+            ninos: ninosYAdolescentes,
+            subtotal: newStats.subtotalVenta,
+            costoEstimado: newStats.totalFinal,
+            descuentoGeneral: newStats.discountPercentage,
+            ajusteAnualActivo: newStats.annualProjection.applies,
+            ajusteAnualPorcentaje: newStats.annualProjection.adjustmentPct,
+            serviciosIncluidos: newStats.detallados.map(s => s.id),
+            selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+            excludedPackageServiceIds: newExcluded,
+            paqueteId: selectedPaqueteId,
+            paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
+            includeClubUruguay: salonChoice === 'club',
+            items: simulatorDetailsToBudgetItems(newStats.detallados),
+        };
+
+        try {
+            const result = await generateBudgetAndLeadFromSimulator(data, {
+                source: 'simulator_common',
+                eventoTipo,
+                acquisition,
+                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
+            });
+            if (result.success && result.presupuestoId) {
+                setGeneratedPresupuestoId(result.presupuestoId);
+                if (result.token) setGeneratedToken(result.token);
+            } else throw new Error(result.error || "Error al actualizar.");
+        } catch (e: any) {
+            toast({ title: "Error al personalizar el paquete", description: e.message, variant: "destructive" });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     const sortedPaquetes = useMemo(() => {
         return (config?.paquetes || []).filter((p) => isPackageApplicableToEventType(p, eventoTipo));
     }, [config?.paquetes, eventoTipo]);
@@ -818,10 +955,36 @@ function SimuladorContent() {
                                 <h2 className="text-3xl sm:text-4xl font-black font-headline tracking-tighter text-slate-900 uppercase">
                                     ¡Tu presupuesto está listo!
                                 </h2>
-                                <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
+                                <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed mb-6">
                                     {budgetSettings.successMessage}
                                 </p>
                             </div>
+
+                            {/* Countdown Timer with CTA */}
+                            {timeLeft > 0 ? (
+                                <div className="w-full bg-amber-500/10 border border-amber-500/20 rounded-3xl p-6 text-center space-y-4 max-w-lg mx-auto">
+                                    <div className="flex flex-col items-center justify-center gap-2">
+                                        <Clock className="w-8 h-8 text-amber-600 animate-pulse"/>
+                                        <p className="text-sm font-black uppercase text-amber-900 tracking-wider">¡Asegurá tu Bonificación Especial del {stats.discountPercentage}%!</p>
+                                    </div>
+                                    <p className="text-xs text-slate-600 font-bold leading-relaxed">
+                                        Congelá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
+                                    </p>
+                                    <div className="text-3xl font-black text-amber-600 font-mono tracking-widest bg-white/80 py-2 rounded-xl inline-block px-5 border">
+                                        {formatTime(timeLeft)}
+                                    </div>
+                                    <Button
+                                        onClick={handleShareBudgetWhatsApp}
+                                        className="h-12 w-full rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-widest shadow-md flex items-center justify-center gap-2"
+                                    >
+                                        <Zap className="w-4 h-4 text-yellow-300 fill-yellow-300 animate-bounce" /> Congelar precio de mi evento
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="w-full bg-red-50 border border-red-100 rounded-3xl p-5 text-center max-w-lg mx-auto">
+                                    <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. Podés contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
+                                </div>
+                            )}
                             
                             <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <Button
@@ -997,6 +1160,45 @@ function SimuladorContent() {
                                 </div>
                             )}
 
+                            {selectedPackage && removablePackageServices.length > 0 && (
+                                <div className="rounded-3xl border border-slate-200 bg-white p-6 space-y-4 print:hidden text-left mb-6">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Personalización del paquete</h4>
+                                            <p className="mt-1 text-xs text-slate-500 font-semibold leading-relaxed">
+                                                Podés quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizará automáticamente:
+                                            </p>
+                                        </div>
+                                        <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-600" />
+                                    </div>
+                                    <div className="mt-4 space-y-2">
+                                        {removablePackageServices.map(service => {
+                                            const removed = excludedPackageServiceIds.includes(service.id);
+                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                            const deduction = Math.round(calculated.total * (1 - stats.discountPercentage / 100));
+                                            return (
+                                                <label key={service.id} className={cn("flex cursor-pointer items-center justify-between gap-4 rounded-xl border p-3 hover:bg-slate-50 transition-all", removed ? "border-red-200 bg-red-50/20" : "border-slate-200 bg-white")}>
+                                                    <span className="flex min-w-0 items-center gap-3">
+                                                        <Checkbox
+                                                            checked={removed}
+                                                            disabled={isGenerating}
+                                                            onCheckedChange={value => {
+                                                                handleToggleExcludedService(service.id, Boolean(value));
+                                                            }}
+                                                        />
+                                                        <span className="min-w-0">
+                                                            <span className={cn("block truncate text-xs font-black uppercase tracking-tight", removed ? "text-red-700 line-through" : "text-slate-700")}>Retirar {service.nombre}</span>
+                                                            <span className="block text-[10px] font-semibold text-slate-400">Se registrará como retirado de tu propuesta.</span>
+                                                        </span>
+                                                    </span>
+                                                    <span className="shrink-0 text-xs font-black text-red-600">-{formatCurrency(deduction)}</span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
                             {sortedPaquetes.filter(p => p.id !== selectedPaqueteId).length > 0 && (
                                 <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 space-y-4 print:hidden">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
@@ -1105,7 +1307,7 @@ function SimuladorContent() {
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900">¿Con quién hablamos?</h2>
+                                <h2 className="text-xl font-black text-slate-900">Ingresá tus datos de contacto</h2>
                                 <p className="mt-1 text-sm text-slate-500">Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación.</p>
                             </div>
                             <div className="grid gap-5 md:grid-cols-2">
@@ -1119,12 +1321,43 @@ function SimuladorContent() {
                                     <p className="text-xs text-slate-500">Acepta número uruguayo con espacios, guiones o prefijo +598.</p>
                                 </div>
                             </div>
-                            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 bg-slate-50 p-4">
-                                <Checkbox checked={marketingConsent} onCheckedChange={value => setMarketingConsent(Boolean(value))} className="mt-0.5" />
-                                <span className="text-sm leading-5 text-slate-600">
-                                    Autorizo a AK Producciones a contactarme por WhatsApp para continuar esta consulta y recibir el presupuesto.
-                                </span>
-                            </label>
+
+                            {/* Buscador de presupuestos anteriores */}
+                            {isSearchingBudgets && (
+                                <div className="flex items-center justify-center py-4 text-sm text-slate-500">
+                                    <Loader2 className="w-4 h-4 animate-spin mr-2"/>
+                                    Buscando presupuestos anteriores...
+                                </div>
+                            )}
+
+                            {!isSearchingBudgets && existingBudgets.length > 0 && (
+                                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5 space-y-3 text-left">
+                                    <div className="flex items-center gap-2 text-emerald-800">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0"/>
+                                        <p className="text-sm font-black uppercase tracking-tight">¡Encontramos presupuestos anteriores asociados a tu celular!</p>
+                                    </div>
+                                    <p className="text-xs text-slate-600 font-semibold">Detectamos que ya habías simulado. Podés continuar con la simulación actual o hacer click en cualquier presupuesto para reabrirlo:</p>
+                                    <div className="grid gap-2 max-h-48 overflow-y-auto pr-1">
+                                        {existingBudgets.map((b) => {
+                                            const formattedDate = b.eventoFecha ? new Intl.DateTimeFormat('es-UY').format(new Date(b.eventoFecha)) : 'A confirmar';
+                                            return (
+                                                <div key={b.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-emerald-100 rounded-xl hover:shadow-md transition-all">
+                                                    <div className="space-y-0.5 text-left">
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Presupuesto #{b.numero}</span>
+                                                        <p className="text-xs font-black text-slate-700 uppercase tracking-tight">{b.eventoTipo} · {formattedDate}</p>
+                                                        <p className="text-xs font-black text-emerald-700">{formatCurrency(b.totalConDescuento)}</p>
+                                                    </div>
+                                                    <Link href={`/presupuestos/${b.id}/ver?cliente=1&token=${b.token}`} target="_blank" className="shrink-0">
+                                                        <Button variant="outline" size="sm" className="w-full sm:w-auto h-9 text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-widest">
+                                                            Ver Presupuesto
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                     {step === 2 && (
@@ -1438,53 +1671,7 @@ function SimuladorContent() {
                                     );
                                 })}
                             </RadioGroup>
-                            {selectedPackage && (
-                                <section className="rounded-lg border border-slate-200 bg-slate-50 p-5">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div>
-                                            <h3 className="text-sm font-black text-slate-900">Personalización del paquete</h3>
-                                            <p className="mt-1 text-xs leading-5 text-slate-500">
-                                                {isPremiumPackage
-                                                    ? 'El paquete completo conserva todos sus servicios. Podés seguir agregando experiencias opcionales.'
-                                                    : removablePackageServices.length > 0
-                                                        ? 'Solo mostramos retiros permitidos. Servicios operativos, personal y dependencias obligatorias permanecen incluidos.'
-                                                        : 'Este paquete no tiene servicios opcionales habilitados para retiro.'}
-                                            </p>
-                                        </div>
-                                        <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-600" />
-                                    </div>
-                                    {removablePackageServices.length > 0 && (
-                                        <div className="mt-4 space-y-2">
-                                            {removablePackageServices.map(service => {
-                                                const removed = excludedPackageServiceIds.includes(service.id);
-                                                const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                                const deduction = Math.round(calculated.total * (1 - stats.discountPercentage / 100));
-                                                return (
-                                                    <label key={service.id} className="flex cursor-pointer items-center justify-between gap-4 rounded-md border border-slate-200 bg-white p-3">
-                                                        <span className="flex min-w-0 items-center gap-3">
-                                                            <Checkbox
-                                                                checked={removed}
-                                                                onCheckedChange={value => {
-                                                                    setExcludedPackageServiceIds(previous =>
-                                                                        Boolean(value)
-                                                                            ? Array.from(new Set([...previous, service.id]))
-                                                                            : previous.filter(id => id !== service.id)
-                                                                    );
-                                                                }}
-                                                            />
-                                                            <span className="min-w-0">
-                                                                <span className="block truncate text-sm font-bold text-slate-800">Retirar {service.nombre}</span>
-                                                                <span className="block text-xs text-slate-500">Se registrará como servicio retirado de la propuesta.</span>
-                                                            </span>
-                                                        </span>
-                                                        <span className="shrink-0 text-sm font-black text-red-600">-{formatCurrency(deduction)}</span>
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </section>
-                            )}
+                            {/* Personalización de paquete movido al resumen del paso 5 */}
                             {sortedPaquetes.length === 0 && (
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
