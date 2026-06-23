@@ -20,6 +20,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  transpilePackages: ['framer-motion'],
   eslint: {
     ignoreDuringBuilds: false,
   },
