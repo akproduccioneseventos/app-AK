@@ -23,6 +23,10 @@ export interface BudgetDisplaySettings {
   valuePropositions?: string[]; // Beneficios tipo "Por qué elegirnos"
   assistantWelcomeMessage?: string; // Mensaje inicial del asistente AK
   assistantFinalMessage?: string; // Mensaje final del asistente AK
+  // Configuración de bienvenida y adicionales del simulador
+  simulatorWelcomeTitle?: string;
+  simulatorWelcomeSubtitle?: string;
+  serviciosAdicionalesVisibles?: string[];
 }
 
 export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
@@ -44,7 +48,9 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
     "Personal capacitado y con amplia experiencia",
     "Flexibilidad absoluta en la planificación",
     "Garantía de satisfacción y puntualidad"
-  ]
+  ],
+  simulatorWelcomeTitle: "Ingresá tus datos de contacto",
+  simulatorWelcomeSubtitle: "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."
 };
 
 export interface InvoiceTemplateSettings {

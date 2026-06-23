@@ -641,27 +641,27 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             {/* AUDIT PANEL — shown when user clicks "Auditar presupuesto" */}
             {shouldShowPublicBudgetActions && (
               <div className="print:hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <Button
                     onClick={handleSharePublicBudget}
-                    className="h-12 rounded-xl bg-emerald-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-700 px-2"
+                    className="h-12 rounded-xl bg-emerald-600 text-[11px] sm:text-xs font-bold uppercase tracking-wide text-white hover:bg-emerald-700 px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    <Share2 className="mr-1 sm:mr-2 h-4 w-4 shrink-0" /> <span className="truncate">Compartir por WhatsApp</span>
+                    <Share2 className="h-4 w-4 shrink-0" /> <span className="truncate">Compartir por WhatsApp</span>
                   </Button>
                   <Button
                     variant="outline"
                     onClick={handleWhatsAppMeetingRequest}
-                    className="h-12 rounded-xl border-emerald-200 text-xs font-bold uppercase tracking-widest text-emerald-700 hover:bg-emerald-50"
+                    className="h-12 rounded-xl border-emerald-200 text-[11px] sm:text-xs font-bold uppercase tracking-wide text-emerald-700 hover:bg-emerald-50 px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    <MessageSquare className="mr-2 h-4 w-4 shrink-0" /> <span className="truncate">Coordinar una Reunión</span>
+                    <MessageSquare className="h-4 w-4 shrink-0" /> <span className="truncate">Coordinar una Reunión</span>
                   </Button>
                   <Button
                     variant="outline"
                     onClick={handlePrint}
                     disabled={isDownloading}
-                    className="h-12 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2"
+                    className="h-12 rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    {isDownloading ? <Loader2 className="mr-1 sm:mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-1 sm:mr-2 h-4 w-4" />}
+                    {isDownloading ? <Loader2 className="h-4 w-4 animate-spin shrink-0" /> : <Printer className="h-4 w-4 shrink-0" />}
                     <span className="truncate">Descargar PDF</span>
                   </Button>
                 </div>
@@ -842,9 +842,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-bodas'
                                 : isXV
                                 ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-xv-a-os-sitio-web'
+                                : isCatering
+                                ? 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering'
                                 : 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web';
-                              const emoji = isBoda ? '💍' : isXV ? '👑' : '🎉';
-                              const label = isBoda ? 'Ver Catálogo Bodas' : isXV ? 'Ver Catálogo XV Años' : 'Ver Catálogo Fiestas';
+                              const emoji = isBoda ? '💍' : isXV ? '👑' : isCatering ? '🍽️' : '🎉';
+                              const label = isBoda ? 'Ver Catálogo Bodas' : isXV ? 'Ver Catálogo XV Años' : isCatering ? 'Ver Catálogo Catering' : 'Ver Catálogo Fiestas';
                               return (
                                 <a href={canvaUrl} target="_blank" rel="noopener noreferrer">
                                   <Button variant="outline" size="sm" className="rounded-xl gap-1.5 text-primary border-primary/20 hover:bg-primary/5 text-[11px] font-bold uppercase tracking-widest">

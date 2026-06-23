@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-    ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2, 
-    Percent, Tag, MessageSquare, ListPlus, ShieldCheck, Zap, Info, 
+    ArrowLeft, ArrowRight, Save, Loader2, Wand2, PlusCircle, Trash2,
+    Percent, Tag, MessageSquare, ListPlus, ShieldCheck, Zap, Info,
     Package, ChefHat, Layers, Check, Search, Star, Eye, EyeOff, X, Gift, Building2,
     ChevronsUp, ChevronsDown, Copy
 } from 'lucide-react';
@@ -84,10 +84,15 @@ const generateClientSideId = (prefix: string): string => {
   return `${prefix}_${Date.now()}`;
 };
 
+const formatCurrency = (amount?: number) => {
+    if (amount === undefined || isNaN(amount)) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
 export default function BudgetDisplaySettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  
+
   // Data States
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
   const [budgetSettings, setBudgetSettings] = useState<BudgetDisplaySettings | null>(null);
@@ -97,12 +102,13 @@ export default function BudgetDisplaySettingsPage() {
   const [initialCopilotConfig, setInitialCopilotConfig] = useState<CopilotConfig | null>(null);
   const [servicios, setServicios] = useState<ServicioEmpresa[]>([]);
   const [allDishes, setAllDishes] = useState<MenuItem[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   // UI States
   const [dishSearchTerm, setDishSearchTerm] = useState('');
+  const [servicesSearchTerm, setServicesSearchTerm] = useState('');
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [activePackageId, setActivePackageId] = useState<string | null>(null);
@@ -421,10 +427,11 @@ export default function BudgetDisplaySettingsPage() {
       </header>
 
       <Tabs defaultValue="estrategia" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-slate-100 p-1 rounded-2xl h-auto md:h-14 border border-slate-200">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 bg-slate-100 p-1 rounded-2xl h-auto md:h-14 border border-slate-200">
             <TabsTrigger value="estrategia" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Venta PRO</TabsTrigger>
             <TabsTrigger value="paquetes" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Paquetes</TabsTrigger>
             <TabsTrigger value="platos" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Platos</TabsTrigger>
+            <TabsTrigger value="adicionales" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Adicionales</TabsTrigger>
             <TabsTrigger value="dependencias" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Reglas</TabsTrigger>
             <TabsTrigger value="copilot" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Asistente IA</TabsTrigger>
         </TabsList>
@@ -441,24 +448,24 @@ export default function BudgetDisplaySettingsPage() {
                 <CardContent className="p-6 md:p-8 space-y-6">
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mensaje Principal de Éxito</Label>
-                        <Textarea 
-                            value={budgetSettings?.successMessage || ''} 
+                        <Textarea
+                            value={budgetSettings?.successMessage || ''}
                             onChange={e => setBudgetSettings(s => s ? { ...s, successMessage: e.target.value } : null)}
                             className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[80px] text-sm"
                         />
                     </div>
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Condiciones de Reserva (Seña)</Label>
-                        <Textarea 
-                            value={budgetSettings?.bookingTerms || ''} 
+                        <Textarea
+                            value={budgetSettings?.bookingTerms || ''}
                             onChange={e => setBudgetSettings(s => s ? { ...s, bookingTerms: e.target.value } : null)}
                             className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[80px] text-sm"
                         />
                     </div>
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mensaje de WhatsApp automático</Label>
-                        <Textarea 
-                            value={budgetSettings?.whatsappMessageTemplate || ''} 
+                        <Textarea
+                            value={budgetSettings?.whatsappMessageTemplate || ''}
                             onChange={e => setBudgetSettings(s => s ? { ...s, whatsappMessageTemplate: e.target.value } : null)}
                             className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[80px] text-sm"
                         />
@@ -483,16 +490,35 @@ export default function BudgetDisplaySettingsPage() {
                     </div>
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Características de la Empresa (Beneficios)</Label>
-                        <Textarea 
-                            value={budgetSettings?.valuePropositions?.join('\n') || ''} 
-                            onChange={e => setBudgetSettings(s => s ? { 
-                                ...s, 
+                        <Textarea
+                            value={budgetSettings?.valuePropositions?.join('\n') || ''}
+                            onChange={e => setBudgetSettings(s => s ? {
+                                ...s,
                                 valuePropositions: e.target.value.split('\n').filter(line => line.trim())
                             } : null)}
                             className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[120px] text-sm"
                             placeholder={"Equipamiento profesional de alta gama\nPersonal capacitado\nGarantía de satisfacción"}
                         />
                         <p className="text-[10px] text-slate-500">Escribe una característica por línea. Estas viñetas se mostrarán al final de los presupuestos manuales y del simulador.</p>
+                    </div>
+                    <Separator className="bg-slate-100" />
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Título de Bienvenida del Simulador (Slogan)</Label>
+                        <Input
+                            value={budgetSettings?.simulatorWelcomeTitle || ''}
+                            onChange={e => setBudgetSettings(s => s ? { ...s, simulatorWelcomeTitle: e.target.value } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner h-12 text-sm"
+                            placeholder="Ingresá tus datos de contacto"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subtítulo de Bienvenida del Simulador</Label>
+                        <Textarea
+                            value={budgetSettings?.simulatorWelcomeSubtitle || ''}
+                            onChange={e => setBudgetSettings(s => s ? { ...s, simulatorWelcomeSubtitle: e.target.value } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[60px] text-sm"
+                            placeholder="Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."
+                        />
                     </div>
                 </CardContent>
             </Card>
@@ -507,9 +533,9 @@ export default function BudgetDisplaySettingsPage() {
                     <div className="flex flex-col md:flex-row md:items-center gap-6">
                         <div className="space-y-2 shrink-0">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Ajuste anual de precios de la empresa (%)</Label>
-                            <Input 
-                                type="number" 
-                                value={budgetSettings?.annualAdjustmentPercentage ?? 15} 
+                            <Input
+                                type="number"
+                                value={budgetSettings?.annualAdjustmentPercentage ?? 15}
                                 onChange={e => setBudgetSettings(s => s ? { ...s, annualAdjustmentPercentage: Number(e.target.value) } : null)}
                                 className="h-12 rounded-xl bg-white/10 border-none text-white font-bold w-full md:w-32"
                             />
@@ -621,14 +647,14 @@ export default function BudgetDisplaySettingsPage() {
                   <PlusCircle className="w-4 h-4 mr-2"/> Crear Paquete
                 </Button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {visiblePackages.map(pkg => (
                      <Card key={pkg.id} className={cn("border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white", pkg.recommended && "ring-4 ring-primary/20")}>
                         <CardHeader className="bg-slate-50 p-6 border-b border-slate-100 flex flex-row items-center justify-between">
                             <div className="space-y-1 flex-grow">
-                                <Input 
-                                    value={pkg.nombre} 
+                                <Input
+                                    value={pkg.nombre}
                                     onChange={e => setConfig(prev => prev ? ({...prev, paquetes: prev.paquetes.map(p => p.id === pkg.id ? {...p, nombre: e.target.value} : p)}) : null)}
                                     className="font-black uppercase tracking-tight text-slate-800 border-none bg-transparent p-0 h-auto focus-visible:ring-0 text-lg"
                                 />
@@ -794,6 +820,78 @@ export default function BudgetDisplaySettingsPage() {
             </Card>
         </TabsContent>
 
+        {/* 3.5. SERVICIOS ADICIONALES VISIBLES */}
+        <TabsContent value="adicionales" className="space-y-6 pt-4 animate-in fade-in duration-500">
+            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
+                <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
+                            <ListPlus className="w-5 h-5 text-primary"/> Servicios Adicionales en Simulador
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Selecciona qué servicios del catálogo maestro se ofrecerán como opcionales en el Paso 4 del simulador.
+                        </CardDescription>
+                    </div>
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
+                        <Input
+                            placeholder="Buscar servicio..."
+                            value={servicesSearchTerm}
+                            onChange={e => setServicesSearchTerm(e.target.value)}
+                            className="rounded-xl pl-9 bg-white h-10 text-slate-900"
+                        />
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <ScrollArea className="h-[60vh]">
+                        <div className="min-w-full inline-block align-middle">
+                            <Table>
+                                <TableHeader className="bg-slate-50/50">
+                                    <TableRow className="border-slate-100">
+                                        <TableHead className="pl-6 text-[10px] font-black uppercase">Servicio / Categoría</TableHead>
+                                        <TableHead className="text-center text-[10px] font-black uppercase w-32">Ofrecido en Simulador</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {servicios
+                                        .filter(s => !servicesSearchTerm || s.nombre.toLowerCase().includes(servicesSearchTerm.toLowerCase()) || (s.categoria || '').toLowerCase().includes(servicesSearchTerm.toLowerCase()))
+                                        .map(service => {
+                                            const isChecked = budgetSettings?.serviciosAdicionalesVisibles?.includes(service.id) ?? false;
+                                            return (
+                                                <TableRow key={service.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                                                    <TableCell className="pl-6 py-4">
+                                                        <div className="font-bold text-slate-800 text-xs">{service.nombre}</div>
+                                                        <div className="text-[9px] text-slate-400 font-semibold uppercase">{service.categoria} · {formatCurrency(service.precioVenta || service.precioPorPersona || service.precioBase || 0)}</div>
+                                                    </TableCell>
+                                                    <TableCell className="text-center">
+                                                        <Switch
+                                                            checked={isChecked}
+                                                            onCheckedChange={checked => {
+                                                                setBudgetSettings(s => {
+                                                                    if (!s) return null;
+                                                                    const current = s.serviciosAdicionalesVisibles || [];
+                                                                    const updated = checked
+                                                                        ? [...current, service.id]
+                                                                        : current.filter(id => id !== service.id);
+                                                                    return {
+                                                                        ...s,
+                                                                        serviciosAdicionalesVisibles: updated
+                                                                    };
+                                                                });
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </ScrollArea>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
         {/* 4. DEPENDENCIAS */}
         <TabsContent value="dependencias" className="space-y-6 pt-4 animate-in fade-in duration-500">
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
@@ -819,7 +917,7 @@ export default function BudgetDisplaySettingsPage() {
                             <Button variant="ghost" size="icon" onClick={() => setConfig(prev => prev ? ({...prev, serviceDependencies: prev.serviceDependencies?.filter(d => d.id !== dep.id)}) : null)} className="text-slate-300 hover:text-destructive md:opacity-0 md:group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></Button>
                         </div>
                     ))}
-                    
+
                     <div className="pt-6 border-t border-slate-100">
                         <p className="text-[10px] font-black uppercase text-slate-400 mb-4 text-center tracking-widest">Añadir Nueva Regla</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
@@ -965,10 +1063,10 @@ export default function BudgetDisplaySettingsPage() {
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               {hasUnsavedChanges ? 'Hay cambios sin guardar' : 'Todos los cambios guardados'}
             </p>
-            <Button 
-                onClick={async () => { await handleSaveAll(); }} 
-                disabled={isSaving || !hasUnsavedChanges || !config} 
-                size="lg" 
+            <Button
+                onClick={async () => { await handleSaveAll(); }}
+                disabled={isSaving || !hasUnsavedChanges || !config}
+                size="lg"
                 className="rounded-2xl w-full md:w-auto px-12 h-14 font-black text-base shadow-2xl shadow-primary/30"
             >
                 {isSaving ? <Loader2 className="animate-spin mr-3"/> : <Save className="w-5 h-5 mr-3"/>}
