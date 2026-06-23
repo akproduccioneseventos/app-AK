@@ -84,6 +84,11 @@ const generateClientSideId = (prefix: string): string => {
   return `${prefix}_${Date.now()}`;
 };
 
+const formatCurrency = (amount?: number) => {
+    if (amount === undefined || isNaN(amount)) return 'N/A';
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
 export default function BudgetDisplaySettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -103,6 +108,7 @@ export default function BudgetDisplaySettingsPage() {
 
   // UI States
   const [dishSearchTerm, setDishSearchTerm] = useState('');
+  const [servicesSearchTerm, setServicesSearchTerm] = useState('');
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [activePackageId, setActivePackageId] = useState<string | null>(null);
@@ -421,10 +427,11 @@ export default function BudgetDisplaySettingsPage() {
       </header>
 
       <Tabs defaultValue="estrategia" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-slate-100 p-1 rounded-2xl h-auto md:h-14 border border-slate-200">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 bg-slate-100 p-1 rounded-2xl h-auto md:h-14 border border-slate-200">
             <TabsTrigger value="estrategia" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Venta PRO</TabsTrigger>
             <TabsTrigger value="paquetes" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Paquetes</TabsTrigger>
             <TabsTrigger value="platos" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Platos</TabsTrigger>
+            <TabsTrigger value="adicionales" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Adicionales</TabsTrigger>
             <TabsTrigger value="dependencias" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Reglas</TabsTrigger>
             <TabsTrigger value="copilot" className="rounded-xl font-bold uppercase text-[10px] tracking-widest py-3">Asistente IA</TabsTrigger>
         </TabsList>
@@ -493,6 +500,25 @@ export default function BudgetDisplaySettingsPage() {
                             placeholder={"Equipamiento profesional de alta gama\nPersonal capacitado\nGarantía de satisfacción"}
                         />
                         <p className="text-[10px] text-slate-500">Escribe una característica por línea. Estas viñetas se mostrarán al final de los presupuestos manuales y del simulador.</p>
+                    </div>
+                    <Separator className="bg-slate-100" />
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Título de Bienvenida del Simulador (Slogan)</Label>
+                        <Input 
+                            value={budgetSettings?.simulatorWelcomeTitle || ''} 
+                            onChange={e => setBudgetSettings(s => s ? { ...s, simulatorWelcomeTitle: e.target.value } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner h-12 text-sm"
+                            placeholder="Ingresá tus datos de contacto"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subtítulo de Bienvenida del Simulador</Label>
+                        <Textarea 
+                            value={budgetSettings?.simulatorWelcomeSubtitle || ''} 
+                            onChange={e => setBudgetSettings(s => s ? { ...s, simulatorWelcomeSubtitle: e.target.value } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[60px] text-sm"
+                            placeholder="Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."
+                        />
                     </div>
                 </CardContent>
             </Card>
@@ -786,6 +812,78 @@ export default function BudgetDisplaySettingsPage() {
                                             </TableRow>
                                         );
                                     })}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </ScrollArea>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        {/* 3.5. SERVICIOS ADICIONALES VISIBLES */}
+        <TabsContent value="adicionales" className="space-y-6 pt-4 animate-in fade-in duration-500">
+            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
+                <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
+                            <ListPlus className="w-5 h-5 text-primary"/> Servicios Adicionales en Simulador
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Selecciona qué servicios del catálogo maestro se ofrecerán como opcionales en el Paso 4 del simulador.
+                        </CardDescription>
+                    </div>
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/>
+                        <Input 
+                            placeholder="Buscar servicio..." 
+                            value={servicesSearchTerm} 
+                            onChange={e => setServicesSearchTerm(e.target.value)} 
+                            className="rounded-xl pl-9 bg-white h-10 text-slate-900"
+                        />
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <ScrollArea className="h-[60vh]">
+                        <div className="min-w-full inline-block align-middle">
+                            <Table>
+                                <TableHeader className="bg-slate-50/50">
+                                    <TableRow className="border-slate-100">
+                                        <TableHead className="pl-6 text-[10px] font-black uppercase">Servicio / Categoría</TableHead>
+                                        <TableHead className="text-center text-[10px] font-black uppercase w-32">Ofrecido en Simulador</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {servicios
+                                        .filter(s => !servicesSearchTerm || s.nombre.toLowerCase().includes(servicesSearchTerm.toLowerCase()) || (s.categoria || '').toLowerCase().includes(servicesSearchTerm.toLowerCase()))
+                                        .map(service => {
+                                            const isChecked = budgetSettings?.serviciosAdicionalesVisibles?.includes(service.id) ?? false;
+                                            return (
+                                                <TableRow key={service.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                                                    <TableCell className="pl-6 py-4">
+                                                        <div className="font-bold text-slate-800 text-xs">{service.nombre}</div>
+                                                        <div className="text-[9px] text-slate-400 font-semibold uppercase">{service.categoria} · {formatCurrency(service.precioVenta || service.precioPorPersona || service.precioBase || 0)}</div>
+                                                    </TableCell>
+                                                    <TableCell className="text-center">
+                                                        <Switch 
+                                                            checked={isChecked}
+                                                            onCheckedChange={checked => {
+                                                                setBudgetSettings(s => {
+                                                                    if (!s) return null;
+                                                                    const current = s.serviciosAdicionalesVisibles || [];
+                                                                    const updated = checked 
+                                                                        ? [...current, service.id] 
+                                                                        : current.filter(id => id !== service.id);
+                                                                    return {
+                                                                        ...s,
+                                                                        serviciosAdicionalesVisibles: updated
+                                                                    };
+                                                                });
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
                                 </TableBody>
                             </Table>
                         </div>

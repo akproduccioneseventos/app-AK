@@ -8,6 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter
+} from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
     ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, 
@@ -58,6 +66,7 @@ import {
   calculateSimulatorPricing,
   getSimulatorServiceCalculatedData,
   simulatorDetailsToBudgetItems,
+  type SimulatorDetailedService,
 } from '@/lib/simulator/pricing';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { isValidUruguayMobile, normalizeUruguayPhone, toWhatsAppNumber } from '@/lib/commercial/contact';
@@ -205,6 +214,7 @@ function SimuladorContent() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+    const [serviceToDelete, setServiceToDelete] = useState<SimulatorDetailedService | null>(null);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
     const budgetDocumentRef = useRef<HTMLDivElement>(null);
@@ -426,13 +436,19 @@ function SimuladorContent() {
     }, [config?.clubUruguayConfig, salonChoice]);
 
     const technologyServices = useMemo(() => {
+        if (budgetSettings?.serviciosAdicionalesVisibles && budgetSettings.serviciosAdicionalesVisibles.length > 0) {
+            const visibleIds = new Set(budgetSettings.serviciosAdicionalesVisibles);
+            return serviciosCatalogo
+                .filter(service => visibleIds.has(service.id))
+                .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) || a.nombre.localeCompare(b.nombre));
+        }
         const technologyPattern = /\b(led|pantalla|totem|t[oó]tem|360|fotocabina|foto cabina|espejo|muro social|plataforma)\b/i;
         return serviciosCatalogo
             .filter(service =>
                 technologyPattern.test(`${service.nombre} ${service.categoria || ''} ${service.subcategoria || ''} ${service.notas || ''}`)
             )
             .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) || a.nombre.localeCompare(b.nombre));
-    }, [serviciosCatalogo]);
+    }, [serviciosCatalogo, budgetSettings?.serviciosAdicionalesVisibles]);
 
     const toggleTechnologyService = useCallback((service: ServicioEmpresa, selected: boolean) => {
         setFormData(previous => {
@@ -627,6 +643,41 @@ function SimuladorContent() {
         }
     }, []);
 
+    const handleConfirmDeleteService = () => {
+        if (!serviceToDelete) return;
+        const serviceId = serviceToDelete.id;
+
+        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
+
+        if (isFromPackage) {
+            setExcludedPackageServiceIds(prev => {
+                if (!prev.includes(serviceId)) {
+                    return [...prev, serviceId];
+                }
+                return prev;
+            });
+        } else {
+            setFormData(prev => {
+                const next = new Map(prev.serviciosSeleccionados);
+                next.delete(serviceId);
+                return { ...prev, serviciosSeleccionados: next };
+            });
+
+            if (selectedEntradas.includes(serviceId)) {
+                setSelectedEntradas(prev => prev.filter(id => id !== serviceId));
+            }
+            if (selectedPrincipal === serviceId) {
+                setSelectedPrincipal('');
+            }
+            if (selectedInfantil === serviceId) {
+                setSelectedInfantil('');
+            }
+        }
+
+        setServiceToDelete(null);
+    };
+
     const handleWhatsAppQuickConsult = () => {
         const destination = toWhatsAppNumber(whatsappNumber);
         const texto = `¡Hola AK Producciones! Soy ${clienteNombre}. Quiero coordinar una reunión para revisar el presupuesto de mi ${eventoTipo}.`;
@@ -659,12 +710,12 @@ function SimuladorContent() {
             const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
             await pdf.html(budgetDocumentRef.current, {
                 autoPaging: 'text',
-                margin: [10, 10, 16, 10],
-                width: 190,
-                windowWidth: 860,
+                margin: [12, 12, 16, 12],
+                width: 186,
+                windowWidth: 1024,
                 html2canvas: {
                     backgroundColor: '#ffffff',
-                    scale: 0.9,
+                    scale: 0.8,
                     useCORS: true,
                 },
             });
@@ -673,7 +724,7 @@ function SimuladorContent() {
                 pdf.setPage(page);
                 pdf.setFontSize(8);
                 pdf.setTextColor(100);
-                pdf.text(`Página ${page} de ${totalPages}`, 200, 290, { align: 'right' });
+                pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
             }
             pdf.save(`presupuesto-ak-${generatedPresupuestoId}.pdf`);
         } catch (error: any) {
@@ -986,19 +1037,19 @@ function SimuladorContent() {
                                 </div>
                             )}
                             
-                            <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
                                     className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
                                 >
-                                    <Share2 className="w-4 h-4 shrink-0"/> Compartir por WhatsApp
+                                    <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Compartir por WhatsApp</span>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={handleWhatsAppQuickConsult}
                                     className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
                                 >
-                                    <MessageSquare className="w-4 h-4 shrink-0"/> Coordinar una Reunión
+                                    <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar una Reunión</span>
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -1009,19 +1060,19 @@ function SimuladorContent() {
                                     {isDownloadingPdf
                                         ? <Loader2 className="h-4 w-4 animate-spin shrink-0" />
                                         : <FileDown className="h-4 w-4 shrink-0" />}
-                                    Descargar PDF
+                                    <span className="truncate">Descargar PDF</span>
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card ref={budgetDocumentRef} className="shadow-3xl print:shadow-none border border-slate-200 rounded-[2.5rem] overflow-hidden bg-white print:bg-white">
-                        <CardHeader className="text-center bg-slate-800 p-6 sm:p-10 border-b border-slate-700 print:bg-white print:border-slate-200">
+                        <CardHeader className="text-center bg-white p-6 sm:p-10 border-b border-slate-200">
                             <div className="flex justify-center mb-4">
-                              <CompanyLogo size="sm" src={logoUrl || undefined} className="brightness-0 invert opacity-80 print:brightness-100 print:invert-0" />
+                              <CompanyLogo size="sm" src={logoUrl || undefined} className="print:brightness-100" />
                             </div>
-                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-white print:text-slate-900">Presupuesto Estimado</CardTitle>
-                            <p className="text-slate-400 font-medium text-sm mt-2 print:text-slate-600">AK Producciones Eventos — Salto, Uruguay</p>
+                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-slate-800">Presupuesto Estimado</CardTitle>
+                            <p className="text-slate-500 font-semibold text-sm mt-2">AK Producciones Eventos — Salto, Uruguay</p>
                         </CardHeader>
                         <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
                             <div className="border border-slate-200 rounded-[2rem] overflow-x-auto print:border-slate-300">
@@ -1046,14 +1097,24 @@ function SimuladorContent() {
                                                 {items.map(item => (
                                                     <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
                                                         <TableCell className="pl-8 py-4">
-                                                            <div className="flex items-center gap-2">
-                                                              <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <div>
+                                                                    <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
+                                                                    {(budgetSettings.showIndividualPrices ?? true) && (
+                                                                        <p className="text-[10px] text-muted-foreground uppercase font-medium">
+                                                                            {formatCurrency(item.precioUnitario)}{esCategoriaGastronomica(item.categoria, item.calculationMethod) ? ' / PP' : ' c/u'}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => setServiceToDelete(item)}
+                                                                    className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full print:hidden shrink-0"
+                                                                >
+                                                                    <X className="w-4 h-4" />
+                                                                </Button>
                                                             </div>
-                                                            {(budgetSettings.showIndividualPrices ?? true) && (
-                                                              <p className="text-[10px] text-muted-foreground uppercase font-medium">
-                                                                {formatCurrency(item.precioUnitario)}{esCategoriaGastronomica(item.categoria, item.calculationMethod) ? ' / PP' : ' c/u'}
-                                                              </p>
-                                                            )}
                                                         </TableCell>
                                                         {(budgetSettings.showIndividualPrices ?? true) && (
                                                           <>
@@ -1087,8 +1148,22 @@ function SimuladorContent() {
                                                 {removedServiceDetails.map(item => (
                                                     <TableRow key={item.id} className="border-slate-100">
                                                         <TableCell className="py-4 pl-8">
-                                                            <p className="text-sm font-bold text-slate-500 line-through">{item.name}</p>
-                                                            <p className="text-[10px] font-bold uppercase text-red-600">Retirado por el cliente</p>
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-slate-500 line-through">{item.name}</p>
+                                                                    <p className="text-[10px] font-bold uppercase text-red-600">Retirado por el cliente</p>
+                                                                </div>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => {
+                                                                        setExcludedPackageServiceIds(prev => prev.filter(id => id !== item.id));
+                                                                    }}
+                                                                    className="h-8 px-3 text-[10px] font-black uppercase border-red-200 text-red-700 hover:bg-red-50 rounded-xl print:hidden shrink-0"
+                                                                >
+                                                                    Agregar
+                                                                </Button>
+                                                            </div>
                                                         </TableCell>
                                                         {(budgetSettings.showIndividualPrices ?? true) && (
                                                             <>
@@ -1104,42 +1179,42 @@ function SimuladorContent() {
                                 </Table>
                             </div>
                             
-                            <div className="w-full max-w-sm ml-auto space-y-3 py-8 px-10 bg-slate-800 text-white rounded-[2rem] shadow-xl border border-slate-700 print:bg-white print:text-slate-900 print:border-slate-300">
+                            <div className="w-full max-w-sm ml-auto space-y-3 py-6 px-8 bg-slate-50 text-slate-900 rounded-[1.5rem] border border-slate-200 shadow-sm">
                                 {(budgetSettings.showIndividualPrices ?? true) && (
-                                  <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest print:text-slate-600">
-                                      <span>Subtotal Servicios:</span>
-                                      <span>{formatCurrency(stats.subtotalBruto)}</span>
-                                  </div>
-                                )}
-                                {stats.ahorroRegalos > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">
-                                        <span>Ahorro Regalos Incluidos:</span>
-                                        <span>-{formatCurrency(stats.ahorroRegalos)}</span>
-                                    </div>
-                                )}
-                                {stats.descPromo > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400 tracking-widest">
-                                        <span>Bonificación Especial ({stats.discountPercentage}%):</span>
-                                        <span>-{formatCurrency(stats.descPromo)}</span>
-                                    </div>
-                                )}
-                                {(stats.ahorroRegalos + stats.descPromo) > 0 && (
-                                    <div className="flex justify-between items-center rounded-md bg-emerald-500/10 px-3 py-2 text-[10px] font-black uppercase text-emerald-300 tracking-widest print:border print:border-emerald-200 print:bg-emerald-50 print:text-emerald-800">
-                                        <span>Ahorro total:</span>
-                                        <span>{formatCurrency(stats.ahorroRegalos + stats.descPromo)}</span>
-                                    </div>
-                                )}
-                                <Separator className="bg-white/10 print:bg-slate-300" />
-                                <div className="flex justify-between items-center pt-2">
-                                    <span className="text-sm font-black uppercase tracking-tighter text-white print:text-slate-900">Precio vigente:</span>
-                                    <span className="text-3xl font-black text-white print:text-slate-900">{formatCurrency(stats.totalFinal)}</span>
-                                </div>
-                                {stats.precioPorPersona > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest print:text-slate-600">
-                                        <span>Valor aprox. por persona:</span>
-                                        <span>{formatCurrency(stats.precioPorPersona)}</span>
-                                    </div>
-                                )}
+                                   <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                                       <span>Subtotal Servicios:</span>
+                                       <span>{formatCurrency(stats.subtotalBruto)}</span>
+                                   </div>
+                                 )}
+                                 {stats.ahorroRegalos > 0 && (
+                                     <div className="flex justify-between items-center text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em]">
+                                         <span>Ahorro Regalos Incluidos:</span>
+                                         <span>-{formatCurrency(stats.ahorroRegalos)}</span>
+                                     </div>
+                                 )}
+                                 {stats.descPromo > 0 && (
+                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-600 tracking-widest">
+                                         <span>Bonificación Especial ({stats.discountPercentage}%):</span>
+                                         <span>-{formatCurrency(stats.descPromo)}</span>
+                                     </div>
+                                 )}
+                                 {(stats.ahorroRegalos + stats.descPromo) > 0 && (
+                                     <div className="flex justify-between items-center rounded-md bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase text-emerald-800 tracking-widest border border-emerald-100">
+                                         <span>Ahorro total:</span>
+                                         <span>{formatCurrency(stats.ahorroRegalos + stats.descPromo)}</span>
+                                     </div>
+                                 )}
+                                 <Separator className="bg-slate-200" />
+                                 <div className="flex justify-between items-center pt-2">
+                                     <span className="text-sm font-black uppercase tracking-tighter text-slate-700">Precio vigente:</span>
+                                     <span className="text-3xl font-black text-slate-900">{formatCurrency(stats.totalFinal)}</span>
+                                 </div>
+                                 {stats.precioPorPersona > 0 && (
+                                     <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                                         <span>Valor aprox. por persona:</span>
+                                         <span>{formatCurrency(stats.precioPorPersona)}</span>
+                                     </div>
+                                 )}
                             </div>
                             {stats.annualProjection.applies && (
                                 <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm">
@@ -1307,8 +1382,8 @@ function SimuladorContent() {
                     {step === 1 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900">Ingresá tus datos de contacto</h2>
-                                <p className="mt-1 text-sm text-slate-500">Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación.</p>
+                                <h2 className="text-xl font-black text-slate-900">{budgetSettings?.simulatorWelcomeTitle || "Ingresá tus datos de contacto"}</h2>
+                                <p className="mt-1 text-sm text-slate-500">{budgetSettings?.simulatorWelcomeSubtitle || "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."}</p>
                             </div>
                             <div className="grid gap-5 md:grid-cols-2">
                                 <div className="space-y-2">
@@ -1560,49 +1635,6 @@ function SimuladorContent() {
                     )}
                     {step === 4 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
-                            {technologyServices.length > 0 && (
-                                <section className="space-y-5 border-b border-slate-200 pb-8">
-                                    <div className="flex flex-col gap-2">
-                                        <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-700">Tecnologia AK configurable</p>
-                                        <h3 className="text-2xl font-black text-slate-900">Hace visible el impacto de tu fiesta</h3>
-                                        <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                                            Estas opciones salen del catalogo real de AK. Al activarlas se agregan al calculo y al presupuesto para que el equipo pueda validarlas.
-                                        </p>
-                                    </div>
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        {technologyServices.map(service => {
-                                            const selected = formData.serviciosSeleccionados.has(service.id);
-                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                            return (
-                                                <label
-                                                    key={service.id}
-                                                    className={cn(
-                                                        'flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition',
-                                                        selected
-                                                            ? 'border-fuchsia-500 bg-fuchsia-50 shadow-lg shadow-fuchsia-100'
-                                                            : 'border-slate-200 bg-white hover:border-fuchsia-200'
-                                                    )}
-                                                >
-                                                    <Checkbox
-                                                        checked={selected}
-                                                        onCheckedChange={value => toggleTechnologyService(service, Boolean(value))}
-                                                        className="mt-1 h-6 w-6"
-                                                    />
-                                                    <span className="min-w-0 flex-1">
-                                                        <span className="block font-black text-slate-900">{service.nombre}</span>
-                                                        <span className="mt-1 block text-xs font-semibold text-slate-500">
-                                                            {service.notas || service.subcategoria || service.categoria || 'Experiencia tecnologica AK'}
-                                                        </span>
-                                                        <span className="mt-3 block text-sm font-black text-fuchsia-700">
-                                                            {formatCurrency(calculated.total)}
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                            );
-                                        })}
-                                    </div>
-                                </section>
-                            )}
                             <h3 className="font-black text-xl text-slate-800 uppercase tracking-tighter text-center">Selecciona tu Paquete de Servicios</h3>
                             <RadioGroup
                                 value={selectedPaqueteId}
@@ -1671,10 +1703,58 @@ function SimuladorContent() {
                                     );
                                 })}
                             </RadioGroup>
-                            {/* Personalización de paquete movido al resumen del paso 5 */}
                             {sortedPaquetes.length === 0 && (
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
+
+                            {technologyServices.length > 0 && (
+                                <section className="space-y-5 border-t border-slate-200 pt-8">
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-700">
+                                            {budgetSettings?.serviciosAdicionalesVisibles && budgetSettings.serviciosAdicionalesVisibles.length > 0
+                                                ? "Servicios Adicionales Disponibles"
+                                                : "Tecnologia AK configurable"}
+                                        </p>
+                                        <h3 className="text-2xl font-black text-slate-900">Hace visible el impacto de tu fiesta</h3>
+                                        <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                                            Estas opciones salen del catalogo real de AK. Al activarlas se agregan al calculo y al presupuesto para que el equipo pueda validarlas.
+                                        </p>
+                                    </div>
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        {technologyServices.map(service => {
+                                            const selected = formData.serviciosSeleccionados.has(service.id);
+                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                            return (
+                                                <label
+                                                    key={service.id}
+                                                    className={cn(
+                                                        'flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition',
+                                                        selected
+                                                            ? 'border-fuchsia-500 bg-fuchsia-50 shadow-lg shadow-fuchsia-100'
+                                                            : 'border-slate-200 bg-white hover:border-fuchsia-200'
+                                                    )}
+                                                >
+                                                    <Checkbox
+                                                        checked={selected}
+                                                        onCheckedChange={value => toggleTechnologyService(service, Boolean(value))}
+                                                        className="mt-1 h-6 w-6"
+                                                    />
+                                                    <span className="min-w-0 flex-1">
+                                                        <span className="block font-black text-slate-900">{service.nombre}</span>
+                                                        <span className="mt-1 block text-xs font-semibold text-slate-500">
+                                                            {service.notas || service.subcategoria || service.categoria || 'Experiencia tecnologica AK'}
+                                                        </span>
+                                                        <span className="mt-3 block text-sm font-black text-fuchsia-700">
+                                                            {formatCurrency(calculated.total)}
+                                                        </span>
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            )}
+
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
                               <strong>Precios {currentYear}</strong>
                               {stats.annualProjection.applies
@@ -1701,6 +1781,27 @@ function SimuladorContent() {
                     </div>
                 </CardFooter>
             </Card>
+
+            <Dialog open={serviceToDelete !== null} onOpenChange={(open) => { if (!open) setServiceToDelete(null); }}>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-slate-900 font-black uppercase text-base flex items-center gap-2">
+                            ⚠️ ¿Eliminar servicio?
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-600 text-sm font-semibold">
+                            ¿Estás seguro de que deseas eliminar el servicio <span className="text-rose-600 font-bold">"{serviceToDelete?.nombre}"</span> de tu presupuesto?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-4 flex gap-2 justify-end">
+                        <Button variant="outline" onClick={() => setServiceToDelete(null)} className="rounded-xl font-bold">
+                            Cancelar
+                        </Button>
+                        <Button onClick={handleConfirmDeleteService} className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold">
+                            Eliminar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
