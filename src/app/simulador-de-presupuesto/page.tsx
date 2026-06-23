@@ -436,7 +436,7 @@ function SimuladorContent() {
     }, [config?.clubUruguayConfig, salonChoice]);
 
     const technologyServices = useMemo(() => {
-        if (budgetSettings?.serviciosAdicionalesVisibles && budgetSettings.serviciosAdicionalesVisibles.length > 0) {
+        if (budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null) {
             const visibleIds = new Set(budgetSettings.serviciosAdicionalesVisibles);
             return serviciosCatalogo
                 .filter(service => visibleIds.has(service.id))
@@ -636,46 +636,105 @@ function SimuladorContent() {
         const availability = await checkDateAvailability(date.toISOString());
         if (availability.isOccupied) {
             setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
-            setDateSuggestions(availability.suggestions || []);
         } else {
             setDateWarning('');
             setDateSuggestions([]);
         }
     }, []);
 
-    const handleConfirmDeleteService = () => {
-        if (!serviceToDelete) return;
+    const handleConfirmDeleteService = async () => {
+        if (!serviceToDelete || !config) return;
         const serviceId = serviceToDelete.id;
+        setIsGenerating(true);
 
         const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
-        if (isFromPackage) {
-            setExcludedPackageServiceIds(prev => {
-                if (!prev.includes(serviceId)) {
-                    return [...prev, serviceId];
-                }
-                return prev;
-            });
-        } else {
-            setFormData(prev => {
-                const next = new Map(prev.serviciosSeleccionados);
-                next.delete(serviceId);
-                return { ...prev, serviciosSeleccionados: next };
-            });
+        let newExcluded = [...excludedPackageServiceIds];
+        let newSelectedServicesMap = new Map(formData.serviciosSeleccionados);
+        let newSelectedEntradas = [...selectedEntradas];
+        let newSelectedPrincipal = selectedPrincipal;
+        let newSelectedInfantil = selectedInfantil;
 
-            if (selectedEntradas.includes(serviceId)) {
-                setSelectedEntradas(prev => prev.filter(id => id !== serviceId));
+        if (isFromPackage) {
+            if (!newExcluded.includes(serviceId)) {
+                newExcluded.push(serviceId);
             }
-            if (selectedPrincipal === serviceId) {
+            setExcludedPackageServiceIds(newExcluded);
+        } else {
+            newSelectedServicesMap.delete(serviceId);
+            setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelectedServicesMap }));
+
+            if (newSelectedEntradas.includes(serviceId)) {
+                newSelectedEntradas = newSelectedEntradas.filter(id => id !== serviceId);
+                setSelectedEntradas(newSelectedEntradas);
+            }
+            if (newSelectedPrincipal === serviceId) {
+                newSelectedPrincipal = '';
                 setSelectedPrincipal('');
             }
-            if (selectedInfantil === serviceId) {
+            if (newSelectedInfantil === serviceId) {
+                newSelectedInfantil = '';
                 setSelectedInfantil('');
             }
         }
 
-        setServiceToDelete(null);
+        const newStats = calculateSimulatorPricing({
+            config,
+            services: allSimuladorServices,
+            adultos,
+            ninosYAdolescentes,
+            selectedPaqueteId,
+            selectedServices: Array.from(newSelectedServicesMap.entries()).map(([id, d]) => ({
+                id,
+                esRegalo: d.esRegalo,
+            })),
+            excludedPackageServiceIds: newExcluded,
+            syntheticServices: clubUruguaySyntheticService,
+            eventoFecha,
+            annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
+            currentYear,
+        });
+
+        const selectedPackageName = config.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
+        const data = {
+            submissionId: submissionIdRef.current,
+            clienteNombre,
+            clienteContacto: normalizeUruguayPhone(clienteContacto),
+            eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
+            adultos,
+            ninos: ninosYAdolescentes,
+            subtotal: newStats.subtotalVenta,
+            costoEstimado: newStats.totalFinal,
+            descuentoGeneral: newStats.discountPercentage,
+            ajusteAnualActivo: newStats.annualProjection.applies,
+            ajusteAnualPorcentaje: newStats.annualProjection.adjustmentPct,
+            serviciosIncluidos: newStats.detallados.map(s => s.id),
+            selectedServiceIds: Array.from(newSelectedServicesMap.keys()),
+            excludedPackageServiceIds: newExcluded,
+            paqueteId: selectedPaqueteId,
+            paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
+            includeClubUruguay: salonChoice === 'club',
+            items: simulatorDetailsToBudgetItems(newStats.detallados),
+        };
+
+        try {
+            const result = await generateBudgetAndLeadFromSimulator(data, {
+                source: 'simulator_common',
+                eventoTipo,
+                acquisition,
+                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
+            });
+            if (result.success && result.presupuestoId) {
+                setGeneratedPresupuestoId(result.presupuestoId);
+                if (result.token) setGeneratedToken(result.token);
+            } else throw new Error(result.error || "Error al actualizar.");
+        } catch (e: any) {
+            toast({ title: "Error al actualizar presupuesto", description: e.message, variant: "destructive" });
+        } finally {
+            setIsGenerating(false);
+            setServiceToDelete(null);
+        }
     };
 
     const handleWhatsAppQuickConsult = () => {
@@ -923,6 +982,24 @@ function SimuladorContent() {
             })
     ), [adultos, excludedPackageServiceIds, ninosYAdolescentes, removablePackageServices, stats.discountPercentage]);
 
+    const isServiceRemovable = useCallback((item: SimulatorDetailedService) => {
+        const isActive = (id: string) => {
+            return stats.detallados.some(s => s.id === id);
+        };
+        const isRequiredDependency = config?.serviceDependencies?.some(dep => 
+            dep.requiredServiceId === item.id && isActive(dep.triggerServiceId)
+        );
+        if (isRequiredDependency) return false;
+
+        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === item.id);
+        if (isFromPackage) {
+            return removablePackageServices.some(s => s.id === item.id);
+        }
+
+        return true;
+    }, [config, selectedPaqueteId, removablePackageServices, stats.detallados]);
+
     useEffect(() => {
         if (!selectedPaqueteId) return;
         if (!sortedPaquetes.some((p) => p.id === selectedPaqueteId)) {
@@ -1106,14 +1183,16 @@ function SimuladorContent() {
                                                                         </p>
                                                                     )}
                                                                 </div>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    onClick={() => setServiceToDelete(item)}
-                                                                    className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full print:hidden shrink-0"
-                                                                >
-                                                                    <X className="w-4 h-4" />
-                                                                </Button>
+                                                                {isServiceRemovable(item) && (
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => setServiceToDelete(item)}
+                                                                        className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full print:hidden shrink-0"
+                                                                    >
+                                                                        <X className="w-4 h-4" />
+                                                                    </Button>
+                                                                )}
                                                             </div>
                                                         </TableCell>
                                                         {(budgetSettings.showIndividualPrices ?? true) && (
@@ -1711,7 +1790,7 @@ function SimuladorContent() {
                                 <section className="space-y-5 border-t border-slate-200 pt-8">
                                     <div className="flex flex-col gap-2">
                                         <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-700">
-                                            {budgetSettings?.serviciosAdicionalesVisibles && budgetSettings.serviciosAdicionalesVisibles.length > 0
+                                            {budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null
                                                 ? "Servicios Adicionales Disponibles"
                                                 : "Tecnologia AK configurable"}
                                         </p>

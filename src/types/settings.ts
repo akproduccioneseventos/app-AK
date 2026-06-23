@@ -50,8 +50,7 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
     "Garantía de satisfacción y puntualidad"
   ],
   simulatorWelcomeTitle: "Ingresá tus datos de contacto",
-  simulatorWelcomeSubtitle: "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación.",
-  serviciosAdicionalesVisibles: []
+  simulatorWelcomeSubtitle: "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."
 };
 
 export interface InvoiceTemplateSettings {

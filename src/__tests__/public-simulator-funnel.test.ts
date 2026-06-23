@@ -27,4 +27,15 @@ describe('public simulator sales funnel', () => {
     expect(source).toContain("const { jsPDF } = await import('jspdf')");
     expect(source).not.toContain('imprimir=1&cliente=1&direct=1');
   });
+
+  it('persists service deletion to the backend and checks removable rules', () => {
+    expect(source).toContain('handleConfirmDeleteService');
+    expect(source).toContain('await generateBudgetAndLeadFromSimulator(data,');
+    expect(source).toContain('isServiceRemovable(item)');
+  });
+
+  it('correctly handles empty customized additional services configurations', () => {
+    expect(source).toContain('budgetSettings?.serviciosAdicionalesVisibles !== undefined');
+    expect(source).toContain('budgetSettings?.serviciosAdicionalesVisibles !== null');
+  });
 });
