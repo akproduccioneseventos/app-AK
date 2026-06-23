@@ -989,26 +989,26 @@ function SimuladorContent() {
                             <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
-                                    className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-widest"
+                                    className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
                                 >
-                                    <Share2 className="w-4 h-4 mr-2"/> Compartir por WhatsApp
+                                    <Share2 className="w-4 h-4 shrink-0"/> Compartir por WhatsApp
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={handleWhatsAppQuickConsult}
-                                    className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-xs uppercase tracking-widest"
+                                    className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
                                 >
-                                    <MessageSquare className="w-4 h-4 mr-2"/> Coordinar una Reunión
+                                    <MessageSquare className="w-4 h-4 shrink-0"/> Coordinar una Reunión
                                 </Button>
                                 <Button
                                   variant="outline"
                                   onClick={handleDownloadBudgetPdf}
                                   disabled={isDownloadingPdf}
-                                  className="h-12 rounded-xl font-bold uppercase tracking-widest text-xs"
+                                  className="h-12 rounded-xl font-bold uppercase tracking-wide text-[11px] sm:text-xs px-2 flex items-center justify-center gap-1.5 w-full"
                                 >
                                     {isDownloadingPdf
-                                        ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        : <FileDown className="mr-2 h-4 w-4" />}
+                                        ? <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                                        : <FileDown className="h-4 w-4 shrink-0" />}
                                     Descargar PDF
                                 </Button>
                             </div>

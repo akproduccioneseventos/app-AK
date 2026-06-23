@@ -1098,10 +1098,10 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <Button
                           asChild
-                          className="h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-widest w-full rounded-xl"
+                          className="h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-xl px-2 flex items-center justify-center gap-1.5"
                         >
                           <a href={buildWhatsAppHref()} target="_blank" rel="noopener noreferrer">
-                            <Share2 className="w-4 h-4 mr-2"/> Coordinar Reunión
+                            <Share2 className="w-4 h-4 shrink-0"/> Coordinar Reunión
                           </a>
                         </Button>
                         <Button
@@ -1111,9 +1111,9 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                             if (!generatedId) return;
                             window.open(`/presupuestos/${generatedId}/ver?imprimir=1&cliente=1&direct=1&token=${token || ''}`, '_blank');
                           }}
-                          className="h-11 border-white/10 text-slate-300 hover:bg-white/5 hover:text-white font-bold text-xs uppercase tracking-widest w-full rounded-xl bg-transparent"
+                          className="h-11 border-white/10 text-slate-300 hover:bg-white/5 hover:text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-xl bg-transparent px-2 flex items-center justify-center gap-1.5"
                         >
-                          <Printer className="w-4 h-4 mr-2"/> Descargar PDF
+                          <Printer className="w-4 h-4 shrink-0"/> Descargar PDF
                         </Button>
                       </div>
                     </CardContent>

@@ -644,24 +644,24 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <Button
                     onClick={handleSharePublicBudget}
-                    className="h-12 rounded-xl bg-emerald-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-700 px-2"
+                    className="h-12 rounded-xl bg-emerald-600 text-[11px] sm:text-xs font-bold uppercase tracking-wide text-white hover:bg-emerald-700 px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    <Share2 className="mr-1 sm:mr-2 h-4 w-4 shrink-0" /> <span className="truncate">Compartir por WhatsApp</span>
+                    <Share2 className="h-4 w-4 shrink-0" /> <span className="truncate">Compartir por WhatsApp</span>
                   </Button>
                   <Button
                     variant="outline"
                     onClick={handleWhatsAppMeetingRequest}
-                    className="h-12 rounded-xl border-emerald-200 text-xs font-bold uppercase tracking-widest text-emerald-700 hover:bg-emerald-50"
+                    className="h-12 rounded-xl border-emerald-200 text-[11px] sm:text-xs font-bold uppercase tracking-wide text-emerald-700 hover:bg-emerald-50 px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    <MessageSquare className="mr-2 h-4 w-4 shrink-0" /> <span className="truncate">Coordinar una Reunión</span>
+                    <MessageSquare className="h-4 w-4 shrink-0" /> <span className="truncate">Coordinar una Reunión</span>
                   </Button>
                   <Button
                     variant="outline"
                     onClick={handlePrint}
                     disabled={isDownloading}
-                    className="h-12 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2"
+                    className="h-12 rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    {isDownloading ? <Loader2 className="mr-1 sm:mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-1 sm:mr-2 h-4 w-4" />}
+                    {isDownloading ? <Loader2 className="h-4 w-4 animate-spin shrink-0" /> : <Printer className="h-4 w-4 shrink-0" />}
                     <span className="truncate">Descargar PDF</span>
                   </Button>
                 </div>
