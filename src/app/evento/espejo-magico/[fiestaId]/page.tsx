@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -32,7 +32,7 @@ import {
   resetEntertainmentSession,
   EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 const FILTERS = [
@@ -52,6 +52,7 @@ export default function EspejoMagicoPage() {
   const fiestaId = params.fiestaId as string;
   const mode = searchParams.get('mode') || 'firma'; // 'foto' | 'firma'
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
+  const accessToken = searchParams.get('access') || undefined;
   
   // Choose Firestore module Id based on mode
   const moduleId = mode === 'foto' ? 'espejoMagicoFoto' : 'espejoMagicoFirma';
@@ -80,7 +81,7 @@ export default function EspejoMagicoPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
@@ -124,22 +125,29 @@ export default function EspejoMagicoPage() {
 
   // 1. Initial configuration load + Firestore synchronization polling
   useEffect(() => {
-    getFiestaById(fiestaId).then(f => setFiesta(f)).catch(() => {});
+    getPublicEntertainmentEvent(fiestaId, moduleId)
+      .then((result) => setFiesta(result.success ? result.event || null : null))
+      .catch(() => {});
 
+    let pollInFlight = false;
     const interval = setInterval(async () => {
-      const s = await getEntertainmentSession(fiestaId, moduleId);
-      setSession(s);
+      if (pollInFlight) return;
+      pollInFlight = true;
+      try {
+        const s = await getEntertainmentSession(fiestaId, moduleId);
+        setSession(s);
 
-      if (role === 'display' && s) {
-        if (s.status !== localStatus) {
+        if (role === 'display' && s && s.status !== localStatus) {
           if (s.status === 'countdown' && localStatus === 'idle') {
             takePhoto();
           } else if (s.status === 'idle') {
             retake();
           }
         }
+      } finally {
+        pollInFlight = false;
       }
-    }, 800);
+    }, 2000);
 
     return () => {
       clearInterval(interval);
@@ -287,11 +295,11 @@ export default function EspejoMagicoPage() {
   const takePhoto = async () => {
     setLocalStatus('countdown');
     if (role === 'display') {
-      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'countdown');
+      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'countdown', {}, accessToken);
     }
     setShowStickerPanel(false);
     
-    let currentCount = 3;
+    let currentCount = fiesta?.station.countdownSeconds || 4;
     setCountdown(currentCount);
     playBeep();
     speak("Tres");
@@ -316,8 +324,8 @@ export default function EspejoMagicoPage() {
   const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (!watermarkEnabled) return;
     
-    const eventName = fiesta?.configuracion?.nombreEvento || 'Nuestra Fiesta';
-    const rawDate = fiesta?.configuracion?.fechaEvento;
+    const eventName = fiesta?.eventName || 'Nuestra Fiesta';
+    const rawDate = fiesta?.eventDate;
     let eventDateStr = '';
     if (rawDate) {
       try {
@@ -358,7 +366,7 @@ export default function EspejoMagicoPage() {
     if (!videoRef.current || !canvasRef.current || !containerRef.current) return;
     
     setLocalStatus('recording');
-    await updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording');
+    await updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording', {}, accessToken);
 
     setFlash(true);
     setTimeout(() => setFlash(false), 300);
@@ -408,7 +416,7 @@ export default function EspejoMagicoPage() {
     if (mode === 'foto') {
       // If photo mode, directly upload
       setLocalStatus('processing');
-      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing');
+      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken);
       await handleUpload();
     } else {
       // Firma mode gives drawing screen first
@@ -436,7 +444,7 @@ export default function EspejoMagicoPage() {
     
     setIsUploading(true);
     setLocalStatus('processing');
-    await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing');
+    await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken);
     speak("Subiendo tu foto al muro");
 
     try {
@@ -459,9 +467,13 @@ export default function EspejoMagicoPage() {
         const mediaUrl = res.post?.imageUrl || '';
         setQrCodeUrl(mediaUrl || window.location.href);
         setLocalStatus('done');
-        await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {
-          mediaUrl
-        });
+        await updateEntertainmentSessionStatus(
+          fiestaId,
+          moduleId,
+          'done',
+          { mediaUrl },
+          accessToken
+        );
         speak("¡Listo! Foto enviada al muro");
         setShowSuccess(true);
         
@@ -469,7 +481,7 @@ export default function EspejoMagicoPage() {
         setTimeout(() => {
           setShowSuccess(false);
           retake();
-          resetEntertainmentSession(fiestaId, moduleId);
+          resetEntertainmentSession(fiestaId, moduleId, accessToken);
         }, 12000);
       } else {
         throw new Error(res.error || 'Error al subir');
@@ -478,7 +490,7 @@ export default function EspejoMagicoPage() {
       console.error(err);
       setQrCodeUrl(window.location.href);
       setLocalStatus('done');
-      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done');
+      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {}, accessToken);
       speak("No se pudo subir, pero puedes escanear el QR");
     } finally {
       setIsUploading(false);
@@ -521,7 +533,14 @@ export default function EspejoMagicoPage() {
 
             <div className="space-y-3 pt-2">
               <button
-                onClick={() => startEntertainmentSession(fiestaId, moduleId, { mode })}
+                onClick={() =>
+                  startEntertainmentSession(
+                    fiestaId,
+                    moduleId,
+                    { mode, operatorName: fiesta?.station.operatorName },
+                    accessToken
+                  )
+                }
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
                 className="w-full h-16 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-lg shadow-xl shadow-rose-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
               >
@@ -530,7 +549,7 @@ export default function EspejoMagicoPage() {
               </button>
 
               <button
-                onClick={() => resetEntertainmentSession(fiestaId, moduleId)}
+                onClick={() => resetEntertainmentSession(fiestaId, moduleId, accessToken)}
                 className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -555,7 +574,7 @@ export default function EspejoMagicoPage() {
         </button>
         <div className="text-center">
           <h1 className="text-sm font-black uppercase tracking-widest text-rose-500">Espejo Mágico</h1>
-          {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.configuracion?.nombreEvento}</p>}
+          {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
         <div className="flex items-center gap-2">
           {localStatus === 'idle' && !capturedImage && (

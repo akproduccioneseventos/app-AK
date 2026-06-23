@@ -9,53 +9,10 @@
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-body > main.min-h-screen::before,
-.ak-red-premium-public::before,
-.ak-red-premium-client::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: #b91c1c;
-  z-index: 50;
-}
-
-body > main.min-h-screen,
-.ak-red-premium-public,
-.ak-red-premium-client {
-  color: var(--ak-polish-ink) !important;
-  background: #f8fafc !important;
-}
+/* Cleaned up app-wide red overrides and forced backgrounds to restore premium aesthetics across all modules */
 
 .ak-red-premium-surface {
   background: transparent !important;
-}
-
-body > main.min-h-screen [class*="min-h-screen"][class*="bg-red"],
-body > main.min-h-screen [class*="min-h-screen"][class*="from-red"],
-body > main.min-h-screen [class*="min-h-screen"][class*="via-red"],
-body > main.min-h-screen [class*="min-h-screen"][class*="to-red"],
-.ak-red-premium-public [class*="min-h-screen"][class*="from-red"],
-.ak-red-premium-client [class*="min-h-screen"][class*="from-red"] {
-  background: #f8fafc !important;
-}
-
-.ak-red-premium-public [data-testid="gallery-section"] {
-  color: var(--ak-polish-ink) !important;
-  background: #ffffff !important;
-  border-top: 1px solid var(--ak-polish-border) !important;
-  border-bottom: 1px solid var(--ak-polish-border) !important;
-}
-
-.ak-red-premium-public [data-testid="gallery-section"] :where([class*="text-white"], [class*="text-slate-100"], [class*="text-slate-200"]) {
-  color: var(--ak-polish-ink) !important;
-  text-shadow: none !important;
-}
-
-.ak-red-premium-public [data-testid="gallery-section"] :where([class*="bg-white/10"], [class*="bg-white/15"], [class*="bg-black/"], [class*="bg-slate-900"]) {
-  color: var(--ak-polish-ink) !important;
-  background: rgba(255, 255, 255, 0.88) !important;
-  border-color: rgba(15, 23, 42, 0.10) !important;
 }
 
 .ak-red-premium-live {
@@ -64,7 +21,7 @@ body > main.min-h-screen [class*="min-h-screen"][class*="to-red"],
   background:
     linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
     linear-gradient(180deg, rgba(255,255,255,0.028) 1px, transparent 1px),
-    linear-gradient(135deg, #09090b 0%, #450a0a 52%, #18181b 100%) !important;
+    linear-gradient(135deg, #09090b 0%, #030712 52%, #09090b 100%) !important;
   background-size: 92px 92px, 92px 92px, auto, auto, auto, auto !important;
 }
 
@@ -77,7 +34,7 @@ body > main.min-h-screen [class*="min-h-screen"][class*="to-red"],
 body > main.min-h-screen :where(.bg-white, .bg-white\/70, .bg-white\/80, .bg-white\/90, .bg-white\/95),
 .ak-red-premium-public :where(.bg-white, .bg-white\/70, .bg-white\/80, .bg-white\/90, .bg-white\/95),
 .ak-red-premium-client :where(.bg-white, .bg-white\/70, .bg-white\/80, .bg-white\/90, .bg-white\/95) {
-  border-color: rgba(15, 23, 42, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
   box-shadow: var(--ak-polish-shadow) !important;
 }
 
@@ -123,11 +80,7 @@ body > main.min-h-screen :where(img, video),
   filter: saturate(1.04) contrast(1.02);
 }
 
-body > main.min-h-screen :where([class*="border-red"], [class*="ring-red"]),
-.ak-red-premium-public :where([class*="border-red"], [class*="ring-red"]),
-.ak-red-premium-client :where([class*="border-red"], [class*="ring-red"]) {
-  border-color: rgba(185, 28, 28, 0.18) !important;
-}
+
 
 .ak-release-status-100 {
   color: #065f46;

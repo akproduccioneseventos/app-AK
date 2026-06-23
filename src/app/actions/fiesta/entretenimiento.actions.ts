@@ -4,6 +4,13 @@ import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
 import { uploadToStorage } from '@/lib/firebase/storage';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { createEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
+import {
+  getPublicEntertainmentEvent as buildPublicEntertainmentEvent,
+  isEntertainmentModuleId,
+  type EntertainmentModuleId,
+} from '@/lib/entertainment/station-config';
 import * as logger from '@/lib/logger';
 
 const MAX_ENTERTAINMENT_UPLOAD_SIZE = 20 * 1024 * 1024;
@@ -44,6 +51,42 @@ export async function getEntretenimientoFiesta(fiestaId: string) {
     };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo cargar entretenimiento.' };
+  }
+}
+
+export async function getPublicEntertainmentEvent(fiestaId: string, moduleId: string) {
+  try {
+    if (!isEntertainmentModuleId(moduleId)) {
+      return { success: false, error: 'Modulo de entretenimiento no valido.' };
+    }
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    return {
+      success: true,
+      event: buildPublicEntertainmentEvent(fiesta, moduleId),
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudo cargar el evento.' };
+  }
+}
+
+export async function getEntertainmentLaunchToken(
+  fiestaId: string,
+  moduleId: EntertainmentModuleId
+) {
+  try {
+    await requireAppSession();
+    if (!isEntertainmentModuleId(moduleId)) {
+      return { success: false, error: 'Modulo de entretenimiento no valido.' };
+    }
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    return {
+      success: true,
+      token: createEntertainmentAccessToken(fiestaId, moduleId),
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Sesion no autorizada.' };
   }
 }
 

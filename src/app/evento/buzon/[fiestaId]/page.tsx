@@ -8,9 +8,9 @@ import {
   Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 export default function GuestBuzonPage() {
@@ -19,7 +19,7 @@ export default function GuestBuzonPage() {
   const { toast } = useToast();
   const fiestaId = params.fiestaId as string;
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [activeTab, setActiveTab] = useState<'audio' | 'video'>('audio');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,6 +55,125 @@ export default function GuestBuzonPage() {
 
   const audioCtxRef = useRef<AudioContext | null>(null);
 
+  const [audioOption, setAudioOption] = useState<'direct' | 'retro' | 'upload'>('direct');
+  const audioInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('audio/')) {
+      toast({
+        title: 'Archivo Inválido',
+        description: 'Por favor selecciona un archivo de audio.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      toast({
+        title: 'Audio demasiado grande',
+        description: 'El audio no debe superar los 15MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const tempUrl = URL.createObjectURL(file);
+    const audioElement = new Audio(tempUrl);
+
+    audioElement.onloadedmetadata = () => {
+      const duration = audioElement.duration;
+      setRecordingSeconds(Math.round(duration));
+      URL.revokeObjectURL(tempUrl);
+
+      if (duration > 61) {
+        toast({
+          title: 'Duración excedida',
+          description: 'El audio no debe durar más de 60 segundos.',
+          variant: 'destructive',
+        });
+        setAudioBlob(null);
+        setAudioUrl(null);
+      } else {
+        setAudioBlob(file);
+        setAudioUrl(URL.createObjectURL(file));
+        setPhoneState('review');
+      }
+    };
+  };
+
+  const startDirectAudioRecording = async () => {
+    setAudioBlob(null);
+    setAudioUrl(null);
+    setRecordingSeconds(0);
+    setPhoneState('recording');
+
+    try {
+      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      let mimeType = 'audio/webm';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'audio/mp4';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = '';
+
+      const options = mimeType ? { mimeType } : undefined;
+      const mediaRecorder = new MediaRecorder(audioStream, options);
+      const chunks: BlobPart[] = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType || 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        setAudioBlob(blob);
+        setAudioUrl(url);
+        setPhoneState('review');
+
+        audioStream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => {
+          if (prev >= 59) {
+            stopDirectAudioRecording();
+            return 60;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+      setPhoneState('hung_up');
+      toast({
+        title: 'Acceso Denegado',
+        description: 'Por favor, permite el acceso al micrófono para grabar tu saludo.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const stopDirectAudioRecording = () => {
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+
+    setIsRecording(false);
+    setPhoneState('review');
+  };
+
   const playPhoneTone = (freq1: number, freq2: number, duration: number) => {
     try {
       if (!audioCtxRef.current) {
@@ -86,8 +205,10 @@ export default function GuestBuzonPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await getFiestaById(fiestaId);
-        setFiesta(data);
+        const res = await getPublicEntertainmentEvent(fiestaId, 'capsulaTiempo');
+        if (res.success && res.event) {
+          setFiesta(res.event);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -108,20 +229,18 @@ export default function GuestBuzonPage() {
 
   // Welcome Audio Control
   const toggleWelcomeAudio = () => {
-    if (!fiesta?.buzonConfig?.welcomeAudioUrl) return;
-
-    if (!welcomeAudioRef.current) {
-      welcomeAudioRef.current = new Audio(fiesta.buzonConfig.welcomeAudioUrl);
-      welcomeAudioRef.current.onended = () => setIsWelcomePlaying(false);
-    }
-
+    if (!fiesta?.welcomeAudioUrl) return;
     if (isWelcomePlaying) {
-      welcomeAudioRef.current.pause();
+      welcomeAudioRef.current?.pause();
       setIsWelcomePlaying(false);
     } else {
       if (isPlayingRecording && previewAudioRef.current) {
         previewAudioRef.current.pause();
         setIsPlayingRecording(false);
+      }
+      if (!welcomeAudioRef.current) {
+        welcomeAudioRef.current = new Audio(fiesta.welcomeAudioUrl);
+        welcomeAudioRef.current.onended = () => setIsWelcomePlaying(false);
       }
       welcomeAudioRef.current.play();
       setIsWelcomePlaying(true);
@@ -493,7 +612,8 @@ export default function GuestBuzonPage() {
     formData.append('authorName', trimmedName);
 
     if (activeTab === 'audio' && audioBlob) {
-      formData.append('file', audioBlob, 'saludo_voz.webm');
+      const audioFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
+      formData.append('file', audioBlob, audioFileName);
       formData.append('mediaType', 'audio');
       formData.append('durationSeconds', recordingSeconds.toString());
     } else if (activeTab === 'video' && videoFile) {
@@ -518,7 +638,7 @@ export default function GuestBuzonPage() {
         resetVideoUpload();
         toast({
           title: '¡Mensaje guardado!',
-          description: 'Tu saludo se ha guardado en la Cápsula del Tiempo.',
+          description: 'Tu saludo se ha guardado en el Buzón de Recuerdos.',
         });
         setTimeout(() => {
           setShowCelebration(false);
@@ -545,7 +665,7 @@ export default function GuestBuzonPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3">
         <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
-        <p className="text-sm text-zinc-400">Cargando Cápsula del Tiempo...</p>
+        <p className="text-sm text-zinc-400">Cargando Buzón de Recuerdos...</p>
       </div>
     );
   }
@@ -560,8 +680,8 @@ export default function GuestBuzonPage() {
     );
   }
 
-  const hasWelcomeAudio = !!fiesta.buzonConfig?.welcomeAudioUrl;
-  const customAccent = fiesta.guestPortalSettings?.customAccentColor || '#6366f1';
+  const hasWelcomeAudio = !!fiesta.welcomeAudioUrl;
+  const customAccent = fiesta.station.accentColor || '#6366f1';
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_60%)] text-white flex flex-col justify-between select-none">
@@ -574,10 +694,10 @@ export default function GuestBuzonPage() {
         <div className="text-center flex-1 pr-6">
           <h1 className="text-lg font-black uppercase tracking-wider bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center justify-center gap-1.5">
             <Sparkles className="w-4 h-4 text-indigo-400" />
-            Cápsula del Tiempo
+            Buzón de Recuerdos
           </h1>
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
-            {fiesta.configuracion?.nombreEvento || 'Fiesta'}
+            {fiesta.eventName || 'Fiesta'}
           </p>
         </div>
       </header>
@@ -592,7 +712,7 @@ export default function GuestBuzonPage() {
             <div className="inline-flex p-4 rounded-full bg-indigo-500/10 text-indigo-400 mb-2 border border-indigo-500/20">
               <CheckCircle2 className="w-16 h-16 animate-bounce" />
             </div>
-            <h2 className="text-3xl font-black">¡Mensaje a la Cápsula!</h2>
+            <h2 className="text-3xl font-black">¡Mensaje al Buzón!</h2>
             <p className="text-zinc-400 text-sm max-w-xs mt-2">Tu recuerdo ha sido guardado exitosamente para el futuro.</p>
             <button onClick={() => setShowCelebration(false)} className="mt-6 px-6 py-3 rounded-full text-xs font-bold text-white uppercase tracking-wider border border-white/20 hover:bg-white/10 transition">
               Grabar otro recuerdo
@@ -631,7 +751,7 @@ export default function GuestBuzonPage() {
               activeTab === 'audio' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Mic className="w-4 h-4" /> Voz Retro
+            <Mic className="w-4 h-4" /> Audio
           </button>
           <button
             onClick={() => { resetAudioRecording(); resetVideoUpload(); setActiveTab('video'); }}
@@ -639,7 +759,7 @@ export default function GuestBuzonPage() {
               activeTab === 'video' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Video className="w-4 h-4" /> Video VHS
+            <Video className="w-4 h-4" /> Video
           </button>
         </div>
 
@@ -648,9 +768,59 @@ export default function GuestBuzonPage() {
 
           {/* Voz Retro Tab */}
           {activeTab === 'audio' && (
-            <div className="flex-1 flex flex-col items-center justify-center gap-6">
+            <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full">
+              {/* Option Selector for Audio */}
               {phoneState === 'hung_up' && (
-                <div className="flex flex-col items-center text-center space-y-6">
+                <div className="flex gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 w-full max-w-sm mb-4">
+                  <button
+                    onClick={() => setAudioOption('direct')}
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
+                      audioOption === 'direct' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    🎤 Grabar Directo
+                  </button>
+                  <button
+                    onClick={() => setAudioOption('retro')}
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
+                      audioOption === 'retro' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    ☎️ Cabina Retro
+                  </button>
+                  <button
+                    onClick={() => setAudioOption('upload')}
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${
+                      audioOption === 'upload' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    📤 Subir Archivo
+                  </button>
+                </div>
+              )}
+
+              {/* RENDER CHOSEN AUDIO OPTION */}
+              {phoneState === 'hung_up' && audioOption === 'direct' && (
+                <div className="flex flex-col items-center text-center space-y-6 w-full">
+                  <div className="w-48 h-48 border-2 border-indigo-500/20 rounded-full flex items-center justify-center bg-indigo-500/5 relative shadow-lg">
+                    <Mic className="w-20 h-20 text-indigo-400" />
+                    <div className="absolute inset-0 border border-indigo-400/30 rounded-full animate-ping opacity-25" style={{ animationDuration: '3s' }} />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-black">Grabar Saludo de Voz</h3>
+                    <p className="text-xs text-zinc-400 max-w-xs">Presioná el botón de abajo para empezar a grabar tu mensaje directamente desde tu micrófono.</p>
+                  </div>
+                  <button
+                    onClick={startDirectAudioRecording}
+                    className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(99,102,241,0.4)]"
+                  >
+                    <Mic className="w-4 h-4" /> Iniciar Grabador
+                  </button>
+                </div>
+              )}
+
+              {phoneState === 'hung_up' && audioOption === 'retro' && (
+                <div className="flex flex-col items-center text-center space-y-6 w-full">
                   {/* Antique Phone UI illustration */}
                   <div className="w-48 h-48 border-2 border-indigo-500/20 rounded-full flex items-center justify-center bg-indigo-500/5 relative">
                     <Phone className="w-20 h-20 text-indigo-400" />
@@ -659,13 +829,35 @@ export default function GuestBuzonPage() {
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-lg font-black">Cabina Telefónica Retro</h3>
-                    <p className="text-xs text-zinc-400">Descolgá el auricular del teléfono para escuchar el pitido e iniciar la grabación de voz.</p>
+                    <p className="text-xs text-zinc-400 max-w-xs">Descolgá el auricular del teléfono para escuchar el pitido e iniciar la grabación de voz.</p>
                   </div>
                   <button
                     onClick={handlePickUpHandset}
                     className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all flex items-center gap-2"
                   >
                     <Phone className="w-4 h-4" /> Descolgar Auricular
+                  </button>
+                </div>
+              )}
+
+              {phoneState === 'hung_up' && audioOption === 'upload' && (
+                <div className="flex flex-col items-center text-center space-y-6 w-full">
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioFileChange}
+                    ref={audioInputRef}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => audioInputRef.current?.click()}
+                    className="w-full p-8 rounded-3xl border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all flex flex-col items-center justify-center gap-3"
+                  >
+                    <Upload className="w-10 h-10 text-indigo-400" />
+                    <div>
+                      <p className="text-sm font-black text-white">Subir Archivo de Audio</p>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Soporta MP3, WAV, M4A o WEBM</p>
+                    </div>
                   </button>
                 </div>
               )}
@@ -686,8 +878,13 @@ export default function GuestBuzonPage() {
 
               {phoneState === 'recording' && (
                 <div className="flex flex-col items-center text-center space-y-6">
-                  <div className="w-28 h-28 bg-red-600/10 border-2 border-red-500/30 rounded-full flex items-center justify-center animate-pulse">
-                    <Mic className="w-10 h-10 text-red-500" />
+                  {/* Waveform animation */}
+                  <div className="flex items-center justify-center gap-1.5 h-16 my-2">
+                    <span className="w-1.5 h-6 bg-red-500 rounded-full animate-[pulse_1s_infinite_100ms]" style={{ height: '24px' }} />
+                    <span className="w-1.5 h-12 bg-red-500 rounded-full animate-[pulse_1s_infinite_300ms]" style={{ height: '48px' }} />
+                    <span className="w-1.5 h-16 bg-red-500 rounded-full animate-[pulse_1s_infinite_500ms]" style={{ height: '64px' }} />
+                    <span className="w-1.5 h-10 bg-red-500 rounded-full animate-[pulse_1s_infinite_700ms]" style={{ height: '40px' }} />
+                    <span className="w-1.5 h-4 bg-red-500 rounded-full animate-[pulse_1s_infinite_900ms]" style={{ height: '16px' }} />
                   </div>
                   <div className="space-y-1">
                     <p className="text-3xl font-black tracking-wider text-red-500 tabular-nums">
@@ -696,17 +893,18 @@ export default function GuestBuzonPage() {
                     <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Grabando tu saludo...</p>
                   </div>
                   <button
-                    onClick={handleHangUpHandset}
+                    onClick={audioOption === 'direct' ? stopDirectAudioRecording : handleHangUpHandset}
                     className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all flex items-center gap-2"
                   >
-                    <PhoneOff className="w-4 h-4" /> Colgar Auricular
+                    {audioOption === 'direct' ? <Mic className="w-4 h-4" /> : <PhoneOff className="w-4 h-4" />}
+                    {audioOption === 'direct' ? 'Finalizar Grabación' : 'Colgar Auricular'}
                   </button>
                 </div>
               )}
 
               {phoneState === 'review' && audioUrl && (
                 <div className="w-full p-6 bg-white/5 border border-white/10 rounded-3xl flex flex-col items-center gap-4 text-center">
-                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Escuchá tu saludo grabado</p>
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest text-zinc-300">Escuchá tu saludo grabado</p>
                   <div className="flex items-center gap-4 w-full">
                     <button
                       onClick={togglePlayRecording}

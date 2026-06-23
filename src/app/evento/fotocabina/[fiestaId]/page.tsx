@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera,
@@ -22,7 +21,7 @@ import {
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -30,7 +29,7 @@ import {
   resetEntertainmentSession,
   EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 const FRAMES = [
@@ -47,11 +46,12 @@ export default function FotocabinaPage() {
   const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
+  const accessToken = searchParams.get('access') || undefined;
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
@@ -100,14 +100,19 @@ export default function FotocabinaPage() {
 
   // 1. Load details and set Firestore Polling
   useEffect(() => {
-    getFiestaById(fiestaId).then(f => setFiesta(f)).catch(() => {});
+    getPublicEntertainmentEvent(fiestaId, 'fotocabina')
+      .then((result) => setFiesta(result.success ? result.event || null : null))
+      .catch(() => {});
     
+    let pollInFlight = false;
     const interval = setInterval(async () => {
-      const s = await getEntertainmentSession(fiestaId, 'fotocabina');
-      setSession(s);
+      if (pollInFlight) return;
+      pollInFlight = true;
+      try {
+        const s = await getEntertainmentSession(fiestaId, 'fotocabina');
+        setSession(s);
 
-      if (role === 'display' && s) {
-        if (s.status !== localStatus) {
+        if (role === 'display' && s && s.status !== localStatus) {
           if (s.status === 'countdown' && localStatus === 'idle') {
             const frameToUse = s.settings?.frameId || 'none';
             setSelectedFrame(frameToUse);
@@ -116,8 +121,10 @@ export default function FotocabinaPage() {
             retake();
           }
         }
+      } finally {
+        pollInFlight = false;
       }
-    }, 800);
+    }, 2000);
 
     return () => {
       clearInterval(interval);
@@ -166,21 +173,20 @@ export default function FotocabinaPage() {
   const takePhoto = async () => {
     setLocalStatus('countdown');
     if (role === 'display') {
-      await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'countdown');
+      await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'countdown', {}, accessToken);
     }
     
-    let currentCount = 3;
+    let currentCount = fiesta?.station.countdownSeconds || 4;
     setCountdown(currentCount);
     playBeep();
-    speak("Tres");
+    speak(String(currentCount));
     
     const interval = setInterval(async () => {
       currentCount -= 1;
       if (currentCount > 0) {
         setCountdown(currentCount);
         playBeep();
-        if (currentCount === 2) speak("Dos");
-        if (currentCount === 1) speak("Uno");
+        speak(String(currentCount));
       } else {
         clearInterval(interval);
         setCountdown(null);
@@ -195,7 +201,7 @@ export default function FotocabinaPage() {
     if (!videoRef.current || !canvasRef.current) return;
     
     setLocalStatus('recording');
-    await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording');
+    await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
 
     setFlash(true);
     setTimeout(() => setFlash(false), 300);
@@ -223,10 +229,14 @@ export default function FotocabinaPage() {
     setCapturedImage(dataUrl);
     stopCamera();
 
-    // Trigger auto upload to Firestore for display role
-    setLocalStatus('processing');
-    await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'processing');
-    await handleAutoUpload();
+    setLocalStatus('done');
+    await updateEntertainmentSessionStatus(
+      fiestaId,
+      'fotocabina',
+      'done',
+      { reviewPending: true },
+      accessToken
+    );
   };
 
   const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
@@ -266,8 +276,8 @@ export default function FotocabinaPage() {
   const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (!watermarkEnabled) return;
     
-    const eventName = fiesta?.configuracion?.nombreEvento || 'Nuestra Fiesta';
-    const rawDate = fiesta?.configuracion?.fechaEvento;
+    const eventName = fiesta?.eventName || 'Nuestra Fiesta';
+    const rawDate = fiesta?.eventDate;
     let eventDateStr = '';
     if (rawDate) {
       try {
@@ -304,8 +314,16 @@ export default function FotocabinaPage() {
     }
   };
 
-  const handleAutoUpload = async () => {
+  const handleAcceptAndPublish = async () => {
     if (!canvasRef.current) return;
+    setLocalStatus('processing');
+    await updateEntertainmentSessionStatus(
+      fiestaId,
+      'fotocabina',
+      'processing',
+      {},
+      accessToken
+    );
     setIsUploading(true);
     speak("Subiendo tu foto al muro");
 
@@ -326,9 +344,13 @@ export default function FotocabinaPage() {
         const mediaUrl = res.post?.imageUrl || '';
         setQrCodeUrl(mediaUrl || window.location.href);
         setLocalStatus('done');
-        await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'done', {
-          mediaUrl
-        });
+        await updateEntertainmentSessionStatus(
+          fiestaId,
+          'fotocabina',
+          'done',
+          { mediaUrl, reviewPending: false },
+          accessToken
+        );
         speak("¡Excelente! Tu foto ya está lista.");
         setShowSuccess(true);
         
@@ -336,8 +358,8 @@ export default function FotocabinaPage() {
         setTimeout(() => {
           setShowSuccess(false);
           retake();
-          resetEntertainmentSession(fiestaId, 'fotocabina');
-        }, 12000);
+          resetEntertainmentSession(fiestaId, 'fotocabina', accessToken);
+        }, (fiesta?.station.reviewSeconds || 20) * 1000);
       } else {
         throw new Error(res.error || 'Error al subir');
       }
@@ -345,7 +367,13 @@ export default function FotocabinaPage() {
       console.error(err);
       setQrCodeUrl(window.location.href);
       setLocalStatus('done');
-      await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'done');
+      await updateEntertainmentSessionStatus(
+        fiestaId,
+        'fotocabina',
+        'done',
+        {},
+        accessToken
+      );
       speak("No se pudo subir al muro, pero puedes guardarla");
     } finally {
       setIsUploading(false);
@@ -366,12 +394,12 @@ export default function FotocabinaPage() {
     setCapturedImage(null);
     setQrCodeUrl('');
     setLocalStatus('idle');
+    setShowSuccess(false);
+    resetEntertainmentSession(fiestaId, 'fotocabina', accessToken);
     if (role === 'display') {
       startCamera();
     }
   };
-
-  const getFrameOverlayClass = () => FRAMES.find(f => f.id === selectedFrame)?.bg || 'transparent';
 
   // 4. Operator view
   if (role === 'operator') {
@@ -421,7 +449,18 @@ export default function FotocabinaPage() {
             {/* Shutter / reset */}
             <div className="space-y-3 pt-2">
               <button
-                onClick={() => startEntertainmentSession(fiestaId, 'fotocabina', { frameId: selectedFrame })}
+                onClick={() =>
+                  startEntertainmentSession(
+                    fiestaId,
+                    'fotocabina',
+                    {
+                      frameId: selectedFrame,
+                      countdownSeconds: fiesta?.station.countdownSeconds || 4,
+                      operatorName: fiesta?.station.operatorName,
+                    },
+                    accessToken
+                  )
+                }
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
                 className="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-zinc-950 font-black text-lg shadow-xl shadow-amber-400/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
               >
@@ -430,7 +469,7 @@ export default function FotocabinaPage() {
               </button>
 
               <button
-                onClick={() => resetEntertainmentSession(fiestaId, 'fotocabina')}
+                onClick={() => resetEntertainmentSession(fiestaId, 'fotocabina', accessToken)}
                 className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -458,7 +497,7 @@ export default function FotocabinaPage() {
         </button>
         <div className="text-center drop-shadow-md">
           <h1 className="text-sm font-black uppercase tracking-widest text-amber-400">Fotocabina AK</h1>
-          {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.configuracion?.nombreEvento}</p>}
+          {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
         <div className="flex items-center gap-2">
           {localStatus === 'idle' && !capturedImage && (
@@ -505,41 +544,31 @@ export default function FotocabinaPage() {
             />
             
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
-              <div className="absolute w-72 h-72 rounded-full border border-amber-500/25 animate-[spin_15s_linear_infinite]" />
-              
               <div className="relative z-10 space-y-6 max-w-sm">
-                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-500/20 animate-pulse">
-                  <Camera className="w-10 h-10 text-zinc-950" />
+                <div
+                  className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg"
+                  style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
+                >
+                  <Camera className="w-10 h-10 text-white" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">¡Sonríe a la Cámara!</h2>
-                  <p className="text-sm text-zinc-300">Espera que el operador active la cabina o presiona abajo para comenzar.</p>
+                  <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">
+                    {fiesta?.station.brandText || 'Fotocabina'}
+                  </h2>
+                  <p className="text-sm text-zinc-300">
+                    Toca comenzar, mira a la camara y sigue la cuenta regresiva.
+                  </p>
                 </div>
 
-                <div className="pt-4 space-y-3">
+                <div className="pt-4">
                   <button
                     onClick={takePhoto}
-                    className="w-full h-14 rounded-2xl bg-white text-zinc-950 font-black text-sm uppercase tracking-wider hover:bg-zinc-200 transition shadow-xl flex items-center justify-center gap-2"
+                    className="w-full h-16 rounded-xl text-white font-black text-base uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2"
+                    style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
                   >
                     <Camera className="w-5 h-5" />
-                    Comenzar Captura Local
+                    Comenzar
                   </button>
-
-                  <div className="flex justify-center gap-1.5 overflow-x-auto py-2">
-                    {FRAMES.map((f) => (
-                      <button
-                        key={f.id}
-                        onClick={() => setSelectedFrame(f.id)}
-                        className={`text-[10px] font-black px-3 py-1.5 rounded-full border transition ${
-                          selectedFrame === f.id
-                            ? 'border-amber-500 bg-amber-500/20 text-amber-300'
-                            : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
-                        }`}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
@@ -598,34 +627,50 @@ export default function FotocabinaPage() {
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">¡Mírate en Pantalla!</h3>
-                <p className="text-sm text-zinc-400">Escanea este código QR con tu móvil para descargar tu foto al instante.</p>
+                <h3 className="text-2xl font-black text-white">
+                  {qrCodeUrl ? 'Tu foto esta lista' : 'Revisa tu foto'}
+                </h3>
+                <p className="text-sm text-zinc-400">
+                  {qrCodeUrl
+                    ? fiesta?.station.qrCallout
+                    : 'Puedes repetirla o aceptarla para publicarla y descargarla.'}
+                </p>
               </div>
 
-              {/* QR Container */}
-              <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
+              {qrCodeUrl && (
+                <div className="bg-white p-4 rounded-xl shadow-2xl relative">
                   <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-950" />
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="flex flex-col gap-2 w-full">
-                <button
-                  onClick={handleDownload}
-                  className="w-full h-12 rounded-xl bg-amber-400 text-zinc-950 font-black text-sm uppercase tracking-wider hover:bg-amber-500 transition-all flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" /> Guardar Foto
-                </button>
-                <button
-                  onClick={retake}
-                  className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" /> Volver a Empezar
-                </button>
+                {qrCodeUrl ? (
+                  <button
+                    onClick={handleDownload}
+                    className="w-full h-12 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                    style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
+                  >
+                    <Download className="w-4 h-4" /> Guardar Foto
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAcceptAndPublish}
+                    disabled={isUploading}
+                    className="w-full h-12 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
+                  >
+                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    Aceptar y compartir
+                  </button>
+                )}
+                {(fiesta?.station.allowGuestRetake !== false || qrCodeUrl) && (
+                  <button
+                    onClick={retake}
+                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Hacer otra
+                  </button>
+                )}
               </div>
             </div>
 

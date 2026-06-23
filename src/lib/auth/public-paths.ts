@@ -27,6 +27,13 @@ export const PUBLIC_PATH_PREFIXES = [
   '/evento/mi-mesa',
   '/evento/en-vivo',
   '/evento/dj',
+  '/evento/hub',
+  '/evento/fotocabina',
+  '/evento/plataforma-360',
+  '/evento/touchpix',
+  '/evento/espejo-magico',
+  '/evento/bogue',
+  '/evento/buzon',
   '/invitado',
   '/portal-proveedor',
 ] as const;
