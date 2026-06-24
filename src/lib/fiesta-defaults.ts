@@ -87,7 +87,7 @@ export const defaultFaq: FaqItem[] = [
 ];
 
 export const defaultClientPortalSettings: ClientPortalSettings = {
-    enabled: false, accessKey: '', accessPhase: 'financiera', liveAccessDaysBefore: 7, 
+    enabled: false, accessKey: '', clientPassword: '', accessPhase: 'financiera', liveAccessDaysBefore: 7, 
     checklist: { visible: true, editable: true }, 
     itinerario: { visible: true },
     musica: { visible: true, editable: true }, 

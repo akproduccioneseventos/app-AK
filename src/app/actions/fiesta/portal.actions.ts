@@ -691,3 +691,486 @@ export async function getBudgetTokenForPortal(fiestaId: string): Promise<string 
   return await generateBudgetToken(fiesta.presupuestoId);
 }
 
+export async function checkDateAvailability(
+  fiestaId: string,
+  targetDateStr: string
+): Promise<{ success: boolean; available: boolean; suggestions?: string[]; error?: string }> {
+  const { verifyPortalSession } = await import('@/lib/security/portal-session');
+  if (!verifyPortalSession(fiestaId)) return { success: false, available: false, error: 'Sesión no autorizada.' };
+  try {
+    const allFiestas = await getFiestas(false);
+    const targetDate = new Date(targetDateStr).toISOString().split('T')[0];
+    const isBusy = allFiestas.some(f => 
+      f.id !== fiestaId && 
+      f.configuracion?.fechaEvento && 
+      new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === targetDate
+    );
+    if (!isBusy) {
+      return { success: true, available: true };
+    }
+    
+    // Find alternative dates (weekends or nearby dates)
+    const baseDate = new Date(targetDateStr);
+    const suggestions: string[] = [];
+    // We check +1d, -1d, +7d, -7d, +2d, -2d, +8d, -8d, +14d, -14d
+    const offsets = [1, -1, 7, -7, 2, -2, 8, -8, 14, -14];
+    for (const offset of offsets) {
+      const altDate = new Date(baseDate);
+      altDate.setDate(altDate.getDate() + offset);
+      const altDateStr = altDate.toISOString().split('T')[0];
+      const altBusy = allFiestas.some(f => 
+        f.id !== fiestaId && 
+        f.configuracion?.fechaEvento && 
+        new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === altDateStr
+      );
+      if (!altBusy) {
+        suggestions.push(altDate.toISOString());
+        if (suggestions.length >= 4) break;
+      }
+    }
+    return { success: true, available: false, suggestions };
+  } catch (e: any) {
+    return { success: false, available: false, error: sanitizeActionError(e) };
+  }
+}
+
+export async function cancelServicesOrParty(
+  fiestaId: string,
+  payload: {
+    servicesToCancel: string[];
+    cancelAll: boolean;
+    passwordInput: string;
+  }
+): Promise<{ success: boolean; error?: string; fileName?: string; refundAmount?: number; pendingDue?: number }> {
+  const { verifyPortalSession } = await import('@/lib/security/portal-session');
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+
+    const expectedPassword = fiesta.clientPortalSettings?.clientPassword || '';
+    if (payload.passwordInput.trim() !== expectedPassword.trim()) {
+      return { success: false, error: 'Contraseña/PIN de operaciones incorrecto.' };
+    }
+
+    if (!fiesta.presupuestoId) return { success: false, error: 'Este evento no tiene un presupuesto asociado.' };
+
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const { readData, writeData } = await import('@/lib/data-service');
+    const { getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+
+    const budgets = await readData<any[]>('presupuestos.json', []);
+    const budgetIndex = budgets.findIndex(b => b.id === fiesta.presupuestoId);
+    if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
+
+    const presupuesto = budgets[budgetIndex];
+    const paymentSummary = getBudgetPaymentSummary(presupuesto);
+    const totalOriginal = paymentSummary.total;
+    const totalPagado = paymentSummary.paid;
+
+    // Calculate inflation adjustment factor based on cancellation year
+    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato 
+      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear() 
+      : new Date().getFullYear();
+    const cancellationYear = new Date().getFullYear();
+    const yearsDiff = Math.max(0, cancellationYear - signingYear);
+    const porcentajeAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto.ajusteAnualPorcentaje ?? 15;
+    const factorAjuste = Math.pow(1 + (porcentajeAjuste / 100), yearsDiff);
+
+    let docContent = '';
+    let updatedItems = [...(presupuesto.itemsPresupuestados || [])];
+    let penaltyTotal = 0;
+    let nuevoTotal = 0;
+    const timestampStr = new Date().toISOString().replace(/[:.]/g, '-');
+    const docId = `cancelacion_${timestampStr}`;
+    const filename = `cancelacion_${fiestaId}_${timestampStr}.txt`;
+
+    if (payload.cancelAll) {
+      // Cancellation of the entire party
+      const adjustedTotal = totalOriginal * factorAjuste;
+      penaltyTotal = Math.round(adjustedTotal * 0.3);
+      nuevoTotal = penaltyTotal;
+
+      updatedItems = [
+        {
+          idServicioCatalogo: 'multa_cancelacion_total',
+          nombreServicio: 'Cancelación total de evento - Multa (30%)',
+          cantidad: 1,
+          precioUnitario: penaltyTotal,
+          precioUnitarioPresupuesto: penaltyTotal,
+          costoTotalItem: penaltyTotal,
+          categoriaServicio: 'Multas y Ajustes'
+        }
+      ];
+
+      docContent = `============================================================
+           AK PRODUCCIONES - CONTRATO DE CANCELACIÓN TOTAL
+============================================================
+
+CLIENTE: ${presupuesto.clienteNombre}
+ID EVENTO: ${fiestaId}
+FECHA ORIGINAL: ${fiesta.configuracion?.fechaEvento || 'A confirmar'}
+FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
+
+------------------------------------------------------------
+DETALLE DE LA CANCELACIÓN:
+- Se cancela la totalidad de la fiesta y los servicios contratados.
+- El contrato queda rescindido aplicando la Cláusula 4 del contrato firmado.
+
+------------------------------------------------------------
+CÁLCULO ECONÓMICO (CLÁUSULA 4):
+- Total del contrato original: $${totalOriginal.toLocaleString('es-UY')}
+- Factor de ajuste inflacionario aplicado (${porcentajeAjuste}% anual): x${factorAjuste.toFixed(3)} (año firma: ${signingYear} -> año cancelacion: ${cancellationYear})
+- Total del contrato ajustado: $${Math.round(adjustedTotal).toLocaleString('es-UY')}
+- Recargo por penalización (30%): $${penaltyTotal.toLocaleString('es-UY')}
+
+- Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
+- Resultado:
+  ${totalPagado > penaltyTotal 
+    ? `* Se le devolverá al cliente: $${(totalPagado - penaltyTotal).toLocaleString('es-UY')}`
+    : `* El cliente adeuda de saldo pendiente: $${(penaltyTotal - totalPagado).toLocaleString('es-UY')}`}
+
+------------------------------------------------------------
+DECLARACIÓN Y ACEPTACIÓN:
+Al firmar este documento de manera manual, las partes aceptan de
+común acuerdo la rescisión del contrato bajo las condiciones pactadas.
+
+Para finalizar este trámite y coordinar la devolución/cobro y la firma
+manual de esta adenda, por favor comuníquese de inmediato con nosotros
+informando esta decisión.
+
+Firma Cliente: ________________________   Fecha: __/__/____
+
+Firma AK Producciones: _________________   Fecha: __/__/____
+============================================================`;
+
+    } else {
+      // Partial cancellation of specific services
+      const cancelledServicesDetails: string[] = [];
+      let cancelledValueOriginal = 0;
+
+      const servicesToCancelSet = new Set(payload.servicesToCancel);
+      const remainingItems: any[] = [];
+
+      for (const item of updatedItems) {
+        if (servicesToCancelSet.has(item.idServicioCatalogo)) {
+          const originalCost = item.costoTotalItem || 0;
+          const adjustedCost = originalCost * factorAjuste;
+          const servicePenalty = Math.round(adjustedCost * 0.3);
+          penaltyTotal += servicePenalty;
+          cancelledValueOriginal += originalCost;
+
+          cancelledServicesDetails.push(
+            `  * ${item.nombreServicio} (Cant: ${item.cantidad || 1}) - Original: $${originalCost.toLocaleString('es-UY')} - Ajustado ${cancellationYear}: $${Math.round(adjustedCost).toLocaleString('es-UY')} - Multa (30%): $${servicePenalty.toLocaleString('es-UY')}`
+          );
+        } else {
+          remainingItems.push(item);
+        }
+      }
+
+      if (cancelledServicesDetails.length === 0) {
+        return { success: false, error: 'No se seleccionó ningún servicio válido para cancelar.' };
+      }
+
+      // Add penalty items to the remaining items list
+      remainingItems.push({
+        idServicioCatalogo: `multa_cancelacion_${Date.now()}`,
+        nombreServicio: `Penalización por Cancelación de Servicios (30%)`,
+        cantidad: 1,
+        precioUnitario: penaltyTotal,
+        precioUnitarioPresupuesto: penaltyTotal,
+        costoTotalItem: penaltyTotal,
+        categoriaServicio: 'Multas y Ajustes'
+      });
+
+      updatedItems = remainingItems;
+
+      // Recalculate new total
+      const remainingSubtotal = remainingItems
+        .filter(item => !item.esRegalo && item.idServicioCatalogo !== 'multa_cancelacion_total' && !item.idServicioCatalogo.startsWith('multa_cancelacion_'))
+        .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
+      
+      let discount = 0;
+      if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
+        discount = presupuesto.descuentoTipo === 'porcentaje'
+          ? Math.round(remainingSubtotal * presupuesto.descuentoValor / 100)
+          : presupuesto.descuentoValor;
+      }
+      
+      nuevoTotal = Math.max(0, remainingSubtotal - discount) + penaltyTotal;
+
+      docContent = `============================================================
+           AK PRODUCCIONES - CONTRATO DE CANCELACIÓN PARCIAL
+============================================================
+
+CLIENTE: ${presupuesto.clienteNombre}
+ID EVENTO: ${fiestaId}
+FECHA ORIGINAL: ${fiesta.configuracion?.fechaEvento || 'A confirmar'}
+FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
+
+------------------------------------------------------------
+SERVICIOS CANCELADOS:
+${cancelledServicesDetails.join('\n')}
+
+------------------------------------------------------------
+CÁLCULO ECONÓMICO (CLÁUSULA 4):
+- Total del contrato original: $${totalOriginal.toLocaleString('es-UY')}
+- Factor de ajuste inflacionario aplicado (${porcentajeAjuste}% anual): x${factorAjuste.toFixed(3)}
+- Total original cancelado: $${cancelledValueOriginal.toLocaleString('es-UY')}
+- Recargo por penalización (30% de lo cancelado ajustado): $${penaltyTotal.toLocaleString('es-UY')}
+- Nuevo total de contrato reestructurado: $${nuevoTotal.toLocaleString('es-UY')}
+
+- Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
+- Resultado:
+  ${totalPagado > nuevoTotal 
+    ? `* Se le devolverá al cliente: $${(totalPagado - nuevoTotal).toLocaleString('es-UY')}`
+    : `* El cliente adeuda de saldo pendiente: $${(nuevoTotal - totalPagado).toLocaleString('es-UY')}`}
+
+------------------------------------------------------------
+DECLARACIÓN Y ACEPTACIÓN:
+Al firmar este documento de manera manual, las partes aceptan de
+común acuerdo la reestructuración del contrato bajo las condiciones pactadas.
+
+Para finalizar este trámite y coordinar la firma manual de esta
+adenda, por favor comuníquese de inmediato con nosotros informando
+esta decisión.
+
+Firma Cliente: ________________________   Fecha: __/__/____
+
+Firma AK Producciones: _________________   Fecha: __/__/____
+============================================================`;
+    }
+
+    // Write file locally
+    const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
+    await fs.mkdir(dirPath, { recursive: true });
+    const filePath = path.join(dirPath, filename);
+    await fs.writeFile(filePath, docContent, 'utf-8');
+
+    // Update Budget in database
+    presupuesto.itemsPresupuestados = updatedItems;
+    presupuesto.costoTotalEstimado = updatedItems
+      .filter(item => !item.esRegalo)
+      .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
+    
+    let discount = 0;
+    if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
+      discount = presupuesto.descuentoTipo === 'porcentaje'
+        ? Math.round((presupuesto.costoTotalEstimado - penaltyTotal) * presupuesto.descuentoValor / 100)
+        : presupuesto.descuentoValor;
+    }
+    presupuesto.totalConDescuento = Math.max(0, presupuesto.costoTotalEstimado - discount);
+    presupuesto.saldo = Math.max(0, presupuesto.totalConDescuento - totalPagado);
+
+    budgets[budgetIndex] = presupuesto;
+    await writeData('presupuestos.json', budgets);
+
+    // Update Fiesta in database
+    const newDoc = {
+      id: docId,
+      nombre: payload.cancelAll ? "Contrato de Cancelación Total (Firma Manual)" : "Contrato de Cancelación Parcial (Firma Manual)",
+      tipo: 'cancelacion',
+      fileName: filename,
+      timestamp: new Date().toISOString(),
+    };
+
+    const updatedFiesta = {
+      ...fiesta,
+      othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
+    };
+    await saveFiesta(updatedFiesta);
+
+    // Create system notification
+    const { createNotification } = await import('../notifications');
+    await createNotification({
+      mensaje: `⚠️ Cliente canceló ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'AlertTriangle',
+    });
+
+    const refundAmount = totalPagado > nuevoTotal ? (totalPagado - nuevoTotal) : 0;
+    const pendingDue = nuevoTotal > totalPagado ? (nuevoTotal - totalPagado) : 0;
+
+    return {
+      success: true,
+      fileName: filename,
+      refundAmount,
+      pendingDue
+    };
+
+  } catch (e: any) {
+    return { success: false, error: sanitizeActionError(e) };
+  }
+}
+
+export async function changeEventDate(
+  fiestaId: string,
+  payload: {
+    newDate: string;
+    passwordInput: string;
+  }
+): Promise<{ success: boolean; error?: string; fileName?: string; penaltyAmount?: number; newBalance?: number }> {
+  const { verifyPortalSession } = await import('@/lib/security/portal-session');
+  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+
+    const expectedPassword = fiesta.clientPortalSettings?.clientPassword || '';
+    if (payload.passwordInput.trim() !== expectedPassword.trim()) {
+      return { success: false, error: 'Contraseña/PIN de operaciones incorrecto.' };
+    }
+
+    // Check date availability
+    const availRes = await checkDateAvailability(fiestaId, payload.newDate);
+    if (!availRes.success || !availRes.available) {
+      return { success: false, error: 'La fecha seleccionada no está disponible.' };
+    }
+
+    if (!fiesta.presupuestoId) return { success: false, error: 'Este evento no tiene un presupuesto asociado.' };
+
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const { readData, writeData } = await import('@/lib/data-service');
+    const { getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+
+    const budgets = await readData<any[]>('presupuestos.json', []);
+    const budgetIndex = budgets.findIndex(b => b.id === fiesta.presupuestoId);
+    if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
+
+    const presupuesto = budgets[budgetIndex];
+    const paymentSummary = getBudgetPaymentSummary(presupuesto);
+    const totalOriginal = paymentSummary.total;
+    const totalPagado = paymentSummary.paid;
+
+    // Calculate 10% penalty for date change
+    const penaltyAmount = Math.round(totalOriginal * 0.1);
+    const nuevoTotal = totalOriginal + penaltyAmount;
+
+    // Create penalty item
+    const penaltyItem = {
+      idServicioCatalogo: `multa_cambio_fecha_${Date.now()}`,
+      nombreServicio: 'Recargo por Cambio de Fecha (10%)',
+      cantidad: 1,
+      precioUnitario: penaltyAmount,
+      precioUnitarioPresupuesto: penaltyAmount,
+      costoTotalItem: penaltyAmount,
+      categoriaServicio: 'Multas y Ajustes'
+    };
+
+    const updatedItems = [...(presupuesto.itemsPresupuestados || []), penaltyItem];
+
+    // Format new document
+    const originalDateFmt = new Date(fiesta.configuracion?.fechaEvento || '').toLocaleDateString('es-UY');
+    const newDateFmt = new Date(payload.newDate).toLocaleDateString('es-UY');
+    const timestampStr = new Date().toISOString().replace(/[:.]/g, '-');
+    const docId = `cambio_fecha_${timestampStr}`;
+    const filename = `cambio_fecha_${fiestaId}_${timestampStr}.txt`;
+
+    const docContent = `============================================================
+           AK PRODUCCIONES - ADENDA DE CAMBIO DE FECHA
+============================================================
+
+CLIENTE: ${presupuesto.clienteNombre}
+ID EVENTO: ${fiestaId}
+FECHA ORIGINAL: ${originalDateFmt}
+NUEVA FECHA SOLICITADA: ${newDateFmt}
+FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
+
+------------------------------------------------------------
+DETALLE DEL CAMBIO (CLÁUSULA 4):
+- Se reprograma la fecha del evento a solicitud del cliente.
+- Penalización por reprogramación: 10% del total contratado.
+
+------------------------------------------------------------
+CÁLCULO ECONÓMICO:
+- Total del contrato original: $${totalOriginal.toLocaleString('es-UY')}
+- Recargo por cambio de fecha (10%): $${penaltyAmount.toLocaleString('es-UY')}
+- Nuevo total de contrato reestructurado: $${nuevoTotal.toLocaleString('es-UY')}
+
+- Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
+- Saldo pendiente restante a abonar: $${(nuevoTotal - totalPagado).toLocaleString('es-UY')}
+
+* Nota: Si la nueva fecha pasa a otro año, se aplicará el ajuste
+  anual correspondiente según la Cláusula 2 al momento del cobro.
+
+------------------------------------------------------------
+DECLARACIÓN Y ACEPTACIÓN:
+Al firmar este documento de manera manual, las partes aceptan de
+común acuerdo el cambio de fecha y la reestructuración del saldo.
+
+Para finalizar este trámite y coordinar la firma manual de esta
+adenda, por favor comuníquese de inmediato con nosotros informando
+esta decisión.
+
+Firma Cliente: ________________________   Fecha: __/__/____
+
+Firma AK Producciones: _________________   Fecha: __/__/____
+============================================================`;
+
+    // Write file locally
+    const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
+    await fs.mkdir(dirPath, { recursive: true });
+    const filePath = path.join(dirPath, filename);
+    await fs.writeFile(filePath, docContent, 'utf-8');
+
+    // Update Budget in database
+    presupuesto.eventoFecha = payload.newDate;
+    presupuesto.itemsPresupuestados = updatedItems;
+    presupuesto.costoTotalEstimado = updatedItems
+      .filter(item => !item.esRegalo)
+      .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
+    
+    let discount = 0;
+    if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
+      discount = presupuesto.descuentoTipo === 'porcentaje'
+        ? Math.round((presupuesto.costoTotalEstimado - penaltyAmount) * presupuesto.descuentoValor / 100)
+        : presupuesto.descuentoValor;
+    }
+    presupuesto.totalConDescuento = Math.max(0, presupuesto.costoTotalEstimado - discount);
+    presupuesto.saldo = Math.max(0, presupuesto.totalConDescuento - totalPagado);
+
+    budgets[budgetIndex] = presupuesto;
+    await writeData('presupuestos.json', budgets);
+
+    // Update Fiesta in database
+    const newDoc = {
+      id: docId,
+      nombre: `Adenda Cambio de Fecha a ${newDateFmt} (Firma Manual)`,
+      tipo: 'cambio_fecha',
+      fileName: filename,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (fiesta.configuracion) {
+      fiesta.configuracion.fechaEvento = payload.newDate;
+    }
+
+    const updatedFiesta = {
+      ...fiesta,
+      othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
+    };
+    await saveFiesta(updatedFiesta);
+
+    // Create system notification
+    const { createNotification } = await import('../notifications');
+    await createNotification({
+      mensaje: `📅 Cliente cambió fecha a ${newDateFmt} en "${fiesta.configuracion.nombreEvento}". Adenda generada.`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'Calendar',
+    });
+
+    return {
+      success: true,
+      fileName: filename,
+      penaltyAmount,
+      newBalance: presupuesto.saldo
+    };
+
+  } catch (e: any) {
+    return { success: false, error: sanitizeActionError(e) };
+  }
+}
+
+
