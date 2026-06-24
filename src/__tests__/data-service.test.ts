@@ -71,23 +71,21 @@ describe('data-service — writeData validation', () => {
 
   it('registers automatic backup as post-response work after a successful write', async () => {
     const syncToFirestore = jest.fn().mockResolvedValue(undefined);
-    const waitUntil = jest.fn();
+    const after = jest.fn();
     const triggerAutoBackup = jest.fn(() => new Promise<void>(() => {}));
     jest.doMock('@/lib/firebase-sync', () => ({
       syncToFirestore,
       readFromFirestore: jest.fn().mockResolvedValue([{ id: '1' }]),
     }));
     jest.doMock('@/app/actions/backup', () => ({ triggerAutoBackup }));
-    jest.doMock('next/dist/server/lib/builtin-request-context', () => ({
-      getBuiltinRequestContext: () => ({ waitUntil }),
-    }));
+    jest.doMock('next/server', () => ({ after }));
 
     const { writeData } = await import('@/lib/data-service');
     await writeData('customers.json', [{ id: '1' }]);
 
     expect(syncToFirestore).toHaveBeenCalled();
     expect(triggerAutoBackup).toHaveBeenCalledTimes(1);
-    expect(waitUntil).toHaveBeenCalledTimes(1);
+    expect(after).toHaveBeenCalledTimes(1);
   });
 
   it('can skip automatic backup during a restore', async () => {

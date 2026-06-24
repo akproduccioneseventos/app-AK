@@ -19,14 +19,14 @@ const iconByArea: Record<SocialFinalAreaId, LucideIcon> = {
   post_evento: CheckCircle2,
 };
 
-type PageProps = { searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }> };
+type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 function withFiesta(route: string, fiestaId: string): string {
   return `${route}?fiestaId=${encodeURIComponent(fiestaId)}`;
 }
 
-export default async function SocialFiestaCierreFinalPage({ searchParams }: PageProps) {
-  const params = await Promise.resolve(searchParams ?? {});
+export default async function SocialFiestaCierreFinalPage(props: PageProps) {
+  const params = (await props.searchParams) ?? {};
   const fiestaId = params.fiestaId;
 
   if (!fiestaId) {

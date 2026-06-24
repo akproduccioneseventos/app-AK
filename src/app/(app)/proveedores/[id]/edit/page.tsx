@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -13,17 +13,18 @@ import { useToast } from '@/hooks/use-toast';
 import { getProveedorById, saveProveedor } from '@/app/actions/proveedores';
 import type { Proveedor } from '@/types/proveedor';
 
-export default function EditProveedorPage({ params }: { params: { id: string } }) {
+export default function EditProveedorPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const [proveedor, setProveedor] = useState<Proveedor | null>(null);
   const [formData, setFormData] = useState<Partial<Proveedor>>({});
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  
+
   const proveedorIdFromParams = params.id;
 
   const loadProveedor = useCallback(async () => {
@@ -45,7 +46,7 @@ export default function EditProveedorPage({ params }: { params: { id: string } }
       setIsLoading(false);
     }
   }, [proveedorIdFromParams, toast]);
-  
+
   useEffect(() => {
     if (proveedorIdFromParams) {
       loadProveedor();

@@ -5,10 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { parts: string[] } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ parts: string[] }> }) {
+  const params = await props.params;
   const [fiestaId, filename] = params.parts;
 
   if (!fiestaId || !filename) {

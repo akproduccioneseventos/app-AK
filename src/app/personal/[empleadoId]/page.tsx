@@ -26,13 +26,14 @@ function formatMoney(value: number) {
   }).format(value || 0);
 }
 
-export default async function PersonalWorkspacePage({
-  params,
-  searchParams,
-}: {
-  params: { empleadoId: string };
-  searchParams?: { connected?: string; error?: string };
-}) {
+export default async function PersonalWorkspacePage(
+  props: {
+    params: Promise<{ empleadoId: string }>;
+    searchParams?: Promise<{ connected?: string; error?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const portal = await getEmployeeWorkspacePortal(params.empleadoId);
   if (!portal.employee) notFound();
 

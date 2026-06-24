@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,10 +30,11 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Separator } from '@/components/ui/separator';
 
-export default function EditarEmpleadoPage({ params }: { params: { id: string } }) {
+export default function EditarEmpleadoPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const [empleado, setEmpleado] = useState<Empleado | null>(null);
   const [rolesDisponibles, setRolesDisponibles] = useState<Rol[]>([]);
 
@@ -47,7 +48,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
   const [contractFile, setContractFile] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState('');
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -174,7 +175,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
       setIsDeleting(false);
     }
   };
-  
+
   if (isLoading) return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (notFound) return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>Empleado no encontrado. <Link href="/empleados" className="underline">Volver a empleados</Link>.</div>;
 
@@ -191,7 +192,6 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
         </div>
         <Button asChild variant="outline" disabled={isSaving || isDeleting}><Link href="/empleados"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
-      
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Información del Empleado</CardTitle>
@@ -204,7 +204,7 @@ export default function EditarEmpleadoPage({ params }: { params: { id: string } 
                 <div className="w-20 h-20 rounded-full border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50 shrink-0">
                   {photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={photoUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
+                    (<img src={photoUrl} alt="Foto de perfil" className="w-full h-full object-cover" />)
                   ) : (
                     <UserCircle className="w-10 h-10 text-slate-300" />
                   )}

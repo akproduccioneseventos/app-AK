@@ -4,10 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { filename: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ filename: string }> }) {
+  const params = await props.params;
   const filename = params.filename;
 
   if (!filename) {
@@ -19,7 +17,7 @@ export async function GET(
   if (safeFilename !== filename) {
     return new NextResponse('Invalid filename', { status: 400 });
   }
-  
+
   const contractsDirectoryPath = path.resolve(process.cwd(), 'src', 'data', 'contracts');
   const filePath = path.join(contractsDirectoryPath, safeFilename);
 

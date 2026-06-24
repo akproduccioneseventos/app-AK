@@ -19,10 +19,8 @@ async function addFileToZip(zip: JSZip, filePath: string, zipPath: string) {
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { parts: string[] } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ parts: string[] }> }) {
+  const params = await props.params;
   const [fiestaId, filename] = params.parts;
 
   // Handle the special 'download-all' command

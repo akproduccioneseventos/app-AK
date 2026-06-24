@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-type PageProps = { params: { id: string } };
+type PageProps = { params: Promise<{ id: string }> };
 
 const screenIcon: Record<AkLiveControlItem['screen'], typeof Smartphone> = {
   celular: Smartphone,
@@ -35,7 +35,8 @@ const screenLabel: Record<AkLiveControlItem['screen'], string> = {
   'pantalla-gigante': 'Pantalla gigante',
 };
 
-export default async function ShowControlPage({ params }: PageProps) {
+export default async function ShowControlPage(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.id);
   const plan = buildAkExperiencePlan(fiesta);
 

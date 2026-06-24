@@ -46,9 +46,9 @@ const areaIcons: Record<ExperienceArea['id'], typeof Sparkles> = {
 };
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 function ScoreDial({ score, label }: { score: number; label: string }) {
@@ -156,7 +156,8 @@ function MissingFiesta() {
   );
 }
 
-export default async function CentroExperienciaPage({ params }: PageProps) {
+export default async function CentroExperienciaPage(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.id);
 
   if (!fiesta) {

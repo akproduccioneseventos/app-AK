@@ -8,7 +8,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import PublicPortalClientExperience from './PublicPortalClientExperience';
 
 interface PageProps {
-  params: { accessKey: string };
+  params: Promise<{ accessKey: string }>;
 }
 
 function mapFiestaToPortalDTO(fiesta: any): any {
@@ -151,7 +151,8 @@ function mapPresupuestoToPortalDTO(presupuesto: any, token?: string): any {
   };
 }
 
-export default async function PublicPortalPage({ params }: PageProps) {
+export default async function PublicPortalPage(props: PageProps) {
+  const params = await props.params;
   const { accessKey } = params;
 
   const [fiesta, companyInfo] = await Promise.all([

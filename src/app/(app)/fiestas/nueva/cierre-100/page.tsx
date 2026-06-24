@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FINAL_RELEASE_BLOCKS } from '@/lib/cierre-100/final-release-plan';
 import type { FinalReleaseBlockId } from '@/lib/cierre-100/final-release-plan';
 
-type PageProps = { searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }> };
+type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 const iconByBlock: Record<FinalReleaseBlockId, LucideIcon> = {
   accesos: Eye,
@@ -23,8 +23,8 @@ function withFiesta(route: string, fiestaId?: string): string {
   return `${route}?fiestaId=${encodeURIComponent(fiestaId)}`;
 }
 
-export default async function Cierre100Page({ searchParams }: PageProps) {
-  const params = await Promise.resolve(searchParams ?? {});
+export default async function Cierre100Page(props: PageProps) {
+  const params = (await props.searchParams) ?? {};
   const fiestaId = params.fiestaId;
 
   return (

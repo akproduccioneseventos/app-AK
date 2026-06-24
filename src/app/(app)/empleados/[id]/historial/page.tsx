@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Download, Loader2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,7 +47,8 @@ const getDateTimestamp = (value?: string) => {
   return Number.isNaN(d.getTime()) ? Number.NEGATIVE_INFINITY : d.getTime();
 };
 
-export default function EmpleadoHistorialPage({ params }: { params: { id: string } }) {
+export default function EmpleadoHistorialPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const { toast } = useToast();
   const empleadoId = params.id;
 

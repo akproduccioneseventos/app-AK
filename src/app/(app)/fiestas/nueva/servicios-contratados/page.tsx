@@ -44,7 +44,7 @@ export default function ServiciosContratadosPage() {
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [menu, setMenu] = useState<FullMenu | null>(null);
   const [personalConRol, setPersonalConRol] = useState<{ empleado: Empleado, rol?: Rol }[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -202,7 +202,7 @@ export default function ServiciosContratadosPage() {
       </div>
     );
   }
-  
+
   if (!fiestaActual) {
      return <div className="text-center py-10"><p className="text-muted-foreground">No hay datos de fiesta actual.</p></div>;
   }
@@ -216,7 +216,7 @@ export default function ServiciosContratadosPage() {
         </div>
         <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaActual.id}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Planificador</Link></Button>
       </div>
-      
+
       <Card className="shadow-sm">
         <CardHeader className="bg-muted/30 p-4">
           <CardTitle className="font-headline text-lg">{fiestaActual.configuracion.nombreEvento}</CardTitle>
@@ -244,7 +244,7 @@ export default function ServiciosContratadosPage() {
             {renderSubServicios(allItems.decoracion)}
           </AccordionContent>
         </AccordionItem>
-        
+
         <AccordionItem value="fotografia" className="border rounded-lg shadow-sm">
           <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
             <div className="flex items-center gap-2"><Camera className="w-5 h-5"/>Fotografía y Video</div>
@@ -264,7 +264,7 @@ export default function ServiciosContratadosPage() {
              {allItems.musica.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de música/DJ en el presupuesto.</p>}
           </AccordionContent>
         </AccordionItem>
-        
+
         <AccordionItem value="seguridad" className="border rounded-lg shadow-sm">
           <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
             <div className="flex items-center gap-2"><Shield className="w-5 h-5"/>Seguridad</div>
@@ -275,15 +275,12 @@ export default function ServiciosContratadosPage() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      
+
       <div className="pt-6 text-center print:hidden">
-        <Button variant="outline" disabled>
-            <Printer className="w-4 h-4 mr-2"/>Exportar Resumen PDF (Próximamente)
+        <Button type="button" variant="outline" onClick={() => window.print()}>
+            <Printer className="w-4 h-4 mr-2"/>Imprimir o guardar PDF
         </Button>
       </div>
     </div>
   );
 }
-
-
-    

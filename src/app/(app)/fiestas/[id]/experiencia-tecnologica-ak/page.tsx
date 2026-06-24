@@ -14,9 +14,10 @@ const icons = {
   ia_operativa: Bot,
 } as const;
 
-type PageProps = { params: { id: string } };
+type PageProps = { params: Promise<{ id: string }> };
 
-export default async function ExperienciaTecnologicaAkPage({ params }: PageProps) {
+export default async function ExperienciaTecnologicaAkPage(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.id);
 
   if (!fiesta) {

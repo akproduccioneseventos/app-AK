@@ -6,12 +6,13 @@ import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-
 import { notFound } from 'next/navigation';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
   try {
     const fiesta = await getFiestaBySlug(params.slug);
     if (!fiesta) return { title: 'Invitación no encontrada' };
@@ -43,7 +44,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function InvitacionSlugPage({ params }: PageProps) {
+export default async function InvitacionSlugPage(props: PageProps) {
+  const params = await props.params;
   const [fiesta, socialConnections] = await Promise.all([
     getFiestaBySlug(params.slug),
     getSocialConnections().catch(() => [] as import('@/types/settings').SocialConnection[]),

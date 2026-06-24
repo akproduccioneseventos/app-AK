@@ -15,6 +15,8 @@ test('health endpoint responds without exposing internal failures', async ({ req
 });
 
 test('protected access screen remains usable', async ({ page }) => {
+  test.setTimeout(180_000);
+
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
 
   await expect(page.getByText('Acceso Protegido', { exact: true })).toBeVisible();

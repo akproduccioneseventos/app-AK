@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,10 +25,11 @@ function formatDate(iso?: string) {
   return new Date(iso).toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-export default function ClientContractPage({ params }: { params: { fiestaId: string } }) {
+export default function ClientContractPage(props: { params: Promise<{ fiestaId: string }> }) {
+  const params = use(props.params);
   const fiestaId = params.fiestaId;
   const { toast } = useToast();
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);

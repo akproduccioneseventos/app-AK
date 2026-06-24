@@ -6,8 +6,9 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { fiestaId: string; filename: string } }
+  props: { params: Promise<{ fiestaId: string; filename: string }> }
 ) {
+  const params = await props.params;
   const { fiestaId, filename } = params;
 
   if (!fiestaId || !filename) {

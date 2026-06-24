@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react'; 
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,17 +29,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
 
-export default function EditCustomerPage({ params }: { params: { id: string } }) {
+export default function EditCustomerPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const { toast } = useToast();
   const [customer, setCustomer] = useState<Customer | null>(null);
-  
+
   // General fields
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
-  const [taxId, setTaxId] = useState(''); 
+  const [taxId, setTaxId] = useState('');
   const [estadoClienteForm, setEstadoClienteForm] = useState<CustomerStatus>('Actual');
 
   // Party-related fields
@@ -164,7 +165,7 @@ export default function EditCustomerPage({ params }: { params: { id: string } })
       setIsDeleting(false);
     }
   };
-  
+
   const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
       setPartyType("Otro"); 

@@ -33,9 +33,9 @@ const statusStyles: Record<CommandStatus, string> = {
 };
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 function MissingFiesta() {
@@ -71,7 +71,8 @@ function ScoreBlock({ score, status }: { score: number; status: CommandStatus })
   );
 }
 
-export default async function ComandoTotalPage({ params }: PageProps) {
+export default async function ComandoTotalPage(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.id);
 
   if (!fiesta) return <MissingFiesta />;

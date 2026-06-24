@@ -10,6 +10,13 @@ runConfig:
   concurrency: 80
 
 env:
+  # The application has more than 250 routes and needs a larger heap while
+  # Next.js builds the production bundle in Firebase App Hosting.
+  - variable: NODE_OPTIONS
+    value: "--max-old-space-size=6144"
+    availability:
+      - BUILD
+
   - variable: USE_FIREBASE_DATA
     value: "true"
     availability:

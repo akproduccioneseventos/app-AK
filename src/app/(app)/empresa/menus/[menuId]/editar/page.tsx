@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -11,12 +11,13 @@ import { getMenuById } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { useToast } from '@/hooks/use-toast';
 
-export default function EditarMenuPage({ params }: { params: { menuId: string } }) {
+export default function EditarMenuPage(props: { params: Promise<{ menuId: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const { toast } = useToast();
   const [menu, setMenu] = useState<FullMenu | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const loadMenu = useCallback(async (id: string) => {
     setIsLoading(true);
     try {
@@ -39,7 +40,7 @@ export default function EditarMenuPage({ params }: { params: { menuId: string } 
       setIsLoading(false);
     }
   }, [router, toast]);
-  
+
 
   useEffect(() => {
     if (params.menuId) {

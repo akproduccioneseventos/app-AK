@@ -21,9 +21,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 type PageProps = {
-  searchParams: {
+  searchParams: Promise<{
     fiestaId?: string;
-  };
+  }>;
 };
 
 const ownerLabel: Record<FiestaListaCheck['owner'], string> = {
@@ -60,7 +60,8 @@ function MissingState({ fiestaId }: { fiestaId?: string }) {
   );
 }
 
-export default async function FiestaListaPage({ searchParams }: PageProps) {
+export default async function FiestaListaPage(props: PageProps) {
+  const searchParams = await props.searchParams;
   const fiestaId = searchParams.fiestaId;
   const fiesta = fiestaId ? await getFiestaById(fiestaId) : null;
 

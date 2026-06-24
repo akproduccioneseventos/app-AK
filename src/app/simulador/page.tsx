@@ -8,7 +8,7 @@ import {
 } from '@/lib/commercial/acquisition';
 
 type SimulatorHubProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 const options = [
@@ -32,7 +32,8 @@ const options = [
   },
 ] as const;
 
-export default function SimulatorHubPage({ searchParams }: SimulatorHubProps) {
+export default async function SimulatorHubPage(props: SimulatorHubProps) {
+  const searchParams = await props.searchParams;
   const attribution = commercialAttributionFromRecord(searchParams, 'direct');
   const sourceLabel = describeCommercialSource(attribution);
   const whatsappText = [

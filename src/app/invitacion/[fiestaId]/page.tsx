@@ -5,10 +5,11 @@ import { buildInvitacionConfigFromFiesta, TIPO_EVENTO_LABELS } from '@/lib/invit
 import { InvitacionPublicaClient } from './invitacion-publica-client';
 
 interface PageProps {
-  params: { fiestaId: string };
+  params: Promise<{ fiestaId: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
   try {
     const fiesta = await getFiestaById(params.fiestaId);
     if (!fiesta) return { title: 'Invitación no encontrada' };
@@ -40,7 +41,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function InvitacionPublicaPage({ params }: PageProps) {
+export default async function InvitacionPublicaPage(props: PageProps) {
+  const params = await props.params;
   const [fiesta, socialConnections] = await Promise.all([
     getFiestaById(params.fiestaId),
     getSocialConnections().catch((err) => {

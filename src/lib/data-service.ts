@@ -27,14 +27,11 @@ async function scheduleAutoBackupAfterWrite(normalizedFilePath: string, options?
     .catch((err) => logger.warn('[data-service] Auto-backup trigger failed:', err));
 
   try {
-    const { getBuiltinRequestContext } = await import('next/dist/server/lib/builtin-request-context');
-    const waitUntil = getBuiltinRequestContext()?.waitUntil;
-    if (waitUntil) {
-      waitUntil(backupTask);
-      return;
-    }
+    const { after } = await import('next/server');
+    after(backupTask);
+    return;
   } catch (error) {
-    logger.warn('[data-service] Request context unavailable for auto-backup:', error);
+    logger.warn('[data-service] Post-response context unavailable for auto-backup:', error);
   }
 
   void backupTask;

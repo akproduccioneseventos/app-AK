@@ -17,9 +17,9 @@ type LocalRateLimit = {
 
 const localLimits = new Map<string, LocalRateLimit>();
 
-function getClientAddress(): string {
+async function getClientAddress(): Promise<string> {
   try {
-    const requestHeaders = headers();
+    const requestHeaders = await headers();
     return (
       requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim()
       || requestHeaders.get('x-real-ip')
@@ -30,9 +30,9 @@ function getClientAddress(): string {
   }
 }
 
-function buildKey(scope: string, identity?: string): string {
+async function buildKey(scope: string, identity?: string): Promise<string> {
   return createHash('sha256')
-    .update(`${scope}|${getClientAddress()}|${identity || 'anonymous'}`)
+    .update(`${scope}|${await getClientAddress()}|${identity || 'anonymous'}`)
     .digest('hex');
 }
 
@@ -51,7 +51,7 @@ function enforceLocalLimit(key: string, input: RateLimitInput): void {
 }
 
 export async function enforcePublicRateLimit(input: RateLimitInput): Promise<void> {
-  const key = buildKey(input.scope, input.identity);
+  const key = await buildKey(input.scope, input.identity);
   const now = Date.now();
 
   try {

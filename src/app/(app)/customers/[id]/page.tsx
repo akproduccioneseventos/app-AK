@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,7 +49,8 @@ interface EventPaymentDetails {
   fuentePagos: 'presupuesto' | 'facturas' | 'mixto' | 'sin_pagos';
 }
 
-export default function CustomerDetailsPage({ params }: { params: { id: string } }) {
+export default function CustomerDetailsPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const customerId = params.id;
   const router = useRouter();
   const { toast } = useToast();
@@ -154,7 +155,7 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
   useEffect(() => {
     loadCustomerData();
   }, [loadCustomerData]);
-  
+
   const handlePrint = () => {
     window.print();
   };
@@ -166,7 +167,7 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
   if (notFound) {
     return <div className="text-center text-destructive p-6"><AlertTriangle className="mx-auto w-12 h-12 mb-3"/>Cliente no encontrado. <Link href="/customers" className="underline">Volver a la lista</Link>.</div>;
   }
-  
+
   if (error || !customer) {
     return <div className="text-center text-destructive p-6"><AlertTriangle className="mx-auto w-12 h-12 mb-3"/>{error || "No se pudo cargar la información del cliente."}</div>;
   }
@@ -238,7 +239,6 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
              </Button>
         </div>
       </div>
-
       {/* ── PRÓXIMO PASO ────────────────────────────────────── */}
       <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-violet-50 shadow-md">
         <CardContent className="py-4 px-6">
@@ -260,7 +260,6 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
           </div>
         </CardContent>
       </Card>
-
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Información General y Documentos</CardTitle>
@@ -306,9 +305,7 @@ export default function CustomerDetailsPage({ params }: { params: { id: string }
             </div>
         </CardContent>
       </Card>
-
       <Separator />
-
       <section>
         <h2 className="text-2xl font-semibold font-headline mb-4 text-primary">Historial de Eventos</h2>
         {eventPaymentHistory.length > 0 ? (

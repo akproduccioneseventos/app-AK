@@ -19,12 +19,13 @@ function countReady(items: Array<boolean>) {
 }
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
-export default async function PortfolioFiestaPage({ params }: PageProps) {
+export default async function PortfolioFiestaPage(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.id);
   if (!fiesta) notFound();
 

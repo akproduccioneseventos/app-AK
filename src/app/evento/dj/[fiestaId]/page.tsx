@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { getSongRequests, markSongPlayed, voteSongRequest } from '@/app/actions/social-interactive';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { SongRequest } from '@/types/social-gallery';
@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils';
 
 const REFRESH_INTERVAL_MS = 5000;
 
-export default function DJPage({ params }: { params: { fiestaId: string } }) {
+export default function DJPage(props: { params: Promise<{ fiestaId: string }> }) {
+  const params = use(props.params);
   const [requests, setRequests] = useState<SongRequest[]>([]);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
