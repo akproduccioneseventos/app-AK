@@ -679,6 +679,7 @@ export interface FaqItem {
 export interface ClientPortalSettings {
   enabled: boolean;
   accessKey?: string;
+  clientPassword?: string;
   accessPhase?: 'financiera' | 'organizacion' | 'en_vivo';
   liveAccessDaysBefore?: number;
   checklist: PortalModuleSettings;

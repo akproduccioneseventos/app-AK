@@ -47,7 +47,7 @@ function generatePortalAccessKey(fiesta?: FiestaEnPlanificacion | null): string 
   return `cliente-vip-${base}-${suffix}`;
 }
 
-type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey' | 'accessPhase' | 'liveAccessDaysBefore' | 'cuentasBancarias' | 'simuladorInvitadosConfig'>;
+type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey' | 'clientPassword' | 'accessPhase' | 'liveAccessDaysBefore' | 'cuentasBancarias' | 'simuladorInvitadosConfig'>;
 
 interface ModuleGroup {
   label: string;
@@ -110,6 +110,7 @@ function ClientPortalConfigContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showClientPassword, setShowClientPassword] = useState(false);
 
   // Portal experience (cover photo, color, welcome message)
   const [portalExperience, setPortalExperience] = useState<ClientePortalExperience>({});
@@ -451,7 +452,7 @@ function ClientPortalConfigContent() {
       const moduleSettings = prev[moduleId] || { visible: false };
       return {
         ...prev,
-        [moduleId]: { ...moduleSettings, [field]: value }
+        [moduleId]: { ...(moduleSettings as any), [field]: value }
       };
     });
   };
@@ -670,43 +671,85 @@ function ClientPortalConfigContent() {
                   return { ...current, enabled: val, accessKey };
                 })} />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="portal-password">Contraseña de Acceso del Cliente</Label>
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      id="portal-password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={portalSettings.accessKey || ''}
-                      onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))}
-                      placeholder="Ej: cliente-vip-cumpleanos-15-abc123"
-                      className="pr-10"
-                    />
-                    <button
+
+              <div className="space-y-4 border p-4 rounded-xl bg-slate-50/50">
+                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-primary" /> Credenciales y Seguridad
+                </h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="portal-access-key">Clave del Enlace de Acceso (Access Key)</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        id="portal-access-key"
+                        type={showPassword ? 'text' : 'password'}
+                        value={portalSettings.accessKey || ''}
+                        onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))}
+                        placeholder="Ej: cliente-vip-cumpleanos-15-abc123"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                      </button>
+                    </div>
+                    <Button
                       type="button"
-                      onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      tabIndex={-1}
+                      size="icon"
+                      variant="outline"
+                      title="Generar enlace sugerido"
+                      onClick={() => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: generatePortalAccessKey(fiestaData)}))}
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
-                    </button>
+                      <RefreshCw className="w-4 h-4"/>
+                    </Button>
+                    <Button type="button" size="icon" variant="outline" onClick={handleCopyPassword} disabled={!portalSettings.accessKey}><ClipboardCopy className="w-4 h-4"/></Button>
                   </div>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    title="Generar enlace sugerido"
-                    onClick={() => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: generatePortalAccessKey(fiestaData)}))}
-                  >
-                    <RefreshCw className="w-4 h-4"/>
-                  </Button>
-                  <Button type="button" size="icon" variant="outline" onClick={handleCopyPassword} disabled={!portalSettings.accessKey}><ClipboardCopy className="w-4 h-4"/></Button>
+                  <p className="text-[11px] text-muted-foreground">Usá un enlace legible (ej: cliente-vip-nombre-evento) o generá uno sugerido con el botón 🔄.</p>
                 </div>
-                <p className="text-xs text-muted-foreground">Usá un enlace legible (ej: cliente-vip-nombre-evento) o generá uno sugerido con el botón 🔄.</p>
-                {portalSettings.enabled && (
-                  <p className="text-xs text-muted-foreground">Este valor actúa como contraseña de acceso. El enlace oficial para compartir con el cliente está abajo.</p>
-                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="portal-client-password">Contraseña para Cancelaciones y Cambio de Fecha (Operaciones VIP)</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        id="portal-client-password"
+                        type={showClientPassword ? 'text' : 'password'}
+                        value={portalSettings.clientPassword || ''}
+                        onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), clientPassword: e.target.value}))}
+                        placeholder="Ingresá o generá una contraseña (ej: 482910)"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowClientPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
+                      >
+                        {showClientPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                      </button>
+                    </div>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      title="Generar PIN aleatorio de 6 dígitos"
+                      onClick={() => setPortalSettings(p => ({
+                        ...(p || defaultClientPortalSettings),
+                        clientPassword: Math.floor(100000 + Math.random() * 900000).toString()
+                      }))}
+                    >
+                      <RefreshCw className="w-4 h-4"/>
+                    </Button>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Esta contraseña/PIN la usará el cliente desde su portal para autorizar cancelaciones de servicios o cambios de fecha.</p>
+                </div>
               </div>
+
               {portalSettings.enabled && (
                 <div className="space-y-4 animate-in fade-in-20">
                   {publicPortalLink && (
