@@ -121,6 +121,7 @@ export async function updatePortalSettings(
   fiestaId: string, 
   clientSettings: ClientPortalSettings
 ) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, async (currentData) => {
     const updatedData = {
       ...currentData,
@@ -134,6 +135,7 @@ export async function updateClientePortalExperience(
   fiestaId: string,
   experience: import('@/types/fiesta').ClientePortalExperience
 ) {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   return updateFiestaData(fiestaId, data => ({
     ...data,
     clientePortalExperience: { ...(data.clientePortalExperience ?? {}), ...experience },
@@ -141,6 +143,7 @@ export async function updateClientePortalExperience(
 }
 
 export async function updateFaqPortal(fiestaId: string, faqItems: import('@/types/fiesta').FaqItem[]) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, data => ({ ...data, faqPortal: faqItems }));
 }
 
@@ -148,6 +151,7 @@ export async function updateSocialGallerySettings(
   fiestaId: string,
   socialGallerySettings: SocialGallerySettings
 ) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, data => ({ ...data, socialGallerySettings }));
 }
 
@@ -479,6 +483,7 @@ export async function saveTimeline(
   fiestaId: string,
   timeline: TimelineHito[]
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   return updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     timeline,
@@ -566,6 +571,7 @@ export async function addClientMusicSuggestion(
 }
 
 export async function approveClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -598,6 +604,7 @@ export async function approveClientMenuChangeRequest(fiestaId: string, requestId
 }
 
 export async function rejectClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -618,6 +625,7 @@ export async function rejectClientMenuChangeRequest(fiestaId: string, requestId:
 }
 
 export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -659,6 +667,7 @@ export async function approveClientServiceChangeRequest(fiestaId: string, reques
 }
 
 export async function rejectClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
