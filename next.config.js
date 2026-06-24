@@ -84,6 +84,12 @@ const nextConfig = {
       },
     ];
 
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'canvg': false,
+      'dompurify': false,
+    };
+
     return config;
   },
 };
