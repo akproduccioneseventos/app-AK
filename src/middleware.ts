@@ -16,8 +16,23 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
+function isBotScanner(pathname: string): boolean {
+  const lowerPath = pathname.toLowerCase();
+  return (
+    lowerPath.endsWith('.php') ||
+    lowerPath.includes('/wp-') ||
+    lowerPath.includes('.env') ||
+    lowerPath.includes('/xmlrpc') ||
+    lowerPath.includes('/joomla')
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isBotScanner(pathname)) {
+    return new NextResponse('Bad Request', { status: 400 });
+  }
 
   const requestId = crypto.randomUUID().substring(0, 8);
 
@@ -42,5 +57,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
+    '/(.*\\.php)',
+    '/(wp-.*)',
+    '/(.*\\.env.*)'
+  ],
 };
