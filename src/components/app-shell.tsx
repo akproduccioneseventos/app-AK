@@ -30,7 +30,7 @@ const getPageTitle = (pathname: string): string => {
   const pathSegments = pathname.split('/').filter(Boolean);
   const idSegment = pathSegments[pathSegments.length -1];
 
-  if (pathname === '/') return 'Menú Principal';
+  if (pathname === '/admin') return 'Menú Principal';
   
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
@@ -162,7 +162,7 @@ const getPageTitle = (pathname: string): string => {
 };
 
 const getPageIcon = (pathname: string): React.ElementType | null => {
-  if (pathname === '/') return LayoutDashboard;
+  if (pathname === '/admin') return LayoutDashboard;
   if (pathname === '/multiagente') return Bot;
   if (pathname.startsWith('/fiestas/nueva')) {
     if (pathname === '/fiestas/nueva/personal') return UserCheck;

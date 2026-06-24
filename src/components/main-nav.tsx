@@ -147,7 +147,7 @@ export function MainNav() {
   return (
     <Sidebar className="border-r border-indigo-100/50 bg-white/98 backdrop-blur-xl shadow-[10px_0_40px_rgba(79,70,229,0.04)]">
       <SidebarHeader className="p-6">
-        <Link href="/">
+        <Link href="/admin">
           <div className="flex items-center justify-center gap-2 cursor-pointer py-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100/60 hover:border-indigo-200/80 transition-all duration-300 shadow-sm shadow-indigo-100/50">
             <AppLogo />
           </div>
@@ -157,13 +157,13 @@ export function MainNav() {
       <SidebarContent className="px-5 gap-6 scrollbar-hide">
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/">
+            <Link href="/admin">
               <SidebarMenuButton
-                isActive={isExactly("/")}
+                isActive={isExactly("/admin")}
                 tooltip="Inicio"
                 className={cn(
                   "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
-                  isExactly("/")
+                  isExactly("/admin")
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30"
                     : "hover:bg-indigo-50 text-slate-500 hover:text-indigo-600"
                 )}
