@@ -196,6 +196,12 @@ const SECTIONS: SettingSection[] = [
         icon: UserCog,
       },
       {
+        title: 'Cuentas Staff y Permisos',
+        description: 'Registrar colaboradores con email/contraseña y definir roles y permisos del sistema.',
+        href: '/admin/usuarios',
+        icon: Users,
+      },
+      {
         title: 'Cuentas Sociales',
         description: 'Conexión y gestión de redes sociales.',
         href: '/settings/social-connections',

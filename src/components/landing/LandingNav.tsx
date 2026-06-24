@@ -42,7 +42,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link href="/landing" className="flex items-center gap-3 shrink-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-400">
+          <Link href="/" className="flex items-center gap-3 shrink-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-400">
             <CompanyLogo size="sm" />
             <span
               className={cn(
@@ -87,6 +87,17 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
           </nav>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className={cn(
+                'hidden md:flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest border transition-all duration-200 hover:scale-[1.03] active:scale-95',
+                isScrolled
+                  ? 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                  : 'border-white/20 hover:bg-white/10 text-white'
+              )}
+            >
+              Acceso Staff
+            </Link>
             <Link
               href="/simulador-de-presupuesto"
               className={cn(
@@ -141,6 +152,13 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
               className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-xl font-black text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
             >
               Cotizá tu Fiesta
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-xl font-black text-sm uppercase tracking-widest border border-slate-200 text-zinc-700 hover:bg-slate-50 transition-colors shadow-sm"
+            >
+              Acceso Staff
             </Link>
           </div>
         </div>

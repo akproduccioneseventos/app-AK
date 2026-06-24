@@ -38,7 +38,7 @@ export const PUBLIC_PATH_PREFIXES = [
   '/portal-proveedor',
 ] as const;
 
-export const PUBLIC_EXACT_PATHS = new Set(['/evento', '/evento/', '/api/health']);
+export const PUBLIC_EXACT_PATHS = new Set(['/', '/evento', '/evento/', '/api/health']);
 
 export const BUDGET_VIEW_REGEX = /^\/presupuestos\/[^/]+\/ver\/?$/;
 
